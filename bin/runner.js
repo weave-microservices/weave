@@ -1,4 +1,4 @@
-'use strict'
+#!/usr/bin/env node
 
 const Weave = require('../lib/index')
 const fs = require('fs')
@@ -19,7 +19,6 @@ let node
  *
  * Available options:
  * 		-c, --config <file> - Load an external configuration files (.js or .json)
- * 		-H, --hot  			- Hot reload services if changed
  * 		-r, --repl  		- After broker started, switch to REPL mode
  * 		-s , --silent 		- Silent mode. Disable logger, no console messages.
  */
@@ -136,24 +135,6 @@ function mergeOptions () {
         config.hotReload = true
     }
 }
-
-/**
- * Load services from files or directories
- *
- * 1. first check the CLI arguments. If it find filename(s), load it/them
- * 2. If find directory(ies), load it/them
- * 3. If find `SERVICEDIR` env var and not find `SERVICES` env var, load all services from the `SERVICEDIR` directory
- * 4. If find `SERVICEDIR` env var and `SERVICES` env var, load the specified services from the `SERVICEDIR` directory
- * 5. If not find `SERVICEDIR` env var but find `SERVICES` env var, load the specified services from the current directory
- *
- * Please note: you can use shorthand names for `SERVICES` env var.
- * 	E.g.
- * 		SERVICES=posts,users
- *
- * 		It will be load the `posts.service.js` and `users.service.js` files
- *
- *
- */
 
 function loadServices () {
     if (servicePaths.length > 0) {

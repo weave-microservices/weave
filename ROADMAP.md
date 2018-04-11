@@ -1,15 +1,28 @@
 # Roadmap
 
-## v0.3.x
+The items on this list are what we have in mind for the next versions of weave. If you are interested in working on one of these items, or if you want to sponsor development to speed things up, feel free to [contact fachwerk](mailto:hello@fachw3rk.de).
 
+## Core
 
-- [ ] official services
-  - [x] `weave-auth` for authentication
-  - [x] `weave-mail` for outbound emails
-  - [ ] `weave-ws`for websocket API
+- Additional transport adapters
+- Modular serializers (MsgPack, Protocol Buffer)
+- Service grouping
+- Unit tests
 
+## Modules
 
-## v0.2.16
+- Websocket gateway
+- REPL
 
+## API
 
-- [ ] Private actions (only accesable from local node)
+- Documentation
+
+## Tooling
+
+- CLI module
+
+## Metrics
+
+- Metric adapter for Zipkin
+

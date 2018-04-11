@@ -5,7 +5,6 @@
 Weave is a fast and easy to use  microservice framework for NodeJS (>= v6.x).
 
 
-
 # Features
 
 - Service mixins
@@ -14,28 +13,18 @@ Weave is a fast and easy to use  microservice framework for NodeJS (>= v6.x).
 - Event bus system
 - Supports middlewares
 - Pluggable transporters (NATS, Redis)
-- Auto discovery services
+- Automatic service discovery
 - Load balanced requests (round-robin, random)
-- All nodes are equal, no master/leader node
+- No master/leader node
 - Distributed timeout handling with fallback response
 - Health monitoring, metrics & statistics
-- Supports versioned services (run different versions of the service)
-
 
 # Installation
 ```
 $ npm install weave-core --save
 ```
 
-# Sample applications
-
-There are a number of sample applications available:
-
-```javascript
-    // todo
-```
-
-# Create your first microservice
+# Quick start
 This example shows you how to create a small service with an `add` action which can add two numbers.
 ```js
 const Weave = require('weave-core');
@@ -43,7 +32,7 @@ const Weave = require('weave-core');
 let broker = Weave({ logLevel: 'debug' });
 
 broker.createService({
-    name: "math",
+    name: 'math',
     actions: {
         add(ctx) {
             return Number(ctx.params.a) + Number(ctx.params.b);
@@ -59,13 +48,22 @@ broker.call('math.add', { a: 5, b: 3 })
     .catch(error => console.error(`Something went wrong! ${error.message}`));
 ```
 
+# Sample applications
+
+There are a number of sample applications available:
+
+```javascript
+    // todo
+```
+
+
 # Documentation
 Comming soon
 # Changelog
-See [CHANGELOG.md](CHANGELOG.md).
+See [changelog.md](changelog.md).
 
 # Roadmap
-See [ROADMAP.md](ROADMAP.md).
+See [roadmap.md](roadmap.md).
 
 # License
 The weave framework is available under the [MIT license](https://tldrlegal.com/license/mit-license).
