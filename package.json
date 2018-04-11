@@ -14,7 +14,7 @@
     "weave-runner": "./bin/runner.js"
   },
   "author": "Kevin Ries <kevin@fachw3rk.de>",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "args": "^3.0.8",
     "benchmarkify": "^2.1.0",

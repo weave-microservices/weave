@@ -27,6 +27,14 @@ Weave is a fast and easy to use  microservice framework for NodeJS (>= v6.x).
 $ npm install weave-core --save
 ```
 
+# Sample applications
+
+There are a number of sample applications available:
+
+```javascript
+    // todo
+```
+
 # Create your first microservice
 This example shows you how to create a small service with an `add` action which can add two numbers.
 ```js
