@@ -6,20 +6,20 @@ Weave is a fast and easy to use  microservice framework for NodeJS (>= v6.x).
 
 
 
-# What's included?
+# Features
 
-- service mixins
-- multiple services per node
-- request-reply concept
-- event bus system
-- supports middlewares
-- pluggable transporters (NATS, Redis)
-- auto discovery services
-- load balanced requests (round-robin, random)
-- all nodes are equal, no master/leader node
-- distributed timeout handling with fallback response
-- health monitoring, metrics & statistics
-- supports versioned services (run different versions of the service)
+- Service mixins
+- Multiple services per node
+- Request-reply concept
+- Event bus system
+- Supports middlewares
+- Pluggable transporters (NATS, Redis)
+- Auto discovery services
+- Load balanced requests (round-robin, random)
+- All nodes are equal, no master/leader node
+- Distributed timeout handling with fallback response
+- Health monitoring, metrics & statistics
+- Supports versioned services (run different versions of the service)
 
 
 # Installation
@@ -38,7 +38,7 @@ There are a number of sample applications available:
 # Create your first microservice
 This example shows you how to create a small service with an `add` action which can add two numbers.
 ```js
-const Weave = require("weave-core");
+const Weave = require('weave-core');
 
 let broker = Weave({ logLevel: 'debug' });
 
@@ -54,9 +54,9 @@ broker.createService({
 broker.start();
 
 // Call service
-broker.call("math.add", { a: 5, b: 3 })
-    .then(res => console.log("5 + 3 =", res))
-    .catch(err => console.error(`Something went wrong! ${err.message}`));
+broker.call('math.add', { a: 5, b: 3 })
+    .then(result => console.log('5 + 3 =', result))
+    .catch(error => console.error(`Something went wrong! ${error.message}`));
 ```
 
 # Documentation
