@@ -76,25 +76,6 @@ function loadConfigFile () {
     }
 }
 
-/**
- * Merge broker options
- *
- * Merge options from environment variables and config file. First
- * load the config file if exists. After it overwrite the vars from
- * the environment values.
- *
- * Example options:
- *
- * 	Original broker option: `logLevel`
- *  Config file property: 	`logLevel`
- *  Env variable:			`LOGLEVEL`
- *
- * 	Original broker option: `circuitBreaker.enabled`
- *  Config file property: 	`circuitBreaker.enabled`
- *  Env variable:			`CIRCUITBREAKER_ENABLED`
- *
- */
-
 function mergeOptions () {
     config = _.defaultsDeep(configFile, Weave.defaultOptions)
     if (config.logger == null && !flags.silent) {

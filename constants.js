@@ -1,3 +1,9 @@
+/*
+ * Author: Kevin Ries (kevin@fachw3rk.de)
+ * -----
+ * Copyright 2018 Fachwerk
+ */
+
 const ROUND_ROBIN = 'round_robin'
 const RANDOM = 'random'
 
@@ -11,3 +17,10 @@ module.exports.LIFECYCLE_HOOKS = [
     'started',
     'stopped'
 ]
+
+module.exports.LOG_LEVEL = {
+    info: 'info',
+    debug: 'debug',
+    trace: 'trace',
+    fatal: 'fatal'
+}
