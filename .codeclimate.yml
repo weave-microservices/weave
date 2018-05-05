@@ -33,11 +33,3 @@ plugins:
     channel: "eslint-4"
   fixme:
     enabled: true
-
-exclude_paths:
-- test/
-- dev/
-- docs/
-- benchmark/
-- examples/
-- typings/
