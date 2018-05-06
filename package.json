@@ -27,7 +27,7 @@
     "esdoc-standard-plugin": "^1.0.0",
     "eventemitter2": "^5.0.1",
     "fachwork": "0.0.8",
-    "fw-object-validator": "^0.1.0",
+    "fw-object-validator": "^0.2.0",
     "glob": "^7.1.2",
     "ioredis": "^3.2.2",
     "ip": "^1.1.5",
