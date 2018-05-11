@@ -1,8 +1,30 @@
 <a name="0.3.0"></a>
-# [0.3.0]() (2018-02-05)
+# [0.3.0]() (2018-05-11)
 
 # New
-NATS transporter
+## NATS transporter
+
+New Transporter for NATS.
+
+## New beforeCreate hook for services
+
+Added a new hook to intercept before service is created.
+
+```js
+module.exports = {
+    name: 'math',
+    actions: {
+        ...
+    },
+    beforeCreate () {
+        this.actions.newAction = {
+            params: {...},
+            handler (context) {...}
+        }
+    }
+}
+```
+
 
 ## Reconnect lost nodes
 If a node1 get heartbeats from a actually disconnected node2. Node1 will send a discovery request to get the current infos from node2 and reconnect it.
