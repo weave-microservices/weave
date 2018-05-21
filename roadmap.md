@@ -4,7 +4,6 @@ The items on this list are what we have in mind for the next versions of weave. 
 
 ## Core
 
-- Additional transport adapters
 - Modular serializers (MsgPack, Protocol Buffer)
 - Service grouping
 - Unit tests

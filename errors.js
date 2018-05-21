@@ -26,17 +26,17 @@ class WeaveRetrieableError extends ExtendableError {
     }
 }
 
-class ServiceNotFoundError extends WeaveError {
+class WeaveServiceNotFoundError extends WeaveError {
     constructor (actionName, nodeId) {
         const message = `Service ${actionName} not found on node ${nodeId || '<local>'}`
-        super(message, 501, null, {
+        super(message, 404, null, {
             actionName,
             nodeId
         })
     }
 }
 
-class RequestTimeoutError extends WeaveRetrieableError {
+class WeaveRequestTimeoutError extends WeaveRetrieableError {
     constructor (actionName, nodeId, timeout) {
         const message = `Action ${actionName} timed out node ${nodeId || '<local>'}`
         super(message, 504, null, {
@@ -47,7 +47,7 @@ class RequestTimeoutError extends WeaveRetrieableError {
     }
 }
 
-class ParameterValidationError extends WeaveError {
+class WeaveParameterValidationError extends WeaveError {
     constructor (message, type, data) {
         super(message, 422, type, data)
     }
@@ -56,7 +56,7 @@ class ParameterValidationError extends WeaveError {
 module.exports = {
     WeaveError,
     WeaveRetrieableError,
-    ServiceNotFoundError,
-    RequestTimeoutError,
-    ParameterValidationError
+    WeaveServiceNotFoundError,
+    WeaveRequestTimeoutError,
+    WeaveParameterValidationError
 }
