@@ -8,6 +8,7 @@ The items on this list are what we have in mind for the next versions of weave. 
 - Service grouping
 - Unit tests
 
+
 ## Modules
 
 - Websocket gateway

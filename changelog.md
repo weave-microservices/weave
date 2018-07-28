@@ -1,3 +1,30 @@
+<a name="0.4.0"></a>
+# [0.4.0]() (2018-07-27)
+
+# New
+## Enhanced Middlewares
+
+Middlewares are now on state of the art. You cann use a more detailed hook system to add features to your middlewares.
+
+## New beforeCreate hook for services
+
+Added a new hook to intercept before service is created.
+
+```js
+module.exports = {
+    name: 'math',
+    actions: {
+        ...
+    },
+    beforeCreate () {
+        this.actions.newAction = {
+            params: {...},
+            handler (context) {...}
+        }
+    }
+}
+```
+
 <a name="0.3.0"></a>
 # [0.3.0]() (2018-05-11)
 

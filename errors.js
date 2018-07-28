@@ -26,10 +26,20 @@ class WeaveRetrieableError extends ExtendableError {
     }
 }
 
-class WeaveServiceNotFoundError extends WeaveError {
+class WeaveServiceNotFoundError extends WeaveRetrieableError {
     constructor (actionName, nodeId) {
         const message = `Service ${actionName} not found on node ${nodeId || '<local>'}`
         super(message, 404, null, {
+            actionName,
+            nodeId
+        })
+    }
+}
+
+class WeaveServiceNotAvailableError extends WeaveRetrieableError {
+    constructor (actionName, nodeId) {
+        const message = `Service ${actionName} not available on node ${nodeId || '<local>'}`
+        super(message, 405, null, {
             actionName,
             nodeId
         })
@@ -57,6 +67,7 @@ module.exports = {
     WeaveError,
     WeaveRetrieableError,
     WeaveServiceNotFoundError,
+    WeaveServiceNotAvailableError,
     WeaveRequestTimeoutError,
     WeaveParameterValidationError
 }

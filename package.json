@@ -6,7 +6,7 @@
   "scripts": {
     "ci": "jest --watch",
     "test": "jest --no-cache",
-    "test-spec": "jest --findRelatedTests test/unit/registry/service.test.js --watch",
+    "test-spec": "jest --findRelatedTests test/unit/serializers/json.test.js --watch",
     "coverage": "jest --coverage",
     "analyse": "eslint lib/**",
     "eslint": "eslint --ext=.js lib test"
@@ -34,8 +34,10 @@
     "lodash": "^4.17.10",
     "nanomatch": "^1.2.13",
     "node-object-hash": "^1.4.1",
+    "node-strict": "^1.0.1",
     "norma": "^0.4.1",
-    "vorpal": "^1.12.0"
+    "vorpal": "^1.12.0",
+    "weave-repl": "0.0.4"
   },
   "devDependencies": {
     "eslint": "^4.19.1",

@@ -20,6 +20,31 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Dev",
+            "program": "${workspaceRoot}/dev/index.js",
+            "console": "integratedTerminal",
+            "args": [
+                "metrics"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Load test",
+            "program": "${workspaceRoot}/dev/loadtests/local.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Example: Simple",
+            "program": "${workspaceRoot}/examples/index.js",
+            "args": [
+                "simple"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Benchmark Program",
             "program": "${workspaceRoot}/benchmark.js"
         },
