@@ -53,24 +53,6 @@ broker3.createService({
     }
 })
 
-
-// function createBroker (index) {
-//     const broker = Weave({
-//         nodeId: 'node-3',
-//         transport: adapters.Fake(),
-//         logger: console
-//     })
-    
-//     broker.createService({
-//         name: 'test',
-//         actions: {
-//             hello (context) {
-//                 this.log.info(context.level)
-//                 return Promise.resolve('Hello from ' + this.broker.nodeId)
-//             }
-//         }
-//     })
-// }
 Promise.all([
     broker1.start(),
     broker2.start(),

@@ -22,9 +22,9 @@
             "request": "launch",
             "name": "Dev",
             "program": "${workspaceRoot}/dev/index.js",
-            "console": "integratedTerminal",
+            // "console": "integratedTerminal",
             "args": [
-                "metrics"
+                "circuit-breaker"
             ]
         },
         {

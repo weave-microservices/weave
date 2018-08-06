@@ -35,7 +35,6 @@ broker1.createService({
                 function (context, result) {
                     // return Promise.resolve(result)
                     this.log.debug('testmessage')
-
                     this.log.debug('before1')
                 },
                 function (context, result) {
