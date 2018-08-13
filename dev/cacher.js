@@ -25,6 +25,7 @@ broker1.createService({
                 name: { type: 'string' }
             },
             handler (context) {
+                console.log(context.isCachedResult)
                 return 'Hello ' + context.params.name
             }
         }
@@ -46,8 +47,8 @@ Promise.all([
     broker2.start()
 ]).then(() => {
     setInterval(() => {
-        broker1.call('test.hello', { name: 'John Doe' })
-            .then(result => console.log(result))
+        const p = broker1.call('test.hello', { name: 'John Doe' })
+        p.then(result => console.log(result))
             .catch(error => console.log(error))
     }, 500)
 })

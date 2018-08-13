@@ -4,11 +4,13 @@ const adapters = require('../adapters')
 
 const broker1 = Weave({
     nodeId: 'node-1',
+    namespace: 'metric',
     transport: adapters.Fake(),
     logger: console,
     logLevel: 'debug',
     preferLocal: false,
     requestTimeout: 4000,
+    cacher: true,
     metrics: {
         enabled: true,
         metricRate: 1
@@ -60,5 +62,5 @@ Promise.all([
     setInterval(() => {
         broker1.call('test.hello', { name: 'John Doe' })
             .then(result => console.log(result))
-    }, 2000)
+    }, 1000)
 })

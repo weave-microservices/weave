@@ -24,7 +24,7 @@
             "program": "${workspaceRoot}/dev/index.js",
             // "console": "integratedTerminal",
             "args": [
-                "circuit-breaker"
+                "metrics"
             ]
         },
         {
