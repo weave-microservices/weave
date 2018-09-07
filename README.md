@@ -1,4 +1,4 @@
-![weave logo](docs/assets/logo.png)
+<img src="/assets/Logo.png" width="400">
 
 # Weave
 
