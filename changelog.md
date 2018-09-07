@@ -1,3 +1,30 @@
+<a name="0.5.0"></a>
+# [0.5.0]() (2018-09-05)
+
+# New
+## Changed Log level for heartbeat
+
+The broker heartbeat is now only displayed at log level "trace"
+
+## New beforeCreate hook for services
+
+Added a new hook to intercept before service is created.
+
+```js
+module.exports = {
+    name: 'math',
+    actions: {
+        ...
+    },
+    beforeCreate () {
+        this.actions.newAction = {
+            params: {...},
+            handler (context) {...}
+        }
+    }
+}
+```
+
 <a name="0.4.0"></a>
 # [0.4.0]() (2018-07-27)
 

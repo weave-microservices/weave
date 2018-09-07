@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const Weave = require('../lib/index')
+const Weave = require('../lib')
 const fs = require('fs')
 const path = require('path')
 const _ = require('lodash')
@@ -141,14 +141,12 @@ function loadServices () {
         })
     } else if (process.env.SERVICES || process.env.SERVICEDIR) {
         const svcDir = process.env.SERVICEDIR || ''
-
         if (fs.existsSync(svcDir) && !process.env.SERVICES) {
             // Load all services from directory
             node.loadServices(path.isAbsolute(svcDir) ? svcDir : path.resolve(process.cwd(), svcDir))
         }
 
         if (process.env.SERVICES) {
-            // Load services from env list
             const services = Array.isArray(process.env.SERVICES) ? process.env.SERVICES : process.env.SERVICES.split(',')
             const dir = path.isAbsolute(svcDir) ? svcDir : path.resolve(process.cwd(), svcDir || '')
 
@@ -204,9 +202,6 @@ function startBroker () {
         })
 }
 
-/**
- * Running
- */
 Promise.resolve()
     .then(processFlags)
     .then(loadConfigFile)
