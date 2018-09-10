@@ -1,6 +1,5 @@
-const Weave = require('../../lib/index')
-const { Fake } = require('../../adapters')
-const { WeaveError } = require('../../errors')
+const { Weave, TransportAdapters } = require('../../lib/index')
+const { WeaveError } = require('../../lib/errors')
 const lolex = require('lolex')
 
 describe('Test circuit breaker', () => {
@@ -8,7 +7,7 @@ describe('Test circuit breaker', () => {
     const node1 = Weave({
         nodeId: 'node1',
         logLevel: 'fatal',
-        transport: Fake(),
+        transport: TransportAdapters.Fake(),
         circuitBreaker: {
             enabled: true,
             failureOnError: true,
@@ -20,7 +19,7 @@ describe('Test circuit breaker', () => {
     const node2 = Weave({
         nodeId: 'node2',
         logLevel: 'fatal',
-        transport: Fake()
+        transport: TransportAdapters.Fake()
     })
 
     node2.createService({

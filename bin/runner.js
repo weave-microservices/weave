@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const Weave = require('../lib')
+const { Weave, Errors } = require('../lib')
 const fs = require('fs')
 const path = require('path')
 const _ = require('lodash')
@@ -27,7 +27,7 @@ function processFlags () {
     Args
         .option('config', 'Load the configuration from a file')
         .option('repl', 'Start REPL mode', false)
-        .option(['H', 'hot'], 'Hot reload services if changed', false)
+        .option(['W', 'watch'], 'Hot reload services if changed', false)
         .option('silent', 'Silent mode. No logger', false)
 
     flags = Args.parse(process.argv, {
@@ -35,10 +35,10 @@ function processFlags () {
             alias: {
                 c: 'config',
                 r: 'repl',
-                H: 'hot',
+                w: 'watch',
                 s: 'silent'
             },
-            boolean: ['repl', 'silent', 'hot'],
+            boolean: ['repl', 'silent', 'watch'],
             string: ['config']
         }
     })
@@ -60,7 +60,7 @@ function loadConfigFile () {
 
     if (filePath) {
         if (!fs.existsSync(filePath)) {
-            return Promise.reject(new Error(`Config file not found: ${filePath}`))
+            return Promise.reject(new Errors.WeaveError(`Config file not found: ${filePath}`))
         }
 
         const ext = path.extname(filePath)
@@ -71,7 +71,7 @@ function loadConfigFile () {
                 configFile = require(filePath)
                 break
             }
-            default: return Promise.reject(new Error(`Not supported file extension: ${ext}`))
+            default: return Promise.reject(new Errors.WeaveError(`Not supported file extension: ${ext}`))
         }
     }
 }
@@ -112,8 +112,8 @@ function mergeOptions () {
         config.logger = null
     }
 
-    if (flags.hot) {
-        config.hotReload = true
+    if (flags.watch) {
+        config.watchServices = true
     }
 }
 
@@ -128,7 +128,7 @@ function loadServices () {
                 // Load file or dir
                 const svcPath = path.isAbsolute(p) ? p : path.resolve(process.cwd(), p)
                 if (!fs.existsSync(svcPath)) {
-                    throw new Error(`Path not found: ${svcPath}`)
+                    throw new Errors.WeaveError(`Path not found: ${svcPath}`)
                 }
 
                 const isDir = fs.lstatSync(svcPath).isDirectory()
@@ -163,7 +163,7 @@ function loadServices () {
 
                     const svcPath = path.resolve(dir, name)
                     if (!fs.existsSync(svcPath)) {
-                        throw new Error(`Path not found: ${svcPath}`)
+                        throw new Errors.WeaveError(`Path not found: ${svcPath}`)
                     }
 
                     node.loadService(svcPath)

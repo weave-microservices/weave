@@ -1,5 +1,4 @@
-const Weave = require('../lib/index.js')
-const { WeaveRetrieableError } = require('../errors')
+const { Weave, Errors } = require('../lib/index.js')
 
 // Create broker #1
 const broker1 = Weave({
@@ -25,8 +24,9 @@ broker1.createService({
             },
             handler (context) {
                 return new Promise((resolve, reject) => {
+                    console.log(context.retryCount)
                     if (context.retryCount < 6) {
-                        return reject(new WeaveRetrieableError('ohjeee'))
+                        return reject(new Errors.WeaveRetrieableError('ohjeee'))
                     }
                     return resolve('gutt')
                 })
@@ -39,4 +39,7 @@ broker1.start()
     .then(() => {
         broker1.call('test.helloTimeouts', { name: 'John Doe' })
             .then(result => broker1.log.info(result))
+            .catch(error => {
+                broker1.log.warn(error.message)
+            })
     })

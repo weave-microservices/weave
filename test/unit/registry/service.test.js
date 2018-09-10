@@ -4,21 +4,20 @@ const actionWrapperFactory = require('../../../lib/broker/action-wrapper.factory
 
 const wrapAction = actionWrapperFactory({ state })
 const contextFactoryFactory = require('../../../lib/broker/context.factory')
-const shouldCollectMetricsFactory = require('../../../lib/broker/should-collect-metrics.factory')
+// const shouldCollectMetricsFactory = require('../../../lib/broker/should-collect-metrics.factory')
 
 const contextFactory = require('../../../lib/broker/context')
 
-const shouldCollectMetrics = shouldCollectMetricsFactory({ state, options: state.options })
+// const shouldCollectMetrics = shouldCollectMetricsFactory({ state, options: state.options })
 
 const makeContext = contextFactory({
     state,
     call: jest.fn(),
     emit: jest.fn(),
     options: state.options,
-    bus: {},
-    shouldCollectMetrics
+    bus: {}
 })
-const makeContextFactory = contextFactoryFactory({ state, Context: makeContext, shouldCollectMetrics })
+const makeContextFactory = contextFactoryFactory({ state, Context: makeContext })
 
 describe('Service generation', () => {
     let makeService
@@ -43,7 +42,7 @@ describe('Service generation', () => {
     it('Should throw an error, if the service schema is missing.', () => {
         expect(() => {
             makeService()
-        }).toThrow('Must to set a schema for this service!')
+        }).toThrow('Schema is missing!')
     })
 
     it('Should throw an error, if the service name is missing.', () => {

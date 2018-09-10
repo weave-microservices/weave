@@ -40,9 +40,7 @@ const broker2 = Weave({
     logger: console,
     cacher: true,
     internalActions: false,
-    registry: {
-        // preferLocal: false
-    }
+    registry: {}
 })
 
 Promise.all([

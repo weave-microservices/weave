@@ -1,10 +1,84 @@
 <a name="0.5.0"></a>
 # [0.5.0]() (2018-09-05)
 
-# New
-## Changed Log level for heartbeat
+# Breaking Changes
 
-The broker heartbeat is now only displayed at log level "trace"
+Changed the interface of the module. The weave factory method is now provided as a property of the module.
+
+```js
+    const { Weave, Errors, TransportAdapters, Constants } = require('weave-core')
+
+    const broker = Weave({
+        nodeId: 'node-1',
+        transport: TransportAdapters.Fake()
+    })
+```
+
+# New
+
+
+## Service watcher
+
+Weave now supports hot reload of services. When weave detects a change in a service file, it stops the service, removes it from internal and external registries and restarts the service with the changes without stopping the node. 
+
+```js
+    const broker = Weave({
+        nodeId: 'node-1',
+        watchServices: true
+    })
+```
+
+### weave runner example
+
+```bash
+    weave-runner services -W
+```
+
+## Support for streams
+
+Streaming support has been implemented. Node.js streams can be transferred as params or as response. You can use it to transfer uploaded file from a gateway or encode/decode or compress/decompress streams.
+
+### Send file example
+
+```js
+    const fileStream = fs.createReadStream(fileName)
+
+    broker.call('storage.save', stream, { meta: { filename }})
+```
+
+### Receive file example
+
+```js
+    const fileStream = fs.createWriteStream(fileName);
+
+    broker.createService({
+        name: 'storage',
+        actions: {
+            save (context) {
+                const fileStream = fs.createWriteStream(`/temp/${context.meta.filename}`)
+                context.params.pipe(fileStream)                
+            }
+        }
+    })
+```
+
+### Recturn stream example
+
+```js
+    const fileStream = fs.createWriteStream(fileName);
+
+    broker.createService({
+        name: 'storage',
+        params: {
+            filename: { type: 'string' }
+        }
+        actions: {
+            save (context) {
+                return fs.createReadStream(context.params.filename)           
+            }
+        }
+    })
+```
 
 ## New beforeCreate hook for services
 
@@ -24,6 +98,11 @@ module.exports = {
     }
 }
 ```
+# Changes
+## Changed Log level for heartbeat
+
+The broker heartbeat is now only displayed at log level "trace".
+
 
 <a name="0.4.0"></a>
 # [0.4.0]() (2018-07-27)

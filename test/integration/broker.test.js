@@ -1,4 +1,4 @@
-const Weave = require('../../lib/index')
+const { Weave } = require('../../lib/index')
 
 describe('Test broker lifecycle', () => {
     it('should verify that started hook is a fuction.', () => {

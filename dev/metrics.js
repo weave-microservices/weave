@@ -1,11 +1,9 @@
-const Weave = require('../lib/index.js')
-// Create broker #1
-const adapters = require('../adapters')
+const { Weave, TransportAdapters } = require('../lib/index.js')
 
 const broker1 = Weave({
     nodeId: 'node-1',
     namespace: 'metric',
-    transport: adapters.Fake(),
+    transport: TransportAdapters.Fake(),
     logger: console,
     logLevel: 'debug',
     preferLocal: false,

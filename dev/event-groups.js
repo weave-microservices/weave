@@ -8,9 +8,7 @@ const broker1 = Weave({
     logger: console,
     logLevel: 'debug',
     preferLocal: false,
-    registry: {
-        //preferLocal: false
-    }
+    registry: {}
 })
 
 broker1.createService({
@@ -50,9 +48,7 @@ const broker2 = Weave({
     nodeId: 'node-2',
     transport: adapters.Fake(),
     logger: console,
-    registry: {
-        //preferLocal: false
-    }
+    registry: {}
 })
 
 broker2.createService({

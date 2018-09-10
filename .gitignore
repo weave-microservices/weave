@@ -2,8 +2,8 @@
 node_modules
 npm-debug.log
 coverage
-.vscode
 .vs
 dev/test
 slnx.sqlite
 .DS_Store
+dev/benchmark
