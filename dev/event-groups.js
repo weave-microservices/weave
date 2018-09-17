@@ -90,7 +90,7 @@ Promise.all([
     setInterval(() => {
         // broker1.broadcast('user.created', 'data')
         // broker1.broadcast('user.created', 'data')
-        //broker1.broadcast('user.created', 'data', ['mail', 'payment'])
+        // broker1.broadcast('user.created', 'data', ['mail', 'payment'])
         broker1.log.info('-------------------------')
         // broker1.emit('user.created', 'data', ['payment'])
         broker1.emit('user.created', 'data')

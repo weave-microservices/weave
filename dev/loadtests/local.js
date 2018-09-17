@@ -2,8 +2,7 @@
 const random = require('lodash/random')
 const os = require('os')
 const hostname = os.hostname()
-
-const { Weave, Errors } = require('../../lib/index.js')
+const { Weave } = require('../../lib/index.js')
 
 // Create broker
 const broker = Weave({

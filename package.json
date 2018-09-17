@@ -1,6 +1,6 @@
 {
   "name": "weave-core",
-  "version": "0.5.0-rc.3",
+  "version": "0.5.0-rc.4",
   "description": "Fachwerk microservice framework",
   "main": "./lib/index.js",
   "scripts": {
@@ -41,7 +41,6 @@
   },
   "devDependencies": {
     "benchmarkify": "^2.1.0",
-
     "eslint": "^5.5.0",
     "eslint-config-fw": "^1.0.1",
     "eslint-loader": "^2.1.0",

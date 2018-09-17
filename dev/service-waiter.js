@@ -5,8 +5,8 @@ const { Weave, TransportAdapters } = require('../lib/index.js')
 const broker1 = Weave({
     nodeId: 'node-1',
     transport: TransportAdapters.Fake(),
-    logger: console,
-    logLevel: 'debug',
+    // logger: console,
+    // logLevel: 'info',
     preferLocal: false,
     cacher: true,
     registry: {
@@ -16,6 +16,7 @@ const broker1 = Weave({
 
 broker1.createService({
     name: 'test',
+    dependencies: ['math222'],
     actions: {
         hello: {
             cache: {
@@ -46,13 +47,9 @@ const broker2 = Weave({
     }
 })
 
-Promise.all([
-    broker1.start(),
-    broker2.start()
-]).then(() => {
-    setInterval(() => {
-        const p = broker1.call('test.hello', { name: 'John Doe' })
-        p.then(result => broker1.log.info(result))
-            .catch(error => broker1.log.warn(error))
-    }, 500)
-})
+broker2.start()
+broker1.start()
+// broker1.waitForServices(['math'])
+//     .then(() => {
+//         console.log('sss')
+//     })

@@ -28,25 +28,27 @@ $ npm install weave-core --save
 # Quick start
 This example shows you how to create a small service with an `add` action which can add two numbers.
 ```js
-const Weave = require('weave-core');
+const { Weave } = require('weave-core')
 
-let broker = Weave({ logLevel: 'debug' });
+let broker = Weave({ logLevel: 'debug' })
 
 broker.createService({
     name: 'math',
     actions: {
         add(ctx) {
-            return Number(ctx.params.a) + Number(ctx.params.b);
+            return Number(ctx.params.a) + Number(ctx.params.b)
         }
     }
 });
 
-broker.start();
+broker.start()
+    .then(() => {
+        // Call service
+        broker.call('math.add', { a: 5, b: 3 })
+            .then(result => console.log('5 + 3 =', result))
+            .catch(error => console.error(`Something went wrong! ${error.message}`))
+    })
 
-// Call service
-broker.call('math.add', { a: 5, b: 3 })
-    .then(result => console.log('5 + 3 =', result))
-    .catch(error => console.error(`Something went wrong! ${error.message}`));
 ```
 
 # Sample applications
@@ -59,7 +61,8 @@ There are a number of sample applications available:
 
 
 # Documentation
-Comming soon
+See [documentation](https://weave.fachwerk.io).
+
 # Changelog
 See [changelog.md](changelog.md).
 
@@ -71,3 +74,4 @@ The weave framework is available under the [MIT license](https://tldrlegal.com/l
 
 # Contact
 Copyright (c) 2018 by Fachwerk
+
