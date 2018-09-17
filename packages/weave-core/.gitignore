@@ -1,0 +1,9 @@
+.idea
+node_modules
+npm-debug.log
+coverage
+.vs
+dev/test
+slnx.sqlite
+.DS_Store
+dev/benchmark

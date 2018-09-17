@@ -1,58 +1,21 @@
 {
-  "name": "weave-core",
-  "version": "0.5.0-rc.4",
-  "description": "Fachwerk microservice framework",
-  "main": "./lib/index.js",
+  "name": "weave",
+  "description": "<img src=\"Logo.png\" width=\"400\">",
   "scripts": {
-    "docs": "docsify serve -o docs",
-    "ci": "jest --watch",
-    "test": "jest --no-cache",
-    "test-spec": "jest --findRelatedTests test/unit/serializers/json.test.js --watch",
-    "coverage": "jest --coverage",
-    "analyse": "eslint lib/**",
-    "eslint": "eslint --ext=.js lib test"
+    "install": "lerna bootstrap",
+    "test": "lerna run test"
   },
-  "bin": {
-    "weave-runner": "./bin/runner.js"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fachw3rk/weave.git"
   },
   "author": "Kevin Ries <kevin@fachw3rk.de>",
-  "license": "MIT",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fachw3rk/weave/issues"
+  },
+  "homepage": "https://github.com/fachw3rk/weave#readme",
   "dependencies": {
-    "args": "^5.0.0",
-    "carrier": "^0.3.0",
-    "chalk": "^2.4.1",
-    "cli-table": "^0.3.1",
-    "es6-error": "^4.1.1",
-    "esdoc": "^1.1.0",
-    "esdoc-standard-plugin": "^1.0.0",
-    "eventemitter2": "^5.0.1",
-    "fachwork": "0.0.8",
-    "fw-object-validator": "^0.2.0",
-    "glob": "^7.1.3",
-    "ioredis": "^4.0.0",
-    "ip": "^1.1.5",
-    "lodash": "^4.17.10",
-    "nanomatch": "^1.2.13",
-    "node-object-hash": "^1.4.1",
-    "node-strict": "^1.0.1",
-    "norma": "^0.4.1",
-    "vorpal": "^1.12.0",
-    "weave-repl": "0.0.4"
-  },
-  "devDependencies": {
-    "benchmarkify": "^2.1.0",
-    "eslint": "^5.5.0",
-    "eslint-config-fw": "^1.0.1",
-    "eslint-loader": "^2.1.0",
-    "jest": "^22.4.4",
-    "lolex": "^2.7.4",
-    "sinon": "^6.2.0"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "rootDir": "./lib",
-    "roots": [
-      "../test"
-    ]
+    "lerna": "^3.4.0"
   }
 }
