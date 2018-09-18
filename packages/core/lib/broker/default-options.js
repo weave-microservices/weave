@@ -28,7 +28,7 @@ module.exports = {
     loadBalancingStrategy: ROUND_ROBIN, // loadbalancing stategy
     watchServices: false,
     retryPolicy: {
-        enabled: true,
+        enabled: false,
         retries: 5,
         delay: 3000
     },

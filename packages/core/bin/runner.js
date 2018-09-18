@@ -27,7 +27,7 @@ function processFlags () {
     Args
         .option('config', 'Load the configuration from a file')
         .option('repl', 'Start REPL mode', false)
-        .option(['W', 'watch'], 'Hot reload services if changed', false)
+        .option('watch', 'Hot reload services if changed', false)
         .option('silent', 'Silent mode. No logger', false)
 
     flags = Args.parse(process.argv, {

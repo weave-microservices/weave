@@ -1,6 +1,6 @@
 {
-  "name": "@weave/weave-core",
-  "version": "0.5.0",
+  "name": "@weave-js/core",
+  "version": "0.5.0-rc.8",
   "description": "Fachwerk microservice framework",
   "main": "./lib/index.js",
   "scripts": {
@@ -14,7 +14,11 @@
   "bin": {
     "weave-runner": "./bin/runner.js"
   },
-  "author": "Kevin Ries <kevin@fachw3rk.de>",
+  "author": {
+    "name": "Kevin Ries",
+    "email": "kevin@fachw3rk.de",
+    "url": "https://weave.fachwerk.io"
+  },
   "license": "MIT",
   "dependencies": {
     "args": "^5.0.0",
@@ -36,8 +40,7 @@
     "node-object-hash": "^1.4.1",
     "node-strict": "^1.0.1",
     "norma": "^0.4.1",
-    "vorpal": "^1.12.0",
-    "weave-repl": "0.0.4"
+    "vorpal": "^1.12.0"
   },
   "devDependencies": {
     "benchmarkify": "^2.1.0",

@@ -19,6 +19,16 @@
             "args": [
                 "metrics"
             ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Runner",
+            "program": "${workspaceFolder}/bin/runner.js",
+            "args": [
+                "${workspaceFolder}/dev/services",
+                "--watch"
+            ]
         }
     ]
 }
