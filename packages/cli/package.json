@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/cli",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Weave CLI tool",
   "main": "index.js",
   "bin": {
@@ -31,6 +31,6 @@
     "yargs": "^12.0.2"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.5.1"
+    "@weave-js/core": "^0.5.2"
   }
 }
