@@ -9,9 +9,9 @@ const replFactory = ({ state, log, call, start, stop, registry, statistics }) =>
         let repl
 
         try {
-            repl = require('weave-repl')
+            repl = require('@weave-js/repl')
         } catch (error) {
-            log.error(`To use REPL with weave, you have to install the REPL package with the command 'npm install weave-repl'.`)
+            log.error(`To use REPL with weave, you have to install the REPL package with the command 'npm install @weave-js/repl'.`)
             return
         }
 
