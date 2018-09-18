@@ -1,3 +1,4 @@
 node_modules
 .gitignore
 lerna-debug.log
+.DS_Store

@@ -1,0 +1,31 @@
+{
+  "name": "@weave-js/web",
+  "version": "0.4.4",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --ui tdd --bail"
+  },
+  "author": "Kevin Ries <kevin@fachw3rk.de>",
+  "license": "ISC",
+  "devDependencies": {
+    "@weave-js/core": "^0.5.4",
+    "assertthat": "^0.11.0",
+    "eslint": "^4.17.0",
+    "eslint-config-fw": "^1.0.1",
+    "eslint-loader": "^2.0.0",
+    "istanbul": "^0.4.5",
+    "mocha": "^5.0.0",
+    "mochawesome": "^3.0.2",
+    "request": "^2.87.0",
+    "sinon": "^6.2.0",
+    "supertest": "^3.3.0"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "fachwork": "0.0.8",
+    "lodash": "^4.17.4",
+    "qs": "^6.5.2",
+    "spdy": "^3.4.7"
+  }
+}
