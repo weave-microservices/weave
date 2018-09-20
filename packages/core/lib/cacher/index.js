@@ -6,6 +6,7 @@
 
 const { hash } = require('node-object-hash')({ sort: false, coerce: false })
 const { defaultsDeep, isObject } = require('lodash')
+const makeMiddleware = require('./middleware.factory')
 
 const generateCacheKey = (name, params, keys) => {
     if (params) {
@@ -33,28 +34,6 @@ const getDefaultOptions = (options) =>
     defaultsDeep(options, {
         ttl: 3000
     })
-
-const makeMiddleware = ({ set, get, generateCacheKey }) => {
-    return (handler, action) => {
-        if (action.cache) {
-            return function cacherMiddleware (context) {
-                const cacheHashKey = generateCacheKey(action.name, context.params, action.cache.keys)
-                context.isCachedResult = false
-                return get(cacheHashKey).then((content) => {
-                    if (content !== null) {
-                        context.isCachedResult = true
-                        return content
-                    }
-                    return handler(context).then((result) => {
-                        set(cacheHashKey, result, action.cache.ttl)
-                        return result
-                    })
-                })
-            }
-        }
-        return handler
-    }
-}
 
 module.exports = {
     Memory: require('./memory').bind(null, {

@@ -2,3 +2,4 @@ node_modules
 .gitignore
 lerna-debug.log
 .DS_Store
+packages/core/node_modules

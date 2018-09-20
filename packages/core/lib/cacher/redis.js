@@ -52,12 +52,6 @@ const makeRedisCacher = ({ makeMiddleware, generateCacheKey, getDefaultOptions }
         })
     }
 
-    // const remove = (hashKey) => {
-    //     delete cache[hashKey]
-    //     log.debug(`Delete ${hashKey}`)
-    //     return Promise.resolve()
-    // }
-
     const clear = () => {
         this.cache = {}
         log.debug(`Cache cleared`)

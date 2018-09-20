@@ -42,7 +42,6 @@ function processFlags () {
             string: ['config']
         }
     })
-
     servicePaths = Args.sub
 }
 
