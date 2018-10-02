@@ -5,7 +5,6 @@
  */
 
 const makeTransport = ({
-    Errors,
     makeConnect,
     makeDisconnect,
     Message,
@@ -32,7 +31,8 @@ const makeTransport = ({
         registry,
         options,
         transport,
-        Context
+        Context,
+        Errors
     }) => {
         let heartbeatTimer
         let checkNodesTimer
