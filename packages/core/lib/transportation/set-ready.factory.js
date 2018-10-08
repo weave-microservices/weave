@@ -6,6 +6,6 @@
 
 module.exports = ({ sendNodeInfo }) =>
     () => {
-        console.log('sss')
+        // todo: implement set ready
         // sendNodeInfo()
     }
