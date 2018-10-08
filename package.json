@@ -3,6 +3,7 @@
   "description": "<img src=\"Logo.png\" width=\"400\">",
   "scripts": {
     "install": "lerna bootstrap",
+    "link": "lerna link --force-local",
     "test": "lerna run test"
   },
   "repository": {

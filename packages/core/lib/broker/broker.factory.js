@@ -59,7 +59,9 @@ const makeBroker = ({
 
         log.info(`Init #weave node version ${state.version}`)
         log.info(`Node ID: ${state.nodeId}`)
-        log.info(`Namespace: ${state.namespace || '<not defined>'}`)
+        if (state.namespace) {
+            log.info(`Namespace: ${state.namespace}`)
+        }
 
         const wrapAction = actionWrapperFactory({ state })
         const registry = registryFactory({
