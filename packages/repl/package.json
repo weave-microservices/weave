@@ -10,16 +10,16 @@
   "license": "ISC",
   "dependencies": {
     "chalk": "^2.4.1",
-    "lodash": "^4.17.10",
-    "ora": "^2.1.0",
-    "table": "^4.0.3",
+    "lodash": "^4.17.11",
+    "ora": "^3.0.0",
+    "table": "^5.1.0",
     "tiny-human-time": "^1.2.0",
     "v8": "^0.1.0",
     "vorpal": "^1.12.0"
   },
   "devDependencies": {
-    "eslint": "^4.19.1",
+    "eslint": "^5.7.0",
     "eslint-config-fw": "^1.0.1",
-    "eslint-loader": "^2.0.0"
+    "eslint-loader": "^2.1.1"
   }
 }

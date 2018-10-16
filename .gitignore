@@ -5,3 +5,4 @@ lerna-debug.log
 packages/core/node_modules
 
 
+.vscode
