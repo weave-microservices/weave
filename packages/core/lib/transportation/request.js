@@ -30,8 +30,7 @@ const requestFactory = ({ log, send, pendingRequests, Message, MessageTypes }) =
                 level: context.level,
                 metrics: context.metrics,
                 requestId: context.requestId,
-                parentId: context.parentId,
-                isStream
+                parentId: context.parentId
             }
 
             const message = Message(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload)

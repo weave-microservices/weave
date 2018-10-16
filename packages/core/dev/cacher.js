@@ -3,12 +3,11 @@ const { Weave, TransportAdapters } = require('../lib/index.js')
 // Create broker #1
 
 const broker1 = Weave({
-    nodeId: 'node-1',
     transport: TransportAdapters.Fake(),
     logger: console,
     logLevel: 'debug',
     preferLocal: false,
-    cacher: true,
+    cache: true,
     registry: {
         // preferLocal: false
     }
@@ -31,6 +30,12 @@ broker1.createService({
     },
     events: {
         'cache.clean.*': function (payload) {
+            console.log(payload)
+        },
+        '$node.connected': function (payload) {
+            console.log(payload)
+        },
+        '$node.disconnected': function (payload) {
             console.log(payload)
         }
     }

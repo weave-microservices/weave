@@ -8,7 +8,7 @@ const TransportBase = require('../transport-base')
 const MessageTypes = require('../../message-types')
 const EventEmitter = require('eventemitter2').EventEmitter2
 
-// create a global eventpass to pass messages between weave brokers.
+// create a global eventbus to pass messages between weave service brokers.
 global.bus = new EventEmitter({
     wildcard: true,
     maxListeners: 100

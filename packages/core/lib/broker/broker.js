@@ -26,6 +26,7 @@ const deps = {
     pkg: require('../../package.json'),
     registryFactory: require('../registry'),
     replFactory: require('./repl.factory'),
+    resolveCacheFactory: require('../cache/resolve-cache.factory'),
     serializerFactory: require('../serializers/serializer.factory'),
     serviceChangedFactory: require('./service-changed.factory'),
     serviceCreatorFactory: require('./service-creator.factory'),
@@ -41,5 +42,5 @@ const deps = {
 }
 
 module.exports = require('./broker.factory')(deps)
-module.exports.cacher = require('../cacher')
+module.exports.cacher = require('../cache')
 module.exports.transports = require('../transportation/adapters')

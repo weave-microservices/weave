@@ -36,7 +36,7 @@ module.exports = ({
             const sender = payload.sender
             try {
                 let stream
-                if (payload.isStream) {
+                if (payload.isStream !== undefined) {
                     stream = pendingRequestStreams.get(id)
                     if (stream) {
                         if (payload.params === null) {
@@ -125,8 +125,8 @@ module.exports = ({
             }
             request.resolve(payload.data)
         },
-        onDisconnect (wasExpected) {
-            bus.emit('$transport.disconnected', wasExpected)
+        onDisconnect (payload) {
+            registry.nodeDisconnected(payload)
         },
         onHeartbeat (payload) {
             // registry.nodes.heartbeat(payload)

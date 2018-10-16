@@ -57,13 +57,14 @@ const makeTransport = ({
         }
 
         // modules
-        const connect = makeConnect({ transport, log })
-        const disconnect = makeDisconnect({ transport })
-        const getNodeInfos = makeGetNodeInfos({ state, registry, process })
+
         const send = makeSend({ adapter: transport, stats })
         const sendBalancedEvent = makeEmit({ log, send, Message, MessageTypes })
         const sendBroadcastEvent = makeSendBroadcastEvent({ log, send, Message, MessageTypes })
         const sendNodeInfo = makeSendNodeInfo({ send, registry, Message, MessageTypes })
+        const connect = makeConnect({ transport, log })
+        const disconnect = makeDisconnect({ transport, send, Message, MessageTypes })
+        const getNodeInfos = makeGetNodeInfos({ state, registry, process })
         const request = makeRequest({ send, log, pendingRequests, Message, MessageTypes })
         const response = makeResponse({ nodeId, send, pendingRequests, Message, MessageTypes })
         const { discoverNodes, discoverNode } = makeDiscoverNodes({ send, Message, MessageTypes })
@@ -108,6 +109,7 @@ const makeTransport = ({
             disconnect,
             getNodeInfos,
             removePendingRequestsById,
+            removePendingRequestsByNodeId,
             request,
             sendBalancedEvent,
             sendBroadcastEvent,
@@ -207,7 +209,7 @@ const makeTransport = ({
         function disconnected (nodeId, isUnexpected) {
             const node = registry.nodes.get(nodeId)
             if (node && node.isAvailable) {
-                node.disconnect(isUnexpected)
+                node.disconnected(isUnexpected)
                 registry.unregisterServiceByNodeId(node.id)
                 bus.emit('$node.disconnected', { node, isUnexpected })
                 log.warn(`Node ${node.id} disconnected!`)

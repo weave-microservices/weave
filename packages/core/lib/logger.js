@@ -24,7 +24,7 @@ module.exports = {
             }
         }
 
-        const getLogLevelFormated = level => getColor(level)(level.toUpperCase().padEnd(10))
+        const getLogLevelFormated = level => getColor(level)(level.padEnd(10))
 
         const getModuleName = () => {
             let module

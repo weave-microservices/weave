@@ -4,8 +4,8 @@
  * Copyright 2018 Fachwerk
  */
 
-const { defaultsDeep, isString, isFunction } = require('lodash')
-const Cachers = require('../cacher')
+const { defaultsDeep } = require('lodash')
+const Cache = require('../cache')
 
 const makeBroker = ({
     actionWrapperFactory,
@@ -29,6 +29,7 @@ const makeBroker = ({
     pkg,
     registryFactory,
     replFactory,
+    resolveCacheFactory,
     serializerFactory,
     serviceChangedFactory,
     serviceCreatorFactory,
@@ -51,14 +52,15 @@ const makeBroker = ({
 
         let statistics
 
-        const state = stateFactory({ pkg, createId: utils.createId, Errors })(options)
+        const state = stateFactory({ pkg, createId: utils.createNodeId, Errors })(options)
         const getLogger = loggerFactory({ state, options })
         const middlewareHandler = middlewareHandlerFactory({ state, getLogger })()
         const serializer = serializerFactory({ getLogger, options })
         const log = state.log = getLogger('WEAVE')
 
-        log.info(`Init #weave node version ${state.version}`)
-        log.info(`Node ID: ${state.nodeId}`)
+        log.info(`Initializing #weave node version ${state.version}`)
+        log.info(`Node Id: ${state.nodeId}`)
+
         if (state.namespace) {
             log.info(`Namespace: ${state.namespace}`)
         }
@@ -117,7 +119,7 @@ const makeBroker = ({
             bus,
             Errors,
             getLogger,
-            localEventEmitter, // realy needed? methode einfach und auch über registry zu erreichen.
+            localEventEmitter, // realy needed?
             call,
             registry,
             options,
@@ -142,17 +144,16 @@ const makeBroker = ({
 
         let validator
 
-        if (options.cacher) {
-            const cacheAdapter = resolveCacher(options.cacher)
-            if (cacheAdapter) {
-                if (!isFunction(cacheAdapter)) {
-                    state.cacher = cacheAdapter
-                } else {
-                    state.cacher = cacheAdapter()
-                }
-                state.cacher.init({ state, getLogger, bus, options, middlewareHandler })
-            }
+        const resolveCache = resolveCacheFactory({ options, Cache, Errors })
+
+        const cache = resolveCache(options.cache)
+
+        if (cache) {
+            state.cache = cache
+            state.cache.init({ state, getLogger, bus, options, middlewareHandler })
+            log.info(`Cache module: ${cache.name}`)
         }
+
         function onClose () {
             stop().then(() => process.exit(0))
         }
@@ -179,9 +180,7 @@ const makeBroker = ({
 
         const makeNewService = serviceFactory({ state, cacher: state.cacher, call, emit, log, getLogger, validator, registry, wrapAction, middlewareHandler, contextFactory, addLocalService, waitForServices, statistics })
         const createService = serviceCreatorFactory({ state, makeNewService, log })
-
         const destroyService = destroyServiceFactory({ state, log, registry, servicesChanged })
-
         const serviceWatcher = watchServiceFactory({ log })
         const loadService = loadServiceFactory({ createService, servicesChanged, serviceWatcher, options })
         const loadServices = loadServicesFactory({ log, loadService })
@@ -231,6 +230,14 @@ const makeBroker = ({
             createService(require('../services/statistic.service')({ state }))
         }
 
+        registry.on('node.connected', payload => broadcastLocal('$node.connected', payload))
+        registry.on('node.updated', payload => broadcastLocal('$node.updated', payload))
+        registry.on('node.disconnected', (nodeId, isUnexpected) => {
+            broadcastLocal('$node.disconnected', { nodeId, isUnexpected })
+            transport.removePendingRequestsByNodeId(nodeId)
+            servicesChanged(false)
+        })
+
         return {
             getNextAvailableActionEndpoint: registry.getNextAvailableActionEndpoint,
             createService,
@@ -245,19 +252,6 @@ const makeBroker = ({
             log,
             waitForServices,
             state
-        }
-
-        function resolveCacher (option) {
-            if (isString(option)) {
-                const CacherFactory = Cachers[option]
-                if (CacherFactory) {
-                    return CacherFactory
-                }
-            } else if (option === true) {
-                return Cachers.Memory
-            } else { // check for option
-                return option
-            }
         }
     }
 }

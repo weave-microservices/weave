@@ -62,6 +62,13 @@ class WeaveParameterValidationError extends WeaveError {
         super(message, 422, type, data)
     }
 }
+
+class WeaveBrokerOptionsError extends WeaveError {
+    constructor (message, data) {
+        super(message, 500, 'WEAVE_BROKER_OPTIONS_ERROR', data)
+    }
+}
+
 // todo: validation error
 module.exports = {
     WeaveError,
@@ -69,5 +76,6 @@ module.exports = {
     WeaveServiceNotFoundError,
     WeaveServiceNotAvailableError,
     WeaveRequestTimeoutError,
-    WeaveParameterValidationError
+    WeaveParameterValidationError,
+    WeaveBrokerOptionsError
 }

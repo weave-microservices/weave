@@ -32,7 +32,7 @@ function generateMetricsBody (context) {
     }
 
     if (payload.isRemoteCall) {
-        payload.callerNodeId = payload.callerNodeId
+        payload.callerNodeId = context.callerNodeId
     }
 
     return payload
@@ -79,7 +79,7 @@ function metricsFinish (internal, context, error) {
     }
 }
 
-const wrapMetricsLocalMiddleware = function (handler, action) {
+const wrapMetricsLocalMiddleware = function (handler) {
     const internal = this
     const options = internal.options.metrics || {}
 

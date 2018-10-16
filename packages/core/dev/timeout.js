@@ -1,4 +1,4 @@
-const Weave = require('../lib/index.js')
+const { Weave } = require('../lib/index.js')
 // Create broker #1
 const broker1 = Weave({
     nodeId: 'node-1',
@@ -6,6 +6,11 @@ const broker1 = Weave({
     logLevel: 'debug',
     preferLocal: false,
     requestTimeout: 2000,
+    retryPolicy: {
+        enabled: true,
+        retries: 5,
+        delay: 3000
+    },
     registry: {
         // preferLocal: false
     }

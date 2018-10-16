@@ -22,7 +22,6 @@ class Node {
     update (payload) {
         this.services = payload.services
         this.client = payload.client || {}
-
         this.IPList = payload.IPList || []
     }
 
@@ -41,7 +40,7 @@ class Node {
         this.isAvailable = true
     }
 
-    disconnect (isUnexpected) {
+    disconnected (isUnexpected) {
         this.isAvailable = false
     }
 }

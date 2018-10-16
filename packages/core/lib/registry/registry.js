@@ -11,6 +11,7 @@ const MakeServiceCatalog = require('./service-catalog')
 const MakeActionCatalog = require('./action-catalog')
 const MakeEventCatalog = require('./event-catalog')
 const Endpoint = require('./endpoint')
+const EventEmitterMixin = require('../utils/event-emitter-mixin')
 
 const MakeRegistry = ({
     state,
@@ -19,7 +20,7 @@ const MakeRegistry = ({
     middlewareHandler,
     Errors
 }) => {
-    const self = Object.create({})
+    const self = Object.assign({}, EventEmitterMixin())
 
     self.log = getLogger('REGISTRY')
     self.nodes = MakeNodeCatalog({ registry: self, log: self.log, state, bus })
@@ -38,6 +39,7 @@ const MakeRegistry = ({
         return false
     }
 
+    // Services
     self.registerLocalService = (svc) => {
         const service = self.services.add(self.nodes.localNode, svc.name, svc.version, svc.settings)
 
@@ -119,10 +121,15 @@ const MakeRegistry = ({
         })
     }
 
-    self.unregisterServiceByNodeId = (nodeId) => self.services.removeAllByNodeId(nodeId)
+    self.unregisterServiceByNodeId = nodeId => self.services.removeAllByNodeId(nodeId)
 
     self.unregisterService = (name, version, nodeId) => self.services.remove(nodeId || state.nodeId, name, version)
 
+    self.hasService = (serviceName, version, nodeId) => self.services.has(serviceName, version, nodeId)
+
+    self.getServiceList = options => self.services.list(options)
+
+    // Actions
     self.registerActions = (node, service, actions) => {
         Object.keys(actions).forEach((key) => {
             const action = actions[key]
@@ -147,6 +154,9 @@ const MakeRegistry = ({
 
     }
 
+    self.getActionList = options => self.actions.list(options)
+
+    // Events
     self.registerEvents = (node, service, events) => {
         Object.keys(events).forEach((key) => {
             const event = events[key]
@@ -155,6 +165,9 @@ const MakeRegistry = ({
         })
     }
 
+    self.getEventList = options => self.events.list(options)
+
+    // Endpoints
     self.createPrivateEndpoint = (action) => {
         return Endpoint(state, self.nodes.localNode, action.service, action)
     }
@@ -208,7 +221,9 @@ const MakeRegistry = ({
         return endpoint
     }
 
-    self.hasService = (serviceName, version, nodeId) => self.services.has(serviceName, version, nodeId)
+    self.nodeDisconnected = payload => {
+        self.nodes.disconnected(payload.sender, false)
+    }
 
     self.getLocalNodeInfo = () => {
         const { client, IPList } = self.nodes.localNode
@@ -224,12 +239,6 @@ const MakeRegistry = ({
     }
 
     self.getNodeList = options => self.nodes.list(options)
-
-    self.getServiceList = options => self.services.list(options)
-
-    self.getEventList = options => self.events.list(options)
-
-    self.getActionList = options => self.actions.list(options)
 
     return self
 }

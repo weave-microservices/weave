@@ -30,6 +30,9 @@ module.exports = {
         length = length || 12
         return crypto.randomBytes(length).toString('hex')
     },
+    createNodeId () {
+        return `${os.hostname()}-${process.pid}`
+    },
     mergeSchemas (mixinSchema, serviceSchema) {
         function updateProp (propName, target, source) {
             if (source[propName] !== undefined) {
@@ -130,15 +133,12 @@ module.exports = {
         return list
     },
     match (text, pattern) {
-        // Simple patterns
         if (pattern.indexOf('?') === -1) {
-            // Exact match (eg. 'prefix.event')
             const firstStarPosition = pattern.indexOf('*')
             if (firstStarPosition === -1) {
                 return pattern === text
             }
 
-            // Eg. 'prefix**'
             const len = pattern.length
             if (len > 2 && pattern.endsWith('**') && firstStarPosition > len - 3) {
                 pattern = pattern.substring(0, len - 2)
@@ -153,19 +153,15 @@ module.exports = {
                 }
                 return false
             }
-
-            // Accept simple text, without point character (*)
             if (len === 1 && firstStarPosition === 0) {
                 return text.indexOf('.') === -1
             }
 
-            // Accept all inputs (**)
             if (len === 2 && firstStarPosition === 0 && pattern.lastIndexOf('*') === 1) {
                 return true
             }
         }
 
-        // Regex (eg. 'prefix.ab?cd.*.foo')
         let regex = RegexCache.get(pattern)
         if (regex == null) {
             if (pattern.startsWith('$')) {
@@ -177,7 +173,6 @@ module.exports = {
 
             pattern = '^' + pattern + '$'
 
-            // eslint-disable-next-line security/detect-non-literal-regexp
             regex = new RegExp(pattern, 'g')
             RegexCache.set(pattern, regex)
         }

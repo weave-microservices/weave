@@ -62,14 +62,23 @@ const MakeNodeCatalog = ({
             }
 
             if (isNew) {
-                bus.emit('$node.connected', { node, isReconnected })
+                registry.emit('node.connected', { node, isReconnected })
                 log.info(`Node ${node.id} connected!`)
             } else if (isReconnected) {
-                bus.emit('$node.connected', { node, isReconnected })
+                registry.emit('node.connected', { node, isReconnected })
                 log.info(`Node ${node.id} reconnected!`)
             } else {
-                bus.emit('$node.updated', { node, isReconnected })
+                registry.emit('node.updated', { node, isReconnected })
                 log.info(`Node ${node.id} updated!`)
+            }
+        },
+        disconnected (nodeId, isUnexpected) {
+            const node = nodes.get(nodeId)
+            if (node && node.isAvailable) {
+                registry.unregisterServiceByNodeId(node.id)
+                node.disconnected(isUnexpected)
+                registry.emit('node.disconnected', nodeId, isUnexpected)
+                log.warn(`Node '${node.id}'${isUnexpected ? ' unexpectedly' : ''} disconnected.`)
             }
         }
     }
