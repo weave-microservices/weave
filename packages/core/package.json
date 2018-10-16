@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/core",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "description": "Fachwerk microservice framework",
   "main": "./lib/index.js",
   "scripts": {
