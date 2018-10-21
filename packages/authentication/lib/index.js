@@ -1,4 +1,4 @@
-// const { promisify } = require('fachwork')
+const { promisify } = require('fachwork')
 
 module.exports = {
     name: 'auth',
