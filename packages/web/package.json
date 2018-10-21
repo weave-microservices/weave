@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/web",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -9,7 +9,6 @@
   "author": "Kevin Ries <kevin@fachw3rk.de>",
   "license": "ISC",
   "devDependencies": {
-
     "assertthat": "^1.0.0",
     "eslint": "^5.7.0",
     "eslint-config-fw": "^1.0.1",
