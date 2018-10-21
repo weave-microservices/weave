@@ -36,6 +36,9 @@ function WeaveDbAdapter (options) {
                 }
             })
         },
+        disconnect () {
+            return Promise.resolve(this)
+        },
         count (filterParams) {
             const query = filterParams || {}
             return new Promise((resolve, reject) => {
