@@ -6,6 +6,9 @@
   "scripts": {
     "test": "mocha --ui tdd --bail"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "Kevin Ries <kevin@fachw3rk.de>",
   "license": "ISC",
   "dependencies": {
@@ -25,5 +28,5 @@
     "mochawesome": "^3.1.0",
     "sinon": "^7.0.0"
   },
-  "gitHead": "6efb1cc1b1cc916cb4ca4fbe337394c50fe286f8"
+  "gitHead": "3112aa7d850ac70b0525d0bc65e19964114a5579"
 }
