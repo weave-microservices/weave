@@ -4,7 +4,7 @@ const spdy = require('spdy')
 const { isFunction, isObject, isString, compact } = require('lodash')
 const queryString = require('qs')
 const bodyParser = require('body-parser')
-const { promisify } = require('fachwork')
+const { promisify, match } = require('fachwork')
 const pathToRegex = require('./path-to-regex.js')
 const serveStatic = require('./serve-static')
 const MemoryRateLimitStore = require('./store/memory')
@@ -38,6 +38,8 @@ module.exports = {
         rest (context) {
             const { request, response } = context.params
 
+            this.logRequest(request)
+
             request.$context = context
             response.$context = context
 
@@ -45,6 +47,7 @@ module.exports = {
                 response.setHeader('X-Request-Id', context.requestId)
             }
 
+            // eslint-disable-next-line
             let { url, query } = this.processQueryString(request)
 
             if (url.length > 1 && url.endsWith('/')) {
@@ -73,12 +76,14 @@ module.exports = {
     },
     methods: {
         handleRequest (request, response) {
+            request.$startTime = process.hrtime()
             request.$service = this
+
             return this.actions.rest({ request, response })
                 .then(result => {
                     if (result == null) {
                         if (this.serve) {
-                            this.serve(request, response, error => {
+                            this.serve(request, response, () => {
                                 // if (this.settings.routing.historyMode) {
                                 //     return returnFile(this.settings.assets.folder + '/index.html')
                                 // }
@@ -94,99 +99,6 @@ module.exports = {
                     this.log.error(error.message)
                     this.sendError(request, response, error)
                 })
-            // const self = this
-            // let { url, query } = self.processQueryString(request)
-
-            // request.query = query
-
-            // if (url.endsWith('/')) {
-            //     url = url.slice(0, -1)
-            // }
-
-            // try {
-            //     // if (self.routes && self.routes.length > 0) {
-            //     //     for (let i = 0; i < self.routes.length; i++) {
-            //     //         const route = self.routes[i]
-            //     //         // pointer to route
-            //     //         request.$route = route
-            //     //         response.$route = route
-
-            //     //         if (url.startsWith(route.path)) {
-            //     //             self.wrapMiddlewares(route.middlewares)(request, response, error => {
-            //     //                 if (error) {
-            //     //                     self.log.error(`Middleware error!`, error)
-            //     //                     return this.sendError(request, response, error)
-            //     //                 }
-
-            //     //                 if (route.cors) {
-            //     //                     if (request.method === 'OPTIONS' && request.headers['access-control-request-method']) {
-            //     //                         this.writeCorsHeaders(route, request, response, true)
-            //     //                         response.writeHead(204, {
-            //     //                             'Content-Length': '0'
-            //     //                         })
-            //     //                         response.end()
-            //     //                         return
-            //     //                     }
-            //     //                     this.writeCorsHeaders(route, request, response, true)
-            //     //                 }
-
-            //     //                 let urlPath = url.slice(route.path.length)
-
-            //     //                 if (urlPath.startsWith('/')) {
-            //     //                     urlPath = urlPath.slice(1)
-            //     //                 }
-
-            //     //                 urlPath = urlPath.replace(/~/, '$')
-            //     //                 let actionName = urlPath
-            //     //                 actionName = actionName.replace(/\//g, '.')
-
-            //     //                 if (route.aliases && route.aliases.length > 0) {
-            //     //                     const result = self.resolveAlias(route, urlPath, request.method)
-            //     //                     // found a matching alias.
-            //     //                     if (result) {
-            //     //                         route.$alias = result
-            //     //                         // check for custom action handler
-            //     //                         if (result.alias.handler) {
-            //     //                             return result.alias.handler.call(this, request, response, error => {
-            //     //                                 if (error) {
-            //     //                                     // todo: Weave error
-            //     //                                     this.log.error(`Alias custom method error!`, error)
-            //     //                                     return this.sendError(request, response, error)
-            //     //                                 }
-            //     //                                 // todo: finish
-            //     //                             })
-            //     //                         }
-
-            //     //                         query = Object.assign(result.params, query)
-            //     //                         actionName = result.alias.actionName
-            //     //                         // if mapping policy is "restricted" send a 404.
-            //     //                     } else if (route.mappingPolicy === MAPPING_POLICY_RESTRICTED) {
-            //     //                         return self.send404(response)
-            //     //                     }
-            //     //                 } else if (route.mappingPolicy === MAPPING_POLICY_RESTRICTED) {
-            //     //                     return self.send404(response)
-            //     //                 }
-            //     //                 this.preCallAction(actionName, query, route, request, response)
-            //     //             })
-            //     //             return
-            //     //         }
-            //     //     }
-            //     // }
-
-            //     // if (self.serve) {
-            //     //     self.serve(request, response, (returnFile) => {
-            //     //         if (this.settings.routing.historyMode) {
-            //     //             return returnFile(this.settings.assets.folder + '/index.html')
-            //     //         }
-            //     //         self.send404(response)
-            //     //     })
-            //     //     return
-            //     // }
-            //     // self.send404(response)
-            // } catch (error) {
-            //     self.log.error(error.message)
-            //     this.sendError(request, response, error)
-            // }
         },
         routeHandler (context, route, request, response) {
             request.$route = route
@@ -250,7 +162,6 @@ module.exports = {
                     .catch(error => {
                         reject(error)
                     })
-                // response.once('finish', () => resolve(true))
             })
         },
         writeCorsHeaders (route, request, response, isPreflight) {
@@ -335,7 +246,7 @@ module.exports = {
                 })
             }
 
-            if (this.settings.rateLimit) {
+            if (this.settings.rateLimit || options.rateLimit) {
                 const opts = Object.assign({
                     windowSizeMs: 5000,
                     limit: 50,
@@ -346,7 +257,7 @@ module.exports = {
                             request.socket.remoteAddress ||
                             request.connection.socket.remoteAddress
                     }
-                }, this.settings.rateLimit)
+                }, this.settings.rateLimit, options.rateLimit)
 
                 route.rateLimit = opts
 
@@ -495,9 +406,9 @@ module.exports = {
             const context = request.$context
 
             if (alias.actionName && route.hasWhitelist) {
-                if (!this.checkWhitelist(route.whitelist, alias.actionName)) {
+                if (!this.checkWhitelist(route, alias.actionName)) {
                     this.log.debug(`Action ${alias.actionName} is not on the whitelist!`)
-                    return this.sendError(request, response, new WeaveServiceNotFoundError(alias.actionName))
+                    return Promise.reject(new WeaveServiceNotFoundError(alias.actionName))
                 }
             }
 
@@ -515,7 +426,7 @@ module.exports = {
                     }
 
                     if (remainingRequests < 0) {
-                        return this.sendError(request, response, new RateLimitExeededError())
+                        return Promise.reject(new RateLimitExeededError())// this.sendError(request, response, new RateLimitExeededError())
                     }
                 }
             }
@@ -580,91 +491,6 @@ module.exports = {
                     this.logResponse(request, response, context, data)
                     return true
                 })
-
-            // return Promise.resolve()
-            //     .then(() => {
-            //         if (['POST', 'PUT', 'PATCH'].indexOf(request.method) !== -1 && route.bodyParsers && route.bodyParsers.length > 0) {
-            //             return Promise.all(route.bodyParsers.map(parser => {
-            //                 return new Promise((resolve, reject) => {
-            //                     parser(request, response, error => {
-            //                         if (error) {
-            //                             return reject(error)
-            //                         }
-            //                         resolve()
-            //                     })
-            //                 })
-            //             }))
-            //         }
-            //     })
-            //     .then(() => {
-            //         const body = isObject(request.body) ? request.body : {}
-            //         params = Object.assign(params, body)
-            //     })
-            //     .then(() => {
-            //         endpoint = self.broker.getNextActionEndpoint(actionName)
-            //         if (endpoint instanceof Error) {
-            //             return Promise.reject(endpoint)
-            //         }
-
-            //         if (self.broker.validator && endpoint.action.params) {
-            //             self.broker.validator.validate(params, endpoint.action.params)
-            //         }
-            //         return endpoint
-            //     })
-            //     .then(endpoint => {
-            //         const context = self.broker.contextFactory.createFromEndpoint(endpoint, params)
-            //         // context.metricsStart(context.metrics)
-            //         if (request.body) {
-            //             context.body = request.body
-            //         }
-            //         return context
-            //     })
-            //     .then(context => {
-            //         if (route.onBeforeCall) {
-            //             return route.onBeforeCall(context, route, request, response)
-            //                 .then(() => context)
-            //         }
-            //         return context
-            //     })
-            //     .then(context => {
-            //         if (route.authorization) {
-            //             return this.authorize(context, request, response)
-            //                 .then(() => context)
-            //         }
-            //         return context
-            //     })
-            //     .then(context => {
-            //         return context.call(endpoint, params)
-            //             .then(data => {
-            //                 return Promise.resolve(data)
-            //                     .then(data => {
-            //                         if (route.onAfterCall) {
-            //                             return route.onAfterCall(context, data, request)
-            //                         }
-            //                         return data
-            //                     })
-            //                     .then(data => {
-            //                         this.sendResponse(response, data)
-            //                         // context.metricsFinish(null, context)
-            //                         this.logResponse(request, response, context, data)
-            //                     })
-            //             })
-            //     })
-            //     .catch(error => {
-            //         if (!error) {
-            //             return
-            //         }
-
-            //         if (error.context) { // todo: add context to errors
-            //             response.setHeader('X-Request-Id', error.context.id)
-            //         }
-            //         self.log.error(`Request error!:`, error.name, ':', error.message, '\n', error.stack, '\nData', error.data)
-
-            //         if (error.context) {
-            //             // error.context.metricsFinish(null, error.context.metrics)
-            //         }
-            //         this.sendError(request, response, error)
-            //     })
         },
         sendResponse (context, route, request, response, action, data) {
             let responseType
@@ -737,22 +563,23 @@ module.exports = {
             }, null, 4))
             this.logResponse(request, response, error ? error.context : null)
         },
-        checkWhitelist (whitelist, actionName) {
-            const actionNameParts = actionName.split('.')
-            for (let i = 0; i < whitelist.length; i++) {
-                const predicate = whitelist[i]
-                if (predicate === actionName) {
-                    return true
-                }
+        checkWhitelist (route, actionName) {
+            return route.whitelist.find(mask => match(actionName, mask)) !== null
+            // const actionNameParts = actionName.split('.')
+            // for (let i = 0; i < whitelist.length; i++) {
+            //     const predicate = whitelist[i]
+            //     if (predicate === actionName) {
+            //         return true
+            //     }
 
-                if (predicate.indexOf('.') !== -1) {
-                    const predicateParts = predicate.split('.')
-                    if (predicateParts[1] === '*' && predicateParts[0] === actionNameParts[0]) {
-                        return true
-                    }
-                }
-            }
-            return false
+            //     if (predicate.indexOf('.') !== -1) {
+            //         const predicateParts = predicate.split('.')
+            //         if (predicateParts[1] === '*' && predicateParts[0] === actionNameParts[0]) {
+            //             return true
+            //         }
+            //     }
+            // }
+            // return false
         },
         resolveAlias (route, urlPath, method) {
             for (let aliasIndex = 0; aliasIndex < route.aliases.length; aliasIndex++) {
@@ -769,27 +596,21 @@ module.exports = {
             }
             return false
         },
-        logRequest (request, response, context) {
-            let duration = ''
-            if (context && context.metrics) {
-                if (context.duration > 1000) {
-                    duration = `[${Number(context.duration / 1000).toFixed(3)} s]`
-                } else {
-                    duration = `[${Number(context.duration).toFixed(3)} ms]`
-                }
-            }
-            this.log.info(`<= ${response.statusCode} ${request.method} ${request.url} ${duration}`)
+        logRequest (request) {
+            this.log.info(`=> ${request.method} ${request.url}`)
         },
         logResponse (request, response, context, data) {
-            let duration = ''
-            if (context && context.metrics) {
-                if (context.duration > 1000) {
-                    duration = `[${Number(context.duration / 1000).toFixed(3)} s]`
+            let durationString = ''
+            if (request.$startTime) {
+                const hrTime = process.hrtime(request.$startTime)
+                const duration = (hrTime[0] + hrTime[1] / 1e9) * 1000
+                if (duration > 1000) {
+                    durationString = `[${Number(duration / 1000).toFixed(3)} s]`
                 } else {
-                    duration = `[${Number(context.duration).toFixed(3)} ms]`
+                    durationString = `[${Number(duration).toFixed(3)} ms]`
                 }
             }
-            this.log.info(`<= ${response.statusCode} ${request.method} ${request.url} ${duration}`)
+            this.log.info(`<= ${response.statusCode} ${request.method} ${request.url} ${durationString}`)
         }
     },
     created () {
@@ -823,6 +644,9 @@ module.exports = {
         this.log.info(`API Gateway created.`)
     },
     started () {
+        if (this.settings.isMiddleware === true) { // todo: implement a middleware handler for express.
+            return
+        }
         this.server.listen(this.settings.port, this.settings.ip, error => {
             if (error) {
                 this.log.error('API Listening error', error)
@@ -832,6 +656,20 @@ module.exports = {
         })
     },
     stopped () {
-        this.server.close()
+        if (this.settings.isMiddleware === true) {
+            return
+        }
+        return new Promise((resolve, reject) => {
+            if (this.server.listening) {
+                this.server.close(error => {
+                    if (error) {
+                        this.log.warn(error.message)
+                        return reject(error.message)
+                    }
+                    this.log.info('API Gateway successfully stopped!')
+                    return resolve()
+                })
+            }
+        })
     }
 }

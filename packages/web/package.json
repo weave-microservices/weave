@@ -2,7 +2,7 @@
   "name": "@weave-js/web",
   "version": "0.4.7",
   "description": "",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "test": "mocha --ui tdd --bail"
   },
@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "body-parser": "^1.18.3",
-    "fachwork": "0.0.8",
+    "fachwork": "0.0.10",
     "lodash": "^4.17.11",
     "qs": "^6.5.2",
     "spdy": "^3.4.7"
