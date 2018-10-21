@@ -3,6 +3,5 @@ node_modules
 lerna-debug.log
 .DS_Store
 packages/core/node_modules
-
-
 .vscode
+packages/db/tests.db
