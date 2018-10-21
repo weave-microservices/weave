@@ -1,0 +1,29 @@
+{
+  "name": "@weave-js/authentication",
+  "version": "0.0.9",
+  "description": "Weave mixin for authentication.",
+  "main": "lib/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test-ci": "jest --watch",
+    "test": "jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jsonwebtoken": "^8.3.0"
+  },
+  "devDependencies": {
+    "eslint-config-fw": "^1.0.1",
+    "jest": "^23.6.0",
+    "jest-cli": "^23.6.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
+  }
+}

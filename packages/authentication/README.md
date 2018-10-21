@@ -1,0 +1,1 @@
+# Weave authentication mixin
