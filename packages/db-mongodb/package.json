@@ -1,0 +1,25 @@
+{
+  "name": "@weave-js/db-mongodb",
+  "version": "0.0.1",
+  "description": "MongoDb native adapter for weave db mixin.",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "mocha --ui tdd --bail"
+  },
+  "author": "Kevin Ries",
+  "license": "ISC",
+  "devDependencies": {
+    "assertthat": "^1.0.0",
+    "eslint": "^5.7.0",
+    "eslint-config-fw": "^1.0.1",
+    "eslint-loader": "^2.1.1",
+    "istanbul": "^0.4.5",
+    "mocha": "^5.2.0",
+    "mochawesome": "^3.0.3",
+    "sinon": "^7.0.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.11",
+    "mongodb": "^3.1.8"
+  }
+}
