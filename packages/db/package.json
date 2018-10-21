@@ -1,0 +1,28 @@
+{
+  "name": "@weave-js/db",
+  "version": "0.0.1",
+  "description": "weave-db service",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "mocha --ui tdd --bail"
+  },
+  "author": "Kevin Ries <kevin@fachw3rk.de>",
+  "license": "ISC",
+  "dependencies": {
+    "fachwork": "0.0.10",
+    "lowdb": "^1.0.0",
+    "nedb-core": "^3.0.6",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "@weave-js/core": "0.5.8",
+    "assertthat": "^1.0.0",
+    "eslint": "^5.7.0",
+    "eslint-config-fw": "^1.0.1",
+    "eslint-loader": "^2.1.1",
+    "istanbul": "^0.4.5",
+    "mocha": "^5.2.0",
+    "mochawesome": "^3.1.0",
+    "sinon": "^7.0.0"
+  }
+}
