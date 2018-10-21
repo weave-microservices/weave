@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/cli",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "Weave CLI tool",
   "main": "index.js",
   "bin": {
