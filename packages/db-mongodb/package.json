@@ -6,6 +6,9 @@
   "scripts": {
     "test": "mocha --ui tdd --bail"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "Kevin Ries",
   "license": "ISC",
   "devDependencies": {

@@ -10,6 +10,9 @@
     "test-ci": "jest --watch",
     "test": "jest"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -26,5 +29,5 @@
       "/node_modules/"
     ]
   },
-  "gitHead": "6efb1cc1b1cc916cb4ca4fbe337394c50fe286f8"
+  "gitHead": "48f1030c8538f480dca7b205222d192b2ccd6c31"
 }

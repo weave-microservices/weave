@@ -11,6 +11,9 @@
     "analyse": "eslint lib/**",
     "eslint": "eslint --ext=.js lib test"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "weave-runner": "./bin/runner.js"
   },

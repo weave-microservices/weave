@@ -9,6 +9,9 @@
   "scripts": {
     "weave": "node ./bin/weave.js"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
