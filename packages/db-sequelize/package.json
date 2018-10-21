@@ -12,5 +12,6 @@
     "@weave-js/db": "^0.0.2",
     "mysql2": "^1.6.1",
     "sequelize": "^4.41.0"
-  }
+  },
+  "gitHead": "6efb1cc1b1cc916cb4ca4fbe337394c50fe286f8"
 }

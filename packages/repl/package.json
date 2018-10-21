@@ -23,5 +23,6 @@
     "eslint": "^5.7.0",
     "eslint-config-fw": "^1.0.1",
     "eslint-loader": "^2.1.1"
-  }
+  },
+  "gitHead": "6efb1cc1b1cc916cb4ca4fbe337394c50fe286f8"
 }

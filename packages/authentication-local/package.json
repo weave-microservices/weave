@@ -10,5 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^3.0.1"
-  }
+  },
+  "gitHead": "6efb1cc1b1cc916cb4ca4fbe337394c50fe286f8"
 }

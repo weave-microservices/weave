@@ -26,5 +26,6 @@
     "lodash": "^4.17.11",
     "qs": "^6.5.2",
     "spdy": "^3.4.7"
-  }
+  },
+  "gitHead": "6efb1cc1b1cc916cb4ca4fbe337394c50fe286f8"
 }
