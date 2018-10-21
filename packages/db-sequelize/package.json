@@ -1,5 +1,5 @@
 {
-  "name": "weave-db-sequelize",
+  "name": "@weave-js/db-sequelize",
   "version": "0.0.2",
   "description": "Weave Db adapter for sequelize",
   "main": "index.js",
