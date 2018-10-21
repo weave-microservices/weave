@@ -30,13 +30,13 @@ broker1.createService({
     },
     events: {
         'cache.clean.*': function (payload) {
-            console.log(payload)
+            this.log.debug(payload)
         },
         '$node.connected': function (payload) {
-            console.log(payload)
+            this.log.debug(payload)
         },
         '$node.disconnected': function (payload) {
-            console.log(payload)
+            this.log.debug(payload)
         }
     }
 })

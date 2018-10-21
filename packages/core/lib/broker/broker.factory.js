@@ -163,21 +163,6 @@ const makeBroker = ({
         process.on('exit', onClose)
         process.on('SIGINT', onClose)
 
-        const broker = {
-            options: state.options,
-            state,
-            call,
-            contextFactory,
-            emit,
-            getLogger,
-            log,
-            validator,
-            registry,
-            statistics,
-            transport,
-            nodeId: state.nodeId
-        }
-
         const makeNewService = serviceFactory({ state, cacher: state.cacher, call, emit, log, getLogger, validator, registry, wrapAction, middlewareHandler, contextFactory, addLocalService, waitForServices, statistics })
         const createService = serviceCreatorFactory({ state, makeNewService, log })
         const destroyService = destroyServiceFactory({ state, log, registry, servicesChanged })
@@ -196,6 +181,30 @@ const makeBroker = ({
             })
             destroyService(service)
                 .then(() => loadService(filename))
+        }
+
+        const broker = {
+            getNextAvailableActionEndpoint: registry.getNextAvailableActionEndpoint,
+            createService,
+            loadService,
+            loadServices,
+            repl,
+            start,
+            stop,
+            options: state.options,
+            state,
+            call,
+            contextFactory,
+            emit,
+            broadcast,
+            getLogger,
+            log,
+            validator,
+            registry,
+            statistics,
+            transport,
+            waitForServices,
+            nodeId: state.nodeId
         }
 
         middlewareHandler.init(broker)
@@ -238,21 +247,7 @@ const makeBroker = ({
             servicesChanged(false)
         })
 
-        return {
-            getNextAvailableActionEndpoint: registry.getNextAvailableActionEndpoint,
-            createService,
-            loadService,
-            loadServices,
-            repl,
-            start,
-            stop,
-            call,
-            emit,
-            broadcast,
-            log,
-            waitForServices,
-            state
-        }
+        return broker
     }
 }
 

@@ -7,9 +7,7 @@
 const stopFactory = ({ state, log, transport, onClose }) =>
     () => {
         return Promise.resolve()
-            .then(() => {
-                state.services.forEach(service => service.stop())
-            })
+            .then(() => Promise.all(state.services.map(service => service.stop())))
             .catch(error => state.log.error('Unable to stop all services.', error))
             .then(() => {
                 if (transport) {

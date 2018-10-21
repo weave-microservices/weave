@@ -20,7 +20,7 @@ module.exports = require('./transportation')({
     makeRequest: require('./request'),
     makeResponse: require('./response'),
     makeEmit: require('./emit'),
-    makeSendBroadcastEvent: require('./discover-nodes.factory'),
+    makeSendBroadcastEvent: require('./broadcast.factory'),
     makeDiscoverNodes: require('./discover-nodes.factory'),
     makeLocalRequestProxy: require('./local-request-proxy.factory'),
     makeSetReady: require('./set-ready.factory')

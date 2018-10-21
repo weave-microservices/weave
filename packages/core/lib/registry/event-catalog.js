@@ -3,7 +3,7 @@
  * -----
  * Copyright 2018 Fachwerk
  */
-
+const { omit } = require('fachwork')
 const EndpointList = require('./endpoint-list')
 const { match } = require('../utils.js')
 
@@ -81,6 +81,44 @@ const MakeEventCatalog = ({ state }) => {
                         }
                     }
                 })
+        },
+        list ({ onlyLocals = false, skipInternals = false, withEndpoints = false }) {
+            const result = []
+            events.forEach(list => {
+                if (skipInternals && /^\$node/.test(action.name)) {
+                    return
+                }
+
+                if (onlyLocals && !list.hasLocal()) {
+                    return
+                }
+
+                const item = {
+                    name: list.name,
+                    hasAvailable: list.hasAvailable(),
+                    groupName: list.groupName,
+                    hasLocal: list.hasLocal(),
+                    count: list.count(),
+                }
+
+                if (item.count > 0) {
+                    const endpoint = list.endpoints[0]
+                    if (endpoint) {
+                        item.event = omit(endpoint.action, ['handler', 'service'])
+                    }
+                }
+
+                if (withEndpoints) {
+                    item.endpoints = list.endpoints.map(endpoint => {
+                        return {
+                            nodeId: endpoint.node.id,
+                            state: endpoint.state
+                        }
+                    })
+                }
+                result.push(item)
+            })
+            return result
         }
     }
 }

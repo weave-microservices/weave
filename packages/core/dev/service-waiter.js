@@ -49,7 +49,3 @@ const broker2 = Weave({
 
 broker2.start()
 broker1.start()
-// broker1.waitForServices(['math'])
-//     .then(() => {
-//         console.log('sss')
-//     })

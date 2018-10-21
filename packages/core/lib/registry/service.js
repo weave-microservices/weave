@@ -185,11 +185,11 @@ const makeServiceFactory = ({
                 })
                 .then(() => {
                     if (isFunction(schema.stopped)) {
-                        return schema.stopped.call(self)
+                        return promisify(schema.stopped.call(self))
                     }
 
                     if (Array.isArray(schema.stopped)) {
-                        return Promise.all(schema.stopped.map(stopHook => stopHook()))
+                        return Promise.all(schema.stopped.map(stopHook => promisify(stopHook())))
                     }
                 })
                 .then(() => {
