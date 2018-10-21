@@ -1,0 +1,1 @@
+# Weave local authentication adapter
