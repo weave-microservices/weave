@@ -2,7 +2,7 @@
   "name": "@weave-js/repl",
   "version": "0.0.10",
   "description": "",
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "chalk": "^2.4.1",
+    "glob": "^7.1.3",
     "lodash": "^4.17.11",
     "ora": "^3.0.0",
     "table": "^5.1.0",
@@ -18,6 +19,7 @@
     "vorpal": "^1.12.0"
   },
   "devDependencies": {
+    "@weave-js/core": "0.5.8",
     "eslint": "^5.7.0",
     "eslint-config-fw": "^1.0.1",
     "eslint-loader": "^2.1.1"
