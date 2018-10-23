@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.6](https://github.com/fachw3rk/weave/compare/@weave-js/db-sequelize@0.0.5...@weave-js/db-sequelize@0.0.6) (2018-10-23)
+
+**Note:** Version bump only for package @weave-js/db-sequelize
+
+
+
+
+
 ## [0.0.5](https://github.com/fachw3rk/weave/compare/@weave-js/db-sequelize@0.0.4...@weave-js/db-sequelize@0.0.5) (2018-10-23)
 
 **Note:** Version bump only for package @weave-js/db-sequelize
