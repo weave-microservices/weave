@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.14](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.5.13...@weave-js/core@0.5.14) (2018-10-23)
+
+**Note:** Version bump only for package @weave-js/core
+
+
+
+
+
 ## [0.5.13](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.5.12...@weave-js/core@0.5.13) (2018-10-23)
 
 **Note:** Version bump only for package @weave-js/core
