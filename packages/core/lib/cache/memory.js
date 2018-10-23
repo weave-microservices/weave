@@ -58,7 +58,7 @@ const makeMemoryCacher = ({ makeMiddleware, generateCacheKey, getDefaultOptions 
             const item = cache[cacheKey]
             if (item) {
                 if (options_.ttl) {
-                    item.expire = Date.now() // + options_.ttl
+                    item.expire = Date.now() + options_.ttl
                 }
                 log.debug(`Get ${cacheKey}`)
                 return Promise.resolve(item.data)
