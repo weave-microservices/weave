@@ -46,7 +46,7 @@ const makeMiddlwareHandler = (brokerObject) =>
                         .map(middleware => middleware[methodName])
 
                     if (momentousHandlers.length) {
-                        momentousHandlers.reduce((p, func) => p.then(() => func.apply(brokerObject, args)), Promise.resolve())
+                        momentousHandlers.reduce((p, func) => p.then(() => func.apply(middlwareDependencies, args)), Promise.resolve())
                     }
                 }
             },
@@ -56,7 +56,7 @@ const makeMiddlwareHandler = (brokerObject) =>
                     middlewareList
                         .filter(middleware => typeof middleware[methodName] === 'function')
                         .map(middleware => middleware[methodName])
-                        .forEach(handler => handler.apply(brokerObject, args))
+                        .forEach(handler => handler.apply(middlwareDependencies, args))
                 }
             }
         }
