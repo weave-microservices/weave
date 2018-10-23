@@ -4,7 +4,7 @@
  * Copyright 2018 Fachwerk
  */
 
-const startFactory = ({ state, log, transport, middlewareHandler }) =>
+const startFactory = ({ state, call, broadcast, emit, log, transport, middlewareHandler }) =>
     /**
      * Start the broaker
      * @returns <Promise>
@@ -32,7 +32,7 @@ const startFactory = ({ state, log, transport, middlewareHandler }) =>
                     return transport.setReady()
                 }
             })
-            .then(() => middlewareHandler.callHandlersAsync('started', [state], true))
+            .then(() => middlewareHandler.callHandlersAsync('started', [{ state, call, broadcast, emit, log }], true))
             .then(() => {
                 if (state.isStarted) {
                     if (state.options.started) {
