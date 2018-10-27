@@ -42,10 +42,6 @@ function MongoDbAdapter (options) {
         },
         connect () {
             return MongoClient.connect(options.url, options.options).then(client => {
-                // if (typeof model.init === 'function') {
-                //     model.init(db)
-                // }
-
                 this.db = this.$service.db = client.db ? client.db(options.database) : client
                 this.collection = this.$service.db.collection(this.$collectionName)
 
@@ -71,6 +67,9 @@ function MongoDbAdapter (options) {
             return Promise.resolve(entity)
                     .then(ent => transform(ent))
                     .then(entity => this.collection.insert(entity))
+        },
+        findOne (query) {
+            return this.collection.findOne(query)
         },
         findById (id) {
             return this.collection
@@ -106,15 +105,20 @@ function MongoDbAdapter (options) {
                 }
                 const stream = q.stream()
 
-                stream.on('data', (data) => {
-                    buffer.push(data)
-                })
-                stream.on('end', (data) => {
-                    return resolve(buffer)
-                })
-                stream.on('error', (error) => {
-                    return reject(error)
-                })
+                if (params.asStream === true) {
+                    return stream
+                } else {
+                    stream.on('data', (data) => {
+                        buffer.push(data)
+                    })
+                    stream.on('end', (data) => {
+                        return resolve(buffer)
+                    })
+                    stream.on('error', (error) => {
+                        return reject(error)
+                    })
+                }
+               
             })
         },
         findAllStream (query, filterOptions = {}) {
