@@ -41,6 +41,7 @@ module.exports = {
             transport: this.settings.transport,
             send: true
         }
+
         if (this.settings.from) {
             options.message = {
                 from: this.settings.from

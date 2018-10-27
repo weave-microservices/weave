@@ -7,6 +7,9 @@
     "test-ci": "jest --watch",
     "test": "mocha"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "Kevin Ries <kevin@fachw3rk.de>",
   "license": "ISC",
   "jest": {
@@ -28,5 +31,5 @@
     "mocha": "^3.5.3",
     "sinon": "^3.3.0"
   },
-  "gitHead": "157d0239e764a8138d7cdce28793f39859d2a353"
+  "gitHead": "5d0011b2c00ff6cdb26fb7be394e6265bf3ecb54"
 }
