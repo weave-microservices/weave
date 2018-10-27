@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/mail",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Email service for weave microservice framework",
   "main": "lib/index.js",
   "scripts": {
