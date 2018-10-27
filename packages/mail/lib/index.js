@@ -4,8 +4,7 @@ const Email = require('email-templates')
 module.exports = {
     name: 'mail',
     settings: {
-        from: null,
-        templateFolder: null
+        from: null
     },
     actions: {
         send: {

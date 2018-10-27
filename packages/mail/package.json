@@ -1,5 +1,5 @@
 {
-  "name": "nodemailer",
+  "name": "@weave-js/mail",
   "version": "0.0.5",
   "description": "Email service for weave microservice framework",
   "main": "lib/index.js",
@@ -27,5 +27,6 @@
     "jest-cli": "^21.2.1",
     "mocha": "^3.5.3",
     "sinon": "^3.3.0"
-  }
+  },
+  "gitHead": "157d0239e764a8138d7cdce28793f39859d2a353"
 }
