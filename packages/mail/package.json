@@ -1,0 +1,31 @@
+{
+  "name": "nodemailer",
+  "version": "0.0.4",
+  "description": "Email service for weave microservice framework",
+  "main": "lib/index.js",
+  "scripts": {
+    "test-ci": "jest --watch",
+    "test": "mocha"
+  },
+  "author": "Kevin Ries <kevin@fachw3rk.de>",
+  "license": "ISC",
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
+  },
+  "dependencies": {
+    "email-templates": "5.0.1",
+    "nodemailer-mailgun-transport": "^1.4.0",
+    "sinon-expect": "^0.3.0"
+  },
+  "devDependencies": {
+    "expect.js": "^0.3.1",
+    "jest": "^21.2.1",
+    "jest-cli": "^21.2.1",
+    "mocha": "^3.5.3",
+    "sinon": "^3.3.0",
+    "@weave-js/core": "^0.5.14"
+  }
+}
