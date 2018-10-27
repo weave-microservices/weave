@@ -121,23 +121,6 @@ function MongoDbAdapter (options) {
                
             })
         },
-        findAllStream (query, filterOptions = {}) {
-            return new Promise((resolve, reject) => {
-                let q = this.collection.find(query)
-
-                if (filterOptions.$limit) {
-                    q = q.limit(Number(filterOptions.$limit))
-                }
-                if (filterOptions.$skip) {
-                    q = q.skip(Number(filterOptions.$skip))
-                }
-                if (filterOptions.$sort) {
-                    q = q.sort(filterOptions.$sort)
-                }
-                const stream = q.stream()
-                return resolve(stream)
-            })
-        },
         updateById (id, entity) {
             return Promise.resolve(entity)
                 .then(entity => transform(entity))
