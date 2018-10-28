@@ -5,7 +5,7 @@
  */
 
 const crypto = require('crypto')
-const { defaultsDeep, assign } = require('lodash')
+const { defaultsDeep, assign, flatten, uniqWith } = require('lodash')
 const os = require('os')
 
 const lut = []
@@ -14,6 +14,12 @@ for (let i = 0; i < 256; i++) {
 }
 
 const RegexCache = new Map()
+
+function uniques (arr) { 
+    return arr.filter(function ({year, name}, key) { 
+        return !this.has(key = year + name) && this.add(key)
+    }, new Set())
+}
 
 module.exports = {
     generateToken () {
@@ -80,6 +86,8 @@ module.exports = {
                 } else {
                     result[key] = schema[key]
                 }
+            } else if (['mixins', 'dependencies'].includes(key)) {
+                result[key] = uniqWith(flatten([schema[key], result[key]]))
             } else {
                 updateProp(key, result, schema)
             }

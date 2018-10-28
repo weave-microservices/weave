@@ -231,6 +231,9 @@ const makeServiceFactory = ({
                         mixin[key] = promisify(mixin[key].bind(self))
                     }
                 }
+                if (mixin.mixins) {
+                    mixin = applyMixins(mixin)
+                }
                 return mergeSchemas(s, mixin)
             }, {})
             return mergeSchemas(mixedSchema, schema)
