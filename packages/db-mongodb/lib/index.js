@@ -66,7 +66,7 @@ function MongoDbAdapter (options) {
         insert (entity) {
             return Promise.resolve(entity)
                     .then(ent => transform(ent))
-                    .then(entity => this.collection.insert(entity))
+                    .then(entity => this.collection.insertOne(entity))
         },
         findOne (query) {
             return this.collection.findOne(query)
