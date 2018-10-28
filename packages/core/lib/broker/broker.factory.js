@@ -163,7 +163,7 @@ const makeBroker = ({
         process.on('exit', onClose)
         process.on('SIGINT', onClose)
 
-        const makeNewService = serviceFactory({ state, cacher: state.cacher, call, emit, log, getLogger, validator, registry, wrapAction, middlewareHandler, contextFactory, addLocalService, waitForServices, statistics })
+        const makeNewService = serviceFactory({ state, cache, call, emit, log, getLogger, validator, registry, wrapAction, middlewareHandler, contextFactory, addLocalService, waitForServices, statistics })
         const createService = serviceCreatorFactory({ state, makeNewService, log })
         const destroyService = destroyServiceFactory({ state, log, registry, servicesChanged })
         const serviceWatcher = watchServiceFactory({ log })

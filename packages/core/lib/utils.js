@@ -15,12 +15,6 @@ for (let i = 0; i < 256; i++) {
 
 const RegexCache = new Map()
 
-function uniques (arr) { 
-    return arr.filter(function ({year, name}, key) { 
-        return !this.has(key = year + name) && this.add(key)
-    }, new Set())
-}
-
 module.exports = {
     generateToken () {
         const d0 = Math.random() * 0xffffffff | 0

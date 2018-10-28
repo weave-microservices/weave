@@ -8,20 +8,17 @@ const { promisify } = require('fachwork')
 
 const makeServiceFactory = ({
     addLocalService,
-    cacher,
+    cache,
     call,
     contextFactory,
     emit,
     getLogger,
-    getNextActionEndpoint,
     log,
-    options,
     state,
     validator,
     registry,
     waitForServices,
     middlewareHandler,
-    wrapAction,
     statistics
 }) =>
     (schema) => {
@@ -48,7 +45,7 @@ const makeServiceFactory = ({
         self.broker = {
             services: state.services,
             options: state.options,
-            cacher,
+            cache,
             call,
             contextFactory,
             emit,

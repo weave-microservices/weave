@@ -379,8 +379,9 @@ module.exports = () => {
                 })
             },
             cleanCache () {
-                if (this.broker.cacher) {
-                    this.broker.cacher.clear(`${this.name}.*`)
+                this.broker.broadcast(`cache.clear.${this.name}.*`)
+                if (this.broker.cache) {
+                    this.broker.cache.clear(`${this.name}.*`)
                 }
                 return Promise.resolve()
             },
