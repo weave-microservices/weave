@@ -75,23 +75,6 @@ module.exports = () => {
                         })
                 }
             },
-            /**
-             * Find entities by query.
-             *
-             * @actions
-             * @cached
-             *
-             * @param {Array<String>?} populate - Populated fields.
-             * @param {Array<String>?} fields - Fields filter.
-             * @param {Number} limit - Max count of rows.
-             * @param {Number} offset - Count of skipped rows.
-             * @param {String} sort - Sorted fields.
-             * @param {String} search - Search text.
-             * @param {String} searchFields - Fields for searching.
-             * @param {Object} query - Query object. Passes to adapter.
-             *
-             * @returns {Array<Object>} List of found entities.
-             */
             find: {
                 cache: {
                     keys: ['populate', 'query']
