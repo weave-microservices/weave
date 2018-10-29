@@ -352,8 +352,8 @@ module.exports = () => {
                 })
             },
             entityChanged (type, data, context) {
-                this.log.debug('doc changed')
-                return this.cleanCache().then(() => {
+                this.log.debug('Doc changed')
+                return this.clearCache().then(() => {
                     const eventName = `doc${type}`
                     if (isFunction(this.schema[eventName])) {
                         this.schema[eventName].call(this, data, context)
@@ -361,8 +361,8 @@ module.exports = () => {
                     return Promise.resolve()
                 })
             },
-            cleanCache () {
-                this.broker.broadcast(`cache.clear.${this.name}.*`)
+            clearCache () {
+                this.broker.broadcast(`cache.clear.${this.name}`)
                 if (this.broker.cache) {
                     this.broker.cache.clear(`${this.name}.*`)
                 }
