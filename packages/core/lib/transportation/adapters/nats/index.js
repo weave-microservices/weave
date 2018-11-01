@@ -62,7 +62,7 @@ function RedisTransporter (options) {
             })
 
             client.on('close', () => {
-                console.log('close')
+
             })
         }).then(() => {
             self.emit('adapter.connected', false)
@@ -79,7 +79,7 @@ function RedisTransporter (options) {
         }
     }
 
-    self.send = (message) => {
+    self.send = message => {
         if (!client) {
             return Promise.resolve()
         }

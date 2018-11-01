@@ -14,6 +14,7 @@ const deps = {
     destroyServiceFactory: require('./destroy-service.factory'),
     eventUtilsFactory: require('./event-utils.factory'),
     Errors: require('../errors'),
+    healthFactory: require('./health.factory'),
     loadServiceFactory: require('./load-service.factory'),
     loadServicesFactory: require('./load-services.factory'),
     localBroadcastFactory: require('./local-broadcast.factory'),

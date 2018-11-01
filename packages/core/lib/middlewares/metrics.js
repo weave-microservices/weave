@@ -84,7 +84,6 @@ const wrapMetricsLocalMiddleware = function (handler) {
     const options = internal.options.metrics || {}
 
     if (options.enabled) {
-        console.log('sadasd')
         return function metricsLocalMiddleware (context) {
             if (context.metrics === null) {
                 context.metrics = shouldCollectMetrics(internal.state, options)

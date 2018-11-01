@@ -2,7 +2,7 @@ const { Weave, TransportAdapters } = require('@weave-js/core')
 const REPL = require('../lib/index')
 
 const broker1 = Weave({
-    nodeId: 'n1',
+    // nodeId: 'n1',
     transport: TransportAdapters.Fake(),
     preferLocal: false
 })

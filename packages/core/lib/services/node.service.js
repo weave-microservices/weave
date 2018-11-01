@@ -5,9 +5,9 @@
  */
 
 const { omit } = require('fachwork')
-const { getNodeHealthInfo } = require('../health')
+const { getNodeHealthInfo } = require('../broker/health.factory')
 
-module.exports = ({ state, transport }) => {
+module.exports = ({ state, health, transport }) => {
     return {
         name: '$node',
         actions: {
@@ -58,22 +58,13 @@ module.exports = ({ state, transport }) => {
                 }
             },
             health: {
-                handler (context) {
-                    return getNodeHealthInfo({ state, transport })
+                handler () {
+                    return health.getNodeHealthInfo()
                 }
             },
             list: {
                 handler (context) {
                     return this.broker.registry.getNodeList(context.params)
-                }
-            },
-            stats: {
-                handler (context) {
-                    if (this.broker.options.statistics) {
-                        return this.broker.statistics.getSnapshot()
-                    } else {
-                        return Promise.reject(new Error('Statistics are not enabled.'))
-                    }
                 }
             }
         }

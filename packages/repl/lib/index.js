@@ -13,7 +13,7 @@ function registerCommands (vorpal, broker) {
     })
 }
 
-module.exports = (broker) => {
+module.exports = broker => {
     const { stop } = broker
     vorpal.find('exit').remove()
 

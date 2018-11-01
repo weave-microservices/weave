@@ -17,6 +17,7 @@ const makeBroker = ({
     destroyServiceFactory,
     eventUtilsFactory,
     Errors,
+    healthFactory,
     loadServiceFactory,
     loadServicesFactory,
     localBroadcastFactory,
@@ -136,10 +137,11 @@ const makeBroker = ({
         setEventTransport(transport)
         setBroadcastTransport(transport)
 
+        const health = healthFactory({ state, transport })
         const servicesChanged = serviceChangedFactory({ transport, broadcastLocal })
         const start = startFactory({ state, log, transport, middlewareHandler })
         const stop = stopFactory({ state, log, transport, middlewareHandler })
-        const repl = replFactory({ state, log, call, start, stop, registry, statistics })
+        const repl = replFactory({ state, log, call, health, start, stop, registry, statistics })
         const addLocalService = addLocalServiceFactory({ state, registry })
 
         let validator
@@ -163,7 +165,7 @@ const makeBroker = ({
         process.on('exit', onClose)
         process.on('SIGINT', onClose)
 
-        const makeNewService = serviceFactory({ state, cache, call, emit, broadcast, broadcastLocal, log, getLogger, validator, registry, wrapAction, middlewareHandler, contextFactory, addLocalService, waitForServices, statistics })
+        const makeNewService = serviceFactory({ state, cache, call, emit, broadcast, broadcastLocal, health, log, getLogger, validator, registry, wrapAction, middlewareHandler, contextFactory, addLocalService, waitForServices, statistics })
         const createService = serviceCreatorFactory({ state, makeNewService, log })
         const destroyService = destroyServiceFactory({ state, log, registry, servicesChanged })
         const serviceWatcher = watchServiceFactory({ log })
@@ -188,6 +190,7 @@ const makeBroker = ({
             createService,
             loadService,
             loadServices,
+            health,
             repl,
             start,
             stop,
@@ -232,7 +235,7 @@ const makeBroker = ({
         middlewareHandler.callHandlersSync('brokerCreated', broker)
 
         if (options.internalActions) {
-            createService(require('../services/node.service')({ state }))
+            createService(require('../services/node.service')({ state, health, transport }))
         }
 
         if (options.statistics) {

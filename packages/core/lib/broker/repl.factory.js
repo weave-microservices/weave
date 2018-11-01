@@ -4,19 +4,19 @@
  * Copyright 2018 Fachwerk
  */
 
-const replFactory = ({ state, log, call, start, stop, registry, statistics }) =>
+const replFactory = (deps) =>
     () => {
         let repl
 
         try {
             repl = require('@weave-js/repl')
         } catch (error) {
-            log.error(`To use REPL with weave, you have to install the REPL package with the command 'npm install @weave-js/repl'.`)
+            deps.log.error(`To use REPL with weave, you have to install the REPL package with the command 'npm install @weave-js/repl'.`)
             return
         }
 
         if (repl) {
-            repl({ state, call, start, stop, registry, statistics })
+            repl(deps)
         }
     }
 

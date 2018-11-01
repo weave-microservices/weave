@@ -133,7 +133,6 @@ module.exports = () => {
                     if (countParams.offset) {
                         countParams.offset = null
                     }
-                    console.log('filter', params)
 
                     return Promise.all([
                         this.adapter.find(params),
