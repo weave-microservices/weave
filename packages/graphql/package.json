@@ -6,11 +6,15 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "Kevin Ries <kevin.ries@fachwerk.io>",
   "license": "MIT",
   "dependencies": {
     "apollo-link": "^1.2.4",
     "graphql": "^14.0.2",
     "graphql-tools": "^4.0.3"
-  }
+  },
+  "gitHead": "b6f89e2878cc49ed4ed927506398a85027a27a9e"
 }
