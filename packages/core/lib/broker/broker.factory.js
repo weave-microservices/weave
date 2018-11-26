@@ -142,7 +142,7 @@ const makeBroker = ({
         const start = startFactory({ state, log, transport, middlewareHandler })
         const stop = stopFactory({ state, log, transport, middlewareHandler })
         const repl = replFactory({ state, log, call, health, start, stop, registry, statistics })
-        const addLocalService = addLocalServiceFactory({ state, registry })
+        const addLocalService = addLocalServiceFactory({ state, registry, servicesChanged })
 
         let validator
 
@@ -218,10 +218,11 @@ const makeBroker = ({
             }
 
             if (options.loadInternalMiddlewares) {
+                // Add the built-in middleware. (The order is important)
                 if (options.validate && validator) {
                     middlewareHandler.add(validator.middleware())
                 }
-                // 1. Action hooks
+
                 middlewareHandler.add(Middlewares.ActionHooks())
                 middlewareHandler.add(Middlewares.CircuitBreaker())
                 middlewareHandler.add(Middlewares.Timeout())

@@ -69,7 +69,6 @@ class WeaveBrokerOptionsError extends WeaveError {
     }
 }
 
-// todo: validation error
 module.exports = {
     WeaveError,
     WeaveRetrieableError,
