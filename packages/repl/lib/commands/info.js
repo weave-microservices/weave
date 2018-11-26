@@ -21,7 +21,7 @@ module.exports = (vorpal, broker) => {
     }
 
     vorpal
-        .command('info', 'Show node informations.')
+        .command('info', 'Show node informations. (in development)')
         .action((args, done) => {
             const gauge = clui.Gauge
             const brokerHealth = health.getNodeHealthInfo()
@@ -29,10 +29,11 @@ module.exports = (vorpal, broker) => {
 
             printHeader('System informations')
             print('CPU', `Architecture: ${os.arch()}/Cores: ${os.cpus().length}`)
-            print('Memory', gauge(heapStatistic.used_heap_size, heapStatistic.heap_size_limit, 30))
+            print('Memory', gauge(50, 100, 30))
             print('Heap', gauge(heapStatistic.used_heap_size, heapStatistic.heap_size_limit, 30))
             printHeader('Broker informations')
-            print('NodeId', state.nodeId)
+            print('Weave version', 'v' + brokerHealth.client.version)
+            print('Node.js version', brokerHealth.client.nodeVersion)
 
             if (options.namespace) {
                 print('Namespace', options.namespace)

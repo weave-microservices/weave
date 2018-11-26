@@ -11,9 +11,9 @@ const WEAVE_VERSION = require('../../package.json').version
 module.exports = ({ state, transport }) => {
     const getClientInfo = () => {
         return {
-            type: 'nodejs',
+            type: 'node',
             version: WEAVE_VERSION,
-            langVersion: process.version
+            nodeVersion: process.version
         }
     }
 

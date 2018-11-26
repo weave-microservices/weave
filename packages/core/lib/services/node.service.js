@@ -5,7 +5,6 @@
  */
 
 const { omit } = require('fachwork')
-const { getNodeHealthInfo } = require('../broker/health.factory')
 
 module.exports = ({ state, health, transport }) => {
     return {
