@@ -232,7 +232,7 @@ const MakeRegistry = ({
             withActions: true,
             withEvents: true,
             withInternalActions: state.options.internalActionsAccessable,
-            withSettings: false
+            withSettings: true
         })
 
         return { client, IPList, services }
