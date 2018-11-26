@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/db",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "weave-db service",
   "main": "lib/index.js",
   "scripts": {
@@ -18,7 +18,7 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.5.18",
+    "@weave-js/core": "^0.5.19",
     "assertthat": "^1.0.0",
     "eslint": "^5.7.0",
     "eslint-config-fw": "^1.0.1",
