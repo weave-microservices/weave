@@ -40,6 +40,7 @@ const makeBroker = ({
     stateFactory,
     stopFactory,
     transportFactory,
+    transports,
     utils,
     watchServiceFactory
 }) => {
@@ -52,6 +53,7 @@ const makeBroker = ({
         options = defaultsDeep(options, defaultOptions)
 
         let statistics
+        let transport
 
         const state = stateFactory({ pkg, createId: utils.createNodeId, Errors })(options)
         const getLogger = loggerFactory({ state, options })
@@ -115,20 +117,40 @@ const makeBroker = ({
 
         setContextFactory(contextFactory)
 
-        const transport = options.transport ? transportFactory({
-            state,
-            bus,
-            Errors,
-            getLogger,
-            localEventEmitter, // realy needed?
-            call,
-            registry,
-            options,
-            transport: options.transport,
-            contextFactory,
-            Context,
-            serializer
-        }) : null
+        if (options.transport) {
+            const adapter = transports.resolve(options.transport)
+            if (adapter) {
+                transport = transportFactory({
+                    state,
+                    bus,
+                    Errors,
+                    getLogger,
+                    localEventEmitter, // realy needed?
+                    call,
+                    registry,
+                    options,
+                    transport: adapter,
+                    contextFactory,
+                    Context,
+                    serializer
+                })
+            }
+        }
+
+        // const transport = options.transport ? transportFactory({
+        //     state,
+        //     bus,
+        //     Errors,
+        //     getLogger,
+        //     localEventEmitter, // realy needed?
+        //     call,
+        //     registry,
+        //     options,
+        //     transport: options.transport,
+        //     contextFactory,
+        //     Context,
+        //     serializer
+        // }) : null
 
         registry.getTransport = () => {
             return transport
@@ -138,7 +160,7 @@ const makeBroker = ({
         setBroadcastTransport(transport)
 
         const health = healthFactory({ state, transport })
-        const servicesChanged = serviceChangedFactory({ transport, broadcastLocal })
+        const servicesChanged = serviceChangedFactory({ state, transport, broadcastLocal })
         const start = startFactory({ state, log, transport, middlewareHandler })
         const stop = stopFactory({ state, log, transport, middlewareHandler })
         const repl = replFactory({ state, log, call, health, start, stop, registry, statistics })

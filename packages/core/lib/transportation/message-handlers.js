@@ -37,17 +37,21 @@ module.exports = ({
             try {
                 let stream
                 if (payload.isStream !== undefined) {
+                    // check for open stream.
                     stream = pendingRequestStreams.get(id)
                     if (stream) {
-                        if (payload.params === null) {
+                        // stream found
+                        if (!payload.isStream) {
                             stream.end()
                             pendingRequests.delete(payload.id)
                             pendingRequestStreams.delete(payload.id)
+                            return
                         } else {
+                            log.debug('Stream chunk received from ', payload.sender)
                             stream.write(payload.params.type === 'Buffer' ? new Buffer(payload.params.data) : payload.params)
+                            return
                         }
-                        return
-                    } else {
+                    } else if (payload.isStream) {
                         stream = new Transform({
                             transform: function (chunk, encoding, done) {
                                 this.push(chunk)
@@ -88,12 +92,15 @@ module.exports = ({
             if (payload.isStream != null) {
                 let stream = pendingResponseStreams.get(id)
                 if (stream) {
-                    if (payload.data === null) {
+                    if (!payload.isStream) {
+                        log.info('Stream closing received from ', payload.sender)
                         stream.end()
                         pendingRequests.delete(payload.id)
                         pendingResponseStreams.delete(payload.id)
                     } else {
-                        stream.write(payload.data.type === 'Buffer' ? new Buffer(payload.data) : payload.data)
+                        log.debug('Stream chunk received from ', payload.sender)
+                        // console.log(payload.data)
+                        stream.write(payload.data.type === 'Buffer' ? new Buffer.from(payload.data) : payload.data)
                     }
                     return request.resolve(payload.data)
                 } else {
@@ -103,13 +110,15 @@ module.exports = ({
                             return done()
                         }
                     })
+                    log.debug('New stream received from ', payload.sender)
+
                     pendingResponseStreams.set(id, stream)
                     return request.resolve(stream)
                 }
             }
 
-            pendingRequests.delete(payload.id)
-            pendingResponseStreams.delete(payload.id)
+            // pendingRequests.delete(payload.id)
+            // pendingResponseStreams.delete(payload.id)
 
             if (!payload.success) {
                 const error = new Errors.WeaveError(`${payload.error ? payload.error.message : 'Unknown error'} on node: '${payload.sender}'`)

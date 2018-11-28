@@ -4,6 +4,8 @@
  * Copyright 2018 Fachwerk
  */
 
+const transports = require('../transportation/transports')
+
 const deps = {
     actionWrapperFactory: require('./action-wrapper.factory'),
     addLocalServiceFactory: require('./add-local-service.factory'),
@@ -39,9 +41,10 @@ const deps = {
     transportFactory: require('../transportation'),
     utils: require('../utils'),
     validatorFactory: require('../validator'),
-    watchServiceFactory: require('./watch-service.factory')
+    watchServiceFactory: require('./watch-service.factory'),
+    transports
 }
 
 module.exports = require('./broker.factory')(deps)
 module.exports.cacher = require('../cache')
-module.exports.transports = require('../transportation/adapters')
+module.exports.transports = transports

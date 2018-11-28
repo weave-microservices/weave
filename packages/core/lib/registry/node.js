@@ -5,11 +5,10 @@
  */
 
 const { cpuUsage } = require('fachwork')
-
 class Node {
     constructor (nodeId) {
         this.id = nodeId
-        this.local = false
+        this.isLocal = false
         this.client = null
         this.cpu = null
         this.lastHeartbeatTime = Date.now()

@@ -30,10 +30,12 @@ const requestFactory = ({ log, send, pendingRequests, Message, MessageTypes }) =
                 level: context.level,
                 metrics: context.metrics,
                 requestId: context.requestId,
-                parentId: context.parentId
+                parentId: context.parentId,
+                isStream
             }
 
             const message = Message(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload)
+
             send(message)
                 .then(() => {
                     if (isStream) {
@@ -50,7 +52,7 @@ const requestFactory = ({ log, send, pendingRequests, Message, MessageTypes }) =
                         stream.on('end', () => {
                             const payloadCopy = Object.assign({}, payload)
                             payloadCopy.params = null
-                            // payloadCopy.isStream = true
+                            payloadCopy.isStream = false
                             return send(Message(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy))
                         })
                         stream.on('error', (bhunk) => {

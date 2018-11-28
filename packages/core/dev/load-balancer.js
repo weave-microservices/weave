@@ -2,29 +2,29 @@ const { Weave, TransportAdapters } = require('../lib/index.js')
 
 const brokerStore = []
 for (let i = 0; i <= 5; i++) {
-    brokerStore.push(createBroker(i).start())
+    const broker = createBroker(i)
+    brokerStore.push(broker)
 }
 
-Promise.all(brokerStore).then(() => {
-    const callBroker = createBroker(100)
-    callBroker.start()
+Promise.all(brokerStore.map(broker => broker.start())).then(() => {
+    // const callBroker = createBroker(100)
+    // callBroker.start()
     setTimeout(() => {
         setInterval(() => {
-            callBroker.call('test.hello')
+            brokerStore[0].call('test.hello')
                 .then(res => {
                     // callBroker.log.info(res)
                     console.log(res)
                 })
-        }, 200)
+        }, 100)
     }, 4000)
 })
 
 function createBroker (index) {
     const broker = Weave({
         nodeId: 'node-' + index,
-        namespace: 'lb',
         transport: TransportAdapters.Redis(),
-        logger: console,
+        logLevel: 'info',
         preferLocal: false
     })
 

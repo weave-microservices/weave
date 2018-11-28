@@ -4,8 +4,11 @@
  * Copyright 2018 Fachwerk
  */
 
-module.exports = ({ sendNodeInfo }) =>
+module.exports = ({ state, sendNodeInfo, tr }) =>
     () => {
         // todo: implement set ready
-        // sendNodeInfo()
+        if (tr.isConnected) {
+            tr.isReady = true
+            sendNodeInfo()
+        }
     }

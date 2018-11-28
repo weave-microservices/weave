@@ -9,6 +9,7 @@ const { ROUND_ROBIN } = require('../constants')
 
 const EndpointList = (state, name, groupName) => {
     const self = Object.create(null)
+    self.state = state
     const options = state.options
     const list = self.endpoints = []
     let counter = 0
@@ -21,7 +22,7 @@ const EndpointList = (state, name, groupName) => {
     self.localEndpoints = []
 
     const setLocalEndpoints = () => {
-        self.localEndpoints = list.filter(endpoint => endpoint.local)
+        self.localEndpoints = list.filter(endpoint => endpoint.isLocal)
     }
 
     self.add = (node, service, action) => {

@@ -42,6 +42,10 @@ const makeTransport = ({
         const pendingRequests = new Map()
         const pendingResponseStreams = new Map()
         const pendingRequestStreams = new Map()
+        const tr = Object.create({})
+        tr.isConnected = false
+        tr.isReady = false
+
         // const pendingRequests = new Map()
 
         const { removePendingRequestsById, removePendingRequestsByNodeId } = makeRemovePendingRequests({ log, pendingRequests })
@@ -57,8 +61,7 @@ const makeTransport = ({
         }
 
         // modules
-
-        const send = makeSend({ adapter: transport, stats })
+        const send = makeSend({ adapter: transport, stats, log })
         const sendBalancedEvent = makeEmit({ log, send, Message, MessageTypes })
         const sendBroadcastEvent = makeSendBroadcastEvent({ log, send, Message, MessageTypes })
         const sendNodeInfo = makeSendNodeInfo({ send, registry, Message, MessageTypes })
@@ -66,10 +69,10 @@ const makeTransport = ({
         const disconnect = makeDisconnect({ transport, send, Message, MessageTypes })
         const getNodeInfos = makeGetNodeInfos({ state, registry, process })
         const request = makeRequest({ send, log, pendingRequests, Message, MessageTypes })
-        const response = makeResponse({ nodeId, send, pendingRequests, Message, MessageTypes })
+        const response = makeResponse({ nodeId, send, pendingRequests, Message, MessageTypes, log })
         const { discoverNodes, discoverNode } = makeDiscoverNodes({ send, Message, MessageTypes })
         const localRequestProxy = makeLocalRequestProxy({ call, log, registry, Errors: null })
-        const setReady = makeSetReady({ sendNodeInfo })
+        const setReady = makeSetReady({ sendNodeInfo, tr })
 
         const {
             onDiscovery,
@@ -97,7 +100,7 @@ const makeTransport = ({
             localRequestProxy
         })
 
-        transport.init({ state, log, nodeId, messageHandler })
+        transport.init({ state, log, nodeId, messageHandler, registry, Message, MessageTypes })
             .then(() => {
                 transport.on('adapter.connected', onConnect)
                 transport.on('adapter.disconnected', onDisconnect)
@@ -119,15 +122,32 @@ const makeTransport = ({
 
         function onConnect (wasReconnect) {
             return Promise.resolve()
-                .then(() => discoverNodes())
-                // .then(() => {
-                //     return sendNodeInfo()
-                // })
                 .then(() => {
-                    log.info('Connected')
+                    if (!wasReconnect) {
+                        return makeSubscriptions()
+                    }
+                })
+                .then(() => discoverNodes())
+                .then(() => {
+                    tr.isConnected = true
+                    log.info('Connected', state.nodeId)
                     bus.emit('$transporter.connected', wasReconnect)
                 })
                 .then(startTimers())
+        }
+
+        function makeSubscriptions () {
+            return Promise.all([
+                transport.subscribe(MessageTypes.MESSAGE_DISCOVERY),
+                transport.subscribe(MessageTypes.MESSAGE_DISCOVERY, nodeId),
+                transport.subscribe(MessageTypes.MESSAGE_INFO),
+                transport.subscribe(MessageTypes.MESSAGE_INFO, nodeId),
+                transport.subscribe(MessageTypes.MESSAGE_REQUEST, nodeId),
+                transport.subscribe(MessageTypes.MESSAGE_RESPONSE, nodeId),
+                transport.subscribe(MessageTypes.MESSAGE_DISCONNECT),
+                transport.subscribe(MessageTypes.MESSAGE_HEARTBEAT),
+                transport.subscribe(MessageTypes.MESSAGE_EVENT, nodeId)
+            ])
         }
 
         function messageHandler (type, data) {
@@ -199,7 +219,7 @@ const makeTransport = ({
         function checkRemoteNodes () {
             const now = Date.now()
             registry.nodes.list({ withServices: true }).forEach(node => {
-                if (node.local || !node.isAvailable) return
+                if (node.isLocal || !node.isAvailable) return
                 if (now - (node.lastHeartbeatTime || 0) > options.heartbeatTimeout) {
                     disconnected(node.id, true)
                 }

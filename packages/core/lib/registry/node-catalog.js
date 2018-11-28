@@ -18,6 +18,9 @@ const MakeNodeCatalog = ({
 
     const self = {
         localNode: null,
+        createNode (nodeId) {
+            return new Node(nodeId)
+        },
         add (id, node) {
             nodes.set(id, node)
         },
@@ -80,6 +83,11 @@ const MakeNodeCatalog = ({
                 registry.emit('node.disconnected', nodeId, isUnexpected)
                 log.warn(`Node '${node.id}'${isUnexpected ? ' unexpectedly' : ''} disconnected.`)
             }
+        },
+        toArray () {
+            const result = []
+            nodes.forEach(node => result.push(node))
+            return result
         }
     }
 
@@ -90,7 +98,7 @@ const MakeNodeCatalog = ({
     function addLocalNode () {
         const node = new Node(state.nodeId)
 
-        node.local = true
+        node.isLocal = true
         node.IPList = getIpList()
         node.client = {
             type: 'nodejs',

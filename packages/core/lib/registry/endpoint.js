@@ -10,7 +10,7 @@ const Endpoint = (state, node, service, action) => {
     self.node = node
     self.service = service
     self.action = action
-    self.local = self.node.id === state.nodeId
+    self.isLocal = self.node.id === state.nodeId
     self.state = true
     self.name = `${node.id}:${action.name}`
 

@@ -14,8 +14,11 @@ const MESSAGE_RESPONSE_STREAM_END = 'response_stream_end'
 const MESSAGE_DISCONNECT = 'disconnect'
 const MESSAGE_HEARTBEAT = 'heartbeat'
 const MESSAGE_EVENT = 'event'
+const MESSAGE_GOSSIP_REQUEST = 'gossip_request'
+const MESSAGE_GOSSIP_RESPONSE = 'gossip_response'
+const MESSAGE_GOSSIP_HELLO = 'gossip_hello'
 
-module.exports = {
+const messageTypes = {
     MESSAGE_UNKNOWN,
     MESSAGE_DISCOVERY,
     MESSAGE_INFO,
@@ -25,5 +28,10 @@ module.exports = {
     MESSAGE_RESPONSE_STREAM_END,
     MESSAGE_DISCONNECT,
     MESSAGE_HEARTBEAT,
-    MESSAGE_EVENT
+    MESSAGE_EVENT,
+    MESSAGE_GOSSIP_HELLO,
+    MESSAGE_GOSSIP_RESPONSE,
+    MESSAGE_GOSSIP_REQUEST
 }
+
+module.exports = messageTypes

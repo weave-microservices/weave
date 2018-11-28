@@ -1,6 +1,6 @@
 const Weave = require('../lib/index.js')
 // Create broker #1
-const adapters = require('../adapters')
+const adapters = require('../')
 
 const broker1 = Weave({
     nodeId: 'node-1',

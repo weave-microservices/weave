@@ -30,7 +30,7 @@ const makeCallUtils = ({ state, log, registry }) => {
             context = contextFactory.create(action, nodeId, params, opts, endpoint)
         }
 
-        if (endpoint.local) {
+        if (endpoint.isLocal) {
             log.debug(`Call action local.`, { action: actionName, requestId: context.requestId })
         } else {
             log.debug(`Call action on remote node.`, { action: actionName, nodeId, requestId: context.requestId })

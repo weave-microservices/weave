@@ -22,7 +22,6 @@ const FakeTransporter = (options) => {
 
     self.connect = (isTryReconnect = false) => {
         self.emit('adapter.connected', false)
-        makeSubscribtions()
         return Promise.resolve()
     }
 
@@ -37,24 +36,12 @@ const FakeTransporter = (options) => {
         return Promise.resolve()
     }
 
-    return self
-
-    function makeSubscribtions () {
-        subscribe(MessageTypes.MESSAGE_DISCOVERY)
-        subscribe(MessageTypes.MESSAGE_DISCOVERY, self.nodeId)
-        subscribe(MessageTypes.MESSAGE_INFO)
-        subscribe(MessageTypes.MESSAGE_INFO, self.nodeId)
-        subscribe(MessageTypes.MESSAGE_REQUEST, self.nodeId)
-        subscribe(MessageTypes.MESSAGE_RESPONSE, self.nodeId)
-        subscribe(MessageTypes.MESSAGE_DISCONNECT)
-        subscribe(MessageTypes.MESSAGE_HEARTBEAT)
-        subscribe(MessageTypes.MESSAGE_EVENT, self.nodeId)
-    }
-
-    function subscribe (type, nodeId) {
+    self.subscribe = (type, nodeId) => {
         const topic = self.getTopic(type, nodeId)
         self.bus.on(topic, message => self.incommingMessage(type, message))
     }
+
+    return self
 }
 
 module.exports = FakeTransporter

@@ -19,7 +19,6 @@ const makeLocalRequestProxy = ({ call, log, registry, Errors }) =>
             log.warn(`Service ${actionName} is not available localy.`)
             return Promise.reject('Service not found')
         }
-        // const options = {}
 
         return endpoint.action.handler(context)
     }

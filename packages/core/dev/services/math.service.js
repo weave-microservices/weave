@@ -3,7 +3,6 @@ module.exports = {
     actions: {
         add: {
             handler (context) {
-                console.log('ich laufe jetzt we')
                 return 2342
             }
         },

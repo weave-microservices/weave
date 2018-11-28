@@ -14,11 +14,14 @@ function TransportBase () {
     self.interruptionCount = 0
     self.reattemptCount = 0
 
-    self.init = ({ state, log, nodeId, messageHandler, afterConnectHandler, serializer }) => {
+    self.init = ({ state, log, nodeId, messageHandler, afterConnectHandler, registry, Message, MessageTypes }) => {
         self.log = log
+        self.registry = registry
         self.nodeId = nodeId
         self.messageHandler = messageHandler
         self.afterConnect = afterConnectHandler
+        self.Message = Message
+        self.MessageTypes = MessageTypes
 
         if (state.namespace) {
             prefix += `-${state.namespace}`
@@ -71,6 +74,10 @@ function TransportBase () {
         } catch (error) {
             throw Error(error)
         }
+    }
+
+    self.subscribe = (type, nodeId) => {
+        throw new Error('Not implemented.')
     }
 
     return self

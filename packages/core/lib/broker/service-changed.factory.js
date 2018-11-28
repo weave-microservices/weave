@@ -4,14 +4,14 @@
  * Copyright 2018 Fachwerk
  */
 
-const serviceChangedFactory = ({ transport, broadcastLocal }) =>
+const serviceChangedFactory = ({ state, transport, broadcastLocal }) =>
     /**
      * Notify about service changes.
      * @param {any} isLocalService
      */
     (isLocalService) => {
         broadcastLocal('$services.changed', { isLocalService })
-        if (isLocalService && transport) {
+        if (state.isStarted && isLocalService && transport) {
             transport.sendNodeInfo()
         }
     }

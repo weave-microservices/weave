@@ -9,6 +9,9 @@ const broker1 = Weave({
     requestTimeout: 2000,
     registry: {
         // preferLocal: false
+    },
+    retryPolicy: {
+        enabled: true
     }
 })
 
@@ -25,7 +28,7 @@ broker1.createService({
             handler (context) {
                 return new Promise((resolve, reject) => {
                     console.log(context.retryCount)
-                    if (context.retryCount < 6) {
+                    if (context.retryCount < 4) {
                         return reject(new Errors.WeaveRetrieableError('ohjeee'))
                     }
                     return resolve('gutt')

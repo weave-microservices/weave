@@ -70,13 +70,13 @@ const MakeEventCatalog = ({ state }) => {
                 .map(list => {
                     if (isBroadcast) {
                         list.endpoints.map(endpoint => {
-                            if (endpoint.local && endpoint.action.handler) {
+                            if (endpoint.isLocal && endpoint.action.handler) {
                                 endpoint.action.handler(payload, sender, eventName)
                             }
                         })
                     } else {
                         const endpoint = list.getNextLocalEndpoint()
-                        if (endpoint && endpoint.local && endpoint.action.handler) {
+                        if (endpoint && endpoint.isLocal && endpoint.action.handler) {
                             endpoint.action.handler(payload, sender, eventName)
                         }
                     }
@@ -85,7 +85,7 @@ const MakeEventCatalog = ({ state }) => {
         list ({ onlyLocals = false, skipInternals = false, withEndpoints = false }) {
             const result = []
             events.forEach(list => {
-                if (skipInternals && /^\$node/.test(action.name)) {
+                if (skipInternals && /^\$node/.test(list.name)) {
                     return
                 }
 
@@ -98,7 +98,7 @@ const MakeEventCatalog = ({ state }) => {
                     hasAvailable: list.hasAvailable(),
                     groupName: list.groupName,
                     hasLocal: list.hasLocal(),
-                    count: list.count(),
+                    count: list.count()
                 }
 
                 if (item.count > 0) {

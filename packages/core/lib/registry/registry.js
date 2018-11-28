@@ -33,7 +33,7 @@ const MakeRegistry = ({
         if (typeof action.visibility === 'undefined' || action.visibility === 'public') {
             return true
         }
-        if (action.visibility === 'protected' && node.local) {
+        if (action.visibility === 'protected' && node.isLocal) {
             return true
         }
         return false
@@ -139,7 +139,7 @@ const MakeRegistry = ({
             }
 
             const transport = self.getTransport()
-            if (node.local) {
+            if (node.isLocal) {
                 action.handler = middlewareHandler.wrapHandler('localAction', action.handler, action)
             } else {
                 action.handler = middlewareHandler.wrapHandler('remoteAction', transport.request.bind(transport), action)

@@ -2,8 +2,36 @@ const { Weave, TransportAdapters } = require('../lib/index.js')
 // Create broker #1
 
 const broker1 = Weave({
-    nodeId: 'node-1',
-    transport: 'fake',
+    nodeId: 'tcp-1',
+    transport: {
+        type: 'tcp',
+        options: {
+            urls: [
+                'tcp://localhost:1234/tcp-1',
+                'tcp://localhost:1235/tcp-2'
+            ]
+        }
+    },
+    logger: console,
+    logLevel: 'debug',
+    preferLocal: false,
+    cacher: true,
+    registry: {
+        // preferLocal: false
+    }
+})
+
+const broker2 = Weave({
+    nodeId: 'tcp-2',
+    transport: {
+        type: 'tcp',
+        options: {
+            urls: [
+                'tcp://localhost:1235/tcp-2',
+                'tcp://localhost:1234/tcp-1'
+            ]
+        }
+    },
     logger: console,
     logLevel: 'debug',
     preferLocal: false,
@@ -32,12 +60,10 @@ broker1.createService({
         before: {
             'hello': [
                 function (context, result) {
-                    // return Promise.resolve(result)
                     this.log.debug('testmessage')
                     this.log.debug('before1')
                 },
                 function (context, result) {
-                    // return Promise.resolve(result)
                     this.log.debug('before2')
                 },
                 'test'
@@ -50,23 +76,13 @@ broker1.createService({
         }
     }
 })
-// Create broker #2
-const broker2 = Weave({
-    nodeId: 'node-2',
-    transport: 'fake',
-    logger: console,
-    cacher: true,
-    registry: {
-        // preferLocal: false
-    }
-})
 
 Promise.all([
     broker1.start(),
     broker2.start()
 ]).then(() => {
     setInterval(() => {
-        broker2.call('test.hello', { name: 'John Doe' })
+        broker1.call('test.hello', { name: 'John Doe' })
             .then(function (result) {
                 broker1.log.debug(result)
             })

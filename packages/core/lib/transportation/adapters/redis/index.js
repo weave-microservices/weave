@@ -61,10 +61,12 @@ function RedisTransporter (options) {
             clientSub.on('close', () => {
                 self.connected = false
             })
-        }).then(() => {
-            self.emit('adapter.connected', false)
-            makeSubscribtions()
         })
+            .then(() => {
+                setTimeout(() => {
+                    self.emit('adapter.connected', false)
+                }, 1)
+            })
     }
 
     self.close = () => {
@@ -84,20 +86,28 @@ function RedisTransporter (options) {
         return Promise.resolve()
     }
 
+    self.subscribe = (type, nodeId) => {
+        clientSub.subscribe(self.getTopic(type, nodeId))
+        return Promise.resolve()
+    }
+
     return self
 
-    function makeSubscribtions () {
-        // register transportation handler.
-        subscribe(MessageTypes.MESSAGE_DISCOVERY)
-        subscribe(MessageTypes.MESSAGE_DISCOVERY, self.nodeId)
-        subscribe(MessageTypes.MESSAGE_INFO)
-        subscribe(MessageTypes.MESSAGE_INFO, self.nodeId)
-        subscribe(MessageTypes.MESSAGE_REQUEST, self.nodeId)
-        subscribe(MessageTypes.MESSAGE_RESPONSE, self.nodeId)
-        subscribe(MessageTypes.MESSAGE_DISCONNECT)
-        subscribe(MessageTypes.MESSAGE_HEARTBEAT)
-        subscribe(MessageTypes.MESSAGE_EVENT, self.nodeId)
-    }
+    // function makeSubscribtions () {
+    //     // register transportation handler.
+    //     return new Promise(resolve => {
+    //         subscribe(MessageTypes.MESSAGE_DISCOVERY)
+    //         subscribe(MessageTypes.MESSAGE_DISCOVERY, self.nodeId)
+    //         subscribe(MessageTypes.MESSAGE_INFO)
+    //         subscribe(MessageTypes.MESSAGE_INFO, self.nodeId)
+    //         subscribe(MessageTypes.MESSAGE_REQUEST, self.nodeId)
+    //         subscribe(MessageTypes.MESSAGE_RESPONSE, self.nodeId)
+    //         subscribe(MessageTypes.MESSAGE_DISCONNECT)
+    //         subscribe(MessageTypes.MESSAGE_HEARTBEAT)
+    //         subscribe(MessageTypes.MESSAGE_EVENT, self.nodeId)
+    //         resolve()
+    //     })
+    // }
 
     function subscribe (type, nodeId) {
         clientSub.subscribe(self.getTopic(type, nodeId))

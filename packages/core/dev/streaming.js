@@ -1,13 +1,13 @@
-const Weave = require('../lib/index.js')
-const adapters = require('../adapters')
+const { Weave, TransportAdapters } = require('../lib/index.js')
 const fs = require('fs')
 const path = require('path')
+const { Readable } = require('stream')
 
 const broker1 = Weave({
     nodeId: 'node-1',
-    transport: adapters.Redis(),
+    transport: 'redis',
     logger: console,
-    logLevel: 'debug',
+    // logLevel: 'debug',
     middlewares: [{
         localAction: function (handler, action) {
             if (action.name === 'file.get') {
@@ -26,22 +26,39 @@ broker1.createService({
     name: 'file',
     actions: {
         get (context) {
-            return fs.createReadStream('/Users/kevinries/Desktop/moco-project-0.1.3.dmg')
+            return fs.createReadStream('/Users/kevinries/Downloads/StarCraft-Setup.zip')
         },
         save (context) {
             const stream = context.params
             const { fileName } = context.meta
             const newStream = fs.createWriteStream(path.join(__dirname, 'test', Date.now() + fileName))
+
+            const startTime = Date.now()
             stream.pipe(newStream)
+            stream.on('data', chunk => {
+                this.uploadedSize += chunk.length
+                this.broker.log.info('RECV: ', this.uploadedSize)
+            })
+
+            stream.on('end', () => {
+                const endTime = Date.now()
+
+                this.broker.log.info(`Transfered ${this.uploadedSize} bytes in ${endTime - startTime} ms`)
+            })
         }
+    },
+    created () {
+        this.uploadedSize = 0
     }
 })
 
 // Create broker #2
 const broker2 = Weave({
     nodeId: 'node-2',
-    transport: adapters.Redis(),
-    logger: console
+    transport: 'redis',
+    logger: console,
+    // logLevel: 'debug'
+
 })
 
 broker2.createService({
@@ -62,26 +79,8 @@ Promise.all([
         .then(() => {
             broker2.call('file.get').then(function (stream) {
                 broker2.call('file.save', stream, { meta: {
-                    fileName: 'moco-project-0.1.3.dmg'
+                    fileName: 'new.zip'
                 }})
             })
         })
-        //     broker2.call('file.get').then(function (stream) {
-        //         const newFile = fs.createWriteStream(path.join(__dirname, 'test', 'moco-project-0.1.3.dmg'))
-        //         stream.pipe(newFile)
-        //         let uploadedSize = 0
-        //         stream.on('data', chunk => {
-        //             uploadedSize += chunk.length
-        //         })
-
-        //         newFile.on('close', () => {
-        //             broker2.log.info('RECV: ' + uploadedSize)
-        //         })
-
-        //         newFile.on('error', () => {
-        //             broker2.log.info('RECV: ' + uploadedSize)
-        //         })
-        //         broker1.log.info('ok')
-        //     })
-        // })
 })
