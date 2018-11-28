@@ -175,7 +175,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 <a name="0.5.0"></a>
 # 0.5.0 (2018-09-17)
 
-**Note:** Version bump only for package @weave/weave-core
+**Note:** Version bump only for package @weave/@weave-js/core
 
 
 
@@ -189,7 +189,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 Changed the interface of the module. The weave factory method is now provided as a property of the module.
 
 ```js
-    const { Weave, Errors, TransportAdapters, Constants } = require('weave-core')
+    const { Weave, Errors, TransportAdapters, Constants } = require('@weave-js/core')
 
     const broker = Weave({
         nodeId: 'node-1',
@@ -515,7 +515,7 @@ $ weave-runner services
 Example weave.config.js file with a REDIS transport, placed in the root of your project.
 
 ```js
-const Weave = require('weave-core')
+const Weave = require('@weave-js/core')
 
 module.exports = {
     logLevel: 'debug',

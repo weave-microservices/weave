@@ -1,6 +1,6 @@
 <img src="Logo.png" width="400">
 
-[![npm version](https://badge.fury.io/js/weave-core.svg)](https://badge.fury.io/js/weave-core) [![Maintainability](https://api.codeclimate.com/v1/badges/cb59174696fd9021813a/maintainability)](https://codeclimate.com/github/fachw3rk/weave/maintainability) [![npm version](https://david-dm.org/fachw3rk/weave.svg)](https://david-dm.org/fachw3rk/weave) [![Downloads](https://img.shields.io/npm/dt/weave-core.svg)](https://www.npmjs.com/package/weave-core)
+[![npm version](https://badge.fury.io/js/@weave-js/core.svg)](https://badge.fury.io/js/@weave-js/core) [![Maintainability](https://api.codeclimate.com/v1/badges/cb59174696fd9021813a/maintainability)](https://codeclimate.com/github/fachw3rk/weave/maintainability) [![npm version](https://david-dm.org/fachw3rk/weave.svg)](https://david-dm.org/fachw3rk/weave) [![Downloads](https://img.shields.io/npm/dt/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/core)
 # Weave
 
 Weave is a fast and easy to use  microservice framework for NodeJS (>= v6.x).
@@ -22,13 +22,13 @@ Weave is a fast and easy to use  microservice framework for NodeJS (>= v6.x).
 
 # Installation
 ```
-$ npm install weave-core --save
+$ npm install @weave-js/core --save
 ```
 
 # Quick start
 This example shows you how to create a small service with an `add` action which can add two numbers.
 ```js
-const { Weave } = require('weave-core')
+const { Weave } = require('@weave-js/core')
 
 let broker = Weave({ logLevel: 'debug' })
 
