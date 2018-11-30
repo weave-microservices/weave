@@ -40,6 +40,7 @@ broker1.createService({
         }
     }
 })
+
 // Create broker #2
 const broker2 = Weave({
     nodeId: 'node-2',

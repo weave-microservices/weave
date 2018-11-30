@@ -7,7 +7,7 @@
 const TransportBase = require('../transport-base')
 const Redis = require('ioredis')
 const { defaultsDeep } = require('lodash')
-const MessageTypes = require('../../message-types')
+// const MessageTypes = require('../../message-types')
 
 function RedisTransporter (options) {
     const self = TransportBase(options)
@@ -87,8 +87,11 @@ function RedisTransporter (options) {
     }
 
     self.subscribe = (type, nodeId) => {
-        clientSub.subscribe(self.getTopic(type, nodeId))
-        return Promise.resolve()
+        return new Promise(resolve => {
+            clientSub.subscribe(self.getTopic(type, nodeId), () => {
+                return resolve()
+            })
+        })
     }
 
     return self
@@ -108,10 +111,6 @@ function RedisTransporter (options) {
     //         resolve()
     //     })
     // }
-
-    function subscribe (type, nodeId) {
-        clientSub.subscribe(self.getTopic(type, nodeId))
-    }
 }
 
 module.exports = RedisTransporter
