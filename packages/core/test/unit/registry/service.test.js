@@ -50,7 +50,7 @@ describe('Service generation', () => {
             makeService({
                 // name: 'someServiceName'
             })
-        }).toThrow('Must to set a service name!')
+        }).toThrow('Service name is missing!')
     })
 
     it('Should have a broker interface', () => {

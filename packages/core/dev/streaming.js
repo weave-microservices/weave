@@ -1,7 +1,6 @@
-const { Weave, TransportAdapters } = require('../lib/index.js')
+const { Weave } = require('../lib/index.js')
 const fs = require('fs')
 const path = require('path')
-const { Readable } = require('stream')
 
 const broker1 = Weave({
     nodeId: 'node-1',
@@ -55,8 +54,7 @@ broker1.createService({
 // Create broker #2
 const broker2 = Weave({
     nodeId: 'node-2',
-    transport: 'redis',
-    logger: console,
+    transport: 'redis'
     // logLevel: 'debug'
 
 })

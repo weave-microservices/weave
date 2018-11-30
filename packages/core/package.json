@@ -47,10 +47,11 @@
   },
   "devDependencies": {
     "benchmarkify": "^2.1.0",
-    "eslint": "^5.8.0",
+    "eslint": "^5.9.0",
     "eslint-config-fw": "^1.0.1",
     "eslint-loader": "^2.1.1",
     "jest": "^23.6.0",
+    "jest-cli": "^23.6.0",
     "lolex": "^3.0.0",
     "sinon": "^7.1.1"
   },

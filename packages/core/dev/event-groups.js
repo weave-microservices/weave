@@ -15,7 +15,7 @@ broker1.createService({
     name: 'payment',
     events: {
         'user.created' () {
-            this.log.info(this.broker.nodeId, ' - PAYMENT: Event received!');
+            this.log.info(this.broker.nodeId, ' - PAYMENT: Event received!')
         }
     }
 })
@@ -26,7 +26,7 @@ broker1.createService({
         'user.created': {
             group: 'payment',
             handler () {
-                this.log.info(this.broker.nodeId, ' - OTHER: Event received!');
+                this.log.info(this.broker.nodeId, ' - OTHER: Event received!')
             }
         }
     }
@@ -37,7 +37,7 @@ broker1.createService({
     events: {
         'user.created': {
             handler () {
-                this.log.info(this.broker.nodeId, ' - MAIL: Event received!');
+                this.log.info(this.broker.nodeId, ' - MAIL: Event received!')
             }
         }
     }
@@ -55,7 +55,7 @@ broker2.createService({
     name: 'payment',
     events: {
         'user.created' () {
-            this.log.info(this.broker.nodeId, ' - PAYMENT: Event received!');
+            this.log.info(this.broker.nodeId, ' - PAYMENT: Event received!')
         }
     }
 })
@@ -77,7 +77,7 @@ broker2.createService({
     events: {
         'user.created': {
             handler () {
-                this.log.info(this.broker.nodeId, ' - MAIL: Event received!');
+                this.log.info(this.broker.nodeId, ' - MAIL: Event received!')
             }
         }
     }
