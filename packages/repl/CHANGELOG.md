@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.25](https://github.com/fachw3rk/weave/compare/@weave-js/repl@0.0.24...@weave-js/repl@0.0.25) (2018-11-30)
+
+**Note:** Version bump only for package @weave-js/repl
+
+
+
+
+
 ## [0.0.24](https://github.com/fachw3rk/weave/compare/@weave-js/repl@0.0.23...@weave-js/repl@0.0.24) (2018-11-28)
 
 **Note:** Version bump only for package @weave-js/repl
