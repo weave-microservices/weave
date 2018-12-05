@@ -40,6 +40,7 @@
     "lerna": "^3.4.3",
     "lodash": "^4.17.11",
     "nanomatch": "^1.2.13",
+    "nats": "^1.0.1",
     "node-object-hash": "^1.4.1",
     "node-strict": "^1.0.1",
     "norma": "^0.4.1",
@@ -59,7 +60,7 @@
     "testEnvironment": "node",
     "rootDir": "./lib",
     "roots": [
-      "../test"
+      "../test/integration"
     ]
   },
   "directories": {

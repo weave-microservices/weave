@@ -6,7 +6,7 @@
 
 const utils = require('../utils')
 
-const makeMemoryCacher = ({ makeMiddleware, generateCacheKey, getDefaultOptions }) =>
+const makeMemoryCache = ({ makeMiddleware, generateCacheKey, getDefaultOptions }) =>
     (opts) => {
         const cache = {}
         const name = 'Memory'
@@ -88,4 +88,4 @@ const makeMemoryCacher = ({ makeMiddleware, generateCacheKey, getDefaultOptions 
         }
     }
 
-module.exports = makeMemoryCacher
+module.exports = makeMemoryCache

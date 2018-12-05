@@ -4,6 +4,8 @@ const actionWrapperFactory = require('../../../lib/broker/action-wrapper.factory
 
 const wrapAction = actionWrapperFactory({ state })
 const contextFactoryFactory = require('../../../lib/broker/context.factory')
+const middlewareHandlerFactory = require('../../../lib/broker/middleware-handler.factory')
+
 // const shouldCollectMetricsFactory = require('../../../lib/broker/should-collect-metrics.factory')
 
 const contextFactory = require('../../../lib/broker/context')
@@ -18,15 +20,16 @@ const makeContext = contextFactory({
     bus: {}
 })
 const makeContextFactory = contextFactoryFactory({ state, Context: makeContext })
+const middlewareHandler = middlewareHandlerFactory()()
 
-describe('Service generation', () => {
+describe.only('Service generation', () => {
     let makeService
 
     beforeEach(() => {
         makeService = serviceFactory({
             state,
             addLocalService: jest.fn(),
-            cacher: {},
+            cache: {},
             call: jest.fn(),
             getLogger: jest.fn(),
             contextFactory: makeContextFactory,
@@ -35,7 +38,8 @@ describe('Service generation', () => {
             log: jest.fn(),
             validator: jest.fn(),
             registry: jest.fn(),
-            statistics: jest.fn()
+            statistics: jest.fn(),
+            middlewareHandler
         })
     })
 
@@ -59,7 +63,7 @@ describe('Service generation', () => {
         })
         expect(service.broker).toBeDefined()
         expect(service.broker.options).toBeDefined()
-        expect(service.broker.cacher).toBeDefined()
+        expect(service.broker.cache).toBeDefined()
         expect(service.broker.call).toBeDefined()
         expect(service.broker.contextFactory).toBeDefined()
         expect(service.broker.emit).toBeDefined()
@@ -84,9 +88,9 @@ describe('Service generation', () => {
         expect(service.actions).toBeInstanceOf(Object)
         expect(service.broker).toBeDefined()
         expect(service.settings).toBeDefined()
-        expect(service.started).toBeDefined()
+        expect(service.start).toBeDefined()
         expect(service.state).toBeDefined()
-        expect(service.version).toBeUndefined()
+        expect(service.stop).toBeUndefined()
     })
 })
 
@@ -97,7 +101,7 @@ describe('Test action creation', () => {
         makeService = serviceFactory({
             state,
             addLocalService: jest.fn(),
-            cacher: {},
+            cache: {},
             call: jest.fn(),
             getLogger: jest.fn(),
             contextFactory: makeContextFactory,
@@ -107,8 +111,7 @@ describe('Test action creation', () => {
             validator: jest.fn(),
             registry: jest.fn(),
             statistics: jest.fn(),
-            wrapAction
-
+            middlewareHandler
         })
     })
 

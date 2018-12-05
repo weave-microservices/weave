@@ -4,7 +4,7 @@
  * Copyright 2018 Fachwerk
  */
 
-const startFactory = ({ state, call, broadcast, emit, log, transport, middlewareHandler }) =>
+const startFactory = ({ state, call, broadcast, emit, log, transport, middlewareHandler, stop }) =>
     /**
      * Start the broaker
      * @returns <Promise>
@@ -17,7 +17,10 @@ const startFactory = ({ state, call, broadcast, emit, log, transport, middleware
                     return transport.connect()
                 }
             })
-            .then(() => Promise.all(state.services.map(service => service.start(service))))
+            .then(() => Promise.all(state.services.map(service => {
+                const re = service.start()
+                return re
+            })))
             .catch(error => {
                 log.error('Unable to start all services', error)
                 clearInterval(state.waitForServiceInterval)
@@ -36,7 +39,7 @@ const startFactory = ({ state, call, broadcast, emit, log, transport, middleware
             .then(() => {
                 if (state.isStarted) {
                     if (state.options.started) {
-                        state.options.started.call(state)
+                        state.options.started.call(null, { state, call, broadcast, emit, log, transport, middlewareHandler, stop })
                     }
                 }
             })

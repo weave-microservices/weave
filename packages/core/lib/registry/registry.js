@@ -6,10 +6,10 @@
 
 'use strict'
 
-const MakeNodeCatalog = require('./node-catalog')
-const MakeServiceCatalog = require('./service-catalog')
-const MakeActionCatalog = require('./action-catalog')
-const MakeEventCatalog = require('./event-catalog')
+const MakeNodeCollection = require('./node-collection')
+const MakeServiceCollection = require('./service-collection')
+const MakeActionCollection = require('./action-collection')
+const MakeEventCollection = require('./event-collection')
 const Endpoint = require('./endpoint')
 const EventEmitterMixin = require('../utils/event-emitter-mixin')
 
@@ -23,10 +23,10 @@ const MakeRegistry = ({
     const self = Object.assign({}, EventEmitterMixin())
 
     self.log = getLogger('REGISTRY')
-    self.nodes = MakeNodeCatalog({ registry: self, log: self.log, state, bus })
-    self.services = MakeServiceCatalog({ registry: self, log: self.log, state })
-    self.actions = MakeActionCatalog({ registry: self, log: self.log, state })
-    self.events = MakeEventCatalog({ registry: self, log: self.log, state })
+    self.nodes = MakeNodeCollection({ registry: self, log: self.log, state, bus })
+    self.services = MakeServiceCollection({ registry: self, log: self.log, state })
+    self.actions = MakeActionCollection({ registry: self, log: self.log, state })
+    self.events = MakeEventCollection({ registry: self, log: self.log, state })
     self.getTransport = () => {}
 
     function checkActionVisibility (action, node) {

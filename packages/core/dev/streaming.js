@@ -17,7 +17,7 @@ const broker1 = Weave({
             return handler
         }
     }],
-    cacher: true,
+    cache: true,
     preferLocal: false
 })
 

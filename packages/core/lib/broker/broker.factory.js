@@ -13,10 +13,11 @@ const makeBroker = ({
     broadcastFactory,
     bus,
     callUtilsFactory,
+    codecFactory,
     defaultOptions,
     destroyServiceFactory,
-    eventUtilsFactory,
     Errors,
+    eventUtilsFactory,
     healthFactory,
     loadServiceFactory,
     loadServicesFactory,
@@ -31,7 +32,6 @@ const makeBroker = ({
     registryFactory,
     replFactory,
     resolveCacheFactory,
-    serializerFactory,
     serviceChangedFactory,
     serviceCreatorFactory,
     serviceFactory,
@@ -40,7 +40,7 @@ const makeBroker = ({
     stateFactory,
     stopFactory,
     transportFactory,
-    transports,
+    TransportAdapters,
     utils,
     watchServiceFactory
 }) => {
@@ -58,7 +58,7 @@ const makeBroker = ({
         const state = stateFactory({ pkg, createId: utils.createNodeId, Errors })(options)
         const getLogger = loggerFactory({ state, options })
         const middlewareHandler = middlewareHandlerFactory({ state, getLogger })()
-        const serializer = serializerFactory({ getLogger, options })
+        const codec = codecFactory({ getLogger, options })
         const log = state.log = getLogger('WEAVE')
 
         log.info(`Initializing #weave node version ${state.version}`)
@@ -70,33 +70,39 @@ const makeBroker = ({
 
         const wrapAction = actionWrapperFactory({ state })
         const registry = registryFactory({
-            state,
-            getLogger,
             bus,
+            Errors,
+            getLogger,
             middlewareHandler,
-            Errors
+            state
         })
 
         const localEventEmitter = localEventEmitterFactory({ registry })
 
         const waitForServices = serviceWaiterFactory({
-            state,
             log,
-            registry
+            registry,
+            state
         })
 
-        const { setContextFactory, call } = callUtilsFactory({
-            state,
+        const {
+            call,
+            setContextFactory
+        } = callUtilsFactory({
             log,
             options,
             registry,
+            state,
             statistics
         })
 
-        const { setEventTransport, emit } = eventUtilsFactory({
-            state,
+        const {
+            emit,
+            setEventTransport
+        } = eventUtilsFactory({
+            bus,
             registry,
-            bus
+            state
         })
 
         const broadcastLocal = localBroadcastFactory({
@@ -118,39 +124,24 @@ const makeBroker = ({
         setContextFactory(contextFactory)
 
         if (options.transport) {
-            const adapter = transports.resolve(options.transport)
+            const adapter = TransportAdapters.resolve(options.transport)
             if (adapter) {
                 transport = transportFactory({
-                    state,
                     bus,
+                    call,
+                    codec,
+                    Context,
+                    contextFactory,
                     Errors,
                     getLogger,
-                    localEventEmitter, // realy needed?
-                    call,
-                    registry,
+                    localEventEmitter, // todo: check if realy neaded
                     options,
-                    transport: adapter,
-                    contextFactory,
-                    Context,
-                    serializer
+                    registry,
+                    state,
+                    adapter
                 })
             }
         }
-
-        // const transport = options.transport ? transportFactory({
-        //     state,
-        //     bus,
-        //     Errors,
-        //     getLogger,
-        //     localEventEmitter, // realy needed?
-        //     call,
-        //     registry,
-        //     options,
-        //     transport: options.transport,
-        //     contextFactory,
-        //     Context,
-        //     serializer
-        // }) : null
 
         registry.getTransport = () => {
             return transport
@@ -161,8 +152,8 @@ const makeBroker = ({
 
         const health = healthFactory({ state, transport })
         const servicesChanged = serviceChangedFactory({ state, transport, broadcastLocal })
-        const start = startFactory({ state, log, transport, middlewareHandler })
         const stop = stopFactory({ state, log, transport, middlewareHandler })
+        const start = startFactory({ state, log, transport, middlewareHandler, stop, call, emit, broadcast })
         const repl = replFactory({ state, log, call, health, start, stop, registry, statistics })
         const addLocalService = addLocalServiceFactory({ state, registry, servicesChanged })
 
@@ -208,28 +199,28 @@ const makeBroker = ({
         }
 
         const broker = {
-            getNextAvailableActionEndpoint: registry.getNextAvailableActionEndpoint,
-            createService,
-            loadService,
-            loadServices,
-            health,
-            repl,
-            start,
-            stop,
-            options: state.options,
-            state,
+            broadcast,
             call,
             contextFactory,
+            createService,
             emit,
-            broadcast,
             getLogger,
+            getNextAvailableActionEndpoint: registry.getNextAvailableActionEndpoint,
+            health,
+            loadService,
+            loadServices,
             log,
-            validator,
+            nodeId: state.nodeId,
+            options: state.options,
             registry,
+            repl,
+            start,
+            state,
             statistics,
+            stop,
             transport,
-            waitForServices,
-            nodeId: state.nodeId
+            validator,
+            waitForServices
         }
 
         middlewareHandler.init(broker)

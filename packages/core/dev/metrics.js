@@ -8,7 +8,7 @@ const broker1 = Weave({
     logLevel: 'debug',
     preferLocal: false,
     requestTimeout: 4000,
-    cacher: true,
+    cache: true,
     metrics: {
         enabled: true,
         metricRate: 1

@@ -4,7 +4,7 @@
  * Copyright 2018 Fachwerk
  */
 
-const makeMiddlwareHandler = (brokerObject) =>
+const makeMiddlwareHandler = () =>
     () => {
         const list = []
         // todo: renaming middlwareDependencies

@@ -31,10 +31,6 @@ const makeServiceFactory = ({
             throw new WeaveError('Schema is missing!')
         }
 
-        if (schema.started) {
-            schema.started = promisify(schema.started.bind(self))
-        }
-
         if (schema.mixins) {
             schema = applyMixins(schema)
         }
@@ -169,7 +165,7 @@ const makeServiceFactory = ({
                     }
                 }).then(() => {
                     if (isFunction(schema.started)) {
-                        return schema.started.call(self)
+                        return promisify(schema.started, { scope: self })()
                     }
 
                     if (Array.isArray(schema.started)) {
@@ -188,7 +184,7 @@ const makeServiceFactory = ({
                 })
                 .then(() => {
                     if (isFunction(schema.stopped)) {
-                        return promisify(schema.stopped.call(self))
+                        return promisify(schema.stopped, { scope: self })()
                     }
 
                     if (Array.isArray(schema.stopped)) {

@@ -8,7 +8,7 @@ const broker1 = Weave({
     logger: console,
     logLevel: 'debug',
     preferLocal: false,
-    cacher: true,
+    cache: true,
     internalActions: false,
     registry: {
         // preferLocal: false
@@ -38,7 +38,7 @@ const broker2 = Weave({
     nodeId: 'node-2',
     transport: adapters.Fake(),
     logger: console,
-    cacher: true,
+    cache: true,
     internalActions: false,
     registry: {}
 })

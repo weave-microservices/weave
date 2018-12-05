@@ -8,7 +8,7 @@ const { Weave } = require('../../lib/index.js')
 const broker = Weave({
     nodeId: hostname + '-server',
     // loadInternalMiddlewares: false
-    cacher: true
+    cach: true
     // logLevel: 'debug'
 })
 
@@ -16,8 +16,8 @@ broker.createService({
     name: 'math',
     actions: {
         add: {
-            handler (ctx) {
-                return Number(ctx.params.a) + Number(ctx.params.b)
+            handler (context) {
+                return Number(context.params.a) + Number(context.params.b)
             }
         }
     }

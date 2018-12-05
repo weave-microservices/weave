@@ -7,7 +7,7 @@
 const middelwareFactory = ({ set, get, generateCacheKey }) => {
     return (handler, action) => {
         if (action.cache) {
-            return function cacherMiddleware (context) {
+            return function cacheMiddleware (context) {
                 const cacheHashKey = generateCacheKey(action.name, context.params, action.cache.keys)
                 context.isCachedResult = false
                 return get(cacheHashKey).then((content) => {

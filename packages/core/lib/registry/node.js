@@ -11,6 +11,7 @@ class Node {
         this.isLocal = false
         this.client = null
         this.cpu = null
+        this.cpuSequence = null
         this.lastHeartbeatTime = Date.now()
         this.isAvailable = true
         this.services = []
@@ -29,6 +30,7 @@ class Node {
             const newVal = Math.round(result.avg)
             if (this.cpu !== newVal) {
                 this.cpu = Math.round(result.avg)
+                this.cpuSequence++
             }
         })
     }
@@ -36,6 +38,7 @@ class Node {
     heartbeat (payload) {
         this.lastHeartbeatTime = Date.now()
         this.cpu = payload.cpu
+        this.cpuSequence = payload.cpuSequence || 1
         this.isAvailable = true
     }
 

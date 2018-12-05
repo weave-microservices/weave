@@ -6,7 +6,7 @@
 
 const Redis = require('ioredis')
 
-const makeRedisCacher = ({ makeMiddleware, generateCacheKey, getDefaultOptions }) =>
+const makeRedisCache = ({ makeMiddleware, generateCacheKey, getDefaultOptions }) =>
     opts => {
         const name = 'Redis'
 
@@ -78,4 +78,4 @@ const makeRedisCacher = ({ makeMiddleware, generateCacheKey, getDefaultOptions }
         }
     }
 
-module.exports = makeRedisCacher
+module.exports = makeRedisCache

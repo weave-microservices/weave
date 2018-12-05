@@ -7,7 +7,7 @@
 const { hash } = require('node-object-hash')({ sort: false, coerce: false })
 const { isObject } = require('lodash')
 
-const makeBaseCacher = ({ state, use, bus, getLogger, options }) => {
+const makeBaseCache = ({ state, use, bus, getLogger, options }) => {
     return {
         log: getLogger('CACHER'),
         init (state) {
@@ -37,4 +37,4 @@ const makeBaseCacher = ({ state, use, bus, getLogger, options }) => {
 
     }
 }
-module.exports = makeBaseCacher
+module.exports = makeBaseCache

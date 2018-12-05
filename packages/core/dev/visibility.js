@@ -52,7 +52,7 @@ const broker2 = Weave({
     nodeId: 'node-2',
     transport: TransportAdapters.Fake(),
     logger: console,
-    cacher: true,
+    cache: true,
     registry: {
         // preferLocal: false
     }

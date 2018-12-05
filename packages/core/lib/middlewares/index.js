@@ -1,5 +1,5 @@
 module.exports = {
-    Cacher: require('./cacher'),
+    Cache: require('./cache'),
     Timeout: require('./timeout'),
     ActionHooks: require('./action-hooks'),
     ErrorHandler: require('./error-handler'),
