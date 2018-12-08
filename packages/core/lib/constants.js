@@ -4,18 +4,18 @@
  * Copyright 2018 Fachwerk
  */
 
-module.exports = {
+module.exports.loadBalancingStrategy = {
     ROUND_ROBIN: 'round_robin',
     RANDOM: 'random'
 }
 
-module.exports.LIFECYCLE_HOOKS = [
+module.exports.lifecycleHook = [
     'created',
     'started',
     'stopped'
 ]
 
-module.exports.LOG_LEVEL = {
+module.exports.logLevel = {
     trace: 'trace',
     info: 'info',
     debug: 'debug',

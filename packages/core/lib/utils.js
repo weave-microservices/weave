@@ -120,6 +120,18 @@ module.exports = {
         })
     },
     delay: ms => new Promise(_ => setTimeout(_, ms)),
+    saveCopy (obj) {
+        const cache = new WeakSet()
+        return JSON.parse(JSON.stringify(obj, (key, value) => {
+            if (typeof value === 'object' && value !== null) {
+                if (cache.has(value)) {
+                    return
+                }
+                cache.add(value)
+            }
+            return value
+        }))
+    },
     getIpList () {
         const list = []
         const interfaces = os.networkInterfaces()

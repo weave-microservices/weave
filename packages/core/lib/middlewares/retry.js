@@ -1,5 +1,11 @@
+
+/*
+ * Author: Kevin Ries (kevin@fachw3rk.de)
+ * -----
+ * Copyright 2018 Fachwerk
+ */
+
 const { delay } = require('../utils')
-// const { WeaveRequestTimeoutError } = require('../../errors')
 
 const wrapRetryMiddleware = function (handler, action) {
     const self = this

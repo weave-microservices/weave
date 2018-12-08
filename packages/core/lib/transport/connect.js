@@ -4,12 +4,13 @@
  * Copyright 2018 Fachwerk
  */
 
-const connectFactory = ({ adapter, log }) =>
+const connectFactory = ({ adapter, log, transport }) =>
     () => {
-        log.info('Connecting to transport adapter...')
-        const doConnect = (isTryReconnect) => {
-            return adapter.connect(isTryReconnect)
-                .catch((error) => {
+        return new Promise(resolve => {
+            transport.resolveConnect = resolve
+            log.info('Connecting to transport adapter...')
+            const doConnect = (isTryReconnect) => {
+                const errorHandler = error => {
                     log.warn('Connection failed')
                     log.debug('Error ' + error.message)
                     if (!error.skipRetry) {
@@ -18,9 +19,12 @@ const connectFactory = ({ adapter, log }) =>
                             doConnect(true)
                         }, 5 * 1000)
                     }
-                })
-        }
-        return doConnect(false)
+                }
+                return adapter.connect(isTryReconnect, errorHandler)
+                    .catch(errorHandler)
+            }
+            doConnect(false)
+        })
     }
 
 module.exports = connectFactory

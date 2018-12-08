@@ -1,4 +1,4 @@
-const { Weave, TransportAdapters } = require('../lib/index.js')
+const { Weave } = require('../lib/index.js')
 // Create broker #1
 
 const broker1 = Weave({
@@ -41,38 +41,16 @@ const broker2 = Weave({
     }
 })
 
-broker1.createService({
-    name: 'test',
+broker2.createService({
+    name: 'math',
     actions: {
         hello: {
-            cache: {
-                keys: ['name']
-            },
             params: {
                 name: { type: 'string' }
             },
             handler (context) {
                 return 'Hello ' + context.params.name
             }
-        }
-    },
-    hooks: {
-        before: {
-            'hello': [
-                function (context, result) {
-                    this.log.debug('testmessage')
-                    this.log.debug('before1')
-                },
-                function (context, result) {
-                    this.log.debug('before2')
-                },
-                'test'
-            ]
-        }
-    },
-    methods: {
-        test () {
-            this.log.debug('testmessage')
         }
     }
 })

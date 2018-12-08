@@ -4,10 +4,15 @@
  * Copyright 2018 Fachwerk
  */
 
-const { ROUND_ROBIN, LOG_LEVEL } = require('../constants')
+const { logLevel, loadBalancingStrategy } = require('../constants')
 
 module.exports = {
-    // cache settimngs
+    bulkhead: {
+        concurrency: 1,
+        enabled: false,
+        maxQueueSize: 10
+    },
+    // cache settings
     cache: false,
     circuitBreaker: {
         enabled: false,
@@ -27,13 +32,15 @@ module.exports = {
     // load Internal service actions
     internalActionsAccessable: false,
     // loadbalancing stategy
-    loadBalancingStrategy: ROUND_ROBIN,
+    loadBalancingStrategy: loadBalancingStrategy.ROUND_ROBIN,
     // log level
     loadInternalMiddlewares: true,
     // activate action statistics
     logger: console,
     // logging class
-    logLevel: LOG_LEVEL.info,
+    logLevel: logLevel.info,
+    // maximum queue size
+    maxQueueSize: null,
     // metrics settings
     metrics: {
         enabled: false,

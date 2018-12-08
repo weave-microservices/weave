@@ -1,3 +1,9 @@
+/*
+ * Author: Kevin Ries (kevin@fachw3rk.de)
+ * -----
+ * Copyright 2018 Fachwerk
+ */
+
 const { WeaveError } = require('../errors')
 
 const wrapErrorHandlerMiddleware = function (handler) {

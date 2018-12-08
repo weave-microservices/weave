@@ -3,12 +3,10 @@
  * -----
  * Copyright 2018 Fachwerk
  */
-'use strict'
 
 const ObjectValidator = require('fw-object-validator')
-const { WeaveParameterValidationError } = require('./errors')
 
-const makeValidator = () => {
+const makeValidator = ({ Errors }) => {
     const self = Object.create(null)
     const validator = ObjectValidator()
 
@@ -29,7 +27,7 @@ const makeValidator = () => {
                     if (result === true) {
                         return handler(context)
                     } else {
-                        return Promise.reject(new WeaveParameterValidationError('Parameter validation error', null, result))
+                        return Promise.reject(new Errors.WeaveParameterValidationError('Parameter validation error', null, result))
                     }
                 }
             }

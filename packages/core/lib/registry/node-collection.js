@@ -58,9 +58,9 @@ const MakeNodeCollection = ({
                 node.lastHeartbeatTime = Date.now()
             }
 
-            node.update(payload)
+            const updateNesesary = node.update(payload)
 
-            if (node.services) {
+            if (updateNesesary && node.services) {
                 registry.registerServices(node, node.services)
             }
 

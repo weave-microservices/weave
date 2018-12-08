@@ -41,7 +41,7 @@ const deps = {
     transportFactory: require('../transport'),
     TransportAdapters,
     utils: require('../utils'),
-    validatorFactory: require('../validator'),
+    validatorFactory: require('./validator.factory'),
     watchServiceFactory: require('./watch-service.factory')
 }
 

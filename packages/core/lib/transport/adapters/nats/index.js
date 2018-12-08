@@ -7,11 +7,11 @@
 const TransportBase = require('../transport-base')
 const { defaultsDeep } = require('lodash')
 
-function NATSTransportAdapter (options) {
-    const self = TransportBase(options)
+function NATSTransportAdapter (adapterOptions) {
+    const self = TransportBase(adapterOptions)
     let client
 
-    options = defaultsDeep(options, {
+    adapterOptions = defaultsDeep(adapterOptions, {
         url: 'nats://localhost:4222'
     })
 
@@ -28,10 +28,11 @@ function NATSTransportAdapter (options) {
                 error.skipRetry = true
                 return reject(error)
             }
-            client = NATS.connect(options)
+            client = NATS.connect(adapterOptions)
 
             client.on('connect', () => {
                 if (self.interruptionCount > 0 && !self.connected) {
+                    self.log.info(`NATS client connected.`)
                     self.emit('adapter.connected', true)
                 }
                 self.connected = true
@@ -39,26 +40,30 @@ function NATSTransportAdapter (options) {
             })
 
             client.on('error', (error) => {
-                self.log.error('Nats error ' + error)
-                return reject(error)
+                self.log.error('NATS error ' + error.message)
+                if (!self.connected) {
+                    reject(error)
+                }
             })
 
             client.on('disconnect', () => {
                 if (self.connected) {
                     self.connected = false
                     self.interruptionCount++
+                    self.log.warn(`NATS client disconnected.`)
                     self.emit('adapter.disconnected', false)
                 }
             })
 
             client.on('reconnecting', () => {
-                self.log.error('Try to reconnect...')
+                self.log.warn(`NATS client is reconnecting...`)
             })
 
             client.on('reconnect', (nc) => {
                 if (!self.connected) {
                     self.connected = true
                     self.interruptionCount
+                    self.log.info(`NATS client reconnected.`)
                     self.emit('adapter.connected', false)
                 }
             })

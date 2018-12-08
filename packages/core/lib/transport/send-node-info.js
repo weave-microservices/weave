@@ -4,8 +4,12 @@
  * Copyright 2018 Fachwerk
  */
 
-module.exports = ({ send, registry, Message, MessageTypes }) =>
+module.exports = ({ send, registry, Message, MessageTypes, transport }) =>
     (sender) => {
+        if (!transport.isConnected || !transport.isReady) {
+            return Promise.resolve()
+        }
+
         const info = registry.getLocalNodeInfo()
-        send(Message(MessageTypes.MESSAGE_INFO, sender, info))
+        return send(Message(MessageTypes.MESSAGE_INFO, sender, info))
     }

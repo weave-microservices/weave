@@ -1,12 +1,12 @@
 const { Weave } = require('../lib/index.js')
 const fs = require('fs')
 const path = require('path')
+const { Transform } = require('stream')
 
 const broker1 = Weave({
-    namespace: 'stream',
+    namespace: 'stream-client-server',
     nodeId: 'node-1' + process.pid,
     transport: 'redis',
-    logger: console,
     logLevel: 'info',
     middlewares: [{
         localAction: function (handler, action) {
@@ -17,7 +17,9 @@ const broker1 = Weave({
             }
             return handler
         }
-    }]
+    }],
+    cache: true,
+    preferLocal: false
 })
 
 broker1.createService({
@@ -43,6 +45,16 @@ broker1.createService({
 
                 this.broker.log.info(`Transfered ${this.uploadedSize} bytes in ${endTime - startTime} ms`)
             })
+        },
+        reverse (context) {
+            const stream = context.params
+            return stream.pipe(new Transform({
+                transform: function (chunk, encoding, done) {
+                    const textArray = chunk.toString().split('')
+                    this.push(textArray.reverse().join(''))
+                    return done()
+                }
+            }))
         }
     },
     created () {
@@ -50,35 +62,6 @@ broker1.createService({
     }
 })
 
-// Create broker #2
-const broker2 = Weave({
-    namespace: 'stream',
-    nodeId: 'node-2' + process.pid,
-    transport: 'redis',
-    logLevel: 'info'
-
-})
-
-broker2.createService({
-    name: 'test2',
-    actions: {
-        hello (context) {
-            this.log.info(context.level)
-            return context.call('test3.hello')
-        }
-    }
-})
-
 Promise.all([
-    broker1.start(),
-    broker2.start()
-]).then(() => {
-    broker2.waitForServices(['file'])
-        .then(() => {
-            broker2.call('file.get').then(function (stream) {
-                broker2.call('file.save', stream, { meta: {
-                    fileName: 'new.zip'
-                }})
-            })
-        })
-})
+    broker1.start()
+])

@@ -3,9 +3,7 @@
  * -----
  * Copyright 2018 Fachwerk
  */
-
-'use strict'
-
+3
 const chalk = require('chalk')
 const util = require('util')
 
@@ -24,7 +22,7 @@ module.exports = {
             }
         }
 
-        const getLogLevelFormated = level => getColor(level)(level.padEnd(10))
+        const getLogLevelFormated = level => getColor(level)(level.toUpperCase())
 
         const getModuleName = () => {
             let module

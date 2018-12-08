@@ -23,7 +23,8 @@ const deps = {
     makeSendNodeInfo: require('./send-node-info'),
     makeSetReady: require('./set-ready.factory'),
     Message: makeMessage(MessageTypes),
-    MessageTypes
+    MessageTypes,
+    utils: require('../utils')
 }
 
 module.exports = require('./transport.factory')(deps)

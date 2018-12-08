@@ -9,9 +9,7 @@ const { match } = require('../utils.js')
 
 const MakeEventCollection = ({ state }) => {
     const events = []
-
     const getAllEvents = () => events
-
     const getAllEventsByEventName = (eventName) => getAllEvents().filter(list => match(eventName, list.name))
 
     return {

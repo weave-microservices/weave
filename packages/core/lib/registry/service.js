@@ -1,9 +1,8 @@
 'use strict'
 
-const { WeaveError } = require('../errors')
 const { isFunction, isObject, forIn, cloneDeep } = require('lodash')
 const { mergeSchemas } = require('../utils')
-const { LIFECYCLE_HOOKS } = require('../constants')
+const { lifecycleHook } = require('../constants')
 const { promisify } = require('fachwork')
 
 const makeServiceFactory = ({
@@ -12,6 +11,7 @@ const makeServiceFactory = ({
     call,
     contextFactory,
     emit,
+    Errors,
     broadcast,
     broadcastLocal,
     health,
@@ -28,7 +28,7 @@ const makeServiceFactory = ({
         const self = Object.create(null)
 
         if (!schema) {
-            throw new WeaveError('Schema is missing!')
+            throw new Errors.WeaveError('Schema is missing!')
         }
 
         if (schema.mixins) {
@@ -36,7 +36,7 @@ const makeServiceFactory = ({
         }
 
         if (!schema.name) {
-            throw new WeaveError('Service name is missing!')
+            throw new Errors.WeaveError('Service name is missing!')
         }
 
         self.state = state
@@ -109,7 +109,7 @@ const makeServiceFactory = ({
         if (isObject(schema.methods)) {
             forIn(schema.methods, (method, name) => {
                 if (['log', 'actions', 'log', 'events', 'settings', 'methods', 'dependencies'].includes(name)) {
-                    throw new WeaveError(`Invalid method name ${name} in service ${self.name}.`)
+                    throw new Errors.WeaveError(`Invalid method name ${name} in service ${self.name}.`)
                 }
                 self[name] = method.bind(self)
             })
@@ -126,7 +126,7 @@ const makeServiceFactory = ({
                 }
 
                 if (!event.handler) {
-                    throw new WeaveError(`Missing event handler for '${name}' event in service '${self.name}'`)
+                    throw new Errors.WeaveError(`Missing event handler for '${name}' event in service '${self.name}'`)
                 }
 
                 if (!event.name) {
@@ -149,6 +149,7 @@ const makeServiceFactory = ({
             if (isFunction(schema.created)) {
                 schema.created.call(self)
             }
+
             if (Array.isArray(schema.created)) {
                 Promise.all(schema.created.map(createdHook => createdHook.call(self)))
             }
@@ -205,11 +206,12 @@ const makeServiceFactory = ({
             const handler = action.handler
 
             if (!isFunction(handler)) {
-                throw new WeaveError(`Missing action handler in ${name} on service ${self.name}.`)
+                throw new Errors.WeaveError(`Missing action handler in ${name} on service ${self.name}.`)
             }
 
             action.name = self.name + '.' + (action.name || name)
             action.shortName = name
+
             if (self.version) {
                 action.name = `v${self.version}.${action.name}`
             }
@@ -226,7 +228,7 @@ const makeServiceFactory = ({
 
             const mixedSchema = mixins.reduce((s, mixin) => {
                 for (var key in mixin) {
-                    if (LIFECYCLE_HOOKS.includes(key)) {
+                    if (lifecycleHook.includes(key)) {
                         mixin[key] = promisify(mixin[key].bind(self))
                     }
                 }

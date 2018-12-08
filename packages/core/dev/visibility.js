@@ -1,5 +1,5 @@
 const { Weave, TransportAdapters } = require('../lib/index.js')
-// Create broker 
+// Create broker
 const broker1 = Weave({
     nodeId: 'node-1',
     transport: TransportAdapters.Fake(),
@@ -12,7 +12,7 @@ broker1.createService({
     name: 'test',
     actions: {
         hello: {
-            // visibility: 'protected',
+            visibility: 'protected',
             cache: {
                 keys: ['name']
             },

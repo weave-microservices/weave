@@ -28,10 +28,16 @@ broker1.createService({
         },
         hello2: {
             handler (context) {
-                return context.call('test.hello3')
+                return context.call('test.hello3', { name: 'test' })
             }
         },
         hello3: {
+            cache: {
+                keys: ['name']
+            },
+            params: {
+                name: 'string'
+            },
             handler (context) {
                 return context.call('test.hello4')
             }

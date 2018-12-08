@@ -1,3 +1,9 @@
+/*
+ * Author: Kevin Ries (kevin@fachw3rk.de)
+ * -----
+ * Copyright 2018 Fachwerk
+ */
+
 const { promiseTimeout } = require('../utils')
 const { WeaveRequestTimeoutError } = require('../errors')
 
@@ -13,6 +19,7 @@ const wrapTimeoutMiddleware = function (handler, action) {
         }
 
         let promise = handler(context)
+
         if (context.options.timeout > 0) {
             promise = promiseTimeout(context.options.timeout, promise, new WeaveRequestTimeoutError(context.action.name, context.nodeId))
         }

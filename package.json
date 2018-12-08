@@ -17,6 +17,6 @@
   },
   "homepage": "https://github.com/fachw3rk/weave#readme",
   "dependencies": {
-    "lerna": "^3.4.3"
+    "lerna": "^3.5.1"
   }
 }

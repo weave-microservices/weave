@@ -4,10 +4,10 @@
  * Copyright 2018 Fachwerk
  */
 
-const connectFactory = ({ adapter, send, Message, MessageTypes }) =>
+const disconnectFactory = ({ adapter, send, Message, MessageTypes }) =>
     () => {
         return send(Message(MessageTypes.MESSAGE_DISCONNECT))
             .then(() => adapter.close())
     }
 
-module.exports = connectFactory
+module.exports = disconnectFactory

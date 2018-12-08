@@ -19,7 +19,6 @@ module.exports = class TCPWriteStream extends Writable {
             }
 
             const crc = packet[1] ^ packet[2] ^ packet[3] ^ packet[4] ^ packet[5]
-            console.log(packet[0])
             if (crc !== packet[0]) {
                 callback(new Error(`Invalid cyclic redundancy check.`))
             }

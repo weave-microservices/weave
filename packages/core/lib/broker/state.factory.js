@@ -16,7 +16,7 @@ const stateFactory = ({ pkg, createId, Errors }) =>
         state.middlewares = []
         state.isStarted = false
         state.waitForServiceInterval = null
-        state.actionCount = 0
+        state.actionCount = 0 // todo: needed?
 
         if (options.started && typeof options.started !== 'function') {
             throw new Errors.WeaveError('Started hook have to be a function.')

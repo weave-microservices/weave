@@ -4,7 +4,15 @@
  * Copyright 2018 Fachwerk
  */
 
-const requestFactory = ({ log, send, pendingRequests, Message, MessageTypes }) =>
+const requestFactory = ({
+    Errors,
+    log,
+    Message,
+    MessageTypes,
+    options,
+    pendingRequests,
+    send
+}) =>
     (context) => {
         function doRequest (context, resolve, reject) {
             const isStream = context.params && context.params.readable === true && typeof context.params.on === 'function' && typeof context.params.pipe === 'function'
@@ -40,6 +48,7 @@ const requestFactory = ({ log, send, pendingRequests, Message, MessageTypes }) =
                 .then(() => {
                     if (isStream) {
                         const stream = context.params
+                        payload.meta = {}
 
                         stream.on('data', chunk => {
                             const payloadCopy = Object.assign({}, payload)
@@ -55,12 +64,24 @@ const requestFactory = ({ log, send, pendingRequests, Message, MessageTypes }) =
                             payloadCopy.isStream = false
                             return send(Message(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy))
                         })
+
                         stream.on('error', (bhunk) => {
                             return send(Message(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload))
                         })
                     }
                 })
         }
+
+        // If queue size is set, check queue size and reject the request.
+        if (options.maxQueueSize && options.maxQueueSize < pendingRequests.size) {
+            return Promise.reject(new Errors.WeaveQueueSizeExceededError({
+                action: context.action.name,
+                limit: options.maxQueueSize,
+                nodeId: context.nodeId,
+                size: pendingRequests.size
+            }))
+        }
+
         return new Promise((resolve, reject) => doRequest(context, resolve, reject))
     }
 

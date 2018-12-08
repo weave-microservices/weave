@@ -8,21 +8,32 @@ const { cpuUsage } = require('fachwork')
 class Node {
     constructor (nodeId) {
         this.id = nodeId
+        this.info = null
         this.isLocal = false
         this.client = null
         this.cpu = null
         this.cpuSequence = null
         this.lastHeartbeatTime = Date.now()
+        this.offlineTime = null
         this.isAvailable = true
         this.services = []
+        this.sequence = 0
         this.events = null
         this.IPList = []
     }
 
     update (payload) {
         this.services = payload.services
+        this.events = payload.events
         this.client = payload.client || {}
         this.IPList = payload.IPList || []
+
+        const newSequence = payload.sequence || 1
+        if (newSequence > this.sequence) {
+            this.sequence = newSequence
+            return true
+        }
+        return false
     }
 
     updateLocalInfo () {
@@ -36,13 +47,21 @@ class Node {
     }
 
     heartbeat (payload) {
+        if (!this.isAvailable) {
+            this.isAvailable = true
+            this.offlineTime = Date.now()
+        }
+
         this.lastHeartbeatTime = Date.now()
         this.cpu = payload.cpu
         this.cpuSequence = payload.cpuSequence || 1
-        this.isAvailable = true
     }
 
     disconnected (isUnexpected) {
+        if (this.isAvailable) {
+            this.offlineTime = Date.now()
+            this.sequence++
+        }
         this.isAvailable = false
     }
 }

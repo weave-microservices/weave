@@ -41,10 +41,19 @@ function TCPTransporter (options) {
             .then(() => startTimers())
             .then(() => {
                 self.log.info('TCP transport started.')
+                self.registry.generateLocalNodeInfo()
+            })
+            .then(() => {
+                self.emit('adapter.connected', false, false)
             })
     }
 
+    self.subscribe = (type, nodeId) => {
+        return Promise.resolve()
+    }
+
     self.close = () => {
+        clearInterval(gossipTimer)
         return Promise.resolve()
     }
 
@@ -107,8 +116,8 @@ function TCPTransporter (options) {
                     if (!endpoint) {
                         return
                     }
+                    // Get own port from url list
                     if (endpoint.nodeId === self.nodeId) {
-                        // get own point from url list
                         if (endpoint.port) {
                             options.port = endpoint.port
                         }
@@ -165,10 +174,10 @@ function TCPTransporter (options) {
                 if (!node.isLocal) {
                     onlineNodes.push(node)
                 }
-                payload.online[node.id] = [node.cpu || 0]
+                payload.online[node.id] = [node.sequence, node.cpuSequence || 0, node.cpu || 0]
             } else {
                 offlineNodes.push(node)
-                payload.offline[node.id] = [node.cpu || 0]
+                payload.offline[node.id] = [node.sequence, node.cpuSequence || 0, node.cpu || 0]
             }
         })
 
@@ -202,12 +211,12 @@ function TCPTransporter (options) {
     }
 
     function onGossipHelloMessage (payload, socket) {
-        try {
+        try {
             const message = self.deserialize(payload)
-            const nodeId = message.pa
+            const nodeId = message.nodeId
         } catch (error) {
-
-        }  
+            self.log.error(`Invalid gossip hello message.`, error.message)
+        }
     }
 
     function onGossipRequestMessage (data, socket) {
@@ -216,29 +225,103 @@ function TCPTransporter (options) {
             const payload = message.payload
             const list = self.registry.nodes.toArray()
 
+            const response = {
+                online: {},
+                offline: {}
+            }
+
             list.map(node => {
                 const online = payload.online ? payload.online[node.id] : null
                 const offline = payload.offline ? payload.offline[node.id] : null
 
-                let seq, cpuSeq, cpu
+                let sequence, cpuSequence, cpu
+
+                if (offline) {
+                    sequence = offline
+                } else {
+                    [sequence, cpuSequence, cpu] = online
+                }
 
                 if (offline) {
                     // sender said node is offline
                     if (!node.isAvailable) {
                         // we know node is offline
+                    } else if (!node.isLocal) {
+                        // I am this node myself
+                        if (node.id === self.nodeId) {
+
+                        }
+                    } else if (node.isLocal) {
+                        node.sequence++
+                        const nodeInfo = self.registry.getLocalNodeInfo(true)
+                        response.online[node.id] = [nodeInfo, node.cpuSequence || 0, node.cpu || 0]
                     }
                 } else if (online) {
-
+                    if (node.isAvailable) {
+                        if (cpuSequence > node.cpuSequence) {
+                            node.heartbeat({
+                                cpu,
+                                cpuSequence
+                            })
+                        }
+                    } else {
+                        return
+                    }
                 }
-
             })
+
+            if (Object.keys(response.online).length === 0) {
+                delete response.online
+            }
+
+            if (Object.keys(response.offline).length === 0) {
+                delete response.offline
+            }
+
+            if (response.online || response.offline) {
+                const destinationNode = self.registry.nodes.get(payload.sender)
+                const message = self.Message(self.MessageTypes.MESSAGE_GOSSIP_RESPONSE, destinationNode.id, response)
+                self.send(message)
+            }
         } catch (error) {
             self.log.error(error)
-        }  
+        }
     }
 
-    function onGossipResponseMessage (message, socket) {
-        
+    function onGossipResponseMessage (data, socket) {
+        try {
+            const message = self.deserialize(data)
+            const payload = message.payload
+            // const list = self.registry.nodes.toArray()
+
+            if (payload.online) {
+                Object.keys(payload.online).forEach(nodeId => {
+                    if (nodeId === self.nodeId) return
+
+                    const item = payload.online[nodeId]
+
+                    if (!Array.isArray(item)) return
+
+                    const [info, cpuSequence, cpu] = item
+
+                    const node = self.registry.nodes.get(nodeId)
+
+                    if (info && (!node || node.sequence < info.sequence)) {
+                        info.sender = nodeId
+                        self.registry.nodes.processNodeInfo(info)
+                    }
+
+                    if (node && cpuSequence && cpuSequence > node.cpuSequence) {
+                        node.heartbeat({
+                            cpu,
+                            cpuSequence
+                        })
+                    }
+                })
+            }
+        } catch (error) {
+            self.log.error(error)
+        }
     }
 
     function onMessage (message, socket) {

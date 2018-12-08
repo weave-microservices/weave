@@ -42,6 +42,7 @@ const makeBroker = ({
     transportFactory,
     TransportAdapters,
     utils,
+    validatorFactory,
     watchServiceFactory
 }) => {
     /**
@@ -157,7 +158,7 @@ const makeBroker = ({
         const repl = replFactory({ state, log, call, health, start, stop, registry, statistics })
         const addLocalService = addLocalServiceFactory({ state, registry, servicesChanged })
 
-        let validator
+        const validator = validatorFactory({ Errors })
 
         const resolveCache = resolveCacheFactory({ options, Cache, Errors })
 
@@ -178,7 +179,7 @@ const makeBroker = ({
         process.on('exit', onClose)
         process.on('SIGINT', onClose)
 
-        const makeNewService = serviceFactory({ state, cache, call, emit, broadcast, broadcastLocal, health, log, getLogger, validator, registry, wrapAction, middlewareHandler, contextFactory, addLocalService, waitForServices, statistics })
+        const makeNewService = serviceFactory({ state, cache, call, emit, Errors, broadcast, broadcastLocal, health, log, getLogger, validator, registry, wrapAction, middlewareHandler, contextFactory, addLocalService, waitForServices, statistics })
         const createService = serviceCreatorFactory({ state, makeNewService, log })
         const destroyService = destroyServiceFactory({ state, log, registry, servicesChanged })
         const serviceWatcher = watchServiceFactory({ log })
@@ -232,11 +233,14 @@ const makeBroker = ({
 
             if (options.loadInternalMiddlewares) {
                 // Add the built-in middleware. (The order is important)
+
+                middlewareHandler.add(Middlewares.ActionHooks())
+
                 if (options.validate && validator) {
                     middlewareHandler.add(validator.middleware())
                 }
 
-                middlewareHandler.add(Middlewares.ActionHooks())
+                middlewareHandler.add(Middlewares.Bulkhead())
                 middlewareHandler.add(Middlewares.CircuitBreaker())
                 middlewareHandler.add(Middlewares.Timeout())
                 middlewareHandler.add(Middlewares.Retry())

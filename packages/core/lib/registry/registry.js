@@ -225,17 +225,36 @@ const MakeRegistry = ({
         self.nodes.disconnected(payload.sender, false)
     }
 
-    self.getLocalNodeInfo = () => {
-        const { client, IPList } = self.nodes.localNode
-        const services = self.services.list({
-            localOnly: true,
-            withActions: true,
-            withEvents: true,
-            withInternalActions: state.options.internalActionsAccessable,
-            withSettings: true
-        })
+    self.generateLocalNodeInfo = incrementSequence => {
+        const { client, IPList, sequence } = self.nodes.localNode
+        const nodeInfo = { client, IPList, sequence }
 
-        return { client, IPList, services }
+        if (incrementSequence) {
+            self.nodes.localNode.sequence++
+        }
+
+        if (state.isStarted) {
+            nodeInfo.services = self.services.list({
+                localOnly: true,
+                withActions: true,
+                withEvents: true,
+                withInternalActions: state.options.internalActionsAccessable,
+                withSettings: true
+            })
+        } else {
+            nodeInfo.services = []
+        }
+
+        self.nodes.localNode.info = nodeInfo
+        return nodeInfo
+    }
+
+    self.getLocalNodeInfo = forceGenerateInfo => {
+        if (forceGenerateInfo || !self.nodes.localNode.info) {
+            return self.generateLocalNodeInfo()
+        }
+
+        return self.nodes.localNode.info
     }
 
     self.getNodeList = options => self.nodes.list(options)

@@ -7,50 +7,53 @@
 const TransportBase = require('../transport-base')
 const Redis = require('ioredis')
 const { defaultsDeep } = require('lodash')
-// const MessageTypes = require('../../message-types')
 
-function RedisTransporter (options) {
-    const self = TransportBase(options)
+function RedisTransportAdapter (adapterOptions) {
+    const self = TransportBase(adapterOptions)
     let clientSub
     let clientPub
 
-    options = defaultsDeep(options, {
+    adapterOptions = defaultsDeep(adapterOptions, {
         port: 6379,
         host: '127.0.0.1'
     })
 
     self.name = 'REDIS'
 
-    self.connect = (isTryReconnect = false) => {
+    self.connect = (isTryReconnect = false, errorHandler) => {
         return new Promise((resolve, reject) => {
-            clientSub = new Redis(options)
+            clientSub = new Redis(adapterOptions)
 
             clientSub.on('connect', () => {
-                clientPub = new Redis(options)
+                clientPub = new Redis(adapterOptions)
+                self.log.info(`Redis SUB client connected.`)
                 clientPub.on('connect', () => {
                     if (self.interruptionCount > 0 && !self.connected) {
                         self.emit('adapter.connected', true)
                     }
+                    self.log.info(`Redis PUB client connected.`)
                     self.connected = true
-                    return resolve()
+                    resolve()
                 })
 
-                clientPub.on('error', (error) => {
-                    return reject(error)
+                clientPub.on('error', error => {
+                    self.log.error(`Redis PUB error:`, error.message)
+                    reject(error)
                 })
 
                 clientPub.on('close', () => {
                     if (self.connected) {
                         self.connected = false
                         self.interruptionCount++
+                        self.log.warn(`Redis PUB disconnected.`)
                         self.emit('adapter.disconnected', false)
                     }
                 })
             })
 
-            clientSub.on('error', (error) => {
-                self.log.error('Redis error ' + error)
-                return reject(error)
+            clientSub.on('error', error => {
+                self.log.error(`Redis PUB error:`, error.message)
+                reject(error)
             })
 
             clientSub.on('message', (topic, message) => {
@@ -60,12 +63,11 @@ function RedisTransporter (options) {
 
             clientSub.on('close', () => {
                 self.connected = false
+                self.log.warn(`Redis SUB disconnected.`)
             })
         })
             .then(() => {
-                setTimeout(() => {
-                    self.emit('adapter.connected', false)
-                }, 1)
+                self.emit('adapter.connected', false)
             })
     }
 
@@ -73,7 +75,6 @@ function RedisTransporter (options) {
         if (clientPub && clientSub) {
             clientPub.disconnect()
             clientSub.disconnect()
-            self.log.info('REDIS transport disconnected')
         }
         return Promise.resolve()
     }
@@ -95,22 +96,6 @@ function RedisTransporter (options) {
     }
 
     return self
-
-    // function makeSubscribtions () {
-    //     // register transportation handler.
-    //     return new Promise(resolve => {
-    //         subscribe(MessageTypes.MESSAGE_DISCOVERY)
-    //         subscribe(MessageTypes.MESSAGE_DISCOVERY, self.nodeId)
-    //         subscribe(MessageTypes.MESSAGE_INFO)
-    //         subscribe(MessageTypes.MESSAGE_INFO, self.nodeId)
-    //         subscribe(MessageTypes.MESSAGE_REQUEST, self.nodeId)
-    //         subscribe(MessageTypes.MESSAGE_RESPONSE, self.nodeId)
-    //         subscribe(MessageTypes.MESSAGE_DISCONNECT)
-    //         subscribe(MessageTypes.MESSAGE_HEARTBEAT)
-    //         subscribe(MessageTypes.MESSAGE_EVENT, self.nodeId)
-    //         resolve()
-    //     })
-    // }
 }
 
-module.exports = RedisTransporter
+module.exports = RedisTransportAdapter

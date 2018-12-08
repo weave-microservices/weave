@@ -15,5 +15,4 @@ describe.only('JSon serializer generation', () => {
         const original = serializer.deserialize(result)
         expect(original).toHaveProperty('test', 'hello')
     })
-
 })

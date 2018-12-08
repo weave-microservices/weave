@@ -1,8 +1,8 @@
 const serviceFactory = require('../../../lib/registry/service')
 const state = require('../mock/state')
-const actionWrapperFactory = require('../../../lib/broker/action-wrapper.factory')
+// const actionWrapperFactory = require('../../../lib/broker/action-wrapper.factory')
 
-const wrapAction = actionWrapperFactory({ state })
+// const wrapAction = actionWrapperFactory({ state })
 const contextFactoryFactory = require('../../../lib/broker/context.factory')
 const middlewareHandlerFactory = require('../../../lib/broker/middleware-handler.factory')
 

@@ -43,10 +43,11 @@ module.exports = ({
                             stream.end()
                             pendingRequests.delete(payload.id)
                             pendingRequestStreams.delete(payload.id)
+                            log.debug('Stream closing received from ', payload.sender)
                             return
                         } else {
                             log.debug('Stream chunk received from ', payload.sender)
-                            stream.write(payload.params.type === 'Buffer' ? new Buffer(payload.params.data) : payload.params)
+                            stream.write(payload.params.type === 'Buffer' ? Buffer.from(payload.params.data) : payload.params)
                             return
                         }
                     } else if (payload.isStream) {
@@ -91,14 +92,13 @@ module.exports = ({
                 let stream = pendingResponseStreams.get(id)
                 if (stream) {
                     if (!payload.isStream) {
-                        log.info('Stream closing received from ', payload.sender)
+                        log.debug('Stream closing received from ', payload.sender)
                         stream.end()
                         pendingRequests.delete(payload.id)
                         pendingResponseStreams.delete(payload.id)
                     } else {
                         log.debug('Stream chunk received from ', payload.sender)
-                        // console.log(payload.data)
-                        stream.write(payload.data.type === 'Buffer' ? new Buffer.from(payload.data) : payload.data)
+                        stream.write(payload.data.type === 'Buffer' ? Buffer.from(payload.data) : payload.data)
                     }
                     return request.resolve(payload.data)
                 } else {
@@ -115,7 +115,7 @@ module.exports = ({
                 }
             }
 
-            // pendingRequests.delete(payload.id)
+            pendingRequests.delete(payload.id)
             // pendingResponseStreams.delete(payload.id)
 
             if (!payload.success) {
@@ -128,6 +128,7 @@ module.exports = ({
                 if (payload.error.stack) {
                     error.stack = payload.error.stack
                 }
+
                 request.reject(error)
             }
             request.resolve(payload.data)

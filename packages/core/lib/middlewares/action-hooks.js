@@ -1,4 +1,8 @@
-'use strict'
+/*
+ * Author: Kevin Ries (kevin@fachw3rk.de)
+ * -----
+ * Copyright 2018 Fachwerk
+ */
 
 function callHook (hook, service, context, result) {
     if (typeof hook === 'function') {

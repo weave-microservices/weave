@@ -69,12 +69,19 @@ class WeaveBrokerOptionsError extends WeaveError {
     }
 }
 
+class WeaveQueueSizeExceededError extends WeaveError {
+    constructor (data) {
+        super(`Queue size limit was exceeded. Request rejected.`, 429, 'QUEUE_SIZE_EXXCEEDED', data)
+    }
+}
+
 module.exports = {
+    WeaveBrokerOptionsError,
     WeaveError,
-    WeaveRetrieableError,
-    WeaveServiceNotFoundError,
-    WeaveServiceNotAvailableError,
-    WeaveRequestTimeoutError,
     WeaveParameterValidationError,
-    WeaveBrokerOptionsError
+    WeaveQueueSizeExceededError,
+    WeaveRequestTimeoutError,
+    WeaveRetrieableError,
+    WeaveServiceNotAvailableError,
+    WeaveServiceNotFoundError
 }

@@ -20,7 +20,8 @@ const makeTransport = ({
     makeSendNodeInfo,
     makeSetReady,
     Message,
-    MessageTypes
+    MessageTypes,
+    utils
 }) =>
     ({
         adapter,
@@ -45,10 +46,9 @@ const makeTransport = ({
         const pendingRequestStreams = new Map()
         const transport = Object.create({
             isConnected: false,
-            isReady: false
+            isReady: false,
+            resolveConnect: null
         })
-
-        // const pendingRequests = new Map()
 
         const { removePendingRequestsById, removePendingRequestsByNodeId } = makeRemovePendingRequests({ log, pendingRequests })
 
@@ -62,19 +62,18 @@ const makeTransport = ({
             }
         }
 
-        // modules
         const send = makeSend({ adapter, stats, log })
         const sendBalancedEvent = makeEmit({ log, send, Message, MessageTypes })
         const sendBroadcastEvent = makeSendBroadcastEvent({ log, send, Message, MessageTypes })
-        const sendNodeInfo = makeSendNodeInfo({ send, registry, Message, MessageTypes })
-        const connect = makeConnect({ adapter, log })
+        const sendNodeInfo = makeSendNodeInfo({ send, registry, Message, MessageTypes, transport })
+        const connect = makeConnect({ adapter, log, transport })
         const disconnect = makeDisconnect({ adapter, send, Message, MessageTypes })
         const getNodeInfos = makeGetNodeInfos({ state, registry, process })
-        const request = makeRequest({ send, log, pendingRequests, Message, MessageTypes })
+        const request = makeRequest({ options, Errors, send, log, pendingRequests, Message, MessageTypes })
         const response = makeResponse({ nodeId, send, pendingRequests, Message, MessageTypes, log })
         const { discoverNodes, discoverNode } = makeDiscoverNodes({ send, Message, MessageTypes })
         const localRequestProxy = makeLocalRequestProxy({ call, log, registry, Errors: null })
-        const setReady = makeSetReady({ sendNodeInfo, transport })
+        const setReady = makeSetReady({ state, sendNodeInfo, transport })
 
         const {
             onDisconnect,
@@ -105,7 +104,7 @@ const makeTransport = ({
         adapter.init({ state, log, nodeId, messageHandler, registry, Message, MessageTypes })
             .then(() => {
                 adapter.on('adapter.connected', onConnect)
-                adapter.on('adapter.disconnected', onDisconnect)
+                // adapter.on('adapter.disconnected', onDisconnect)
                 adapter.on('adapter.message', messageHandler)
             })
 
@@ -119,23 +118,35 @@ const makeTransport = ({
             sendBalancedEvent,
             sendBroadcastEvent,
             sendNodeInfo,
-            setReady
+            setReady,
+            pendingRequests
         }
 
-        function onConnect (wasReconnect) {
+        function onConnect (wasReconnect, startHeartbeatTimers = true) {
             return Promise.resolve()
                 .then(() => {
                     if (!wasReconnect) {
                         return makeSubscriptions()
                     }
                 })
-                .then(() => discoverNodes())
+                .then(() => {
+                    return discoverNodes()
+                })
+                .then(() => utils.promiseDelay(Promise.resolve(), 500))
                 .then(() => {
                     transport.isConnected = true
-                    log.info(`'${adapter.name}' transport adapter connected`)
                     bus.emit('$transporter.connected', wasReconnect)
+
+                    if (transport.resolveConnect) {
+                        transport.resolveConnect()
+                        transport.resolveConnect = null
+                    }
                 })
-                .then(startTimers())
+                .then(() => {
+                    if (startHeartbeatTimers) {
+                        startTimers()
+                    }
+                })
         }
 
         function makeSubscriptions () {

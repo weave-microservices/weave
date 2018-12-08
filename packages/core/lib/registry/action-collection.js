@@ -3,7 +3,6 @@
  * -----
  * Copyright 2018 Fachwerk
  */
-'use strict'
 
 const { omit } = require('fachwork')
 const EndpointList = require('./endpoint-list')

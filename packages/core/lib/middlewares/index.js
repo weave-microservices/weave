@@ -1,9 +1,15 @@
+/*
+ * Author: Kevin Ries (kevin@fachw3rk.de)
+ * -----
+ * Copyright 2018 Fachwerk
+ */
+
 module.exports = {
-    Cache: require('./cache'),
-    Timeout: require('./timeout'),
     ActionHooks: require('./action-hooks'),
+    Bulkhead: require('./bulkhead'),
+    CircuitBreaker: require('./circuit-breaker'),
     ErrorHandler: require('./error-handler'),
     Metrics: require('./metrics'),
-    CircuitBreaker: require('./circuit-breaker'),
-    Retry: require('./retry')
+    Retry: require('./retry'),
+    Timeout: require('./timeout')
 }

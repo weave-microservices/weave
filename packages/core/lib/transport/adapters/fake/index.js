@@ -20,6 +20,7 @@ const FakeTransportAdapter = (options) => {
 
     self.connect = (isTryReconnect = false) => {
         self.emit('adapter.connected', false)
+        self.log.info(`Fake transport client connected.`)
         return Promise.resolve()
     }
 

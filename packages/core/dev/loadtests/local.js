@@ -7,9 +7,7 @@ const { Weave } = require('../../lib/index.js')
 // Create broker
 const broker = Weave({
     nodeId: hostname + '-server',
-    // loadInternalMiddlewares: false
     cach: true
-    // logLevel: 'debug'
 })
 
 broker.createService({

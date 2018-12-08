@@ -8,7 +8,6 @@ module.exports = ({ nodeId, send, Message, MessageTypes, log }) =>
     (target, contextId, data, error) => {
         // Check if data is a stream
         const isStream = data && data.readable === true && typeof data.on === 'function' && typeof data.pipe === 'function'
-
         const payload = {
             id: contextId,
             meta: {},
@@ -24,8 +23,7 @@ module.exports = ({ nodeId, send, Message, MessageTypes, log }) =>
                 code: error.code,
                 type: error.type,
                 stack: error.stack,
-                data: error.data,
-                isStream
+                data: error.data
             }
         }
 
@@ -40,7 +38,6 @@ module.exports = ({ nodeId, send, Message, MessageTypes, log }) =>
                 const payloadCopy = Object.assign({}, payload)
                 payloadCopy.data = chunk
                 log.debug('Send Stream chunk to ', target)
-
                 stream.pause()
                 return send(Message(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy))
                     .then(() => stream.resume())
@@ -50,8 +47,7 @@ module.exports = ({ nodeId, send, Message, MessageTypes, log }) =>
                 const payloadCopy = Object.assign({}, payload)
                 payloadCopy.data = null
                 payloadCopy.isStream = false
-                log.info('Send end stream chunk to ', target)
-
+                log.debug('Send end stream chunk to ', target)
                 send(Message(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy))
             })
 
@@ -60,6 +56,7 @@ module.exports = ({ nodeId, send, Message, MessageTypes, log }) =>
             })
 
             payload.data = null
+
             return send(Message(MessageTypes.MESSAGE_RESPONSE, target, payload))
                 .then(() => stream.resume())
         }

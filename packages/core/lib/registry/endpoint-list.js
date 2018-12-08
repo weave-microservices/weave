@@ -5,7 +5,7 @@
  */
 
 const Endpoint = require('./endpoint')
-const { ROUND_ROBIN } = require('../constants')
+const { loadBalancingStrategy } = require('../constants')
 
 const EndpointList = (state, name, groupName) => {
     const self = Object.create(null)
@@ -121,13 +121,13 @@ const EndpointList = (state, name, groupName) => {
 
     function select (endpointList) {
         // round robin
-        if (options.loadBalancingStrategy === ROUND_ROBIN) {
+        if (options.loadBalancingStrategy === loadBalancingStrategy.ROUND_ROBIN) {
             if (counter >= endpointList.length) {
                 counter = 0
             }
             return endpointList[counter++]
         } else {
-            // todo
+            // todo: implement random load balancer
         }
     }
 }
