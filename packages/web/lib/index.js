@@ -27,7 +27,6 @@ module.exports = () => ({
         routes: [
             {
                 path: '/',
-                // mappingPolicy: MAPPING_POLICY_ALL
                 bodyParsers: {
                     json: true
                 }
