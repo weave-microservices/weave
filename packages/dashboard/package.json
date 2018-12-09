@@ -1,0 +1,24 @@
+{
+  "name": "@weave-js/dashboard",
+  "version": "0.0.1",
+  "description": "A service dashboard for Weave microservice framework.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "private": true,
+  "keywords": [
+    "Weave",
+    "Microservice",
+    "Framework"
+  ],
+  "author": "Kevin Ries <kevin.ries@fachwerk.io>",
+  "license": "MIT",
+  "dependencies": {
+    "@weave-js/web": "^0.4.10",
+    "socker.io": "0.0.0-alpha-beta"
+  },
+  "devDependencies": {
+    "@weave-js/core": "^0.5.23"
+  }
+}
