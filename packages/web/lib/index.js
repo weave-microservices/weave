@@ -16,7 +16,7 @@ function isReadableStream (obj) {
     return (obj instanceof stream.Readable && typeof obj._read === 'function' && typeof obj._readableState === 'object')
 }
 
-module.exports = {
+module.exports = () => ({
     name: 'weave-web',
     settings: {
         port: 3000,
@@ -672,4 +672,4 @@ module.exports = {
             }
         })
     }
-}
+})
