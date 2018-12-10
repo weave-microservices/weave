@@ -14,7 +14,12 @@
     "Microservice",
     "Framework"
   ],
-  "author": "Kevin Ries <kevin.ries@fachwerk.io>",
+  "author": {
+    "name": "Kevin Ries",
+    "company": "Fachwerk Software",
+    "email": "kevi.ries@fachwerk.io",
+    "url": "https://weave.fachwerk.io"
+  },
   "license": "MIT",
   "dependencies": {
     "@weave-js/web": "^0.4.11",

@@ -10,8 +10,13 @@
   "publishConfig": {
     "access": "public"
   },
-  "author": "Kevin Ries <kevin@fachw3rk.de>",
-  "license": "ISC",
+  "author": {
+    "name": "Kevin Ries",
+    "company": "Fachwerk Software",
+    "email": "kevi.ries@fachwerk.io",
+    "url": "https://weave.fachwerk.io"
+  },
+  "license": "MIT",
   "jest": {
     "testEnvironment": "node",
     "coveragePathIgnorePatterns": [

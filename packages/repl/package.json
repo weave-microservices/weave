@@ -10,7 +10,7 @@
     "access": "public"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "chalk": "^2.4.1",
     "clui": "^0.3.6",

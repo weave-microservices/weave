@@ -9,7 +9,12 @@
   "publishConfig": {
     "access": "public"
   },
-  "author": "Kevin Ries <kevin@fachw3rk.de>",
+  "author": {
+    "name": "Kevin Ries",
+    "company": "Fachwerk Software",
+    "email": "kevi.ries@fachwerk.io",
+    "url": "https://weave.fachwerk.io"
+  },
   "license": "ISC",
   "dependencies": {
     "fachwork": "0.0.10",

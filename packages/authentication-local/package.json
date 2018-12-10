@@ -9,7 +9,12 @@
   "publishConfig": {
     "access": "public"
   },
-  "author": "",
+  "author": {
+    "name": "Kevin Ries",
+    "company": "Fachwerk Software",
+    "email": "kevi.ries@fachwerk.io",
+    "url": "https://weave.fachwerk.io"
+  },
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^3.0.1"
