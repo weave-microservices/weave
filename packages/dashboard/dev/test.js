@@ -2,9 +2,11 @@ const path = require('path')
 const { Weave } = require('@weave-js/core')
 
 const broker = Weave({
+    namespace: 'ciris',
     nodeId: 'dashboard-test',
-    logLevel: 'debug',
-    transport: 'redis'
+    logLevel: 'info',
+    transport: 'redis',
+    watchServices: true
 })
 
 broker.createService({
