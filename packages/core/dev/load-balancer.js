@@ -1,7 +1,7 @@
 const { Weave, TransportAdapters } = require('../lib/index.js')
 
 const brokerStore = []
-for (let i = 0; i <= 5; i++) {
+for (let i = 0; i <= 200; i++) {
     const broker = createBroker(i)
     brokerStore.push(broker)
 }
@@ -22,6 +22,7 @@ Promise.all(brokerStore.map(broker => broker.start())).then(() => {
 
 function createBroker (index) {
     const broker = Weave({
+        namespace: 'ciris',
         nodeId: 'node-' + index,
         transport: TransportAdapters.Redis(),
         logLevel: 'info',

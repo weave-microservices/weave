@@ -27,10 +27,10 @@ class Node {
         this.events = payload.events
         this.client = payload.client || {}
         this.IPList = payload.IPList || []
-
         const newSequence = payload.sequence || 1
-        if (newSequence > this.sequence || isReconnected) {
+        if (newSequence > this.sequence || isReconnected) {
             this.sequence = newSequence
+            this.offlineTime = null
             return true
         }
         return false
