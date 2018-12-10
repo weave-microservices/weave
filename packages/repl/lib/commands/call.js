@@ -8,6 +8,7 @@ module.exports = (vorpal, broker) => {
 
     vorpal
         .command('call <actionName> [jsonParams]', 'Call an action.')
+        .alias('c')
         .autocomplete({
             data () {
                 return _.uniq(registry.getActionList({}).map(item => item.name))
