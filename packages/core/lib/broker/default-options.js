@@ -64,5 +64,7 @@ module.exports = {
     // load validation middleware
     validate: true,
     // reload service on code change
-    watchServices: false
+    watchServices: false,
+    // interval to check and remove not offline nodes.
+    offlineNoteCheckInterval: 1000 * 30 // 10 * 60 * 1000
 }

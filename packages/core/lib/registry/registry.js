@@ -12,18 +12,19 @@ const MakeActionCollection = require('./action-collection')
 const MakeEventCollection = require('./event-collection')
 const Endpoint = require('./endpoint')
 const EventEmitterMixin = require('../utils/event-emitter-mixin')
+const Node = require('./node')
 
 const MakeRegistry = ({
-    state,
-    getLogger,
     bus,
+    Errors,
+    getLogger,
     middlewareHandler,
-    Errors
+    state
 }) => {
     const self = Object.assign({}, EventEmitterMixin())
 
     self.log = getLogger('REGISTRY')
-    self.nodes = MakeNodeCollection({ registry: self, log: self.log, state, bus })
+    self.nodes = MakeNodeCollection({ registry: self, log: self.log, state, bus, Node })
     self.services = MakeServiceCollection({ registry: self, log: self.log, state })
     self.actions = MakeActionCollection({ registry: self, log: self.log, state })
     self.events = MakeEventCollection({ registry: self, log: self.log, state })
@@ -221,8 +222,52 @@ const MakeRegistry = ({
         return endpoint
     }
 
-    self.nodeDisconnected = payload => {
-        self.nodes.disconnected(payload.sender, false)
+    self.processNodeInfo = payload => {
+        const nodeId = payload.sender
+        let node = self.nodes.get(nodeId)
+        let isNew = false
+        let isReconnected = false
+
+        // There is no node with the specified ID. It must therefore be a new node.
+        if (!node) {
+            isNew = true
+            node = new Node(nodeId)
+            self.nodes.add(nodeId, node)
+        } else if (!node.isAvailable) {
+            // Node exists, but is marked as unavailable. It must therefore be a reconnected node.
+            isReconnected = true
+            node.isAvailable = true
+            node.lastHeartbeatTime = Date.now()
+        }
+
+        // todo: Handle multiple nodes with the same ID.
+
+        const updateNesesary = node.update(payload)
+
+        if (updateNesesary && node.services) {
+            self.registerServices(node, node.services)
+        }
+
+        if (isNew) {
+            self.emit('node.connected', { node, isReconnected })
+            self.log.info(`Node ${node.id} connected!`)
+        } else if (isReconnected) {
+            self.emit('node.connected', { node, isReconnected })
+            self.log.info(`Node ${node.id} reconnected!`)
+        } else {
+            self.emit('node.updated', { node, isReconnected })
+            self.log.info(`Node ${node.id} updated!`)
+        }
+    }
+
+    self.nodeDisconnected = (nodeId, isUnexpected) => {
+        const node = self.nodes.get(nodeId)
+        if (node && node.isAvailable) {
+            self.unregisterServiceByNodeId(node.id)
+            node.disconnected(isUnexpected)
+            self.emit('node.disconnected', nodeId, isUnexpected)
+            self.log.warn(`Node '${node.id}'${isUnexpected ? ' unexpectedly' : ''} disconnected.`)
+        }
     }
 
     self.generateLocalNodeInfo = incrementSequence => {

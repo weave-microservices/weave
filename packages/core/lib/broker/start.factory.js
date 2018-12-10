@@ -17,10 +17,7 @@ const startFactory = ({ state, call, broadcast, emit, log, transport, middleware
                     return transport.connect()
                 }
             })
-            .then(() => Promise.all(state.services.map(service => {
-                const re = service.start()
-                return re
-            })))
+            .then(() => Promise.all(state.services.map(service => service.start())))
             .catch(error => {
                 log.error('Unable to start all services', error)
                 clearInterval(state.waitForServiceInterval)

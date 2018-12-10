@@ -29,6 +29,7 @@ const deps = {
     Middlewares: require('../middlewares'),
     pkg: require('../../package.json'),
     registryFactory: require('../registry'),
+    registerLocalServiceFactory: require('./register-local-service.factory'),
     replFactory: require('./repl.factory'),
     resolveCacheFactory: require('../cache/resolve-cache.factory'),
     serviceChangedFactory: require('./service-changed.factory'),

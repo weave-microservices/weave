@@ -308,7 +308,7 @@ function TCPTransporter (options) {
 
                     if (info && (!node || node.sequence < info.sequence)) {
                         info.sender = nodeId
-                        self.registry.nodes.processNodeInfo(info)
+                        self.registry.processNodeInfo(info)
                     }
 
                     if (node && cpuSequence && cpuSequence > node.cpuSequence) {

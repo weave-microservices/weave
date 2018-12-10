@@ -5,11 +5,9 @@
  */
 'use strict'
 
-const addLocalServiceFactory = ({ state, registry, servicesChanged }) =>
-    (service, registryItem) => {
+const addLocalServiceFactory = ({ state }) =>
+    (service) => {
         state.services.push(service)
-        registry.registerLocalService(registryItem)
-        servicesChanged(true)
     }
 
 module.exports = addLocalServiceFactory

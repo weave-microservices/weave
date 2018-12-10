@@ -27,7 +27,7 @@ module.exports = ({
             sendNodeInfo(message.sender)
         },
         onNodeInfos (payload) {
-            return registry.nodes.processNodeInfo(payload)
+            return registry.processNodeInfo(payload)
         },
         onRequest (payload) {
             const id = payload.id
@@ -61,7 +61,7 @@ module.exports = ({
                     }
                 }
                 const endpoint = registry.getLocalActionEndpoint(payload.action)
-                const context = Context(endpoint) // contextFactory.create(payload.action, state.nodeId,)
+                const context = Context(endpoint)
 
                 context.id = payload.id
                 context.setParams(stream || payload.params)
@@ -134,7 +134,7 @@ module.exports = ({
             request.resolve(payload.data)
         },
         onDisconnect (payload) {
-            registry.nodeDisconnected(payload)
+            registry.nodeDisconnected(payload.sender, false)
         },
         onHeartbeat (payload) {
             // registry.nodes.heartbeat(payload)

@@ -38,6 +38,7 @@ const makeTransport = ({
     }) => {
         let heartbeatTimer
         let checkNodesTimer
+        let checkOfflineNodesTimer
 
         const nodeId = state.nodeId
         const log = getLogger('TRANSPORT')
@@ -129,9 +130,7 @@ const makeTransport = ({
                         return makeSubscriptions()
                     }
                 })
-                .then(() => {
-                    return discoverNodes()
-                })
+                .then(() => discoverNodes())
                 .then(() => utils.promiseDelay(Promise.resolve(), 500))
                 .then(() => {
                     transport.isConnected = true
@@ -147,6 +146,7 @@ const makeTransport = ({
                         startTimers()
                     }
                 })
+                // .then(() => checkOfflineNodes())
         }
 
         function makeSubscriptions () {
@@ -216,6 +216,11 @@ const makeTransport = ({
                 checkRemoteNodes()
             }, options.heartbeatTimeout)
             checkNodesTimer.unref()
+
+            checkOfflineNodesTimer = setInterval(() => {
+                checkOfflineNodes()
+            }, options.offlineNoteCheckInterval)
+            checkOfflineNodesTimer.unref()
         }
 
         function sendHeartbeat () {
@@ -225,7 +230,7 @@ const makeTransport = ({
             log.trace(`Send heartbeat from ${node.id}`)
 
             send(Message(MessageTypes.MESSAGE_HEARTBEAT, null, {
-                cpu: node.cpu + 100,
+                cpu: node.cpu,
                 cpuSequence: node.cpuSequence,
                 sequence: node.sequence
             }))
@@ -236,20 +241,20 @@ const makeTransport = ({
             registry.nodes.list({ withServices: true }).forEach(node => {
                 if (node.isLocal || !node.isAvailable) return
                 if (now - (node.lastHeartbeatTime || 0) > options.heartbeatTimeout) {
-                    disconnected(node.id, true)
+                    registry.nodeDisconnected(node.id, true)
                 }
             })
         }
-        // node disconnected
-        function disconnected (nodeId, isUnexpected) {
-            const node = registry.nodes.get(nodeId)
-            if (node && node.isAvailable) {
-                node.disconnected(isUnexpected)
-                registry.unregisterServiceByNodeId(node.id)
-                bus.emit('$node.disconnected', { node, isUnexpected })
-                log.warn(`Node ${node.id} disconnected!`)
-                removePendingRequestsByNodeId(node.id)
-            }
+
+        function checkOfflineNodes () {
+            const now = Date.now()
+            registry.nodes.list({}).forEach(node => {
+                if (node.isLocal || node.isAvailable) return
+
+                if ((now - node.offlineTime) > 10 * 60 * 1000) {
+                    registry.nodes.remove(node.id)
+                }
+            })
         }
     }
 

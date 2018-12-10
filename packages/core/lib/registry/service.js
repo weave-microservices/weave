@@ -22,7 +22,8 @@ const makeServiceFactory = ({
     registry,
     waitForServices,
     middlewareHandler,
-    statistics
+    statistics,
+    registerLocalService
 }) =>
     (schema) => {
         const self = Object.create(null)
@@ -174,6 +175,10 @@ const makeServiceFactory = ({
                     }
                 })
                 .then(() => {
+                    registerLocalService(registryItem)
+                    return null
+                })
+                .then(() => {
                     return middlewareHandler.callHandlersAsync('serviceStarted', [self])
                 })
         }
@@ -197,8 +202,9 @@ const makeServiceFactory = ({
                 })
         }
 
-        addLocalService(self, registryItem)
         middlewareHandler.callHandlersSync('serviceCreated', [self])
+
+        addLocalService(self)
 
         return self
 

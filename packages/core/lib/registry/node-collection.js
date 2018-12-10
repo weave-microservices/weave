@@ -4,7 +4,6 @@
  * Copyright 2018 Fachwerk
  */
 
-const Node = require('./node')
 const { getIpList } = require('../utils.js')
 const omit = require('fachwork')
 
@@ -12,7 +11,8 @@ const MakeNodeCollection = ({
     state,
     registry,
     log,
-    bus
+    bus,
+    Node
 }) => {
     const nodes = new Map()
 
@@ -30,6 +30,13 @@ const MakeNodeCollection = ({
         get (id) {
             return nodes.get(id)
         },
+        remove (id) {
+            const node = nodes.get(id)
+            if (node && node.isAvailable) {
+                return false
+            }
+            return nodes.delete(id)
+        },
         list ({ withServices = true }) {
             const result = []
             nodes.forEach(node => {
@@ -40,40 +47,6 @@ const MakeNodeCollection = ({
                 }
             })
             return result
-        },
-        processNodeInfo (payload) {
-            const nodeId = payload.sender
-            let node = nodes.get(nodeId)
-            let isNew = false
-            let isReconnected = false
-
-            // node doesn´t exist, so it is a new node.
-            if (!node) {
-                isNew = true
-                node = new Node(nodeId)
-                self.add(nodeId, node)
-            } else if (!node.isAvailable) {
-                isReconnected = true
-                node.isAvailable = true
-                node.lastHeartbeatTime = Date.now()
-            }
-
-            const updateNesesary = node.update(payload)
-
-            if (updateNesesary && node.services) {
-                registry.registerServices(node, node.services)
-            }
-
-            if (isNew) {
-                registry.emit('node.connected', { node, isReconnected })
-                log.info(`Node ${node.id} connected!`)
-            } else if (isReconnected) {
-                registry.emit('node.connected', { node, isReconnected })
-                log.info(`Node ${node.id} reconnected!`)
-            } else {
-                registry.emit('node.updated', { node, isReconnected })
-                log.info(`Node ${node.id} updated!`)
-            }
         },
         disconnected (nodeId, isUnexpected) {
             const node = nodes.get(nodeId)

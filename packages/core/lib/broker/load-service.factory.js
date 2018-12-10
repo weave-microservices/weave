@@ -12,7 +12,6 @@ const loadServiceFactory = ({ createService, servicesChanged, serviceWatcher, op
         const filePath = path.resolve(fileName)
         const schema = require(filePath)
         const service = createService(schema)
-        servicesChanged(true)
 
         if (options.watchServices) {
             service.filename = fileName

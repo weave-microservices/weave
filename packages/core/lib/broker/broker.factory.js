@@ -30,6 +30,7 @@ const makeBroker = ({
     Middlewares,
     pkg,
     registryFactory,
+    registerLocalServiceFactory,
     replFactory,
     resolveCacheFactory,
     serviceChangedFactory,
@@ -157,7 +158,7 @@ const makeBroker = ({
         const start = startFactory({ state, log, transport, middlewareHandler, stop, call, emit, broadcast })
         const repl = replFactory({ state, log, call, health, start, stop, registry, statistics })
         const addLocalService = addLocalServiceFactory({ state, registry, servicesChanged })
-
+        const registerLocalService = registerLocalServiceFactory({ registry, servicesChanged })
         const validator = validatorFactory({ Errors })
 
         const resolveCache = resolveCacheFactory({ options, Cache, Errors })
@@ -179,7 +180,7 @@ const makeBroker = ({
         process.on('exit', onClose)
         process.on('SIGINT', onClose)
 
-        const makeNewService = serviceFactory({ state, cache, call, emit, Errors, broadcast, broadcastLocal, health, log, getLogger, validator, registry, wrapAction, middlewareHandler, contextFactory, addLocalService, waitForServices, statistics })
+        const makeNewService = serviceFactory({ state, cache, call, emit, Errors, broadcast, broadcastLocal, health, log, getLogger, validator, registry, wrapAction, middlewareHandler, contextFactory, addLocalService, waitForServices, statistics, registerLocalService })
         const createService = serviceCreatorFactory({ state, makeNewService, log })
         const destroyService = destroyServiceFactory({ state, log, registry, servicesChanged })
         const serviceWatcher = watchServiceFactory({ log })
