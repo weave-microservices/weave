@@ -48,15 +48,15 @@ const MakeNodeCollection = ({
             })
             return result
         },
-        disconnected (nodeId, isUnexpected) {
-            const node = nodes.get(nodeId)
-            if (node && node.isAvailable) {
-                registry.unregisterServiceByNodeId(node.id)
-                node.disconnected(isUnexpected)
-                registry.emit('node.disconnected', nodeId, isUnexpected)
-                log.warn(`Node '${node.id}'${isUnexpected ? ' unexpectedly' : ''} disconnected.`)
-            }
-        },
+        // disconnected (nodeId, isUnexpected) {
+        //     const node = nodes.get(nodeId)
+        //     if (node && node.isAvailable) {
+        //         registry.unregisterServiceByNodeId(node.id)
+        //         node.disconnected(isUnexpected)
+        //         registry.emit('node.disconnected', nodeId, isUnexpected)
+        //         log.warn(`Node '${node.id}'${isUnexpected ? ' unexpectedly' : ''} disconnected.`)
+        //     }
+        // },
         toArray () {
             const result = []
             nodes.forEach(node => result.push(node))

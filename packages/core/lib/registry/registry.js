@@ -242,7 +242,7 @@ const MakeRegistry = ({
 
         // todo: Handle multiple nodes with the same ID.
 
-        const updateNesesary = node.update(payload)
+        const updateNesesary = node.update(payload, isReconnected)
 
         if (updateNesesary && node.services) {
             self.registerServices(node, node.services)

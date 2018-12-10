@@ -22,14 +22,14 @@ class Node {
         this.IPList = []
     }
 
-    update (payload) {
+    update (payload, isReconnected) {
         this.services = payload.services
         this.events = payload.events
         this.client = payload.client || {}
         this.IPList = payload.IPList || []
 
         const newSequence = payload.sequence || 1
-        if (newSequence > this.sequence) {
+        if (newSequence > this.sequence || isReconnected) {
             this.sequence = newSequence
             return true
         }
