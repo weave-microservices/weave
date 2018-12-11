@@ -1,14 +1,13 @@
 {
   "name": "@weave-js/dashboard",
   "version": "0.0.3",
-  "description": "A service dashboard for Weave microservice framework.",
+  "description": "A landscape monitor for Weave microservice framework.",
   "main": "lib/index.js",
   "scripts": {
     "prepublishOnly": "vue-cli-service build",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build"
   },
-  "private": true,
   "keywords": [
     "Weave",
     "Microservice",
