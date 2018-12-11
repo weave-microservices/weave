@@ -8,7 +8,7 @@ Vue.config.productionTip = false
 
 Vue.use(new VueSocketIO({
   debug: true,
-  connection: window.location.hostname + ':4445',
+  connection: window.location.host,
   vuex: {
       store,
       actionPrefix: 'SOCKET_',

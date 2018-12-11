@@ -24,7 +24,7 @@
   "dependencies": {
     "@weave-js/web": "^0.4.11",
     "socket.io": "^2.2.0",
-    "vue": "^2.5.19",
+    "vue": "^2.5.20",
     "vue-router": "^3.0.2",
     "vue-socket.io": "^3.0.4",
     "vuex": "^3.0.1"
@@ -33,6 +33,6 @@
     "@vue/cli-plugin-babel": "^3.2.0",
     "@vue/cli-service": "^3.2.0",
     "@weave-js/core": "^0.5.24",
-    "vue-template-compiler": "^2.5.19"
+    "vue-template-compiler": "^2.5.20"
   }
 }

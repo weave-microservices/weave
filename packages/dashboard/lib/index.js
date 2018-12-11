@@ -11,16 +11,16 @@ module.exports = () => ({
         assets: {
             folder: path.join(__dirname, '..', 'dist')
         },
-        routes: [
-            {
-                path: '/api',
-                aliases: {
-                    'GET /nodes': 'weave-dashboard.getNodes',
-                    'GET /services': 'weave-dashboard.getServices',
-                    'GET /vehicles': 'vehicle.list'
-                }
-            }
-        ]
+        // routes: [
+        //     {
+        //         path: '/api',
+        //         aliases: {
+        //             'GET /nodes': 'weave-dashboard.getNodes',
+        //             'GET /services': 'weave-dashboard.getServices',
+        //             'GET /vehicles': 'vehicle.list'
+        //         }
+        //     }
+        // ]
     },
     actions: {
         getNodes: {
@@ -38,7 +38,22 @@ module.exports = () => ({
                 )
             }
         },
+        getNodes2: {
+            handler () {
+                return new Promise(resolve => {
+                    setTimeout(() => resolve(), 3000)
+                })
+            }
+        },
         getServices: {
+            handler () {
+                return this.broker.registry.getServiceList({
+                    withActions: true,
+                    withEvents: true
+                })
+            }
+        },
+        getActions: {
             handler () {
                 return this.broker.registry.getActionList({
                     withEndpoints: true
