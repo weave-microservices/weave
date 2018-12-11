@@ -26,7 +26,10 @@ function createBroker (index) {
         nodeId: 'node-' + index,
         transport: TransportAdapters.Redis(),
         logLevel: 'info',
-        preferLocal: false
+        preferLocal: false,
+        metrics: {
+            enabled: true
+        }
     })
 
     broker.createService({

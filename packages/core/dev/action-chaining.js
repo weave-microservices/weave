@@ -2,10 +2,14 @@ const { Weave, TransportAdapters } = require('../lib/index.js')
 
 const broker1 = Weave({
     nodeId: 'node-1',
-    transport: TransportAdapters.Fake(),
+    namespace: 'ciris',
+    transport: TransportAdapters.Redis(),
     logger: console,
     logLevel: 'debug',
-    preferLocal: false
+    preferLocal: false,
+    metrics: {
+        enabled: true
+    }
 })
 
 broker1.createService({
@@ -21,8 +25,12 @@ broker1.createService({
 // Create broker #2
 const broker2 = Weave({
     nodeId: 'node-2',
-    transport: TransportAdapters.Fake(),
-    logger: console
+    namespace: 'ciris',
+    transport: TransportAdapters.Redis(),
+    logger: console,
+    metrics: {
+        enabled: true
+    }
 })
 
 broker2.createService({
@@ -38,8 +46,12 @@ broker2.createService({
 // Create broker #3
 const broker3 = Weave({
     nodeId: 'node-3',
-    transport: TransportAdapters.Fake(),
-    logger: console
+    namespace: 'ciris',
+    transport: TransportAdapters.Redis(),
+    logger: console,
+    metrics: {
+        enabled: true
+    }
 })
 
 broker3.createService({
