@@ -1,26 +1,16 @@
 const WebGateway = require('@weave-js/web')
 const io = require('socket.io')
 const path = require('path')
-const crypto = require('crypto')
 
 module.exports = () => ({
-    name: 'weave-dashboard',
+    name: 'wlm',
     mixins: [WebGateway()],
     settings: {
         port: 4445,
         assets: {
-            folder: path.join(__dirname, '..', 'dist')
+            folder: path.join(__dirname, '..', 'dist'),
         },
-        // routes: [
-        //     {
-        //         path: '/api',
-        //         aliases: {
-        //             'GET /nodes': 'weave-dashboard.getNodes',
-        //             'GET /services': 'weave-dashboard.getServices',
-        //             'GET /vehicles': 'vehicle.list'
-        //         }
-        //     }
-        // ]
+        mappingPolicy: 'restricted'
     },
     actions: {
         getNodes: {
@@ -36,13 +26,6 @@ module.exports = () => ({
                         }
                     }
                 )
-            }
-        },
-        getNodes2: {
-            handler () {
-                return new Promise(resolve => {
-                    setTimeout(() => resolve(), 3000)
-                })
             }
         },
         getServices: {
@@ -63,18 +46,11 @@ module.exports = () => ({
     },
     events: {
         '**' (data, sender, event) {
-            console.log(event)
-            // if (event === '$services.changed' || event === '$node.connected' || event === '$node.disconnected') {
-                
-            // }
             this.socketio.emit(event, {
                 sender,
                 data
             })
         },
-    },
-    methods: {
-
     },
     created () {
         this.accessToken = Math.random().toString(36).substring(2)

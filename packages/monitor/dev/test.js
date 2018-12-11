@@ -2,7 +2,7 @@ const path = require('path')
 const { Weave } = require('@weave-js/core')
 
 const broker = Weave({
-    nodeId: 'dashboard-test',
+    nodeId: 'monitor-test',
     logLevel: 'info',
     transport: 'redis',
     watchServices: true,
