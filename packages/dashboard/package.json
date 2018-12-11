@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/dashboard",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A landscape monitor for Weave microservice framework.",
   "main": "lib/index.js",
   "scripts": {
@@ -24,7 +24,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@weave-js/web": "^0.4.11",
+    "@weave-js/web": "^0.4.12",
     "socket.io": "^2.2.0",
     "vue": "^2.5.20",
     "vue-router": "^3.0.2",
@@ -34,7 +34,7 @@
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.2.0",
     "@vue/cli-service": "^3.2.0",
-    "@weave-js/core": "^0.5.25",
+    "@weave-js/core": "^0.5.26",
     "vue-template-compiler": "^2.5.20"
   },
   "gitHead": "cdd9762d78d076dc7bdfa0784cdc9ce6af6a57c3"

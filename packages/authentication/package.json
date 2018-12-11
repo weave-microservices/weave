@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/authentication",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "Weave mixin for authentication.",
   "main": "lib/index.js",
   "directories": {

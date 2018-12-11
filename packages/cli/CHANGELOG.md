@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.14](https://github.com/fachw3rk/weave/compare/@weave-js/cli@0.0.13...@weave-js/cli@0.0.14) (2018-12-11)
+
+**Note:** Version bump only for package @weave-js/cli
+
+
+
+
+
 ## [0.0.13](https://github.com/fachw3rk/weave/compare/@weave-js/cli@0.0.12...@weave-js/cli@0.0.13) (2018-10-21)
 
 **Note:** Version bump only for package @weave-js/cli
