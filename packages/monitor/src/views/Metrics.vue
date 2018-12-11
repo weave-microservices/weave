@@ -88,7 +88,7 @@ export default {
   },
   methods: {
     getNodes() {
-      this.$socket.emit("call", { actionName: "weave-dashboard.getNodes" },
+      this.$socket.emit("call", { actionName: "wlm.getNodes" },
         (error, data) => {
           this.nodes = data.sort((a, b) => {
             if (a.id > b.id) return 1

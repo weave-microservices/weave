@@ -50,7 +50,7 @@ export default {
     },
     methods: {
     getServices() {
-        this.$socket.emit("call", { actionName: "weave-dashboard.getServices" }, (error, data) => {
+        this.$socket.emit("call", { actionName: "wlm.getServices" }, (error, data) => {
             const list = []
             data.map(service => {
                 let item = list.find(i => {

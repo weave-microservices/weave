@@ -48,7 +48,7 @@ export default {
     },
     methods: {
         getActions() {
-            this.$socket.emit("call", { actionName: "weave-dashboard.getActions" }, (error, data) => {
+            this.$socket.emit("call", { actionName: "wlm.getActions" }, (error, data) => {
                 this.actions = data.sort((a, b) => {
                     if (a.name > b.name) return 1
                     if (a.name < b.name) return -1
