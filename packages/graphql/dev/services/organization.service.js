@@ -11,22 +11,27 @@ const fakeDB = {
 }
 
 const schema = `
-    type Query {
-        organizations: [Organization]
-        organization(id: ID!): Organization
-    }
-
     type Organization {
         id: ID
         name: String
         phone: String
     }
+
+    type Query {
+        getOrganizations: [Organization]
+        getOrganization: Organization
+    }
 `
 
 const resolvers = {
     Query: {
-        organizations: () => fakeDB.Organizations,
-        organization: id => fakeDB.Organizations.find(org => org.id === id)
+        getOrganizations: () => {
+            return fakeDB.Organizations
+        },
+        getOrganization: (sss, param) => {
+            const id = 1
+            return fakeDB.Organizations.find(org => org.id === id)
+        }
     }
 }
 

@@ -5,7 +5,8 @@ const fakeDB = {
         {
             id: 1,
             name: 'Kevin',
-            password: '0123123124'
+            password: '0123123124',
+            orgId: 1
         }
     ]
 }
@@ -19,40 +20,49 @@ const schema = `
     type User {
         id: ID
         name: String
-        password: String
+        password: String,
+        orgId: Int
     }
 `
 
-const relations = `
+const relationships = `
     extend type User {
-        organization: [Organization]
+        organization: Organization,
+        organizations: [Organization]
     }
 `
 
-const relationDefinitions = {
-    books: {
+const relationshipDefinitions = {
+    organization: {
         type: 'query', // Fetch via a 'query'
-        operationName: 'booksByAuthor', // Use this query to resolve data
+        operationName: 'getOrganization', // Use this query to resolve data
         args: {
-            authorId: 'parent.id' // pass parent.id as authorId arg in the query
+            id: 'parent.orgId' // pass parent.id as authorId arg in the query
         }
+    },
+    organizations: {
+        type: 'query', // Fetch via a 'query'
+        operationName: 'getOrganizations' // Use this query to resolve dat
     }
 }
 
 const resolvers = {
     Query: {
-        users: () => fakeDB.Users,
+        users: () => {
+            return fakeDB.Users
+        },
         user: id => fakeDB.Users.find(user => user.id === id)
     }
 }
 
 module.exports = {
     name: 'user',
+    dependencies: 'organization',
     mixins: createGraphQLMixin({
         typeName: 'User',
         schema,
         resolvers,
-        relations,
-        relationDefinitions
+        relationships,
+        relationshipDefinitions
     })
 }

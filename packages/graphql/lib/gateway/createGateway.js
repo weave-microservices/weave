@@ -1,10 +1,13 @@
-const { graphql } = require('graphql')
+const { printSchema, graphql } = require('graphql')
 const { mergeSchemas } = require('graphql-tools')
 const createRemoteSchema = require('./createRemoteSchema')
+const buildRelationalResolvers = require('./relations')
 
 module.exports = (options) => ({
     name: 'gql-gateway',
-    setings: {},
+    setings: {
+        populateSchemaEvent: false
+    },
     actions: {
         graphql: {
             params: {
@@ -55,28 +58,37 @@ module.exports = (options) => ({
             console.log('')
         },
         async buildRemoteSchema (service) {
-            const { settings: { typeName, relations, relationDefinitions }} = service
+            const { settings: { typeName, relationships, relationshipDefinitions }} = service
             if (!this.remoteSchemas[typeName]) {
                 this.remoteSchemas[typeName] = await createRemoteSchema({
                     broker: this.broker,
                     service
                 })
-                if (relations) {
-                    this.relationships[typeName] = relations
+                if (relationships) {
+                    this.relationships[typeName] = relationships
+                    this.relationshipDefinitions[typeName] = relationshipDefinitions
+
                 }
             }
         },
         generateSchema () {
             const schemas = Object.values(this.remoteSchemas).concat(Object.values(this.relationships))
+            const resolvers = buildRelationalResolvers(this.relationshipDefinitions)
             this.graphQLSchema = mergeSchemas({
-                schemas
+                schemas,
+                resolvers
             })
+            const schemaString = printSchema(this.graphQLSchema)
+            if (this.settings.populateSchemaEvent) {
+                this.broker.emit('$gql.new-schema', schemaString)
+            }
         }
     },
     created () {
         this.discoveredTypes = []
         this.remoteSchemas = {}
         this.relationships = {}
+        this.relationshipDefinitions = {}
     },
     started () {
         // todo

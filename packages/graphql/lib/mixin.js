@@ -5,14 +5,14 @@ module.exports = ({
     typeName,
     schema,
     resolvers,
-    relations,
-    relationDefinitions
+    relationships,
+    relationshipDefinitions
 }) => ({
     settings: {
         typeName,
         schema,
-        relations,
-        relationDefinitions,
+        relationships,
+        relationshipDefinitions,
         hasGraphQLSchema: true
     },
     actions: {
@@ -34,8 +34,8 @@ module.exports = ({
         this.broker.broadcast('graphqlService.connected', {
             typeName,
             schema,
-            relations,
-            relationDefinitions
+            relationships,
+            relationshipDefinitions
         })
     },
     stopped () {

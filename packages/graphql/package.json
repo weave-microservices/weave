@@ -2,7 +2,7 @@
   "name": "@weave-js/graphql",
   "version": "0.0.3",
   "description": "A graphql gateway provider for weave",
-  "main": "index.js",
+  "main": "./lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -14,7 +14,12 @@
   "dependencies": {
     "apollo-link": "^1.2.4",
     "graphql": "^14.0.2",
-    "graphql-tools": "^4.0.3"
+    "graphql-tools": "^4.0.3",
+    "selectn": "^1.1.2"
   },
-  "gitHead": "b6f89e2878cc49ed4ed927506398a85027a27a9e"
+  "gitHead": "b6f89e2878cc49ed4ed927506398a85027a27a9e",
+  "devDependencies": {
+    "@weave-js/core": "^0.5.26",
+    "@weave-js/repl": "0.0.29"
+  }
 }

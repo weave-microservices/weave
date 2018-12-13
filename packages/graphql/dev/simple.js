@@ -3,14 +3,14 @@ const { createGraphQLGateway } = require('../lib/index')
 
 const broker = Weave({
     nodeId: 'graphQl-Test-node',
-    logLevel: 'debug',
+    logLevel: 'info',
     transport: TransportAdapters.Fake(),
     preferLocal: false
 })
 
 const broker2 = Weave({
     nodeId: 'graphQl-Test-node 2  22222',
-    logLevel: 'debug',
+    logLevel: 'info',
     transport: TransportAdapters.Fake(),
     preferLocal: false
 })
@@ -30,11 +30,13 @@ Promise.all([
 ]).then(() => {
     return broker.call('$node.services')
         .then(res => console.log(res))
-}).then(() => {
-    setInterval(() => {
-        broker.call('gateway.graphql', { query: '{ organizations { id, name } }' })
-            .then(res => {
-                console.log(res)
-            })
-    }, 2000)
 })
+    .then(() => broker.repl())
+    .then(() => {
+        // setInterval(() => {
+        //     broker.call('gateway.graphql', { query: '{ users { id, name, orgId, organization { name } } }' })
+        //         .then(res => {
+        //             console.log(JSON.stringify(res.data))
+        //         })
+        // }, 2000)
+    })
