@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/monitor",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "A landscape monitor for Weave microservice framework.",
   "main": "lib/index.js",
   "scripts": {
@@ -35,7 +35,7 @@
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.2.0",
     "@vue/cli-service": "^3.2.0",
-    "@weave-js/core": "^0.5.26",
+    "@weave-js/core": "^0.5.27",
     "@weave-js/web": "^0.4.12",
     "vue-template-compiler": "^2.5.20"
   },
