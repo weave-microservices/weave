@@ -5,7 +5,7 @@
  */
 
 const crypto = require('crypto')
-const { defaultsDeep, assign, flatten, uniqWith } = require('lodash')
+const { defaultsDeep, assign, uniqWith, compact, flatten } = require('lodash')
 const os = require('os')
 
 const lut = []
@@ -39,6 +39,9 @@ module.exports = {
                 target[propName] = source[propName]
             }
         }
+
+        // const flatten = arr => arr.reduce((a, b) => a.concat(b), [])
+        // const compact = arr => arr.filter(Boolean)
 
         function mergeHook (parentValue, childValue) {
             if (childValue) {
@@ -81,7 +84,7 @@ module.exports = {
                     result[key] = schema[key]
                 }
             } else if (['mixins', 'dependencies'].includes(key)) {
-                result[key] = uniqWith(flatten([schema[key], result[key]]))
+                result[key] = uniqWith(compact(flatten([schema[key], result[key]])))
             } else {
                 updateProp(key, result, schema)
             }
