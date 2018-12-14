@@ -16,7 +16,8 @@
     "url": "https://github.com/fachw3rk/weave/issues"
   },
   "homepage": "https://github.com/fachw3rk/weave#readme",
-  "dependencies": {
-    "lerna": "^3.5.1"
+  "devDependencies": {
+    "jest": "^23.6.0",
+    "lerna": "^3.6.0"
   }
 }
