@@ -4,7 +4,6 @@
   "description": "weave-db service",
   "main": "lib/index.js",
   "scripts": {
-    "test": "mocha --ui tdd --bail"
   },
   "publishConfig": {
     "access": "public"

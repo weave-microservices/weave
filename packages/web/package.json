@@ -4,7 +4,6 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "test": "mocha --ui tdd --bail"
   },
   "publishConfig": {
     "access": "public"
@@ -17,9 +16,10 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "assertthat": "^1.0.0",
-    "eslint": "^5.7.0",
-    "eslint-config-fw": "^1.0.1",
+    "@weave-js/core": "^0.5.27",
+    "assertthat": "^2.0.1",
+    "eslint": "^5.10.0",
+    "eslint-config-fw": "^1.0.2",
     "eslint-loader": "^2.1.1",
     "istanbul": "^0.4.5",
     "mocha": "^5.2.0",

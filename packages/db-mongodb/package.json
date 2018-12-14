@@ -4,7 +4,6 @@
   "description": "MongoDb native adapter for weave db mixin.",
   "main": "lib/index.js",
   "scripts": {
-    "test": "mocha --ui tdd --bail"
   },
   "publishConfig": {
     "access": "public"

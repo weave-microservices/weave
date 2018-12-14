@@ -1,5 +1,5 @@
-const Weave = require('weave-core')
-const ApiService = require('../src')
+const { Weave } = require('@weave-js/core')
+const ApiService = require('../lib')
 const request = require('supertest')
 const path = require('path')
 

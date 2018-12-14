@@ -90,3 +90,56 @@ describe('Test broker call service', () => {
     })
 })
 
+describe('Test broker call error handling', () => {
+    it('should call a service action and be rejected with an error.', (done) => {
+        const node1 = Weave({
+            nodeId: 'node1',
+            logLevel: 'fatal'
+        })
+
+        node1.createService({
+            name: 'testService',
+            actions: {
+                sayHello (context) {
+                    return Promise.reject(new Error('Error from action'))
+                }
+            }
+        })
+
+        node1.start().then(() => {
+            node1.call('testService.sayHello', { name: 'Hans' })
+                .catch(error => {
+                    expect(error.message).toBe('Error from action')
+                    done()
+                })
+        })
+    })
+
+    it('should call a service action and be rejected with an error from a sub action.', (done) => {
+        const node1 = Weave({
+            nodeId: 'node1',
+            logLevel: 'fatal'
+        })
+
+        node1.createService({
+            name: 'testService',
+            actions: {
+                sayHello (context) {
+                    return context.call('testService.greetings', context.params)
+                },
+                greetings (context) {
+                    return Promise.reject(new Error('Error from action level ' + context.level))
+                }
+            }
+        })
+
+        node1.start().then(() => {
+            node1.call('testService.sayHello', { name: 'Hans' })
+                .catch(error => {
+                    expect(error.message).toBe('Error from action level 1')
+                    done()
+                })
+        })
+    })
+})
+

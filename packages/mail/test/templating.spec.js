@@ -1,6 +1,6 @@
 
-const Weave = require('weave-core')
-const MailService = require('../src/index')
+const { Weave } = require('@weave-js/core')
+const MailService = require('../lib/index')
 
 describe('Test email service', () => {
     it('Should be created', () => {

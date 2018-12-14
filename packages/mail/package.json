@@ -4,8 +4,7 @@
   "description": "Email service for weave microservice framework",
   "main": "lib/index.js",
   "scripts": {
-    "test-ci": "jest --watch",
-    "test": "mocha"
+    "test-ci": "jest --watch"
   },
   "publishConfig": {
     "access": "public"
