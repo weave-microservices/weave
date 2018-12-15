@@ -4,9 +4,11 @@
  * Copyright 2018 Fachwerk
  */
 
-const stopFactory = ({ state, log, transport, onClose }) =>
+const stopFactory = ({ state, call, broadcast, emit, log, transport, middlewareHandler }) =>
     () => {
+        state.isStarted = false
         return Promise.resolve()
+            .then(() => middlewareHandler.callHandlersAsync('stopping', [{ state, call, broadcast, emit, log }], true))
             .then(() => Promise.all(state.services.map(service => service.stop())))
             .catch(error => state.log.error('Unable to stop all services.', error))
             .then(() => {
@@ -14,16 +16,16 @@ const stopFactory = ({ state, log, transport, onClose }) =>
                     return transport.disconnect()
                 }
             })
-            .then(() => {
-                state.isStarted = false
-                log.info(`Node successfully shutted down. Bye bye!`)
-            })
+            .then(() => middlewareHandler.callHandlersAsync('stopped', [{ state, call, broadcast, emit, log }], true))
             .then(() => {
                 if (!state.isStarted) {
                     if (state.options.stopped) {
                         state.options.stopped.call(state)
                     }
                 }
+            })
+            .then(() => {
+                log.info(`Node successfully shutted down. Bye bye!`)
             })
     }
 

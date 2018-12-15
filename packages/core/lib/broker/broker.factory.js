@@ -154,7 +154,7 @@ const makeBroker = ({
 
         const health = healthFactory({ state, transport })
         const servicesChanged = serviceChangedFactory({ state, transport, broadcastLocal })
-        const stop = stopFactory({ state, log, transport, middlewareHandler })
+        const stop = stopFactory({ state, call, broadcast, emit, log, transport, middlewareHandler })
         const start = startFactory({ state, log, transport, middlewareHandler, stop, call, emit, broadcast })
         const repl = replFactory({ state, log, call, health, start, stop, registry, statistics })
         const addLocalService = addLocalServiceFactory({ state, registry, servicesChanged })
