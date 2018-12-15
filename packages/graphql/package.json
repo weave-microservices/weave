@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/graphql",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A graphql gateway provider for weave",
   "main": "./lib/index.js",
   "scripts": {},
@@ -22,7 +22,7 @@
   },
   "gitHead": "b6f89e2878cc49ed4ed927506398a85027a27a9e",
   "devDependencies": {
-    "@weave-js/core": "^0.5.29",
-    "@weave-js/repl": "^0.0.32"
+    "@weave-js/core": "^0.5.30",
+    "@weave-js/repl": "^0.0.33"
   }
 }
