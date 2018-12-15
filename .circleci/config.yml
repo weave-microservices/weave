@@ -9,7 +9,9 @@ jobs:
     steps:
       - checkout
       # Download and cache dependencies
-
+      - run: 
+        name: Install Lerna
+        command: sudo npm install -g lerna
       - run: npm run bootstrap
         
       # run tests!
