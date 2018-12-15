@@ -1,17 +1,16 @@
 {
   "name": "@weave-js/db-sequelize",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "description": "Weave Db adapter for sequelize",
   "main": "index.js",
-  "scripts": {
-  },
+  "scripts": {},
   "publishConfig": {
     "access": "public"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@weave-js/db": "^0.0.23",
+    "@weave-js/db": "^0.0.24",
     "mysql2": "^1.6.1",
     "sequelize": "^4.41.0"
   },

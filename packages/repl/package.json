@@ -1,10 +1,9 @@
 {
   "name": "@weave-js/repl",
-  "version": "0.0.30",
+  "version": "0.0.31",
   "description": "",
   "main": "lib/index.js",
-  "scripts": {
-  },
+  "scripts": {},
   "publishConfig": {
     "access": "public"
   },
@@ -22,7 +21,7 @@
     "vorpal": "^1.12.0"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.5.27",
+    "@weave-js/core": "^0.5.28",
     "eslint": "^5.7.0",
     "eslint-config-fw": "^1.0.1",
     "eslint-loader": "^2.1.1"
