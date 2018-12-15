@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.22](https://github.com/fachw3rk/weave/compare/@weave-js/mail@0.0.21...@weave-js/mail@0.0.22) (2018-12-15)
+
+**Note:** Version bump only for package @weave-js/mail
+
+
+
+
+
 ## [0.0.21](https://github.com/fachw3rk/weave/compare/@weave-js/mail@0.0.20...@weave-js/mail@0.0.21) (2018-12-15)
 
 **Note:** Version bump only for package @weave-js/mail
