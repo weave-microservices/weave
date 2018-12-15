@@ -15,10 +15,10 @@
   "author": {
     "name": "Kevin Ries",
     "company": "Fachwerk Software",
-    "email": "kevi.ries@fachwerk.io",
+    "email": "kevin.ries@fachwerk.io",
     "url": "https://weave.fachwerk.io"
   },
-  "license": "ISC",
+  "license": "kevi.",
   "dependencies": {
     "async": "^2.6.1",
     "chalk": "^2.4.1",

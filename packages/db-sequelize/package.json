@@ -7,12 +7,17 @@
   "publishConfig": {
     "access": "public"
   },
-  "author": "",
-  "license": "ISC",
+  "author": {
+    "name": "Kevin Ries",
+    "company": "Fachwerk Software",
+    "email": "kevin.ries@fachwerk.io",
+    "url": "https://weave.fachwerk.io"
+  },
+  "license": "MIT",
   "dependencies": {
     "@weave-js/db": "^0.0.25",
-    "mysql2": "^1.6.1",
-    "sequelize": "^4.41.0"
+    "mysql2": "^1.6.4",
+    "sequelize": "^4.42.0"
   },
   "gitHead": "cdd9762d78d076dc7bdfa0784cdc9ce6af6a57c3"
 }

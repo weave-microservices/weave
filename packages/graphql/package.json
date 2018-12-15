@@ -7,7 +7,12 @@
   "publishConfig": {
     "access": "public"
   },
-  "author": "Kevin Ries <kevin.ries@fachwerk.io>",
+  "author": {
+    "name": "Kevin Ries",
+    "company": "Fachwerk Software",
+    "email": "kevin.ries@fachwerk.io",
+    "url": "https://weave.fachwerk.io"
+  },
   "license": "MIT",
   "dependencies": {
     "apollo-link": "^1.2.4",

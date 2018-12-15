@@ -23,44 +23,22 @@ Weave is a fast and easy to use  microservice framework for NodeJS (>= v6.x).
 - Health monitoring, metrics & statistics
 - Fault tolerant
   
-# Installation
-```
-$ npm install @weave-js/core --save
-```
 
-# Quick start
-This example shows you how to create a small service with an `add` action which can add two numbers.
-```js
-const { Weave } = require('@weave-js/core')
+# Ecosystem
 
-let broker = Weave({ logLevel: 'debug' })
-
-broker.createService({
-    name: 'math',
-    actions: {
-        add(context) {
-            return Number(context.params.a) + Number(context.params.b)
-        }
-    }
-});
-
-broker.start()
-    .then(() => {
-        // Call service
-        broker.call('math.add', { a: 5, b: 3 })
-            .then(result => console.log('5 + 3 =', result))
-            .catch(error => console.error(`Something went wrong! ${error.message}`))
-    })
-
-```
-
-# Sample applications
-
-There are a number of sample applications available:
-
-```javascript
-    // todo
-```
+| Name | Status | Description |
+| ------- | ------- | ------- |
+| cli | [![npm version](https://img.shields.io/npm/v/@weave-js/cli.svg)](https://www.npmjs.com/package/@weave-js/cli) | Project scaffolding |
+| repl | [![npm version](https://img.shields.io/npm/v/@weave-js/repl.svg)](https://www.npmjs.com/package/@weave-js/repl) | Interactive developer console |
+| web | [![npm version](https://img.shields.io/npm/v/@weave-js/web.svg)](https://www.npmjs.com/package/@weave-js/web) | Web gateway service mixin |
+| db | [![npm version](https://img.shields.io/npm/v/@weave-js/db.svg)](https://www.npmjs.com/package/@weave-js/db) | Database service mixin |
+| db-mongodb | [![npm version](https://img.shields.io/npm/v/@weave-js/db-mongodb.svg)](https://www.npmjs.com/package/@weave-js/db-mongodb) | MongoDb adapter for DB mixin |
+| db-sequelize | [![npm version](https://img.shields.io/npm/v/@weave-js/db-sequelize.svg)](https://www.npmjs.com/package/@weave-js/db-sequelize) | Sequelize(SQL) adapter for DB mixin |
+| graphql | [![npm version](https://img.shields.io/npm/v/@weave-js/graphql.svg)](https://www.npmjs.com/package/@weave-js/graphql) | Gateway service for GraphQL |
+| mail | [![npm version](https://img.shields.io/npm/v/@weave-js/mail.svg)](https://www.npmjs.com/package/@weave-js/mail) | Email service mixin to send Emails |
+| monitor | [![npm version](https://img.shields.io/npm/v/@weave-js/monitor.svg)](https://www.npmjs.com/package/@weave-js/monitor) | Weave landscape monitor |
+| authentication | [![npm version](https://img.shields.io/npm/v/@weave-js/authentication.svg)](https://www.npmjs.com/package/@weave-js/authentication) | Base authentication mixin |
+| authentication-local | [![npm version](https://img.shields.io/npm/v/@weave-js/authentication-local.svg)](https://www.npmjs.com/package/@weave-js/authentication-local) | Authentication adapter for local authentication |
 
 
 # Documentation

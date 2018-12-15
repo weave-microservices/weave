@@ -10,10 +10,10 @@
   "author": {
     "name": "Kevin Ries",
     "company": "Fachwerk Software",
-    "email": "kevi.ries@fachwerk.io",
+    "email": "kevin.ries@fachwerk.io",
     "url": "https://weave.fachwerk.io"
   },
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "fachwork": "0.0.10",
     "lowdb": "^1.0.0",
