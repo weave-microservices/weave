@@ -20,10 +20,10 @@
   },
   "license": "ISC",
   "dependencies": {
-    "jsonwebtoken": "^8.3.0"
+    "jsonwebtoken": "^8.4.0"
   },
   "devDependencies": {
-    "eslint-config-fw": "^1.0.1",
+    "eslint-config-fw": "^1.0.2",
     "jest": "^23.6.0",
     "jest-cli": "^23.6.0"
   },

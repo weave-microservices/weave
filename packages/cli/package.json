@@ -26,7 +26,7 @@
     "download-git-repo": "^1.1.0",
     "exeq": "^3.0.0",
     "handlebars": "^4.0.12",
-    "inquirer": "^6.2.0",
+    "inquirer": "^6.2.1",
     "lodash": "^4.17.11",
     "metalsmith": "^2.3.0",
     "minimatch": "^3.0.4",
@@ -36,7 +36,7 @@
     "rimraf": "^2.6.2",
     "update-notifier": "^2.5.0",
     "user-home": "^2.0.0",
-    "yargs": "^12.0.2"
+    "yargs": "^12.0.5"
   },
   "gitHead": "3112aa7d850ac70b0525d0bc65e19964114a5579"
 }
