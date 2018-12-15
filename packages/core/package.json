@@ -18,6 +18,10 @@
     "analyse": "eslint lib/**",
     "eslint": "eslint --ext=.js lib test dev"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fachw3rk/weave"
+  },
   "publishConfig": {
     "access": "public"
   },

@@ -1,4 +1,4 @@
-<img src="Logo.png" width="400">
+<img src="https://raw.githubusercontent.com/fachw3rk/weave/HEAD/Logo.png" width="400">
 
 [![NPM Version](https://img.shields.io/npm/v/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/core)
 [![CircleCI](https://circleci.com/gh/fachw3rk/weave/tree/master.svg?style=svg)](https://circleci.com/gh/fachw3rk/weave/tree/master)
