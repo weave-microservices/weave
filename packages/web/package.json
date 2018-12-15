@@ -4,6 +4,8 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
+    "test-ci": "jest --watch",
+    "test": "jest"
   },
   "publishConfig": {
     "access": "public"
@@ -17,23 +19,27 @@
   "license": "MIT",
   "devDependencies": {
     "@weave-js/core": "^0.5.27",
-    "assertthat": "^2.0.1",
     "eslint": "^5.10.0",
     "eslint-config-fw": "^1.0.2",
     "eslint-loader": "^2.1.1",
     "istanbul": "^0.4.5",
-    "mocha": "^5.2.0",
-    "mochawesome": "^3.0.3",
+    "jest": "^23.6.0",
     "request": "^2.88.0",
-    "sinon": "^7.0.0",
     "supertest": "^3.3.0"
   },
   "dependencies": {
     "body-parser": "^1.18.3",
     "fachwork": "0.0.10",
     "lodash": "^4.17.11",
-    "qs": "^6.5.2",
-    "spdy": "^3.4.7"
+    "mime-types": "^2.1.21",
+    "spdy": "^4.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "rootDir": "./lib",
+    "roots": [
+      "../test"
+    ]
   },
   "gitHead": "3112aa7d850ac70b0525d0bc65e19964114a5579"
 }

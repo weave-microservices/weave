@@ -4,22 +4,13 @@
 const url = require('url')
 const path = require('path')
 const fs = require('fs')
+const mimetype = require('mime-types')
 
 function ServeStatic (folder, options) {
     options.indexFile = options.indexFile || 'index.html'
     options.showIndexFile = options.showIndexFile || true
     options.cache = options.cache || true
     const fallThrough = options.fallThrough !== false
-
-    const mimeTypes = {
-        'html': 'text/html',
-        'jpeg': 'image/jpeg',
-        'jpg': 'image/jpeg',
-        'png': 'image/png',
-        'js': 'text/javascript',
-        'css': 'text/css',
-        'text': 'text/plain'
-    }
 
     return function (request, response, next) {
         var req = request
@@ -42,8 +33,8 @@ function ServeStatic (folder, options) {
                 stats = fs.lstatSync(filePath) // throws if path doesn't exist
                 if (stats.isFile()) {
                     const file = fs.createReadStream(filePath)
-                    const filetype = path.extname(filePath).split('.').reverse()[0]
-                    const mimeType = mimeTypes[filetype] || 'text'
+                    const fileExtension = path.extname(filePath).split('.').reverse()[0]
+                    const mimeType = mimetype.lookup(fileExtension) || 'text/plain'
 
                     file.on('finish', () => {
                         file.close()

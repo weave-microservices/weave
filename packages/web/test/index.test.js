@@ -4,11 +4,30 @@ const request = require('supertest')
 const path = require('path')
 
 describe('Weave web service', () => {
-    let weave
-    let service
-    beforeEach(() => {
-        weave = Weave({ logLevel: 'debug' })
-        weave.createService({
+    const store = {}
+
+    beforeAll(() => {
+        const broker = Weave({ logLevel: 'fatal' })
+
+        store.broker = broker
+
+        store.srv = broker.createService({
+            mixins: [ApiService()],
+            settings: {
+                port: 7890,
+                assets: {
+                    folder: path.join(__dirname, 'public')
+                },
+                routes: [
+                    {
+                        path: '/api',
+                        whitelist: ['math.*', 'auth.*']
+                    }
+                ]
+            }
+        })
+
+        broker.createService({
             name: 'math',
             actions: {
                 test: {
@@ -22,42 +41,56 @@ describe('Weave web service', () => {
                 }
             }
         })
-        service = weave.createService({
-            mixins: ApiService,
-            settings: {
-                assets: {
-                    folder: path.join(__dirname, 'public')
-                },
-                routes: [
-                    {
-                        path: '/math',
-                        onBeforeCall (context, route) {
-                            console.log('feuer!!!')
-                        }
+
+        broker.createService({
+            name: 'auth',
+            actions: {
+                login: {
+                    params: {
+                        username: { type: 'string' },
+                        password: { type: 'string' }
+                    },
+                    handler: (context) => {
+                        return context.params.username + '/' + context.params.password
                     }
-                ]
+                }
             }
         })
-        weave.start()
+
+        broker.start()
     })
-    after(() => {
-        weave.stop()
+    afterAll(() => {
+        store.broker.stop()
     })
 
-    it('GET /file', (done) => {
-        request(service.server).get('/').expect(200).then((res) => {
-            done()
-        })
+    it('GET Asset', (done) => {
+        request(store.srv.server).get('/index.html')
+            .expect(200, 'Hello World')
+            .then((res) => {
+                done()
+            })
+    })
+
+    it('GET correct content type', (done) => {
+        request(store.srv.server).get('/index.html')
+            .expect('Content-Type', 'text/html')
+            .then(res => done())
+    })
+
+    it('GET correct content type for png', (done) => {
+        request(store.srv.server).get('/img/Logo.png')
+            .expect('Content-Type', 'image/png')
+            .then(res => done())
     })
 
     it('GET /math', (done) => {
-        request(service.server).get('/math/test?p1=1&p2=1').expect(200, '2').then(() => {
+        request(store.srv.server).get('/api/math/test?p1=1&p2=1').expect(200, '2').then(() => {
             done()
         })
     })
 
-    it('GET /login', (done) => {
-        request(service.server).get('/math/test?p1=1&p2=1').expect(200, '4').then(() => {
+    it('GET /auth', (done) => {
+        request(store.srv.server).get('/api/auth/login?username=John&password=Doe').expect(200, '"John/Doe"').then(() => {
             done()
         })
     })
