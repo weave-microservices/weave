@@ -2,7 +2,7 @@
   "name": "weave",
   "description": "<img src=\"Logo.png\" width=\"400\">",
   "scripts": {
-    "install": "./node_modules/lerna/bin/lerna.js bootstrap",
+    "bootstrap": "lerna bootstrap",
     "link": "lerna link --force-local",
     "test": "lerna run test"
   },

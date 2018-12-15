@@ -90,7 +90,7 @@ describe.only('Service generation', () => {
         expect(service.settings).toBeDefined()
         expect(service.start).toBeDefined()
         expect(service.state).toBeDefined()
-        expect(service.stop).toBeUndefined()
+        expect(service.stop).toBeInstanceOf(Function)
     })
 })
 
