@@ -13,14 +13,10 @@ Tell us what happens instead
 
 Tell us about the applicable parts of your setup.
 
+**Module**:
+
 **Module versions** (especially the part that's not working):
 
 **NodeJS version**:
 
 **Operating System**:
-
-**Browser Version**:
-
-**React Native Version**:
-
-**Module Loader**:
