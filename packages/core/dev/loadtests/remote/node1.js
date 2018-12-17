@@ -4,7 +4,15 @@ const { Weave } = require('../../../lib/index.js')
 function createBroker (opts, id) {
     const options = Object.assign({
         namespace: 'loadtest',
-        transport: 'redis'
+        transport: {
+            type: 'tcp',
+            options: {
+                urls: [
+                    'tcp://localhost:1235/node1',
+                    'tcp://localhost:1234/node2'
+                ]
+            }
+        }
     }, opts)
 
     return Weave(options)

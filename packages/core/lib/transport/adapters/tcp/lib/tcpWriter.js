@@ -5,7 +5,8 @@ module.exports = (adapter, options) => {
     const self = Object.assign({}, EventEmitter.prototype)
     const sockets = new Map()
     const headerSize = 6
-    const connect = (nodeId) => {
+
+    const connect = nodeId => {
         const node = adapter.registry.nodes.get(nodeId)
         if (!node) {
             return Promise.reject()
@@ -15,16 +16,29 @@ module.exports = (adapter, options) => {
         const port = node.port
 
         return new Promise((resolve, reject) => {
-            const socket = net.connect({ host, port }, () => {
-                // send hello
+            try {
+                const socket = net.connect({ host, port }, () => {
+                    // send hello
+                    socket.setNoDelay(true)
+                    socket.nodeId = nodeId
+                    socket.lastUsage = Date.now()
+                    addSocket(nodeId, socket, true)
 
-                socket.setNoDelay(true)
-                socket.nodeId = adapter.nodeId
-                socket.lastUsage = Date.now()
-                addSocket(adapter.nodeId, socket, true)
-
-                resolve(socket)
-            })
+                    adapter.sendHello(nodeId)
+                        .then(() => resolve(socket))
+                        .catch(error => reject(error))
+                })
+                socket.on('error', error => {
+                    removeSocket(nodeId)
+                    self.emit('error', error, nodeId)
+                    if (error) reject(error)
+                })
+                socket.unref()
+            } catch (error) {
+                if (error) {
+                    reject(error)
+                }
+            }
         })
     }
 

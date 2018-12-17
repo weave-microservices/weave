@@ -41,6 +41,20 @@ const broker2 = Weave({
     }
 })
 
+broker1.createService({
+    name: 'string',
+    actions: {
+        join: {
+            params: {
+                strings: { type: 'array' }
+            },
+            handler (context) {
+                return 'Hello ' + context.params.strings.join(', ')
+            }
+        }
+    }
+})
+
 broker2.createService({
     name: 'math',
     actions: {
@@ -60,9 +74,9 @@ Promise.all([
     broker2.start()
 ]).then(() => {
     setInterval(() => {
-        broker1.call('test.hello', { name: 'John Doe' })
-            .then(function (result) {
-                broker1.log.debug(result)
-            })
+        // broker1.call('math.hello', { name: 'John Doe' })
+        //     .then(function (result) {
+        //         broker1.log.debug(result)
+        //     })
     }, 500)
 })

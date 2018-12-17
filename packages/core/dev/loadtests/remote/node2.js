@@ -6,7 +6,7 @@ const broker = Weave({
     namespace: 'loadtest',
     nodeId: 'node2',
     logLevel: 'info',
-    transport: 'redis'
+    transport: 'tcp'
 })
 
 broker.createService({

@@ -58,6 +58,16 @@ function TCPTransporter (options) {
     }
 
     self.send = (message) => {
+        if (!message.targetNodeId || ![
+            MessageTypes.MESSAGE_REQUEST,
+            MessageTypes.MESSAGE_RESPONSE,
+            MessageTypes.MESSAGE_EVENT,
+            MessageTypes.MESSAGE_GOSSIP_HELLO,
+            MessageTypes.MESSAGE_GOSSIP_REQUEST,
+            MessageTypes.MESSAGE_GOSSIP_RESPONSE
+        ].includes(message.type)) {
+            return Promise.resolve()
+        }
         const data = self.serialize(message)
         tcpWriter.send(message.targetNodeId, message.type, data)
         if (self.connected) {
@@ -66,12 +76,27 @@ function TCPTransporter (options) {
         return Promise.resolve()
     }
 
-    self.onIncomingMessage = (type, message, socket) => {
+    self.sendHello = nodeId => {
+        const node =  self.registry.nodes.get(nodeId)
+        if (!node) {
+            return Promise.reject(new Error('Node not found.'))
+        }
+
+        const localNode = self.registry.nodes.localNode
+
+        const message = self.Message(self.MessageTypes.MESSAGE_GOSSIP_HELLO, nodeId, {
+            host: localNode,
+            port: localNode
+        })
+        self.send(message)
+    }
+
+    self.onIncomingMessage = (type, data, socket) => {
         switch (type) {
-            case MessageTypes.MESSAGE_GOSSIP_HELLO: return onGossipHelloMessage(message, socket)
-            case MessageTypes.MESSAGE_GOSSIP_REQUEST: return onGossipRequestMessage(message, socket)
-            case MessageTypes.MESSAGE_GOSSIP_RESPONSE: return onGossipResponseMessage(message, socket)
-            default: return onMessage(message, socket)
+            case MessageTypes.MESSAGE_GOSSIP_HELLO: return onGossipHelloMessage(data, socket)
+            case MessageTypes.MESSAGE_GOSSIP_REQUEST: return onGossipRequestMessage(data, socket)
+            case MessageTypes.MESSAGE_GOSSIP_RESPONSE: return onGossipResponseMessage(data, socket)
+            default: return onMessage(type, data, socket)
         }
     }
 
@@ -324,8 +349,14 @@ function TCPTransporter (options) {
         }
     }
 
-    function onMessage (message, socket) {
-        
+    function onMessage (type, data, socket) {
+        try {
+            // const message = self.deserialize(data)
+            // const payload = message.payload
+            self.incommingMessage(type, data)
+        } catch (error) {
+
+        }
     }
 }
 
