@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/repl",
-  "version": "0.0.33",
+  "version": "0.0.34",
   "description": "",
   "main": "lib/index.js",
   "scripts": {},
@@ -21,7 +21,7 @@
     "vorpal": "^1.12.0"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.5.30",
+    "@weave-js/core": "^0.5.31",
     "eslint": "^5.10.0",
     "eslint-config-fw": "^1.0.2",
     "eslint-loader": "^2.1.1"
