@@ -350,7 +350,7 @@ function TCPTransporter (options) {
     }
 
     function onMessage (type, data, socket) {
-        try {
+        try {
             // const message = self.deserialize(data)
             // const payload = message.payload
             self.incommingMessage(type, data)
