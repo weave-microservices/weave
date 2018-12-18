@@ -77,7 +77,7 @@ function TCPTransporter (options) {
     }
 
     self.sendHello = nodeId => {
-        const node =  self.registry.nodes.get(nodeId)
+        const node = self.registry.nodes.get(nodeId)
         if (!node) {
             return Promise.reject(new Error('Node not found.'))
         }
@@ -237,8 +237,8 @@ function TCPTransporter (options) {
 
     function onGossipHelloMessage (payload, socket) {
         try {
-            const message = self.deserialize(payload)
-            const nodeId = message.nodeId
+            // const message = self.deserialize(payload)
+            // const nodeId = message.nodeId
         } catch (error) {
             self.log.error(`Invalid gossip hello message.`, error.message)
         }

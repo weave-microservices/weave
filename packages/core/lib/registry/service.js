@@ -171,7 +171,7 @@ const makeServiceFactory = ({
                     }
 
                     if (Array.isArray(schema.started)) {
-                        return Promise.all(schema.started.map(startHook => startHook()))
+                        return Promise.all(schema.started.map(startedHook => promisify(startedHook, { scope: self })()))
                     }
                 })
                 .then(() => {
@@ -194,7 +194,7 @@ const makeServiceFactory = ({
                     }
 
                     if (Array.isArray(schema.stopped)) {
-                        return Promise.all(schema.stopped.map(stopHook => promisify(stopHook())))
+                        return Promise.all(schema.stopped.map(stoppedHook => promisify(stoppedHook, { scope: self })()))
                     }
                 })
                 .then(() => {
@@ -235,7 +235,7 @@ const makeServiceFactory = ({
             const mixedSchema = mixins.reduce((s, mixin) => {
                 for (var key in mixin) {
                     if (lifecycleHook.includes(key)) {
-                        mixin[key] = promisify(mixin[key].bind(self))
+                        mixin[key] = mixin[key].bind(self)
                     }
                 }
                 if (mixin.mixins) {

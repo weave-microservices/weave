@@ -10,7 +10,10 @@ const stopFactory = ({ state, call, broadcast, emit, log, transport, middlewareH
         return Promise.resolve()
             .then(() => middlewareHandler.callHandlersAsync('stopping', [{ state, call, broadcast, emit, log }], true))
             .then(() => Promise.all(state.services.map(service => service.stop())))
-            .catch(error => state.log.error('Unable to stop all services.', error))
+            .catch(error => {
+                state.log.error('Unable to stop all services.', error)
+                return Promise.reject(error)
+            })
             .then(() => {
                 if (transport) {
                     return transport.disconnect()

@@ -126,7 +126,6 @@ describe('Test middlware hooks', () => {
         const middleware = {
             remoteAction: function (handler) {
                 return context => {
-                    console.log('sss')
                     context.params.paramFromMiddleware = 'hello world'
                     return handler(context)
                 }
