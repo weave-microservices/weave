@@ -23,7 +23,7 @@ broker1.createService({
             params: {
                 name: { type: 'string' }
             },
-            handler (context) {
+            async handler (context) {
                 return Promise.reject(new Error('sadasdasd'))
             }
         }

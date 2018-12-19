@@ -267,6 +267,7 @@ function TCPTransporter (options) {
                     [sequence, cpuSequence, cpu] = online
                 }
 
+                console.log(sequence)
                 if (offline) {
                     // sender said node is offline
                     if (!node.isAvailable) {

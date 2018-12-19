@@ -60,7 +60,7 @@
   },
   "devDependencies": {
     "eslint": "^5.10.0",
-    "eslint-config-fw": "^1.0.2",
+    "eslint-config-fw": "^1.0.3",
     "eslint-loader": "^2.1.1",
     "jest": "^23.6.0",
     "jest-cli": "^23.6.0",

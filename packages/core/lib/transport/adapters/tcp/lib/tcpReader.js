@@ -30,7 +30,7 @@ module.exports = (adapter, options) => {
     function onTCPClientConencted (socket) {
         sockets.push(socket)
 
-        const address = socket.remoteAddress
+        // const address = socket.remoteAddress
         const parser = new TCPWriteStream(adapter, socket)
         socket.pipe(parser)
 
