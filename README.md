@@ -1,5 +1,8 @@
 <img src="https://raw.githubusercontent.com/fachw3rk/weave/HEAD/Logo.png" width="400">
 
+> Easy to use multiparadigm micro service framework
+
+
 [![NPM Version](https://img.shields.io/npm/v/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/core)
 [![CircleCI](https://circleci.com/gh/fachw3rk/weave/tree/master.svg?style=svg)](https://circleci.com/gh/fachw3rk/weave/tree/master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/cb59174696fd9021813a/maintainability)](https://codeclimate.com/github/fachw3rk/weave/maintainability) [![Dependencies](https://david-dm.org/fachw3rk/weave.svg)](https://david-dm.org/fachw3rk/weave) [![Downloads](https://img.shields.io/npm/dt/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/core)
@@ -11,7 +14,7 @@ Weave is a fast and easy to use  microservice framework for NodeJS (>= v6.x).
 # Features
 
 - No master/leader node
-- Pluggable transporters (NATS, Redis, TCP)
+- Pluggable transporters (NATS, Redis)
 - Automatic service discovery
 - Multiple services per node
 - Service mixins
@@ -49,6 +52,9 @@ See [changelog.md](changelog.md).
 
 # Roadmap
 See [roadmap.md](roadmap.md).
+
+# Security
+We ❤️ the community and take security very seriously. No one wants their app hacked. If you have come across a security concern please report it responsibly. Visit the Security section of the docs to learn more about how you can make sure your app is secure.
 
 # License
 The weave framework is available under the [MIT license](https://tldrlegal.com/license/mit-license).

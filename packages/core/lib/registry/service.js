@@ -171,7 +171,10 @@ const makeServiceFactory = ({
                     }
 
                     if (Array.isArray(schema.started)) {
-                        return Promise.all(schema.started.map(startedHook => promisify(startedHook, { scope: self })()))
+                        return schema.started
+                            .map(hook => promisify(hook, { scope: self }))
+                            .reduce((p, hook) => p.then(hook), Promise.resolve())
+                        // return Promise.all(schema.started.map(startedHook => promisify(startedHook, { scope: self })()))
                     }
                 })
                 .then(() => {
@@ -194,7 +197,10 @@ const makeServiceFactory = ({
                     }
 
                     if (Array.isArray(schema.stopped)) {
-                        return Promise.all(schema.stopped.map(stoppedHook => promisify(stoppedHook, { scope: self })()))
+                        return schema.stopped
+                            .map(hook => promisify(hook, { scope: self }))
+                            .reduce((p, hook) => p.then(hook), Promise.resolve())
+                        // return Promise.all(schema.stopped.map(stoppedHook => promisify(stoppedHook, { scope: self })()))
                     }
                 })
                 .then(() => {

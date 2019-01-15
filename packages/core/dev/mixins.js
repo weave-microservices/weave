@@ -7,9 +7,23 @@ const broker1 = Weave({
     transport: TransportAdapters.Fake()
 })
 
+const mixinLong = {
+    started () {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                console.log('mixin Long')
+                resolve()
+            }, 5000)
+        })
+    },
+    stopped () {
+        console.log('m')
+    }
+}
+
 broker1.createService({
     name: 'test',
-    mixins: [DbMixin({})],
+    mixins: [mixinLong],
     actions: {
         hello: {
             handler (context) {
@@ -33,7 +47,10 @@ broker1.createService({
         }
     },
     started () {
-        console.log(this)
+        console.log('service')
+    },
+    stopped () {
+        console.log('s service')
     }
 })
 

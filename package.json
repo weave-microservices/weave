@@ -10,14 +10,19 @@
     "type": "git",
     "url": "git+https://github.com/fachw3rk/weave.git"
   },
-  "author": "Kevin Ries <kevin@fachw3rk.de>",
-  "license": "ISC",
+  "author": {
+    "name": "Kevin Ries",
+    "company": "Fachwerk Software",
+    "email": "kevin.ries@fachwerk.io",
+    "url": "https://weave.fachwerk.io"
+  },
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/fachw3rk/weave/issues"
   },
   "homepage": "https://github.com/fachw3rk/weave#readme",
   "dependencies": {
     "jest": "^23.6.0",
-    "lerna": "^3.6.0"
+    "lerna": "^3.8.0"
   }
 }

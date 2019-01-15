@@ -1,14 +1,13 @@
-
-const Weave = require('weave-core')
+const { Weave } = require('@weave-js/core')
 const AuthService = require('../src/index')
 const FakeAdapter = require('./adapter/fake-adapter')
 
 describe('Test auth service', () => {
-    let weave
+    let broker
     let service
 
     beforeEach(() => {
-        weave = Weave({ logLevel: 'fatal' })
+        broker = Weave({ logLevel: 'fatal' })
         service = weave.createService({
             name: 'authService',
             mixins: [AuthService],
@@ -22,12 +21,12 @@ describe('Test auth service', () => {
     })
 
     it('Should be created', () => {
-        expect(service).toBeDefined()
-        expect(service.actions.authenticate).toBeDefined()
+        expect(broker).toBeDefined()
+        expect(broker.actions.authenticate).toBeDefined()
     })
 
     it('can authenticate', () => {
-        weave.$internal.waitForServices(['authService']).then(() => {
+        broker.$internal.waitForServices(['authService']).then(() => {
             service.actions.authenticate({ credentials: { username: 'user', password: 'password' }}).then(user => {
                 expect(user)
             })
