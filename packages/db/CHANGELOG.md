@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.29](https://github.com/fachw3rk/weave/compare/@weave-js/db@0.0.28...@weave-js/db@0.0.29) (2019-01-15)
+
+**Note:** Version bump only for package @weave-js/db
+
+
+
+
+
 ## [0.0.28](https://github.com/fachw3rk/weave/compare/@weave-js/db@0.0.27...@weave-js/db@0.0.28) (2018-12-19)
 
 **Note:** Version bump only for package @weave-js/db

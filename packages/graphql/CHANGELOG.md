@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.10](https://github.com/fachw3rk/weave/compare/@weave-js/graphql@0.0.9...@weave-js/graphql@0.0.10) (2019-01-15)
+
+**Note:** Version bump only for package @weave-js/graphql
+
+
+
+
+
 ## [0.0.9](https://github.com/fachw3rk/weave/compare/@weave-js/graphql@0.0.8...@weave-js/graphql@0.0.9) (2018-12-19)
 
 **Note:** Version bump only for package @weave-js/graphql

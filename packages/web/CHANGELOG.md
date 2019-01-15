@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.18](https://github.com/fachw3rk/weave/compare/@weave-js/web@0.4.17...@weave-js/web@0.4.18) (2019-01-15)
+
+**Note:** Version bump only for package @weave-js/web
+
+
+
+
+
 ## [0.4.17](https://github.com/fachw3rk/weave/compare/@weave-js/web@0.4.16...@weave-js/web@0.4.17) (2018-12-19)
 
 **Note:** Version bump only for package @weave-js/web
