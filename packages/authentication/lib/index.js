@@ -24,7 +24,6 @@ module.exports = {
                 return this.verify(context, context.params.token)
             }
         },
-
     },
     methods: {
         refreshTokens (payload) {
