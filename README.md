@@ -4,7 +4,7 @@
 
 
 [![NPM Version](https://img.shields.io/npm/v/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/core)
-[![CircleCI](https://circleci.com/gh/fachw3rk/weave/tree/master.svg?style=svg)](https://circleci.com/gh/fachw3rk/weave/tree/master)
+[![Build Status](https://travis-ci.com/weave-microservices/weave.svg?branch=master)](https://travis-ci.com/weave-microservices/weave)
 [![Maintainability](https://api.codeclimate.com/v1/badges/cb59174696fd9021813a/maintainability)](https://codeclimate.com/github/fachw3rk/weave/maintainability) [![Dependencies](https://david-dm.org/fachw3rk/weave.svg)](https://david-dm.org/fachw3rk/weave) [![Downloads](https://img.shields.io/npm/dt/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/core)
 # Weave
 
