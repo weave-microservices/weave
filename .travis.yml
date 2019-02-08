@@ -5,6 +5,5 @@ cache:
 node_js:
     - "10"
     - "8"
-    - "6"
 script:
   - npm run setup && npm test
