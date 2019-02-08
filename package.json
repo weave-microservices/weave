@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/fachw3rk/weave#readme",
   "dependencies": {
-    "jest": "^23.6.0",
-    "lerna": "^3.8.0"
+    "jest": "^24.1.0",
+    "lerna": "^3.11.0"
   }
 }
