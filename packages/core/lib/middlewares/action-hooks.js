@@ -13,6 +13,9 @@ function callHook (hook, service, context, result) {
 }
 
 function sanitizeHooks (hooks, service) {
+    if (typeof hooks === 'string') {
+        hooks = hooks.split(' ')
+    }
     if (Array.isArray(hooks)) {
         return hooks.map((hook) => {
             if (typeof hook === 'string') {
