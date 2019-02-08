@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/mail",
-  "version": "0.0.26",
+  "version": "0.0.27",
   "description": "Email service for weave microservice framework",
   "main": "lib/index.js",
   "scripts": {
@@ -28,7 +28,7 @@
     "sinon-expect": "^0.3.0"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.5.33",
+    "@weave-js/core": "^0.6.0",
     "expect.js": "^0.3.1",
     "jest": "^21.2.1",
     "jest-cli": "^21.2.1",

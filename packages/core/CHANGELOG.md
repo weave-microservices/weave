@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.6.0](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.5.33...@weave-js/core@0.6.0) (2019-02-08)
+
+
+### Features
+
+* Implemented hooks by method name ([bf56291](https://github.com/fachw3rk/weave/commit/bf56291))
+
+
+
+
+
 ## [0.5.33](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.5.32...@weave-js/core@0.5.33) (2019-01-15)
 
 **Note:** Version bump only for package @weave-js/core
