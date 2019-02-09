@@ -20,7 +20,7 @@ checks:
   similar-code:
     enabled: false
   identical-code:
-    enabled: false
+    enabled: true
 
 plugins:
   duplication:
