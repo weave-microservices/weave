@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.20](https://github.com/weave-microservices/weave/compare/@weave-js/web@0.4.19...@weave-js/web@0.4.20) (2019-02-09)
+
+**Note:** Version bump only for package @weave-js/web
+
+
+
+
+
 ## [0.4.19](https://github.com/weave-microservices/weave/compare/@weave-js/web@0.4.18...@weave-js/web@0.4.19) (2019-02-08)
 
 **Note:** Version bump only for package @weave-js/web

@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.38](https://github.com/weave-microservices/weave/compare/@weave-js/repl@0.0.37...@weave-js/repl@0.0.38) (2019-02-09)
+
+**Note:** Version bump only for package @weave-js/repl
+
+
+
+
+
 ## [0.0.37](https://github.com/weave-microservices/weave/compare/@weave-js/repl@0.0.36...@weave-js/repl@0.0.37) (2019-02-08)
 
 **Note:** Version bump only for package @weave-js/repl

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.6.1](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.6.0...@weave-js/core@0.6.1) (2019-02-09)
+
+
+### Bug Fixes
+
+* Service loader ([8669596](https://github.com/fachw3rk/weave/commit/8669596))
+
+
+
+
+
 # [0.6.0](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.5.33...@weave-js/core@0.6.0) (2019-02-08)
 
 
