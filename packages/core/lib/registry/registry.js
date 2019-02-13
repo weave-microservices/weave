@@ -6,6 +6,7 @@
 
 'use strict'
 
+// own packages
 const MakeNodeCollection = require('./node-collection')
 const MakeServiceCollection = require('./service-collection')
 const MakeActionCollection = require('./action-collection')
@@ -30,7 +31,7 @@ const MakeRegistry = ({
     self.events = MakeEventCollection({ registry: self, log: self.log, state })
     self.getTransport = () => {}
 
-    function checkActionVisibility (action, node) {
+    const checkActionVisibility = (action, node) => {
         if (typeof action.visibility === 'undefined' || action.visibility === 'public') {
             return true
         }

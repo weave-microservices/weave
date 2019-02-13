@@ -14,8 +14,12 @@ for (let i = 0; i < 256; i++) {
 }
 
 const RegexCache = new Map()
+const _toString = Object.prototype.toString()
 
 module.exports = {
+    isPlainObject (obj) {
+        return _toString.call(obj) === '[object Object]'
+    },
     generateToken () {
         const d0 = Math.random() * 0xffffffff | 0
         const d1 = Math.random() * 0xffffffff | 0

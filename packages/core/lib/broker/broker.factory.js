@@ -52,6 +52,7 @@ const makeBroker = ({
      * @returns {Weave} Weave
      */
     return function Weave (options) {
+        // merge given options with default options
         options = defaultsDeep(options, defaultOptions)
 
         let statistics
@@ -227,7 +228,8 @@ const makeBroker = ({
 
         middlewareHandler.init(broker)
 
-        function registerMiddlewares (customMiddlewares) {
+        // add Middlewares
+        const registerMiddlewares = customMiddlewares => {
             if (Array.isArray(customMiddlewares) && customMiddlewares.length > 0) {
                 customMiddlewares.forEach(middleware => middlewareHandler.add(middleware))
             }
@@ -273,4 +275,4 @@ const makeBroker = ({
     }
 }
 
-module.exports = makeBroker
+exports = makeBroker
