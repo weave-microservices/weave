@@ -1,8 +1,8 @@
 const { Weave } = require('../../lib/index')
-const ServiceHookMixin = require('./mixins/service-hook.mixin')
-const hasServiceScope = require('./scope-checks/service.scope')
+// const ServiceHookMixin = require('./mixins/service-hook.mixin')
+// const hasServiceScope = require('./scope-checks/service.scope')
 
-const names = ['Kevin', 'John', 'Sarah']
+// const names = ['Kevin', 'John', 'Sarah']
 
 const fetchName = jest.fn()
 const log = jest.fn()
@@ -29,8 +29,7 @@ describe.only('Action hooks', () => {
                 handler (context) {
                     return `hello`
                 }
-            },
-           
+            }
         },
         methods: {
             fetchName
@@ -39,7 +38,6 @@ describe.only('Action hooks', () => {
 
     beforeAll(() => broker.start())
     afterAll(() => broker.stop())
-
 
     it('should call a before wildcard hock.', () => {
         return broker.call('greeter.sayHello', { id: 1 })
@@ -54,6 +52,4 @@ describe.only('Action hooks', () => {
                 expect(fetchName).toBeCalledTimes(2)
             })
     })
-
-    
 })

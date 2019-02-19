@@ -9,7 +9,7 @@ const serviceChangedFactory = ({ state, transport, broadcastLocal }) =>
      * Notify about service changes.
      * @param {any} isLocalService
      */
-    (isLocalService) => {
+    isLocalService => {
         broadcastLocal('$services.changed', { isLocalService })
         if (state.isStarted && isLocalService && transport) {
             transport.sendNodeInfo()
