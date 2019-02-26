@@ -97,10 +97,10 @@ const createTransport = (broker, adapter) => {
             return adapter.preSend(message)
         },
         discoverNodes () {
-            this.transport.send(this.transport.createMessage(MessageTypes.MESSAGE_DISCOVERY))
+            this.send(this.createMessage(MessageTypes.MESSAGE_DISCOVERY))
         },
         discoverNode (target) {
-            this.transport.send(this.transport.createMessage(MessageTypes.MESSAGE_DISCOVERY, target))
+            this.send(this.createMessage(MessageTypes.MESSAGE_DISCOVERY, target))
         },
         sendBalancedEvent (eventName, data, nodeGroups) {
             Object.keys(nodeGroups)
@@ -135,8 +135,8 @@ const createTransport = (broker, adapter) => {
         }
     }
 
-    const discoverNode = target => transport.send(transport.createMessage(MessageTypes.MESSAGE_DISCOVERY, target))
-    const discoverNodes = () => transport.send(transport.createMessage(MessageTypes.MESSAGE_DISCOVERY))
+    // const discoverNode = target => transport.send(transport.createMessage(MessageTypes.MESSAGE_DISCOVERY, target))
+    // const discoverNodes = () => transport.send(transport.createMessage(MessageTypes.MESSAGE_DISCOVERY))
 
     const onConnect = (wasReconnect, startHeartbeatTimers = true) =>
         Promise.resolve()
@@ -145,7 +145,7 @@ const createTransport = (broker, adapter) => {
                     return makeSubscriptions()
                 }
             })
-            .then(() => discoverNodes())
+            .then(() => transport.discoverNodes())
             .then(() => utils.promiseDelay(Promise.resolve(), 500))
             .then(() => {
                 transport.isConnected = true
