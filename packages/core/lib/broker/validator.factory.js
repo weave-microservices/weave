@@ -5,36 +5,33 @@
  */
 
 const ObjectValidator = require('fw-object-validator')
+const { WeaveParameterValidationError } = require('../errors')
 
-const makeValidator = ({ Errors }) => {
-    const self = Object.create(null)
-    const validator = ObjectValidator()
+const createValidator = () => {
+    const objectValidator = ObjectValidator()
 
-    self.compile = schema => validator.compile(schema)
-
-    self.validate = (obj, schema) => {
-        return validator.validate(obj, schema)
+    const validator = {
+        compile: schema => objectValidator.compile(schema),
+        validate: (obj, schema) => objectValidator.validate(obj, schema),
+        addRule: (type, ruleFn) => objectValidator.addRule(type, ruleFn)
     }
 
-    self.addRule = (type, ruleFn) => validator.addRule(type, ruleFn)
-
-    self.middleware = () => {
-        return function (handler, action) {
-            if (action.params && typeof action.params === 'object') {
-                const validate = self.compile(action.params)
-                return context => {
-                    const result = validate(context.params)
-                    if (result === true) {
-                        return handler(context)
-                    } else {
-                        return Promise.reject(new Errors.WeaveParameterValidationError('Parameter validation error', null, result))
-                    }
+    validator.middleware = function (handler, action) {
+        if (action.params && typeof action.params === 'object') {
+            const validate = validator.compile(action.params)
+            return context => {
+                const result = validate(context.params)
+                if (result === true) {
+                    return handler(context)
+                } else {
+                    return Promise.reject(new WeaveParameterValidationError('Parameter validation error', null, result))
                 }
             }
-            return handler
         }
+        return handler
     }
-    return self
+
+    return validator
 }
 
-module.exports = makeValidator
+module.exports = createValidator

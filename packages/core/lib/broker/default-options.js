@@ -4,8 +4,18 @@
  * Copyright 2018 Fachwerk
  */
 
+/** @module weave */
+
 const { logLevel, loadBalancingStrategy } = require('../constants')
 
+/**
+ * Configuration object for weave service broker.
+ * @typedef {Object} BrokerOptions
+ * @property {string} nodeId - Name of the Service broker node.
+ * @property {string|Object} codec - Codec for data serialization.
+ * @property {boolean} hasPower - Indicates whether the Power component is present.
+ * @property {boolean} hasWisdom - Indicates whether the Wisdom component is present.
+ */
 module.exports = {
     bulkhead: {
         concurrency: 1,
@@ -13,7 +23,9 @@ module.exports = {
         maxQueueSize: 10
     },
     // cache settings
-    cache: false,
+    cache: {
+        enabled: false
+    },
     circuitBreaker: {
         enabled: false,
         failureOnError: true,

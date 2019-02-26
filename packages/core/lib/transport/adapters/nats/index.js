@@ -4,7 +4,7 @@
  * Copyright 2018 Fachwerk
  */
 
-const TransportBase = require('../transport-base')
+const TransportBase = require('../adapter-base')
 const { defaultsDeep } = require('lodash')
 
 function NATSTransportAdapter (adapterOptions) {

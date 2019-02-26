@@ -4,10 +4,11 @@
  * Copyright 2018 Fachwerk
  */
 const { omit } = require('fachwork')
-const EndpointList = require('./endpoint-list')
-const { match } = require('../utils.js')
+const EndpointList = require('../endpoint-list')
+const { match } = require('../../utils.js')
 
-const MakeEventCollection = ({ state }) => {
+const MakeEventCollection = (registry) => {
+    const broker = registry.broker
     const events = []
     const getAllEvents = () => events
     const getAllEventsByEventName = (eventName) => getAllEvents().filter(list => match(eventName, list.name))
@@ -17,7 +18,7 @@ const MakeEventCollection = ({ state }) => {
             const groupName = event.group || service.name
             let endpointList = this.get(event.name, groupName)
             if (!endpointList) {
-                endpointList = EndpointList(state, event.name, groupName)
+                endpointList = EndpointList(broker, event.name, groupName)
                 events.push(endpointList)
             }
             return endpointList.add(node, service, event)

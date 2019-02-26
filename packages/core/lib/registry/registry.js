@@ -4,32 +4,24 @@
  * Copyright 2018 Fachwerk
  */
 
-'use strict'
-
 // own packages
-const MakeNodeCollection = require('./node-collection')
-const MakeServiceCollection = require('./service-collection')
-const MakeActionCollection = require('./action-collection')
-const MakeEventCollection = require('./event-collection')
+const MakeNodeCollection = require('./collections/node-collection')
+const MakeServiceCollection = require('./collections/service-collection')
+const MakeActionCollection = require('./collections/action-collection')
+const MakeEventCollection = require('./collections/event-collection')
 const Endpoint = require('./endpoint')
 const EventEmitterMixin = require('../utils/event-emitter-mixin')
+const { WeaveServiceNotFoundError } = require('../errors')
 const Node = require('./node')
 
-const MakeRegistry = ({
-    bus,
-    Errors,
-    getLogger,
-    middlewareHandler,
-    state
-}) => {
+const createRegistry = (middlewareHandler) => {
     const self = Object.assign({}, EventEmitterMixin())
-
-    self.log = getLogger('REGISTRY')
-    self.nodes = MakeNodeCollection({ registry: self, log: self.log, state, bus, Node })
-    self.services = MakeServiceCollection({ registry: self, log: self.log, state })
-    self.actions = MakeActionCollection({ registry: self, log: self.log, state })
-    self.events = MakeEventCollection({ registry: self, log: self.log, state })
-    self.getTransport = () => {}
+    const noop = () => {}
+    // self.log = createLogger('REGISTRY')
+    // self.nodes = MakeNodeCollection({ registry: self, log: self.log, state, bus, Node })
+    // self.services = MakeServiceCollection({ registry: self, log: self.log, state })
+    // self.actions = MakeActionCollection({ registry: self, log: self.log, state })
+    // self.events = MakeEventCollection({ registry: self, log: self.log, state })
 
     const checkActionVisibility = (action, node) => {
         if (typeof action.visibility === 'undefined' || action.visibility === 'public') {
@@ -127,30 +119,30 @@ const MakeRegistry = ({
 
     self.unregisterService = (name, version, nodeId) => self.services.remove(nodeId || state.nodeId, name, version)
 
-    self.hasService = (serviceName, version, nodeId) => self.services.has(serviceName, version, nodeId)
+    // self.hasService = (serviceName, version, nodeId) => self.services.has(serviceName, version, nodeId)
 
     self.getServiceList = options => self.services.list(options)
 
     // Actions
-    self.registerActions = (node, service, actions) => {
-        Object.keys(actions).forEach((key) => {
-            const action = actions[key]
+    // self.registerActions = (node, service, actions) => {
+    //     Object.keys(actions).forEach((key) => {
+    //         const action = actions[key]
 
-            if (!checkActionVisibility(action, node)) {
-                return
-            }
+    //         if (!checkActionVisibility(action, node)) {
+    //             return
+    //         }
 
-            const transport = self.getTransport()
-            if (node.isLocal) {
-                action.handler = middlewareHandler.wrapHandler('localAction', action.handler, action)
-            } else {
-                action.handler = middlewareHandler.wrapHandler('remoteAction', transport.request.bind(transport), action)
-            }
+    //         const transport = self.getTransport()
+    //         if (node.isLocal) {
+    //             action.handler = middlewareHandler.wrapHandler('localAction', action.handler, action)
+    //         } else {
+    //             action.handler = middlewareHandler.wrapHandler('remoteAction', transport.request.bind(transport), action)
+    //         }
 
-            self.actions.add(node, service, action)
-            service.addAction(action)
-        })
-    }
+    //         self.actions.add(node, service, action)
+    //         service.addAction(action)
+    //     })
+    // }
 
     self.unregisterAction = (node, action) => {
 
@@ -209,19 +201,19 @@ const MakeRegistry = ({
 
     self.getActionEndpoints = actionName => self.actions.get(actionName)
 
-    self.getLocalActionEndpoint = actionName => {
-        const endpointList = self.getActionEndpoints(actionName)
-        if (!endpointList) {
-            self.log.warn(`Service ${actionName} is not registered localy.`)
-            throw new Errors.WeaveServiceNotFoundError(actionName)
-        }
-        const endpoint = endpointList.getNextLocalEndpoint()
-        if (!endpoint) {
-            self.log.warn(`Service ${actionName} is not available localy.`)
-            throw new Errors.WeaveServiceNotFoundError(actionName)
-        }
-        return endpoint
-    }
+    // self.getLocalActionEndpoint = actionName => {
+    //     const endpointList = self.getActionEndpoints(actionName)
+    //     if (!endpointList) {
+    //         self.log.warn(`Service ${actionName} is not registered localy.`)
+    //         throw new Errors.WeaveServiceNotFoundError(actionName)
+    //     }
+    //     const endpoint = endpointList.getNextLocalEndpoint()
+    //     if (!endpoint) {
+    //         self.log.warn(`Service ${actionName} is not available localy.`)
+    //         throw new Errors.WeaveServiceNotFoundError(actionName)
+    //     }
+    //     return endpoint
+    // }
 
     self.processNodeInfo = payload => {
         const nodeId = payload.sender
@@ -279,12 +271,12 @@ const MakeRegistry = ({
             self.nodes.localNode.sequence++
         }
 
-        if (state.isStarted) {
+        if (broker.isStarted) {
             nodeInfo.services = self.services.list({
                 localOnly: true,
                 withActions: true,
                 withEvents: true,
-                withInternalActions: state.options.internalActionsAccessable,
+                withInternalActions: broker.options.internalActionsAccessable,
                 withSettings: true
             })
         } else {
@@ -305,7 +297,246 @@ const MakeRegistry = ({
 
     self.getNodeList = options => self.nodes.list(options)
 
-    return self
+    // registry object
+    const registry = {
+        init (broker) {
+            this.broker = broker
+            // this.transport = transport
+            this.middlewareHandler = middlewareHandler
+
+            // create logger
+            this.log = broker.createLogger('REGISTRY')
+
+            // create collections
+            this.nodes = MakeNodeCollection(this)
+            this.services = MakeServiceCollection(this)
+            this.actions = MakeActionCollection(this)
+            this.events = MakeEventCollection(this)
+        },
+        onRegisterLocalAction: noop,
+        onRegisterRemoteAction: noop,
+        checkActionVisibility (action, node) {
+            if (typeof action.visibility === 'undefined' || action.visibility === 'public') {
+                return true
+            }
+            if (action.visibility === 'protected' && node.isLocal) {
+                return true
+            }
+            return false
+        },
+        registerLocalService (svc) {
+            const service = this.services.add(this.nodes.localNode, svc.name, svc.version, svc.settings)
+
+            if (svc.actions) {
+                this.registerActions(this.nodes.localNode, service, svc.actions)
+            }
+            if (svc.events) {
+                this.registerEvents(this.nodes.localNode, service, svc.events)
+            }
+
+            this.nodes.localNode.services.push(service)
+
+            if (svc.version) {
+                this.log.info(`'${service.name}' service (v${svc.version}) registered.`)
+            } else {
+                this.log.info(`'${service.name}' service registered.`)
+            }
+        },
+        registerEvents (node, service, events) {
+            Object.keys(events).forEach((key) => {
+                const event = events[key]
+                this.events.add(node, service, event)
+                service.addEvent(event)
+            })
+        },
+        registerActions (node, service, actions) {
+            Object.keys(actions).forEach((key) => {
+                const action = actions[key]
+
+                if (!this.checkActionVisibility(action, node)) {
+                    return
+                }
+
+                if (node.isLocal) {
+                    action.handler = this.onRegisterLocalAction(action)
+                } else {
+                    action.handler = this.onRegisterRemoteAction(action)
+                }
+
+                this.actions.add(node, service, action)
+                service.addAction(action)
+            })
+        },
+        getActionList (options) {
+            return this.actions.list(options)
+        },
+        registerServices (node, services) {
+            services.forEach((service) => {
+                // todo: handle events
+                let oldActions
+                let svc = this.services.get(node, service.name, service.version)
+                if (!svc) {
+                    svc = this.services.add(node, service.name, service.version)
+                } else {
+                    oldActions = Object.assign({}, svc.actions)
+                    svc.update(service)
+                }
+
+                if (service.actions) {
+                    this.registerActions(node, svc, service.actions)
+                }
+
+                if (service.events) {
+                    this.registerEvents(node, svc, service.events)
+                }
+
+                if (oldActions) {
+                    // this.unregisterAction()
+                    Object.keys(oldActions).forEach(key => {
+                        // const action = oldActions[key]
+                        if (!service.actions[key]) {
+                            /*
+                            function unregisterAction (nodeId, action) {
+                                if (actions.has(action.name)) {
+                                    const list = actions.get(action.name)
+                                    if (list) {
+                                        list.removeByNodeId(nodeId)
+                                    }
+                                }
+                            }*/
+                        }
+                    })
+                }
+
+                if (svc.version) {
+                    this.log.info(`${service.name} service (v${svc.version}) registered.`)
+                } else {
+                    this.log.info(`${service.name} service registered.`)
+                }
+            })
+
+            // remove old services
+            this.services.services.forEach((service) => {
+                if (service.node !== node) return
+
+                let isExisting = false
+                services.forEach((svc) => {
+                    if (service.equals(svc.name, svc.version)) {
+                        isExisting = true
+                    }
+                })
+
+                if (!isExisting) {
+                    this.unregisterService(service.name, service.version, node.id)
+                }
+            })
+        },
+        unregisterService (name, version, nodeId) {
+            return this.services.remove(nodeId || this.broker.nodeId, name, version)
+        },
+        hasService (serviceName, version, nodeId) {
+            return this.services.has(serviceName, version, nodeId)
+        },
+        getNextAvailableActionEndpoint (actionName, opts = {}) {
+            if (typeof actionName !== 'string') {
+                return actionName
+            } else {
+                if (opts && opts.nodeId) { // remote
+                    const endpoint = this.getActionEndpointByNodeId(actionName, opts.nodeId)
+                    if (!endpoint) {
+                        this.log.warn(`Service ${actionName} is not registered on node ${opts.nodeId}.`)
+                        return new WeaveServiceNotFoundError(actionName)
+                    }
+                } else {
+                    const endpointList = this.getActionEndpoints(actionName)
+                    if (!endpointList) {
+                        this.log.warn(`Service ${actionName} is not registered.`)
+                        return new WeaveServiceNotFoundError(actionName)
+                    }
+                    const endpoint = endpointList.getNextAvailable()
+                    if (!endpoint) {
+                        this.log.warn(`Service ${actionName} is not available.`)
+                        return new WeaveServiceNotFoundError(actionName)
+                    }
+                    return endpoint
+                }
+            }
+        },
+        getActionEndpoints (actionName) {
+            return this.actions.get(actionName)
+        },
+        getLocalNodeInfo (forceGenerateInfo) {
+            if (forceGenerateInfo || !this.nodes.localNode.info) {
+                return this.generateLocalNodeInfo()
+            }
+
+            return this.nodes.localNode.info
+        },
+        generateLocalNodeInfo (incrementSequence) {
+            const { client, IPList, sequence } = this.nodes.localNode
+            const nodeInfo = { client, IPList, sequence }
+
+            if (incrementSequence) {
+                this.nodes.localNode.sequence++
+            }
+
+            if (this.broker.isStarted) {
+                nodeInfo.services = this.services.list({
+                    localOnly: true,
+                    withActions: true,
+                    withEvents: true,
+                    withInternalActions: this.broker.options.internalActionsAccessable,
+                    withSettings: true
+                })
+            } else {
+                nodeInfo.services = []
+            }
+
+            this.nodes.localNode.info = nodeInfo
+            return nodeInfo
+        },
+        processNodeInfo (payload) {
+            const nodeId = payload.sender
+            let node = this.nodes.get(nodeId)
+            let isNew = false
+            let isReconnected = false
+
+            // There is no node with the specified ID. It must therefore be a new node.
+            if (!node) {
+                isNew = true
+                node = new Node(nodeId)
+                this.nodes.add(nodeId, node)
+            } else if (!node.isAvailable) {
+                // Node exists, but is marked as unavailable. It must therefore be a reconnected node.
+                isReconnected = true
+                node.isAvailable = true
+                node.lastHeartbeatTime = Date.now()
+            }
+
+            // todo: Handle multiple nodes with the same ID.
+            const updateNesesary = node.update(payload, isReconnected)
+
+            if (updateNesesary && node.services) {
+                this.registerServices(node, node.services)
+            }
+
+            if (isNew) {
+                this.broker.bus.emit('node.connected', { node, isReconnected })
+                this.log.info(`Node ${node.id} connected!`)
+            } else if (isReconnected) {
+                this.broker.bus.emit('node.connected', { node, isReconnected })
+                this.log.info(`Node ${node.id} reconnected!`)
+            } else {
+                this.broker.bus.emit('node.updated', { node, isReconnected })
+                this.log.info(`Node ${node.id} updated!`)
+            }
+        },
+        getNodeList (options) {
+            return this.nodes.list(options)
+        }
+    }
+
+    return registry
 }
 
-module.exports = MakeRegistry
+module.exports = createRegistry

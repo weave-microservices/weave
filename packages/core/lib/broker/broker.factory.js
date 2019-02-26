@@ -275,4 +275,4 @@ const makeBroker = ({
     }
 }
 
-exports = makeBroker
+module.exports = makeBroker

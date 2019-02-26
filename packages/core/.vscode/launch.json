@@ -15,7 +15,7 @@
             "type": "node",
             "request": "launch",
             "name": "Dev",
-            "program": "${workspaceFolder}/dev/index.js",
+            "program": "${workspaceFolder}/dev/action-chaining.js",
             "args": [
                 "mixins"
             ]

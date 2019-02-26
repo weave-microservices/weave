@@ -4,14 +4,26 @@
  * Copyright 2018 Fachwerk
  */
 
+/** @module weave */
+
 // npm packages
 const { red, bgRed, yellow, magenta, gray, green, enabled } = require('kleur')
 const util = require('util')
+const fs = require('fs')
+const { debounce } = require('fachwork')
 
 // default log levels
 const LOG_LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace']
+/**
+ * Configuration object for weave service broker.
+ * @typedef {Object} Logger
+ * @property {string} nodeId - Name of the Service broker node.
+ * @property {string|Object} codec - Codec for data serialization.
+ * @property {boolean} hasPower - Indicates whether the Power component is present.
+ * @property {boolean} hasWisdom - Indicates whether the Wisdom component is present.
+ */
 
-exports.createDefaultLogger = (baseLogger, bindings, logLevel) => {
+module.exports.createDefaultLogger = (baseLogger, bindings, logLevel) => {
     // map colors to log levels
     const getColor = level => {
         switch (level) {

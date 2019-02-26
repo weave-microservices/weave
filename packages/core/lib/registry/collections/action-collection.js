@@ -5,16 +5,17 @@
  */
 
 const { omit } = require('fachwork')
-const EndpointList = require('./endpoint-list')
+const createEndpointList = require('../endpoint-list')
 
-const MakeActionCollection = ({ state, registry }) => {
+const MakeActionCollection = (registry) => {
+    const broker = registry.broker
     const actions = new Map()
 
     return {
         add (node, service, action) {
             let endPointList = actions.get(action.name)
             if (!endPointList) {
-                endPointList = EndpointList(state, action.name)
+                endPointList = createEndpointList(broker, action.name)
                 actions.set(action.name, endPointList)
             }
             return endPointList.add(node, service, action)

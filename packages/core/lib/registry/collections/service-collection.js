@@ -4,18 +4,18 @@
  * Copyright 2018 Fachwerk
  */
 
-const EndpointList = require('./endpoint-list')
+const EndpointList = require('../endpoint-list')
 const { omit, forIn, remove } = require('lodash')
-const ServiceItem = require('./service-item')
+const ServiceItem = require('../service-item')
 
-const MakeServiceCatalog = ({ state, registry }) => {
+const MakeServiceCatalog = ({ broker, registry }) => {
     const self = Object.create(null)
     const services = self.services = []
     const actions = new Map()
-    const options = state.options
+    const options = broker.options
 
     self.add = (node, name, version, settings) => {
-        const item = ServiceItem(node, name, version, settings, node.id === state.nodeId)
+        const item = ServiceItem(node, name, version, settings, node.id === broker.nodeId)
         services.push(item)
         return item
     }
@@ -47,7 +47,7 @@ const MakeServiceCatalog = ({ state, registry }) => {
     self.registerAction = (nodeId, action) => {
         let endPointList = actions.get(action.name)
         if (!endPointList) {
-            endPointList = EndpointList(state, options)
+            endPointList = EndpointList(broker, options)
             endPointList.isInternal = action.name.substring(0, 1) === '$'
             actions.set(action.name, endPointList)
         }

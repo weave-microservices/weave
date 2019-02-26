@@ -7,10 +7,10 @@
 const Endpoint = require('./endpoint')
 const { loadBalancingStrategy } = require('../constants')
 
-const EndpointList = (state, name, groupName) => {
+const EndpointList = (broker, name, groupName) => {
     const self = Object.create(null)
-    self.state = state
-    const options = state.options
+    self.state = broker
+    const options = broker.options
     const list = self.endpoints = []
     let counter = 0
 
@@ -33,7 +33,7 @@ const EndpointList = (state, name, groupName) => {
             return false
         }
 
-        const newEndpoint = EndpointFactory(state, node, service, action)
+        const newEndpoint = EndpointFactory(broker, node, service, action)
 
         list.push(newEndpoint)
         setLocalEndpoints()

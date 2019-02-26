@@ -1,9 +1,9 @@
-const { Weave, TransportAdapters } = require('../lib/index.js')
+const { WeaveNew, TransportAdapters } = require('../lib')
 
-const broker1 = Weave({
+const broker1 = WeaveNew({
     nodeId: 'node-1',
     namespace: 'ciris',
-    transport: TransportAdapters.Redis(),
+    transport: 'redis',
     logger: console,
     logLevel: 'debug',
     preferLocal: false,
@@ -23,10 +23,10 @@ broker1.createService({
 })
 
 // Create broker #2
-const broker2 = Weave({
+const broker2 = WeaveNew({
     nodeId: 'node-2',
     namespace: 'ciris',
-    transport: TransportAdapters.Redis(),
+    transport: 'redis',
     logger: console,
     metrics: {
         enabled: true
@@ -44,10 +44,10 @@ broker2.createService({
 })
 
 // Create broker #3
-const broker3 = Weave({
+const broker3 = WeaveNew({
     nodeId: 'node-3',
     namespace: 'ciris',
-    transport: TransportAdapters.Redis(),
+    transport: 'redis',
     logger: console,
     metrics: {
         enabled: true

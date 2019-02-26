@@ -9,5 +9,4 @@ const normalizeParams = options => {
     if (!properties) {
         return
     }
-    
 }

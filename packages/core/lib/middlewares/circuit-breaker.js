@@ -5,9 +5,9 @@
  */
 
 module.exports = () => {
+    const storage = new Map()
     let log = null
     let circuitBreakerTimer = null
-    const storage = new Map()
 
     function createWindowTimer (windowTime) {
         circuitBreakerTimer = setInterval(() => clearEndpointStore(), (windowTime || 6000))
@@ -111,8 +111,8 @@ module.exports = () => {
 
     return {
         brokerCreated () {
-            log = this.getLogger('circuit-breaker')
-            const options = this.state.options.circuitBreaker
+            log = this.createLogger('circuit-breaker')
+            const options = this.options.circuitBreaker
             if (options.enabled) {
                 createWindowTimer(options.windowTime)
             }

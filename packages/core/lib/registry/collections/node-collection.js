@@ -4,19 +4,15 @@
  * Copyright 2018 Fachwerk
  */
 
-const { getIpList } = require('../utils.js')
+const { getIpList } = require('../../utils.js')
 const omit = require('fachwork')
+const Node = require('../node')
 
-const MakeNodeCollection = ({
-    state,
-    registry,
-    log,
-    bus,
-    Node
-}) => {
+const MakeNodeCollection = (registry) => {
+    const broker = registry.broker
     const nodes = new Map()
 
-    const self = {
+    const nodeCollection = {
         localNode: null,
         createNode (nodeId) {
             return new Node(nodeId)
@@ -64,27 +60,28 @@ const MakeNodeCollection = ({
         }
     }
 
-    addLocalNode()
-
-    return self
-
-    function addLocalNode () {
-        const node = new Node(state.nodeId)
+    // get Local node informations and add it to the collection by
+    const addLocalNode = () => {
+        const node = new Node(broker.nodeId)
 
         node.isLocal = true
         node.IPList = getIpList()
         node.client = {
             type: 'nodejs',
-            version: state.version,
+            version: broker.version,
             langVersion: process.version
         }
 
         node.sequence = 1
-        self.add(node.id, node)
-        self.localNode = node
+        nodeCollection.add(node.id, node)
+        nodeCollection.localNode = node
 
         return node
     }
+
+    addLocalNode()
+
+    return nodeCollection
 }
 
 module.exports = MakeNodeCollection
