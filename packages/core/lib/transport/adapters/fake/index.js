@@ -13,34 +13,53 @@ global.bus = new EventEmitter({
     maxListeners: 100
 })
 
-const FakeTransportAdapter = (options) => {
-    const self = TransportBase(options)
-    self.name = 'Fake'
-    self.bus = global.bus
+const FakeTransportAdapter = (adapterOptions) => {
+    const messageBus = global.bus
 
-    self.connect = (isTryReconnect = false) => {
-        self.emit('adapter.connected', false)
-        self.log.info(`Fake transport client connected.`)
-        return Promise.resolve()
-    }
+    return Object.assign(TransportBase(adapterOptions), {
+        name: 'Fake',
+        connect (isTryReconnect = false) {
+            this.bus.emit('$adapter.connected', false)
+            this.log.info(`Fake transport client connected.`)
+            return Promise.resolve()
+        },
+        close () {
+            return Promise.resolve()
+        },
+        send (message) {
+            const data = this.serialize(message)
+            const topic = this.getTopic(message.type, message.targetNodeId)
+            messageBus.emit(topic, data)
+            return Promise.resolve()
+        },
+        subscribe (type, nodeId) {
+            const topic = this.getTopic(type, nodeId)
+            messageBus.on(topic, message => this.incommingMessage(type, message))
+        }
+    })
+    // self.connect = (isTryReconnect = false) => {
+    //     self.emit('adapter.connected', false)
+    //     self.log.info(`Fake transport client connected.`)
+    //     return Promise.resolve()
+    // }
 
-    self.close = () => {
-        return Promise.resolve()
-    }
+    // self.close = () => {
+    //     return Promise.resolve()
+    // }
 
-    self.send = (message) => {
-        const data = self.serialize(message)
-        const topic = self.getTopic(message.type, message.targetNodeId)
-        self.bus.emit(topic, data)
-        return Promise.resolve()
-    }
+    // self.send = (message) => {
+    //     const data = self.serialize(message)
+    //     const topic = self.getTopic(message.type, message.targetNodeId)
+    //     self.bus.emit(topic, data)
+    //     return Promise.resolve()
+    // }
 
-    self.subscribe = (type, nodeId) => {
-        const topic = self.getTopic(type, nodeId)
-        self.bus.on(topic, message => self.incommingMessage(type, message))
-    }
+    // self.subscribe = (type, nodeId) => {
+    //     const topic = self.getTopic(type, nodeId)
+    //     self.bus.on(topic, message => self.incommingMessage(type, message))
+    // }
 
-    return self
+    // return self
 }
 
 module.exports = FakeTransportAdapter

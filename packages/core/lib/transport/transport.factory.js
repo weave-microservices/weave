@@ -5,7 +5,7 @@
  */
 
 // own packages
-const { WeaveError } = require('../errors')
+const { WeaveError, WeaveQueueSizeExceededError } = require('../errors')
 const MessageTypes = require('./message-types')
 const utils = require('../utils')
 const createMessageHandler = require('./message-handlers')
@@ -23,6 +23,11 @@ const createTransport = (broker, adapter) => {
 
     const nodeId = broker.nodeId
     const log = broker.createLogger('TRANSPORT')
+    const pending = {
+        requests: new Map(),
+        requestStreams: new Map(),
+        responseStreams: new Map()
+    }
     const pendingRequests = new Map()
     const pendingResponseStreams = new Map()
     const pendingRequestStreams = new Map()
@@ -71,6 +76,10 @@ const createTransport = (broker, adapter) => {
                 doConnect(false)
             })
         },
+        disconnect () {
+            return this.send(this.createMessage(MessageTypes.MESSAGE_DISCONNECT))
+                .then(() => adapter.close())
+        },
         setReady () {
             if (this.isConnected) {
                 this.isReady = true
@@ -115,13 +124,13 @@ const createTransport = (broker, adapter) => {
                 })
         },
         removePendingRequestsById (requestId) {
-            pendingRequests.delete(requestId)
+            pending.requests.delete(requestId)
         },
         removePendingRequestsByNodeId (nodeId) {
             log.debug('Remove pending requests.')
-            pendingRequests.forEach((request, requestId) => {
+            pending.requests.forEach((request, requestId) => {
                 if (request.nodeId === nodeId) {
-                    pendingRequests.delete(requestId)
+                    pending.requests.delete(requestId)
                 }
                 request.reject(new WeaveError(`Remove pending requests for node ${nodeId}.`))
             })
@@ -132,6 +141,135 @@ const createTransport = (broker, adapter) => {
                 targetNodeId,
                 payload: payload || {}
             }
+        },
+        request (context) {
+            const doRequest = (context, resolve, reject) => {
+                const isStream = context.params && context.params.readable === true && typeof context.params.on === 'function' && typeof context.params.pipe === 'function'
+
+                const request = {
+                    targetNodeId: context.nodeId,
+                    action: context.action.name,
+                    resolve,
+                    reject,
+                    isStream
+                }
+
+                log.debug(`Send Request for ${request.action} to node ${request.targetNodeId}.`)
+
+                pending.requests.set(context.id, request)
+
+                const payload = {
+                    id: context.id,
+                    action: context.action.name,
+                    params: isStream ? null : context.params,
+                    options: context.options,
+                    meta: context.meta,
+                    level: context.level,
+                    metrics: context.metrics,
+                    requestId: context.requestId,
+                    parentId: context.parentId,
+                    isStream
+                }
+
+                const message = this.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload)
+
+                this.send(message)
+                    .then(() => {
+                        if (isStream) {
+                            const stream = context.params
+                            payload.meta = {}
+
+                            stream.on('data', chunk => {
+                                const payloadCopy = Object.assign({}, payload)
+                                payloadCopy.params = chunk
+                                stream.pause()
+                                return this.send(this.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy))
+                                    .then(() => stream.resume())
+                            })
+
+                            stream.on('end', () => {
+                                const payloadCopy = Object.assign({}, payload)
+                                payloadCopy.params = null
+                                payloadCopy.isStream = false
+                                return this.send(this.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy))
+                            })
+
+                            stream.on('error', (bhunk) => {
+                                return this.send(this.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload))
+                            })
+                        }
+                    })
+            }
+
+            // If the queue size is set, check the queue size and reject the job when the limit is reached.
+            if (broker.options.maxQueueSize && broker.options.maxQueueSize < pendingRequests.size) {
+                return Promise.reject(new WeaveQueueSizeExceededError({
+                    action: context.action.name,
+                    limit: broker.options.maxQueueSize,
+                    nodeId: context.nodeId,
+                    size: pendingRequests.size
+                }))
+            }
+
+            return new Promise((resolve, reject) => doRequest(context, resolve, reject))
+        },
+        response (target, contextId, data, error) {
+            // Check if data is a stream
+            const isStream = data && data.readable === true && typeof data.on === 'function' && typeof data.pipe === 'function'
+            const payload = {
+                id: contextId,
+                meta: {},
+                data,
+                success: error == null
+            }
+
+            if (error) {
+                payload.error = {
+                    name: error.name,
+                    message: error.message,
+                    nodeId: error.nodeId || nodeId,
+                    code: error.code,
+                    type: error.type,
+                    stack: error.stack,
+                    data: error.data
+                }
+            }
+
+            if (isStream) {
+                const stream = data
+
+                payload.isStream = true
+                stream.pause()
+                this.log.debug('Send new stream chunk to ', target)
+
+                stream.on('data', chunk => {
+                    const payloadCopy = Object.assign({}, payload)
+                    payloadCopy.data = chunk
+                    this.log.debug('Send Stream chunk to ', target)
+                    stream.pause()
+                    return this.send(this.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy))
+                        .then(() => stream.resume())
+                })
+
+                stream.on('end', () => {
+                    const payloadCopy = Object.assign({}, payload)
+                    payloadCopy.data = null
+                    payloadCopy.isStream = false
+                    this.log.debug('Send end stream chunk to ', target)
+                    this.send(this.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy))
+                })
+
+                stream.on('error', () => {
+                    this.send(this.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payload))
+                })
+
+                payload.data = null
+
+                return this.send(this.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payload))
+                    .then(() => stream.resume())
+            }
+
+            return this.send(this.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payload))
         }
     }
 
@@ -163,49 +301,7 @@ const createTransport = (broker, adapter) => {
             })
             // .then(() => checkOfflineNodes())
 
-    const messageHandler = createMessageHandler(broker, transport, broker.registry)
-    // const messageHandler = (type, data) => {
-    //     if (data === null) {
-    //         throw new WeaveError('Packet missing!')
-    //     }
-
-    //     const message = data
-    //     const payload = message.payload
-
-    //     if (!payload) {
-    //         throw new WeaveError('Message payload missing!')
-    //     }
-
-    //     if (payload.sender === nodeId) {
-    //         return
-    //     }
-
-    //     stats.packets.received = stats.packets.received + 1
-
-    //     switch (type) {
-    //         case 'discovery':
-    //             onDiscovery(payload)
-    //             break
-    //         case 'info':
-    //             onNodeInfos(payload)
-    //             break
-    //         case 'request':
-    //             onRequest(payload)
-    //             break
-    //         case 'response':
-    //             onResponse(payload)
-    //             break
-    //         case 'disconnect':
-    //             onDisconnect(payload)
-    //             break
-    //         case 'heartbeat':
-    //             onHeartbeat(payload)
-    //             break
-    //         case 'event':
-    //             onEvent(payload)
-    //             break
-    //     }
-    // }
+    const messageHandler = createMessageHandler(broker, transport, pending)
 
     adapter.init(broker, transport)
         .then(() => {

@@ -1,4 +1,4 @@
-const { Weave } = require('../../lib/index')
+const { Weave, TransportAdapters } = require('../../lib/index')
 
 describe('Test middlware hooks', () => {
     it('should call hooks in the right order', (done) => {
@@ -122,7 +122,7 @@ describe('Test middlware hooks', () => {
             })
     })
 
-    it('should call remote action hook', (done) => {
+    it('should call remote action hook', () => {
         const middleware = {
             remoteAction: function (handler) {
                 return context => {
@@ -134,7 +134,7 @@ describe('Test middlware hooks', () => {
 
         const broker1 = Weave({
             nodeId: 'node1',
-            transport: 'fake',
+            transport: TransportAdapters.Fake(),
             logLevel: 'fatal',
             internalActions: false,
             middlewares: [middleware]
@@ -142,7 +142,7 @@ describe('Test middlware hooks', () => {
 
         const broker2 = Weave({
             nodeId: 'node2',
-            transport: 'fake',
+            transport: TransportAdapters.Fake(),
             logLevel: 'fatal',
             internalActions: false
         })
@@ -159,14 +159,15 @@ describe('Test middlware hooks', () => {
         Promise.all([
             broker1.start(),
             broker2.start()
-        ]).then(() => {
-            broker1.call('math.add', { a: 1, b: 2 })
-                .then(res => {
-                    expect(res.result).toBe(3)
-                    expect(res.params.paramFromMiddleware).toBe('hello world')
-                    done()
-                })
-        })
+        ])
+            .then(() => broker1.waitForServices(['math']))
+            .then(() => {
+                broker1.call('math.add', { a: 1, b: 2 })
+                    .then(res => {
+                        expect(res.result).toBe(3)
+                        expect(res.params.paramFromMiddleware).toBe('hello world')
+                    })
+            })
     })
 })
 

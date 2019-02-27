@@ -8,7 +8,6 @@ const { hash } = require('node-object-hash')({ sort: false, coerce: false })
 const { isObject } = require('lodash')
 
 const makeBaseCache = (broker, options) => {
-
     // create a hash key from the object
     const getCachingHash = (name, params, keys) => {
         if (params) {

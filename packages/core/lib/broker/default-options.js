@@ -23,9 +23,7 @@ module.exports = {
         maxQueueSize: 10
     },
     // cache settings
-    cache: {
-        enabled: false
-    },
+    cache: false,
     circuitBreaker: {
         enabled: false,
         failureOnError: true,

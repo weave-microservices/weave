@@ -201,19 +201,19 @@ const createRegistry = (middlewareHandler) => {
 
     self.getActionEndpoints = actionName => self.actions.get(actionName)
 
-    // self.getLocalActionEndpoint = actionName => {
-    //     const endpointList = self.getActionEndpoints(actionName)
-    //     if (!endpointList) {
-    //         self.log.warn(`Service ${actionName} is not registered localy.`)
-    //         throw new Errors.WeaveServiceNotFoundError(actionName)
-    //     }
-    //     const endpoint = endpointList.getNextLocalEndpoint()
-    //     if (!endpoint) {
-    //         self.log.warn(`Service ${actionName} is not available localy.`)
-    //         throw new Errors.WeaveServiceNotFoundError(actionName)
-    //     }
-    //     return endpoint
-    // }
+    self.getLocalActionEndpoint = actionName => {
+        const endpointList = self.getActionEndpoints(actionName)
+        if (!endpointList) {
+            self.log.warn(`Service ${actionName} is not registered localy.`)
+            throw new Errors.WeaveServiceNotFoundError(actionName)
+        }
+        const endpoint = endpointList.getNextLocalEndpoint()
+        if (!endpoint) {
+            self.log.warn(`Service ${actionName} is not available localy.`)
+            throw new Errors.WeaveServiceNotFoundError(actionName)
+        }
+        return endpoint
+    }
 
     self.processNodeInfo = payload => {
         const nodeId = payload.sender
@@ -434,6 +434,9 @@ const createRegistry = (middlewareHandler) => {
         unregisterService (name, version, nodeId) {
             return this.services.remove(nodeId || this.broker.nodeId, name, version)
         },
+        unregisterServiceByNodeId (nodeId) {
+            return this.services.removeAllByNodeId(nodeId)
+        },
         hasService (serviceName, version, nodeId) {
             return this.services.has(serviceName, version, nodeId)
         },
@@ -464,6 +467,19 @@ const createRegistry = (middlewareHandler) => {
         },
         getActionEndpoints (actionName) {
             return this.actions.get(actionName)
+        },
+        getLocalActionEndpoint (actionName) {
+            const endpointList = this.getActionEndpoints(actionName)
+            if (!endpointList) {
+                this.log.warn(`Service ${actionName} is not registered localy.`)
+                throw new WeaveServiceNotFoundError(actionName)
+            }
+            const endpoint = endpointList.getNextLocalEndpoint()
+            if (!endpoint) {
+                this.log.warn(`Service ${actionName} is not available localy.`)
+                throw new WeaveServiceNotFoundError(actionName)
+            }
+            return endpoint
         },
         getLocalNodeInfo (forceGenerateInfo) {
             if (forceGenerateInfo || !this.nodes.localNode.info) {
@@ -529,6 +545,15 @@ const createRegistry = (middlewareHandler) => {
             } else {
                 this.broker.bus.emit('node.updated', { node, isReconnected })
                 this.log.info(`Node ${node.id} updated!`)
+            }
+        },
+        nodeDisconnected (nodeId, isUnexpected) {
+            const node = this.nodes.get(nodeId)
+            if (node && node.isAvailable) {
+                this.unregisterServiceByNodeId(node.id)
+                node.disconnected(isUnexpected)
+                this.broker.bus.emit('node.disconnected', nodeId, isUnexpected)
+                this.log.warn(`Node '${node.id}'${isUnexpected ? ' unexpectedly' : ''} disconnected.`)
             }
         },
         getNodeList (options) {

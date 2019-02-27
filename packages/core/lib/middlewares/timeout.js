@@ -10,7 +10,7 @@ const { WeaveRequestTimeoutError } = require('../errors')
 const wrapTimeoutMiddleware = function (handler, action) {
     const self = this
     return function timeoutMiddleware (context) {
-        if (typeof context.options.timeout === 'undefined' || context.options.timeout === null) {
+        if (typeof context.options.timeout === 'undefined' || self.options.requestTimeout) {
             context.options.timeout = self.options.requestTimeout || 0
         }
 
@@ -22,6 +22,12 @@ const wrapTimeoutMiddleware = function (handler, action) {
 
         if (context.options.timeout > 0) {
             promise = promiseTimeout(context.options.timeout, promise, new WeaveRequestTimeoutError(context.action.name, context.nodeId))
+                .catch(error => {
+                    if (error instanceof WeaveRequestTimeoutError) {
+                        self.log.warn(`Request '${context.action.name}' timed out.`)
+                    }
+                    return Promise.reject(error)
+                })
         }
         return promise
     }

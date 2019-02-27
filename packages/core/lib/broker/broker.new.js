@@ -40,6 +40,7 @@ const createHealthcheck = require('./healthcheck')
 const TransportAdapters = require('../transport/adapters')
 const createTransport = require('../transport')
 const EventEmitter = require('eventemitter2')
+const { WeaveError } = require('../errors')
 
 // package.json
 const pkg = require('../../package.json')
@@ -51,6 +52,14 @@ const pkg = require('../../package.json')
 const createBroker = (options) => {
     // merge options with default options
     options = defaultsDeep(options, defaultOptions)
+
+    if (options.started && typeof options.started !== 'function') {
+        throw new WeaveError('Started hook have to be a function.')
+    }
+
+    if (options.stopped && typeof options.stopped !== 'function') {
+        throw new WeaveError('Stopped hook have to be a function.')
+    }
 
     // if no node id is set - create one.
     const nodeId = options.nodeId || utils.createNodeId()
@@ -83,7 +92,6 @@ const createBroker = (options) => {
 
     // create the default logger for the broker.
     const log = createLogger('WEAVE')
-    let isStarted = false
 
     // internal modules
     const middlewareHandler = createMiddlewareHandler()
@@ -166,6 +174,7 @@ const createBroker = (options) => {
         version,
         options,
         nodeId,
+        isStarted: false,
         log,
         createLogger,
         health,
@@ -273,7 +282,7 @@ const createBroker = (options) => {
                 const newService = createServiceFromSchema(this, middlewareHandler, addLocalServices, registerLocalService, schema)
 
                 // if the broker is already startet - start the service.
-                if (isStarted) {
+                if (this.isStarted) {
                     newService.start()
                         .catch(error => log.error(`Unable to start service ${newService.name}: ${error}`))
                 }
@@ -359,7 +368,7 @@ const createBroker = (options) => {
                     return Promise.reject(error)
                 })
                 .then(() => {
-                    isStarted = true
+                    this.isStarted = true
                     log.info(`Weave service node with ${services.length} services is started successfully.`)
                     this.broadcastLocal('$broker.started')
                 })
@@ -370,7 +379,7 @@ const createBroker = (options) => {
                 })
                 .then(() => middlewareHandler.callHandlersAsync('started', [this], true))
                 .then(() => {
-                    if (isStarted && options.started) {
+                    if (this.isStarted && options.started) {
                         options.started.call(this)
                     }
                 })
@@ -380,7 +389,7 @@ const createBroker = (options) => {
          * @returns {Promise} Promise
          */
         stop () {
-            isStarted = false
+            this.isStarted = false
             return Promise.resolve()
                 .then(() => middlewareHandler.callHandlersAsync('stopping', [this], true))
                 .then(() => Promise.all(services.map(service => service.stop())))
@@ -395,14 +404,11 @@ const createBroker = (options) => {
                 })
                 .then(() => middlewareHandler.callHandlersAsync('stopped', [this], true))
                 .then(() => {
-                    if (!isStarted) {
+                    if (!this.isStarted) {
                         if (options.stopped) {
                             options.stopped.call(this)
                         }
                     }
-                })
-                .catch(error => {
-                    this.log.error(error)
                 })
                 .then(() => {
                     log.info(`Node successfully shutted down. Bye bye!`)
@@ -427,15 +433,19 @@ const createBroker = (options) => {
 
     // module initialisation
     registry.init(broker, middlewareHandler)
-
-    // if (transport) {
-    //     transport.init(broker)
-    // }
-
     middlewareHandler.init(broker)
     contextFactory.init(broker)
-    health.init(broker, broker.transport)
+    health.init(broker, broker.transport) 
     // register all middlewares (including user defined)
+
+
+    // initialize caching module
+    if (options.cache) {
+        const createCache = Cache.resolve(options.cache)
+        broker.cache = createCache(broker, options.cache)
+        middlewareHandler.add(broker.cache.middleware)
+        log.info(`Cache module: ${broker.cache.name}`)
+    }
 
     const registerMiddlewares = customMiddlewares => {
         // Register custom middlewares
@@ -471,6 +481,7 @@ const createBroker = (options) => {
 
     // Stop the broker greaceful
     const onClose = () => broker.stop()
+        .catch(error => broker.log.error(error))
         .then(() => process.exit(0))
 
     process.setMaxListeners(0)
@@ -478,14 +489,6 @@ const createBroker = (options) => {
     process.on('exit', onClose)
     process.on('SIGINT', onClose)
     process.on('SIGTERM', onClose)
-
-    // initialize caching module
-    if (options.cache && options.cache.enabled) {
-        const createCache = Cache.resolve(options.cache)
-        broker.cache = createCache(broker, options.cache)
-        middlewareHandler.add(broker.cache.middleware)
-        log.info(`Cache module: ${broker.cache.name}`)
-    }
 
     // Create internal services
     if (options.internalActions) {

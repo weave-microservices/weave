@@ -1,10 +1,12 @@
 const { WeaveNew } = require('../lib')
 
 const stats = () => {
-
     return {
         created (broker) {
             this.log.info('hello framework')
+        },
+        stopped (broker) {
+            this.log.info('goodbye 😢')
         },
         starting (a) {
             this.stats = {
@@ -16,16 +18,16 @@ const stats = () => {
                 return next(schema)
             }
         },
-        call (next) {
-            return function (actionName, params, opts) {
-                console.log("The 'call' is called.", actionName)
-                this.stats.callCounter++
-                return next(actionName, params, opts).then(res => {
-                    console.log("Response:", res)
-                    return res
-                })
-            }
-        }
+        // call (next) {
+        //     return function (actionName, params, opts) {
+        //         console.log("The 'call' is called.", actionName)
+        //         this.stats.callCounter++
+        //         return next(actionName, params, opts).then(res => {
+        //             console.log("Response:", res)
+        //             return res
+        //         })
+        //     }
+        // }
     }
 }
 
@@ -43,11 +45,27 @@ const app = WeaveNew({
                 // }
                 return handler
             }
-        }
-        // stats()
+        },
+        stats()
     ],
-    // cache: false
-    transport: 'redis'
+    metrics: {
+        enabled: true
+    },
+    // cache: true,
+    // transport: 'redis'
+})
+
+
+
+const app2 = WeaveNew({
+    // nodeId: 'sdasd',
+    logLevel: 'debug',
+    watchServices: true,
+    metrics: {
+        enabled: true
+    },
+    // cache: true,
+    // transport: 'redis'
 })
 
 const mixin = {
@@ -82,12 +100,22 @@ app.createService({
             }
         }
     },
+    events: {
+        'metrics.trace.span.finished' (data) {
+            if (data.isCachedResult) {
+                console.log(data)
+            }
+        }
+    },
     started () {
-        // return Promise.reject(new Error('started'))
         this.timer = setInterval(() => {})
     },
     stopped () {
-        this.log.debug(11)
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                reject ('alles klar')
+            }, 4000)
+        })
     }
 })
 
@@ -140,10 +168,11 @@ app.log.debug('sdasdas')
 
 app.loadServices(__dirname + '/services')
 
-app.start()
-    .then(() => {
-        setInterval(() => {
-            app.call('test.sayHello', { mu: Date.now() })
-        }, 100)
-    })
-    // .then(res => app.log.info(res))
+Promise.all([
+    app.start(),
+    app2.start()
+]).then(() => {
+    setInterval(() => {
+        app.call('test.sayHello', { mu: 124 })
+    }, 2000)
+})

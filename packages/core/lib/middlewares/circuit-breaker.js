@@ -110,7 +110,7 @@ module.exports = () => {
     }
 
     return {
-        brokerCreated () {
+        created () {
             log = this.createLogger('circuit-breaker')
             const options = this.options.circuitBreaker
             if (options.enabled) {

@@ -6,9 +6,9 @@
 'use strict'
 
 const utils = require('../utils')
-const Errors = require('../errors')
+const { WeaveMaxCallLevelError } = require('../errors')
 
-const makeContext = (broker, endpoint) => {
+const createContext = (broker, endpoint) => {
     // generate context body
     const newContext = {
         id: null,
@@ -16,8 +16,6 @@ const makeContext = (broker, endpoint) => {
         callerNodeId: null,
         params: null,
         meta: {},
-        timeout: 0,
-        retryCount: 0,
         level: 0,
         metrics: null,
         action: endpoint.action,
@@ -50,7 +48,7 @@ const makeContext = (broker, endpoint) => {
             options.parentContext = this
 
             if (options.maxCallLevel < this.level) {
-                return Promise.reject(new Errors.WeaveMaxCallLevelError(broker.nodeId, this.level))
+                return Promise.reject(new WeaveMaxCallLevelError(broker.nodeId, this.level))
             }
 
             const p = broker.call(actionName, params, options)
@@ -74,4 +72,4 @@ const makeContext = (broker, endpoint) => {
     return newContext
 }
 
-module.exports = makeContext
+module.exports = createContext

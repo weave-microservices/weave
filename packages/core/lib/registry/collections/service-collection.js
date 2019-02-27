@@ -8,8 +8,9 @@ const EndpointList = require('../endpoint-list')
 const { omit, forIn, remove } = require('lodash')
 const ServiceItem = require('../service-item')
 
-const MakeServiceCatalog = ({ broker, registry }) => {
+const MakeServiceCatalog = (registry) => {
     const self = Object.create(null)
+    const broker = registry.broker
     const services = self.services = []
     const actions = new Map()
     const options = broker.options

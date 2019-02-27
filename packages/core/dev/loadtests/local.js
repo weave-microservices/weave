@@ -7,7 +7,7 @@ const { Weave } = require('../../lib/index.js')
 // Create broker
 const broker = Weave({
     nodeId: hostname + '-server',
-    cach: true
+    cache: true
 })
 
 broker.createService({
@@ -21,7 +21,7 @@ broker.createService({
     }
 })
 
-const payload = { a: random(0, 100), b: random(0, 100) }
+const payload = { a: 1 }
 
 let count = 0
 

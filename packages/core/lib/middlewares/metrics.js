@@ -6,7 +6,7 @@
 
 let actionCounter = 0
 
-function shouldCollectMetrics (state, options) {
+function shouldCollectMetrics (options) {
     if (options.enabled) {
         actionCounter++
         if (actionCounter * options.metricRate >= 1) {
@@ -54,7 +54,7 @@ function metricsStart (broker, context) {
     }
 }
 
-function metricsFinish (internal, context, error) {
+function metricsFinish (broker, context, error) {
     if (context.startHighResolutionTime) {
         const diff = process.hrtime(context.startHighResolutionTime)
         context.duration = (diff[0] * 1e3) + (diff[1] / 1e6) // ms
@@ -81,28 +81,28 @@ function metricsFinish (internal, context, error) {
                 message: error.message
             }
         }
-        internal.emit('metrics.trace.span.finished', payload)
+        broker.emit('metrics.trace.span.finished', payload)
     }
 }
 
 const wrapMetricsLocalMiddleware = function (handler) {
-    const internal = this
-    const options = internal.options.metrics || {}
+    const broker = this
+    const options = broker.options.metrics || {}
 
     if (options.enabled) {
         return function metricsLocalMiddleware (context) {
             if (context.metrics === null) {
-                context.metrics = shouldCollectMetrics(internal.state, options)
+                context.metrics = shouldCollectMetrics(options)
             }
             if (context.metrics) {
-                metricsStart(internal, context)
+                metricsStart(broker, context)
                 return handler(context)
                     .then(result => {
-                        metricsFinish(internal, context)
+                        metricsFinish(broker, context)
                         return result
                     })
                     .catch(error => {
-                        metricsFinish(internal, context, error)
+                        metricsFinish(broker, context, error)
                         return Promise.reject(error)
                     })
             }
@@ -113,12 +113,12 @@ const wrapMetricsLocalMiddleware = function (handler) {
 }
 
 const wrapMetricsRemoteMiddleware = function (handler, action) {
-    const internal = this
-    const options = internal.options.metrics || {}
+    const broker = this
+    const options = broker.options.metrics || {}
 
     return function metricsRemoteMiddleware (context) {
         if (context.metrics === null) {
-            context.metrics = shouldCollectMetrics(internal.state, options)
+            context.metrics = shouldCollectMetrics(options)
         }
         return handler(context)
     }
