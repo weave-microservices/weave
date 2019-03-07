@@ -7,17 +7,17 @@ import VueSocketIO from 'vue-socket.io'
 Vue.config.productionTip = false
 
 Vue.use(new VueSocketIO({
-  debug: true,
-  connection: window.location.host,
-  vuex: {
-      store,
-      actionPrefix: 'SOCKET_',
-      mutationPrefix: 'SOCKET_'
-  }
+    debug: false,
+    connection: '192.168.178.28:4445', // window.location.host,
+    vuex: {
+        store,
+        actionPrefix: 'SOCKET_',
+        mutationPrefix: 'SOCKET_'
+    }
 }))
 
 new Vue({
-  router,
-  store,
-  render: h => h(App)
+    router,
+    store,
+    render: h => h(App)
 }).$mount('#app')

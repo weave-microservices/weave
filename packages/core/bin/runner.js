@@ -1,11 +1,16 @@
 #!/usr/bin/env node
 
-const { Weave, Errors } = require('../lib')
+// npm packages
 const fs = require('fs')
 const path = require('path')
 const _ = require('lodash')
 const Args = require('args')
 
+// own packages
+const { Weave } = require('../lib')
+const { WeaveError } = require('../lib').Errors
+
+// Default name for config files
 const defaultConfigFileName = 'weave.config.js'
 
 let flags
@@ -23,7 +28,7 @@ let node
  * 		-s , --silent 		- Silent mode. Disable logger, no console messages.
  */
 
-function processFlags () {
+const processFlags = () => {
     Args
         .option('config', 'Load the configuration from a file')
         .option('repl', 'Start REPL mode', false)
@@ -45,7 +50,7 @@ function processFlags () {
     servicePaths = Args.sub
 }
 
-function loadConfigFile () {
+const loadConfigFile = () => {
     let filePath
     if (flags.config) {
         filePath = path.isAbsolute(flags.config) ? flags.config : path.resolve(process.cwd(), flags.config)
@@ -59,29 +64,30 @@ function loadConfigFile () {
 
     if (filePath) {
         if (!fs.existsSync(filePath)) {
-            return Promise.reject(new Errors.WeaveError(`Config file not found: ${filePath}`))
+            return Promise.reject(new WeaveError(`Config file not found: ${filePath}`))
         }
 
-        const ext = path.extname(filePath)
+        const fileExtension = path.extname(filePath)
 
-        switch (ext) {
+        // check file extension
+        switch (fileExtension) {
             case '.json':
             case '.js': {
                 configFile = require(filePath)
                 break
             }
-            default: return Promise.reject(new Errors.WeaveError(`Not supported file extension: ${ext}`))
+            default: return Promise.reject(new WeaveError(`Not supported file extension: ${fileExtension}`))
         }
     }
 }
 
-function mergeOptions () {
+const mergeOptions = () => {
     config = _.defaultsDeep(configFile, Weave.defaultOptions)
     if (config.logger == null && !flags.silent) {
         config.logger = console
     }
 
-    function overwriteFromEnv (obj, prefix) {
+    const overwriteFromEnv = (obj, prefix) => {
         Object.keys(obj).forEach(key => {
             const envName = ((prefix ? prefix + '_' : '') + key).toUpperCase()
 
@@ -116,7 +122,7 @@ function mergeOptions () {
     }
 }
 
-function loadServices () {
+const loadServices = () => {
     if (servicePaths.length > 0) {
         servicePaths.forEach(p => {
             if (!p) return
@@ -127,7 +133,7 @@ function loadServices () {
                 // Load file or dir
                 const svcPath = path.isAbsolute(p) ? p : path.resolve(process.cwd(), p)
                 if (!fs.existsSync(svcPath)) {
-                    throw new Errors.WeaveError(`Path not found: ${svcPath}`)
+                    throw new WeaveError(`Path not found: ${svcPath}`)
                 }
 
                 const isDir = fs.lstatSync(svcPath).isDirectory()
@@ -162,7 +168,7 @@ function loadServices () {
 
                     const svcPath = path.resolve(dir, name)
                     if (!fs.existsSync(svcPath)) {
-                        throw new Errors.WeaveError(`Path not found: ${svcPath}`)
+                        throw new WeaveError(`Path not found: ${svcPath}`)
                     }
 
                     node.loadService(svcPath)
@@ -174,25 +180,21 @@ function loadServices () {
 
 /**
  * Load service from NPM module
- *
- * @param {String} name
- * @returns {Service}
+ * @param {String} fileName File name
+ * @returns {Service} Service
  */
-
-function loadNpmModule (name) {
-    const svc = require(name)
-    return node.createService(svc)
+const loadNpmModule = (fileName) => {
+    const schema = require(fileName)
+    return node.createService(schema)
 }
 
 /**
- * Start Weave node
+ * Start weave broker
+ * @returns {Promise} Promise
  */
-
-function startBroker () {
+const startBroker = () => {
     node = Weave(config)
-
     loadServices()
-
     node.start()
         .then(() => {
             if (flags.repl) {

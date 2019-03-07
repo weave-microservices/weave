@@ -1,7 +1,7 @@
 {
   "name": "@weave-js/repl",
-  "version": "0.0.38",
-  "description": "",
+  "version": "0.7.0-alpha1",
+  "description": "REPL module for weave",
   "main": "lib/index.js",
   "scripts": {},
   "publishConfig": {

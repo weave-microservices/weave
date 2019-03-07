@@ -21,6 +21,7 @@ const { WeaveError } = require('../errors')
 const createService = (broker, middlewareHandler, addLocalService, registerLocalService, schema) => {
     const self = Object.create(null)
 
+    // Check if a schema is given
     if (!schema) {
         throw new WeaveError('Schema is missing!')
     }
@@ -67,14 +68,13 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
                 }
             }
             const innerAction = createActionHandler(cloneDeep(action), name)
-            registryItem.actions[innerAction.name] = innerAction// wrapAction(innerAction)
+            registryItem.actions[innerAction.name] = innerAction
 
             const wrappedAction = middlewareHandler.wrapHandler('localAction', innerAction.handler, innerAction)
+            const endpoint = broker.registry.createPrivateEndpoint(innerAction)
 
             self.actions[name] = (params, options) => {
-                const endpoint = registry.createPrivateEndpoint(innerAction)
-                const context = contextFactory.create(innerAction, null, params, options || {}, endpoint)
-                context.setParams(params)
+                const context = broker.contextFactory.create(innerAction, null, params, options || {}, endpoint)
                 return wrappedAction(context)
             }
         })

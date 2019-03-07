@@ -3,8 +3,6 @@ const chalk = require('chalk')
 const { table } = require('table')
 
 module.exports = (vorpal, broker) => {
-    const { registry } = broker
-
     vorpal
         .command('events', 'List registered events.')
         .action((args, done) => {
@@ -16,7 +14,7 @@ module.exports = (vorpal, broker) => {
                 chalk.bold('Nodes')
             ])
 
-            const events = registry.getEventList({
+            const events = broker.registry.events.list({
                 withEndpoints: true
             })
             events.map(event => {

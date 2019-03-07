@@ -17,7 +17,7 @@
             "name": "Dev",
             "program": "${workspaceFolder}/dev/index.js",
             "args": [
-                "streaming"
+                "action-chaining"
             ]
         },
         {
@@ -42,7 +42,7 @@
             "windows": {
               "program": "${workspaceFolder}/node_modules/jest/bin/jest",
             }
-          },
+        },
         {
             "type": "node",
             "request": "launch",

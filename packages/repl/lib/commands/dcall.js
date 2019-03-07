@@ -3,13 +3,11 @@ const _ = require('lodash')
 const util = require('../utils')
 
 module.exports = (vorpal, broker) => {
-    const { registry, call } = broker
-
     vorpal
         .command('dcall <nodeId> <actionName> [jsonParams]', 'Direct call an action.')
         .autocomplete({
             data () {
-                return _.uniq(registry.getActionList({}).map(item => item.action.name))
+                return _.uniq(broker.registry.actions.list({}).map(item => item.name))
             }
         })
         .allowUnknownOptions()
@@ -28,7 +26,7 @@ module.exports = (vorpal, broker) => {
 
             const nodeId = args.nodeId
             console.log(chalk.yellow.bold(`>> Call '${args.actionName}' with params:`), payload)
-            call(args.actionName, payload, { nodeId })
+            broker.call(args.actionName, payload, { nodeId })
                 .then(res => {
                     console.log(chalk.yellow.bold('>> Response:'))
                     console.log(util.inspect(res, {

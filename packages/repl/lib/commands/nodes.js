@@ -3,7 +3,6 @@ const chalk = require('chalk')
 const { table } = require('table')
 
 module.exports = (vorpal, broker) => {
-    const { state, registry } = broker
     vorpal
         .command('nodes', 'List connected nodes')
         .action((args, done) => {
@@ -18,7 +17,7 @@ module.exports = (vorpal, broker) => {
                 chalk.bold('CPU')
             ])
 
-            const nodes = registry.getNodeList({})
+            const nodes = broker.registry.nodes.list({})
 
             nodes.map(node => {
                 let cpuLoad = '?'
@@ -29,7 +28,7 @@ module.exports = (vorpal, broker) => {
                 }
 
                 data.push([
-                    node.id === state.nodeId ? `${node.id}(*)` : node.id,
+                    node.id === broker.nodeId ? `${node.id}(*)` : node.id,
                     node.services ? Object.keys(node.services).length : 0,
                     node.client.version,
                     node.client.type,

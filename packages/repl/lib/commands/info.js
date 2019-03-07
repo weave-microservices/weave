@@ -5,8 +5,6 @@ const clui = require('clui')
 const v8 = require('v8')
 
 module.exports = (vorpal, broker) => {
-    const { registry, call, state, options, health } = broker
-
     const printHeader = (name, length = 30) => {
         const lines = '-'.repeat(length)
         console.log(' ')
@@ -24,7 +22,7 @@ module.exports = (vorpal, broker) => {
         .command('info', 'Show node informations. (in development)')
         .action((args, done) => {
             const gauge = clui.Gauge
-            const brokerHealth = health.getNodeHealthInfo()
+            const brokerHealth = broker.health.getNodeHealthInfo()
             const heapStatistic = v8.getHeapStatistics()
 
             printHeader('System informations')
@@ -35,12 +33,15 @@ module.exports = (vorpal, broker) => {
             print('Weave version', 'v' + brokerHealth.client.version)
             print('Node.js version', brokerHealth.client.nodeVersion)
 
-            if (options.namespace) {
-                print('Namespace', options.namespace)
+            if (broker.options.namespace) {
+                print('Namespace', broker.options.namespace)
             }
 
-            if (state.transport) {
-
+            if (broker.transport) {
+                printHeader('Transport informations')
+                print('Transporter name', !broker.transport ? 'none' : broker.transport.adapterName)
+                print('Adapter is connected?', broker.transport.isConnected)
+                print('Adapter is ready?', broker.transport.isReady)
             }
 
             done()

@@ -23,7 +23,9 @@ const MakeServiceCatalog = (registry) => {
 
     self.get = (nodeId, name, version, settings) => services.find(svc => svc.equals(name, version, nodeId))
 
-    self.has = (name, version, nodeId) => !!services.find(svc => svc.equals(name, version, nodeId))
+    self.has = (name, version, nodeId) => {
+        return !!services.find(svc => svc.equals(name, version, nodeId))
+    }
 
     self.remove = (nodeId, name, version) => {
         const service = self.get(nodeId, name, version)

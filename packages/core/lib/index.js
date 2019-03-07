@@ -5,8 +5,7 @@
  */
 
 module.exports = {
-    Weave: require('./broker/broker.new'),
-    WeaveNew: require('./broker/broker.new'),
+    Weave: require('./broker/broker'),
     Errors: require('./errors'),
     TransportAdapters: require('./transport/adapters'),
     Constants: require('./constants')

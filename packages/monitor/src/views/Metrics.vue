@@ -28,7 +28,6 @@ export default {
   },
   computed: {
     metrics () {
-    
         const resultItem = item => {
             return {
                 id: item.data.id,

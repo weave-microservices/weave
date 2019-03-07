@@ -7,6 +7,7 @@
 const { Transform } = require('stream')
 const { WeaveError } = require('../errors')
 const Context = require('../broker/context')
+const MessageTypes = require('./message-types')
 
 module.exports = (broker, transport, pending) => {
     const registry = broker.registry
@@ -147,6 +148,15 @@ module.exports = (broker, transport, pending) => {
         request.resolve(payload.data)
     }
 
+    const onPing = payload => {
+        return transport.send(transport.createMessage(MessageTypes.MESSAGE_PONG, payload.sender), {
+            dispatchTime: payload.dispatchTime,
+            arrivalTime: Date.now()
+        })
+    }
+
+    const onPong = payload => broker.broadcastLocal('$node.pong', payload)
+
     const onEvent = payload => {
         registry.events.emitLocal(payload.eventName, payload.data, payload.sender, payload.groups, payload.isBroadcast)
         // localEventEmitter(payload.eventName, payload.data, payload.sender, payload.groups, payload.isBroadcast)
@@ -203,6 +213,12 @@ module.exports = (broker, transport, pending) => {
                 break
             case 'response':
                 onResponse(payload)
+                break
+            case 'ping':
+                onPing(payload)
+                break
+            case 'pong':
+                onPong(payload)
                 break
             case 'disconnect':
                 onDisconnect(payload)

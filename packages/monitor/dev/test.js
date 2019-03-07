@@ -13,7 +13,7 @@ const broker = Weave({
 })
 
 broker.createService({
-    mixins: require(path.join(__dirname,'..', 'lib', 'index.js'))()
+    mixins: require(path.join(__dirname, '..', 'lib', 'index.js'))()
 })
 
 broker.start()

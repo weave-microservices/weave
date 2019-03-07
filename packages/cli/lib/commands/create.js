@@ -1,21 +1,26 @@
 
-const fs = require('fs')
-const path = require('path')
+// npm packages
 const _ = require('lodash')
-const chalk = require('chalk')
 const async = require('async')
-const mkdirp = require('mkdirp')
-const exeq = require('exeq')
-const ora = require('ora')
 const download = require('download-git-repo')
-const inquirer = require('inquirer')
-const multimatch = require('multimatch')
-const render = require('consolidate').handlebars.render
-const Metalsmith = require('metalsmith')
+const exeq = require('exeq')
+const fs = require('fs')
 const Handlebars = require('handlebars')
+const inquirer = require('inquirer')
+const kleur = require('kleur')
 const match = require('minimatch')
-const pkg = require('../../package.json')
+const Metalsmith = require('metalsmith')
+const mkdirp = require('mkdirp')
+const multimatch = require('multimatch')
+const ora = require('ora')
+const path = require('path')
+const render = require('consolidate').handlebars.render
+
+// own packages
 const { getTempDir, fail, evaluate } = require('../utils')
+
+// package.json
+const pkg = require('../../package.json')
 
 /**
  * Yargs command
@@ -117,7 +122,7 @@ function handler (opts) {
                 return inquirer.prompt([{
                     type: 'confirm',
                     name: 'continue',
-                    message: chalk.yellow.bold(`The '${values.projectName} directory exists! Continue?`),
+                    message: kleur.yellow().bold(`The '${values.projectName} directory exists! Continue?`),
                     default: false
                 }]).then(answers => {
                     if (!answers.continue) {
@@ -201,11 +206,11 @@ function handler (opts) {
                             return reject(error)
                         }
 
-                        console.log(chalk.green.bold('\n' + res.split(/\r?\n/g).map(line => '   ' + line).join('\n')))
+                        console.log(kleur.green().bold('\n' + res.split(/\r?\n/g).map(line => '   ' + line).join('\n')))
                         resolve()
                     })
                 } else {
-                    console.log(chalk.green.bold('\nDone!'))
+                    console.log(kleur.green().bold('\nDone!'))
                     resolve()
                 }
             })

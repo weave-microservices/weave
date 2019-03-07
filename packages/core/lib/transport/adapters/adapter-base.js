@@ -6,7 +6,7 @@
 
 const EventEmitter = require('events').EventEmitter
 
-function TransportBase () {
+const createTransportBase = () => {
     let prefix = 'WEAVE'
 
     return {
@@ -24,21 +24,21 @@ function TransportBase () {
             if (broker.options.namespace) {
                 prefix += `-${broker.options.namespace}`
             }
-            // return this.adapterInit()
             return Promise.resolve()
         },
+        /**
+         *
+         * Connection handler
+         * @instance
+         * @param {*} wasReconnect Was it a reconnection atemp?
+         * @param {boolean} [startHeartbeatTimers=true] Start timers for this adapter
+         * @returns {void}
+         */
         connected (wasReconnect, startHeartbeatTimers = true) {
             this.bus.emit('$adapter.connected', wasReconnect, startHeartbeatTimers)
         },
-        getNodeInfos () {
-            return {
-                services: self.weave.serviceRegistry.getServiceList({ localOnly: true, withActions: true, withInternalActions: true }),
-                nodeId: self.nodeId,
-                versions: {
-                    node: process.version,
-                    weave: self.weave.version
-                }
-            }
+        disconnected () {
+            this.bus.emit('$adapter.disconnected')
         },
         getTopic (cmd, nodeId) {
             return prefix + '.' + cmd + (nodeId ? '.' + nodeId : '')
@@ -70,79 +70,6 @@ function TransportBase () {
             }
         }
     }
-
-    // self.init = (broker, transport) => {
-    //     self.log = transport.log
-    //     self.registry = broker.registry
-    //     self.nodeId = broker.nodeId
-    //     self.messageHandler = messageHandler
-    //     self.afterConnect = afterConnectHandler
-    //     self.Message = Message
-    //     self.MessageTypes = MessageTypes
-
-    //     if (state.namespace) {
-    //         prefix += `-${state.namespace}`
-    //     }
-
-    //     if (self.onInit) {
-    //         self.onInit({ state, log, nodeId, messageHandler, afterConnectHandler, registry, Message, MessageTypes })
-    //     }
-
-    //     return Promise.resolve()
-    // }
-
-    // self.getNodeInfos = () => {
-    //     return {
-    //         services: self.weave.serviceRegistry.getServiceList({ localOnly: true, withActions: true, withInternalActions: true }),
-    //         nodeId: self.nodeId,
-    //         versions: {
-    //             node: process.version,
-    //             weave: self.weave.version
-    //         }
-    //     }
-    // }
-
-    // self.incommingMessage = (messageType, message) => {
-    //     const data = self.deserialize(message)
-    //     self.messageHandler(messageType, data)
-    // }
-
-    // self.preSend = (packet) => {
-    //     return self.send(packet)
-    // }
-
-    // self.onConnected = (wasReconnect) => {
-    //     this.connected = true
-    //     if (self.afterConnect) {
-    //         return self.afterConnect(wasReconnect)
-    //     }
-    //     return Promise.resolve()
-    // }
-
-    // self.getTopic = (cmd, nodeId) => prefix + '.' + cmd + (nodeId ? '.' + nodeId : '')
-
-    // self.serialize = (packet) => {
-    //     try {
-    //         packet.payload.sender = self.nodeId
-    //         return Buffer.from(JSON.stringify(packet))
-    //     } catch (error) {
-    //         throw Error(error)
-    //     }
-    // }
-
-    // self.deserialize = (packet) => {
-    //     try {
-    //         return JSON.parse(packet)
-    //     } catch (error) {
-    //         throw Error(error)
-    //     }
-    // }
-
-    // self.subscribe = (type, nodeId) => {
-    //     throw new Error('Not implemented.')
-    // }
-
-    // return self
 }
-module.exports = TransportBase
 
+module.exports = createTransportBase

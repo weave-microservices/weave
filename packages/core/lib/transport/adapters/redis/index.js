@@ -4,11 +4,13 @@
  * Copyright 2018 Fachwerk
  */
 
-const TransportBase = require('../adapter-base')
 const Redis = require('ioredis')
 const { defaultsDeep } = require('lodash')
 
-function RedisTransportAdapter (adapterOptions) {
+const TransportBase = require('../adapter-base')
+const utils = require('../../../utils')
+
+const RedisTransportAdapter = adapterOptions => {
     let clientSub
     let clientPub
 
@@ -37,6 +39,7 @@ function RedisTransportAdapter (adapterOptions) {
 
                     clientPub.on('error', error => {
                         this.log.error(`Redis PUB error:`, error.message)
+                        this.isConnected = false
                         reject(error)
                     })
 
@@ -45,7 +48,7 @@ function RedisTransportAdapter (adapterOptions) {
                             this.isConnected = false
                             this.interruptionCount++
                             this.log.warn(`Redis PUB disconnected.`)
-                            this.bus.emit('adapter.disconnected', false)
+                            this.disconnected()
                         }
                     })
                 })
@@ -61,7 +64,6 @@ function RedisTransportAdapter (adapterOptions) {
                 })
 
                 clientSub.on('close', () => {
-                    this.isConnected = false
                     this.log.warn(`Redis SUB disconnected.`)
                 })
             })
@@ -88,7 +90,7 @@ function RedisTransportAdapter (adapterOptions) {
                 clientPub.disconnect()
                 clientSub.disconnect()
             }
-            return Promise.resolve()
+            return utils.promiseDelay(Promise.resolve(), 500)
         }
     })
 }

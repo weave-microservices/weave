@@ -28,25 +28,14 @@ const createTransport = (broker, adapter) => {
         requestStreams: new Map(),
         responseStreams: new Map()
     }
-    const pendingRequests = new Map()
-    const pendingResponseStreams = new Map()
-    const pendingRequestStreams = new Map()
-
-    // const transport = Object.create({
-    //     isConnected: false,
-    //     isReady: false,
-    //     resolveConnect: null
-    // })
-
-    // const { removePendingRequestsById, removePendingRequestsByNodeId } = makeRemovePendingRequests({ log, pendingRequests })
 
     const stats = {
         packets: {
             sent: 0,
             received: 0,
-            pendingRequests: pendingRequests.size,
-            pendingResponseStreams: pendingResponseStreams.size,
-            pendingRequestStreams: pendingRequestStreams.size
+            pendingRequests: pending.requests.size,
+            pendingResponseStreams: pending.requestStreams.size,
+            pendingRequestStreams: pending.responseStreams.size
         }
     }
 
@@ -55,6 +44,7 @@ const createTransport = (broker, adapter) => {
         isConnected: false,
         isReady: false,
         resolveConnect: null,
+        adapterName: adapter.name,
         connect () {
             return new Promise(resolve => {
                 this.resolveConnect = resolve
@@ -77,6 +67,10 @@ const createTransport = (broker, adapter) => {
             })
         },
         disconnect () {
+            broker.broadcastLocal('$transporter.disconnected', { isGracefull: true })
+            this.isConnected = false
+            this.isReady = false
+            stopTimers()
             return this.send(this.createMessage(MessageTypes.MESSAGE_DISCONNECT))
                 .then(() => adapter.close())
         },
@@ -105,6 +99,9 @@ const createTransport = (broker, adapter) => {
             log.debug(`Send ${message.type.toUpperCase()} packet to ${message.targetNodeId || 'all nodes'}`)
             return adapter.preSend(message)
         },
+        sendPing (nodeId) {
+            return this.send(this.createMessage(MessageTypes.MESSAGE_PING, nodeId, { dispatchTime: Date.now() }))
+        },
         discoverNodes () {
             this.send(this.createMessage(MessageTypes.MESSAGE_DISCOVERY))
         },
@@ -125,6 +122,8 @@ const createTransport = (broker, adapter) => {
         },
         removePendingRequestsById (requestId) {
             pending.requests.delete(requestId)
+            pending.requestStreams.delete(requestId)
+            pending.responseStreams.delete(requestId)
         },
         removePendingRequestsByNodeId (nodeId) {
             log.debug('Remove pending requests.')
@@ -162,7 +161,10 @@ const createTransport = (broker, adapter) => {
                     id: context.id,
                     action: context.action.name,
                     params: isStream ? null : context.params,
-                    options: context.options,
+                    options: {
+                        timeout: context.options.timeout,
+                        retries: context.options.retries
+                    },
                     meta: context.meta,
                     level: context.level,
                     metrics: context.metrics,
@@ -202,12 +204,12 @@ const createTransport = (broker, adapter) => {
             }
 
             // If the queue size is set, check the queue size and reject the job when the limit is reached.
-            if (broker.options.maxQueueSize && broker.options.maxQueueSize < pendingRequests.size) {
+            if (broker.options.maxQueueSize && broker.options.maxQueueSize < pending.requests.size) {
                 return Promise.reject(new WeaveQueueSizeExceededError({
                     action: context.action.name,
                     limit: broker.options.maxQueueSize,
                     nodeId: context.nodeId,
-                    size: pendingRequests.size
+                    size: pending.requests.size
                 }))
             }
 
@@ -273,9 +275,6 @@ const createTransport = (broker, adapter) => {
         }
     }
 
-    // const discoverNode = target => transport.send(transport.createMessage(MessageTypes.MESSAGE_DISCOVERY, target))
-    // const discoverNodes = () => transport.send(transport.createMessage(MessageTypes.MESSAGE_DISCOVERY))
-
     const onConnect = (wasReconnect, startHeartbeatTimers = true) =>
         Promise.resolve()
             .then(() => {
@@ -287,7 +286,7 @@ const createTransport = (broker, adapter) => {
             .then(() => utils.promiseDelay(Promise.resolve(), 500))
             .then(() => {
                 transport.isConnected = true
-                broker.bus.emit('$transporter.connected', wasReconnect)
+                broker.broadcastLocal('$transporter.connected', { wasReconnect })
 
                 if (transport.resolveConnect) {
                     transport.resolveConnect()
@@ -301,12 +300,23 @@ const createTransport = (broker, adapter) => {
             })
             // .then(() => checkOfflineNodes())
 
+    const onDisconnect = () => {
+        // Promise.resolve()
+        //     .then(() => {
+        //         transport.isConnected = false
+        //         broker.bus.emit('$transporter.disconnected')
+        //     })
+        //     .then(() => {
+        //         stopTimers()
+        //     })
+    }
+
     const messageHandler = createMessageHandler(broker, transport, pending)
 
     adapter.init(broker, transport)
         .then(() => {
             adapter.bus.on('$adapter.connected', onConnect)
-            // adapter.on('$adapter.disconnected', onDisconnect)
+            adapter.bus.on('$adapter.disconnected', onDisconnect)
             adapter.bus.on('$adapter.message', messageHandler)
         })
 
@@ -406,6 +416,8 @@ const createTransport = (broker, adapter) => {
             adapter.subscribe(MessageTypes.MESSAGE_INFO, nodeId),
             adapter.subscribe(MessageTypes.MESSAGE_REQUEST, nodeId),
             adapter.subscribe(MessageTypes.MESSAGE_RESPONSE, nodeId),
+            adapter.subscribe(MessageTypes.MESSAGE_PING, nodeId),
+            adapter.subscribe(MessageTypes.MESSAGE_PONG, nodeId),
             adapter.subscribe(MessageTypes.MESSAGE_DISCONNECT),
             adapter.subscribe(MessageTypes.MESSAGE_HEARTBEAT),
             adapter.subscribe(MessageTypes.MESSAGE_EVENT, nodeId)
@@ -427,6 +439,12 @@ const createTransport = (broker, adapter) => {
             checkOfflineNodes()
         }, broker.options.offlineNoteCheckInterval)
         checkOfflineNodesTimer.unref()
+    }
+
+    function stopTimers () {
+        clearInterval(heartbeatTimer)
+        clearInterval(checkNodesTimer)
+        clearInterval(checkOfflineNodes)
     }
 
     function sendHeartbeat () {

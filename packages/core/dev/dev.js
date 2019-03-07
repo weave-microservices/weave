@@ -1,4 +1,4 @@
-const { WeaveNew } = require('../lib')
+const { Weave } = require('../lib')
 
 const stats = () => {
     return {
@@ -17,21 +17,11 @@ const stats = () => {
             return function (schema) {
                 return next(schema)
             }
-        },
-        // call (next) {
-        //     return function (actionName, params, opts) {
-        //         console.log("The 'call' is called.", actionName)
-        //         this.stats.callCounter++
-        //         return next(actionName, params, opts).then(res => {
-        //             console.log("Response:", res)
-        //             return res
-        //         })
-        //     }
-        // }
+        }
     }
 }
 
-const app = WeaveNew({
+const app = Weave({
     // nodeId: 'sdasd',
     logLevel: 'debug',
     watchServices: true,
@@ -50,20 +40,18 @@ const app = WeaveNew({
     ],
     metrics: {
         enabled: true
-    },
+    }
     // cache: true,
     // transport: 'redis'
 })
 
-
-
-const app2 = WeaveNew({
+const app2 = Weave({
     // nodeId: 'sdasd',
     logLevel: 'debug',
     watchServices: true,
     metrics: {
         enabled: true
-    },
+    }
     // cache: true,
     // transport: 'redis'
 })
@@ -113,7 +101,7 @@ app.createService({
     stopped () {
         return new Promise((resolve, reject) => {
             setTimeout(() => {
-                reject ('alles klar')
+                reject('alles klar')
             }, 4000)
         })
     }
@@ -165,8 +153,6 @@ app.log.debug('sdasdas')
 //     const he = app.health.getNodeHealthInfo()
 //     app.log.debug(res)
 // }
-
-app.loadServices(__dirname + '/services')
 
 Promise.all([
     app.start(),

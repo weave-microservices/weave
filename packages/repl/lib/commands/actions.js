@@ -3,8 +3,6 @@ const chalk = require('chalk')
 const { table } = require('table')
 
 module.exports = (vorpal, broker) => {
-    const { registry } = broker
-
     vorpal
         .command('actions', 'List actions')
         .action((args, done) => {
@@ -18,7 +16,7 @@ module.exports = (vorpal, broker) => {
             ])
 
             const list = []
-            const actions = registry.getActionList({
+            const actions = broker.registry.actions.list({
                 withEndpoints: true
             })
             actions.map(item => {
