@@ -11,6 +11,10 @@ function NATSTransportAdapter (adapterOptions) {
     const self = TransportBase(adapterOptions)
     let client
 
+    if (typeof adapterOptions === 'string') {
+        adapterOptions = { url: adapterOptions }
+    }
+
     adapterOptions = defaultsDeep(adapterOptions, {
         url: 'nats://localhost:4222'
     })
