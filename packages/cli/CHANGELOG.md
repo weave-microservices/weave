@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.17](https://github.com/weave-microservices/weave/compare/@weave-js/cli@0.0.16...@weave-js/cli@0.0.17) (2019-03-07)
+
+**Note:** Version bump only for package @weave-js/cli
+
+
+
+
+
 ## [0.0.16](https://github.com/fachw3rk/weave/compare/@weave-js/cli@0.0.15...@weave-js/cli@0.0.16) (2019-01-15)
 
 **Note:** Version bump only for package @weave-js/cli

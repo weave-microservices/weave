@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/web",
-  "version": "0.4.20",
+  "version": "0.4.21",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -18,7 +18,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@weave-js/core": "^0.6.1",
+    "@weave-js/core": "^0.6.2",
     "eslint": "^5.10.0",
     "eslint-config-fw": "^1.0.2",
     "eslint-loader": "^2.1.1",
