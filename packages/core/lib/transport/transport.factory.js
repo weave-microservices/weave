@@ -31,11 +31,12 @@ const createTransport = (broker, adapter) => {
 
     const stats = {
         packets: {
-            sent: 0,
-            received: 0,
-            pendingRequests: pending.requests.size,
-            pendingResponseStreams: pending.requestStreams.size,
-            pendingRequestStreams: pending.responseStreams.size
+            received: {
+                packages: 0
+            },
+            sent: {
+                packages: 0
+            }
         }
     }
 
@@ -45,6 +46,14 @@ const createTransport = (broker, adapter) => {
         isReady: false,
         resolveConnect: null,
         adapterName: adapter.name,
+        statistics: {
+            received: {
+                packages: 0
+            },
+            sent: {
+                packages: 0
+            }
+        },
         connect () {
             return new Promise(resolve => {
                 this.resolveConnect = resolve
@@ -96,7 +105,7 @@ const createTransport = (broker, adapter) => {
          */
         send (message) {
             stats.packets.sent = stats.packets.sent + 1
-            log.debug(`Send ${message.type.toUpperCase()} packet to ${message.targetNodeId || 'all nodes'}`)
+            log.trace(`Send ${message.type.toUpperCase()} packet to ${message.targetNodeId || 'all nodes'}`)
             return adapter.preSend(message)
         },
         sendPing (nodeId) {
@@ -119,6 +128,15 @@ const createTransport = (broker, adapter) => {
                         isBroadcast: false
                     }))
                 })
+        },
+        sendBroadcastEvent (nodeId, eventName, data, groups) {
+            log.trace(`Send ${eventName} to ${nodeId}`)
+            this.send(this.createMessage(MessageTypes.MESSAGE_EVENT, nodeId, {
+                data,
+                eventName,
+                groups,
+                isBroadcast: true
+            }))
         },
         removePendingRequestsById (requestId) {
             pending.requests.delete(requestId)
@@ -298,17 +316,16 @@ const createTransport = (broker, adapter) => {
                     startTimers()
                 }
             })
-            // .then(() => checkOfflineNodes())
 
     const onDisconnect = () => {
-        // Promise.resolve()
-        //     .then(() => {
-        //         transport.isConnected = false
-        //         broker.bus.emit('$transporter.disconnected')
-        //     })
-        //     .then(() => {
-        //         stopTimers()
-        //     })
+        Promise.resolve()
+            .then(() => {
+                transport.isConnected = false
+                broker.bus.emit('$transporter.disconnected')
+            })
+            .then(() => {
+                stopTimers()
+            })
     }
 
     const messageHandler = createMessageHandler(broker, transport, pending)
@@ -321,92 +338,6 @@ const createTransport = (broker, adapter) => {
         })
 
     return transport
-
-    // const send = makeSend({ adapter, stats, log })
-    // const sendBalancedEvent = makeEmit({ log, send, Message, MessageTypes })
-    // const sendBroadcastEvent = makeSendBroadcastEvent({ log, send, Message, MessageTypes })
-    // const sendNodeInfo = makeSendNodeInfo({ send, registry, Message, MessageTypes, transport })
-    // const connect = makeConnect({ adapter, log, transport })
-    // const disconnect = makeDisconnect({ adapter, send, Message, MessageTypes })
-    // const getNodeInfos = makeGetNodeInfos({ state, registry, process })
-    // const request = makeRequest({ options, Errors, send, log, pendingRequests, Message, MessageTypes })
-    // const response = makeResponse({ nodeId, send, pendingRequests, Message, MessageTypes, log })
-    // // const { discoverNodes, discoverNode } = makeDiscoverNodes({ send, Message, MessageTypes })
-    // const localRequestProxy = makeLocalRequestProxy({ call, log, registry, Errors: null })
-    // const setReady = makeSetReady({ state, sendNodeInfo, transport })
-
-    // const {
-    //     onDisconnect,
-    //     onDiscovery,
-    //     onEvent,
-    //     onHeartbeat,
-    //     onNodeInfos,
-    //     onRequest,
-    //     onResponse
-    // } = makeMessageHandlers({
-    //     bus,
-    //     Context,
-    //     discoverNode,
-    //     discoverNodes,
-    //     Errors,
-    //     localEventEmitter,
-    //     localRequestProxy,
-    //     log,
-    //     pendingRequests,
-    //     pendingRequestStreams,
-    //     pendingResponseStreams,
-    //     registry,
-    //     response,
-    //     sendNodeInfo,
-    //     state
-    // })
-
-    // adapter.init({ state, log, nodeId, messageHandler, registry, Message, MessageTypes })
-    //     .then(() => {
-    //         adapter.on('adapter.connected', onConnect)
-    //         // adapter.on('adapter.disconnected', onDisconnect)
-    //         adapter.on('adapter.message', messageHandler)
-    //     })
-
-    // return {
-    //     connect,
-    //     disconnect,
-    //     getNodeInfos,
-    //     removePendingRequestsById,
-    //     removePendingRequestsByNodeId,
-    //     request,
-    //     sendBalancedEvent,
-    //     sendBroadcastEvent,
-    //     sendNodeInfo,
-    //     setReady,
-    //     pendingRequests
-    // }
-
-    // function onConnect (wasReconnect, startHeartbeatTimers = true) {
-    //     return Promise.resolve()
-    //         .then(() => {
-    //             if (!wasReconnect) {
-    //                 return makeSubscriptions()
-    //             }
-    //         })
-    //         .then(() => discoverNodes())
-    //         .then(() => utils.promiseDelay(Promise.resolve(), 500))
-    //         .then(() => {
-    //             transport.isConnected = true
-    //             bus.emit('$transporter.connected', wasReconnect)
-
-    //             if (transport.resolveConnect) {
-    //                 transport.resolveConnect()
-    //                 transport.resolveConnect = null
-    //             }
-    //         })
-    //         .then(() => {
-    //             if (startHeartbeatTimers) {
-    //                 startTimers()
-    //             }
-    //         })
-    //         // .then(() => checkOfflineNodes())
-    // }
 
     function makeSubscriptions () {
         return Promise.all([

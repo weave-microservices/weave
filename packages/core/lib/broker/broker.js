@@ -27,7 +27,7 @@ const glob = require('glob')
 
 // own packages
 const defaultOptions = require('./default-options')
-const Logger = require('../logger')
+const Logger = require('./logger')
 const createServiceFromSchema = require('../registry/service')
 const utils = require('../utils')
 const createMiddlewareHandler = require('./middleware-handler')
@@ -71,7 +71,7 @@ const createBroker = (options) => {
      * Create a new Logger.
      * @param {string} moduleName - Name of the module
      * @param {*} service - Service properties
-     * @returns {import('../logger.js').Logger} Logger
+     * @returns {import('./logger.js/index.js').Logger} Logger
      */
     const createLogger = (moduleName, service) => {
         const bindings = {
@@ -290,9 +290,9 @@ const createBroker = (options) => {
                 groups = [groups]
             }
             // emit the event on the internal event bus
-            // if (/^\$/.test(eventName)) {
-            //     this.bus.emit(eventName, payload)
-            // }
+            if (/^\$/.test(eventName)) {
+                this.bus.emit(eventName, payload)
+            }
             registry.events.emitLocal(eventName, payload, this.nodeId, groups, true)
         },
         /**
@@ -496,10 +496,7 @@ const createBroker = (options) => {
     }
 
     // register internal broker events
-    broker.bus.on('$node.connected', payload => broker.broadcastLocal('$node.connected', payload))
-    broker.bus.on('$node.updated', payload => broker.broadcastLocal('$node.updated', payload))
-    broker.bus.on('$node.disconnected', (nodeId, isUnexpected) => {
-        broker.broadcastLocal('$node.disconnected', { nodeId, isUnexpected })
+    broker.bus.on('$node.disconnected', ({ nodeId, isUnexpected }) => {
         broker.transport.removePendingRequestsByNodeId(nodeId)
         servicesChanged(false)
     })
@@ -533,8 +530,7 @@ const createBroker = (options) => {
             customMiddlewares.forEach(middleware => middlewareHandler.add(middleware))
         }
 
-        // Add the built-in middleware. (The order is important)
-
+        // Add the built-in middlewares. (The order is important)
         if (options.loadInternalMiddlewares) {
             middlewareHandler.add(Middlewares.ActionHooks())
 

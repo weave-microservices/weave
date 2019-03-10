@@ -42,6 +42,8 @@ const EndpointList = (broker, name, groupName) => {
 
     self.hasAvailable = () => list.find(endpoint => endpoint.isAvailable()) != null
 
+    self.hasLocal = () => self.localEndpoints.length > 0
+
     self.getNextAvailable = () => {
         if (list.length === 0) {
             return null
@@ -51,6 +53,7 @@ const EndpointList = (broker, name, groupName) => {
             return self.getNextLocalEndpoint()
         }
 
+        // If only one endpoint is available return this.
         if (list.length === 1) {
             const endpoint = list[0]
             if (endpoint.isAvailable()) {
@@ -97,10 +100,6 @@ const EndpointList = (broker, name, groupName) => {
 
     self.count = () => list.length
 
-    self.hasLocal = () => {
-        return self.localEndpoints.length > 0
-    }
-
     self.getByNodeId = (nodeId) => list.find(endpoint => endpoint.node.id === nodeId)
 
     self.removeByNodeId = (nodeId) => {
@@ -127,6 +126,9 @@ const EndpointList = (broker, name, groupName) => {
             }
             return endpointList[counter++]
         } else {
+            const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1) + min)
+            return endpointList[randomInt(0, endpointList.length - 1)]
+
             // todo: implement random load balancer
         }
     }

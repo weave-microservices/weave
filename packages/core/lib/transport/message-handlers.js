@@ -184,75 +184,55 @@ module.exports = (broker, transport, pending) => {
     }
 
     return (type, data) => {
-        if (data === null) {
-            throw new WeaveError('Packet missing!')
-        }
+        try {
+            if (data === null) {
+                throw new WeaveError('Packet missing!')
+            }
 
-        const message = data
-        const payload = message.payload
+            const message = data
+            const payload = message.payload
 
-        if (!payload) {
-            throw new WeaveError('Message payload missing!')
-        }
+            if (!payload) {
+                throw new WeaveError('Message payload missing!')
+            }
 
-        if (payload.sender === broker.nodeId) {
-            return
-        }
+            if (payload.sender === broker.nodeId) {
+                return
+            }
 
-        // stats.packets.received = stats.packets.received + 1
+            // stats.packets.received = stats.packets.received + 1
 
-        switch (type) {
-            case 'discovery':
-                onDiscovery(payload)
-                break
-            case 'info':
-                onNodeInfos(payload)
-                break
-            case 'request':
-                onRequest(payload)
-                break
-            case 'response':
-                onResponse(payload)
-                break
-            case 'ping':
-                onPing(payload)
-                break
-            case 'pong':
-                onPong(payload)
-                break
-            case 'disconnect':
-                onDisconnect(payload)
-                break
-            case 'heartbeat':
-                onHeartbeat(payload)
-                break
-            case 'event':
-                onEvent(payload)
-                break
+            switch (type) {
+                case 'discovery':
+                    onDiscovery(payload)
+                    break
+                case 'info':
+                    onNodeInfos(payload)
+                    break
+                case 'request':
+                    onRequest(payload)
+                    break
+                case 'response':
+                    onResponse(payload)
+                    break
+                case 'ping':
+                    onPing(payload)
+                    break
+                case 'pong':
+                    onPong(payload)
+                    break
+                case 'disconnect':
+                    onDisconnect(payload)
+                    break
+                case 'heartbeat':
+                    onHeartbeat(payload)
+                    break
+                case 'event':
+                    onEvent(payload)
+                    break
+            }
+        } catch (error) {
+            transport.log.error(error, data)
         }
     }
-
-    // return {
-    //     onHeartbeat (payload) {
-    //         // registry.nodes.heartbeat(payload)
-    //         log.trace(`Heartbeat from ${payload.sender}`)
-    //         const node = registry.nodes.get(payload.sender)
-    //         // if node is unknown then request a node info message.
-    //         if (node) {
-    //             if (!node.isAvailable) {
-    //                 log.debug(`Known node. Propably reconnected.`)
-    //                 // unknown node. request info message.
-    //                 discoverNode(payload.sender)
-    //             } else {
-    //                 node.heartbeat(payload)
-    //             }
-    //         } else {
-    //             // unknown node. request info message.
-    //             discoverNode(payload.sender)
-    //         }
-    //     },
-    //     onEvent (payload) {
-    //         localEventEmitter(payload.eventName, payload.data, payload.sender, payload.groups, payload.isBroadcast)
-    //     }
-    // }
 }

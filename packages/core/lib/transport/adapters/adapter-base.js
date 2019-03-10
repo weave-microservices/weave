@@ -51,6 +51,7 @@ const createTransportBase = () => {
         },
         incommingMessage (messageType, message) {
             const data = this.deserialize(message)
+            this.updateStatisticReceived(message.length)
             this.bus.emit('$adapter.message', messageType, data)
         },
         serialize (packet) {
@@ -68,6 +69,12 @@ const createTransportBase = () => {
             } catch (error) {
                 throw Error(error)
             }
+        },
+        updateStatisticReceived (length) {
+            this.transport.statistics.received.packages++
+        },
+        updateStatisticSent (length) {
+            this.transport.statistics.sent.packages++
         }
     }
 }

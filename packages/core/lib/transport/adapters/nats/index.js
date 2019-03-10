@@ -10,6 +10,10 @@ const { defaultsDeep } = require('lodash')
 function NATSTransportAdapter (adapterOptions) {
     let client
 
+    if (typeof adapterOptions === 'string') {
+        adapterOptions = { url: adapterOptions }
+    }
+
     adapterOptions = defaultsDeep(adapterOptions, {
         url: 'nats://localhost:4222'
     })
@@ -89,6 +93,7 @@ function NATSTransportAdapter (adapterOptions) {
 
             return new Promise(resolve => {
                 const data = this.serialize(message)
+                this.updateStatisticSent(data.length)
                 const topic = this.getTopic(message.type, message.targetNodeId)
                 client.publish(topic, data, resolve)
             })

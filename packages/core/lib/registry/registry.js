@@ -575,13 +575,13 @@ const createRegistry = (middlewareHandler) => {
             }
 
             if (isNew) {
-                this.broker.bus.emit('$node.connected', { node, isReconnected })
+                this.broker.broadcastLocal('$node.connected', { node, isReconnected })
                 this.log.info(`Node ${node.id} connected!`)
             } else if (isReconnected) {
-                this.broker.bus.emit('$node.connected', { node, isReconnected })
+                this.broker.broadcastLocal('$node.connected', { node, isReconnected })
                 this.log.info(`Node ${node.id} reconnected!`)
             } else {
-                this.broker.bus.emit('$node.updated', { node, isReconnected })
+                this.broker.broadcastLocal('$node.updated', { node, isReconnected })
                 this.log.info(`Node ${node.id} updated!`)
             }
         },
@@ -590,7 +590,7 @@ const createRegistry = (middlewareHandler) => {
             if (node && node.isAvailable) {
                 this.unregisterServiceByNodeId(node.id)
                 node.disconnected(isUnexpected)
-                this.broker.bus.emit('$node.disconnected', nodeId, isUnexpected)
+                this.broker.broadcastLocal('$node.disconnected', { nodeId, isUnexpected })
                 this.log.warn(`Node '${node.id}'${isUnexpected ? ' unexpectedly' : ''} disconnected.`)
             }
         },

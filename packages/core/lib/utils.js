@@ -5,7 +5,6 @@
  */
 
 // node modules
-const crypto = require('crypto')
 const os = require('os')
 const { defaultsDeep, assign, uniqWith, compact, flatten } = require('lodash')
 
@@ -20,10 +19,6 @@ module.exports = {
     },
     generateToken () {
         return uuid()
-    },
-    createId (length) {
-        length = length || 12
-        return crypto.randomBytes(length).toString('hex')
     },
     createNodeId () {
         return `${os.hostname()}-${process.pid}`

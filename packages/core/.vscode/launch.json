@@ -17,7 +17,7 @@
             "name": "Dev",
             "program": "${workspaceFolder}/dev/index.js",
             "args": [
-                "action-chaining"
+                "nats-transport-2"
             ]
         },
         {

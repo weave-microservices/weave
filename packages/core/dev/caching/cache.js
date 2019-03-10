@@ -1,4 +1,4 @@
-const { Weave, TransportAdapters } = require('../lib/index.js')
+const { Weave, TransportAdapters } = require('../../lib/index.js')
 
 // Create broker #1
 

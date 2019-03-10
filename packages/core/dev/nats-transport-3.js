@@ -2,11 +2,8 @@ const { Weave } = require('../lib/index.js')
 // Create broker #1
 
 const broker1 = Weave({
-    nodeId: 'nats-1',
-    transport: {
-        type: 'nats',
-        options: {}
-    },
+    nodeId: 'nats-1-3',
+    transport: 'nats://localhost:4222',
     logger: console,
     logLevel: 'info',
     preferLocal: false,
@@ -60,6 +57,8 @@ Promise.all([
             .then(function (result) {
                 broker1.log.info(result)
             })
-            .catch(e => console.log(e.message))
-    }, 1000)
+    }, 100)
+    setInterval(() => {
+        broker1.log.info(`Statistics: `, broker1.transport.statistics)
+    }, 3000)
 })
