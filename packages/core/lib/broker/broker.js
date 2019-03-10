@@ -10,21 +10,6 @@ const fs = require('fs')
 const { debounce } = require('fachwork')
 const glob = require('glob')
 
-/**
- * Configuration object for weave service broker.
- * @typedef {Object} BrokerInstance
- * @property {function():Promise} start - Start the broker, spin up all services and connect transports..
- * @property {function():Promise} stop - Codec for data serialization.
- * @property {function(moduleName, serviceSettings):Logger} createLogger - Create a new Logger.
- * @property {Function} createService - Creates and registers a new service with the given schema.
- * @property {Function} loadService - Indicates whether the Wisdom component is present.
- * @property {Function} loadServices - Indicates whether the Wisdom component is present.
- * @property {Function} waitForService - Indicates whether the Wisdom component is present.
- * @property {Function} emit - Indicates whether the Wisdom component is present.
- * @property {Logger} broadcast - Indicates whether the Wisdom component is present.
- * @property {Function} log - Indicates whether the Wisdom component is present.
- */
-
 // own packages
 const defaultOptions = require('./default-options')
 const Logger = require('./logger')
@@ -233,6 +218,25 @@ const createBroker = (options) => {
 
             return p
         },
+        /**
+         * Call multiple actions.
+         * @param {Array<Action>} actions Array of actions.
+         * @returns {Promise} Promise
+         */
+        multiCall (actions) {
+            if (Array.isArray(actions)) {
+                return Promise.all(actions.map(item => this.call(item.actionName, item.params, item.options)))
+            } else {
+                return Promise.reject(new WeaveError('Actions need to be an Array'))
+            }
+        },
+        /**
+         * Emit a event on all services (grouped and load balanced).
+         * @param {String} eventName Name of the event
+         * @param {any} payload Payload
+         * @param {*} [groups=null] Groups
+         * @returns {void}
+         */
         emit (eventName, payload, groups) {
             if (groups && !Array.isArray(groups)) {
                 groups = [groups]
@@ -266,6 +270,13 @@ const createBroker = (options) => {
                 this.transport.sendBalancedEvent(eventName, payload, groupedEndpoints)
             }
         },
+        /**
+         * Send a broadcasted event to all services.
+         * @param {String} eventName Name of the event
+         * @param {any} payload Payload
+         * @param {*} [groups=null] Groups
+         * @returns {void}
+         */
         broadcast (eventName, payload, groups = null) {
             if (this.transport) {
                 // avoid to broadcast internal events.
@@ -284,6 +295,13 @@ const createBroker = (options) => {
             }
             return this.broadcastLocal(eventName, payload, groups)
         },
+        /**
+         *Send a broadcasted event to all local services.
+         * @param {String} eventName Name of the event
+         * @param {any} payload Payload
+         * @param {*} [groups=null] Groups
+         * @returns {void}
+         */
         broadcastLocal (eventName, payload, groups = null) {
             // if the given group is no array - wrap it.
             if (groups && !Array.isArray(groups)) {
@@ -413,7 +431,6 @@ const createBroker = (options) => {
          */
         repl () {
             let repl
-
             // start the REPL module - if installed
             try {
                 repl = require('@weave-js/repl')
@@ -454,7 +471,6 @@ const createBroker = (options) => {
                 })
                 .then(() => {
                     log.info(`Node successfully shutted down. Bye bye!`)
-
                     this.broadcastLocal('$broker.closed')
 
                     process.removeListener('beforeExit', onClose)

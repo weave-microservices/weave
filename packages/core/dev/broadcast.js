@@ -29,6 +29,7 @@ app2.createService({
         }
     }
 })
+app2.br
 
 Promise.all([
     app1.start(),
