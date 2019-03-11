@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-rc.2](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.6.2...@weave-js/core@0.7.0-rc.2) (2019-03-11)
+
+
+### Features
+
+* Added the new method "multiCall" to call multiple service actions at once ([d28b969](https://github.com/fachw3rk/weave/commit/d28b969))
+
+
+
+
+
 ## [0.6.2](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.6.1...@weave-js/core@0.6.2) (2019-03-07)
 
 **Note:** Version bump only for package @weave-js/core
