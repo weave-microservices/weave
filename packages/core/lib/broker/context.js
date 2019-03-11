@@ -9,7 +9,6 @@ const utils = require('../utils')
 const { WeaveMaxCallLevelError } = require('../errors')
 
 const createContext = (broker, endpoint) => {
-    // generate context body
     const newContext = {
         id: null,
         nodeId: broker.nodeId || null,
