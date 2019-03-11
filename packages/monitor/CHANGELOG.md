@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-rc.4](https://github.com/weave-microservices/weave/compare/@weave-js/monitor@0.7.0-rc.3...@weave-js/monitor@0.7.0-rc.4) (2019-03-11)
+
+**Note:** Version bump only for package @weave-js/monitor
+
+
+
+
+
 # [0.7.0-rc.3](https://github.com/weave-microservices/weave/compare/@weave-js/monitor@0.7.0-rc.2...@weave-js/monitor@0.7.0-rc.3) (2019-03-11)
 
 **Note:** Version bump only for package @weave-js/monitor
