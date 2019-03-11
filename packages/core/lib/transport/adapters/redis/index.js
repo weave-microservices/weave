@@ -4,9 +4,11 @@
  * Copyright 2018 Fachwerk
  */
 
+// npm packages
 const Redis = require('ioredis')
 const { defaultsDeep } = require('lodash')
 
+// own packages
 const TransportBase = require('../adapter-base')
 const utils = require('../../../utils')
 
@@ -14,6 +16,7 @@ const RedisTransportAdapter = adapterOptions => {
     let clientSub
     let clientPub
 
+    // Merge options with default options.
     adapterOptions = defaultsDeep(adapterOptions, {
         port: 6379,
         host: '127.0.0.1'
@@ -21,7 +24,7 @@ const RedisTransportAdapter = adapterOptions => {
 
     return Object.assign(TransportBase(adapterOptions), {
         name: 'REDIS',
-        connect (isTryReconnect = false, errorHandler) {
+        connect () {
             return new Promise((resolve, reject) => {
                 clientSub = new Redis(adapterOptions)
 
@@ -81,6 +84,7 @@ const RedisTransportAdapter = adapterOptions => {
         send (message) {
             const data = this.serialize(message)
             if (this.isConnected) {
+                this.updateStatisticSent(data.length)
                 clientPub.publish(this.getTopic(message.type, message.targetNodeId), data)
             }
             return Promise.resolve()

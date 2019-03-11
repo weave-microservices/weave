@@ -1,9 +1,29 @@
-const { Weave } = require('../lib/index.js')
+const { Weave } = require('../../lib/index.js')
 // Create broker #1
 
 const broker1 = Weave({
-    nodeId: 'nats-1-4',
-    transport: 'nats://localhost:4222',
+    nodeId: 'nats-1-2',
+    transport: {
+        adapter: 'nats://localhost:4222'
+    },
+    logger: console,
+    logLevel: 'info',
+    preferLocal: false,
+    cache: true,
+    registry: {
+        preferLocal: false
+    }
+})
+
+const broker2 = Weave({
+    nodeId: 'nats-2-2',
+    transport: {
+        adapter: {
+            type: 'nats',
+            options: {
+            }
+        }
+    },
     logger: console,
     logLevel: 'info',
     preferLocal: false,
@@ -28,6 +48,11 @@ broker1.createService({
             }
         }
     },
+    events: {
+        '$node.connected' (data) {
+            console.log(data)
+        }
+    },
     hooks: {
         before: {
             'hello': [
@@ -50,15 +75,16 @@ broker1.createService({
 })
 
 Promise.all([
-    broker1.start()
+    broker1.start(),
+    broker2.start()
 ]).then(() => {
-    setInterval(() => {
-        broker1.call('test.hello', { name: 'John Doe' })
-            .then(function (result) {
-                broker1.log.info(result)
-            })
-    }, 2500)
     // setInterval(() => {
-    //     broker1.log.info(`Statistics: `, broker1.transport.statistics)
-    // }, 3000)
+    //     broker1.call('test.hello', { name: 'John Doe' })
+    //         .then(function (result) {
+    //             broker1.log.info(result)
+    //         })
+    // }, 2000)
+    setInterval(() => {
+        broker1.log.info(`Statistics: `, broker1.transport.statistics)
+    }, 3000)
 })

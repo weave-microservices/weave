@@ -20,7 +20,7 @@ function NATSTransportAdapter (adapterOptions) {
 
     return Object.assign(TransportBase(adapterOptions), {
         name: 'NATS',
-        connect (isTryReconnect = false, errorHandler) {
+        connect () {
             return new Promise((resolve, reject) => {
                 let NATS
 

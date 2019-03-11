@@ -1,22 +1,35 @@
-const { Weave } = require('../lib/index.js')
+const { Weave } = require('../../lib/index.js')
 // Create broker #1
 
 const broker1 = Weave({
-    nodeId: 'nats-1',
+    nodeId: 'redis-1-2',
     transport: {
-        adapter: 'nats://localhost:4222'
+        adapter: 'redis'
     },
     logger: console,
     logLevel: 'info',
     cache: true,
     registry: {
-        preferLocalActions: false
-    },
-    middlewares: [
-        {
-            createService
+        preferLocal: false
+    }
+})
+
+const broker2 = Weave({
+    nodeId: 'redis-2-2',
+    transport: {
+        adapter: {
+            type: 'redis',
+            options: {
+            }
         }
-    ]
+    },
+    logger: console,
+    logLevel: 'info',
+    preferLocal: false,
+    cache: true,
+    registry: {
+        preferLocal: false
+    }
 })
 
 broker1.createService({
@@ -32,6 +45,11 @@ broker1.createService({
             handler (context) {
                 return 'Hello ' + context.params.name + ' from node ' + this.broker.nodeId
             }
+        }
+    },
+    events: {
+        '$node.connected' (data) {
+            console.log(data)
         }
     },
     hooks: {
@@ -56,13 +74,16 @@ broker1.createService({
 })
 
 Promise.all([
-    broker1.start()
+    broker1.start(),
+    broker2.start()
 ]).then(() => {
+    // setInterval(() => {
+    //     broker1.call('test.hello', { name: 'John Doe' })
+    //         .then(function (result) {
+    //             broker1.log.info(result)
+    //         })
+    // }, 2000)
     setInterval(() => {
-        broker1.call('test.hello', { name: 'John Doe' })
-            .then(function (result) {
-                broker1.log.info(result)
-            })
-            .catch(e => console.log(e.message))
-    }, 1)
+        broker1.log.info(`Statistics: `, broker1.transport.statistics)
+    }, 3000)
 })
