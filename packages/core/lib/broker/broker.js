@@ -518,8 +518,8 @@ const createBroker = (options) => {
     })
 
     // Resolve the transport adapter
-    if (options.transport) {
-        const adapter = TransportAdapters.resolve(options.transport)
+    if (options.transport.adapter) {
+        const adapter = TransportAdapters.resolve(options.transport.adapter)
         if (adapter) {
             broker.transport = createTransport(broker, adapter)
         }
@@ -551,7 +551,7 @@ const createBroker = (options) => {
             middlewareHandler.add(Middlewares.ActionHooks())
 
             // validator middleware
-            if (options.validate && validator) {
+            if (options.validateActionParams && validator) {
                 middlewareHandler.add(validator.middleware)
             }
 
@@ -565,10 +565,12 @@ const createBroker = (options) => {
 
         // Wrap broker methods
         broker.call = middlewareHandler.wrapMethod('call', broker.call)
+        broker.multiCall = middlewareHandler.wrapMethod('multiCall', broker.multiCall)
         broker.emit = middlewareHandler.wrapMethod('emit', broker.emit)
         broker.broadcast = middlewareHandler.wrapMethod('broadcast', broker.broadcast)
         broker.createService = middlewareHandler.wrapMethod('createService', broker.createService)
     }
+
     registerMiddlewares(options.middlewares)
 
     // Stop the broker greaceful
@@ -583,7 +585,7 @@ const createBroker = (options) => {
     process.on('SIGTERM', onClose)
 
     // Create internal services
-    if (options.internalActions) {
+    if (options.loadNodeService) {
         broker.createService(require('../services/node.service')(broker))
     }
 

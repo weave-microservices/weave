@@ -9,9 +9,10 @@ const { WeaveRequestTimeoutError } = require('../errors')
 
 const wrapTimeoutMiddleware = function (handler, action) {
     const self = this
+    const registryOptions = self.options.registry || {}
     return function timeoutMiddleware (context) {
-        if (typeof context.options.timeout === 'undefined' || self.options.requestTimeout) {
-            context.options.timeout = self.options.requestTimeout || 0
+        if (typeof context.options.timeout === 'undefined' || registryOptions.requestTimeout) {
+            context.options.timeout = registryOptions.requestTimeout || 0
         }
 
         if (context.options.timeout > 0 && !context.startHighResolutionTime) {

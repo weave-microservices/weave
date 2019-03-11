@@ -6,7 +6,9 @@ describe('Test metrics', () => {
     const node1 = Weave({
         nodeId: 'node1',
         logLevel: 'fatal',
-        transport: TransportAdapters.Fake(),
+        transport: {
+            adapter: TransportAdapters.Fake()
+        },
         metrics: {
             enabled: true
         }
@@ -15,7 +17,9 @@ describe('Test metrics', () => {
     const node2 = Weave({
         nodeId: 'node2',
         logLevel: 'fatal',
-        transport: TransportAdapters.Fake(),
+        transport: {
+            adapter: TransportAdapters.Fake()
+        },
         metrics: {
             enabled: true
         }

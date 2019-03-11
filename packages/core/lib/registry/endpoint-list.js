@@ -62,7 +62,7 @@ const EndpointList = (broker, name, groupName) => {
             return null
         }
 
-        if (options.preferLocal && self.hasLocal()) {
+        if (options.registry.preferLocalActions && self.hasLocal()) {
             const endpoint = self.getNextLocalEndpoint()
             if (endpoint && endpoint.isAvailable()) {
                 return endpoint
@@ -120,7 +120,7 @@ const EndpointList = (broker, name, groupName) => {
 
     function select (endpointList) {
         // round robin
-        if (options.loadBalancingStrategy === loadBalancingStrategy.ROUND_ROBIN) {
+        if (options.registry.loadBalancingStrategy === loadBalancingStrategy.ROUND_ROBIN) {
             if (counter >= endpointList.length) {
                 counter = 0
             }

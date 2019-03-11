@@ -7,7 +7,9 @@ describe('Test circuit breaker', () => {
     const node1 = Weave({
         nodeId: 'node1',
         logLevel: 'fatal',
-        transport: TransportAdapters.Fake(),
+        transport: {
+            adapter: TransportAdapters.Fake()
+        },
         circuitBreaker: {
             enabled: true,
             failureOnError: true,
@@ -19,7 +21,9 @@ describe('Test circuit breaker', () => {
     const node2 = Weave({
         nodeId: 'node2',
         logLevel: 'fatal',
-        transport: TransportAdapters.Fake()
+        transport: {
+            adapter: TransportAdapters.Fake()
+        }
     })
 
     node2.createService({

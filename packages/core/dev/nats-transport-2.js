@@ -3,7 +3,9 @@ const { Weave } = require('../lib/index.js')
 
 const broker1 = Weave({
     nodeId: 'nats-1-2',
-    transport: 'nats://localhost:4222',
+    transport: {
+        adapter: 'nats://localhost:4222'
+    },
     logger: console,
     logLevel: 'info',
     preferLocal: false,
@@ -16,8 +18,10 @@ const broker1 = Weave({
 const broker2 = Weave({
     nodeId: 'nats-2-2',
     transport: {
-        type: 'nats',
-        options: {
+        adapter: {
+            type: 'nats',
+            options: {
+            }
         }
     },
     logger: console,

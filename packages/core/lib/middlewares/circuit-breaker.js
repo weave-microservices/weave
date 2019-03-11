@@ -10,7 +10,7 @@ module.exports = () => {
     let circuitBreakerTimer = null
 
     function createWindowTimer (windowTime) {
-        circuitBreakerTimer = setInterval(() => clearEndpointStore(), (windowTime || 6000))
+        circuitBreakerTimer = setInterval(() => clearEndpointStore(), windowTime)
         circuitBreakerTimer.unref()
     }
 
@@ -20,6 +20,8 @@ module.exports = () => {
                 storage.delete(item.name)
                 return
             }
+            item.callCounter = 0
+            item.failureCouter = 0
         })
     }
 

@@ -222,10 +222,10 @@ const createTransport = (broker, adapter) => {
             }
 
             // If the queue size is set, check the queue size and reject the job when the limit is reached.
-            if (broker.options.maxQueueSize && broker.options.maxQueueSize < pending.requests.size) {
+            if (broker.options.transport.maxQueueSize && broker.options.transport.maxQueueSize < pending.requests.size) {
                 return Promise.reject(new WeaveQueueSizeExceededError({
                     action: context.action.name,
-                    limit: broker.options.maxQueueSize,
+                    limit: broker.options.transport.maxQueueSize,
                     nodeId: context.nodeId,
                     size: pending.requests.size
                 }))
@@ -358,17 +358,17 @@ const createTransport = (broker, adapter) => {
     function startTimers () {
         heartbeatTimer = setInterval(() => {
             sendHeartbeat()
-        }, broker.options.heartbeatInterval)
+        }, broker.options.transport.heartbeatInterval)
         heartbeatTimer.unref()
 
         checkNodesTimer = setInterval(() => {
             checkRemoteNodes()
-        }, broker.options.heartbeatTimeout)
+        }, broker.options.transport.heartbeatTimeout)
         checkNodesTimer.unref()
 
         checkOfflineNodesTimer = setInterval(() => {
             checkOfflineNodes()
-        }, broker.options.offlineNoteCheckInterval)
+        }, broker.options.transport.offlineNodeCheckInterval)
         checkOfflineNodesTimer.unref()
     }
 
@@ -395,7 +395,7 @@ const createTransport = (broker, adapter) => {
         const now = Date.now()
         broker.registry.nodes.list({ withServices: true }).forEach(node => {
             if (node.isLocal || !node.isAvailable) return
-            if (now - (node.lastHeartbeatTime || 0) > broker.options.heartbeatTimeout) {
+            if (now - (node.lastHeartbeatTime || 0) > broker.options.transport.heartbeatTimeout) {
                 broker.registry.nodeDisconnected(node.id, true)
             }
         })

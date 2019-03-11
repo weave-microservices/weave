@@ -258,7 +258,7 @@ const createRegistry = (middlewareHandler) => {
                     localOnly: true,
                     withActions: true,
                     withEvents: true,
-                    withInternalActions: this.broker.options.internalActionsAccessable,
+                    withNodeService: this.broker.options.publishNodeService,
                     withSettings: true
                 })
             } else {

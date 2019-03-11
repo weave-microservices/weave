@@ -88,10 +88,10 @@ const MakeServiceCatalog = (registry) => {
         return result
     }
 
-    self.list = ({ localOnly = false, withActions = false, withEvents = false, withInternalActions = false, withSettings = false }) => {
+    self.list = ({ localOnly = false, withActions = false, withEvents = false, withNodeService = false, withSettings = false }) => {
         const result = []
         services.forEach((service) => {
-            if (/^\$node/.test(service.name) && !withInternalActions) {
+            if (/^\$node/.test(service.name) && !withNodeService) {
                 return
             }
             if (service.settings && service.settings.$private) {

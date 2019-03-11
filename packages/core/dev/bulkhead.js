@@ -8,7 +8,7 @@ const broker1 = Weave({
     preferLocal: false,
     bulkhead: {
         enabled: true,
-        concurrency: 1,
+        concurrency: 15,
         maxQueueSize: 100
     }
 })

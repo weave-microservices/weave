@@ -3,7 +3,10 @@ const { Weave, TransportAdapters } = require('../lib/index.js')
 const app1 = Weave({
     nodeId: '1',
     logLevel: 'debug',
-    transport: 'nats'
+    transport: 'nats',
+    middlewares: [{
+           
+    }]
 })
 
 app1.createService({

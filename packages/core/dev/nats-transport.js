@@ -4,16 +4,19 @@ const { Weave } = require('../lib/index.js')
 const broker1 = Weave({
     nodeId: 'nats-1',
     transport: {
-        type: 'nats',
-        options: {}
+        adapter: 'nats://localhost:4222'
     },
     logger: console,
     logLevel: 'info',
-    preferLocal: false,
     cache: true,
     registry: {
-        preferLocal: false
-    }
+        preferLocalActions: false
+    },
+    middlewares: [
+        {
+            createService
+        }
+    ]
 })
 
 broker1.createService({
@@ -61,5 +64,5 @@ Promise.all([
                 broker1.log.info(result)
             })
             .catch(e => console.log(e.message))
-    }, 1000)
+    }, 1)
 })
