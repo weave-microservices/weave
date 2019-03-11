@@ -7,7 +7,7 @@
 - [ ] Authorization over access token
 - [ ] Show failed requests in metrics
 - [ ] Make actions callable from actions list
-- [ ] Shop CPU usage on node list
+- [ ] Show CPU usage on node list
 
 ### DONE
 
