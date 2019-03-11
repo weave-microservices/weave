@@ -49,7 +49,10 @@ const processFlags = () => {
     })
     servicePaths = Args.sub
 }
-
+/**
+ * Load config file
+ * @returns
+ */
 const loadConfigFile = () => {
     let filePath
     if (flags.config) {
