@@ -4,7 +4,7 @@
   "description": "Weave CLI tool",
   "main": "index.js",
   "bin": {
-    "weave": "./bin/weave.js"
+    "weave-cli": "./bin/weave-cli.js"
   },
   "scripts": {
     "weave": "node ./bin/weave.js"
