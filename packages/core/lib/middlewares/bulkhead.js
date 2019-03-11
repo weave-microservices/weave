@@ -8,15 +8,15 @@ const { WeaveQueueSizeExceededError } = require('../errors')
 
 const wrapBulkheadMiddleware = function (handler, action) {
     const self = this
-    const options = self.options.bulkhead || {}
+    const bulkheadOptions = self.options.bulkhead || {}
 
-    if (options.enabled) {
+    if (bulkheadOptions.enabled) {
         const queue = []
         let currentlyInFlight = 0
 
         const callNext = () => {
             if (queue.length === 0) return
-            if (currentlyInFlight >= options.concurrency) return
+            if (currentlyInFlight >= bulkheadOptions.concurrency) return
 
             const item = queue.shift()
 
@@ -36,7 +36,7 @@ const wrapBulkheadMiddleware = function (handler, action) {
 
         return function bulkheadMiddlware (context) {
             // Execute action immediately
-            if (currentlyInFlight < options.concurrency) {
+            if (currentlyInFlight < bulkheadOptions.concurrency) {
                 currentlyInFlight++
                 return handler(context)
                     .then(result => {
@@ -52,10 +52,10 @@ const wrapBulkheadMiddleware = function (handler, action) {
             }
 
             // Reject the action if the max queue size is reached.
-            if (options.maxQueueSize && options.maxQueueSize < queue.length) {
+            if (bulkheadOptions.maxQueueSize && bulkheadOptions.maxQueueSize < queue.length) {
                 return Promise.reject(new WeaveQueueSizeExceededError({
                     action: action.name,
-                    limit: options.maxQueueSize,
+                    limit: bulkheadOptions.maxQueueSize,
                     size: queue.length
                 }))
             }
