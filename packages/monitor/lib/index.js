@@ -53,6 +53,7 @@ module.exports = () => ({
         }
     },
     events: {
+        // proxy all events to the client
         '**' (data, sender, event) {
             this.socketio.emit(event, {
                 sender,
