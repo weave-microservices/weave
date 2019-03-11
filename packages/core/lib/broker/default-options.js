@@ -135,8 +135,8 @@ module.exports = {
     },
     // retry settings
     retryPolicy: {
-        delay: 3000,
         enabled: false,
+        delay: 3000,
         retries: 5
     },
     statistics: false,

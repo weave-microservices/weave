@@ -9,8 +9,6 @@
 // npm packages
 const { red, bgRed, yellow, magenta, gray, green, enabled } = require('kleur')
 const util = require('util')
-const fs = require('fs')
-const { debounce } = require('fachwork')
 
 // default log levels
 const LOG_LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace']

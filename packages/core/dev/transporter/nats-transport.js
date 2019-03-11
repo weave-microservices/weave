@@ -11,12 +11,7 @@ const broker1 = Weave({
     cache: true,
     registry: {
         preferLocalActions: false
-    },
-    middlewares: [
-        {
-            createService
-        }
-    ]
+    }
 })
 
 broker1.createService({

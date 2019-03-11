@@ -1,9 +1,8 @@
 const { Weave } = require('../../lib/index')
-
 const fetchName = jest.fn()
 const log = jest.fn()
 
-describe.only('Action hooks', () => {
+describe('Action hooks', () => {
     const broker = Weave({
         name: 'test-node',
         logLevel: 'fatal'

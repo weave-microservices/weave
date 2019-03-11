@@ -26,7 +26,7 @@
     "access": "public"
   },
   "bin": {
-    "weave-runner": "./bin/runner.js"
+    "weave": "./bin/weave.js"
   },
   "author": {
     "name": "Kevin Ries",
