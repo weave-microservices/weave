@@ -14,7 +14,7 @@ module.exports = {
     },
     events: {
         '$services.changed' (service) {
-            this.log.info(this.broker.services.map(service => service.name))
+            // this.log.info(this.broker.services.map(service => service.name))
         }
     },
     started () {

@@ -5,12 +5,12 @@
  */
 
 module.exports = () => {
+    const storage = new Map()
     let log = null
     let circuitBreakerTimer = null
-    const storage = new Map()
 
     function createWindowTimer (windowTime) {
-        circuitBreakerTimer = setInterval(() => clearEndpointStore(), (windowTime || 6000))
+        circuitBreakerTimer = setInterval(() => clearEndpointStore(), windowTime)
         circuitBreakerTimer.unref()
     }
 
@@ -20,6 +20,8 @@ module.exports = () => {
                 storage.delete(item.name)
                 return
             }
+            item.callCounter = 0
+            item.failureCouter = 0
         })
     }
 
@@ -110,9 +112,9 @@ module.exports = () => {
     }
 
     return {
-        brokerCreated () {
-            log = this.getLogger('circuit-breaker')
-            const options = this.state.options.circuitBreaker
+        created () {
+            log = this.createLogger('circuit-breaker')
+            const options = this.options.circuitBreaker
             if (options.enabled) {
                 createWindowTimer(options.windowTime)
             }

@@ -6,7 +6,7 @@ const broker1 = Weave({
     logger: console,
     logLevel: 'info',
     preferLocal: false,
-    internalActions: false
+    loadNodeService: false
 })
 
 broker1.createService({
@@ -30,7 +30,7 @@ const broker2 = Weave({
     logger: console,
     logLevel: 'info',
     preferLocal: false,
-    internalActions: false
+    loadNodeService: false
 })
 
 broker2.createService({

@@ -8,6 +8,7 @@
                 <router-link to="/">Nodes</router-link> |
                 <router-link to="/services">Services</router-link> |
                 <router-link to="/actions">Actions</router-link> |
+                <router-link to="/events">Events</router-link> |
                 <router-link to="/metrics">Metrics</router-link>
             </div>
         </header>

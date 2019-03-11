@@ -13,7 +13,6 @@ function registerCommands (vorpal, broker) {
 }
 
 module.exports = broker => {
-    const { stop } = broker
     vorpal.find('exit').remove()
 
     // exit command
@@ -22,7 +21,8 @@ module.exports = broker => {
         .alias('quit')
         .alias('exit')
         .action((args, done) => {
-            stop().then(() => process.exit(0))
+            broker.stop()
+                .then(() => process.exit(0))
             done()
         })
 

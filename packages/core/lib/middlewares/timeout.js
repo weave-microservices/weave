@@ -9,9 +9,10 @@ const { WeaveRequestTimeoutError } = require('../errors')
 
 const wrapTimeoutMiddleware = function (handler, action) {
     const self = this
+    const registryOptions = self.options.registry || {}
     return function timeoutMiddleware (context) {
-        if (typeof context.options.timeout === 'undefined' || context.options.timeout === null) {
-            context.options.timeout = self.options.requestTimeout || 0
+        if (typeof context.options.timeout === 'undefined' || registryOptions.requestTimeout) {
+            context.options.timeout = registryOptions.requestTimeout || 0
         }
 
         if (context.options.timeout > 0 && !context.startHighResolutionTime) {
@@ -22,6 +23,12 @@ const wrapTimeoutMiddleware = function (handler, action) {
 
         if (context.options.timeout > 0) {
             promise = promiseTimeout(context.options.timeout, promise, new WeaveRequestTimeoutError(context.action.name, context.nodeId))
+                .catch(error => {
+                    if (error instanceof WeaveRequestTimeoutError) {
+                        self.log.warn(`Request '${context.action.name}' timed out.`)
+                    }
+                    return Promise.reject(error)
+                })
         }
         return promise
     }

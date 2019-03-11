@@ -10,18 +10,22 @@ const { delay } = require('../utils')
 const wrapRetryMiddleware = function (handler, action) {
     const self = this
     const options = Object.assign({}, self.options.retryPolicy, action.retryPolicy || {})
+
+    // middleware is enabled
     if (options.enabled) {
+        // Return middlware handler
         return function retryMiddleware (context) {
+            // if the context has no retry count - set it to zero.
             if (context.retryCount === undefined) {
                 context.retryCount = 0
             }
-            let attempts = options.retries
-            if (context.options.retries !== undefined) {
-                attempts = context.options.retries
-            }
+
+            const attempts = typeof context.options.retries === 'number' ? context.options.retries : options.retries
             return handler(context).catch(error => {
                 if (context.retryCount++ < attempts && error.retryable === true) {
-                    return delay(options.delay).then(() => self.call(context.action.name, context.params, { context }))
+                    self.log.warn(`Retry to recall action '${context.action.name}' after ${options.delay}.`)
+                    return delay(options.delay)
+                        .then(() => self.call(context.action.name, context.params, { context }))
                 }
                 return Promise.reject(error)
             })

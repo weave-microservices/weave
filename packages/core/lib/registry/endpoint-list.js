@@ -7,10 +7,10 @@
 const Endpoint = require('./endpoint')
 const { loadBalancingStrategy } = require('../constants')
 
-const EndpointList = (state, name, groupName) => {
+const EndpointList = (broker, name, groupName) => {
     const self = Object.create(null)
-    self.state = state
-    const options = state.options
+    self.state = broker
+    const options = broker.options
     const list = self.endpoints = []
     let counter = 0
 
@@ -33,7 +33,7 @@ const EndpointList = (state, name, groupName) => {
             return false
         }
 
-        const newEndpoint = EndpointFactory(state, node, service, action)
+        const newEndpoint = EndpointFactory(broker, node, service, action)
 
         list.push(newEndpoint)
         setLocalEndpoints()
@@ -41,6 +41,8 @@ const EndpointList = (state, name, groupName) => {
     }
 
     self.hasAvailable = () => list.find(endpoint => endpoint.isAvailable()) != null
+
+    self.hasLocal = () => self.localEndpoints.length > 0
 
     self.getNextAvailable = () => {
         if (list.length === 0) {
@@ -51,6 +53,7 @@ const EndpointList = (state, name, groupName) => {
             return self.getNextLocalEndpoint()
         }
 
+        // If only one endpoint is available return this.
         if (list.length === 1) {
             const endpoint = list[0]
             if (endpoint.isAvailable()) {
@@ -59,7 +62,7 @@ const EndpointList = (state, name, groupName) => {
             return null
         }
 
-        if (options.preferLocal && self.hasLocal()) {
+        if (options.registry.preferLocalActions && self.hasLocal()) {
             const endpoint = self.getNextLocalEndpoint()
             if (endpoint && endpoint.isAvailable()) {
                 return endpoint
@@ -97,10 +100,6 @@ const EndpointList = (state, name, groupName) => {
 
     self.count = () => list.length
 
-    self.hasLocal = () => {
-        return self.localEndpoints.length > 0
-    }
-
     self.getByNodeId = (nodeId) => list.find(endpoint => endpoint.node.id === nodeId)
 
     self.removeByNodeId = (nodeId) => {
@@ -121,12 +120,15 @@ const EndpointList = (state, name, groupName) => {
 
     function select (endpointList) {
         // round robin
-        if (options.loadBalancingStrategy === loadBalancingStrategy.ROUND_ROBIN) {
+        if (options.registry.loadBalancingStrategy === loadBalancingStrategy.ROUND_ROBIN) {
             if (counter >= endpointList.length) {
                 counter = 0
             }
             return endpointList[counter++]
         } else {
+            const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1) + min)
+            return endpointList[randomInt(0, endpointList.length - 1)]
+
             // todo: implement random load balancer
         }
     }

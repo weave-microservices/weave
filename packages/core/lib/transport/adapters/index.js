@@ -7,7 +7,7 @@
 const { WeaveBrokerOptionsError } = require('../../errors')
 
 const adapters = {
-    BaseAdapter: require('./transport-base'),
+    BaseAdapter: require('./adapter-base'),
     Redis: require('./redis'),
     NATS: require('./nats'),
     Fake: require('./fake'),

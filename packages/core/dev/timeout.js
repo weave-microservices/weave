@@ -30,7 +30,7 @@ broker1.createService({
                 return new Promise((resolve, reject) => {
                     setTimeout(() => {
                         return resolve('Hello')
-                    }, 3000)
+                    }, 3000 - (context.retryCount * 500))
                 })
             }
         }

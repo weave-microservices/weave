@@ -32,7 +32,7 @@ broker1.createService({
     events: {
         'user.created' () {
             console.log(this.schema.name, this.broker.nodeId)
-        }   
+        }
     }
 })
 
@@ -52,7 +52,7 @@ broker2.createService({
     events: {
         'user.created' () {
             console.log(this.schema.name, this.broker.nodeId)
-        }   
+        }
     }
 })
 

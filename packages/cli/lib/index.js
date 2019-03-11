@@ -6,10 +6,12 @@ updateNotifier({ pkg }).notify()
 
 // command packages
 const create = require('./commands/create')
+const start = require('./commands/start')
 
 require('yargs')
     .usage('Usage: $0 <command> [options]')
     .version()
     .command(create)
+    .command(start)
     .help()
     .argv

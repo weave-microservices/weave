@@ -1,4 +1,4 @@
-const _ = require('lodash')
+const { forIn } = require('lodash')
 const ora = require('ora')
 
 module.exports = {
@@ -11,7 +11,7 @@ module.exports = {
     },
     convertArgs (args) {
         const res = {}
-        _.forIn(args, (value, key) => {
+        forIn(args, (value, key) => {
             if (Array.isArray(value)) {
                 res[key] = value
             } else if (typeof (value) === 'object') {
@@ -29,7 +29,7 @@ module.exports = {
     createSpinner (text) {
         return ora({
             text,
-            spinner: 'dots'
+            spinner: 'dots4'
         })
     },
     humanizeTime: require('tiny-human-time').short

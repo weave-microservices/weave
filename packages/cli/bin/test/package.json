@@ -1,0 +1,25 @@
+{
+    "name": "test",
+    "version": "1.0.0",
+    "description": "My Weave project",
+    "scripts": {
+        "dev": "weave-runner --repl --watch services",
+        "start": "weave-runner services"
+    },
+    "keywords": [
+        "microservices",
+        "weave",
+        "framework"
+    ],
+    "author": "",
+    "devDependencies": {
+        "@weave-js/repl": "^0.0.34"
+    },
+    "dependencies": {
+        "ioredis": "^4.0.0",
+        "@weave-js/core": "^0.5.31"
+    },
+    "engines": {
+        "node": ">= 6.x.x"
+    }
+}

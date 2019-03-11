@@ -87,8 +87,8 @@ describe('Service lifetime hooks error handling', () => {
             }
         })
 
-        await expect(node1.start().then(() => {
-            return node1.stop()
-        })).rejects.toThrow('Rejected hook from stopped')
+        await expect(node1.start()
+            .then(() => node1.stop())
+        ).rejects.toThrow('Rejected hook from stopped')
     })
 })

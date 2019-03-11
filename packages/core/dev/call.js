@@ -1,8 +1,8 @@
-const { Weave, TransportAdapters } = require('../lib/index.js')
+const { WeaveNew } = require('../lib')
 
-const broker1 = Weave({
+const broker1 = WeaveNew({
     nodeId: 'node-1',
-    transport: TransportAdapters.Redis(),
+    // transport: TransportAdapters.Redis(),
     logger: console,
     logLevel: 'debug',
     preferLocal: false
@@ -13,7 +13,13 @@ broker1.createService({
     actions: {
         hello (context) {
             this.log.info(context.level)
+            context.emit('testes')
             return context.call('$node.actions')
+        }
+    },
+    events: {
+        testes () {
+            console.log('Sdasdasda')
         }
     }
 })

@@ -4,98 +4,99 @@
  * Copyright 2018 Fachwerk
  */
 
-const TransportBase = require('../transport-base')
+// npm packages
 const Redis = require('ioredis')
 const { defaultsDeep } = require('lodash')
 
-function RedisTransportAdapter (adapterOptions) {
-    const self = TransportBase(adapterOptions)
+// own packages
+const TransportBase = require('../adapter-base')
+const utils = require('../../../utils')
+
+const RedisTransportAdapter = adapterOptions => {
     let clientSub
     let clientPub
 
+    // Merge options with default options.
     adapterOptions = defaultsDeep(adapterOptions, {
         port: 6379,
         host: '127.0.0.1'
     })
 
-    self.name = 'REDIS'
+    return Object.assign(TransportBase(adapterOptions), {
+        name: 'REDIS',
+        connect () {
+            return new Promise((resolve, reject) => {
+                clientSub = new Redis(adapterOptions)
 
-    self.connect = (isTryReconnect = false, errorHandler) => {
-        return new Promise((resolve, reject) => {
-            clientSub = new Redis(adapterOptions)
+                clientSub.on('connect', () => {
+                    clientPub = new Redis(adapterOptions)
+                    this.log.info(`Redis SUB client connected.`)
+                    clientPub.on('connect', () => {
+                        if (this.interruptionCount > 0 && !this.isConnected) {
+                            this.bus.emit('adapter.connected', true)
+                        }
+                        this.log.info(`Redis PUB client connected.`)
+                        this.isConnected = true
+                        resolve()
+                    })
 
-            clientSub.on('connect', () => {
-                clientPub = new Redis(adapterOptions)
-                self.log.info(`Redis SUB client connected.`)
-                clientPub.on('connect', () => {
-                    if (self.interruptionCount > 0 && !self.connected) {
-                        self.emit('adapter.connected', true)
-                    }
-                    self.log.info(`Redis PUB client connected.`)
-                    self.connected = true
-                    resolve()
+                    clientPub.on('error', error => {
+                        this.log.error(`Redis PUB error:`, error.message)
+                        this.isConnected = false
+                        reject(error)
+                    })
+
+                    clientPub.on('close', () => {
+                        if (this.isConnected) {
+                            this.isConnected = false
+                            this.interruptionCount++
+                            this.log.warn(`Redis PUB disconnected.`)
+                            this.disconnected()
+                        }
+                    })
                 })
 
-                clientPub.on('error', error => {
-                    self.log.error(`Redis PUB error:`, error.message)
+                clientSub.on('error', error => {
+                    this.log.error(`Redis PUB error:`, error.message)
                     reject(error)
                 })
 
-                clientPub.on('close', () => {
-                    if (self.connected) {
-                        self.connected = false
-                        self.interruptionCount++
-                        self.log.warn(`Redis PUB disconnected.`)
-                        self.emit('adapter.disconnected', false)
-                    }
+                clientSub.on('message', (topic, message) => {
+                    const type = topic.split('.')[1]
+                    this.incommingMessage(type, message)
+                })
+
+                clientSub.on('close', () => {
+                    this.log.warn(`Redis SUB disconnected.`)
                 })
             })
-
-            clientSub.on('error', error => {
-                self.log.error(`Redis PUB error:`, error.message)
-                reject(error)
+                .then(() => {
+                    this.connected()
+                })
+        },
+        subscribe (type, nodeId) {
+            return new Promise(resolve => {
+                clientSub.subscribe(this.getTopic(type, nodeId), () => {
+                    return resolve()
+                })
             })
-
-            clientSub.on('message', (topic, message) => {
-                const type = topic.split('.')[1]
-                self.incommingMessage(type, message)
-            })
-
-            clientSub.on('close', () => {
-                self.connected = false
-                self.log.warn(`Redis SUB disconnected.`)
-            })
-        })
-            .then(() => {
-                self.emit('adapter.connected', false)
-            })
-    }
-
-    self.close = () => {
-        if (clientPub && clientSub) {
-            clientPub.disconnect()
-            clientSub.disconnect()
+        },
+        send (message) {
+            const data = this.serialize(message)
+            if (this.isConnected) {
+                this.updateStatisticSent(data.length)
+                clientPub.publish(this.getTopic(message.type, message.targetNodeId), data)
+            }
+            return Promise.resolve()
+        },
+        close () {
+            if (clientPub && clientSub) {
+                clientPub.disconnect()
+                clientSub.disconnect()
+            }
+            return utils.promiseDelay(Promise.resolve(), 500)
         }
-        return Promise.resolve()
-    }
-
-    self.send = (message) => {
-        const data = self.serialize(message)
-        if (self.connected) {
-            clientPub.publish(self.getTopic(message.type, message.targetNodeId), data)
-        }
-        return Promise.resolve()
-    }
-
-    self.subscribe = (type, nodeId) => {
-        return new Promise(resolve => {
-            clientSub.subscribe(self.getTopic(type, nodeId), () => {
-                return resolve()
-            })
-        })
-    }
-
-    return self
+    })
 }
 
 module.exports = RedisTransportAdapter

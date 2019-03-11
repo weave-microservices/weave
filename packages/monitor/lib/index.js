@@ -1,3 +1,5 @@
+
+// node modules
 const WebGateway = require('@weave-js/web')
 const io = require('socket.io')
 const path = require('path')
@@ -8,7 +10,7 @@ module.exports = () => ({
     settings: {
         port: 4445,
         assets: {
-            folder: path.join(__dirname, '..', 'dist'),
+            folder: path.join(__dirname, '..', 'dist')
         },
         mappingPolicy: 'restricted'
     },
@@ -24,13 +26,12 @@ module.exports = () => ({
                             offlineTime: node.offlineTime,
                             serviceCount: node.services.length
                         }
-                    }
-                )
+                    })
             }
         },
         getServices: {
             handler () {
-                return this.broker.registry.getServiceList({
+                return this.broker.registry.services.list({
                     withActions: true,
                     withEvents: true
                 })
@@ -38,7 +39,14 @@ module.exports = () => ({
         },
         getActions: {
             handler () {
-                return this.broker.registry.getActionList({
+                return this.broker.registry.actions.list({
+                    withEndpoints: true
+                })
+            }
+        },
+        getEvents: {
+            handler () {
+                return this.broker.registry.events.list({
                     withEndpoints: true
                 })
             }
@@ -46,11 +54,11 @@ module.exports = () => ({
     },
     events: {
         '**' (data, sender, event) {
-            this.socketio.emit(event, {
+            this.socketio.emit(event, {
                 sender,
                 data
             })
-        },
+        }
     },
     created () {
         this.accessToken = Math.random().toString(36).substring(2)

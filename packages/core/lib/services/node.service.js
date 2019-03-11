@@ -6,7 +6,7 @@
 
 const { omit } = require('fachwork')
 
-module.exports = ({ state, health, transport }) => {
+module.exports = ({ health }) => {
     return {
         name: '$node',
         actions: {

@@ -1,14 +1,14 @@
-const { Weave, TransportAdapters } = require('../lib/index.js')
+const { Weave } = require('../lib')
 
 const broker1 = Weave({
     nodeId: 'node-1',
     namespace: 'ciris',
-    transport: TransportAdapters.Redis(),
+    transport: 'nats',
     logger: console,
     logLevel: 'debug',
     preferLocal: false,
     metrics: {
-        enabled: true
+        enabled: false
     }
 })
 
@@ -26,10 +26,10 @@ broker1.createService({
 const broker2 = Weave({
     nodeId: 'node-2',
     namespace: 'ciris',
-    transport: TransportAdapters.Redis(),
+    transport: 'nats',
     logger: console,
     metrics: {
-        enabled: true
+        enabled: false
     }
 })
 
@@ -47,10 +47,10 @@ broker2.createService({
 const broker3 = Weave({
     nodeId: 'node-3',
     namespace: 'ciris',
-    transport: TransportAdapters.Redis(),
+    transport: 'nats',
     logger: console,
     metrics: {
-        enabled: true
+        enabled: false
     }
 })
 

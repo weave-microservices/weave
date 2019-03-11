@@ -4,11 +4,11 @@ const broker1 = Weave({
     nodeId: 'node-1',
     transport: TransportAdapters.Redis(),
     logger: console,
-    logLevel: 'info',
+    logLevel: 'debug',
     preferLocal: false,
     bulkhead: {
         enabled: true,
-        concurrency: 1,
+        concurrency: 15,
         maxQueueSize: 100
     }
 })

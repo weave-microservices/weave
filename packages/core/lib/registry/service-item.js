@@ -24,8 +24,8 @@ const ServiceItem = (node, name, version, settings, local) => {
         self.events[event.name] = event
     }
 
-    self.equals = (name, version, node) => {
-        return self.name === name && self.version === version && (node == null || self.node.id === node.id)
+    self.equals = (name, version, nodeId) => {
+        return self.name === name && self.version === version && (nodeId == null || self.node.id === nodeId)
     }
 
     self.update = (service) => {

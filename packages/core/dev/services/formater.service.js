@@ -12,11 +12,11 @@ module.exports = {
             }
         }
     },
-    events: {
-        '$services.changed' (service) {
-            this.log.info(this.broker.services.map(service => service.name))
-        }
-    },
+    // events: {
+    //     '$services.changed' (service) {
+    //         this.log.info(this.broker.services.map(service => service.name))
+    //     }
+    // },
     started () {
         return new Promise(resolve => {
             setTimeout(() => {

@@ -3,8 +3,6 @@ const _ = require('lodash')
 const util = require('../utils')
 
 module.exports = (vorpal, broker) => {
-    const { registry, call } = broker
-
     vorpal
         .command('benchmark <action> [jsonParams]', 'Benchmark a service Endpoint.')
         .option('--iterations <number>', 'Number of iterations')
@@ -12,7 +10,7 @@ module.exports = (vorpal, broker) => {
         .option('--nodeID <nodeID>', 'NodeID (direct call)')
         .autocomplete({
             data () {
-                return _.uniq(registry.getActionList({}).map(item => item.name))
+                return _.uniq(broker.registry.actions.list({}).map(item => item.name))
             }
         })
         .action((args, done) => {
@@ -98,7 +96,7 @@ module.exports = (vorpal, broker) => {
             const doRequest = () => {
                 requestCounter++
                 const startTime = process.hrtime()
-                return call(action, payload)
+                return broker.call(action, payload)
                     .then(result => {
                         handleRequest(startTime)
                         return result

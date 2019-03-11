@@ -21,6 +21,11 @@ export default new Router({
         component: () => import(/* webpackChunkName: "about" */ './views/Actions.vue')
     },
     {
+        path: '/events',
+        name: 'events',
+        component: () => import(/* webpackChunkName: "about" */ './views/Events.vue')
+    },
+    {
         path: '/metrics',
         name: 'metrics',
         component: () => import(/* webpackChunkName: "about" */ './views/Metrics.vue')

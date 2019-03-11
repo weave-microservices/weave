@@ -4,14 +4,12 @@ const utils = require('../utils')
 const util = require('util')
 
 module.exports = (vorpal, broker) => {
-    const { registry, call } = broker
-
     vorpal
         .command('call <actionName> [jsonParams]', 'Call an action.')
         .alias('c')
         .autocomplete({
             data () {
-                return _.uniq(registry.getActionList({}).map(item => item.name))
+                return _.uniq(broker.registry.actions.list({}).map(item => item.name))
             }
         })
         .allowUnknownOptions()
@@ -29,7 +27,7 @@ module.exports = (vorpal, broker) => {
             }
 
             console.log(chalk.yellow.bold(`>> Call '${args.actionName}' with params:`), payload)
-            call(args.actionName, payload)
+            broker.call(args.actionName, payload)
                 .then(res => {
                     console.log(chalk.yellow.bold('>> Response:'))
                     console.log(util.inspect(res, {

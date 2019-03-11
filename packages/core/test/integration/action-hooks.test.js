@@ -1,8 +1,4 @@
 const { Weave } = require('../../lib/index')
-// const ServiceHookMixin = require('./mixins/service-hook.mixin')
-// const hasServiceScope = require('./scope-checks/service.scope')
-
-// const names = ['Kevin', 'John', 'Sarah']
 
 const fetchName = jest.fn()
 const log = jest.fn()

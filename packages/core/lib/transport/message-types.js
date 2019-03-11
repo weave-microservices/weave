@@ -11,6 +11,8 @@ const MESSAGE_REQUEST = 'request'
 const MESSAGE_RESPONSE = 'response'
 const MESSAGE_RESPONSE_STREAM_CHUNK = 'response_stream_chunk'
 const MESSAGE_RESPONSE_STREAM_END = 'response_stream_end'
+const MESSAGE_PING = 'ping'
+const MESSAGE_PONG = 'pong'
 const MESSAGE_DISCONNECT = 'disconnect'
 const MESSAGE_HEARTBEAT = 'heartbeat'
 const MESSAGE_EVENT = 'event'
@@ -26,6 +28,8 @@ const messageTypes = {
     MESSAGE_RESPONSE,
     MESSAGE_RESPONSE_STREAM_CHUNK,
     MESSAGE_RESPONSE_STREAM_END,
+    MESSAGE_PING,
+    MESSAGE_PONG,
     MESSAGE_DISCONNECT,
     MESSAGE_HEARTBEAT,
     MESSAGE_EVENT,
