@@ -7,7 +7,7 @@
     "weave-cli": "./bin/weave-cli.js"
   },
   "scripts": {
-    "weave": "node ./bin/weave.js"
+    "weave": "node ./bin/weave-cli.js"
   },
   "publishConfig": {
     "access": "public"
@@ -20,8 +20,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@weave-js/core": "0.6.1",
-    "@weave-js/repl": "0.0.38",
+    "@weave-js/core": "0.6.2",
+    "@weave-js/repl": "0.0.39",
     "async": "^2.6.2",
     "consolidate": "^0.15.1",
     "download-git-repo": "^1.1.0",
@@ -38,7 +38,7 @@
     "rimraf": "^2.6.3",
     "update-notifier": "^2.5.0",
     "user-home": "^2.0.0",
-    "yargs": "^13.2.1"
+    "yargs": "^13.2.2"
   },
   "gitHead": "3112aa7d850ac70b0525d0bc65e19964114a5579"
 }
