@@ -42,6 +42,8 @@ module.exports = (vorpal, broker) => {
                 print('Transporter name', !broker.transport ? 'none' : broker.transport.adapterName)
                 print('Adapter is connected?', broker.transport.isConnected)
                 print('Adapter is ready?', broker.transport.isReady)
+                print('Packages sent', broker.transport.statistics.sent.packages)
+                print('Packages received', broker.transport.statistics.received.packages)
             }
 
             done()
