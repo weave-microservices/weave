@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-rc.5](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.4...@weave-js/core@0.7.0-rc.5) (2019-03-22)
+
+
+### Bug Fixes
+
+* Added missing jsdoc schema for weave options ([78d590f](https://github.com/fachw3rk/weave/commit/78d590f))
+
+
+### Features
+
+*  Maximum offline time editable ([9528c17](https://github.com/fachw3rk/weave/commit/9528c17))
+
+
+
+
+
 # [0.7.0-rc.4](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.3...@weave-js/core@0.7.0-rc.4) (2019-03-11)
 
 **Note:** Version bump only for package @weave-js/core
