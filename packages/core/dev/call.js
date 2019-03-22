@@ -1,6 +1,6 @@
-const { WeaveNew } = require('../lib')
+const { Weave } = require('../lib')
 
-const broker1 = WeaveNew({
+const broker1 = Weave({
     nodeId: 'node-1',
     // transport: TransportAdapters.Redis(),
     logger: console,
