@@ -37,7 +37,8 @@ const { logLevel, loadBalancingStrategy } = require('../constants')
  * @property {Number} maxQueueSize - Maximum queue size (default = 80000).
  * @property {Number} heartbeatInterval Number of milliseconds in which the heartbeat packet is sent to other nodes. (default = 5000 ms)
  * @property {Number} heartbeatTimeout - Number of milliseconds without response before the node is set to the Not Available status. (default = 10000)
- * @property {Number} offlineNodeCheckInterval - Interval in milliseconds to check and remove not offline nodes. (default = 600000)
+ * @property {Number} offlineNodeCheckInterval - Interval in milliseconds to check and remove not offline nodes. (default = 30000)
+ * @property {Number} maxOfflineTime - Maximum time a node can be offline before it is removed from the registry. (default = 600000)
  * @property {String|Object} codec Codec settings
  */
 
@@ -103,7 +104,9 @@ module.exports = {
         // heartbeat timeout
         heartbeatTimeout: 10 * 1000,
         // interval to check and remove not offline nodes.
-        offlineNodeCheckInterval: 10 * 60 * 1000
+        offlineNodeCheckInterval: 30 * 1000,
+        // Maximum time a node can be offline before it is removed from the registry.
+        maxOfflineTime: 1000 * 60 * 10
     },
     // load $node service
     loadNodeService: true,

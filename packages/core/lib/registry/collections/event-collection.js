@@ -27,7 +27,9 @@ const MakeEventCollection = (registry) => {
             return events.find(endpointList => endpointList.name === eventName && endpointList.groupName === groupName)
         },
         removeByService (service) {
-            getAllEvents().map(list => list.removeByService(service))
+            getAllEvents().map(list => {
+                list.removeByService(service)
+            })
         },
         getBalancedEndpoints (eventName, groups) {
             return getAllEventsByEventName(eventName)

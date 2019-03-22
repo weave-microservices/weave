@@ -51,7 +51,7 @@ const processFlags = () => {
 }
 /**
  * Load config file
- * @returns
+ * @returns {void}
  */
 const loadConfigFile = () => {
     let filePath

@@ -313,6 +313,11 @@ const createRegistry = (middlewareHandler) => {
                 this.log.warn(`Node '${node.id}'${isUnexpected ? ' unexpectedly' : ''} disconnected.`)
             }
         },
+        removeNode (nodeId) {
+            this.nodes.remove(nodeId)
+            this.broker.broadcastLocal('$node.removed', { nodeId })
+            this.log.warn(`Node '${nodeId}' removed.`)
+        },
         getNodeList (options) {
             return this.nodes.list(options)
         }

@@ -406,8 +406,8 @@ const createTransport = (broker, adapter) => {
         broker.registry.nodes.list({}).forEach(node => {
             if (node.isLocal || node.isAvailable) return
 
-            if ((now - node.offlineTime) > 10 * 60 * 1000) {
-                broker.registry.nodes.remove(node.id)
+            if ((now - node.offlineTime) > broker.options.transport.maxOfflineTime) {
+                broker.registry.removeNode(node.id)
             }
         })
     }
