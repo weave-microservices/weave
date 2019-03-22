@@ -105,7 +105,7 @@ export default {
 <style>
   
 
-  .card .header .caption {
+  /* .card .header .caption {
     font-weight: bold;
     text-transform: uppercase;
     text-align: left;
@@ -116,7 +116,7 @@ export default {
   .card .body {
     padding: 0 10px;
     text-align: left;
-  }
+  } */
 
   .up {
       background: #42b983;

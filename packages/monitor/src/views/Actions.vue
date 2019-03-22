@@ -1,28 +1,44 @@
 <template>
-    <div class="about">
-        <table>
-            <thead>
-                <th>Action name</th>
-                <th>Nodes</th>
-                <th>State</th>
-                <th>Cached fields</th>
-                <th>Params</th>
-            </thead>
-            <tbody>
-                <tr v-for="action in actions" :key="action.name">
-                    <td>{{action.name}}</td>
-                    <td>{{action.endpoints.length}}</td>
-                    <td>{{action.hasAvailable}}</td>
-                    <td>{{action.action.cache}}</td>
-                    <td>{{action.action && action.action.params ? Object.keys(action.action.params).join(', ') : ''}}</td>
-                </tr>
-            </tbody>
-        </table>
-        <!-- <ul>
-            <li v-for="service in services" :key="service.name">
-                {{service.name}}
-            </li>
-        </ul> -->
+    <div>
+        <div class="card events-card">
+          <header class="card-header">
+            <p class="card-header-title">Actions</p>
+            <a href="#" class="card-header-icon" aria-label="more options">
+              <span class="icon">
+                <i class="fa fa-angle-down" aria-hidden="true"></i>
+              </span>
+            </a>
+          </header>
+
+          <div class="card-table">
+            <div class="content">
+                <b-table :data="actions">
+                    <template slot-scope="props">
+                        <b-table-column field="name" label="Action name" sortable>
+                            {{ props.row.name }}
+                        </b-table-column>
+
+                        <b-table-column field="endpoints" label="Nodes" sortable>
+                            {{ props.row.endpoints.length }}
+                        </b-table-column>
+
+                        <b-table-column field="hasAvailable" label="Has available" sortable>
+                            {{ props.row.hasAvailable }}
+                        </b-table-column>
+
+                        <b-table-column field="action" label="Parameters" sortable>
+                             {{props.row.action && props.row.action.params ? Object.keys(props.row.action.params).join(', ') : ''}}
+                        </b-table-column>
+
+                    </template>
+                </b-table>
+            </div>
+          </div>
+          <footer class="card-footer">
+            <a href="#" class="card-footer-item">View All</a>
+          </footer>
+        </div>
+       
     </div>
 </template>
 <script>

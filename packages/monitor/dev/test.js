@@ -4,11 +4,34 @@ const { Weave } = require('@weave-js/core')
 const broker = Weave({
     nodeId: 'monitor-test',
     logLevel: 'info',
-    transport: 'redis',
+    transport: {
+        adapter: 'redis',
+        // offlineNodeCheckInterval: 10000,
+        // maxOfflineTime: 5000
+    },
     watchServices: true,
     metrics: {
         enabled: true,
         metricRate: 1
+    }
+})
+
+broker.createService({
+    name: 'hihi',
+    actions: {
+        trim: {
+            params: {
+                text: 'string'
+            },
+            handler (context) {
+
+            }
+        },
+    },
+    events: {
+        '$node.connected' () {
+
+        }
     }
 })
 
