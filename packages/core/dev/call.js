@@ -4,7 +4,7 @@ const broker1 = Weave({
     nodeId: 'node-1',
     // transport: TransportAdapters.Redis(),
     logger: console,
-    logLevel: 'debug',
+    logLevel: 'info',
     preferLocal: false
 })
 
