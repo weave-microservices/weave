@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-rc.6](https://github.com/weave-microservices/weave/compare/@weave-js/cli@0.7.0-rc.5...@weave-js/cli@0.7.0-rc.6) (2019-03-25)
+
+
+### Bug Fixes
+
+* Fix cli ([d7b5b15](https://github.com/weave-microservices/weave/commit/d7b5b15))
+
+
+
+
+
 # [0.7.0-rc.5](https://github.com/weave-microservices/weave/compare/@weave-js/cli@0.7.0-rc.4...@weave-js/cli@0.7.0-rc.5) (2019-03-25)
 
 
