@@ -22,7 +22,6 @@ module.exports = {
         }
         process.exit(1)
     },
-
     evaluate (exp, data) {
         /* eslint-disable no-new-func */
         const fn = new Function('data', 'with (data) { return ' + exp + '}')
