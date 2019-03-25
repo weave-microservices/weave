@@ -6,9 +6,6 @@
   "bin": {
     "weave-cli": "./bin/weave-cli.js"
   },
-  "scripts": {
-    "weave": "node ./bin/weave-cli.js"
-  },
   "publishConfig": {
     "access": "public"
   },
@@ -20,13 +17,13 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@weave-js/core": "0.6.2",
-    "@weave-js/repl": "0.0.39",
+    "@weave-js/core": "0.7.0-rc.5",
+    "@weave-js/repl": "0.7.0-rc.4",
     "async": "^2.6.2",
     "consolidate": "^0.15.1",
     "download-git-repo": "^1.1.0",
     "exeq": "^3.0.0",
-    "handlebars": "^4.1.0",
+    "handlebars": "^4.1.1",
     "inquirer": "^6.2.2",
     "kleur": "^3.0.2",
     "lodash": "^4.17.11",
