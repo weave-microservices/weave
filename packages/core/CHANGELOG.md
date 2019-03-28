@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-rc.6](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.5...@weave-js/core@0.7.0-rc.6) (2019-03-28)
+
+
+### Bug Fixes
+
+* Method "getNextActionEndpoint" now returns an error if no service is available ([63771b8](https://github.com/fachw3rk/weave/commit/63771b8))
+
+
+
+
+
 # [0.7.0-rc.5](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.4...@weave-js/core@0.7.0-rc.5) (2019-03-22)
 
 
