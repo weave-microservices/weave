@@ -176,11 +176,7 @@ const createBroker = (options) => {
         health,
         registry,
         getNextActionEndpoint (actionName, options = {}) {
-            const endpointList = registry.getActionEndpoints(actionName, options.nodeId)
-            if (endpointList) {
-                return endpointList.getNextAvailable()
-            }
-            return null
+            return registry.getNextAvailableActionEndpoint(actionName, options)
         },
         /**
          * Call a action.

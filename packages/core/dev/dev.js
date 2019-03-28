@@ -72,7 +72,6 @@ const mixin = {
 
 app.createService({
     name: 'test',
-    dependencies: ['formater'],
     mixins: [mixin],
     actions: {
         sayHello: {
@@ -158,7 +157,6 @@ Promise.all([
     app.start(),
     app2.start()
 ]).then(() => {
-    setInterval(() => {
-        app.call('test.sayHello', { mu: 124 })
-    }, 2000)
+    const error = app.getNextActionEndpoint('test2.sayHello')
+    console.log(error)
 })
