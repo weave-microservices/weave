@@ -7,11 +7,14 @@
 // node modules
 const os = require('os')
 const { defaultsDeep, assign, uniqWith, compact, flatten } = require('lodash')
+const { yellow, bold } = require('kleur')
 
 const uuid = require('./utils/uuid')
 
 const RegexCache = new Map()
 const _toString = Object.prototype.toString()
+
+const deprecatedList = []
 
 module.exports = {
     isPlainObject (obj) {
@@ -124,6 +127,16 @@ module.exports = {
             }
             return value
         }))
+    },
+    deprecated (prop, msg) {
+        if (arguments.length === 1) {
+            msg = prop
+        }
+
+        if (deprecatedList.indexOf(prop) === -1) {
+            console.warn(yellow(bold(`Deprecation warning: ${msg}`)))
+            deprecatedList.push(prop)
+        }
     },
     getIpList () {
         const list = []

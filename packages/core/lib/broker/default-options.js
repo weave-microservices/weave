@@ -59,6 +59,18 @@ const { logLevel, loadBalancingStrategy } = require('../constants')
  */
 
 /**
+ * Configuration object for logger.
+ * @typedef {Object} LoggerSettings
+ * @property {Boolean} enabled Enable logger.
+ * @property {Stream.Writable|Array} stream Destination to which the data is written, can be a single valid Writable stream or an array holding multiple valid Writable streams. (default = process.stdout).
+ * @property {Boolean} showTimestamp Show the current timestamp. (default = true)
+ * @property {Boolean} showBadge Show log type badge. (default = true)
+ * @property {Boolean} showLabel Show log type label. (default = true)
+ * @property {Boolean} showModuleName Show the module name. (default = true)
+ * @property {Object} types Custom log types.
+ */
+
+/**
  * Middleware object.
  * @typedef {Object} Middleware
  * @property {Function(BrokerInstance)} created Broker created hook.
@@ -85,7 +97,7 @@ const { logLevel, loadBalancingStrategy } = require('../constants')
  * @property {Boolean} loadNodeService Load the $node service. (default = true)
  * @property {Boolean} publishNodeService Publish the $node service about the transport and make it accessible. (default = false)
  * @property {Boolean} loadInternalMiddlewares - Load the default middlewares on startup. (default = true)
- * @property {Object} logger Log module. (defualt = console)
+ * @property {LoggerSettings} logger Logger settings.
  * @property {'fatal'|'error'|'warn'|'info'|'debug'|'trace'} logLevel Log level of the messages to be displayed.
  * @property {MetricsSettings} metrics Metrics settings
  * @property {Array<Middleware>} middlewares Custom middlewares (default = null).
@@ -135,7 +147,14 @@ module.exports = {
     // broker middelwares
     middlewares: null,
     // activate action statistics
-    logger: console,
+    logger: {
+        enabled: true,
+        stream: process.stdout,
+        showTimestamp: true,
+        showBadge: true,
+        showLabel: true,
+        showModuleName: true
+    },
     // logging class
     logLevel: logLevel.info,
     // metrics settings

@@ -44,6 +44,7 @@
     "esdoc-standard-plugin": "^1.0.0",
     "eventemitter2": "^5.0.1",
     "fachwork": "0.0.10",
+    "figures": "^3.0.0",
     "fw-object-validator": "^0.2.0",
     "glob": "^7.1.3",
     "hyperid": "^2.0.2",

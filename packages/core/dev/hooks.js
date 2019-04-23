@@ -4,7 +4,6 @@ const { Weave } = require('../lib/index.js')
 const broker1 = Weave({
     nodeId: 'node-1',
     transport: 'redis',
-    logger: console,
     logLevel: 'debug',
     preferLocal: false,
     cache: true,

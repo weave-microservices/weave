@@ -15,9 +15,9 @@
             "type": "node",
             "request": "launch",
             "name": "Dev",
-            "program": "${workspaceFolder}/dev/action-chaining.js",
+            "program": "${workspaceFolder}/dev/index.js",
             "args": [
-                "nats-transport"
+                "dev"
             ]
         },
         {

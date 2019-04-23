@@ -12,7 +12,7 @@ const glob = require('glob')
 
 // own packages
 const defaultOptions = require('./default-options')
-const Logger = require('./logger')
+const Logger = require('../log/logger')
 const createServiceFromSchema = require('../registry/service')
 const utils = require('../utils')
 const createMiddlewareHandler = require('./middleware-handler')
@@ -56,9 +56,9 @@ const createBroker = (options) => {
      * Create a new Logger.
      * @param {string} moduleName - Name of the module
      * @param {*} service - Service properties
-     * @returns {import('./logger.js/index.js').Logger} Logger
+     * @returns {import('../log/logger.js/index.js.js').Logger} Logger
      */
-    const createLogger = (moduleName, service) => {
+    const createLogger = (moduleName, service, logOptions) => {
         const bindings = {
             nodeId: nodeId
         }
@@ -172,7 +172,10 @@ const createBroker = (options) => {
         isStarted: false,
         log,
         createLogger,
-        getLogger: createLogger,
+        getLogger: function () {
+            utils.deprecated('The method "broker.getLogger()" is deprecated since weave version 0.7.0. Please use "broker.createLogger()" instead.')
+            return createLogger
+        },
         health,
         registry,
         getNextActionEndpoint (actionName, options = {}) {
@@ -375,8 +378,10 @@ const createBroker = (options) => {
                     if (!Array.isArray(serviceNames)) {
                         serviceNames = [serviceNames]
                     }
+
                     const count = serviceNames.filter(serviceName => registry.hasService(serviceName))
-                    this.log.info(`${count.length} services of ${serviceNames.length} available. Waiting...`)
+
+                    this.log.wait(`${count.length} services of ${serviceNames.length} available. Waiting...`)
 
                     if (count.length === serviceNames.length) {
                         return resolve()
@@ -406,7 +411,7 @@ const createBroker = (options) => {
                 })
                 .then(() => {
                     this.isStarted = true
-                    log.info(`Weave service node with ${services.length} services is started successfully.`)
+                    log.success(`Weave service node with ${services.length} services is started successfully.`)
                     this.broadcastLocal('$broker.started')
                 })
                 .then(() => {
@@ -466,7 +471,7 @@ const createBroker = (options) => {
                     }
                 })
                 .then(() => {
-                    log.info(`Node successfully shutted down. Bye bye!`)
+                    log.success(`Node successfully shutted down. Bye bye! 👋`)
                     this.broadcastLocal('$broker.closed')
 
                     process.removeListener('beforeExit', onClose)
@@ -514,6 +519,11 @@ const createBroker = (options) => {
     })
 
     // Resolve the transport adapter
+    if (typeof options.transport === 'string') {
+        options.transport = {
+            adapter: options.transport
+        }
+    }
     if (options.transport.adapter) {
         const adapter = TransportAdapters.resolve(options.transport.adapter)
         if (adapter) {
