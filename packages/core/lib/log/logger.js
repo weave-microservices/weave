@@ -28,7 +28,7 @@ const LOG_LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace']
  * @property {boolean} hasWisdom - Indicates whether the Wisdom component is present.
  */
 
-module.exports.createDefaultLogger = (options, bindings, globalLogLevel) => {
+module.exports.createDefaultLogger = (options, bindings) => {
     const logMethods = {}
 
     options.customTypes = Object.assign({}, options.types)
@@ -154,7 +154,7 @@ module.exports.createDefaultLogger = (options, bindings, globalLogLevel) => {
     }
 
     function logger (type, ...messageObject) {
-        if (!options.enabled || !globalLogLevel || LOG_LEVELS.indexOf(options.types[type].logLevel) > LOG_LEVELS.indexOf(options.logLevel)) {
+        if (!options.enabled || LOG_LEVELS.indexOf(options.types[type].logLevel) > LOG_LEVELS.indexOf(options.logLevel)) {
             return dummyLog
         }
         const { stream, logLevel, done } = options.types[type]
