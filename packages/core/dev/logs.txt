@@ -1,0 +1,39 @@
+[90m[2019-04-23T16:25:32.280Z][39m [90m[node-1/WEAVE][39m [90m›[39m [34mℹ  [39m [34m[4minfo[24m     [39m Initializing #weave node version 0.7.0-rc.6
+[90m[2019-04-23T16:25:32.282Z][39m [90m[node-1/WEAVE][39m [90m›[39m [34mℹ  [39m [34m[4minfo[24m     [39m Node Id: node-1
+[90m[2019-04-23T16:25:32.282Z][39m [90m[node-1/metrics][39m [90m›[39m [31m⬤  [39m [31m[4mdebug[24m    [39m Metrics initialized.
+[90m[2019-04-23T16:25:32.288Z][39m [90m[node-1/REGISTRY][39m [90m›[39m [34mℹ  [39m [34m[4minfo[24m     [39m Service '$node' registered.
+[90m[2019-04-23T16:25:32.289Z][39m [90m[node-1/REGISTRY][39m [90m›[39m [34mℹ  [39m [34m[4minfo[24m     [39m Service 'test1' registered.
+[90m[2019-04-23T16:25:32.289Z][39m [90m[node-1/WEAVE][39m [90m›[39m [32m✔  [39m [32m[4msuccess[24m  [39m Weave service node with 2 services is started successfully.
+[90m[2019-04-23T16:25:33.292Z][39m [90m[node-1/WEAVE][39m [90m›[39m [34mℹ  [39m [34m[4minfo[24m     [39m -------------------------
+[90m[2019-04-23T16:25:33.294Z][39m [90m[node-1/WEAVE][39m [90m›[39m [31m⬤  [39m [31m[4mdebug[24m    [39m Call action local. { action: 'test1.hello',
+  requestId: '1c7ac7b1-b29a-4e56-b098-97468aeb6c37' }
+[90m[2019-04-23T16:25:33.295Z][39m [90m[node-1/test1][39m [90m›[39m log message
+[90m[2019-04-23T16:25:33.295Z][39m [90m[node-1/test1][39m [90m›[39m [34mℹ  [39m [34m[4minfo[24m     [39m info message
+[90m[2019-04-23T16:25:33.295Z][39m [90m[node-1/test1][39m [90m›[39m [32m✔  [39m [32m[4msuccess[24m  [39m success message
+[90m[2019-04-23T16:25:33.295Z][39m [90m[node-1/test1][39m [90m›[39m [31m⬤  [39m [31m[4mdebug[24m    [39m debug message
+[90m[2019-04-23T16:25:33.295Z][39m [90m[node-1/test1][39m [90m›[39m [31m✖  [39m [31m[4merror[24m    [39m error message
+[90m[2019-04-23T16:25:33.295Z][39m [90m[node-1/test1][39m [90m›[39m [31m!! [39m [31m[4mfatal[24m    [39m fatal message
+[90m[2019-04-23T16:25:33.295Z][39m [90m[node-1/test1][39m [90m›[39m [33m⚠  [39m [33m[4mwarning[24m  [39m warn message
+[90m[2019-04-23T16:25:33.306Z][39m [90m[node-1/test1][39m [90m›[39m [34m…  [39m [34m[4mwaiting[24m  [39m wait message
+[90m[2019-04-23T16:25:33.306Z][39m [90m[node-1/test1][39m [90m›[39m [36m☒  [39m [36m[4mcomplete[24m [39m complete message
+[90m[2019-04-23T16:25:33.306Z][39m [90m[node-1/test1][39m [90m›[39m [34m●  [39m [34m[4mnote[24m     [39m note
+[90m[2019-04-23T16:25:33.306Z][39m [90m[node-1/test1][39m [90m›[39m [33m★  [39m [33m[4mstar[24m     [39m star message
+[90m[2019-04-23T16:25:33.306Z][39m [90m[node-1/test1][39m [90m›[39m [35m❤  [39m [35m[4mfavorite[24m [39m fav message
+[90m[2019-04-23T16:25:33.306Z][39m [90m[node-1/test1][39m [90m›[39m [31m🎅 [39m [31m[4msanta[24m    [39m santa message
+[90m[2019-04-23T16:25:34.296Z][39m [90m[node-1/WEAVE][39m [90m›[39m [34mℹ  [39m [34m[4minfo[24m     [39m -------------------------
+[90m[2019-04-23T16:25:34.296Z][39m [90m[node-1/WEAVE][39m [90m›[39m [31m⬤  [39m [31m[4mdebug[24m    [39m Call action local. { action: 'test1.hello',
+  requestId: 'd035bf75-4d19-4486-952e-6714477a0fa9' }
+[90m[2019-04-23T16:25:34.296Z][39m [90m[node-1/test1][39m [90m›[39m log message
+[90m[2019-04-23T16:25:34.296Z][39m [90m[node-1/test1][39m [90m›[39m [34mℹ  [39m [34m[4minfo[24m     [39m info message
+[90m[2019-04-23T16:25:34.296Z][39m [90m[node-1/test1][39m [90m›[39m [32m✔  [39m [32m[4msuccess[24m  [39m success message
+[90m[2019-04-23T16:25:34.296Z][39m [90m[node-1/test1][39m [90m›[39m [31m⬤  [39m [31m[4mdebug[24m    [39m debug message
+[90m[2019-04-23T16:25:34.296Z][39m [90m[node-1/test1][39m [90m›[39m [31m✖  [39m [31m[4merror[24m    [39m error message
+[90m[2019-04-23T16:25:34.296Z][39m [90m[node-1/test1][39m [90m›[39m [31m!! [39m [31m[4mfatal[24m    [39m fatal message
+[90m[2019-04-23T16:25:34.296Z][39m [90m[node-1/test1][39m [90m›[39m [33m⚠  [39m [33m[4mwarning[24m  [39m warn message
+[90m[2019-04-23T16:25:34.296Z][39m [90m[node-1/test1][39m [90m›[39m [34m…  [39m [34m[4mwaiting[24m  [39m wait message
+[90m[2019-04-23T16:25:34.296Z][39m [90m[node-1/test1][39m [90m›[39m [36m☒  [39m [36m[4mcomplete[24m [39m complete message
+[90m[2019-04-23T16:25:34.296Z][39m [90m[node-1/test1][39m [90m›[39m [34m●  [39m [34m[4mnote[24m     [39m note
+[90m[2019-04-23T16:25:34.296Z][39m [90m[node-1/test1][39m [90m›[39m [33m★  [39m [33m[4mstar[24m     [39m star message
+[90m[2019-04-23T16:25:34.296Z][39m [90m[node-1/test1][39m [90m›[39m [35m❤  [39m [35m[4mfavorite[24m [39m fav message
+[90m[2019-04-23T16:25:34.296Z][39m [90m[node-1/test1][39m [90m›[39m [31m🎅 [39m [31m[4msanta[24m    [39m santa message
+[90m[2019-04-23T16:25:34.538Z][39m [90m[node-1/WEAVE][39m [90m›[39m [32m✔  [39m [32m[4msuccess[24m  [39m Node successfully shutted down. Bye bye! 👋
