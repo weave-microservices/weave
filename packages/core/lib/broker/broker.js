@@ -26,6 +26,7 @@ const TransportAdapters = require('../transport/adapters')
 const createTransport = require('../transport')
 const EventEmitter = require('eventemitter2')
 const { WeaveError, WeaveRequestTimeoutError } = require('../errors')
+const { MetricsStorage } = require('../metrics')
 
 // package.json
 const pkg = require('../../package.json')
@@ -76,7 +77,7 @@ const createBroker = (options) => {
             return options.logger(bindings, options.logLevel)
         }
 
-        return Logger.createDefaultLogger(options.logger, bindings, options.logLevel)
+        return Logger.createDefaultLogger(options.logger, bindings)
     }
 
     // Create the default logger for the broker.
@@ -531,6 +532,10 @@ const createBroker = (options) => {
         }
     }
 
+    // Metrics module
+    broker.metrics = MetricsStorage(broker, options)
+    broker.metrics.init()
+
     // Module initialisation
     registry.init(broker, middlewareHandler)
     middlewareHandler.init(broker)
@@ -566,7 +571,7 @@ const createBroker = (options) => {
             middlewareHandler.add(Middlewares.Timeout())
             middlewareHandler.add(Middlewares.Retry())
             middlewareHandler.add(Middlewares.ErrorHandler())
-            middlewareHandler.add(Middlewares.Metrics())
+            middlewareHandler.add(Middlewares.Tracing())
         }
 
         // Wrap broker methods
