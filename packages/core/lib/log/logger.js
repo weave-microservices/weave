@@ -154,7 +154,7 @@ module.exports.createDefaultLogger = (options, bindings, globalLogLevel) => {
     }
 
     function logger (type, ...messageObject) {
-        if (!options.enabled || !globalLogLevel || LOG_LEVELS.indexOf(options.types[type].logLevel) > LOG_LEVELS.indexOf(globalLogLevel)) {
+        if (!options.enabled || !globalLogLevel || LOG_LEVELS.indexOf(options.types[type].logLevel) > LOG_LEVELS.indexOf(options.logLevel)) {
             return dummyLog
         }
         const { stream, logLevel, done } = options.types[type]
