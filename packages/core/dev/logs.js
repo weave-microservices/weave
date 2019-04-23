@@ -7,14 +7,15 @@ const broker1 = Weave({
     nodeId: 'node-1',
     transport: TransportAdapters.Redis(),
     // logger: console,
-    logLevel: 'info',
+    logLevel: 'debug',
     logger: {
         stream: [stream, process.stdout],
         types: {
-            error: {
-                done (arr) {
-                    console.log(arr)
-                }
+            santa: {
+                badge: '🎅',
+                label: 'santa',
+                logLevel: 'info',
+                color: 'red'
             }
         }
     },
@@ -26,7 +27,7 @@ broker1.createService({
     actions: {
         hello (context) {
             this.log.log('log message')
-            this.log.info(context.level)
+            this.log.info('info message')
             this.log.success('success message')
             this.log.debug('debug message')
             this.log.error('error message')
@@ -37,15 +38,7 @@ broker1.createService({
             this.log.note('note')
             this.log.star('star message')
             this.log.fav('fav message')
-
-            context.emit('testes')
-            this.broker.getLogger('sadasd')
-        
-            return context.call('$node.actions')
-        }
-    },
-    events: {
-        testes () {
+            this.log.santa('santa message')
         }
     }
 })
@@ -56,8 +49,5 @@ Promise.all([
     setInterval(() => {
         broker1.log.info('-------------------------')
         broker1.call('test1.hello')
-            .then(result => {
-                
-            })
     }, 1000)
 })

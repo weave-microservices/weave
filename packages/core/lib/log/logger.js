@@ -28,7 +28,7 @@ const LOG_LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace']
  * @property {boolean} hasWisdom - Indicates whether the Wisdom component is present.
  */
 
-module.exports.createDefaultLogger = (options, bindings, logLevel) => {
+module.exports.createDefaultLogger = (options, bindings, globalLogLevel) => {
     const logMethods = {}
 
     options.customTypes = Object.assign({}, options.types)
@@ -113,6 +113,8 @@ module.exports.createDefaultLogger = (options, bindings, logLevel) => {
         stream.write(message + '\n')
     }
 
+    const dummyLog = () => {}
+
     const buildMessage = (type, ...args) => {
         let [msg, additional] = [{}, {}]
         if (args.length === 1 && typeof args[0] === 'object' && args[0] !== null) {
@@ -147,12 +149,14 @@ module.exports.createDefaultLogger = (options, bindings, logLevel) => {
     }
 
     const log = (message, streams = options.stream, typeLogLevel) => {
-        if (options.enabled && (logLevel && LOG_LEVELS.indexOf(typeLogLevel) <= LOG_LEVELS.indexOf(logLevel))) {
-            formatStream(streams).forEach(stream => write(stream, message))
-        }
+        formatStream(streams)
+            .forEach(stream => write(stream, message))
     }
 
     function logger (type, ...messageObject) {
+        if (!options.enabled || !globalLogLevel || LOG_LEVELS.indexOf(options.types[type].logLevel) > LOG_LEVELS.indexOf(globalLogLevel)) {
+            return dummyLog
+        }
         const { stream, logLevel, done } = options.types[type]
         const message = buildMessage(options.types[type], ...messageObject)
         if (done) {
@@ -162,24 +166,4 @@ module.exports.createDefaultLogger = (options, bindings, logLevel) => {
     }
 
     return logMethods
-    // LOG_LEVELS.forEach((level, i) => {
-    //     if (!baseLogger || (logLevel && i > LOG_LEVELS.indexOf(logLevel))) {
-    //         logger[level] = () => {}
-    //         return
-    //     }
-
-    //     const method = baseLogger[level] || baseLogger['info']
-    //     const defaultLogObjectPrinter = o => util.inspect(o, { showHidden: false, depth: 2, colors: enabled, breakLength: Number.POSITIVE_INFINITY })
-
-    //     logger[level] = function (...args) {
-    //         const logArgs = args.map(arg => {
-    //             if (typeof arg === 'object' || Array.isArray(arg)) {
-    //                 return defaultLogObjectPrinter(arg)
-    //             }
-    //             return arg
-    //         })
-    //         method.call(baseLogger, gray(`[${new Date().toISOString()}]`), getFormatedLogLevel(level), gray(`${getModuleName()}:`), ...logArgs)
-    //     }
-    // })
-    // return logger
 }

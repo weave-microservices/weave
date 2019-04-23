@@ -7,9 +7,10 @@ const { Weave } = require('../../lib/index.js')
 // Create broker
 const broker = Weave({
     nodeId: hostname + '-server',
-    cache: false,
+    cache: true,
+    logLevel: 'info',
     logger: {
-        enabled: false
+        enabled: true
     }
 })
 
@@ -52,7 +53,7 @@ broker.start().then(() => {
         setInterval(() => {
             if (count > 0) {
                 const requestsPerSecond = count / ((Date.now() - startTime) / 1000)
-                console.log(Number(requestsPerSecond.toFixed(0)), 'requests/s')
+                broker.log.info(Number(requestsPerSecond.toFixed(0)), 'requests/s')
                 count = 0
                 startTime = Date.now()
             }

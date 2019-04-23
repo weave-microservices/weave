@@ -46,7 +46,7 @@ const createBroker = (options) => {
         throw new WeaveError('Stopped hook have to be a function.')
     }
 
-    // if no node id is set - create one.
+    // If no node id is set - create one.
     const nodeId = options.nodeId || utils.createNodeId()
     // Set version to pakage version
     const version = pkg.version
@@ -79,26 +79,26 @@ const createBroker = (options) => {
         return Logger.createDefaultLogger(options.logger, bindings, options.logLevel)
     }
 
-    // create the default logger for the broker.
+    // Create the default logger for the broker.
     const log = createLogger('WEAVE')
 
-    // internal modules
+    // Internal modules
     const middlewareHandler = createMiddlewareHandler()
     const registry = createRegistry(middlewareHandler, nodeId, options, createLogger)
     const contextFactory = createContextFactory()
     const health = createHealthcheck()
     const validator = createValidator()
 
-    // internal Methods
+    // Internal Methods
     const addLocalServices = service => {
         services.push(service)
     }
 
     const servicesChanged = isLocalService => {
-        // send local notification.
+        // Send local notification.
         broker.broadcastLocal('$services.changed', { isLocalService })
 
-        // if the service is a local service - send current node informations to other nodes
+        // If the service is a local service - send current node informations to other nodes
         if (broker.isStarted && isLocalService && broker.transport) {
             broker.transport.sendNodeInfo()
         }
@@ -125,9 +125,9 @@ const createBroker = (options) => {
         .then(() => {
             registry.unregisterService(service.name, service.version)
             log.info(`Service ${service.name} was stopped.`)
-            // remove service from service store.
+            // Remove service from service store.
             services.splice(services.indexOf(service), 1)
-            // fire services changed event
+            // Fire services changed event
             servicesChanged(true)
             return Promise.resolve()
         })
@@ -142,7 +142,7 @@ const createBroker = (options) => {
                 delete require.cache[key]
             }
         })
-        // service has changed - 1. destroy the service, then reload it
+        // Service has changed - 1. destroy the service, then reload it
         destroyService(service)
             .then(() => broker.loadService(filename))
     }
@@ -241,7 +241,7 @@ const createBroker = (options) => {
                 groups = [groups]
             }
 
-            // emit system events
+            // Emit system events
             if (/^\$/.test(eventName)) {
                 this.bus.emit(eventName, payload)
             }
@@ -278,7 +278,7 @@ const createBroker = (options) => {
          */
         broadcast (eventName, payload, groups = null) {
             if (this.transport) {
-                // avoid to broadcast internal events.
+                // Avoid to broadcast internal events.
                 if (!/^\$/.test(eventName)) {
                     const endpoints = registry.events.getAllEndpointsUniqueNodes(eventName, groups)
                     if (endpoints) {
@@ -302,11 +302,11 @@ const createBroker = (options) => {
          * @returns {void}
          */
         broadcastLocal (eventName, payload, groups = null) {
-            // if the given group is no array - wrap it.
+            // If the given group is no array - wrap it.
             if (groups && !Array.isArray(groups)) {
                 groups = [groups]
             }
-            // emit the event on the internal event bus
+            // Emit the event on the internal event bus
             if (/^\$/.test(eventName)) {
                 this.bus.emit(eventName, payload)
             }
@@ -341,7 +341,7 @@ const createBroker = (options) => {
             const schema = require(filePath)
             const service = this.createService(schema)
 
-            // if the "watchSevrices" option is set - add service to service watcher.
+            // If the "watchSevrices" option is set - add service to service watcher.
             if (options.watchServices) {
                 service.filename = fileName
                 serviceWatcher.call(this, service, onServiceChanged)
@@ -512,7 +512,7 @@ const createBroker = (options) => {
         }
     }
 
-    // register internal broker events
+    // Register internal broker events
     broker.bus.on('$node.disconnected', ({ nodeId, isUnexpected }) => {
         broker.transport.removePendingRequestsByNodeId(nodeId)
         servicesChanged(false)
@@ -531,14 +531,13 @@ const createBroker = (options) => {
         }
     }
 
-    // module initialisation
+    // Module initialisation
     registry.init(broker, middlewareHandler)
     middlewareHandler.init(broker)
     contextFactory.init(broker)
-    health.init(broker, broker.transport) 
-    // register all middlewares (including user defined)
+    health.init(broker, broker.transport)
 
-    // initialize caching module
+    // Initialize caching module
     if (options.cache) {
         const createCache = Cache.resolve(options.cache)
         broker.cache = createCache(broker, options.cache)
@@ -546,6 +545,7 @@ const createBroker = (options) => {
         log.info(`Cache module: ${broker.cache.name}`)
     }
 
+    // Register all middlewares (including user defined)
     const registerMiddlewares = customMiddlewares => {
         // Register custom middlewares
         if (Array.isArray(customMiddlewares) && customMiddlewares.length > 0) {
@@ -556,7 +556,7 @@ const createBroker = (options) => {
         if (options.loadInternalMiddlewares) {
             middlewareHandler.add(Middlewares.ActionHooks())
 
-            // validator middleware
+            // Validator middleware
             if (options.validateActionParams && validator) {
                 middlewareHandler.add(validator.middleware)
             }
@@ -603,7 +603,7 @@ const createBroker = (options) => {
         return middlewareHandler.wrapHandler('remoteAction', broker.transport.request.bind(broker.transport), action)
     }
 
-    // call middleware hook for broker created.
+    // Call middleware hook for broker created.
     middlewareHandler.callHandlersSync('created', broker)
 
     return broker

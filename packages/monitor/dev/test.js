@@ -5,7 +5,7 @@ const broker = Weave({
     nodeId: 'monitor-test',
     logLevel: 'info',
     transport: {
-        adapter: 'redis',
+        adapter: 'redis'
         // offlineNodeCheckInterval: 10000,
         // maxOfflineTime: 5000
     },
@@ -26,7 +26,7 @@ broker.createService({
             handler (context) {
 
             }
-        },
+        }
     },
     events: {
         '$node.connected' () {
