@@ -6,7 +6,9 @@ describe('Service lifetime hooks within mixins', () => {
     it('should call lifecycle hook "created" with correct scope if there are nested hooks from a mixin.', done => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         node1.createService({
@@ -23,7 +25,9 @@ describe('Service lifetime hooks within mixins', () => {
     it('should call lifecycle hook "started" with correct scope if there are nested hooks from a mixin.', done => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         node1.createService({
@@ -40,7 +44,9 @@ describe('Service lifetime hooks within mixins', () => {
     it('should call lifecycle hook "stopped" with correct scope if there are nested hooks from a mixin.', done => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         node1.createService({
@@ -59,7 +65,9 @@ describe('Service lifetime hooks error handling', () => {
     it('should throw a error from a mixed started hook.', async () => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         node1.createService({
@@ -76,7 +84,9 @@ describe('Service lifetime hooks error handling', () => {
     it('should throw a error from a mixed stopped hook.', async () => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         node1.createService({

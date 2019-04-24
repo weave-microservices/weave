@@ -5,7 +5,9 @@ describe('Test broker call service', () => {
     it('should call a service.', (done) => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         const service = node1.createService({
@@ -28,7 +30,9 @@ describe('Test broker call service', () => {
     it('should call a service action and return a value.', () => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         node1.createService({
@@ -51,7 +55,9 @@ describe('Test broker call service', () => {
     it('should call a service action and return an error.', () => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         node1.createService({
@@ -72,7 +78,9 @@ describe('Test broker call service', () => {
     it('should call a service action and pass a meta value to a chained action.', () => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         node1.createService({
@@ -106,7 +114,9 @@ describe('Service lifetime hooks', () => {
 
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         node1.createService({
@@ -132,7 +142,9 @@ describe('Service lifetime hooks', () => {
     it('should call lifecycle hooks with correct scope. [creaded]', done => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         node1.createService({
@@ -149,7 +161,9 @@ describe('Service lifetime hooks', () => {
     it('should call lifecycle hooks with correct scope. [started]', done => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         node1.createService({
@@ -166,7 +180,9 @@ describe('Service lifetime hooks', () => {
     it('should call lifecycle hook with correct scope. [stopped]', done => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
         node1.createService({
             name: 'testService',

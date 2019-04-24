@@ -9,7 +9,7 @@ let actionCounter = 0
 function shouldCollectMetrics (options) {
     if (options.enabled) {
         actionCounter++
-        if (actionCounter * options.metricRate >= 1) {
+        if (actionCounter * options.tracingRate >= 1) {
             actionCounter = 0
             return true
         }
@@ -48,9 +48,9 @@ function metricsStart (broker, context) {
     context.startTime = Date.now()
     context.startHighResolutionTime = process.hrtime()
 
-    if (context.metrics) {
+    if (context.tracing) {
         const payload = generateMetricsBody(context)
-        broker.emit('metrics.trace.span.started', payload)
+        broker.emit('tracing.trace.span.started', payload)
     }
 }
 
@@ -62,7 +62,7 @@ function metricsFinish (broker, context, error) {
 
     const stopTime = context.startTime + context.duration
 
-    if (context.metrics) {
+    if (context.tracing) {
         const payload = generateMetricsBody(context)
         payload.stopTime = stopTime
         payload.isCachedResult = !!context.isCachedResult
@@ -81,20 +81,20 @@ function metricsFinish (broker, context, error) {
                 message: error.message
             }
         }
-        broker.emit('metrics.trace.span.finished', payload)
+        broker.emit('tracing.trace.span.finished', payload)
     }
 }
 
 const wrapMetricsLocalMiddleware = function (handler) {
     const broker = this
-    const options = broker.options.metrics || {}
+    const options = broker.options.tracing || {}
 
     if (options.enabled) {
         return function metricsLocalMiddleware (context) {
-            if (context.metrics === null) {
-                context.metrics = shouldCollectMetrics(options)
+            if (context.tracing == null) {
+                context.tracing = shouldCollectMetrics(options)
             }
-            if (context.metrics) {
+            if (context.tracing) {
                 metricsStart(broker, context)
                 return handler(context)
                     .then(result => {
@@ -114,11 +114,11 @@ const wrapMetricsLocalMiddleware = function (handler) {
 
 const wrapMetricsRemoteMiddleware = function (handler, action) {
     const broker = this
-    const options = broker.options.metrics || {}
+    const options = broker.options.tracing || {}
 
     return function metricsRemoteMiddleware (context) {
-        if (context.metrics === null) {
-            context.metrics = shouldCollectMetrics(options)
+        if (context.tracing === null) {
+            context.tracing = shouldCollectMetrics(options)
         }
         return handler(context)
     }

@@ -526,15 +526,15 @@ const createBroker = (options) => {
         }
     }
     if (options.transport.adapter) {
-        const adapter = TransportAdapters.resolve(options.transport.adapter)
+        const adapter = TransportAdapters.resolve(options.transport)
         if (adapter) {
             broker.transport = createTransport(broker, adapter)
         }
     }
 
     // Metrics module
-    broker.metrics = MetricsStorage(broker, options)
-    broker.metrics.init()
+    // broker.metrics = MetricsStorage(broker, options)
+    // broker.metrics.init()
 
     // Module initialisation
     registry.init(broker, middlewareHandler)

@@ -5,7 +5,9 @@ describe('Test broker lifecycle', () => {
         expect(() => {
             Weave({
                 nodeId: 'node1',
-                logLevel: 'fatal',
+                logger: {
+                    logLevel: 'fatal'
+                },
                 started: {}
             })
         }).toThrow('Started hook have to be a function.')
@@ -15,7 +17,9 @@ describe('Test broker lifecycle', () => {
         expect(() => {
             Weave({
                 nodeId: 'node1',
-                logLevel: 'fatal',
+                logger: {
+                    logLevel: 'fatal'
+                },
                 stopped: {}
             })
         }).toThrow('Stopped hook have to be a function.')
@@ -27,7 +31,9 @@ describe('Test broker lifecycle', () => {
 
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal',
+            logger: {
+                logLevel: 'fatal'
+            },
             started: startedHook,
             stopped: stoppedHook
         })
@@ -46,7 +52,9 @@ describe('Test broker call service', () => {
     it('should call a service.', (done) => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         const service = node1.createService({
@@ -69,7 +77,9 @@ describe('Test broker call service', () => {
     it('should call a service action and return a value.', () => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         node1.createService({
@@ -94,7 +104,9 @@ describe('Test broker call error handling', () => {
     it('should call a service action and be rejected with an error.', (done) => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         node1.createService({
@@ -118,7 +130,9 @@ describe('Test broker call error handling', () => {
     it('should call a service action and be rejected with an error from a sub action.', (done) => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         node1.createService({

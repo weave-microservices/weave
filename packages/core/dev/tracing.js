@@ -9,9 +9,9 @@ const broker1 = Weave({
     preferLocal: false,
     requestTimeout: 4000,
     cache: true,
-    metrics: {
+    tracing: {
         enabled: true,
-        metricRate: 1
+        tracingRate: 1
     },
     registry: {
         // preferLocal: false
@@ -49,11 +49,11 @@ broker1.createService({
         }
     },
     events: {
-        'metrics.trace.span.started' (payload) {
+        'tracing.trace.span.started' (payload) {
             console.log(payload)
             console.log('-----------------------')
         },
-        'metrics.trace.span.finished' (payload) {
+        'tracing.trace.span.finished' (payload) {
             console.log(payload)
             console.log('-----------------------')
         }

@@ -5,7 +5,9 @@ const log = jest.fn()
 describe('Action hooks', () => {
     const broker = Weave({
         name: 'test-node',
-        logLevel: 'fatal'
+        logger: {
+            logLevel: 'fatal'
+        }
     })
 
     broker.createService({

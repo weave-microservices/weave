@@ -1,7 +1,7 @@
 const { Weave, TransportAdapters } = require('../lib/index.js')
 
 const brokerStore = []
-for (let i = 0; i < 200; i++) {
+for (let i = 0; i < 11; i++) {
     const broker = createBroker(i)
     brokerStore.push(broker)
 }
@@ -14,9 +14,9 @@ Promise.all(brokerStore.map(broker => broker.start())).then(() => {
             brokerStore[0].call('test.hello')
                 .then(res => {
                     // callBroker.log.info(res)
-                    console.log(res)
+                    // console.log(res)
                 })
-        }, 100)
+        }, 1000)
     }, 4000)
 })
 
@@ -24,11 +24,14 @@ function createBroker (index) {
     const broker = Weave({
         namespace: 'ciris',
         nodeId: 'node-' + index,
-        transport: TransportAdapters.NATS(),
-        logLevel: 'info',
-        preferLocal: false,
-        metrics: {
-            enabled: true
+        transport: {
+            adapter: 'redis'
+        },
+        logger: {
+            logLevel: 'debug'
+        },
+        registry: {
+            preferLocalActions: false
         }
     })
 

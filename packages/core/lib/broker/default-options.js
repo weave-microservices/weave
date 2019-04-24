@@ -157,9 +157,9 @@ module.exports = {
         showModuleName: true
     },
     // metrics settings
-    metrics: {
+    tracing: {
         enabled: false,
-        metricRate: 1.0
+        tracingRate: 1.0
     },
     // namespace
     namespace: '',

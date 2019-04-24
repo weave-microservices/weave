@@ -2,11 +2,13 @@ const { Weave, TransportAdapters } = require('../../lib/index')
 const { WeaveError } = require('../../lib/errors')
 const lolex = require('lolex')
 
-describe('Test circuit breaker', () => {
+describe.only('Test circuit breaker', () => {
     let clock
     const node1 = Weave({
         nodeId: 'node1',
-        logLevel: 'fatal',
+        logger: {
+            logLevel: 'fatal'
+        },
         transport: {
             adapter: TransportAdapters.Fake()
         },
@@ -20,7 +22,9 @@ describe('Test circuit breaker', () => {
 
     const node2 = Weave({
         nodeId: 'node2',
-        logLevel: 'fatal',
+        logger: {
+            logLevel: 'fatal'
+        },
         transport: {
             adapter: TransportAdapters.Fake()
         }

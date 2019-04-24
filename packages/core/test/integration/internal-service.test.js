@@ -4,7 +4,9 @@ describe('Test internal service $node', () => {
     it('Five actions from "$node" should be available.', (done) => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         node1.start().then(() => {

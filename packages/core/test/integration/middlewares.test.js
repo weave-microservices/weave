@@ -21,7 +21,9 @@ describe('Test middlware hooks', () => {
 
         const broker = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal',
+            logger: {
+                logLevel: 'fatal'
+            },
             middlewares: [middleware]
         })
 
@@ -68,7 +70,9 @@ describe('Test middlware hooks', () => {
 
         const broker = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal',
+            logger: {
+                logLevel: 'fatal'
+            },
             loadNodeService: false,
             middlewares: [middleware]
         })
@@ -98,7 +102,9 @@ describe('Test middlware hooks', () => {
 
         const broker = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal',
+            logger: {
+                logLevel: 'fatal'
+            },
             loadNodeService: false,
             middlewares: [middleware]
         })
@@ -135,7 +141,9 @@ describe('Test middlware hooks', () => {
         const broker1 = Weave({
             nodeId: 'node1',
             transport: TransportAdapters.Fake(),
-            logLevel: 'fatal',
+            logger: {
+                logLevel: 'fatal'
+            },
             loadNodeService: false,
             middlewares: [middleware]
         })

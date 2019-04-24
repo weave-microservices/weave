@@ -12,5 +12,6 @@ module.exports = {
     Metrics: require('./metrics'),
     Tracing: require('./tracing'),
     Retry: require('./retry'),
-    Timeout: require('./timeout')
+    Timeout: require('./timeout'),
+    OpenContextTracker: require('./open-context-tracker')
 }

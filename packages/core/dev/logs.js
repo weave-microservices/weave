@@ -1,15 +1,11 @@
 const { Weave, TransportAdapters } = require('../lib')
-const fs = require('fs')
-
-const stream = fs.createWriteStream('./logs.txt')
 
 const broker1 = Weave({
     nodeId: 'node-1',
     transport: TransportAdapters.Redis(),
-    // logger: console,
-    logLevel: 'debug',
     logger: {
-        stream: [stream, process.stdout],
+        logLevel: 'warn',
+        stream: process.stdout,
         types: {
             santa: {
                 badge: '🎅',

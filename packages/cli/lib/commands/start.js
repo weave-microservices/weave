@@ -12,7 +12,9 @@ exports.builder = {
 
 exports.handler = async ({ url }) => {
     const config = {
-        logLevel: 'info'
+        logger: {
+            logLevel: 'info'
+        }
     }
     const broker = Weave(config)
     broker.start().then(() => broker.repl())

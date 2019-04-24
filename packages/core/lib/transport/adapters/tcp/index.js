@@ -41,10 +41,10 @@ function TCPTransporter (options) {
             .then(() => startTimers())
             .then(() => {
                 self.log.info('TCP transport started.')
-                self.registry.generateLocalNodeInfo()
+                self.broker.registry.generateLocalNodeInfo()
             })
             .then(() => {
-                self.emit('adapter.connected', false, false)
+                self.broker.emit('adapter.connected', false, false)
             })
     }
 
@@ -77,18 +77,19 @@ function TCPTransporter (options) {
     }
 
     self.sendHello = nodeId => {
-        const node = self.registry.nodes.get(nodeId)
+        const node = self.broker.registry.nodes.get(nodeId)
         if (!node) {
             return Promise.reject(new Error('Node not found.'))
         }
 
-        const localNode = self.registry.nodes.localNode
+        const localNode = self.broker.registry.nodes.localNode
 
-        const message = self.Message(self.MessageTypes.MESSAGE_GOSSIP_HELLO, nodeId, {
+        const message = self.transport.createMessage(MessageTypes.MESSAGE_GOSSIP_HELLO, nodeId, {
             host: localNode,
             port: localNode
         })
         self.send(message)
+        return Promise.resolve()
     }
 
     self.onIncomingMessage = (type, data, socket) => {
@@ -142,7 +143,7 @@ function TCPTransporter (options) {
                         return
                     }
                     // Get own port from url list
-                    if (endpoint.nodeId === self.nodeId) {
+                    if (endpoint.nodeId === self.broker.nodeId) {
                         if (endpoint.port) {
                             options.port = endpoint.port
                         }
@@ -154,7 +155,7 @@ function TCPTransporter (options) {
     }
 
     function addNodeToOfflineList ({ nodeId, host, port }) {
-        const node = self.registry.nodes.createNode(nodeId)
+        const node = self.broker.registry.nodes.createNode(nodeId)
 
         node.isLocal = false
         node.isAvailable = false
@@ -162,7 +163,7 @@ function TCPTransporter (options) {
         node.hostname = host
         node.port = port
 
-        self.registry.nodes.add(nodeId, node)
+        self.broker.registry.nodes.add(nodeId, node)
         return node
     }
 
@@ -181,7 +182,7 @@ function TCPTransporter (options) {
     }
 
     function sendGossipRequest () {
-        const list = self.registry.nodes.toArray()
+        const list = self.broker.registry.nodes.toArray()
         if (!list || list.length === 0) {
             return
         }
@@ -230,7 +231,7 @@ function TCPTransporter (options) {
 
         const destinationNode = nodes[Math.floor(Math.random() * nodes.length)]
         if (destinationNode) {
-            const message = self.Message(self.MessageTypes.MESSAGE_GOSSIP_REQUEST, destinationNode.id, payload)
+            const message = self.transport.createMessage(MessageTypes.MESSAGE_GOSSIP_REQUEST, destinationNode.id, payload)
             self.send(message)
         }
     }
@@ -248,7 +249,7 @@ function TCPTransporter (options) {
         try {
             const message = self.deserialize(data)
             const payload = message.payload
-            const list = self.registry.nodes.toArray()
+            const list = self.broker.registry.nodes.toArray()
 
             const response = {
                 online: {},

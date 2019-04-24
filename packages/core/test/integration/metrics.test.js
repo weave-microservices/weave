@@ -5,22 +5,26 @@ describe('Test metrics', () => {
 
     const node1 = Weave({
         nodeId: 'node1',
-        logLevel: 'fatal',
+        logger: {
+            logLevel: 'fatal'
+        },
         transport: {
             adapter: TransportAdapters.Fake()
         },
-        metrics: {
+        tracing: {
             enabled: true
         }
     })
 
     const node2 = Weave({
         nodeId: 'node2',
-        logLevel: 'fatal',
+        logger: {
+            logLevel: 'fatal'
+        },
         transport: {
             adapter: TransportAdapters.Fake()
         },
-        metrics: {
+        tracing: {
             enabled: true
         }
     })
@@ -33,10 +37,10 @@ describe('Test metrics', () => {
             }
         },
         events: {
-            'metrics.trace.span.started' (res) {
+            'tracing.trace.span.started' (res) {
                 flow.push(res)
             },
-            'metrics.trace.span.finished' (res) {
+            'tracing.trace.span.finished' (res) {
                 flow.push(res)
             }
         }

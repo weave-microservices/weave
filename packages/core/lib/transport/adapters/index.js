@@ -26,16 +26,16 @@ const getAdapterByName = name => {
 
 const resolve = options => {
     if (typeof options === 'object') {
-        if (options.type !== 'string' && options.options !== undefined) {
-            const Adapter = getAdapterByName(options.type)
+        if (typeof options.adapter === 'string') {
+            const Adapter = getAdapterByName(options.adapter)
 
             if (Adapter) {
                 return Adapter(options.options)
             } else {
-                throw new WeaveBrokerOptionsError(`Invalid transport settings: ${options.type}`, { type: options.type })
+                throw new WeaveBrokerOptionsError(`Invalid transport settings: ${options.adapter}`)
             }
         }
-        return options
+        return options.adapter
     } else if (typeof options === 'string') {
         let Adapter = getAdapterByName(options)
 
