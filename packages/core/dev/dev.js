@@ -22,20 +22,8 @@ const stats = () => {
 }
 
 const app = Weave({
-    nodeId: '1',
+    nodeId: 'sdasd',
     logLevel: 'debug',
-    logger: {
-        stream: process.stdout,
-        showModuleName: false,
-        types: {
-            santa: {
-                badge: '🎅',
-                label: 'santa',
-                logLevel: 'info',
-                color: 'red'
-            }
-        }
-    },
     watchServices: true,
     middlewares: [
         {

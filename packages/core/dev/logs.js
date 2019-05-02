@@ -4,15 +4,27 @@ const broker1 = Weave({
     nodeId: 'node-1',
     transport: TransportAdapters.Redis(),
     logger: {
-        logLevel: 'warn',
+        logLevel: 'info',
         stream: process.stdout,
         showModuleName: true,
         types: {
+            info: {
+                badge: '🎅',
+                label: 'santa',
+                logLevel: 'info',
+                color: 'white',
+                done (data, ls) {
+                    console.log(data)
+                }
+            },
             santa: {
                 badge: '🎅',
                 label: 'santa',
                 logLevel: 'info',
-                color: 'red'
+                color: 'red',
+                done (data) {
+                    console.log(data)
+                }
             }
         }
     },
