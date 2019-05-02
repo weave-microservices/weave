@@ -10,6 +10,7 @@
 const kleur = require('kleur')
 const util = require('util')
 const figures = require('figures')
+
 // own packages
 const defaultTypes = require('./types')
 
@@ -83,11 +84,13 @@ module.exports.createDefaultLogger = (options, bindings) => {
 
     const formatStream = stream => arrayify(stream)
 
-    const buildMeta = () => {
+    const buildMeta = (rawMessages) => {
         const meta = []
 
         if (options.showTimestamp) {
-            meta.push(formatDate())
+            const timestamp = formatDate()
+            rawMessages.timestamp = timestamp
+            meta.push(timestamp)
         }
 
         if (meta.length !== 0) {
@@ -123,28 +126,35 @@ module.exports.createDefaultLogger = (options, bindings) => {
         } else {
             msg = formatMessage(args)
         }
-
-        const messages = buildMeta()
+        const rawMessages = {}
+        const messages = buildMeta(rawMessages)
 
         if (additional.prefix) {
+            rawMessages.prefix = additional.prefix
             messages.push(additional.prefix)
         }
 
         if (options.showBadge && type.badge) {
+            rawMessages.badge = type.badge
             messages.push(kleur[type.color](type.badge.padEnd(longestBadge.length + 1)))
         }
 
         if (options.showLabel && type.label) {
+            rawMessages.label = type.label
             messages.push(kleur[type.color](underline(type.label).padEnd(underline(longestLabel).length + 1)))
         }
 
         if (options.showModuleName) {
             const moduleName = getModuleName()
+            rawMessages.moduleName = moduleName
             messages.push(gray(`[${moduleName}]`))
         }
 
         messages.push(msg)
 
+        if (type.done) {
+            type.done.call(null, msg, rawMessages)
+        }
         return messages.join(' ')
     }
 
@@ -157,11 +167,9 @@ module.exports.createDefaultLogger = (options, bindings) => {
         if (!options.enabled || LOG_LEVELS.indexOf(options.types[type].logLevel) > LOG_LEVELS.indexOf(options.logLevel)) {
             return dummyLog
         }
-        const { stream, logLevel, done } = options.types[type]
+        const { stream, logLevel } = options.types[type]
         const message = buildMessage(options.types[type], ...messageObject)
-        if (done) {
-            done(...messageObject)
-        }
+
         return log(message, stream, logLevel)
     }
 
