@@ -90,11 +90,6 @@ module.exports.createDefaultLogger = (options, bindings) => {
             meta.push(formatDate())
         }
 
-        if (options.showModuleName) {
-            const moduleName = getModuleName()
-            meta.push(`[${moduleName}]`)
-        }
-
         if (meta.length !== 0) {
             meta.push(`${figures.pointerSmall}`)
             return meta.map(item => gray(item))
@@ -141,6 +136,11 @@ module.exports.createDefaultLogger = (options, bindings) => {
 
         if (options.showLabel && type.label) {
             messages.push(kleur[type.color](underline(type.label).padEnd(underline(longestLabel).length + 1)))
+        }
+
+        if (options.showModuleName) {
+            const moduleName = getModuleName()
+            messages.push(gray(`[${moduleName}]`))
         }
 
         messages.push(msg)

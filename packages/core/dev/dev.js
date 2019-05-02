@@ -22,8 +22,20 @@ const stats = () => {
 }
 
 const app = Weave({
-    // nodeId: 'sdasd',
+    nodeId: '1',
     logLevel: 'debug',
+    logger: {
+        stream: process.stdout,
+        showModuleName: false,
+        types: {
+            santa: {
+                badge: '🎅',
+                label: 'santa',
+                logLevel: 'info',
+                color: 'red'
+            }
+        }
+    },
     watchServices: true,
     middlewares: [
         {
@@ -46,7 +58,7 @@ const app = Weave({
 })
 
 const app2 = Weave({
-    // nodeId: 'sdasd',
+    nodeId: '2',
     logLevel: 'debug',
     watchServices: true,
     metrics: {
@@ -157,6 +169,5 @@ Promise.all([
     app.start(),
     app2.start()
 ]).then(() => {
-    const error = app.getNextActionEndpoint('test2.sayHello')
-    console.log(error)
+    const endpoint = app.getNextActionEndpoint('test2.sayHello')
 })

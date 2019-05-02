@@ -6,6 +6,7 @@ const broker1 = Weave({
     logger: {
         logLevel: 'warn',
         stream: process.stdout,
+        showModuleName: true,
         types: {
             santa: {
                 badge: '🎅',
