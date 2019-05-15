@@ -21,10 +21,7 @@
     "vorpal": "^1.12.0"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.6.2",
-    "eslint": "^5.15.1",
-    "eslint-config-fw": "^1.0.3",
-    "eslint-loader": "^2.1.2"
+    "@weave-js/core": "^0.6.2"
   },
   "gitHead": "cdd9762d78d076dc7bdfa0784cdc9ce6af6a57c3"
 }

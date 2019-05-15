@@ -22,7 +22,14 @@
   },
   "homepage": "https://github.com/fachw3rk/weave#readme",
   "dependencies": {
-    "jest": "^24.1.0",
-    "lerna": "^3.11.0"
+    "lerna": "^3.13.4"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-fw": "^1.0.3",
+    "eslint-loader": "^2.1.2",
+    "jest": "^24.8.0",
+    "jest-cli": "^24.8.0",
+    "lolex": "^4.0.1"
   }
 }
