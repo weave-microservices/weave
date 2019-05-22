@@ -11,24 +11,32 @@ Promise.all(brokerStore.map(broker => broker.start())).then(() => {
     // callBroker.start()
     setTimeout(() => {
         setInterval(() => {
-            brokerStore[0].call('test.hello')
+            brokerStore[0].ping('node-2')
                 .then(res => {
+                    console.table(res)
+                    // brokerStore[0].log.info(res)
                     // callBroker.log.info(res)
                     // console.log(res)
                 })
+            // brokerStore[0].call('test.hello')
+            //     .then(res => {
+            //         brokerStore[0].log.info(res)
+            //         // callBroker.log.info(res)
+            //         // console.log(res)
+            //     })
         }, 1000)
     }, 4000)
 })
 
 function createBroker (index) {
     const broker = Weave({
-        namespace: 'ciris',
+        namespace: 'lb',
         nodeId: 'node-' + index,
         transport: {
             adapter: 'redis'
         },
         logger: {
-            logLevel: 'debug'
+            logLevel: 'info'
         },
         registry: {
             preferLocalActions: false

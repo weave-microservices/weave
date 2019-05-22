@@ -154,6 +154,11 @@ const createRegistry = (middlewareHandler) => {
             Object.keys(events).forEach((key) => {
                 const event = events[key]
                 this.events.add(node, service, event)
+
+                if (node.isLocal) {
+                    event.handler = this.onRegisterLocalEvent(event)
+                }
+
                 service.addEvent(event)
             })
         },

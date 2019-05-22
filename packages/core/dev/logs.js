@@ -8,22 +8,22 @@ const broker1 = Weave({
         stream: process.stdout,
         showModuleName: true,
         types: {
-            info: {
-                badge: '🎅',
-                label: 'santa',
-                logLevel: 'info',
-                color: 'white',
-                done (data, ls) {
-                    console.log(data)
-                }
-            },
-            santa: {
-                badge: '🎅',
-                label: 'santa',
+            // info: {
+            //     badge: '🎅',
+            //     label: 'santa',
+            //     logLevel: 'info',
+            //     color: 'white',
+            //     done (data, ls) {
+            //         // console.log(data)
+            //     }
+            // },
+            rabbit: {
+                badge: '🐰',
+                label: 'rabbit',
                 logLevel: 'info',
                 color: 'red',
                 done (data) {
-                    console.log(data)
+                    // console.log(data)
                 }
             }
         }
@@ -47,7 +47,7 @@ broker1.createService({
             this.log.note('note')
             this.log.star('star message')
             this.log.fav('fav message')
-            this.log.santa('santa message')
+            this.log.rabbit('rabbit message')
         }
     }
 })
@@ -55,8 +55,7 @@ broker1.createService({
 Promise.all([
     broker1.start()
 ]).then(() => {
-    setInterval(() => {
-        broker1.log.info('-------------------------')
-        broker1.call('test1.hello')
-    }, 1000)
+    broker1.log.info('-------------------------')
+    broker1.call('test1.hello')
+        .then(() => broker1.stop())
 })

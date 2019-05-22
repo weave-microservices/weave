@@ -412,7 +412,7 @@ const createBroker = (options) => {
                 })
                 .then(() => {
                     this.isStarted = true
-                    log.success(`Weave service node with ${services.length} services is started successfully.`)
+                    log.success(`Weave node with ${services.length} services started successfully.`)
                     this.broadcastLocal('$broker.started')
                 })
                 .then(() => {
@@ -472,7 +472,7 @@ const createBroker = (options) => {
                     }
                 })
                 .then(() => {
-                    log.success(`Node successfully shutted down. Bye bye! 👋`)
+                    log.success(`The node was successfully shut down. Bye bye! 👋`)
                     this.broadcastLocal('$broker.closed')
 
                     process.removeListener('beforeExit', onClose)
@@ -491,21 +491,49 @@ const createBroker = (options) => {
             if (broker.transport && broker.transport.isConnected) {
                 if (nodeId) {
                     return new Promise((resolve, reject) => {
-                        setTimeout(() => {
+                        const timeoutTimer = setTimeout(() => {
                             return reject(new WeaveRequestTimeoutError(null, nodeId))
                         }, timeout)
 
-                        resolve({ asdasd: true })
+                        const pongHandler = pong => {
+                            clearTimeout(timeoutTimer)
+                            broker.bus.off('$node.pong', pongHandler)
+                            resolve(pong)
+                        }
+
+                        broker.bus.on('$node.pong', pongHandler)
+                        this.transport.sendPing(nodeId)
                     })
                 } else {
                     // handle arrays
+                    const pongs = {}
                     const nodes = this.registry.getNodeList({})
                         .filter(node => !node.isLocal)
                         .map(node => node.id)
+                    const onFlight = new Set(nodes)
+
+                    nodes.forEach(nodeId => {
+                        pongs[nodeId] = null
+                    })
 
                     return new Promise((resolve, reject) => {
+                        const timeoutTimer = setTimeout(() => {
+                            broker.bus.off('$node.pong', pongHandler)
+                            resolve(pongs)
+                        }, timeout)
+
+                        const pongHandler = pong => {
+                            pongs[pong.nodeId] = pong
+                            onFlight.delete(pong.nodeId)
+                            if (onFlight.size === 0) {
+                                clearTimeout(timeoutTimer)
+                                broker.bus.off('$node.pong', pongHandler)
+                                resolve(pongs)
+                            }
+                        }
+
+                        broker.bus.on('$node.pong', pongHandler)
                         nodes.map(nodeId => this.transport.sendPing(nodeId))
-                        resolve([])
                     })
                 }
             }
@@ -531,6 +559,8 @@ const createBroker = (options) => {
             broker.transport = createTransport(broker, adapter)
         }
     }
+
+    // const loadBalancingStrategy = LoadBalancing.resolve(options.registry.loadBalancingStrategy)
 
     // Metrics module
     // broker.metrics = MetricsStorage(broker, options)
@@ -606,6 +636,10 @@ const createBroker = (options) => {
 
     registry.onRegisterRemoteAction = action => {
         return middlewareHandler.wrapHandler('remoteAction', broker.transport.request.bind(broker.transport), action)
+    }
+
+    registry.onRegisterLocalEvent = event => {
+        return middlewareHandler.wrapHandler('localEvent', event.handler, event)
     }
 
     // Call middleware hook for broker created.

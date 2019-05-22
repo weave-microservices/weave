@@ -9,10 +9,10 @@ const { loadBalancingStrategy } = require('../constants')
 
 const EndpointList = (broker, name, groupName) => {
     const self = Object.create(null)
-    self.state = broker
     const options = broker.options
     const list = self.endpoints = []
     let counter = 0
+    self.state = broker
 
     const EndpointFactory = Endpoint
 

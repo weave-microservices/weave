@@ -41,7 +41,7 @@ const createContextFactory = () => ({
             context.metrics = opts.parentContext.metrics
         }
 
-        // metrics
+        // tracing
         if (opts.parentContext != null) {
         }
 
@@ -50,6 +50,7 @@ const createContextFactory = () => ({
                 context.requestId = context.id
             }
         }
+
         return context
     },
     createFromEndpoint (endpoint, params) {
@@ -60,8 +61,8 @@ const createContextFactory = () => ({
     },
     createFromPayload (payload) {
         const context = createContext(this.broker, { name: payload.action })
-        context.nodeId = this.broker.nodeId
 
+        context.nodeId = this.broker.nodeId
         context.id = payload.id
         context.setParams(payload.params)
         context.parentId = payload.parentId

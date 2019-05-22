@@ -6,7 +6,7 @@
 
 let actionCounter = 0
 
-function shouldCollectMetrics (options) {
+function shouldCollectTracing (options) {
     if (options.enabled) {
         actionCounter++
         if (actionCounter * options.tracingRate >= 1) {
@@ -17,7 +17,7 @@ function shouldCollectMetrics (options) {
     }
 }
 
-function generateMetricsBody (context) {
+function generateTracingBody (context) {
     const payload = {
         id: context.id,
         nodeId: context.nodeId,
@@ -49,7 +49,7 @@ function metricsStart (broker, context) {
     context.startHighResolutionTime = process.hrtime()
 
     if (context.tracing) {
-        const payload = generateMetricsBody(context)
+        const payload = generateTracingBody(context)
         broker.emit('tracing.trace.span.started', payload)
     }
 }
@@ -63,7 +63,7 @@ function metricsFinish (broker, context, error) {
     const stopTime = context.startTime + context.duration
 
     if (context.tracing) {
-        const payload = generateMetricsBody(context)
+        const payload = generateTracingBody(context)
         payload.stopTime = stopTime
         payload.isCachedResult = !!context.isCachedResult
 
@@ -85,14 +85,14 @@ function metricsFinish (broker, context, error) {
     }
 }
 
-const wrapMetricsLocalMiddleware = function (handler) {
+const wrapTracingLocalMiddleware = function (handler) {
     const broker = this
     const options = broker.options.tracing || {}
 
     if (options.enabled) {
         return function metricsLocalMiddleware (context) {
             if (context.tracing == null) {
-                context.tracing = shouldCollectMetrics(options)
+                context.tracing = shouldCollectTracing(options)
             }
             if (context.tracing) {
                 metricsStart(broker, context)
@@ -112,13 +112,13 @@ const wrapMetricsLocalMiddleware = function (handler) {
     return handler
 }
 
-const wrapMetricsRemoteMiddleware = function (handler, action) {
+const wrapTracingRemoteMiddleware = function (handler, action) {
     const broker = this
     const options = broker.options.tracing || {}
 
     return function metricsRemoteMiddleware (context) {
         if (context.tracing === null) {
-            context.tracing = shouldCollectMetrics(options)
+            context.tracing = shouldCollectTracing(options)
         }
         return handler(context)
     }
@@ -126,7 +126,7 @@ const wrapMetricsRemoteMiddleware = function (handler, action) {
 
 module.exports = () => {
     return {
-        localAction: wrapMetricsLocalMiddleware,
-        remoteAction: wrapMetricsRemoteMiddleware
+        localAction: wrapTracingLocalMiddleware,
+        remoteAction: wrapTracingRemoteMiddleware
     }
 }

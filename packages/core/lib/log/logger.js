@@ -103,8 +103,8 @@ module.exports.createDefaultLogger = (options, bindings) => {
 
     const formatMessage = args => util.format(...arrayify(args))
 
-    const formatAdditional = additional => {
-        return ''
+    const formatAdditional = ({ prefix, suffix }, args) => {
+        return (suffix || prefix) ? '' : formatMessage(args)
     }
 
     const write = (stream, message) => {
@@ -121,7 +121,7 @@ module.exports.createDefaultLogger = (options, bindings) => {
             } else {
                 const [{ prefix, message, suffix }] = args
                 additional = Object.assign({}, { prefix, suffix })
-                msg = message ? formatMessage(message) : formatAdditional(additional)
+                msg = message ? formatMessage(message) : formatAdditional(additional, args)
             }
         } else {
             msg = formatMessage(args)
