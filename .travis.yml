@@ -7,3 +7,8 @@ node_js:
     - "8"
 script:
   - npm run setup && npm test
+
+notifications:
+  email:
+    on_success: never
+    on_failure: always
