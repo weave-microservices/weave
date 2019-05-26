@@ -1,12 +1,14 @@
 language: node_js
-cache:
-  directories:
-  - node_modules
+# cache:
+#   directories:
+#   - node_modules
 node_js:
     - "10"
     - "8"
+before_script:
+  - npm run setup
 script:
-  - npm run setup && npm test
+  - npm test
 
 notifications:
   email:
