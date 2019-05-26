@@ -18,13 +18,14 @@ describe('Test broker call service', () => {
             }
         })
 
-        node1.start().then(() => {
-            node1.call('testService.test')
-                .then(() => {
-                    expect(service.schema.actions.test).toBeCalled()
-                    done()
-                })
-        })
+        node1.start()
+            .then(() => {
+                node1.call('testService.test')
+                    .then(() => {
+                        expect(service.schema.actions.test).toBeCalled()
+                        done()
+                    })
+            })
     })
 
     it('should call a service action and return a value.', () => {

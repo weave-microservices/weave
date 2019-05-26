@@ -66,13 +66,12 @@ describe.only('Test logger module.', () => {
         })
 
         readStream.on('data', data => {
-            console.log(data)
+
         })
 
         broker.start()
             .then(() => {
                 const snap = readStream.getSnapshot()
-                console.log(snap)
                 expect(true)
             })
     })

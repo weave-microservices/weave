@@ -151,7 +151,9 @@ describe('Test middlware hooks', () => {
         const broker2 = Weave({
             nodeId: 'node2',
             transport: TransportAdapters.Fake(),
-            logLevel: 'fatal',
+            logger: {
+                logLevel: 'fatal'
+            },
             loadNodeService: false
         })
 
