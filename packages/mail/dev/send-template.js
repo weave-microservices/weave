@@ -1,6 +1,7 @@
 const { Weave } = require('@weave-js/core')
 const MailMixin = require('../lib/index')
 const mg = require('nodemailer-mailgun-transport')
+const path = require('path')
 
 const broker = Weave({
     nodeId: 'mail',
@@ -8,11 +9,15 @@ const broker = Weave({
         logLevel: 'debug'
     }
 })
+const root = path.join(__dirname, 'emails')
 
 broker.createService({
     name: 'mailService',
     mixins: MailMixin,
     settings: {
+        templates: {
+            viewFolder: root
+        },
         transport: mg({
             auth: {
                 // eslint-disable-next-line
@@ -28,10 +33,13 @@ broker.start()
     .then(() => {
         broker.call('mailService.send', {
             message: {
+                template: 'test',
                 from: 'selina.bruehl@gmx.de',
                 to: 'kevin.ries@fachwerk.io',
                 subject: 'testnachricht',
-                text: 'hahahaha'
+                variables: {
+                    name: 'Kevin Ries'
+                }
             }
         })
     })

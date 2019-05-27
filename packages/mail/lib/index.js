@@ -1,54 +1,72 @@
-const fs = require('fs')
-const Email = require('email-templates')
+const { existsSync } = require('fs')
+const { join } = require('path')
+const nodemailer = require('nodemailer')
+const { WeaveError } = require('@weave-js/core').Errors
+const { HandlebarsRenderer } = require('./templating')
 
 module.exports = {
     name: 'mail',
     settings: {
+        transport: null,
+        templates: {
+            engine: 'handlebars',
+            viewFolder: null
+        },
         from: null
     },
     actions: {
         send: {
             params: {
-                message: { type: 'object' }
+                message: { type: 'object' },
+                data: { type: 'object', optional: true }
             },
             handler (context) {
-
-                if (!sendOptions.message.from) {
-                    sendOptions.message.from = this.settings.from
-                }
-    
-                if (this.email) {
-                    return this.email.send(context.params)
-                } else {
-                    return Promise.reject(new WeaveError('Email transport could not be loaded.'))
-                }
+                const { message } = context.params
+                // if (message.template) {
+                //     if (this.templateFileNotExists(message.template)) {
+                //         return Promise.reject(new WeaveError(`Email template is missing: ${message.template}`))
+                //     }
+                // }
+                return this.send(message)
             }
+        }
+    },
+    methods: {
+        templateFileNotExists (file) {
+            return !existsSync(join(this.settings.templates.viewFolder, file))
+        },
+        send (message) {
+            return new Promise((resolve, reject) => {
+                if (!message.from) {
+                    message.from = this.settings.from
+                }
+
+                this.transport.sendMail(message, (error, info) => {
+                    if (error) {
+                        return reject(error)
+                    }
+                    resolve(info)
+                })
+            })
         }
     },
     created () {
         if (!this.settings.transport) {
             this.log.error('Transport settings are missing.')
-            return
+            throw new WeaveError('Transport settings are missing.')
         }
 
-        if (this.settings.templateFolder) {
-            if (!fs.existsSync(this.settings.templateFolder)) {
-                this.log.warn(`The template folder is not existing: ${this.settings.templateFolder}`)
+        this.transport = nodemailer.createTransport(this.settings.transport)
+
+        if (this.settings.templates.viewFolder) {
+            if (!existsSync(this.settings.templates.viewFolder)) {
+                this.log.warn(`The template folder is not existing: ${this.settings.templates.viewFolder}`)
+                throw new WeaveError(`The template folder is not existing: ${this.settings.templates.viewFolder}`)
             }
+            this.useTemplates = true
+            this.transport.use('compile', HandlebarsRenderer(this.settings.templates))
         }
 
-        const options = {
-            transport: this.settings.transport,
-            send: true
-        }
-
-        if (this.settings.from) {
-            options.message = {
-                from: this.settings.from
-            }
-        }
-        this.email = new Email(options)
         this.log.info(`Email transport initialized.`)
-
     }
 }

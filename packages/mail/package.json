@@ -4,7 +4,7 @@
   "description": "Email service for weave microservice framework",
   "main": "lib/index.js",
   "scripts": {
-    "test-ci": "jest --watch"
+    "test": "jest --no-cache"
   },
   "publishConfig": {
     "access": "public"
@@ -13,27 +13,35 @@
     "name": "Kevin Ries",
     "company": "Fachwerk Software",
     "email": "kevin.ries@fachwerk.io",
-    "url": "https://weave.fachwerk.io"
+    "url": "https://weave-js.com"
   },
   "license": "MIT",
   "jest": {
     "testEnvironment": "node",
-    "coveragePathIgnorePatterns": [
-      "/node_modules/"
+    "rootDir": "./lib",
+    "roots": [
+      "../test"
     ]
   },
+  "directories": {
+    "example": "examples",
+    "lib": "lib",
+    "test": "test"
+  },
   "dependencies": {
-    "email-templates": "5.0.1",
-    "nodemailer-mailgun-transport": "^1.4.0",
+    "glob": "^7.1.4",
+    "handlebars": "^4.1.2",
+    "nodemailer": "^6.2.1",
     "sinon-expect": "^0.3.0"
   },
   "devDependencies": {
     "@weave-js/core": "^0.7.0-rc.6",
     "expect.js": "^0.3.1",
-    "jest": "^21.2.1",
-    "jest-cli": "^21.2.1",
-    "mocha": "^3.5.3",
-    "sinon": "^3.3.0"
+    "nodemailer-stub-transport": "^1.1.0",
+    "nodemailer-mailgun-transport": "^1.4.0",
+
+    "jest": "^24.8.0",
+    "jest-cli": "^24.8.0"
   },
   "gitHead": "cdd9762d78d076dc7bdfa0784cdc9ce6af6a57c3"
 }
