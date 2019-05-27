@@ -10,15 +10,13 @@ describe('Test email service', () => {
     })
 })
 
-
 describe('Test sending', () => {
-    const spySendMail = jest.fn((msg, cb) => cb(null, msg));
+    const spySendMail = jest.fn((msg, cb) => cb(null, msg))
 
-    
     let weaveApp, svc
     beforeEach(() => {
-         weaveApp = Weave({ logLevel: 'fatal' })
-         svc = MailService
+        weaveApp = Weave({ logLevel: 'fatal' })
+        svc = MailService
     })
 
     it('should call nodemailer.sendmail', (done) => {
@@ -41,7 +39,7 @@ describe('Test sending', () => {
             // todo res should equal params
             // sendSpyMail should be called with params
             // expect(res).toBe(params)
-            expect(spySendMail).toHaveBeenCalledTimes(1);
+            expect(spySendMail).toHaveBeenCalledTimes(1)
             done()
         })
     })
