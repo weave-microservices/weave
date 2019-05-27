@@ -13,29 +13,29 @@
     "name": "Kevin Ries",
     "company": "Fachwerk Software",
     "email": "kevin.ries@fachwerk.io",
-    "url": "https://weave.fachwerk.io"
+    "url": "https://weave-js.com"
   },
   "license": "MIT",
   "dependencies": {
     "@weave-js/core": "^0.7.0-rc.6",
     "@weave-js/repl": "0.7.0-rc.4",
-    "async": "^2.6.2",
+    "async": "^3.0.1",
     "consolidate": "^0.15.1",
-    "download-git-repo": "^1.1.0",
+    "download-git-repo": "^2.0.0",
     "exeq": "^3.0.0",
-    "handlebars": "^4.1.1",
-    "inquirer": "^6.2.2",
-    "kleur": "^3.0.2",
+    "handlebars": "^4.1.2",
+    "inquirer": "^6.3.1",
+    "kleur": "^3.0.3",
     "lodash": "^4.17.11",
     "metalsmith": "^2.3.0",
     "minimatch": "^3.0.4",
     "mkdirp": "^0.5.1",
-    "multimatch": "^3.0.0",
-    "ora": "^3.2.0",
+    "multimatch": "^4.0.0",
+    "ora": "^3.4.0",
     "rimraf": "^2.6.3",
-    "update-notifier": "^2.5.0",
+    "update-notifier": "^3.0.0",
     "user-home": "^2.0.0",
-    "yargs": "^13.2.2"
+    "yargs": "^13.2.4"
   },
   "gitHead": "3112aa7d850ac70b0525d0bc65e19964114a5579"
 }
