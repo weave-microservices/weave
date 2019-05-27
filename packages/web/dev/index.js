@@ -69,7 +69,7 @@ broker.createService({
             },
             {
                 path: '/',
-                whitelist: ['test.*'],
+                whitelist: ['test.*']
                 // rateLimit: {
                 //     headers: true,
                 //     limit: 10
