@@ -20,7 +20,7 @@
             "internalConsoleOptions": "neverOpen",
             "disableOptimisticBPs": true,
             "args": [
-                "load-balancer"
+                "cache"
             ]
         },
         {

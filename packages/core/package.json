@@ -47,7 +47,6 @@
     "figures": "^3.0.0",
     "fw-object-validator": "^0.2.0",
     "glob": "^7.1.4",
-    "hyperid": "^2.0.2",
     "ioredis": "^4.9.5",
     "ip": "^1.1.5",
     "kleur": "^3.0.3",
@@ -72,7 +71,7 @@
     "testEnvironment": "node",
     "rootDir": "./lib",
     "roots": [
-      "../test/integration"
+      "../test"
     ]
   },
   "directories": {
