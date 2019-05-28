@@ -5,7 +5,5 @@ script:
   - npm test
 node_js:
   - node
-  - 10
-  - 8
 notifications:
   email: false
