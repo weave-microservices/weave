@@ -16,7 +16,7 @@ class WeaveError extends ExtendableError {
     }
 }
 
-class WeaveRetrieableError extends ExtendableError {
+class WeaveRetrieableError extends WeaveError {
     constructor (message, code, type, data) {
         super(message)
         this.code = code || 500
@@ -29,7 +29,7 @@ class WeaveRetrieableError extends ExtendableError {
 class WeaveServiceNotFoundError extends WeaveRetrieableError {
     constructor (actionName, nodeId) {
         const message = `Service ${actionName} not found on node ${nodeId || '<local>'}`
-        super(message, 404, null, {
+        super(message, 404, 'WEAVE_SERVICE_NOT_FOUND_ERROR', {
             actionName,
             nodeId
         })
@@ -39,7 +39,7 @@ class WeaveServiceNotFoundError extends WeaveRetrieableError {
 class WeaveServiceNotAvailableError extends WeaveRetrieableError {
     constructor (actionName, nodeId) {
         const message = `Service ${actionName} not available on node ${nodeId || '<local>'}`
-        super(message, 405, null, {
+        super(message, 405, 'WEAVE_SERVICE_NOT_AVAILABLE_ERROR', {
             actionName,
             nodeId
         })
@@ -48,8 +48,8 @@ class WeaveServiceNotAvailableError extends WeaveRetrieableError {
 
 class WeaveRequestTimeoutError extends WeaveRetrieableError {
     constructor (actionName, nodeId, timeout) {
-        const message = `Action ${actionName} timed out node ${nodeId || '<local>'}`
-        super(message, 504, null, {
+        const message = `Action ${actionName} timed out node ${nodeId || '<local>'}.`
+        super(message, 504, 'WEAVE_REQUEST_TIMEOUT_ERROR', {
             actionName,
             nodeId
         })
@@ -58,8 +58,8 @@ class WeaveRequestTimeoutError extends WeaveRetrieableError {
 }
 
 class WeaveParameterValidationError extends WeaveError {
-    constructor (message, type, data) {
-        super(message, 422, type, data)
+    constructor (message, data) {
+        super(message, 422, 'WEAVE_PARAMETER_VALIDATION_ERROR', data)
     }
 }
 
@@ -71,7 +71,7 @@ class WeaveBrokerOptionsError extends WeaveError {
 
 class WeaveQueueSizeExceededError extends WeaveError {
     constructor (data) {
-        super(`Queue size limit was exceeded. Request rejected.`, 429, 'QUEUE_SIZE_EXXCEEDED', data)
+        super(`Queue size limit was exceeded. Request rejected.`, 429, 'WEAVE_QUEUE_SIZE_EXCEEDED_ERROR', data)
     }
 }
 

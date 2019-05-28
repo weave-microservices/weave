@@ -24,7 +24,7 @@ const createValidator = () => {
                 if (result === true) {
                     return handler(context)
                 } else {
-                    return Promise.reject(new WeaveParameterValidationError('Parameter validation error', null, result))
+                    return Promise.reject(new WeaveParameterValidationError('Parameter validation error', result))
                 }
             }
         }
