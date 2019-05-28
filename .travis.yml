@@ -1,6 +1,6 @@
 sudo: required
 language: node_js
-install: npm install --no-save
+install: npm ci
 script:
   - npm test
 node_js:
