@@ -69,6 +69,11 @@
   },
   "jest": {
     "testEnvironment": "node",
+    "coverageDirectory": "../coverage",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test/"
+    ],
     "rootDir": "./lib",
     "roots": [
       "../test"
