@@ -1,4 +1,8 @@
 language: node_js
+node_js:
+  - 10
 script:
-  - npm install
-  - npm run test
+  - npm ci
+  - npm test
+notifications:
+  email: false
