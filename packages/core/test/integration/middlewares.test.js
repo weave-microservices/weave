@@ -128,7 +128,7 @@ describe('Test middlware hooks', () => {
             })
     })
 
-    it('should call remote action hook', () => {
+    it('should call remote action hook', (done) => {
         const middleware = {
             remoteAction: function (handler) {
                 return context => {
@@ -140,7 +140,9 @@ describe('Test middlware hooks', () => {
 
         const broker1 = Weave({
             nodeId: 'node1',
-            transport: TransportAdapters.Fake(),
+            transport: {
+                adapter: TransportAdapters.Fake()
+            },
             logger: {
                 logLevel: 'fatal'
             },
@@ -150,7 +152,9 @@ describe('Test middlware hooks', () => {
 
         const broker2 = Weave({
             nodeId: 'node2',
-            transport: TransportAdapters.Fake(),
+            transport: {
+                adapter: TransportAdapters.Fake()
+            },
             logger: {
                 logLevel: 'fatal'
             },
@@ -176,6 +180,7 @@ describe('Test middlware hooks', () => {
                     .then(res => {
                         expect(res.result).toBe(3)
                         expect(res.params.paramFromMiddleware).toBe('hello world')
+                        done()
                     })
             })
     })

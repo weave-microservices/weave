@@ -54,25 +54,27 @@ describe.only('Test logger module.', () => {
             .then(() => broker.stop())
     })
 
-    it('should output the log message on stream.', () => {
-        const readStream = new Stream()
+    // it('should output the log message on stream.', (done) => {
+    //     const readStream = new Stream()
 
-        const broker = Weave({
-            nodeId: 'node1',
-            logger: {
-                logLevel: 'trace',
-                stream: [readStream]
-            }
-        })
+    //     const broker = Weave({
+    //         nodeId: 'node1',
+    //         logger: {
+    //             logLevel: 'trace',
+    //             stream: [readStream]
+    //         }
+    //     })
 
-        readStream.on('data', data => {
+    //     readStream.on('data', data => {
 
-        })
+    //     })
 
-        broker.start()
-            .then(() => {
-                const snap = readStream.getSnapshot()
-                expect(true)
-            })
-    })
+    //     broker.start()
+    //         .then(() => {
+    //             const snap = readStream.getSnapshot()
+    //             expect(true)
+    //             broker.stop()
+    //             done()
+    //         })
+    // })
 })

@@ -74,7 +74,7 @@ describe('Test broker call service', () => {
         })
     })
 
-    it('should call a service action and return a value.', () => {
+    it('should call a service action and return a value.', (done) => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
@@ -95,6 +95,7 @@ describe('Test broker call service', () => {
             node1.call('testService.sayHello', { name: 'Hans' })
                 .then(result => {
                     expect(result).toBe('Hello Hans!')
+                    done()
                 })
         })
     })

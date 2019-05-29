@@ -28,7 +28,7 @@ describe('Test broker call service', () => {
             })
     })
 
-    it('should call a service action and return a value.', () => {
+    it('should call a service action and return a value.', (done) => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
@@ -49,11 +49,12 @@ describe('Test broker call service', () => {
             node1.call('testService.sayHello', { name: 'Hans' })
                 .then(result => {
                     expect(result).toBe('Hello Hans!')
+                    done()
                 })
         })
     })
 
-    it('should call a service action and return an error.', () => {
+    it('should call a service action and return an error.', (done) => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
@@ -73,10 +74,11 @@ describe('Test broker call service', () => {
         node1.start().then(() => {
             expect(node1.call('testService.sayHello', { name: 'Hans' }))
                 .rejects.toThrow('Error')
+            done()
         })
     })
 
-    it('should call a service action and pass a meta value to a chained action.', () => {
+    it('should call a service action and pass a meta value to a chained action.', (done) => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
@@ -105,6 +107,7 @@ describe('Test broker call service', () => {
 
         node1.start().then(() => {
             node1.call('testService.sayHello', { name: 'Hans' }, { meta: { userId: 1 }})
+            done()
         })
     })
 })
