@@ -1,9 +1,10 @@
-os: osx
+dist: trusty
 language: node_js
-install: npm ci
-script:
-  - npm test
 node_js:
   - node
+install: 
+  - npm ci
+script:
+  - npm test
 notifications:
   email: false
