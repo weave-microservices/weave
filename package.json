@@ -2,6 +2,7 @@
   "name": "weave",
   "scripts": {
     "postinstall": "lerna bootstrap --hoist",
+    "setup": "lerna bootstrap --hoist",
     "link": "lerna link --force-local",
     "test": "lerna run test"
   },
