@@ -204,7 +204,7 @@ const createBroker = (options) => {
                 context = opts.context
                 context.nodeId = nodeId
             } else {
-                context = contextFactory.create(action, nodeId, params, opts, endpoint)
+                context = contextFactory.create(endpoint, params, opts)
             }
 
             if (endpoint.isLocal) {

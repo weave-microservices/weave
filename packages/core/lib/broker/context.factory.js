@@ -11,7 +11,7 @@ const createContextFactory = () => ({
     init (broker) {
         this.broker = broker
     },
-    create (action, nodeId, params, opts, endpoint) {
+    create (endpoint, params, opts) {
         const context = createContext(this.broker, endpoint)
         opts = opts || {}
         context.setParams(params)
