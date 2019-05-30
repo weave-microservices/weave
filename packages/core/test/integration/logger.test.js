@@ -13,7 +13,11 @@ describe.only('Test logger module.', () => {
     })
 
     it('should provide default log methods.', () => {
-        const broker = Weave()
+        const broker = Weave({
+            logger: {
+                logLevel: 'fatal'
+            }
+        })
 
         expect(broker.log.log).toBeDefined()
         expect(broker.log.info).toBeDefined()
@@ -36,7 +40,7 @@ describe.only('Test logger module.', () => {
         const broker = Weave({
             nodeId: 'node1',
             logger: {
-                logLevel: 'trace',
+                logLevel: 'info',
                 types: {
                     info: {
                         done: doneHookFn

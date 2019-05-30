@@ -2,7 +2,7 @@ const { Weave, TransportAdapters } = require('../../lib/index')
 const { WeaveError } = require('../../lib/errors')
 const lolex = require('lolex')
 
-describe.only('Test circuit breaker', () => {
+describe('Test circuit breaker', () => {
     let clock
     const node1 = Weave({
         nodeId: 'node1',

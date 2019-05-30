@@ -59,6 +59,7 @@ const wrapBulkheadMiddleware = function (handler, action) {
                     size: queue.length
                 }))
             }
+
             // Queue the request
             return new Promise((resolve, reject) => queue.push({ resolve, reject, context }))
         }
@@ -67,7 +68,6 @@ const wrapBulkheadMiddleware = function (handler, action) {
 }
 module.exports = () => {
     return {
-        localAction: wrapBulkheadMiddleware,
-        remoteAction: wrapBulkheadMiddleware
+        localAction: wrapBulkheadMiddleware
     }
 }

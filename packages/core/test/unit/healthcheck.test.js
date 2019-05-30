@@ -6,6 +6,9 @@ const pkg = require('../../package.json')
 describe('Test utils lib', () => {
     it('Is Object', (done) => {
         const broker = Weave({
+            logger: {
+                logLevel: 'fatal'
+            },
             transport: {
                 adapter: 'Fake'
             }
