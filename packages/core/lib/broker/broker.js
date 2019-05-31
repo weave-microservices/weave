@@ -26,15 +26,18 @@ const TransportAdapters = require('../transport/adapters')
 const createTransport = require('../transport')
 const EventEmitter = require('eventemitter2')
 const { WeaveError, WeaveRequestTimeoutError } = require('../errors')
-const { MetricsStorage } = require('../metrics')
+const { Tracer } = require('../tracing')
+
+// const { MetricsStorage } = require('../metrics')
 
 // package.json
 const pkg = require('../../package.json')
-
+/* eslint-disable no-use-before-define */
 /**
  *  Creates a new Weave instance
  * @param {import('./default-options.js').BrokerOptions} options - Service broker options.
  */
+/* eslint-enable no-use-before-define */
 const createBroker = (options) => {
     // merge options with default options
     options = defaultsDeep(options, defaultOptions)
@@ -53,12 +56,14 @@ const createBroker = (options) => {
     const version = pkg.version
     const services = []
 
+    /* eslint-disable no-use-before-define */
     /**
      * Create a new Logger.
      * @param {string} moduleName - Name of the module
      * @param {*} service - Service properties
      * @returns {import('../log/logger.js/index.js.js').Logger} Logger
      */
+    /* eslint-enable no-use-before-define */
     const createLogger = (moduleName, service, logOptions) => {
         const bindings = {
             nodeId: nodeId
@@ -89,6 +94,7 @@ const createBroker = (options) => {
     const contextFactory = createContextFactory()
     const health = createHealthcheck()
     const validator = createValidator()
+    const tracer = Tracer()
 
     // Internal Methods
     const addLocalServices = service => {
@@ -313,11 +319,13 @@ const createBroker = (options) => {
             }
             registry.events.emitLocal(eventName, payload, this.nodeId, groups, true)
         },
+        /* eslint-disable no-use-before-define */
         /**
          * Create a new Service and add it to the registry
          * @param {import('../registry/service.js').ServiceSchema} schema - Schema of the Service
          * @returns {Service} Service object.
          */
+        /* eslint-enable2 no-use-before-define */
         createService (schema) {
             try {
                 const newService = createServiceFromSchema(this, middlewareHandler, addLocalServices, registerLocalService, schema)
@@ -571,6 +579,7 @@ const createBroker = (options) => {
     middlewareHandler.init(broker)
     contextFactory.init(broker)
     health.init(broker, broker.transport)
+    tracer.init(broker)
 
     // Initialize caching module
     if (options.cache) {
