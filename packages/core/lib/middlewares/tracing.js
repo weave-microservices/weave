@@ -50,7 +50,7 @@ function metricsStart (broker, context) {
 
     if (context.tracing) {
         const payload = generateTracingBody(context)
-        broker.emit('tracing.trace.span.started', payload)
+        broker.emit('$tracing.trace.span.started', payload)
     }
 }
 

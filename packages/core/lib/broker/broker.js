@@ -82,6 +82,15 @@ const createBroker = (options) => {
             return options.logger(bindings, options.logLevel)
         }
 
+        // only show info in production mode
+        if (process.env.NODE_ENV === 'production') {
+            options.logger.logLevel = options.logger.logLevel || 'info'
+        } else if (process.env.NODE_ENV === 'test') {
+            options.logger.logLevel = options.logger.logLevel || 'error'
+        } else {
+            options.logger.logLevel = options.logger.logLevel || 'debug'
+        }
+
         return Logger.createDefaultLogger(options.logger, bindings)
     }
 
@@ -579,7 +588,7 @@ const createBroker = (options) => {
     middlewareHandler.init(broker)
     contextFactory.init(broker)
     health.init(broker, broker.transport)
-    tracer.init(broker)
+    tracer.init(broker, options)
 
     // Initialize caching module
     if (options.cache) {

@@ -149,7 +149,7 @@ module.exports = {
     // activate action statistics
     logger: {
         enabled: true,
-        logLevel: logLevel.info,
+        logLevel: null,
         stream: process.stdout,
         showTimestamp: true,
         showBadge: true,
@@ -159,7 +159,8 @@ module.exports = {
     // metrics settings
     tracing: {
         enabled: false,
-        tracingRate: 1.0
+        tracingRate: 1.0,
+        collectors: ['event']
     },
     // namespace
     namespace: '',

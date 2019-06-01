@@ -15,7 +15,7 @@
             "type": "node",
             "request": "launch",
             "name": "Dev",
-            "program": "${workspaceFolder}/dev/index.js",
+            "program": "${workspaceFolder}/dev/tracing/simple.js",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
             "disableOptimisticBPs": true,
