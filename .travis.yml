@@ -6,7 +6,3 @@ script:
   - npm test
 notifications:
   email: false
-  slack:
-    on_failure: always
-    rooms:
-	  - fachwerk:1jq4w1b3gSOdW2O45XgKIm1r#weave-ci
