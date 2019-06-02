@@ -6,3 +6,4 @@ script:
   - npm test
 notifications:
   email: false
+  slack: fachwerk:de3wPX9uXaZW21xoewXG28gf
