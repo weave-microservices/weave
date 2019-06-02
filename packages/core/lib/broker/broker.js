@@ -555,7 +555,8 @@ const createBroker = (options) => {
                 }
             }
             return Promise.resolve(nodeId ? null : [])
-        }
+        },
+        tracer
     }
 
     // Register internal broker events
@@ -588,7 +589,7 @@ const createBroker = (options) => {
     middlewareHandler.init(broker)
     contextFactory.init(broker)
     health.init(broker, broker.transport)
-    tracer.init(broker, options)
+    tracer.init(broker, options.tracing)
 
     // Initialize caching module
     if (options.cache) {

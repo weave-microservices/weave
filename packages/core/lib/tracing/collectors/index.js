@@ -1,4 +1,5 @@
 const collectors = {
+    Console: require('./console'),
     Event: require('./event')
 }
 

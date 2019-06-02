@@ -7,8 +7,14 @@ const hostname = os.hostname()
 // Create broker
 const broker = Weave({
     nodeId: hostname + '-server',
-    cache: true,
-    logLevel: 'info'
+    cache: false,
+    logger: {
+        logLevel: 'info'
+    },
+    tracing: {
+        enabled: true,
+        samplingRate: 1
+    }
 })
 
 broker.createService({

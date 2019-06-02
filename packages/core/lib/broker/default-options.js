@@ -6,7 +6,7 @@
 
 /** @module weave */
 
-const { logLevel, loadBalancingStrategy } = require('../constants')
+const { loadBalancingStrategy } = require('../constants')
 
 /**
  * Configuration object for weave service broker.
@@ -21,6 +21,13 @@ const { logLevel, loadBalancingStrategy } = require('../constants')
  * @typedef {Object} MetricsSettings
  * @property {Boolean} enabled Enable bulhead middleware. (default = false)
  * @property {Number} metricsRate Rate of metrics calls. (default = 1.0)
+ */
+
+/**
+ * Configuration object for weave service broker.
+ * @typedef {Object} TracingSettings
+ * @property {Boolean} enabled Enable bulhead middleware. (default = false)
+ * @property {Number} tracingRate Rate of traced actions. (default = 1.0)
  */
 
 /**
@@ -100,6 +107,7 @@ const { logLevel, loadBalancingStrategy } = require('../constants')
  * @property {Boolean} loadInternalMiddlewares - Load the default middlewares on startup. (default = true)
  * @property {LoggerSettings} logger Logger settings.
  * @property {MetricsSettings} metrics Metrics settings
+ * @property {TracingSettings} tracing Tracing settings
  * @property {Array<Middleware>} middlewares Custom middlewares (default = null).
  * @property {RegistrySettings} registry - Registry settings.
  * @property {RetryPolicySettings} retryPolicy - Retry policy
@@ -159,7 +167,7 @@ module.exports = {
     // metrics settings
     tracing: {
         enabled: false,
-        tracingRate: 1.0,
+        samplingRate: 1.0,
         collectors: ['event']
     },
     // namespace

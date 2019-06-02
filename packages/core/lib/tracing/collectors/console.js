@@ -1,6 +1,6 @@
 const BaseCollector = require('./base')
 
-class EventCollector extends BaseCollector {
+class ConsoleCollector extends BaseCollector {
     constructor (options) {
         super(options)
 
@@ -54,34 +54,6 @@ class EventCollector extends BaseCollector {
 
     //     return payload
     // }
-    
-/*
-
-
-
-    const stopTime = context.startTime + context.duration
-
-    if (context.tracing) {
-        const payload = generateTracingBody(context)
-        payload.stopTime = stopTime
-        payload.isCachedResult = !!context.isCachedResult
-
-        if (context.action) {
-            payload.action = {
-                name: context.action.name
-            }
-        }
-
-        if (error) {
-            payload.error = {
-                name: error.name,
-                code: error.code,
-                type: error.type,
-                message: error.message
-            }
-        }
-        broker.emit('tracing.trace.span.finished', payload)
-    }*/
 }
 
-module.exports = EventCollector
+module.exports = ConsoleCollector
