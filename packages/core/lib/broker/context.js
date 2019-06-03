@@ -15,7 +15,7 @@ const createContext = (broker, endpoint) => {
         callerNodeId: null,
         params: null,
         meta: {},
-        level: 0,
+        level: 1,
         tracing: null,
         span: null,
         action: endpoint.action,

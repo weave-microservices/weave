@@ -151,7 +151,7 @@ describe('Test broker call error handling', () => {
         node1.start().then(() => {
             node1.call('testService.sayHello', { name: 'Hans' })
                 .catch(error => {
-                    expect(error.message).toBe('Error from action level 1')
+                    expect(error.message).toBe('Error from action level 2')
                     done()
                 })
         })
