@@ -1,13 +1,20 @@
 /* eslint-disable no-console */
-const random = require('lodash/random')
 const os = require('os')
-const hostname = os.hostname()
+const { random } = require('lodash')
 const { Weave } = require('../../lib/index.js')
+const hostname = os.hostname()
 
 // Create broker
 const broker = Weave({
     nodeId: hostname + '-server',
-    cache: true
+    cache: false,
+    logger: {
+        logLevel: 'info'
+    },
+    tracing: {
+        enabled: true,
+        samplingRate: 1
+    }
 })
 
 broker.createService({
@@ -21,8 +28,7 @@ broker.createService({
     }
 })
 
-const payload = { a: 1 }
-
+const payload = { a: random(0, 100), b: random(0, 100) }
 let count = 0
 
 function work () {
@@ -46,7 +52,6 @@ broker.start().then(() => {
     setTimeout(() => {
         let startTime = Date.now()
         work()
-
         setInterval(() => {
             if (count > 0) {
                 const requestsPerSecond = count / ((Date.now() - startTime) / 1000)

@@ -154,6 +154,11 @@ const createRegistry = (middlewareHandler) => {
             Object.keys(events).forEach((key) => {
                 const event = events[key]
                 this.events.add(node, service, event)
+
+                if (node.isLocal) {
+                    event.handler = this.onRegisterLocalEvent(event)
+                }
+
                 service.addEvent(event)
             })
         },
@@ -277,7 +282,7 @@ const createRegistry = (middlewareHandler) => {
             // There is no node with the specified ID. It must therefore be a new node.
             if (!node) {
                 isNew = true
-                node = new Node(nodeId)
+                node = Node(nodeId)
                 this.nodes.add(nodeId, node)
             } else if (!node.isAvailable) {
                 // Node exists, but is marked as unavailable. It must therefore be a reconnected node.

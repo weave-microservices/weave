@@ -15,9 +15,12 @@
             "type": "node",
             "request": "launch",
             "name": "Dev",
-            "program": "${workspaceFolder}/dev/action-chaining.js",
+            "program": "${workspaceFolder}/dev/tracing/simple.js",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "disableOptimisticBPs": true,
             "args": [
-                "nats-transport"
+                "cache"
             ]
         },
         {

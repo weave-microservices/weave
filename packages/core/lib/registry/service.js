@@ -74,7 +74,7 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
             const endpoint = broker.registry.createPrivateEndpoint(innerAction)
 
             self.actions[name] = (params, options) => {
-                const context = broker.contextFactory.create(innerAction, null, params, options || {}, endpoint)
+                const context = broker.contextFactory.create(endpoint, params, options || {})
                 return wrappedAction(context)
             }
         })

@@ -4,7 +4,7 @@ const { Weave } = require('../lib/index.js')
 const broker1 = Weave({
     nodeId: 'tcp-1',
     transport: {
-        type: 'tcp',
+        adapter: 'tcp',
         options: {
             urls: [
                 'tcp://localhost:1234/tcp-1',
@@ -24,7 +24,7 @@ const broker1 = Weave({
 const broker2 = Weave({
     nodeId: 'tcp-2',
     transport: {
-        type: 'tcp',
+        adapter: 'tcp',
         options: {
             urls: [
                 'tcp://localhost:1235/tcp-2',

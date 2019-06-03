@@ -11,8 +11,9 @@ const createContextFactory = () => ({
     init (broker) {
         this.broker = broker
     },
-    create (action, nodeId, params, opts, endpoint) {
+    create (endpoint, params, opts) {
         const context = createContext(this.broker, endpoint)
+
         opts = opts || {}
         context.setParams(params)
         context.nodeId = endpoint.node.id
@@ -38,11 +39,8 @@ const createContextFactory = () => ({
         if (opts.parentContext != null) {
             context.parentId = opts.parentContext.id
             context.level = opts.parentContext.level + 1
-            context.metrics = opts.parentContext.metrics
-        }
-
-        // metrics
-        if (opts.parentContext != null) {
+            context.tracing = opts.parentContext.tracing
+            context.span = opts.parentContext.span
         }
 
         if (context.metrics || context.nodeId !== this.broker.nodeId) {
@@ -50,18 +48,19 @@ const createContextFactory = () => ({
                 context.requestId = context.id
             }
         }
+
         return context
     },
-    createFromEndpoint (endpoint, params) {
-        const context = createContext(this.broker, endpoint)
-        context.nodeId = endpoint.node.id
-        context.setParams(params)
-        return context
-    },
+    // createFromEndpoint (endpoint, params) {
+    //     const context = createContext(this.broker, endpoint)
+    //     context.nodeId = endpoint.node.id
+    //     context.setParams(params)
+    //     return context
+    // },
     createFromPayload (payload) {
         const context = createContext(this.broker, { name: payload.action })
-        context.nodeId = this.broker.nodeId
 
+        context.nodeId = this.broker.nodeId
         context.id = payload.id
         context.setParams(payload.params)
         context.parentId = payload.parentId

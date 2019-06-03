@@ -21,7 +21,9 @@ describe('Test middlware hooks', () => {
 
         const broker = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal',
+            logger: {
+                logLevel: 'fatal'
+            },
             middlewares: [middleware]
         })
 
@@ -68,7 +70,9 @@ describe('Test middlware hooks', () => {
 
         const broker = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal',
+            logger: {
+                logLevel: 'fatal'
+            },
             loadNodeService: false,
             middlewares: [middleware]
         })
@@ -98,7 +102,9 @@ describe('Test middlware hooks', () => {
 
         const broker = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal',
+            logger: {
+                logLevel: 'fatal'
+            },
             loadNodeService: false,
             middlewares: [middleware]
         })
@@ -122,7 +128,7 @@ describe('Test middlware hooks', () => {
             })
     })
 
-    it('should call remote action hook', () => {
+    it('should call remote action hook', (done) => {
         const middleware = {
             remoteAction: function (handler) {
                 return context => {
@@ -134,16 +140,24 @@ describe('Test middlware hooks', () => {
 
         const broker1 = Weave({
             nodeId: 'node1',
-            transport: TransportAdapters.Fake(),
-            logLevel: 'fatal',
+            transport: {
+                adapter: TransportAdapters.Fake()
+            },
+            logger: {
+                logLevel: 'fatal'
+            },
             loadNodeService: false,
             middlewares: [middleware]
         })
 
         const broker2 = Weave({
             nodeId: 'node2',
-            transport: TransportAdapters.Fake(),
-            logLevel: 'fatal',
+            transport: {
+                adapter: TransportAdapters.Fake()
+            },
+            logger: {
+                logLevel: 'fatal'
+            },
             loadNodeService: false
         })
 
@@ -166,6 +180,7 @@ describe('Test middlware hooks', () => {
                     .then(res => {
                         expect(res.result).toBe(3)
                         expect(res.params.paramFromMiddleware).toBe('hello world')
+                        done()
                     })
             })
     })

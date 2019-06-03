@@ -15,6 +15,7 @@ const makeMemoryCache = (broker, opts) => {
         ttl: 3000
     }
 
+    // if a new broker gets connected, we need to clear the cache
     broker.bus.on('$transport.connected', () => cache.clear())
 
     const checkTtl = () => {

@@ -15,8 +15,9 @@ const createContext = (broker, endpoint) => {
         callerNodeId: null,
         params: null,
         meta: {},
-        level: 0,
-        metrics: null,
+        level: 1,
+        tracing: null,
+        span: null,
         action: endpoint.action,
         endpoint,
         startTime: null,
@@ -57,6 +58,14 @@ const createContext = (broker, endpoint) => {
                 }
                 return result
             })
+        },
+        startSpan (name, options) {
+            if (this.span) {
+                this.span = this.span.startChildSpan(name, options)
+            } else {
+                this.span = broker.tracer.startSpan(name, options)
+            }
+            return this.span
         }
     }
 

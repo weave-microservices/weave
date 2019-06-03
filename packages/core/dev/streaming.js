@@ -6,7 +6,6 @@ const broker1 = Weave({
     namespace: 'stream',
     nodeId: 'node-1' + process.pid,
     transport: 'redis',
-    logger: console,
     logLevel: 'info',
     middlewares: [{
         localAction: function (handler, action) {
@@ -24,24 +23,31 @@ broker1.createService({
     name: 'file',
     actions: {
         get (context) {
-            return fs.createReadStream('/Users/kevinries/Downloads/StarCraft-Setup.zip')
+            const p = '/Users/kevinries/Downloads/StarCraft-Setup.zip'
+            const stats = fs.statSync(p)
+            console.log(context)
+            context.meta.fileSize = stats.size
+            return fs.createReadStream(p)
         },
         save (context) {
-            const stream = context.params
-            const { fileName } = context.meta
-            const newStream = fs.createWriteStream(path.join(__dirname, 'test', Date.now() + fileName))
+            return new Promise((resolve, reject) => {
+                const stream = context.params
+                const { fileName } = context.meta
+                const newFilePath = path.join(__dirname, 'test', Date.now() + fileName)
+                const newStream = fs.createWriteStream(newFilePath)
 
-            const startTime = Date.now()
-            stream.pipe(newStream)
-            stream.on('data', chunk => {
-                this.uploadedSize += chunk.length
-                this.broker.log.info('RECV: ', this.uploadedSize)
-            })
+                const startTime = Date.now()
+                stream.pipe(newStream)
+                stream.on('data', chunk => {
+                    this.uploadedSize += chunk.length
+                    this.broker.log.info('RECV: ', this.uploadedSize, 'of ', context.meta.fileSize)
+                })
 
-            stream.on('end', () => {
-                const endTime = Date.now()
-
-                this.broker.log.info(`Transfered ${this.uploadedSize} bytes in ${endTime - startTime} ms`)
+                stream.on('end', () => {
+                    const endTime = Date.now()
+                    this.broker.log.info(`Transfered ${this.uploadedSize} bytes in ${endTime - startTime} ms`)
+                    resolve(newFilePath)
+                })
             })
         }
     },
@@ -75,10 +81,19 @@ Promise.all([
 ]).then(() => {
     broker2.waitForServices(['file'])
         .then(() => {
-            broker2.call('file.get').then(function (stream) {
+            const p = broker2.call('file.get')
+            p.then(function (stream) {
                 broker2.call('file.save', stream, { meta: {
                     fileName: 'new.zip'
                 }})
+                    .then((path) => {
+                        fs.unlinkSync(path)
+                        return Promise.resolve()
+                    })
+                    .then(() => Promise.all([
+                        broker1.stop(),
+                        broker2.stop()
+                    ]))
             })
         })
 })

@@ -15,7 +15,7 @@ const MakeNodeCollection = (registry) => {
     const nodeCollection = {
         localNode: null,
         createNode (nodeId) {
-            return new Node(nodeId)
+            return Node(nodeId)
         },
         add (id, node) {
             nodes.set(id, node)
@@ -62,7 +62,7 @@ const MakeNodeCollection = (registry) => {
 
     // get Local node informations and add it to the collection by
     const addLocalNode = () => {
-        const node = new Node(broker.nodeId)
+        const node = Node(broker.nodeId)
 
         node.isLocal = true
         node.IPList = getIpList()

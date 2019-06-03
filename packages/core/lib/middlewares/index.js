@@ -10,6 +10,8 @@ module.exports = {
     CircuitBreaker: require('./circuit-breaker'),
     ErrorHandler: require('./error-handler'),
     Metrics: require('./metrics'),
+    Tracing: require('./tracing'),
     Retry: require('./retry'),
-    Timeout: require('./timeout')
+    Timeout: require('./timeout'),
+    OpenContextTracker: require('./open-context-tracker')
 }

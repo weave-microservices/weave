@@ -10,8 +10,8 @@
       },
       "publish": {
         "allowBranch": "master",
-        "conventionalCommits": true,
-        "message": "core(release): publish %s"
+        "message": "chore(release): Publish %s",
+        "conventionalCommits": true
       }
     },
     "ignoreChanges": [

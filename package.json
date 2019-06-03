@@ -1,28 +1,62 @@
 {
   "name": "weave",
-  "description": "<img src=\"Logo.png\" width=\"400\">",
   "scripts": {
-    "setup": "npm install && lerna bootstrap",
+    "postinstall": "lerna bootstrap --hoist",
+    "setup": "lerna bootstrap --hoist",
     "link": "lerna link --force-local",
     "test": "lerna run test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fachw3rk/weave.git"
+    "url": "git+https://github.com/weave-microservices/weave.git"
   },
+  "keywords": [
+    "micro",
+    "service",
+    "microservice",
+    "micro-service",
+    "microservices",
+    "micro-services",
+    "services",
+    "micro services",
+    "micro service",
+    "framework",
+    "minimum",
+    "viable",
+    "product",
+    "toolkit",
+    "startup",
+    "nats",
+    "redis",
+    "tcp",
+    "messaging",
+    "pubsub",
+    "publish",
+    "subscribe",
+    "queue",
+    "distributed",
+    "queueing"
+  ],
   "author": {
     "name": "Kevin Ries",
     "company": "Fachwerk Software",
     "email": "kevin.ries@fachwerk.io",
-    "url": "https://weave.fachwerk.io"
+    "url": "https://fachwerk.io"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/fachw3rk/weave/issues"
+    "url": "https://github.com/weave-microservices/weave/issues"
   },
-  "homepage": "https://github.com/fachw3rk/weave#readme",
+  "homepage": "https://weave-js.com",
   "dependencies": {
-    "jest": "^24.1.0",
-    "lerna": "^3.11.0"
+    "lerna": "^3.14.1"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-fw": "^1.0.3",
+    "eslint-loader": "^2.1.2",
+    "jest": "^24.8.0",
+    "jest-cli": "^24.8.0",
+    "lolex": "^4.0.1"
   }
 }

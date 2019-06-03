@@ -23,7 +23,7 @@ const createHealthcheck = () => {
         getOsInfos () {
             return {
                 hostname: os.hostname(),
-                pattform: os.platform(),
+                plattform: os.platform(),
                 release: os.release(),
                 type: os.type()
             }
@@ -57,8 +57,9 @@ const createHealthcheck = () => {
         },
         getTransportInfos () {
             if (this.transport) {
-                return Object.assign({}, this.transport.stats)
+                return Object.assign({}, this.transport.statistics)
             }
+            /* istanbul ignore next */
             return null
         },
         getNodeHealthInfo () {

@@ -149,13 +149,24 @@ module.exports = (broker, transport, pending) => {
     }
 
     const onPing = payload => {
-        return transport.send(transport.createMessage(MessageTypes.MESSAGE_PONG, payload.sender), {
+        return transport.send(transport.createMessage(MessageTypes.MESSAGE_PONG, payload.sender, {
             dispatchTime: payload.dispatchTime,
             arrivalTime: Date.now()
-        })
+        }))
     }
 
-    const onPong = payload => broker.broadcastLocal('$node.pong', payload)
+    // Pong received.
+    const onPong = payload => {
+        const now = Date.now()
+        const elapsedTime = now - payload.dispatchTime
+        const timeDiff = Math.round(now - payload.arrivalTime - elapsedTime / 2)
+
+        broker.broadcastLocal('$node.pong', {
+            nodeId: payload.sender,
+            elapsedTime,
+            timeDiff
+        })
+    }
 
     const onEvent = payload => {
         registry.events.emitLocal(payload.eventName, payload.data, payload.sender, payload.groups, payload.isBroadcast)

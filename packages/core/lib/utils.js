@@ -7,15 +7,30 @@
 // node modules
 const os = require('os')
 const { defaultsDeep, assign, uniqWith, compact, flatten } = require('lodash')
+const { yellow, bold } = require('kleur')
 
 const uuid = require('./utils/uuid')
 
 const RegexCache = new Map()
-const _toString = Object.prototype.toString()
+const deprecatedList = []
 
 module.exports = {
-    isPlainObject (obj) {
-        return _toString.call(obj) === '[object Object]'
+    isPlainObject (o, strict = true) {
+        if (o === null || o === undefined) {
+            return false
+        }
+        const instanceOfObject = o instanceof Object
+        const typeOfObject = typeof o === 'object'
+        const constructorUndefined = o.constructor === undefined
+        const constructorObject = o.constructor === Object
+        const typeOfConstructorObject = typeof o.constructor === 'function'
+        let r
+        if (strict === true) {
+            r = (instanceOfObject || typeOfObject) && (constructorUndefined || constructorObject)
+        } else {
+            r = (constructorUndefined || typeOfConstructorObject)
+        }
+        return r
     },
     generateToken () {
         return uuid()
@@ -124,6 +139,21 @@ module.exports = {
             }
             return value
         }))
+    },
+    deprecated (prop, msg, colored = true) {
+        if (!msg) {
+            msg = prop
+        }
+
+        if (deprecatedList.indexOf(prop) === -1) {
+            if (colored) {
+                /* istanbul ignore next */
+                console.warn(yellow(bold(`Deprecation warning: ${msg}`)))
+            } else {
+                console.warn(`Deprecation warning: ${msg}`)
+            }
+            deprecatedList.push(prop)
+        }
     },
     getIpList () {
         const list = []

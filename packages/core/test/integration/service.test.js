@@ -5,7 +5,9 @@ describe('Test broker call service', () => {
     it('should call a service.', (done) => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         const service = node1.createService({
@@ -16,19 +18,22 @@ describe('Test broker call service', () => {
             }
         })
 
-        node1.start().then(() => {
-            node1.call('testService.test')
-                .then(() => {
-                    expect(service.schema.actions.test).toBeCalled()
-                    done()
-                })
-        })
+        node1.start()
+            .then(() => {
+                node1.call('testService.test')
+                    .then(() => {
+                        expect(service.schema.actions.test).toBeCalled()
+                        done()
+                    })
+            })
     })
 
-    it('should call a service action and return a value.', () => {
+    it('should call a service action and return a value.', (done) => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         node1.createService({
@@ -44,14 +49,17 @@ describe('Test broker call service', () => {
             node1.call('testService.sayHello', { name: 'Hans' })
                 .then(result => {
                     expect(result).toBe('Hello Hans!')
+                    done()
                 })
         })
     })
 
-    it('should call a service action and return an error.', () => {
+    it('should call a service action and return an error.', (done) => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         node1.createService({
@@ -66,13 +74,16 @@ describe('Test broker call service', () => {
         node1.start().then(() => {
             expect(node1.call('testService.sayHello', { name: 'Hans' }))
                 .rejects.toThrow('Error')
+            done()
         })
     })
 
-    it('should call a service action and pass a meta value to a chained action.', () => {
+    it('should call a service action and pass a meta value to a chained action.', (done) => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         node1.createService({
@@ -96,6 +107,7 @@ describe('Test broker call service', () => {
 
         node1.start().then(() => {
             node1.call('testService.sayHello', { name: 'Hans' }, { meta: { userId: 1 }})
+            done()
         })
     })
 })
@@ -106,7 +118,9 @@ describe('Service lifetime hooks', () => {
 
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         node1.createService({
@@ -132,7 +146,9 @@ describe('Service lifetime hooks', () => {
     it('should call lifecycle hooks with correct scope. [creaded]', done => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         node1.createService({
@@ -149,7 +165,9 @@ describe('Service lifetime hooks', () => {
     it('should call lifecycle hooks with correct scope. [started]', done => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
 
         node1.createService({
@@ -166,7 +184,9 @@ describe('Service lifetime hooks', () => {
     it('should call lifecycle hook with correct scope. [stopped]', done => {
         const node1 = Weave({
             nodeId: 'node1',
-            logLevel: 'fatal'
+            logger: {
+                logLevel: 'fatal'
+            }
         })
         node1.createService({
             name: 'testService',

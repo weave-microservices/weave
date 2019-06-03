@@ -6,7 +6,7 @@
 
 /** @module weave */
 
-const { logLevel, loadBalancingStrategy } = require('../constants')
+const { loadBalancingStrategy } = require('../constants')
 
 /**
  * Configuration object for weave service broker.
@@ -21,6 +21,13 @@ const { logLevel, loadBalancingStrategy } = require('../constants')
  * @typedef {Object} MetricsSettings
  * @property {Boolean} enabled Enable bulhead middleware. (default = false)
  * @property {Number} metricsRate Rate of metrics calls. (default = 1.0)
+ */
+
+/**
+ * Configuration object for weave service broker.
+ * @typedef {Object} TracingSettings
+ * @property {Boolean} enabled Enable bulhead middleware. (default = false)
+ * @property {Number} tracingRate Rate of traced actions. (default = 1.0)
  */
 
 /**
@@ -59,6 +66,19 @@ const { logLevel, loadBalancingStrategy } = require('../constants')
  */
 
 /**
+ * Configuration object for logger.
+ * @typedef {Object} LoggerSettings
+ * @property {Boolean} enabled Enable logger.
+ * @property {'fatal'|'error'|'warn'|'info'|'debug'|'trace'} logLevel Log level of the messages to be displayed.
+ * @property {Stream.Writable|Array} stream Destination to which the data is written, can be a single valid Writable stream or an array holding multiple valid Writable streams. (default = process.stdout).
+ * @property {Boolean} showTimestamp Show the current timestamp. (default = true)
+ * @property {Boolean} showBadge Show log type badge. (default = true)
+ * @property {Boolean} showLabel Show log type label. (default = true)
+ * @property {Boolean} showModuleName Show the module name. (default = true)
+ * @property {Object} types Custom log types.
+ */
+
+/**
  * Middleware object.
  * @typedef {Object} Middleware
  * @property {Function(BrokerInstance)} created Broker created hook.
@@ -85,9 +105,9 @@ const { logLevel, loadBalancingStrategy } = require('../constants')
  * @property {Boolean} loadNodeService Load the $node service. (default = true)
  * @property {Boolean} publishNodeService Publish the $node service about the transport and make it accessible. (default = false)
  * @property {Boolean} loadInternalMiddlewares - Load the default middlewares on startup. (default = true)
- * @property {Object} logger Log module. (defualt = console)
- * @property {'fatal'|'error'|'warn'|'info'|'debug'|'trace'} logLevel Log level of the messages to be displayed.
+ * @property {LoggerSettings} logger Logger settings.
  * @property {MetricsSettings} metrics Metrics settings
+ * @property {TracingSettings} tracing Tracing settings
  * @property {Array<Middleware>} middlewares Custom middlewares (default = null).
  * @property {RegistrySettings} registry - Registry settings.
  * @property {RetryPolicySettings} retryPolicy - Retry policy
@@ -135,13 +155,20 @@ module.exports = {
     // broker middelwares
     middlewares: null,
     // activate action statistics
-    logger: console,
-    // logging class
-    logLevel: logLevel.info,
+    logger: {
+        enabled: true,
+        logLevel: null,
+        stream: process.stdout,
+        showTimestamp: true,
+        showBadge: true,
+        showLabel: true,
+        showModuleName: true
+    },
     // metrics settings
-    metrics: {
+    tracing: {
         enabled: false,
-        metricRate: 1.0
+        samplingRate: 1.0,
+        collectors: ['event']
     },
     // namespace
     namespace: '',

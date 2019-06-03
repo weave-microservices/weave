@@ -5,3 +5,5 @@ lerna-debug.log
 packages/core/node_modules
 .vscode
 packages/db/tests.db
+packages/core/dev/test
+packages/core/coverage
