@@ -47,7 +47,6 @@
     "figures": "^3.0.0",
     "fw-object-validator": "^0.2.0",
     "glob": "^7.1.4",
-    "ioredis": "^4.9.5",
     "ip": "^1.1.5",
     "kleur": "^3.0.3",
     "lodash": "^4.17.11",
@@ -63,6 +62,7 @@
     "eslint": "^5.16.0",
     "eslint-config-fw": "^1.0.3",
     "eslint-loader": "^2.1.2",
+    "ioredis": "^4.10.0",
     "jest": "^24.8.0",
     "jest-cli": "^24.8.0",
     "lolex": "^4.0.1"

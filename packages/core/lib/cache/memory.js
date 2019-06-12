@@ -12,7 +12,7 @@ const makeMemoryCache = (broker, options = {}) => {
     const storage = {}
     const name = 'Memory'
 
-    options = Object.assign({
+    options = Object.assign(options, {
         ttl: 3000
     })
 
