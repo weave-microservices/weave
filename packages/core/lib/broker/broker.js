@@ -480,6 +480,11 @@ const createBroker = (options) => {
                         return this.transport.disconnect()
                     }
                 })
+                .then(() => {
+                    if (this.cache) {
+                        return this.cache.stop()
+                    }
+                })
                 .then(() => middlewareHandler.callHandlersAsync('stopped', [this], true))
                 .then(() => {
                     if (!this.isStarted) {
@@ -595,7 +600,7 @@ const createBroker = (options) => {
     if (options.cache.enabled) {
         const createCache = Cache.resolve(options.cache.adapter)
         broker.cache = createCache(broker, options.cache)
-        middlewareHandler.add(broker.cache.middleware)
+        broker.cache.init()
         log.info(`Cache module: ${broker.cache.name}`)
     }
 
@@ -616,6 +621,11 @@ const createBroker = (options) => {
             }
 
             middlewareHandler.add(Middlewares.Bulkhead())
+
+            if (broker.cache) {
+                middlewareHandler.add(broker.cache.middleware)
+            }
+
             middlewareHandler.add(Middlewares.CircuitBreaker())
             middlewareHandler.add(Middlewares.Timeout())
             middlewareHandler.add(Middlewares.Retry())

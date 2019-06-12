@@ -45,6 +45,7 @@ describe('Test cache hash creation', () => {
                 id: broker.nodeId
             }
         }
+        cache.init()
         const newHandler = cache.middleware(handler, action)
         contentFactory.init(broker)
         const firstContext = contentFactory.create(endpoint, { p: 1 })

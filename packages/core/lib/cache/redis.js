@@ -11,94 +11,72 @@ const makeRedisCache = (broker, options = {}) => {
     const base = createBase(broker, options)
     const name = 'Redis'
 
+    let client
+
     options = Object.assign(options, {
         port: 6379,
-        host: '127.0.0.1'
+        host: '127.0.0.1',
+        ttl: null
     })
-    let redis
 
     broker.bus.on('$transport.connected', () => cache.clear())
 
     const cache = Object.assign(base, {
         name,
+        init () {
+            client = new Redis(options)
+
+            client.on('connect', () => {
+                /* istanbul ignore next */
+                this.log.info('Redis cacher connected.')
+            })
+
+            client.on('error', (err) => {
+                /* istanbul ignore next */
+                this.log.error(err)
+            })
+        },
         set (hashKey, data, ttl) {
             data = JSON.stringify(data)
             if (ttl == null) {
-                ttl = options_.ttl
+                ttl = options.ttl
             }
-            
+
             if (ttl) {
-                redis.setex(hashKey, ttl / 1000, data)
+                client.setex(hashKey, ttl / 1000, data)
             } else {
-                redis.set(hashKey, data)
+                client.set(hashKey, data)
             }
-            log.debug(`Set ${hashKey}`)
+            this.log.debug(`Set ${hashKey}`)
             return Promise.resolve(data)
+        },
+        get (cacheKey) {
+            return client.get(cacheKey).then(data => {
+                if (data) {
+                    this.log.debug(`FOUND ${cacheKey}`)
+                    try {
+                        data = JSON.parse(data)
+                        return data
+                    } catch (error) {
+                        this.log.error('Redis result parse error', error, data)
+                    }
+                }
+                return null
+            })
+        },
+        remove (hashKey) {
+            // delete cache[hashKey]
+            this.log.debug(`Delete ${hashKey}`)
+            return Promise.resolve()
+        },
+        clear () {
+            // this.cache = {}
+            this.log.debug(`Cache cleared`)
+            return Promise.resolve()
         }
     })
 
-    const init = ({ state, getLogger, bus, options, middlewareHandler }) => {
-        options_ = getDefaultOptions(options)
-        log = getLogger('REDIS-CACHE')
-        middlewareHandler.add(makeMiddleware({ set, get, generateCacheKey }))
-
-        redis = new Redis({
-            port: 6379,
-            host: '127.0.0.1'
-        })
-    }
-
-    const set = (hashKey, data, ttl) => {
-        data = JSON.stringify(data)
-        if (ttl == null) {
-            ttl = options_.ttl
-        }
-
-        if (ttl) {
-            redis.setex(hashKey, ttl / 1000, data)
-        } else {
-            redis.set(hashKey, data)
-        }
-        log.debug(`Set ${hashKey}`)
-        return Promise.resolve(data)
-    }
-
-    const get = (cacheKey) => {
-        return redis.get(cacheKey).then(data => {
-            if (data) {
-                log.debug(`FOUND ${cacheKey}`)
-                try {
-                    data = JSON.parse(data)
-                    return data
-                } catch (error) {
-                    log.error('Redis result parse error', error, data)
-                }
-            }
-            return null
-        })
-    }
-
-    const clear = () => {
-        this.cache = {}
-        log.debug(`Cache cleared`)
-        return Promise.resolve()
-    }
-
-    const clean = (match = '**') => {
-        // Object.keys(cache).forEach(key => {
-        //     if (nanomatch.isMatch(key, match)) {
-        //         this.logger.debug(`Delete ${key}`)
-        //         this.remove(key)
-        //     }
-        // })
-    }
-
-    return {
-        name,
-        init,
-        clear,
-        clean
-    }
+    return cache
 }
 
 module.exports = makeRedisCache

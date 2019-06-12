@@ -8,10 +8,13 @@ const { hash } = require('node-object-hash')({ sort: false, coerce: false })
 const { isObject } = require('lodash')
 
 const makeBaseCache = (broker, options) => {
-    const baseCache = {
+    const cache = {
         options: Object.assign({
             ttl: null
         }, options),
+        init () {
+            return Promise.resolve()
+        },
         log: broker.createLogger('CACHER'),
         set (hashKey, result, ttl) {
             /* istanbul ignore next */
@@ -28,6 +31,10 @@ const makeBaseCache = (broker, options) => {
         clear () {
             /* istanbul ignore next */
             throw new Error('Method not implemented.')
+        },
+        stop () {
+            /* istanbul ignore next */
+            return Promise.resolve()
         },
         getCachingHash (actionName, params, keys) {
             if (params) {
@@ -52,18 +59,18 @@ const makeBaseCache = (broker, options) => {
         }
     }
 
-    baseCache.middleware = (handler, action) => {
+    cache.middleware = (handler, action) => {
         if (action.cache) {
             return function cacheMiddleware (context) {
-                const cacheHashKey = baseCache.getCachingHash(action.name, context.params, action.cache.keys)
+                const cacheHashKey = cache.getCachingHash(action.name, context.params, action.cache.keys)
                 context.isCachedResult = false
-                return baseCache.get(cacheHashKey).then((content) => {
+                return cache.get(cacheHashKey).then((content) => {
                     if (content !== null) {
                         context.isCachedResult = true
                         return content
                     }
                     return handler(context).then((result) => {
-                        baseCache.set(cacheHashKey, result, action.cache.ttl)
+                        cache.set(cacheHashKey, result, action.cache.ttl)
                         return result
                     })
                 })
@@ -72,6 +79,6 @@ const makeBaseCache = (broker, options) => {
         return handler
     }
 
-    return baseCache
+    return cache
 }
 module.exports = makeBaseCache

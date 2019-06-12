@@ -3,7 +3,7 @@ const ServiceHookMixin = require('./mixins/service-hook.mixin')
 const hasServiceScope = require('./scope-checks/service.scope')
 
 describe('Cache system', () => {
-    it('should call lifecycle hook "created" with correct scope if there are nested hooks from a mixin.', () => {
+    it('should call lifecycle hook "created" with correct scope if there are nested hooks from a mixin.', (done) => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
@@ -22,7 +22,7 @@ describe('Cache system', () => {
                         keys: ['text']
                     },
                     handler (context) {
-                        return context.params.text.reverse()
+                        return context.params.text.split('').reverse().join('')
                     }
                 }
             }
@@ -30,7 +30,9 @@ describe('Cache system', () => {
         node1.start().then(() => {
             node1.call('testService.cachedAction', { text: 'hallo kevin' })
                 .then(result => {
-
+                    expect(result).toBe('nivek ollah')
+                    node1.stop()
+                    done()
                 })
         })
     })
