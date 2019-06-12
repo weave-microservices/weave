@@ -3,24 +3,25 @@
  * -----
  * Copyright 2018 Fachwerk
  */
-const { isString, isFunction, defaultsDeep } = require('lodash')
-const makeMiddleware = require('./middleware.factory')
-const generateCacheKeyFactory = require('./caching-key-generator.factory')
-const generateCacheKey = generateCacheKeyFactory()
+const { isString, isFunction } = require('lodash')
 const { WeaveBrokerOptionsError } = require('../errors')
 
-module.exports = {
+const adapters = {
     Memory: require('./memory'),
-    Redis: require('./redis'),
+    Redis: require('./redis')
+}
+
+module.exports = {
+
     resolve (cacheOptions) {
         const getByName = name => {
             if (!name) {
                 return null
             }
 
-            const n = Object.keys(this).find(n => n.toLowerCase() === name.toLowerCase())
+            const n = Object.keys(adapters).find(n => n.toLowerCase() === name.toLowerCase())
             if (n) {
-                return this.Cache[n]
+                return adapters[n]
             }
         }
 

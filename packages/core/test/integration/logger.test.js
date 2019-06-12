@@ -2,7 +2,7 @@ const { Weave } = require('../../lib/index')
 const lolex = require('lolex')
 const Stream = require('./helper/TestStream')
 
-describe.only('Test logger module.', () => {
+describe('Test logger module.', () => {
     let clock
     beforeAll(() => {
         clock = lolex.install()

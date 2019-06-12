@@ -2,7 +2,7 @@ const { Weave } = require('../../../lib/index')
 const utils = require('../../../lib/utils')
 
 const Middleware = require('../../../lib/middlewares/bulkhead')
-const Context = require('../../../lib/broker/context')
+// const Context = require('../../../lib/broker/context')
 const createContextFactory = require('../../../lib/broker/context.factory')
 
 // const SlowService = require('../../services/slow.service')

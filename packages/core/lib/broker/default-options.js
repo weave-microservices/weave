@@ -32,6 +32,13 @@ const { loadBalancingStrategy } = require('../constants')
 
 /**
  * Configuration object for weave service broker.
+ * @typedef {Object} CacheSettings
+ * @property {Boolean} enabled Enable cache middleware. (default = false)
+ * @property {String]Object} adaper Cacha adapter. (default = memory (In Memory))
+ */
+
+/**
+ * Configuration object for weave service broker.
  * @typedef {Object} RegistrySettings
  * @property {Boolean} preferLocalActions Prefer local actions over remote actions. (default = true)
  * @property {Number} requestTimeout Time in milliseconds after which a request is rejected. (default = 0)
@@ -101,7 +108,7 @@ const { loadBalancingStrategy } = require('../constants')
  * Configuration object for weave service broker.
  * @typedef {Object} BrokerOptions
  * @property {String} nodeId Name of the Service broker node.
- * @property {Boolean|String|Object} cache Indicates whether the Power component is present.
+ * @property {CacheSettings} cache Cache settings.
  * @property {Boolean} loadNodeService Load the $node service. (default = true)
  * @property {Boolean} publishNodeService Publish the $node service about the transport and make it accessible. (default = false)
  * @property {Boolean} loadInternalMiddlewares - Load the default middlewares on startup. (default = true)
@@ -123,7 +130,10 @@ module.exports = {
         maxQueueSize: 150
     },
     // cache settings
-    cache: false,
+    cache: {
+        enabled: false,
+        adapter: 'memory'
+    },
     circuitBreaker: {
         enabled: false,
         // Time after which an open circuit breaker is set to half-open.

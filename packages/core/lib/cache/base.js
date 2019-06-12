@@ -14,20 +14,24 @@ const makeBaseCache = (broker, options) => {
         }, options),
         log: broker.createLogger('CACHER'),
         set (hashKey, result, ttl) {
+            /* istanbul ignore next */
             throw new Error('Method not implemented.')
         },
         get (hashKey) {
+            /* istanbul ignore next */
             throw new Error('Method not implemented.')
         },
         remove () {
+            /* istanbul ignore next */
             throw new Error('Method not implemented.')
         },
         clear () {
+            /* istanbul ignore next */
             throw new Error('Method not implemented.')
         },
-        getCachingHash (name, params, keys) {
+        getCachingHash (actionName, params, keys) {
             if (params) {
-                const prefix = `${name}:`
+                const prefix = `${actionName}:`
                 if (keys) {
                     if (keys.length === 1) {
                         const value = params[keys[0]]
@@ -44,7 +48,7 @@ const makeBaseCache = (broker, options) => {
                     return prefix + hash(params)
                 }
             }
-            return name
+            return actionName
         }
     }
 

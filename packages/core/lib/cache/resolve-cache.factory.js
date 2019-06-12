@@ -5,8 +5,8 @@
  */
 
 const { isString, isFunction, defaultsDeep } = require('lodash')
-const makeMiddleware = require('./middleware.factory')
-const generateCacheKeyFactory = require('./caching-key-generator.factory')
+const makeMiddleware = require('./_middleware.factory')
+const generateCacheKeyFactory = require('./_caching-key-generator.factory')
 const generateCacheKey = generateCacheKeyFactory()
 
 const getDefaultOptions = options =>

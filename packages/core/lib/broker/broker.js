@@ -592,8 +592,8 @@ const createBroker = (options) => {
     tracer.init(broker, options.tracing)
 
     // Initialize caching module
-    if (options.cache) {
-        const createCache = Cache.resolve(options.cache)
+    if (options.cache.enabled) {
+        const createCache = Cache.resolve(options.cache.adapter)
         broker.cache = createCache(broker, options.cache)
         middlewareHandler.add(broker.cache.middleware)
         log.info(`Cache module: ${broker.cache.name}`)
