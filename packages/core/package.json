@@ -12,7 +12,7 @@
   "main": "./lib/index.js",
   "scripts": {
     "ci": "jest --watch",
-    "test": "NODE_ENV=test jest --no-cache",
+    "test": "NODE_ENV=test jest --no-cache --detectOpenHandles --forceExit",
     "test-spec": "jest --findRelatedTests test/unit/serializers/json.test.js --watch",
     "coverage": "jest --coverage",
     "analyse": "eslint lib/**",

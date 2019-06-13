@@ -8,17 +8,17 @@ const Redis = require('ioredis')
 const createBase = require('./base')
 
 const makeRedisCache = (broker, options = {}) => {
+    // prepare options
+    options = Object.assign({
+        port: 6379,
+        host: '127.0.0.1',
+        ttl: null
+    }, options)
+
     const base = createBase(broker, options)
     const name = 'Redis'
 
     let client
-
-    options = Object.assign(options, {
-        port: 6379,
-        host: '127.0.0.1',
-        ttl: null
-    })
-
     broker.bus.on('$transport.connected', () => cache.clear())
 
     const cache = Object.assign(base, {
@@ -65,14 +65,35 @@ const makeRedisCache = (broker, options = {}) => {
             })
         },
         remove (hashKey) {
-            // delete cache[hashKey]
-            this.log.debug(`Delete ${hashKey}`)
-            return Promise.resolve()
+            return client.del(hashKey)
+                .then(n => {
+                    this.log.debug(`Delete ${hashKey}`)
+                })
         },
-        clear () {
-            // this.cache = {}
-            this.log.debug(`Cache cleared`)
-            return Promise.resolve()
+        clear (pattern = '*') {
+            return new Promise((resolve, reject) => {
+                const stream = client.scanStream({
+                    match: pattern
+                })
+
+                stream.on('data', (keys) => {
+                    if (keys.length) {
+                        var pipeline = client.pipeline()
+                        keys.forEach(function (key) {
+                            pipeline.del(key)
+                        })
+                        pipeline.exec()
+                    }
+                })
+
+                stream.on('end', () => {
+                    this.log.debug(`Cache cleared`)
+                    return resolve()
+                })
+            })
+        },
+        stop () {
+            return client.quit()
         }
     })
 

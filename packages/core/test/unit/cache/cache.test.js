@@ -48,8 +48,6 @@ describe('Test cache middleware', () => {
     const cacheBase = CacheBase(broker, {})
     const service = {}
 
-
-
     it('should be defined', () => {
         const action = {
             name: 'math.add',

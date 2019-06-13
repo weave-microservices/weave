@@ -1,65 +1,109 @@
 const { Weave } = require('../../../lib/index')
-const utils = require('../../../lib/utils')
-
 const CacheMemory = require('../../../lib/cache/memory')
-
-const createContextFactory = require('../../../lib/broker/context.factory')
-
 // const SlowService = require('../../services/slow.service')
 
-describe('Test cache hash creation', () => {
-    const broker = Weave()
-    const contentFactory = createContextFactory()
-    const handler = jest.fn(() => Promise.resolve('hooray!!!'))
-    const cache = CacheMemory(broker, {})
-    const service = {}
-    const action = {
-        name: 'math.add',
-        cache: {
-            enabled: false
-        },
-        handler,
-        service
-    }
+describe('Test IN-Memory cache initialization', () => {
+    it('should create with default options.', () => {
+        const broker = Weave()
+        const cache = CacheMemory(broker)
+        expect(cache.options).toBeDefined()
+        expect(cache.options.ttl).toBeNull()
+    })
 
-    const endpoint = {
-        action,
-        node: {
-            id: broker.nodeID
-        }
-    }
+    it('should create with options.', () => {
+        const options = { ttl: 4000 }
+        const broker = Weave()
+        const cache = CacheMemory(broker, options)
+        expect(cache.options).toEqual(options)
+        expect(cache.options.ttl).toBe(4000)
+    })
 
-    it('should wrap handler if cache settings are set', (done) => {
-        const action = {
-            name: 'math.add',
-            cache: {
-                keys: ['p']
-            },
-            handler,
-            service
-        }
-
-        const endpoint = {
-            action,
-            node: {
-                id: broker.nodeId
-            }
-        }
-        const newHandler = cache.middleware(handler, action)
-        contentFactory.init(broker)
-        const firstContext = contentFactory.create(endpoint, { p: 1 })
-        const p = newHandler(firstContext)
-        p.then(result => {
-            expect(result).toEqual('hooray!!!')
-            const secondContext = contentFactory.create(endpoint, { p: 1 })
-            newHandler(secondContext)
-                .then(result => {
-                    expect(result).toEqual('hooray!!!')
-                    expect(secondContext.isCachedResult).toBe(true)
-                    done()
-                })
-        })
-        expect(newHandler).not.toBe(handler)
+    it('should create with options.', () => {
+        const options = { ttl: 4000 }
+        const broker = Weave()
+        const cache = CacheMemory(broker, options)
+        expect(cache.options).toEqual(options)
+        expect(cache.options.ttl).toBe(4000)
     })
 })
 
+describe('Test IN-Memory message flow', () => {
+    it('should call "clear" after a new node is connected.', () => {
+        const broker = Weave()
+        const cache = CacheMemory(broker)
+        cache.init()
+        cache.clear = jest.fn()
+        broker.bus.emit('$transport.connected')
+        expect(cache.clear).toBeCalledTimes(1)
+    })
+})
+
+describe('Test usage (without TTL)', () => {
+    const broker = Weave()
+    const cache = CacheMemory(broker)
+    cache.init()
+
+    const key1 = 'test1234:sadasda'
+    const key2 = 'test12345:sadasdasadasdasd'
+
+    const result = {
+        data: [
+            'Hello',
+            'my',
+            'friend'
+        ]
+    }
+    it('should save date with the key.', () => {
+        cache.set(key1, result)
+        return cache.get(key1).then(res => {
+            expect(res).toBeDefined()
+            expect(res).toEqual(result)
+        })
+    })
+
+    it('should save date with the key.', () => {
+        cache.set(key1, result)
+        return cache.get(key1).then(res => {
+            expect(res).toBeDefined()
+            expect(res).toEqual(result)
+        })
+    })
+
+    it('should delete data by key.', () => {
+        cache.remove(key1)
+        return cache.get(key1).then(res => {
+            expect(res).toBeDefined()
+            expect(res).toBeNull()
+        })
+    })
+
+    it('should clear the cache.', () => {
+        cache.set(key1, result)
+        cache.set(key2, result)
+
+        cache.clear()
+
+        return cache.get(key1).then(res => {
+            expect(res).toBeDefined()
+            expect(res).toBeNull()
+        })
+    })
+})
+
+// describe('Test usage with TTL', () => {
+//     const broker = Weave()
+//     const options = { ttl: 3000 }
+//     const cache = CacheMemory(broker)
+//     cache.init()
+
+//     const key1 = 'test1234:sadasda'
+//     const key2 = 'test12345:sadasdasadasdasd'
+
+//     const result = {
+//         data: [
+//             'Hello',
+//             'my',
+//             'friend'
+//         ]
+//     }
+// })

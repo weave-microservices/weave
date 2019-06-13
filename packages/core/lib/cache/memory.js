@@ -9,21 +9,24 @@ const createBase = require('./base')
 
 const makeMemoryCache = (broker, options = {}) => {
     const base = createBase(broker, options)
-    const storage = {}
+    const storage = new Map()
     const name = 'Memory'
 
-    options = Object.assign(options, {
-        ttl: 3000
-    })
+    // options = Object.assign({
+    //     ttl: 3000
+    // }, options)
+    const timer = setInterval(() => {
+        checkTtl()
+    }, 3000)
+
+    timer.unref()
 
     // if a new broker gets connected, we need to clear the cache
     broker.bus.on('$transport.connected', () => cache.clear())
 
     const checkTtl = () => {
         const now = Date.now()
-        const keys = Object.keys(storage)
-        keys.forEach((hashKey) => {
-            const item = storage[hashKey]
+        storage.forEach((item, hashKey) => {
             if (item.expire && item.expire < now) {
                 cache.log.debug(`Delete ${hashKey}`)
                 delete storage[hashKey]
@@ -34,7 +37,7 @@ const makeMemoryCache = (broker, options = {}) => {
     const cache = Object.assign(base, {
         name,
         get (cacheKey) {
-            const item = storage[cacheKey]
+            const item = storage.get(cacheKey)
             if (item) {
                 if (options.ttl) {
                     item.expire = Date.now()//  + options_.ttl
@@ -48,20 +51,20 @@ const makeMemoryCache = (broker, options = {}) => {
             if (ttl == null) {
                 ttl = options.ttl
             }
-            storage[hashKey] = {
+            storage.set(hashKey, {
                 data,
                 expire: ttl ? Date.now() + ttl : null
-            }
+            })
             this.log.debug(`Set ${hashKey}`)
             return Promise.resolve(data)
         },
         remove (hashKey) {
-            delete cache[hashKey]
+            storage.delete(hashKey)
             this.log.debug(`Delete ${hashKey}`)
             return Promise.resolve()
         },
         clear (match = '**') {
-            Object.keys(cache).forEach(key => {
+            storage.forEach((item, key) => {
                 if (utils.match(key, match)) {
                     this.log.debug(`Delete ${key}`)
                     this.remove(key)
@@ -69,12 +72,6 @@ const makeMemoryCache = (broker, options = {}) => {
             })
         }
     })
-
-    if (options.ttl) {
-        setInterval(() => {
-            checkTtl()
-        }, options.ttl)
-    }
 
     return cache
 }

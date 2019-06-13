@@ -12,7 +12,7 @@ const adapters = {
 }
 
 module.exports = {
-
+    adapters,
     resolve (cacheOptions) {
         const getByName = name => {
             if (!name) {
