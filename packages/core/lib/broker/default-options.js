@@ -197,7 +197,6 @@ module.exports = {
         delay: 3000,
         retries: 5
     },
-    statistics: false,
     // load validation middleware
     validateActionParams: true,
     // reload service on code change
