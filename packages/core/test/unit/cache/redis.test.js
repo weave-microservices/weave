@@ -102,21 +102,3 @@ describe('Test usage (without TTL)', () => {
             }))
     })
 })
-
-// describe('Test usage with TTL', () => {
-//     const broker = Weave()
-//     const options = { ttl: 3000 }
-//     const cache = CacheMemory(broker)
-//     cache.init()
-
-//     const key1 = 'test1234:sadasda'
-//     const key2 = 'test12345:sadasdasadasdasd'
-
-//     const result = {
-//         data: [
-//             'Hello',
-//             'my',
-//             'friend'
-//         ]
-//     }
-// })

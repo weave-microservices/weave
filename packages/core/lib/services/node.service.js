@@ -11,9 +11,14 @@ module.exports = ({ health }) => {
         name: '$node',
         actions: {
             services: {
-                handler () {
+                params: {
+                    withActions: { type: 'boolean', optional: true },
+                    withNodeService: { type: 'boolean', optional: true }
+                },
+                handler (context) {
+                    const { withActions, withNodeService } = context.params
                     const results = []
-                    const services = this.broker.registry.getServiceList({ withActions: true })
+                    const services = this.broker.registry.services.list({ withActions, withNodeService })
                     services.forEach(service => {
                         let item = results.find(result => result.name === service.name && result.version === service.version)
                         if (item) {
@@ -53,7 +58,7 @@ module.exports = ({ health }) => {
             },
             events: {
                 handler (context) {
-                    return this.broker.registry.getEventList(context.params)
+                    return this.broker.registry.events.list(context.params)
                 }
             },
             health: {

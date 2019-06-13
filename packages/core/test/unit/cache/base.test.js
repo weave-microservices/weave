@@ -1,7 +1,5 @@
 const CacheBase = require('../../../lib/cache/base')
 const { Weave } = require('../../../lib/index')
-const memory = require('../../../lib/cache/memory')
-// const MathService = require('../integration/services/math.service')
 
 describe('Test base cache factory', () => {
     it('constructor.', () => {
