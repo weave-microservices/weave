@@ -158,3 +158,16 @@ describe('Test broker call error handling', () => {
     })
 })
 
+describe('Test broker trasnport resolver', () => {
+    it('should resolve the transport adapter by name (string).', () => {
+        const broker = Weave({
+            nodeId: 'node1',
+            logger: {
+                logLevel: 'fatal'
+            },
+            transport: 'fake'
+        })
+
+        expect(broker.transport.adapterName).toBe('Fake')
+    })
+})

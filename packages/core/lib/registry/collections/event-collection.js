@@ -10,8 +10,7 @@ const { match } = require('../../utils.js')
 const MakeEventCollection = (registry) => {
     const broker = registry.broker
     const events = []
-    const getAllEvents = () => events
-    const getAllEventsByEventName = (eventName) => getAllEvents().filter(list => match(eventName, list.name))
+    const getAllEventsByEventName = (eventName) => events.filter(list => match(eventName, list.name))
 
     return {
         add (node, service, event) {
@@ -27,7 +26,7 @@ const MakeEventCollection = (registry) => {
             return events.find(endpointList => endpointList.name === eventName && endpointList.groupName === groupName)
         },
         removeByService (service) {
-            getAllEvents().map(list => {
+            events.map(list => {
                 list.removeByService(service)
             })
         },

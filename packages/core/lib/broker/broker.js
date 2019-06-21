@@ -656,7 +656,7 @@ const createBroker = (options) => {
 
     // Create internal services
     if (options.loadNodeService) {
-        broker.createService(require('../services/node.service')(broker))
+        broker.createService(require('../services/node.service'))
     }
 
     registry.onRegisterLocalAction = action => {

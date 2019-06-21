@@ -1,4 +1,4 @@
-const CacheBase = require('../../../lib/cache/base')
+ const CacheBase = require('../../../lib/cache/base')
 const { Weave } = require('../../../lib/index')
 
 describe('Test base cache factory', () => {
