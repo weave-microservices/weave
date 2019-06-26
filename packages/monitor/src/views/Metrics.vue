@@ -19,10 +19,10 @@ export default {
      MetricsList
  },
   sockets: {
-    'metrics.trace.span.started': function(data) {
+    'tracing.trace.span.started': function(data) {
       this.running.push(data)
     },
-    'metrics.trace.span.finished': function(data) {
+    'tracing.trace.span.finished': function(data) {
       this.stopped.push(data)
     }
   },

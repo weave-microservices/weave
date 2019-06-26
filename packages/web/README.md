@@ -1,5 +1,10 @@
-# Weave web gateway
+# @weave-js/web
 
+> A Web Gateway for weave microservice architectures.
+
+[![NPM Version](https://img.shields.io/npm/v/@weave-js/web.svg)](https://www.npmjs.com/package/@weave-js/core)
+[![Build Status](https://travis-ci.com/weave-microservices/weave.svg?branch=master)](https://travis-ci.com/weave-microservices/weave)
+[![Downloads](https://img.shields.io/npm/dt/@weave-js/web.svg)](https://www.npmjs.com/package/@weave-js/web)
 
 ## Features
 * support HTTP & HTTPS
@@ -27,11 +32,11 @@ npm install @weave-js/web
 
 ### Run with default settings
 This example uses API Gateway service with default settings.
-You can access to all services (including internal `$node.`) via `http://localhost:3000/`
+You can access to all services (including internal `$node` services) via `http://localhost:3000/`
 
 ```js
 let { Weave } = require('@weave-js/core');
-let ApiService = require('@weave-js/web');
+let ApiMixin = require('@weave-js/web');
 
 let broker = new Weave({ logger: console });
 
@@ -46,7 +51,7 @@ broker.createService({
 });
 
 // Load API Gateway
-broker.createService(ApiService);
+broker.createService(ApiMixin);
 
 // Start server
 broker.start();
@@ -59,9 +64,4 @@ broker.start();
 - List all actions: `http://localhost:3000/~node/actions`
 
 ## Documentation
-Please read our [documentation on weave site](http://weave.services/docs/weave-web.html)
-
-## Test
-```
-$ npm test
-```
+Please read our [documentation on weave site](http://weave.fachwerk.io)
