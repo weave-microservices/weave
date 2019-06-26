@@ -167,7 +167,7 @@ module.exports = {
     // activate action statistics
     logger: {
         enabled: true,
-        logLevel: null,
+        logLevel: 'info',
         stream: process.stdout,
         showTimestamp: true,
         showBadge: true,
