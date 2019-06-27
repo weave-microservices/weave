@@ -35,10 +35,10 @@ This example uses API Gateway service with default settings.
 You can access to all services (including internal `$node` services) via `http://localhost:3000/`
 
 ```js
-let { Weave } = require('@weave-js/core');
-let ApiMixin = require('@weave-js/web');
+let { Weave } = require('@weave-js/core')
+let ApiMixin = require('@weave-js/web')
 
-let broker = new Weave({ logger: console });
+let broker = new Weave({ logger: console })
 
 // Create a service
 broker.createService({
@@ -48,13 +48,13 @@ broker.createService({
             return 'Hello API Gateway!'
         }
     }
-});
+})
 
 // Load API Gateway
-broker.createService(ApiMixin);
+broker.createService(ApiMixin)
 
 // Start server
-broker.start();
+broker.start()
 ```
 
 **Test URLs:**	

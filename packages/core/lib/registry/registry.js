@@ -88,7 +88,7 @@ const createRegistry = (middlewareHandler) => {
                 let oldActions
                 let svc = this.services.get(node, service.name, service.version)
                 if (!svc) {
-                    svc = this.services.add(node, service.name, service.version)
+                    svc = this.services.add(node, service.name, service.version, service.settings)
                 } else {
                     oldActions = Object.assign({}, svc.actions)
                     svc.update(service)
