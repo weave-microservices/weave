@@ -211,7 +211,7 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
     function applyMixins (schema) {
         const mixins = Array.isArray(schema.mixins) ? schema.mixins : [schema.mixins]
 
-        const mixedSchema = mixins.reduce((s, mixin) => {
+        const mixedSchema = Array.from(mixins).reverse().reduce((s, mixin) => {
             for (var key in mixin) {
                 if (lifecycleHook.includes(key)) {
                     mixin[key] = mixin[key].bind(self)
