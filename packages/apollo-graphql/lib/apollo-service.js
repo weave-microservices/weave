@@ -1,12 +1,17 @@
 const { existsSync } = require('fs')
 const { join } = require('path')
 
+const castArray = (obj) => Array.isArray(obj) ? obj : [obj]
+
 module.exports = (mixinOptions) => {
     mixinOptions = Object.assign({
         routeOptions: {
             path: '/graphql'
-        }
+        },
+        outputSchema: false
     }, mixinOptions)
+
+    let isSchemaValid = false
 
     const mixinSchema = {
         name: 'graphql',
@@ -38,17 +43,49 @@ module.exports = (mixinOptions) => {
         },
         methods: {
             prepareGraphQLSchema () {
-                const services = this.broker.registry.services.list({ withActions: true })
+                if (isSchemaValid) {
+                    return
+                }
 
-                services.map(service => {
-                    console.log(service)
-                })
+                const services = this.broker.registry.services.list({ withActions: true, withSettings: true })
+                const schema = this.generateGraphQLSchema(services)
+
+                // isSchemaValid = true
             },
             invalidateGraphQLSchema () {
-                
+                isSchemaValid = false
             },
             generateGraphQLSchema (services) {
+                let types = []
 
+                services.map(service => {
+                    if (service.settings.graphql) {
+                        const globalGraphqlDefs = service.settings.graphql
+
+                        if (globalGraphqlDefs.types) {
+                            types = types.concat(globalGraphqlDefs.types)
+                        }
+                    }
+
+                    const resolvers = {}
+                    Object.values(service.actions).map(action => {
+                        const { graphql: def } = action
+                        // todo: check if def is an object
+                        if (def) {
+                            if (def.query) {
+                                if (!resolvers['Query']) {
+                                    resolvers['Query'] = {}
+                                }
+                                castArray(def.query).map(query => {
+
+                                }) 
+                            }
+                            console.log(def)
+                        }
+                    })
+
+                    console.log(service)
+                })
             },
             graphqlHandler (request, response) {
                 return response.end('Sss')
