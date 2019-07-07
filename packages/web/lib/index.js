@@ -573,10 +573,19 @@ module.exports = () => ({
             } else if (isObject(data) || Array.isArray(data)) { // Object or Array (serialized)
                 result = JSON.stringify(data)
                 // response.setHeader('Content-Length', Buffer.byteLength(body))
-                response.setHeader('Content-Type', responseType || 'application/json')
+                response.setHeader('Content-Type', responseType || 'application/json; charset=utf-8;')
             } else {
-                result = JSON.stringify(data)
-                response.setHeader('Content-Type', responseType || 'application/json')
+                if (responseType) {
+                    response.setHeader('Content-Type', responseType)
+                    if (isString(data)) {
+                        result = data
+                    } else {
+                        result = data.toString()
+                    }
+                } else {
+                    result = JSON.stringify(data)
+                    response.setHeader('Content-Type', 'application/json; charset=utf-8;')
+                }
             }
 
             if (request.method === 'HEAD') {
