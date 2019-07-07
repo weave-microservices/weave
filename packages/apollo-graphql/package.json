@@ -1,24 +1,23 @@
 {
-  "name": "apollo-graphql",
+  "name": "@weave-js/apollo-graphql",
   "version": "0.0.1",
   "description": "> TODO: description",
-  "main": "index.js",
+  "main": "lib/index.js",
   "directories": {
     "lib": "lib"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "scripts": {},
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@apollographql/graphql-playground-html": "^1.6.20",
     "apollo-server-core": "^2.6.7",
+    "graphql": "^14.4.2",
     "graphql-subscriptions": "^1.1.0",
     "graphql-tools": "^4.0.5",
     "graphql-upload": "^8.0.7"
   },
   "devDependencies": {
-    "@weave-js/core": "file: ../../packages/core"
+    "@weave-js/core": "0.7.0-rc.6"
   }
 }
