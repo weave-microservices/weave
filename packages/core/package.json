@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/core",
-  "version": "0.7.0-rc.6",
+  "version": "0.7.0-alpha.18+896c933",
   "description": "The core package of weave",
   "keywords": [
     "Weave",
@@ -84,5 +84,5 @@
     "lib": "lib",
     "test": "test"
   },
-  "gitHead": "cdd9762d78d076dc7bdfa0784cdc9ce6af6a57c3"
+  "gitHead": "896c933b44d19a204b61681be4dcf34d013b05e0"
 }

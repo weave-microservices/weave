@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/apollo-graphql",
-  "version": "0.0.1",
+  "version": "0.0.2-alpha.339+896c933",
   "description": "> TODO: description",
   "main": "lib/index.js",
   "directories": {
@@ -21,6 +21,7 @@
     "graphql-upload": "^8.0.7"
   },
   "devDependencies": {
-    "@weave-js/core": "0.7.0-rc.6"
-  }
+    "@weave-js/core": "^0.7.0-alpha.18+896c933"
+  },
+  "gitHead": "896c933b44d19a204b61681be4dcf34d013b05e0"
 }

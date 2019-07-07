@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/mail",
-  "version": "0.0.29",
+  "version": "0.0.30-alpha.55+896c933",
   "description": "Email service for weave microservice framework",
   "main": "lib/index.js",
   "scripts": {
@@ -35,13 +35,12 @@
     "sinon-expect": "^0.3.0"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.7.0-rc.6",
+    "@weave-js/core": "^0.7.0-alpha.18+896c933",
     "expect.js": "^0.3.1",
-    "nodemailer-stub-transport": "^1.1.0",
-    "nodemailer-mailgun-transport": "^1.4.0",
-
     "jest": "^24.8.0",
-    "jest-cli": "^24.8.0"
+    "jest-cli": "^24.8.0",
+    "nodemailer-mailgun-transport": "^1.4.0",
+    "nodemailer-stub-transport": "^1.1.0"
   },
-  "gitHead": "cdd9762d78d076dc7bdfa0784cdc9ce6af6a57c3"
+  "gitHead": "896c933b44d19a204b61681be4dcf34d013b05e0"
 }

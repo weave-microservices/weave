@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/cli",
-  "version": "0.7.0-rc.7",
+  "version": "0.7.0-alpha.18+896c933",
   "description": "Weave CLI tool",
   "main": "index.js",
   "bin": {
@@ -17,8 +17,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@weave-js/core": "^0.7.0-rc.6",
-    "@weave-js/repl": "0.7.0-rc.4",
+    "@weave-js/core": "^0.7.0-alpha.18+896c933",
+    "@weave-js/repl": "^0.7.0-alpha.34+896c933",
     "async": "^3.0.1",
     "consolidate": "^0.15.1",
     "download-git-repo": "^2.0.0",
@@ -37,5 +37,5 @@
     "user-home": "^2.0.0",
     "yargs": "^13.2.4"
   },
-  "gitHead": "3112aa7d850ac70b0525d0bc65e19964114a5579"
+  "gitHead": "896c933b44d19a204b61681be4dcf34d013b05e0"
 }

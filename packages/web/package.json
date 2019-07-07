@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/web",
-  "version": "0.7.0-rc.4",
+  "version": "0.4.22-alpha.55+896c933",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -18,7 +18,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@weave-js/core": "^0.7.0-rc.6",
+    "@weave-js/core": "^0.7.0-alpha.18+896c933",
     "eslint": "^5.16.0",
     "eslint-config-fw": "^1.0.3",
     "eslint-loader": "^2.1.2",
@@ -38,5 +38,5 @@
       "../test"
     ]
   },
-  "gitHead": "3112aa7d850ac70b0525d0bc65e19964114a5579"
+  "gitHead": "896c933b44d19a204b61681be4dcf34d013b05e0"
 }
