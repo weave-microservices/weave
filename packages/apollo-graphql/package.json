@@ -9,6 +9,9 @@
   "scripts": {},
   "author": "",
   "license": "ISC",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@apollographql/graphql-playground-html": "^1.6.20",
     "apollo-server-core": "^2.6.7",
