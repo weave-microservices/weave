@@ -677,6 +677,9 @@ module.exports = () => ({
                 }
             }
             this.log.info(`<= ${response.statusCode} ${request.method} ${request.url} ${durationString}`)
+        },
+        closeAllConnections () {
+            Object.entries(this.connections).forEach(([key, connection]) => connection.destroy())
         }
     },
     tryCreateHttp2 () {
@@ -687,6 +690,7 @@ module.exports = () => ({
         }
     },
     created () {
+        this.connections = {}
         if (this.settings.https && this.settings.https.key && this.settings.https.cert) {
             if (this.settings.useHttp2) {
                 this.server = this.tryCreateHttp2().createServer(this.settings.https, this.handleRequest)
@@ -699,6 +703,17 @@ module.exports = () => ({
 
         this.server.on('error', error => {
             this.log.error('Server error', error)
+        })
+
+        // store the connections for a gracefully shutdown.
+        this.server.on('connection', connection => {
+            const key = connection.remoteAddress + ':' + connection.remotePort
+            this.log.trace(`Client has connected: ${key}`)
+            this.connections[key] = connection
+            connection.on('close', () => {
+                this.log.trace(`Client has disconnected: ${key}`)
+                delete this.connections[key]
+            })
         })
 
         if (this.settings.routeCache) {
@@ -737,6 +752,7 @@ module.exports = () => ({
         }
         return new Promise((resolve, reject) => {
             if (this.server.listening) {
+                this.closeAllConnections()
                 this.server.close(error => {
                     if (error) {
                         this.log.warn(error.message)
