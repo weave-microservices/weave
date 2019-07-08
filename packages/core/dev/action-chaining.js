@@ -3,7 +3,7 @@ const { Weave } = require('../lib')
 const broker1 = Weave({
     nodeId: 'node-1',
     namespace: 'ciris',
-    transport: 'nats',
+    transport: 'redis',
     logger: console,
     logLevel: 'debug',
     preferLocal: false,
@@ -26,7 +26,7 @@ broker1.createService({
 const broker2 = Weave({
     nodeId: 'node-2',
     namespace: 'ciris',
-    transport: 'nats',
+    transport: 'redis',
     logger: console,
     metrics: {
         enabled: false
@@ -47,7 +47,7 @@ broker2.createService({
 const broker3 = Weave({
     nodeId: 'node-3',
     namespace: 'ciris',
-    transport: 'nats',
+    transport: 'redis',
     logger: console,
     metrics: {
         enabled: false

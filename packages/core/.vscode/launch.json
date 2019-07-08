@@ -15,12 +15,12 @@
             "type": "node",
             "request": "launch",
             "name": "Dev",
-            "program": "${workspaceFolder}/dev/tracing/simple.js",
+            "program": "${workspaceFolder}/dev/index.js",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
             "disableOptimisticBPs": true,
             "args": [
-                "cache"
+                "load-balancer"
             ]
         },
         {
