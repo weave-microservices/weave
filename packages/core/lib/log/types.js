@@ -35,7 +35,7 @@ module.exports = {
         badge: figures('⬤'),
         color: 'blue',
         label: 'trace',
-        logLevel: 'debug'
+        logLevel: 'trace'
     },
     error: {
         badge: figures.cross,
