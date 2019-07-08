@@ -3,10 +3,11 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import VueSocketIO from 'vue-socket.io'
-
+import Buefy from 'buefy'
+import 'buefy/dist/buefy.css'
 
 Vue.config.productionTip = false
-
+Vue.use(Buefy)
 Vue.use(new VueSocketIO({
     debug: false,
     connection: '192.168.178.28:4445', // window.location.host,

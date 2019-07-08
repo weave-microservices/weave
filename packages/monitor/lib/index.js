@@ -55,6 +55,7 @@ module.exports = () => ({
     events: {
         // proxy all events to the client
         '**' (data, sender, event) {
+            console.log(event)
             this.socketio.emit(event, {
                 sender,
                 data
@@ -66,9 +67,10 @@ module.exports = () => ({
     },
     started () {
         this.socketio = io(this.server)
-
+        this.socketList = []
         // Register a call event for every websocket client to call actions.
         this.socketio.on('connection', client => {
+            this.socketList.push(client)
             client.on('call', ({ actionName, parameters, options }, done) => {
                 this.broker.call(actionName, parameters, options)
                     .then(result => {

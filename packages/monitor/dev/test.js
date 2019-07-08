@@ -3,16 +3,17 @@ const { Weave } = require('@weave-js/core')
 
 const broker = Weave({
     nodeId: 'monitor-test',
-    logLevel: 'info',
+    logger: {
+        logLevel: 'info'
+    },
     transport: {
         adapter: 'redis'
         // offlineNodeCheckInterval: 10000,
         // maxOfflineTime: 5000
     },
     watchServices: true,
-    metrics: {
-        enabled: true,
-        metricRate: 1
+    tracing: {
+        enabled: true
     }
 })
 
@@ -24,14 +25,20 @@ broker.createService({
                 text: 'string'
             },
             handler (context) {
-
+                return context.call('hihi.trim2', context.params)
+            }
+        },
+        trim2: {
+            params: {
+                text: 'string'
+            },
+            handler (context) {
+                return 'dadasd'
             }
         }
     },
-    events: {
-        '$node.connected' () {
-
-        }
+    started () {
+        setInterval(() => this.broker.call('hihi.trim', { text: 'adsasd' }), 4000)
     }
 })
 

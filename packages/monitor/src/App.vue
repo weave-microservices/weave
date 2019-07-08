@@ -4,7 +4,7 @@
         <div class="container">
             <div class="navbar-brand">
                 <a class="navbar-item brand-text" href="../">
-                    Weave Landscape Monitor
+                   <img src="/Logo.svg">
                 </a>
                 <div class="navbar-burger burger" data-target="navMenu">
                     <span></span>
@@ -18,7 +18,7 @@
                     <router-link to="/services" class="navbar-item" active-class="is-active">Services</router-link>
                     <router-link to="/actions" class="navbar-item" active-class="is-active">Actions</router-link>
                     <router-link to="/events" class="navbar-item" active-class="is-active">Events</router-link>
-                    <router-link to="/metrics" class="navbar-item" active-class="is-active">Metrics</router-link>
+                    <router-link to="/tracing" class="navbar-item" active-class="is-active">Tracing</router-link>
                 </div>
 
             </div>
@@ -103,7 +103,7 @@ html, body {
   background: #ECF0F3;
 }
 nav.navbar {
-  border-top: 4px solid #276cda;
+  border-top: 4px solid #ff6f91;
   margin-bottom: 1rem;
 }
 .navbar-item.brand-text {

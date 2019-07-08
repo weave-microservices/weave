@@ -4,25 +4,26 @@
 <br>
 <br>
       {{stopped}} -->
-    <metrics-List :metrics="metrics" v-if="metrics.length > 0"></metrics-List>
-    <p v-else>Waiting for metrics...</p>
+    <trace-List :metrics="metrics" v-if="metrics.length > 0"></trace-List>
+    <p v-else>Waiting for tracing data...</p>
   </div>
 </template>
 
 <script>
 
-import MetricsList from '../components/MetricsList.vue'
+import TraceList from '../components/TraceList.vue'
 // @ is an alias to /sr
 export default {
- name: "metrics",
+ name: "tracing",
  components: {
-     MetricsList
+     TraceList
  },
   sockets: {
-    'tracing.trace.span.started': function(data) {
+    '$tracing.trace.span.started': function(data) {
+      console.log(data)
       this.running.push(data)
     },
-    'tracing.trace.span.finished': function(data) {
+    '$tracing.trace.span.finished': function(data) {
       this.stopped.push(data)
     }
   },
@@ -31,13 +32,13 @@ export default {
         const resultItem = item => {
             return {
                 id: item.data.id,
-                requestId: item.data.requestId,
+                requestId: item.data.id,
                 startTime: item.data.startTime,
-                name: item.data.action.name,
-                nodeId: item.data.nodeId,
-                level: item.data.level,
+                name: item.data.name,
+                nodeId: item.sender,
+                level: item.data.tags.requestLevel,
                 subRequests: item.subRequests,
-                stopTime: item.stopTime,
+                stopTime: item.data.finishTime,
                 isPending: item.isPending
             }
         }
@@ -48,12 +49,14 @@ export default {
         })
         console.log(stopEvent)
         if (stopEvent) {
-            item.stopTime = stopEvent.data.stopTime
+            item.data.finishTime = stopEvent.data.finishTime
             item.isPending = false
         } else {
             item.isPending = true
         }
-        const subRequests = this.running.filter(i => i.data.parentId === item.data.id && i.data.level === level)
+        const subRequests = this.running.filter(i => {
+            return i.data.options.parentId === item.data.id && i.data.tags.requestLevel === level
+          })
             .sort((a, b) => {
                 if (a.data.startTime > b.data.startTime) return 1
                 if (a.data.startTime < b.data.startTime) return -1
@@ -61,7 +64,7 @@ export default {
             })
         if (subRequests.length > 0) {
             item.subRequests = subRequests.map(req => {
-                return getSubRequestsRecursive(req, req.data.level + 1)
+                return getSubRequestsRecursive(req, req.data.tags.requestLevel + 1)
             })
              .map(item => resultItem(item))
             return item
@@ -72,8 +75,10 @@ export default {
     }
 
     const topLevelRequests = this.running
-        .filter(request => request.data.level === 0)
-        .map(item => getSubRequestsRecursive(item, item.data.level + 1))
+        .filter(request => {
+          return request.data.tags.requestLevel === 1
+        })
+        .map(item => getSubRequestsRecursive(item, item.data.tags.requestLevel + 1))
         .map(item => resultItem(item))
 
       return topLevelRequests

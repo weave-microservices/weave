@@ -1,6 +1,6 @@
 <template>
   <div>
-    <section class="hero is-info welcome is-small">
+    <section class="hero is-info welcome is-small weave-bg">
       <div class="hero-body">
         <div class="container">
           <h1 class="title">Welcome to Weave Landscape Monitor</h1>
@@ -22,7 +22,7 @@
             <p class="subtitle">Disconnected Nodes</p>
           </article>
         </div>
-        <div class="tile is-parent">
+        <!-- <div class="tile is-parent">
           <article class="tile is-child box">
             <p class="title">3.4k</p>
             <p class="subtitle">Open Orders</p>
@@ -33,7 +33,7 @@
             <p class="title">19</p>
             <p class="subtitle">Exceptions</p>
           </article>
-        </div>
+        </div> -->
       </div>
     </section>
 
@@ -186,5 +186,9 @@ export default {
 }
 
 .state-batch {
+}
+
+.weave-bg {
+  background: linear-gradient(to right top,#845ec2,#d65db1,#ff6f91,#ff9671,#ffc75f,#f9f871) !important;
 }
 </style>
