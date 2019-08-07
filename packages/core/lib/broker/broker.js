@@ -27,8 +27,7 @@ const createTransport = require('../transport')
 const EventEmitter = require('eventemitter2')
 const { WeaveError, WeaveRequestTimeoutError } = require('../errors')
 const { Tracer } = require('../tracing')
-
-// const { MetricsStorage } = require('../metrics')
+const { MetricsStorage } = require('../metrics')
 
 // package.json
 const pkg = require('../../package.json')
@@ -586,8 +585,8 @@ const createBroker = (options) => {
     // const loadBalancingStrategy = LoadBalancing.resolve(options.registry.loadBalancingStrategy)
 
     // Metrics module
-    // broker.metrics = MetricsStorage(broker, options)
-    // broker.metrics.init()
+    broker.metrics = MetricsStorage(broker, options)
+    broker.metrics.init()
 
     // Module initialisation
     registry.init(broker, middlewareHandler)
@@ -631,6 +630,7 @@ const createBroker = (options) => {
             middlewareHandler.add(Middlewares.Retry())
             middlewareHandler.add(Middlewares.ErrorHandler())
             middlewareHandler.add(Middlewares.Tracing())
+            middlewareHandler.add(Middlewares.Metrics())
         }
 
         // Wrap broker methods
