@@ -27,19 +27,18 @@ module.exports = {
 
         let cacheFactory
         if (cacheOptions === true) {
-            cacheFactory = this.Memory
+            cacheFactory = this.adapters.Memory
         } else if (isString(cacheOptions)) {
             const cache = getByName(cacheOptions)
             if (cache) {
                 cacheFactory = cache
             } else {
-                throw new WeaveBrokerOptionsError(`Inknown cache type ${cacheOptions}`)
+                throw new WeaveBrokerOptionsError(`Unknown cache type "${cacheOptions}"`)
             }
         } else if (isFunction(cacheOptions)) {
             cacheFactory = cacheOptions
         }
         if (cacheFactory) {
-            // const cache = cacheFactory({ makeMiddleware, generateCacheKey, getDefaultOptions })
             return cacheFactory
         }
     }
