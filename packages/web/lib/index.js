@@ -254,7 +254,7 @@ module.exports = () => ({
             return route
         },
         autoOrderRoutes () {
-            this.routes.sort((a, b) => addSlashes(a.path).split('/').length - addSlashes(a.path).split('/').length)
+            this.routes.sort((a, b) => addSlashes(a.path).split('/').length - addSlashes(b.path).split('/').length)
             this.log.info('Reordering route map')
         },
         createRoute (options) {
@@ -665,7 +665,7 @@ module.exports = () => ({
         logRequest (request) {
             this.log.info(`=> ${request.method} ${request.url}`)
         },
-        logResponse (request, response, context, data) {
+        logResponse (request, response) {
             let durationString = ''
             if (request.$startTime) {
                 const hrTime = process.hrtime(request.$startTime)

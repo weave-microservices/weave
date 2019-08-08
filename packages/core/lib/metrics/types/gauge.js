@@ -29,4 +29,11 @@ module.exports = class Gauge extends BaseMetricType {
             this.values.set(labelString, item)
         }
     }
+
+    getSnapshot () {
+        return Array.from(this.values).map(item => ({
+            value: item.value,
+            labels: item.labels
+        }))
+    }
 }

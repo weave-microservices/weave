@@ -41,7 +41,7 @@ b2.createService({
     started () {
         setInterval(() => this.broker.call('test.hello')
             .then(res => {
-                console.log(this.broker.metrics.getSnapshot())
+                console.log(this.broker.metrics.list())
             }), 2000)
     }
 })

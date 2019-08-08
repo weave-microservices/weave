@@ -67,15 +67,16 @@ describe('Test usage (without TTL)', () => {
         cache.stop()
     })
 
-    it('should save date with the key.', () => {
+    it('should save date with the key (1).', (done) => {
         cache.set(key1, result)
         return cache.get(key1).then(res => {
             expect(res).toBeDefined()
             expect(res).toEqual(result)
+            done()
         })
     })
 
-    it('should save date with the key.', () => {
+    it('should save date with the key (2).', () => {
         cache.set(key1, result)
         return cache.get(key1).then(res => {
             expect(res).toBeDefined()

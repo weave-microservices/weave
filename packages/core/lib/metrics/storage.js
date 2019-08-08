@@ -48,11 +48,13 @@ module.exports = (broker, options) => {
             }
             return item
         },
-        getSnapshot () {
-            const results = []
-            this.storage.forEach(metric => {
-
+        list () {
+            const results = Array.from(this.storage).map(metric => {
+                return {
+                    values: metric.getSnapshot()
+                }
             })
+
             return results
         }
     }
