@@ -2,7 +2,9 @@
 
 [![NPM Version](https://img.shields.io/npm/v/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/core)
 [![Build Status](https://travis-ci.com/weave-microservices/weave.svg?branch=master)](https://travis-ci.com/weave-microservices/weave)
-[![Maintainability](https://api.codeclimate.com/v1/badges/cb59174696fd9021813a/maintainability)](https://codeclimate.com/github/fachw3rk/weave/maintainability) [![Dependencies](https://david-dm.org/weave-microservices/weave.svg)](https://david-dm.org/weave-microservices/weave.svg) [![Downloads](https://img.shields.io/npm/dt/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/core)
+[![CodeFactor](https://www.codefactor.io/repository/github/weave-microservices/weave/badge/dev)](https://www.codefactor.io/repository/github/weave-microservices/weave/overview/dev)
+[![Dependencies](https://david-dm.org/weave-microservices/weave.svg)](https://david-dm.org/weave-microservices/weave.svg)
+[![Downloads](https://img.shields.io/npm/dt/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/core)
 
 Weave is a fast and easy to use  microservice framework for NodeJS (>= v6.x).
 
