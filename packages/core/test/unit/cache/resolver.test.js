@@ -24,7 +24,7 @@ describe('Test Cache resolver', () => {
     })
 
     it('should resolve custom cache module.', () => {
-        const customCache = (broker, options) => {}
+        const customCache = () => {}
         const newMemory = cache.resolve(customCache)
         expect(newMemory).toEqual(customCache)
     })

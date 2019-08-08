@@ -63,7 +63,7 @@ const createBroker = (options) => {
      * @returns {import('../log/logger.js/index.js.js').Logger} Logger
      */
     /* eslint-enable no-use-before-define */
-    const createLogger = (moduleName, service, logOptions) => {
+    const createLogger = (moduleName, service) => {
         const bindings = {
             nodeId: nodeId
         }
@@ -128,7 +128,7 @@ const createBroker = (options) => {
         if (service.filename && onServiceChanged) {
             const debouncedOnServiceChange = debounce(onServiceChanged, 500)
             const watcher = fs.watch(service.filename, (eventType, filename) => {
-                log.info(`The Service ${service.name} has been changed. ${eventType}`)
+                log.info(`The Service ${service.name} has been changed. (${eventType}, ${filename}) `)
                 watcher.close()
                 debouncedOnServiceChange(this, service)
             })
@@ -390,6 +390,7 @@ const createBroker = (options) => {
                 serviceNames = [serviceNames]
             }
             return new Promise((resolve, reject) => {
+                // todo: add timout for service waiter
                 this.log.warn(`Waiting for services '${serviceNames.join(',')}'`)
                 const serviceCheck = () => {
                     if (!Array.isArray(serviceNames)) {
@@ -538,6 +539,7 @@ const createBroker = (options) => {
                     })
 
                     return new Promise((resolve, reject) => {
+                        // todo: handle timeout
                         const timeoutTimer = setTimeout(() => {
                             broker.bus.off('$node.pong', pongHandler)
                             resolve(pongs)
@@ -564,7 +566,7 @@ const createBroker = (options) => {
     }
 
     // Register internal broker events
-    broker.bus.on('$node.disconnected', ({ nodeId, isUnexpected }) => {
+    broker.bus.on('$node.disconnected', ({ nodeId }) => {
         broker.transport.removePendingRequestsByNodeId(nodeId)
         servicesChanged(false)
     })
