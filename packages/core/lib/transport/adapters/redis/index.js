@@ -5,7 +5,6 @@
  */
 
 // npm packages
-const Redis = require('ioredis')
 const { defaultsDeep } = require('lodash')
 
 // own packages
@@ -26,6 +25,15 @@ const RedisTransportAdapter = adapterOptions => {
         name: 'REDIS',
         connect () {
             return new Promise((resolve, reject) => {
+                let Redis
+                try {
+                    Redis = require('ioredis')
+                } catch (error) {
+                    this.log.error(`The package 'ioredis' is not installed. Please install the package with 'npm install nats'.`)
+                    error.skipRetry = true
+                    return reject(error)
+                }
+
                 clientSub = new Redis(adapterOptions)
 
                 clientSub.on('connect', () => {

@@ -10,6 +10,8 @@ const { defaultsDeep } = require('lodash')
 function NATSTransportAdapter (adapterOptions) {
     let client
 
+    
+
     if (typeof adapterOptions === 'string') {
         adapterOptions = { url: adapterOptions }
     }
