@@ -1,6 +1,7 @@
 // npm packages
 const http = require('http')
 const stream = require('stream')
+const patchRequest = require('./request')
 const { isFunction, isString, compact } = require('lodash')
 const queryString = require('qs')
 const bodyParser = require('body-parser')
@@ -93,7 +94,6 @@ module.exports = () => ({
         handleRequest (request, response) {
             request.$startTime = process.hrtime()
             request.$service = this
-
             return this.actions.rest({ request, response })
                 .then(result => {
                     if (result == null) {
@@ -469,6 +469,8 @@ module.exports = () => ({
                 }
             }
 
+            this.setHeaders(request, response)
+
             return Promise.resolve()
                 .then(() => {
                     if (alias.actionName) {
@@ -529,6 +531,11 @@ module.exports = () => ({
                     this.logResponse(request, response, context, data)
                     return true
                 })
+        },
+        setHeaders (request, response) {
+            if (!response.getHeader('Connection')) {
+                response.setHeader('Connection', request.isKeepAlive() ? 'Keep-Alive' : 'close')
+            }
         },
         sendResponse (context, route, request, response, action, data) {
             let responseType
@@ -699,6 +706,7 @@ module.exports = () => ({
         } else {
             this.server = http.createServer(this.handleRequest)
             this.isHttps = false
+            patchRequest(http.IncomingMessage)
         }
 
         this.server.on('error', error => {
