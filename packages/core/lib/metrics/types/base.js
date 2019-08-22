@@ -1,8 +1,8 @@
 module.exports = class BaseMetricType {
     constructor (storage, obj) {
-        this.values = new Map()
         this.name = obj.name
         this.labels = obj.labels || []
+        this.type = obj.type
     }
 
     stringifyLabels (labels) {
@@ -27,11 +27,15 @@ module.exports = class BaseMetricType {
         return this.values.get(labelString)
     }
 
+    snapshot () {
+        return this.generateSnapshot()
+    }
+
     toObject () {
         return {
             type: this.type,
             name: this.name,
-            value: ''
+            value: this.snapshot()
         }
     }
 }

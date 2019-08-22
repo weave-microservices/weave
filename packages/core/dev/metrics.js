@@ -2,7 +2,10 @@ const { Weave } = require('../lib')
 
 const b1 = Weave({
     nodeId: 'n1',
-    logLevel: 'debug',
+    
+    logger: {
+        logLevel: 'debug'
+    },
     watchServices: true,
     metrics: {
         enabled: true
@@ -13,17 +16,24 @@ const b1 = Weave({
 
 const b2 = Weave({
     nodeId: 'n2',
-    logLevel: 'debug',
+    namespace: 'metrics',
+    logger: {
+        logLevel: 'debug'
+    },
     watchServices: true,
     metrics: {
-        enabled: true
+        enabled: false
     },
     // cache: true,
     transport: 'redis'
 })
 
 b1.createService({
-    name: 'test',
+    name: 'test'
+})
+
+b2.createService({
+    name: 'test2',
     actions: {
         hello () {
             return new Promise(resolve => {
@@ -32,14 +42,9 @@ b1.createService({
                 }, 100)
             })
         }
-    }
-})
-
-b2.createService({
-    name: 'test2',
-    dependencies: ['test'],
+    },
     started () {
-        setInterval(() => this.broker.call('test.hello')
+        setInterval(() => this.broker.call('test2.hello')
             .then(res => {
                 console.log(this.broker.metrics.list())
             }), 2000)
@@ -47,6 +52,6 @@ b2.createService({
 })
 
 Promise.all([
-    b1.start(),
+    // b1.start(),
     b2.start()
 ])

@@ -49,9 +49,9 @@ module.exports = (broker, options) => {
             return item
         },
         list () {
-            const results = Array.from(this.storage).map(metric => {
+            const results = Array.from(this.storage).map(([name, metric]) => {
                 return {
-                    values: metric.getSnapshot()
+                    values: metric.toObject()
                 }
             })
 
