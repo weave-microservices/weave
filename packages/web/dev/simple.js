@@ -6,7 +6,7 @@ const broker = Weave({
     nodeId: 'web1',
     cache: false,
     logger: {
-        logLevel: 'error'
+        logLevel: 'info'
     },
     transport: {
         adapter: TransportAdapters.Fake()

@@ -27,7 +27,8 @@
   "dependencies": {
     "body-parser": "^1.19.0",
     "fachwork": "0.0.10",
-    "lodash": "^4.17.11",
+    "find-my-way": "^2.1.0",
+    "lodash": "^4.17.15",
     "mime-types": "^2.1.24",
     "supertest": "^4.0.2"
   },

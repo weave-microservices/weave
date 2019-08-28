@@ -1,7 +1,9 @@
 // npm packages
 const http = require('http')
+// const server = require('./server')
 const stream = require('stream')
 const patchRequest = require('./request')
+const patchResponse = require('./response')
 const { isFunction, isString, compact } = require('lodash')
 const queryString = require('qs')
 const bodyParser = require('body-parser')
@@ -55,9 +57,10 @@ module.exports = () => ({
 
                 this.logRequest(request)
 
-                request.$context = context
-                response.$context = context
+                request.setContext(context)
+                response.setContext(context)
 
+                // add the request id to the header
                 if (context.requestId) {
                     response.setHeader('X-Request-Id', context.requestId)
                 }
@@ -92,8 +95,9 @@ module.exports = () => ({
     },
     methods: {
         handleRequest (request, response) {
-            request.$startTime = process.hrtime()
-            request.$service = this
+            request.start()
+            request.setService(this)
+
             return this.actions.rest({ request, response })
                 .then(result => {
                     if (result == null) {
@@ -115,8 +119,8 @@ module.exports = () => ({
                 })
         },
         routeHandler (context, route, request, response) {
-            request.$route = route
-            response.$route = route
+            request.setRoute(route)
+            response.setRoute(route)
 
             return new Promise((resolve, reject) => {
                 return this.wrapMiddlewaresPromisified(request, response, route.middlewares)
@@ -149,7 +153,6 @@ module.exports = () => ({
                         urlPath = urlPath.replace(/~/, '$')
 
                         let actionName = urlPath
-
                         if (route.aliases && route.aliases.length > 0) {
                             const result = this.resolveAlias(route, urlPath, request.method)
                             // found a matching alias.
@@ -518,7 +521,7 @@ module.exports = () => ({
             const context = request.$context
 
             return Promise.resolve()
-                .then(() => this.log.info(`Call action: ${actionName}`))
+                .then(() => this.log.debug(`Call action: ${actionName}`))
                 .then(() => context.call(actionName, params, {}))
                 .then(data => {
                     if (route.onAfterCall) {
@@ -534,7 +537,7 @@ module.exports = () => ({
         },
         setHeaders (request, response) {
             if (!response.getHeader('Connection')) {
-                response.setHeader('Connection', request.isKeepAlive() ? 'Keep-Alive' : 'close')
+                response.setHeader('Connection', request.isKeepAlive() ? 'keep-alive' : 'close')
             }
         },
         sendResponse (context, route, request, response, action, data) {
@@ -670,7 +673,7 @@ module.exports = () => ({
             return false
         },
         logRequest (request) {
-            this.log.info(`=> ${request.method} ${request.url}`)
+            this.log.debug(`=> ${request.method} ${request.url}`)
         },
         logResponse (request, response) {
             let durationString = ''
@@ -683,7 +686,7 @@ module.exports = () => ({
                     durationString = `[${Number(duration).toFixed(3)} ms]`
                 }
             }
-            this.log.info(`<= ${response.statusCode} ${request.method} ${request.url} ${durationString}`)
+            this.log.debug(`<= ${response.statusCode} ${request.method} ${request.url} ${durationString}`)
         },
         closeAllConnections () {
             Object.entries(this.connections).forEach(([key, connection]) => connection.destroy())
@@ -704,9 +707,10 @@ module.exports = () => ({
             }
             this.isHttps = true
         } else {
-            this.server = http.createServer(this.handleRequest)
+            this.server = http.createServer()
             this.isHttps = false
             patchRequest(http.IncomingMessage)
+            patchResponse(http.OutgoingMessage)
         }
 
         this.server.on('error', error => {
@@ -714,15 +718,17 @@ module.exports = () => ({
         })
 
         // store the connections for a gracefully shutdown.
-        this.server.on('connection', connection => {
-            const key = connection.remoteAddress + ':' + connection.remotePort
+        this.server.on('connection', socket => {
+            const key = socket.remoteAddress + ':' + socket.remotePort
             this.log.trace(`Client has connected: ${key}`)
-            this.connections[key] = connection
-            connection.on('close', () => {
+            this.connections[key] = socket
+            socket.on('close', () => {
                 this.log.trace(`Client has disconnected: ${key}`)
                 delete this.connections[key]
             })
         })
+
+        this.server.on('request', this.handleRequest)
 
         if (this.settings.routeCache) {
             this.routeCache = {}
@@ -743,7 +749,7 @@ module.exports = () => ({
         this.log.info(`API Gateway created.`)
     },
     started () {
-        if (this.settings.isMiddleware === true) { // todo: implement a middleware handler for express.
+        if (this.settings.runAsMiddleware === true) { // todo: implement a middleware handler for express.
             return
         }
         this.server.listen(this.settings.port, this.settings.ip, error => {
@@ -755,7 +761,7 @@ module.exports = () => ({
         })
     },
     stopped () {
-        if (this.settings.isMiddleware === true) {
+        if (this.settings.runAsMiddleware === true) {
             return
         }
         return new Promise((resolve, reject) => {
