@@ -26,9 +26,7 @@ const isObject = obj => {
     return type === 'function' || type === 'object' && !!obj
 }
 
-const addSlashes = (path) => {
-    return (path.startsWith('/') ? '' : '/') + path + (path.endsWith('/') ? '' : '/')
-}
+const addSlashes = path => (path.startsWith('/') ? '' : '/') + path + (path.endsWith('/') ? '' : '/')
 
 module.exports = () => ({
     name: 'weave-web',
@@ -59,11 +57,6 @@ module.exports = () => ({
 
                 request.setContext(context)
                 response.setContext(context)
-
-                // add the request id to the header
-                if (context.requestId) {
-                    response.setHeader('X-Request-Id', context.requestId)
-                }
 
                 // eslint-disable-next-line
                 let { url, query } = this.processQueryString(request)

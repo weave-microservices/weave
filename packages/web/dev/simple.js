@@ -20,7 +20,7 @@ broker.createService({
     mixins: [WebGateway()],
     name: 'api',
     settings: {
-        port: 81,
+        port: 82,
         routes: [
             {
                 path: '/',
