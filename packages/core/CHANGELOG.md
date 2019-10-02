@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-alpha.19](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.6...@weave-js/core@0.7.0-alpha.19) (2019-10-02)
+
+
+### Bug Fixes
+
+* Changed order of mixin merge ([40ac322](https://github.com/fachw3rk/weave/commit/40ac322))
+* Improved logger performance. ([0be7543](https://github.com/fachw3rk/weave/commit/0be7543))
+* Loglevel of trace ([84713da](https://github.com/fachw3rk/weave/commit/84713da))
+* Service settings for remote services are now stored correctly ([c230f03](https://github.com/fachw3rk/weave/commit/c230f03))
+
+
+### Features
+
+*  Added "ping" function to broker ([e43ffed](https://github.com/fachw3rk/weave/commit/e43ffed))
+* Added raw messages to done hook ([ad94e2f](https://github.com/fachw3rk/weave/commit/ad94e2f))
+
+
+
+
+
 # [0.7.0-rc.6](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.5...@weave-js/core@0.7.0-rc.6) (2019-03-28)
 
 

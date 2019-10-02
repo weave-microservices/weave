@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-alpha.35](https://github.com/weave-microservices/weave/compare/@weave-js/repl@0.7.0-rc.4...@weave-js/repl@0.7.0-alpha.35) (2019-10-02)
+
+
+### Bug Fixes
+
+* Service settings for remote services are now stored correctly ([c230f03](https://github.com/weave-microservices/weave/commit/c230f03))
+
+
+
+
+
 # [0.7.0-rc.4](https://github.com/weave-microservices/weave/compare/@weave-js/repl@0.7.0-rc.3...@weave-js/repl@0.7.0-rc.4) (2019-03-15)
 
 
