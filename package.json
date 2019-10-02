@@ -4,7 +4,8 @@
     "postinstall": "lerna bootstrap --hoist",
     "setup": "lerna bootstrap --hoist",
     "link": "lerna link --force-local",
-    "test": "lerna run test"
+    "test": "lerna run test",
+    "audit": "lerna exec --concurrency 1 npm audit fix"
   },
   "repository": {
     "type": "git",
