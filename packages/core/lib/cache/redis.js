@@ -4,7 +4,6 @@
  * Copyright 2018 Fachwerk
  */
 
-const Redis = require('ioredis')
 const createBase = require('./base')
 
 const makeRedisCache = (broker, options = {}) => {
@@ -24,6 +23,13 @@ const makeRedisCache = (broker, options = {}) => {
     const cache = Object.assign(base, {
         name,
         init () {
+            let Redis
+            try {
+                Redis = require('ioredis')
+            } catch (error) {
+                this.log.error(`The package 'ioredis' is not installed. Please install the package with 'npm install nats'.`)
+                throw error
+            }
             client = new Redis(options)
 
             client.on('connect', () => {
