@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-alpha.20](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-alpha.19...@weave-js/core@0.7.0-alpha.20) (2019-10-03)
+
+
+### Bug Fixes
+
+* made ioredis package optional for redis cache ([004c02f](https://github.com/fachw3rk/weave/commit/004c02f))
+
+
+
+
+
 # [0.7.0-alpha.19](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.6...@weave-js/core@0.7.0-alpha.19) (2019-10-02)
 
 
