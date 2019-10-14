@@ -49,11 +49,11 @@ broker1.createService({
         }
     },
     events: {
-        'tracing.trace.span.started' (payload) {
+        '$tracing.trace.span.started' (payload) {
             console.log(payload)
             console.log('-----------------------')
         },
-        'tracing.trace.span.finished' (payload) {
+        '$tracing.trace.span.finished' (payload) {
             console.log(payload)
             console.log('-----------------------')
         }

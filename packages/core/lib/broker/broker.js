@@ -25,7 +25,7 @@ const createHealthcheck = require('./healthcheck')
 const TransportAdapters = require('../transport/adapters')
 const createTransport = require('../transport')
 const EventEmitter = require('eventemitter2')
-const { WeaveError, WeaveBrokerOptionsError } = require('../errors')
+const { WeaveError } = require('../errors')
 const { Tracer } = require('../tracing')
 const { MetricsStorage } = require('../metrics')
 
