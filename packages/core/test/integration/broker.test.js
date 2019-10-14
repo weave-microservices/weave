@@ -171,3 +171,209 @@ describe('Test broker trasnport resolver', () => {
         expect(broker.transport.adapterName).toBe('Fake')
     })
 })
+
+describe('Ping', () => {
+    it('should result an empty array if the transporter is not connected.', done => {
+        const broker = Weave({
+            nodeId: 'node1',
+            logger: {
+                logLevel: 'fatal'
+            }
+        })
+        return broker.start()
+            .then(() => broker.ping())
+            .then(res => {
+                expect(res).toEqual([])
+                done()
+            })
+    })
+    it('should return an empty object if no nodes are connected.', done => {
+        const broker = Weave({
+            nodeId: 'node1',
+            logger: {
+                logLevel: 'fatal'
+            },
+            transport: 'fake'
+        })
+        return broker.start()
+            .then(() => broker.ping())
+            .then(res => {
+                expect(res).toEqual({})
+                done()
+            })
+    })
+
+    it('should return results of all connected nodes.', done => {
+        const broker1 = Weave({
+            nodeId: 'node1',
+            logger: {
+                logLevel: 'fatal'
+            },
+            transport: 'fake'
+        })
+
+        const broker2 = Weave({
+            nodeId: 'node2',
+            logger: {
+                logLevel: 'fatal'
+            },
+            transport: 'fake'
+        })
+
+        return Promise.all([
+            broker1.start(),
+            broker2.start()
+        ])
+            .then(() => broker1.ping())
+            .then(res => {
+                expect(res.node2).toBeDefined()
+                expect(res.node2.timeDiff).toBeDefined()
+                expect(res.node2.elapsedTime).toBeLessThan(5)
+                expect(res.node2.nodeId).toBe('node2')
+                done()
+            })
+    })
+
+    it('should throw a timeout error if a node not responding.', done => {
+        const broker1 = Weave({
+            nodeId: 'node1',
+            logger: {
+                logLevel: 'fatal'
+            },
+            transport: 'fake'
+        })
+
+        const broker2 = Weave({
+            nodeId: 'node2',
+            logger: {
+                logLevel: 'fatal'
+            },
+            transport: 'fake'
+        })
+
+        return Promise.all([
+            broker1.start(),
+            broker2.start()
+        ])
+            .then(() => broker1.ping('node3')) // node with this name is not existing
+            .then(res => {
+                expect(res).toBeNull()
+                done()
+            })
+    })
+
+    it('should return result of a given nodeId.', done => {
+        const broker1 = Weave({
+            nodeId: 'node1',
+            logger: {
+                logLevel: 'fatal'
+            },
+            transport: 'fake'
+        })
+
+        const broker2 = Weave({
+            nodeId: 'node2',
+            logger: {
+                logLevel: 'fatal'
+            },
+            transport: 'fake'
+        })
+
+        return Promise.all([
+            broker1.start(),
+            broker2.start()
+        ])
+            .then(() => broker1.ping('node2'))
+            .then(res => {
+                expect(res.elapsedTime).toBeLessThan(5)
+                expect(res.timeDiff).toBeDefined()
+                expect(res.nodeId).toBe('node2')
+                done()
+            })
+    })
+    it('should return results of all connected nodes.', done => {
+        const broker1 = Weave({
+            nodeId: 'node1',
+            logger: {
+                logLevel: 'fatal'
+            },
+            transport: 'fake'
+        })
+
+        const broker2 = Weave({
+            nodeId: 'node2',
+            logger: {
+                logLevel: 'fatal'
+            },
+            transport: 'fake'
+        })
+
+        return Promise.all([
+            broker1.start(),
+            broker2.start()
+        ])
+            .then(() => broker1.ping('node2'))
+            .then(res => {
+                expect(res.elapsedTime).toBeLessThan(5)
+                expect(res.timeDiff).toBeDefined()
+                expect(res.nodeId).toBe('node2')
+                done()
+            })
+    })
+})
+
+// describe('Test repl', () => {
+//     jest.mock('@weave-js/repl')
+//     const repl = require('@weave-js/repl')
+//     repl.mockImplementation(() => jest.fn())
+
+//     it('should switch to repl mode', () => {
+//         const broker = Weave({
+//             logger: {
+//                 logLevel: 'fatal'
+//             }
+//         })
+//         broker.repl()
+
+//         expect(repl).toHaveBeenCalledTimes(1)
+//         expect(repl).toHaveBeenCalledWith(broker, null)
+//     })
+// })
+
+// describe('Signal handling', () => {
+//     it(`should handle SIGTERM`, (done) => {
+//         const broker = Weave({
+//             nodeId: 'node1',
+//             logger: {
+//                 logLevel: 'fatal'
+//             }
+//         })
+//         broker.stop = jest.fn()
+//         return broker.start()
+//             .then(() => {
+//                 process.once('SIGTERM', () => {
+//                     expect(broker.stop).toHaveBeenCalledTimes(1)
+//                     done()
+//                 })
+//                 process.kill(process.pid, 'SIGTERM')
+//             })
+//     })
+
+//     it(`should handle SIGINT`, (done) => {
+//         const broker = Weave({
+//             nodeId: 'node1',
+//             logger: {
+//                 logLevel: 'fatal'
+//             }
+//         })
+//         broker.stop = jest.fn()
+//         return broker.start()
+//             .then(() => {
+//                 process.once('SIGINT', () => {
+//                     expect(broker.stop).toHaveBeenCalledTimes(1)
+//                     done()
+//                 })
+//                 process.kill(process.pid, 'SIGTERM')
+//             })
+//     })
+// })
