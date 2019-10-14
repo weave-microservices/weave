@@ -31,7 +31,6 @@ describe('Test utils lib', () => {
                 expect(clientInfo.version).toEqual(pkg.version)
 
                 // OS info
-
                 const osInfo = healthCheck.getOsInfos()
                 expect(osInfo.hostname).toBeDefined()
                 expect(osInfo.plattform).toBeDefined()

@@ -6,7 +6,7 @@
 
 const { cpuUsage } = require('fachwork')
 
-module.exports = (nodeId) => {
+const createNode = (nodeId) => {
     return {
         id: nodeId,
         info: null,
@@ -63,3 +63,4 @@ module.exports = (nodeId) => {
     }
 }
 
+module.exports = createNode
