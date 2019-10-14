@@ -184,5 +184,28 @@ describe('Test middlware hooks', () => {
                     })
             })
     })
+
+    it('should decorate core module', () => {
+        const middleware = {
+            created (broker, a) {
+                broker.fancyTestmethod = () => {}
+            }
+        }
+
+        const broker1 = Weave({
+            nodeId: 'node1',
+            transport: {
+                adapter: TransportAdapters.Fake()
+            },
+            logger: {
+                logLevel: 'fatal'
+            },
+            loadNodeService: false,
+            middlewares: [middleware]
+        })
+
+        broker1.start()
+        expect(broker1.fancyTestmethod).toBeDefined()
+    })
 })
 
