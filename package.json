@@ -49,15 +49,12 @@
     "url": "https://github.com/weave-microservices/weave/issues"
   },
   "homepage": "https://weave-js.com",
-  "dependencies": {
-    "lerna": "^3.16.4"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "eslint": "^6.2.0",
+    "eslint": "^6.5.1",
     "eslint-config-fw": "^1.0.3",
-    "eslint-loader": "^2.2.1",
-    "jest": "^24.9.0",
-    "jest-cli": "^24.9.0",
-    "lolex": "^4.1.0"
+    "eslint-loader": "^3.0.2",
+    "lerna": "^3.17.0",
+    "lolex": "^5.0.1"
   }
 }

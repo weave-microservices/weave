@@ -11,7 +11,7 @@ module.exports = (adapter, options) => {
 
     self.listen = () => {
         return new Promise((resolve, reject) => {
-            server = net.createServer(socket => onTCPClientConencted(socket))
+            server = net.createServer(socket => onTCPClientConnected(socket))
 
             server.on('error', error => {
                 adapter.log.error(`TCP server error`, error)
@@ -27,7 +27,7 @@ module.exports = (adapter, options) => {
         })
     }
 
-    function onTCPClientConencted (socket) {
+    function onTCPClientConnected (socket) {
         sockets.push(socket)
 
         // const address = socket.remoteAddress

@@ -149,6 +149,8 @@ module.exports = {
         maxQueueSize: 80000,
         // heartbeat interval
         heartbeatInterval: 5 * 1000,
+        // local node update interval
+        nodeUpdateInterval: 5 * 1000,
         // heartbeat timeout
         heartbeatTimeout: 10 * 1000,
         // interval to check and remove not offline nodes.

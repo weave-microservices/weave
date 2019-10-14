@@ -136,7 +136,7 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
             })
             .then(() => {
                 if (schema.dependencies) {
-                    return broker.waitForServices(schema.dependencies, self.settings.dependencyTimeout || 0)
+                    return broker.waitForServices(schema.dependencies, self.settings.$dependencyTimeout || 0)
                 }
             }).then(() => {
                 if (isFunction(schema.started)) {
@@ -173,7 +173,6 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
                     return schema.stopped
                         .map(hook => promisify(hook, { scope: self }))
                         .reduce((p, hook) => p.then(hook), Promise.resolve())
-                    // return Promise.all(schema.stopped.map(stoppedHook => promisify(stoppedHook, { scope: self })()))
                 }
             })
             .then(() => {

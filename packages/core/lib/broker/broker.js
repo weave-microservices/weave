@@ -25,7 +25,7 @@ const createHealthcheck = require('./healthcheck')
 const TransportAdapters = require('../transport/adapters')
 const createTransport = require('../transport')
 const EventEmitter = require('eventemitter2')
-const { WeaveError, WeaveRequestTimeoutError } = require('../errors')
+const { WeaveError, WeaveBrokerOptionsError } = require('../errors')
 const { Tracer } = require('../tracing')
 const { MetricsStorage } = require('../metrics')
 
@@ -37,7 +37,7 @@ const pkg = require('../../package.json')
  * @param {import('./default-options.js').BrokerOptions} options - Service broker options.
  */
 /* eslint-enable no-use-before-define */
-const createBroker = (options) => {
+const createBroker = options => {
     // merge options with default options
     options = defaultsDeep(options, defaultOptions)
 
@@ -389,6 +389,7 @@ const createBroker = (options) => {
             if (typeof serviceNames === 'string') {
                 serviceNames = [serviceNames]
             }
+            const startTimestamp = Date.now()
             return new Promise((resolve, reject) => {
                 // todo: add timout for service waiter
                 this.log.warn(`Waiting for services '${serviceNames.join(',')}'`)
@@ -404,6 +405,11 @@ const createBroker = (options) => {
                     if (count.length === serviceNames.length) {
                         return resolve()
                     }
+
+                    if (timeout && (Date.now() - startTimestamp) > timeout) {
+                        return reject(new WeaveError('The waiting of the services is interrupted due to a timeout.', 500, 'WAIT_FOR_SERVICE', { services: serviceNames }))
+                    }
+
                     this.options.waitForServiceInterval = setTimeout(serviceCheck, interval || 500)
                 }
                 serviceCheck()
@@ -495,6 +501,7 @@ const createBroker = (options) => {
                 })
                 .then(() => {
                     log.success(`The node was successfully shut down. Bye bye! 👋`)
+
                     this.broadcastLocal('$broker.closed')
 
                     process.removeListener('beforeExit', onClose)
@@ -514,7 +521,8 @@ const createBroker = (options) => {
                 if (nodeId) {
                     return new Promise((resolve, reject) => {
                         const timeoutTimer = setTimeout(() => {
-                            return reject(new WeaveRequestTimeoutError(null, nodeId))
+                            broker.bus.off('$node.pong', pongHandler)
+                            return resolve(null)
                         }, timeout)
 
                         const pongHandler = pong => {
@@ -674,7 +682,7 @@ const createBroker = (options) => {
     }
 
     // Call middleware hook for broker created.
-    middlewareHandler.callHandlersSync('created', broker)
+    middlewareHandler.callHandlersSync('created', [broker])
 
     return broker
 }

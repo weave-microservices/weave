@@ -21,14 +21,13 @@ const MakeServiceCatalog = (registry) => {
         return item
     }
 
-    self.get = (nodeId, name, version, settings) => services.find(svc => svc.equals(name, version, nodeId))
+    self.get = (nodeId, name, version) => services.find(svc => svc.equals(name, version, nodeId))
 
-    self.has = (name, version, nodeId) => {
-        return !!services.find(svc => svc.equals(name, version, nodeId))
-    }
+    self.has = (name, version, nodeId) => !!services.find(svc => svc.equals(name, version, nodeId))
 
     self.remove = (nodeId, name, version) => {
         const service = self.get(nodeId, name, version)
+
         if (service) {
             registry.actions.removeByService(service)
             registry.events.removeByService(service)
@@ -49,15 +48,19 @@ const MakeServiceCatalog = (registry) => {
 
     self.registerAction = (nodeId, action) => {
         let endPointList = actions.get(action.name)
+
         if (!endPointList) {
             endPointList = EndpointList(broker, options)
             endPointList.isInternal = action.name.substring(0, 1) === '$'
             actions.set(action.name, endPointList)
         }
+
         const service = findServiceByNode(nodeId, action.service.name)
+
         if (service) {
             service.addAction(action)
         }
+
         return endPointList.add(nodeId, action)
     }
 

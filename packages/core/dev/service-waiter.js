@@ -16,6 +16,9 @@ const broker1 = Weave({
 
 broker1.createService({
     name: 'test',
+    settings: {
+        $dependencyTimeout: 2000
+    },
     dependencies: ['math222'],
     actions: {
         hello: {
@@ -49,3 +52,6 @@ const broker2 = Weave({
 
 broker2.start()
 broker1.start()
+    .catch(error => {
+        console.log(error.message)
+    })

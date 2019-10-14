@@ -25,9 +25,7 @@ function TCPTransporter (options) {
 
     self.state = 'ready'
 
-    self.onInit = deps => {
-        self.messageTypeHelper = TCPMessageTypeHelper(self.MessageTypes)
-    }
+    self.messageTypeHelper = TCPMessageTypeHelper(MessageTypes)
 
     self.connect = (isTryReconnect = false) => {
         return Promise.resolve()
@@ -41,10 +39,11 @@ function TCPTransporter (options) {
             .then(() => startTimers())
             .then(() => {
                 self.log.info('TCP transport started.')
+                self.broker.registry.nodes.localNode.port = options.port
                 self.broker.registry.generateLocalNodeInfo()
             })
             .then(() => {
-                self.broker.emit('adapter.connected', false, false)
+                self.connected(false, false)
             })
     }
 
@@ -85,8 +84,8 @@ function TCPTransporter (options) {
         const localNode = self.broker.registry.nodes.localNode
 
         const message = self.transport.createMessage(MessageTypes.MESSAGE_GOSSIP_HELLO, nodeId, {
-            host: localNode,
-            port: localNode
+            host: localNode.IPList[0],
+            port: localNode.port
         })
         self.send(message)
         return Promise.resolve()
@@ -162,7 +161,7 @@ function TCPTransporter (options) {
         node.IPList = [host]
         node.hostname = host
         node.port = port
-
+        node.sequence = 0
         self.broker.registry.nodes.add(nodeId, node)
         return node
     }
@@ -197,10 +196,10 @@ function TCPTransporter (options) {
 
         list.forEach(node => {
             if (node.isAvailable) {
+                payload.online[node.id] = [node.sequence, node.cpuSequence || 0, node.cpu || 0]
                 if (!node.isLocal) {
                     onlineNodes.push(node)
                 }
-                payload.online[node.id] = [node.sequence, node.cpuSequence || 0, node.cpu || 0]
             } else {
                 offlineNodes.push(node)
                 payload.offline[node.id] = [node.sequence, node.cpuSequence || 0, node.cpu || 0]
@@ -236,10 +235,17 @@ function TCPTransporter (options) {
         }
     }
 
-    function onGossipHelloMessage (payload, socket) {
+    function onGossipHelloMessage (packet, socket) {
         try {
-            // const message = self.deserialize(payload)
-            // const nodeId = message.nodeId
+            const message = self.deserialize(packet)
+            const payload = message.payload
+            const nodeId = payload.sender
+
+            const node = self.broker.registry.nodes.get(nodeId)
+
+            if (!node) {
+                self.addNodeToOfflineList({ nodeId, host: payload.host, port: payload.port })
+            }
         } catch (error) {
             self.log.error(`Invalid gossip hello message.`, error.message)
         }
@@ -268,7 +274,7 @@ function TCPTransporter (options) {
                     [sequence, cpuSequence, cpu] = online
                 }
 
-                console.log(sequence)
+                // self.log.debug(sequence, cpuSequence)
                 if (offline) {
                     // sender said node is offline
                     if (!node.isAvailable) {
@@ -280,7 +286,7 @@ function TCPTransporter (options) {
                         }
                     } else if (node.isLocal) {
                         node.sequence++
-                        const nodeInfo = self.registry.getLocalNodeInfo(true)
+                        const nodeInfo = self.broker.registry.getLocalNodeInfo(true)
                         response.online[node.id] = [nodeInfo, node.cpuSequence || 0, node.cpu || 0]
                     }
                 } else if (online) {
@@ -290,6 +296,8 @@ function TCPTransporter (options) {
                                 cpu,
                                 cpuSequence
                             })
+                        } else if (cpuSequence < node.cpuSequence) {
+                            response.online[node.id] = [node.cpuSequence || 0, node.cpu || 0]
                         }
                     } else {
                         return
@@ -306,8 +314,8 @@ function TCPTransporter (options) {
             }
 
             if (response.online || response.offline) {
-                const destinationNode = self.registry.nodes.get(payload.sender)
-                const message = self.Message(self.MessageTypes.MESSAGE_GOSSIP_RESPONSE, destinationNode.id, response)
+                const destinationNode = self.broker.registry.nodes.get(payload.sender)
+                const message = self.transport.createMessage(MessageTypes.MESSAGE_GOSSIP_RESPONSE, destinationNode.id, response)
                 self.send(message)
             }
         } catch (error) {
@@ -331,11 +339,12 @@ function TCPTransporter (options) {
 
                     const [info, cpuSequence, cpu] = item
 
-                    const node = self.registry.nodes.get(nodeId)
+                    const node = self.broker.registry.nodes.get(nodeId)
 
                     if (info && (!node || node.sequence < info.sequence)) {
+                        // if node is a new node or has a higher sequence update local info.
                         info.sender = nodeId
-                        self.registry.processNodeInfo(info)
+                        self.broker.registry.processNodeInfo(info)
                     }
 
                     if (node && cpuSequence && cpuSequence > node.cpuSequence) {
@@ -344,6 +353,12 @@ function TCPTransporter (options) {
                             cpuSequence
                         })
                     }
+                })
+            }
+
+            if (payload.offline) {
+                Object.keys(payload.offline).forEach(nodeId => {
+                    if (nodeId === self.nodeId) return
                 })
             }
         } catch (error) {

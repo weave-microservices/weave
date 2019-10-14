@@ -17,25 +17,25 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@weave-js/core": "^0.7.0-alpha.20",
-    "@weave-js/repl": "^0.7.0-alpha.36",
-    "async": "^3.0.1",
+    "@weave-js/core": "^0.7.0-alpha.19",
+    "@weave-js/repl": "^0.7.0-alpha.35",
+    "async": "^3.1.0",
     "consolidate": "^0.15.1",
     "download-git-repo": "^2.0.0",
     "exeq": "^3.0.0",
-    "handlebars": "^4.1.2",
-    "inquirer": "^6.3.1",
+    "handlebars": "^4.4.3",
+    "inquirer": "^7.0.0",
     "kleur": "^3.0.3",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.15",
     "metalsmith": "^2.3.0",
     "minimatch": "^3.0.4",
     "mkdirp": "^0.5.1",
     "multimatch": "^4.0.0",
-    "ora": "^3.4.0",
-    "rimraf": "^2.6.3",
-    "update-notifier": "^3.0.0",
+    "ora": "^4.0.2",
+    "rimraf": "^3.0.0",
+    "update-notifier": "^3.0.1",
     "user-home": "^2.0.0",
-    "yargs": "^13.2.4"
+    "yargs": "^14.2.0"
   },
-  "gitHead": "896c933b44d19a204b61681be4dcf34d013b05e0"
+  "gitHead": "2bafc8dbb63eed91f47aa5d034e207e5a5fb38ac"
 }

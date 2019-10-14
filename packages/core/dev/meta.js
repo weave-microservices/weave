@@ -20,7 +20,7 @@ broker1.createService({
                 name: { type: 'string' }
             },
             async handler (context) {
-                await context.call('test.action2').then(() => {})
+                await context.call('test.action2', { name: 'Test2' })
                 console.log(context.meta)
             }
         },
@@ -37,5 +37,5 @@ broker1.createService({
 
 broker1.start()
     .then(() => {
-        broker1.call('test.action1')
+        broker1.call('test.action1', { name: 'Test' })
     })

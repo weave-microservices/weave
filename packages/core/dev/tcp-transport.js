@@ -12,8 +12,9 @@ const broker1 = Weave({
             ]
         }
     },
-    logger: console,
-    logLevel: 'debug',
+    logger: {
+        logLevel: 'debug'
+    },
     preferLocal: false,
     cache: true,
     registry: {
@@ -32,8 +33,9 @@ const broker2 = Weave({
             ]
         }
     },
-    logger: console,
-    logLevel: 'debug',
+    logger: {
+        logLevel: 'debug'
+    },
     preferLocal: false,
     cache: true,
     registry: {
@@ -74,9 +76,9 @@ Promise.all([
     broker2.start()
 ]).then(() => {
     setInterval(() => {
-        // broker1.call('math.hello', { name: 'John Doe' })
-        //     .then(function (result) {
-        //         broker1.log.debug(result)
-        //     })
+        broker1.call('math.hello', { name: 'John Doe' })
+            .then(function (result) {
+                broker1.log.debug(result)
+            })
     }, 500)
 })

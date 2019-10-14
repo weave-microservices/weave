@@ -20,6 +20,7 @@ const createTransport = (broker, adapter) => {
     let heartbeatTimer
     let checkNodesTimer
     let checkOfflineNodesTimer
+    let updateLocalNodeTimer
 
     const nodeId = broker.nodeId
     const log = broker.createLogger('TRANSPORT')
@@ -312,6 +313,7 @@ const createTransport = (broker, adapter) => {
                 }
             })
             .then(() => {
+                startUpdateLocalNodeTimer()
                 if (startHeartbeatTimers) {
                     startTimers()
                 }
@@ -359,6 +361,7 @@ const createTransport = (broker, adapter) => {
         heartbeatTimer = setInterval(() => {
             sendHeartbeat()
         }, broker.options.transport.heartbeatInterval)
+
         heartbeatTimer.unref()
 
         checkNodesTimer = setInterval(() => {
@@ -372,10 +375,20 @@ const createTransport = (broker, adapter) => {
         checkOfflineNodesTimer.unref()
     }
 
+    function startUpdateLocalNodeTimer () {
+        updateLocalNodeTimer = setInterval(() => {
+            const node = broker.registry.nodes.localNode
+            node.updateLocalInfo(true)
+        }, broker.options.transport.nodeUpdateInterval)
+
+        updateLocalNodeTimer.unref()
+    }
+
     function stopTimers () {
         clearInterval(heartbeatTimer)
         clearInterval(checkNodesTimer)
         clearInterval(checkOfflineNodes)
+        clearInterval(updateLocalNodeTimer)
     }
 
     function sendHeartbeat () {
