@@ -189,7 +189,7 @@ const createBroker = options => {
         createLogger,
         getLogger: function () {
             utils.deprecated('The method "broker.getLogger()" is deprecated since weave version 0.7.0. Please use "broker.createLogger()" instead.')
-            return createLogger
+            return createLogger(arguments)
         },
         health,
         registry,

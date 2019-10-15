@@ -8,6 +8,8 @@ const broker1 = Weave({
     preferLocal: false
 })
 
+const logger = broker1.getLogger('NewLogger')
+
 broker1.createService({
     name: 'test1',
     actions: {
