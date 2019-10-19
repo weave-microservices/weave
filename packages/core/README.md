@@ -1,17 +1,18 @@
 <img src="https://raw.githubusercontent.com/fachw3rk/weave/HEAD/Logo.png" width="400">
 
 [![NPM Version](https://img.shields.io/npm/v/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/core)
-[![CircleCI](https://circleci.com/gh/fachw3rk/weave/tree/master.svg?style=svg)](https://circleci.com/gh/fachw3rk/weave/tree/master)
-[![Maintainability](https://api.codeclimate.com/v1/badges/cb59174696fd9021813a/maintainability)](https://codeclimate.com/github/fachw3rk/weave/maintainability) [![Dependencies](https://david-dm.org/fachw3rk/weave.svg)](https://david-dm.org/fachw3rk/weave) [![Downloads](https://img.shields.io/npm/dt/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/core)
-# Weave
+[![Build Status](https://travis-ci.com/weave-microservices/weave.svg?branch=master)](https://travis-ci.com/weave-microservices/weave)
+[![CodeFactor](https://www.codefactor.io/repository/github/weave-microservices/weave/badge)](https://www.codefactor.io/repository/github/weave-microservices/weave/overview/dev)
+[![Dependencies](https://david-dm.org/weave-microservices/weave.svg)](https://david-dm.org/weave-microservices/weave.svg)
+[![Downloads](https://img.shields.io/npm/dt/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/core)
 
-Weave is a fast and easy to use  microservice framework for NodeJS (>= v6.x).
+> Weave is a fast and easy to use microservice framework for NodeJS.
 
 
 # Features
 
 - No master/leader node
-- Pluggable transporters (NATS, Redis, TCP)
+- Pluggable transporters (NATS, Redis)
 - Automatic service discovery
 - Multiple services per node
 - Service mixins
@@ -21,19 +22,26 @@ Weave is a fast and easy to use  microservice framework for NodeJS (>= v6.x).
 - Load balanced requests (round-robin, random)
 - Distributed timeout handling with fallback response
 - Health monitoring, metrics & statistics
+- Logging system with multiple configurable writable streams
 - Fault tolerant
   
-# Installation
+## Installation
 ```
 $ npm install @weave-js/core --save
 ```
 
-# Quick start
-This example shows you how to create a small service with an `add` action which can add two numbers.
+## Quick start
+
+This example shows you how to create a `math` service with an `add` action which can add two numbers.
+
 ```js
 const { Weave } = require('@weave-js/core')
 
-let broker = Weave({ logLevel: 'debug' })
+const broker = Weave({
+    logger: {
+        logLevel: 'debug'
+    }
+})
 
 broker.createService({
     name: 'math',
@@ -54,7 +62,7 @@ broker.start()
 
 ```
 
-# Sample applications
+## Sample applications
 
 There are a number of sample applications available:
 
@@ -63,18 +71,21 @@ There are a number of sample applications available:
 ```
 
 
-# Documentation
+## Documentation
 See [documentation](https://weave.fachwerk.io).
 
-# Changelog
+## Changelog
 See [changelog.md](changelog.md).
 
-# Roadmap
+## Roadmap
 See [roadmap.md](roadmap.md).
 
-# License
-The weave framework is available under the [MIT license](https://tldrlegal.com/license/mit-license).
+## Documentation
 
-# Contact
-Copyright (c) 2018 by Fachwerk Software
+Refer to the [Weave CLI documentation](https://weave.fachwerk.io) for more details.
 
+## License
+
+Copyright (c) 2019 by Fachwerk Software
+
+Licensed under the [MIT license](LICENSE).
