@@ -1,9 +1,10 @@
 node_modules
+
 .gitignore
 lerna-debug.log
 .DS_Store
 packages/core/node_modules
-.vscode
+.vscode/
 packages/db/tests.db
 packages/core/dev/test
 packages/core/coverage
