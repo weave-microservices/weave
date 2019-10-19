@@ -161,6 +161,8 @@ describe('Test broker call error handling', () => {
                 .catch(error => {
                     expect(error.message).toBe('Error from action level 2')
                     done()
+                    return node1.stop()
+
                 })
         })
     })
@@ -178,6 +180,7 @@ describe('Test broker trasnport resolver', () => {
         })
 
         expect(broker.transport.adapterName).toBe('Fake')
+        broker.stop()
     })
 })
 
@@ -195,6 +198,7 @@ describe('Ping', () => {
             .then(res => {
                 expect(res).toEqual([])
                 done()
+                return broker.stop()
             })
     })
     it('should return an empty object if no nodes are connected.', done => {
@@ -211,6 +215,7 @@ describe('Ping', () => {
             .then(res => {
                 expect(res).toEqual({})
                 done()
+                return broker.stop()
             })
     })
 
@@ -244,6 +249,10 @@ describe('Ping', () => {
                 expect(res.node2.elapsedTime).toBeLessThan(5)
                 expect(res.node2.nodeId).toBe('node2')
                 done()
+                return Promise.all([
+                    broker1.stop(),
+                    broker2.stop()
+                ])
             })
     })
 
@@ -274,6 +283,10 @@ describe('Ping', () => {
             .then(res => {
                 expect(res).toBeNull()
                 done()
+                return Promise.all([
+                    broker1.stop(),
+                    broker2.stop()
+                ])
             })
     })
 
