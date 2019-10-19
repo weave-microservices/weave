@@ -187,7 +187,7 @@ describe('Test middlware hooks', () => {
 
     it('should decorate core module', () => {
         const middleware = {
-            created (broker, a) {
+            created (broker) {
                 broker.fancyTestmethod = () => {}
             }
         }
