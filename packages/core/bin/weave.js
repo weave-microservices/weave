@@ -7,8 +7,8 @@ const _ = require('lodash')
 const Args = require('args')
 
 // own packages
-const { Weave } = require('../lib')
-const { WeaveError } = require('../lib').Errors
+const { Weave, defaultOptions, Errors } = require('../lib')
+const { WeaveError } = Errors
 
 // Default name for config files
 const defaultConfigFileName = 'weave.config.js'
@@ -18,15 +18,6 @@ let configFile
 let config
 let servicePaths
 let node
-
-/**
- * Process command line arguments
- *
- * Available options:
- * 		-c, --config <file> - Load an external configuration files (.js or .json)
- * 		-r, --repl  		- After broker started, switch to REPL mode
- * 		-s , --silent 		- Silent mode. Disable logger, no console messages.
- */
 
 const processFlags = () => {
     Args
@@ -85,10 +76,10 @@ const loadConfigFile = () => {
 }
 
 const mergeOptions = () => {
-    config = _.defaultsDeep(configFile, Weave.defaultOptions)
-    if (config.logger == null && !flags.silent) {
-        config.logger = console
-    }
+    config = _.defaultsDeep(configFile, defaultOptions)
+    // if (config.logger == null && !flags.silent) {
+    //     config.logger = console
+    // }
 
     const overwriteFromEnv = (obj, prefix) => {
         Object.keys(obj).forEach(key => {
@@ -117,7 +108,7 @@ const mergeOptions = () => {
     config = overwriteFromEnv(config)
 
     if (flags.silent) {
-        config.logger = null
+        config.logger.enabled = false
     }
 
     if (flags.watch) {

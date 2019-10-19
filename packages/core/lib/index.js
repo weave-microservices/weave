@@ -6,6 +6,7 @@
 
 module.exports = {
     Weave: require('./broker/broker'),
+    defaultOptions: require('./broker/default-options'),
     Errors: require('./errors'),
     TransportAdapters: require('./transport/adapters'),
     Constants: require('./constants')
