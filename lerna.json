@@ -9,7 +9,7 @@
         "hoist": true
       },
       "publish": {
-        "allowBranch": "dev",
+        "allowBranch": "master",
         "message": "chore(release): Publish %s",
         "conventionalCommits": true
       }
