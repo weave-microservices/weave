@@ -12,12 +12,9 @@ const makeMemoryCache = (broker, options = {}) => {
     const storage = new Map()
     const name = 'Memory'
 
-    // options = Object.assign({
-    //     ttl: 3000
-    // }, options)
     const timer = setInterval(() => {
         checkTtl()
-    }, 3000)
+    }, options.ttl)
 
     timer.unref()
 

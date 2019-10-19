@@ -162,7 +162,6 @@ describe('Test broker call error handling', () => {
                     expect(error.message).toBe('Error from action level 2')
                     done()
                     return node1.stop()
-
                 })
         })
     })
@@ -319,6 +318,10 @@ describe('Ping', () => {
                 expect(res.timeDiff).toBeDefined()
                 expect(res.nodeId).toBe('node2')
                 done()
+                return Promise.all([
+                    broker1.stop(),
+                    broker2.stop()
+                ])
             })
     })
     it('should return results of all connected nodes.', done => {
@@ -350,6 +353,10 @@ describe('Ping', () => {
                 expect(res.timeDiff).toBeDefined()
                 expect(res.nodeId).toBe('node2')
                 done()
+                return Promise.all([
+                    broker1.stop(),
+                    broker2.stop()
+                ])
             })
     })
 })
