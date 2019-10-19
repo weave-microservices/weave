@@ -22,7 +22,7 @@ describe('Test middlware hooks', () => {
         const broker = Weave({
             nodeId: 'node1',
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             },
             middlewares: [middleware]
         })
@@ -71,7 +71,7 @@ describe('Test middlware hooks', () => {
         const broker = Weave({
             nodeId: 'node1',
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             },
             loadNodeService: false,
             middlewares: [middleware]
@@ -103,6 +103,7 @@ describe('Test middlware hooks', () => {
         const broker = Weave({
             nodeId: 'node1',
             logger: {
+                enabled: false,
                 logLevel: 'fatal'
             },
             loadNodeService: false,
@@ -120,7 +121,7 @@ describe('Test middlware hooks', () => {
 
         broker.start()
             .then(() => {
-                broker.call('testService.helloWorld')
+                return broker.call('testService.helloWorld')
                     .then(res => {
                         expect(res.paramFromMiddleware).toBe('hello world')
                         done()
@@ -144,7 +145,7 @@ describe('Test middlware hooks', () => {
                 adapter: TransportAdapters.Fake()
             },
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             },
             loadNodeService: false,
             middlewares: [middleware]
@@ -156,7 +157,7 @@ describe('Test middlware hooks', () => {
                 adapter: TransportAdapters.Fake()
             },
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             },
             loadNodeService: false
         })
@@ -170,13 +171,13 @@ describe('Test middlware hooks', () => {
             }
         })
 
-        Promise.all([
+        return Promise.all([
             broker1.start(),
             broker2.start()
         ])
             .then(() => broker1.waitForServices(['math']))
             .then(() => {
-                broker1.call('math.add', { a: 1, b: 2 })
+                return broker1.call('math.add', { a: 1, b: 2 })
                     .then(res => {
                         expect(res.result).toBe(3)
                         expect(res.params.paramFromMiddleware).toBe('hello world')
@@ -198,7 +199,7 @@ describe('Test middlware hooks', () => {
                 adapter: TransportAdapters.Fake()
             },
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             },
             loadNodeService: false,
             middlewares: [middleware]

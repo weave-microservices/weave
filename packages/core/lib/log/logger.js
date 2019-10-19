@@ -18,7 +18,14 @@ const defaultTypes = require('./types')
 const { gray, underline } = kleur
 
 // default log levels
-const LOG_LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace']
+const LOG_LEVELS = [
+    'trace',
+    'debug',
+    'info',
+    'warn',
+    'error',
+    'fatal'
+]
 
 /**
  * Configuration object for weave service broker.
@@ -164,7 +171,7 @@ module.exports.createDefaultLogger = (options, bindings) => {
     }
 
     function logger (type, ...messageObject) {
-        if (!options.enabled || LOG_LEVELS.indexOf(options.types[type].logLevel) > LOG_LEVELS.indexOf(options.logLevel)) {
+        if (!options.enabled || (LOG_LEVELS.indexOf(options.types[type].logLevel) < LOG_LEVELS.indexOf(options.logLevel))) {
             return dummyLog
         }
         const { stream, logLevel } = options.types[type]

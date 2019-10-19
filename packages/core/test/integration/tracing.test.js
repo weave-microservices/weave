@@ -6,6 +6,7 @@ describe('Test tracing', () => {
     const node1 = Weave({
         nodeId: 'node1',
         logger: {
+            enabled: false,
             logLevel: 'fatal'
         },
         transport: {
@@ -19,6 +20,7 @@ describe('Test tracing', () => {
     const node2 = Weave({
         nodeId: 'node2',
         logger: {
+            enabled: false,
             logLevel: 'fatal'
         },
         transport: {

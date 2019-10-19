@@ -13,6 +13,7 @@ describe('Action hooks', () => {
     const broker = Weave({
         nodeId: 'test-node',
         logger: {
+            enableD: false,
             logLevel: 'fatal'
         }
     })

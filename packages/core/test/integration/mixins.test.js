@@ -7,7 +7,7 @@ describe('Service lifetime hooks within mixins', () => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             }
         })
 
@@ -26,7 +26,7 @@ describe('Service lifetime hooks within mixins', () => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             }
         })
 
@@ -45,7 +45,7 @@ describe('Service lifetime hooks within mixins', () => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             }
         })
 
@@ -66,7 +66,7 @@ describe('Service lifetime hooks error handling', () => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             }
         })
 
@@ -85,7 +85,7 @@ describe('Service lifetime hooks error handling', () => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             }
         })
 

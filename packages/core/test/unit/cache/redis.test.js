@@ -4,14 +4,22 @@ const CacheRedis = require('../../../lib/cache/redis')
 
 describe('Test IN-Memory cache initialization', () => {
     it('should create with default options.', () => {
-        const broker = Weave()
+        const broker = Weave({
+            logger: {
+                enabled: false
+            }
+        })
         const cache = CacheRedis(broker)
         expect(cache.options).toBeDefined()
         expect(cache.options.ttl).toBeNull()
     })
 
     it('should create with default options.', () => {
-        const broker = Weave()
+        const broker = Weave({
+            logger: {
+                enabled: false
+            }
+        })
         const cache = CacheRedis(broker)
         const expectedObject = {
             host: '127.0.0.1',
@@ -24,7 +32,11 @@ describe('Test IN-Memory cache initialization', () => {
 
     it('should create with options.', () => {
         const options = { ttl: 4000 }
-        const broker = Weave()
+        const broker = Weave({
+            logger: {
+                enabled: false
+            }
+        })
         const cache = CacheRedis(broker, options)
         const expectedObject = Object.assign(options, {
             host: '127.0.0.1',
@@ -37,7 +49,11 @@ describe('Test IN-Memory cache initialization', () => {
 
 describe('Test IN-Memory message flow', () => {
     it('should call "clear" after a new node is connected.', () => {
-        const broker = Weave()
+        const broker = Weave({
+            logger: {
+                enabled: false
+            }
+        })
         const cache = CacheRedis(broker)
         cache.init()
         cache.clear = jest.fn()
@@ -48,7 +64,11 @@ describe('Test IN-Memory message flow', () => {
 })
 
 describe('Test usage (without TTL)', () => {
-    const broker = Weave()
+    const broker = Weave({
+        logger: {
+            enabled: false
+        }
+    })
     const cache = CacheRedis(broker)
     cache.init()
 
