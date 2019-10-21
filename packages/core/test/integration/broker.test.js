@@ -6,6 +6,7 @@ describe('Test broker lifecycle', () => {
             Weave({
                 nodeId: 'node1',
                 logger: {
+                    enabled: false,
                     logLevel: 'fatal'
                 },
                 started: {}
@@ -18,6 +19,7 @@ describe('Test broker lifecycle', () => {
             Weave({
                 nodeId: 'node1',
                 logger: {
+                    enabled: false,
                     logLevel: 'fatal'
                 },
                 stopped: {}
@@ -25,13 +27,14 @@ describe('Test broker lifecycle', () => {
         }).toThrow('Stopped hook have to be a function.')
     })
 
-    it('should create a broker and call the started/stopped hook.', () => {
+    it('should create a broker and call the started/stopped hook.', (done) => {
         const startedHook = jest.fn()
         const stoppedHook = jest.fn()
 
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
+                enabled: false,
                 logLevel: 'fatal'
             },
             started: startedHook,
@@ -43,6 +46,7 @@ describe('Test broker lifecycle', () => {
 
             node1.stop().then(() => {
                 expect(stoppedHook).toBeCalled()
+                done()
             })
         })
     })
@@ -53,6 +57,7 @@ describe('Test broker call service', () => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
+                enabled: false,
                 logLevel: 'fatal'
             }
         })
@@ -78,6 +83,7 @@ describe('Test broker call service', () => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
+                enabled: false,
                 logLevel: 'fatal'
             }
         })
@@ -106,6 +112,7 @@ describe('Test broker call error handling', () => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
+                enabled: false,
                 logLevel: 'fatal'
             }
         })
@@ -132,6 +139,7 @@ describe('Test broker call error handling', () => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
+                enabled: false,
                 logLevel: 'fatal'
             }
         })
@@ -153,6 +161,7 @@ describe('Test broker call error handling', () => {
                 .catch(error => {
                     expect(error.message).toBe('Error from action level 2')
                     done()
+                    return node1.stop()
                 })
         })
     })
@@ -163,12 +172,14 @@ describe('Test broker trasnport resolver', () => {
         const broker = Weave({
             nodeId: 'node1',
             logger: {
+                enabled: false,
                 logLevel: 'fatal'
             },
             transport: 'fake'
         })
 
         expect(broker.transport.adapterName).toBe('Fake')
+        broker.stop()
     })
 })
 
@@ -177,6 +188,7 @@ describe('Ping', () => {
         const broker = Weave({
             nodeId: 'node1',
             logger: {
+                enabled: false,
                 logLevel: 'fatal'
             }
         })
@@ -185,12 +197,14 @@ describe('Ping', () => {
             .then(res => {
                 expect(res).toEqual([])
                 done()
+                return broker.stop()
             })
     })
     it('should return an empty object if no nodes are connected.', done => {
         const broker = Weave({
             nodeId: 'node1',
             logger: {
+                enabled: false,
                 logLevel: 'fatal'
             },
             transport: 'fake'
@@ -200,6 +214,7 @@ describe('Ping', () => {
             .then(res => {
                 expect(res).toEqual({})
                 done()
+                return broker.stop()
             })
     })
 
@@ -207,6 +222,7 @@ describe('Ping', () => {
         const broker1 = Weave({
             nodeId: 'node1',
             logger: {
+                enabled: false,
                 logLevel: 'fatal'
             },
             transport: 'fake'
@@ -215,6 +231,7 @@ describe('Ping', () => {
         const broker2 = Weave({
             nodeId: 'node2',
             logger: {
+                enabled: false,
                 logLevel: 'fatal'
             },
             transport: 'fake'
@@ -231,6 +248,10 @@ describe('Ping', () => {
                 expect(res.node2.elapsedTime).toBeLessThan(5)
                 expect(res.node2.nodeId).toBe('node2')
                 done()
+                return Promise.all([
+                    broker1.stop(),
+                    broker2.stop()
+                ])
             })
     })
 
@@ -238,6 +259,7 @@ describe('Ping', () => {
         const broker1 = Weave({
             nodeId: 'node1',
             logger: {
+                enabled: false,
                 logLevel: 'fatal'
             },
             transport: 'fake'
@@ -246,6 +268,7 @@ describe('Ping', () => {
         const broker2 = Weave({
             nodeId: 'node2',
             logger: {
+                enabled: false,
                 logLevel: 'fatal'
             },
             transport: 'fake'
@@ -259,6 +282,10 @@ describe('Ping', () => {
             .then(res => {
                 expect(res).toBeNull()
                 done()
+                return Promise.all([
+                    broker1.stop(),
+                    broker2.stop()
+                ])
             })
     })
 
@@ -266,6 +293,7 @@ describe('Ping', () => {
         const broker1 = Weave({
             nodeId: 'node1',
             logger: {
+                enabled: false,
                 logLevel: 'fatal'
             },
             transport: 'fake'
@@ -274,6 +302,7 @@ describe('Ping', () => {
         const broker2 = Weave({
             nodeId: 'node2',
             logger: {
+                enabled: false,
                 logLevel: 'fatal'
             },
             transport: 'fake'
@@ -289,12 +318,17 @@ describe('Ping', () => {
                 expect(res.timeDiff).toBeDefined()
                 expect(res.nodeId).toBe('node2')
                 done()
+                return Promise.all([
+                    broker1.stop(),
+                    broker2.stop()
+                ])
             })
     })
     it('should return results of all connected nodes.', done => {
         const broker1 = Weave({
             nodeId: 'node1',
             logger: {
+                enabled: false,
                 logLevel: 'fatal'
             },
             transport: 'fake'
@@ -303,6 +337,7 @@ describe('Ping', () => {
         const broker2 = Weave({
             nodeId: 'node2',
             logger: {
+                enabled: false,
                 logLevel: 'fatal'
             },
             transport: 'fake'
@@ -318,6 +353,10 @@ describe('Ping', () => {
                 expect(res.timeDiff).toBeDefined()
                 expect(res.nodeId).toBe('node2')
                 done()
+                return Promise.all([
+                    broker1.stop(),
+                    broker2.stop()
+                ])
             })
     })
 })

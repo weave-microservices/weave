@@ -15,6 +15,7 @@ describe('Test logger module.', () => {
     it('should provide default log methods.', () => {
         const broker = Weave({
             logger: {
+                enabled: false,
                 logLevel: 'fatal'
             }
         })

@@ -4,7 +4,11 @@ const CacheBase = require('../../../lib/cache/base')
 // const SlowService = require('../../services/slow.service')
 
 describe('Test cache hash creation', () => {
-    const broker = Weave()
+    const broker = Weave({
+        logger: {
+            enabled: false
+        }
+    })
     const cacheBase = CacheBase(broker, {})
 
     it('should return the action name if no parameter was passed,', () => {
@@ -20,7 +24,11 @@ describe('Test cache hash creation', () => {
 })
 
 describe('Test cache middleware', () => {
-    const broker = Weave()
+    const broker = Weave({
+        logger: {
+            enabled: false
+        }
+    })
     const handler = jest.fn(() => Promise.resolve('hooray!!!'))
     const cacheBase = CacheBase(broker, {})
     const service = {}

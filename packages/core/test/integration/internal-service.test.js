@@ -5,7 +5,7 @@ describe('Test internal service $node', () => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             }
         })
 
@@ -22,7 +22,7 @@ describe('Test internal service $node', () => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             }
         })
 
@@ -39,7 +39,7 @@ describe('Test internal service $node', () => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             }
         })
 
@@ -56,7 +56,7 @@ describe('Test internal service $node', () => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             }
         })
 
@@ -73,7 +73,7 @@ describe('Test internal service $node', () => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             }
         })
 

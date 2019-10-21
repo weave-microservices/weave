@@ -132,7 +132,8 @@ module.exports = {
     // cache settings
     cache: {
         enabled: false,
-        adapter: 'memory'
+        adapter: 'memory',
+        ttl: 3000
     },
     circuitBreaker: {
         enabled: false,

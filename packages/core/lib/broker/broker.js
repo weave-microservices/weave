@@ -37,7 +37,13 @@ const pkg = require('../../package.json')
  * @param {import('./default-options.js').BrokerOptions} options - Service broker options.
  */
 /* eslint-enable no-use-before-define */
-const createBroker = options => {
+const createBroker = (options = {}) => {
+    // backwards compatibility for logger
+    if (options.logger === null) {
+        options.logger = {
+            enabled: false
+        }
+    }
     // merge options with default options
     options = defaultsDeep(options, defaultOptions)
 

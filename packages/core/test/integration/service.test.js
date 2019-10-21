@@ -6,7 +6,7 @@ describe('Test broker call service', () => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             }
         })
 
@@ -32,7 +32,7 @@ describe('Test broker call service', () => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             }
         })
 
@@ -58,7 +58,7 @@ describe('Test broker call service', () => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             }
         })
 
@@ -82,7 +82,7 @@ describe('Test broker call service', () => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             }
         })
 
@@ -119,7 +119,7 @@ describe('Service lifetime hooks', () => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             }
         })
 
@@ -147,7 +147,7 @@ describe('Service lifetime hooks', () => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             }
         })
 
@@ -166,7 +166,7 @@ describe('Service lifetime hooks', () => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             }
         })
 
@@ -185,7 +185,7 @@ describe('Service lifetime hooks', () => {
         const node1 = Weave({
             nodeId: 'node1',
             logger: {
-                logLevel: 'fatal'
+                enabled: false
             }
         })
         node1.createService({

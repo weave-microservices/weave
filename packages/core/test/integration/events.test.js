@@ -58,6 +58,7 @@ const OtherService = {
 const createNodes = (ns) => {
     const settings = {
         logger: {
+            enabled: false,
             logLevel: 'fatal'
         },
         transport: {

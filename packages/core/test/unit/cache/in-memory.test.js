@@ -4,7 +4,11 @@ const CacheMemory = require('../../../lib/cache/memory')
 
 describe('Test IN-Memory cache initialization', () => {
     it('should create with default options.', () => {
-        const broker = Weave()
+        const broker = Weave({
+            logger: {
+                enabled: false
+            }
+        })
         const cache = CacheMemory(broker)
         expect(cache.options).toBeDefined()
         expect(cache.options.ttl).toBeNull()
@@ -12,7 +16,11 @@ describe('Test IN-Memory cache initialization', () => {
 
     it('should create with options.', () => {
         const options = { ttl: 4000 }
-        const broker = Weave()
+        const broker = Weave({
+            logger: {
+                enabled: false
+            }
+        })
         const cache = CacheMemory(broker, options)
         expect(cache.options).toEqual(options)
         expect(cache.options.ttl).toBe(4000)
@@ -20,7 +28,11 @@ describe('Test IN-Memory cache initialization', () => {
 
     it('should create with options.', () => {
         const options = { ttl: 4000 }
-        const broker = Weave()
+        const broker = Weave({
+            logger: {
+                enabled: false
+            }
+        })
         const cache = CacheMemory(broker, options)
         expect(cache.options).toEqual(options)
         expect(cache.options.ttl).toBe(4000)
@@ -29,7 +41,11 @@ describe('Test IN-Memory cache initialization', () => {
 
 describe('Test IN-Memory message flow', () => {
     it('should call "clear" after a new node is connected.', () => {
-        const broker = Weave()
+        const broker = Weave({
+            logger: {
+                enabled: false
+            }
+        })
         const cache = CacheMemory(broker)
         cache.init()
         cache.clear = jest.fn()
@@ -39,7 +55,11 @@ describe('Test IN-Memory message flow', () => {
 })
 
 describe('Test usage (without TTL)', () => {
-    const broker = Weave()
+    const broker = Weave({
+        logger: {
+            enabled: false
+        }
+    })
     const cache = CacheMemory(broker)
     cache.init()
 

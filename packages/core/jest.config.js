@@ -7,6 +7,5 @@ module.exports = {
     rootDir: './lib',
     roots: [
         '../test'
-    ],
-    verbose: false
+    ]
 }

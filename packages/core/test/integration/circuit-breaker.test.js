@@ -7,6 +7,7 @@ describe('Test circuit breaker', () => {
     const node1 = Weave({
         nodeId: 'node1',
         logger: {
+            enabled: false,
             logLevel: 'fatal'
         },
         transport: {
@@ -23,6 +24,7 @@ describe('Test circuit breaker', () => {
     const node2 = Weave({
         nodeId: 'node2',
         logger: {
+            enabled: false,
             logLevel: 'fatal'
         },
         transport: {
