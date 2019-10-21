@@ -37,7 +37,6 @@
 
 
 ## Documentation
-#äkjhgf
 See [documentation](https://weave.fachwerk.io).
 
 ## Changelog

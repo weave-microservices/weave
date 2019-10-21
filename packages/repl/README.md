@@ -1,4 +1,4 @@
-# @weave-js/cli
+# @weave-js/repl
 
 > REPL module for weave microservice framework
 
