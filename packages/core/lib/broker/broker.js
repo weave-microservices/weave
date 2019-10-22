@@ -80,7 +80,7 @@ const createBroker = (options = {}) => {
                 bindings.version = service.version
             }
         } else {
-            bindings.logName = moduleName
+            bindings.moduleName = moduleName
         }
 
         if (typeof options.logger === 'function') {
@@ -481,6 +481,9 @@ const createBroker = (options = {}) => {
         stop () {
             this.isStarted = false
             return Promise.resolve()
+                .then(() => {
+                    log.info(`Shutting down the node...`)
+                })
                 .then(() => middlewareHandler.callHandlersAsync('stopping', [this], true))
                 .then(() => Promise.all(services.map(service => service.stop())))
                 .catch(error => {

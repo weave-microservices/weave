@@ -160,6 +160,7 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
     }
 
     self.stop = () => {
+        self.log.trace(`Stopping service "${self.name}"`)
         return Promise.resolve()
             .then(() => {
                 return middlewareHandler.callHandlersAsync('serviceStopping', [self])
