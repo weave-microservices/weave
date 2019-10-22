@@ -22,17 +22,17 @@ let node
 const processFlags = () => {
     Args
         .option('config', 'Load the configuration from a file')
+        .option('silent', 'Silent mode. No logger', false)
         .option('repl', 'Start REPL mode', false)
         .option('watch', 'Hot reload services if changed', false)
-        .option('silent', 'Silent mode. No logger', false)
 
     flags = Args.parse(process.argv, {
         mri: {
             alias: {
                 c: 'config',
+                s: 'silent',
                 r: 'repl',
-                w: 'watch',
-                s: 'silent'
+                w: 'watch'
             },
             boolean: ['repl', 'silent', 'watch'],
             string: ['config']
@@ -40,6 +40,7 @@ const processFlags = () => {
     })
     servicePaths = Args.sub
 }
+
 /**
  * Load config file
  * @returns {void}

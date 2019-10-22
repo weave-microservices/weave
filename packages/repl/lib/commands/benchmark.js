@@ -105,6 +105,7 @@ module.exports = (vorpal, broker) => {
                         handleRequest(startTime, error)
                     })
             }
+
             doRequest()
         })
 }

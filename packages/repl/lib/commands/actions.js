@@ -16,9 +16,11 @@ module.exports = (vorpal, broker) => {
             ])
 
             const list = []
+
             const actions = broker.registry.actions.list({
                 withEndpoints: true
             })
+
             actions.map(item => {
                 const action = item.action
                 const params = action && action.params ? Object.keys(action.params).join(', ') : ''

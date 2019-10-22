@@ -64,8 +64,8 @@ module.exports.createDefaultLogger = (options, bindings) => {
         let module
         if (bindings.service) {
             module = bindings.service.name
-        } else if (bindings.logName) {
-            module = bindings.logName
+        } else if (bindings.moduleName) {
+            module = bindings.moduleName
         }
         return `${bindings.nodeId}/${module}`
     }
