@@ -10,7 +10,7 @@ describe('Test tracing', () => {
             logLevel: 'fatal'
         },
         transport: {
-            adapter: TransportAdapters.Fake()
+            adapter: TransportAdapters.Dummy()
         },
         tracing: {
             enabled: true
@@ -24,7 +24,7 @@ describe('Test tracing', () => {
             logLevel: 'fatal'
         },
         transport: {
-            adapter: TransportAdapters.Fake()
+            adapter: TransportAdapters.Dummy()
         },
         tracing: {
             enabled: true

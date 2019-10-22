@@ -11,7 +11,7 @@ describe('Test circuit breaker', () => {
             logLevel: 'fatal'
         },
         transport: {
-            adapter: TransportAdapters.Fake()
+            adapter: TransportAdapters.Dummy()
         },
         circuitBreaker: {
             enabled: true,
@@ -28,7 +28,7 @@ describe('Test circuit breaker', () => {
             logLevel: 'fatal'
         },
         transport: {
-            adapter: TransportAdapters.Fake()
+            adapter: TransportAdapters.Dummy()
         }
     })
 

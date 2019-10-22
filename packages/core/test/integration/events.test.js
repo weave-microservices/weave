@@ -62,7 +62,7 @@ const createNodes = (ns) => {
             logLevel: 'fatal'
         },
         transport: {
-            adapter: 'fake'
+            adapter: 'dummy'
         }
     }
     const mainNode = Weave(Object.assign({ namespace: ns, nodeId: 'master' }, settings))

@@ -13,14 +13,14 @@ global.bus = new EventEmitter({
     maxListeners: 100
 })
 
-const FakeTransportAdapter = (adapterOptions) => {
+const DummyTransportAdapter = (adapterOptions) => {
     const messageBus = global.bus
 
     return Object.assign(TransportBase(adapterOptions), {
-        name: 'Fake',
+        name: 'Dummy',
         connect (isTryReconnect = false) {
             this.bus.emit('$adapter.connected', false)
-            this.log.info(`Fake transport client connected.`)
+            this.log.info(`Dummy transport client connected.`)
             return Promise.resolve()
         },
         close () {
@@ -37,29 +37,6 @@ const FakeTransportAdapter = (adapterOptions) => {
             messageBus.on(topic, message => this.incommingMessage(type, message))
         }
     })
-    // self.connect = (isTryReconnect = false) => {
-    //     self.emit('adapter.connected', false)
-    //     self.log.info(`Fake transport client connected.`)
-    //     return Promise.resolve()
-    // }
-
-    // self.close = () => {
-    //     return Promise.resolve()
-    // }
-
-    // self.send = (message) => {
-    //     const data = self.serialize(message)
-    //     const topic = self.getTopic(message.type, message.targetNodeId)
-    //     self.bus.emit(topic, data)
-    //     return Promise.resolve()
-    // }
-
-    // self.subscribe = (type, nodeId) => {
-    //     const topic = self.getTopic(type, nodeId)
-    //     self.bus.on(topic, message => self.incommingMessage(type, message))
-    // }
-
-    // return self
 }
 
-module.exports = FakeTransportAdapter
+module.exports = DummyTransportAdapter

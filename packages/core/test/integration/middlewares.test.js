@@ -142,7 +142,7 @@ describe('Test middlware hooks', () => {
         const broker1 = Weave({
             nodeId: 'node1',
             transport: {
-                adapter: TransportAdapters.Fake()
+                adapter: TransportAdapters.Dummy()
             },
             logger: {
                 enabled: false
@@ -154,7 +154,7 @@ describe('Test middlware hooks', () => {
         const broker2 = Weave({
             nodeId: 'node2',
             transport: {
-                adapter: TransportAdapters.Fake()
+                adapter: TransportAdapters.Dummy()
             },
             logger: {
                 enabled: false
@@ -196,7 +196,7 @@ describe('Test middlware hooks', () => {
         const broker1 = Weave({
             nodeId: 'node1',
             transport: {
-                adapter: TransportAdapters.Fake()
+                adapter: TransportAdapters.Dummy()
             },
             logger: {
                 enabled: false

@@ -10,7 +10,7 @@ const adapters = {
     BaseAdapter: require('./adapter-base'),
     Redis: require('./redis'),
     NATS: require('./nats'),
-    Fake: require('./fake'),
+    Dummy: require('./dummy'),
     TCP: require('./tcp')
 }
 
@@ -43,8 +43,8 @@ const resolve = options => {
             return Adapter()
         }
 
-        if (options.startsWith('fake://')) {
-            Adapter = adapters.Fake
+        if (options.startsWith('dummy://')) {
+            Adapter = adapters.Dummy
         } else if (options.startsWith('redis://')) {
             Adapter = adapters.Redis
         } else if (options.startsWith('nats://')) {

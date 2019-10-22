@@ -11,7 +11,7 @@ describe('Test utils lib', () => {
                 logLevel: 'fatal'
             },
             transport: {
-                adapter: 'Fake'
+                adapter: 'Dummy'
             }
         })
         broker.start()

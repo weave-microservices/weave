@@ -175,10 +175,10 @@ describe('Test broker trasnport resolver', () => {
                 enabled: false,
                 logLevel: 'fatal'
             },
-            transport: 'fake'
+            transport: 'dummy'
         })
 
-        expect(broker.transport.adapterName).toBe('Fake')
+        expect(broker.transport.adapterName).toBe('Dummy')
         broker.stop()
     })
 })
@@ -207,7 +207,7 @@ describe('Ping', () => {
                 enabled: false,
                 logLevel: 'fatal'
             },
-            transport: 'fake'
+            transport: 'dummy'
         })
         return broker.start()
             .then(() => broker.ping())
@@ -225,7 +225,7 @@ describe('Ping', () => {
                 enabled: false,
                 logLevel: 'fatal'
             },
-            transport: 'fake'
+            transport: 'dummy'
         })
 
         const broker2 = Weave({
@@ -234,7 +234,7 @@ describe('Ping', () => {
                 enabled: false,
                 logLevel: 'fatal'
             },
-            transport: 'fake'
+            transport: 'dummy'
         })
 
         return Promise.all([
@@ -262,7 +262,7 @@ describe('Ping', () => {
                 enabled: false,
                 logLevel: 'fatal'
             },
-            transport: 'fake'
+            transport: 'dummy'
         })
 
         const broker2 = Weave({
@@ -271,7 +271,7 @@ describe('Ping', () => {
                 enabled: false,
                 logLevel: 'fatal'
             },
-            transport: 'fake'
+            transport: 'dummy'
         })
 
         return Promise.all([
@@ -296,7 +296,7 @@ describe('Ping', () => {
                 enabled: false,
                 logLevel: 'fatal'
             },
-            transport: 'fake'
+            transport: 'dummy'
         })
 
         const broker2 = Weave({
@@ -305,7 +305,7 @@ describe('Ping', () => {
                 enabled: false,
                 logLevel: 'fatal'
             },
-            transport: 'fake'
+            transport: 'dummy'
         })
 
         return Promise.all([
@@ -331,7 +331,7 @@ describe('Ping', () => {
                 enabled: false,
                 logLevel: 'fatal'
             },
-            transport: 'fake'
+            transport: 'dummy'
         })
 
         const broker2 = Weave({
@@ -340,7 +340,7 @@ describe('Ping', () => {
                 enabled: false,
                 logLevel: 'fatal'
             },
-            transport: 'fake'
+            transport: 'dummy'
         })
 
         return Promise.all([
