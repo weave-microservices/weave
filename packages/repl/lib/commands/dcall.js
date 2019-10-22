@@ -1,6 +1,7 @@
 const chalk = require('chalk')
 const _ = require('lodash')
-const util = require('../utils')
+const utils = require('../utils')
+const util = require('util')
 
 module.exports = (vorpal, broker) => {
     vorpal
@@ -21,7 +22,7 @@ module.exports = (vorpal, broker) => {
                     done()
                 }
             } else {
-                payload = util.convertArgs(args.options)
+                payload = utils.convertArgs(args.options)
             }
 
             const nodeId = args.nodeId
