@@ -33,7 +33,7 @@ module.exports = {
     },
     trace: {
         badge: figures('⬤'),
-        color: 'blue',
+        color: 'gray',
         label: 'trace',
         logLevel: 'trace'
     },
