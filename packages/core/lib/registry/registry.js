@@ -209,6 +209,7 @@ const createRegistry = (middlewareHandler) => {
                         this.log.warn(`Service ${actionName} is not registered on node ${opts.nodeId}.`)
                         return new WeaveServiceNotFoundError(actionName)
                     }
+                    return endpoint
                 } else {
                     const endpointList = this.getActionEndpoints(actionName)
                     if (!endpointList) {
@@ -223,6 +224,13 @@ const createRegistry = (middlewareHandler) => {
                     return endpoint
                 }
             }
+        },
+        getActionEndpointByNodeId (actionName, nodeId) {
+            const endpointList = this.getActionEndpoints(actionName)
+            if (endpointList) {
+                return endpointList.getByNodeId(nodeId)
+            }
+            return null
         },
         getActionEndpoints (actionName) {
             return this.actions.get(actionName)
