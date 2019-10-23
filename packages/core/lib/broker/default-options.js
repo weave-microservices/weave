@@ -11,7 +11,7 @@ const { loadBalancingStrategy } = require('../constants')
 /**
  * Configuration object for weave service broker.
  * @typedef {Object} BulkheadSettings
- * @property {Boolean} enabled Enable bulhead middleware. (default = false)
+ * @property {Boolean} enabled Enable bulkhead middleware. (default = false)
  * @property {Number} concurrency Maximum concurrent calls. (default = 15)
  * @property {Number} maxQueueSize Maximum queue size. (default = 150)
  */
@@ -19,14 +19,14 @@ const { loadBalancingStrategy } = require('../constants')
 /**
  * Configuration object for weave service broker.
  * @typedef {Object} MetricsSettings
- * @property {Boolean} enabled Enable bulhead middleware. (default = false)
- * @property {Number} metricsRate Rate of metrics calls. (default = 1.0)
+ * @property {Boolean} enabled Enable metric middleware. (default = false)
+ * @property {Array<String|Object>} adapters Array of metric adapters.
  */
 
 /**
  * Configuration object for weave service broker.
  * @typedef {Object} TracingSettings
- * @property {Boolean} enabled Enable bulhead middleware. (default = false)
+ * @property {Boolean} enabled Enable tracing middleware. (default = false)
  * @property {Number} tracingRate Rate of traced actions. (default = 1.0)
  */
 
@@ -165,6 +165,10 @@ module.exports = {
     publishNodeService: false,
     // log level
     loadInternalMiddlewares: true,
+    metrics: {
+        enabled: false,
+        adapters: []
+    },
     // broker middelwares
     middlewares: null,
     // activate action statistics

@@ -1,6 +1,7 @@
 module.exports = class BaseMetricType {
     constructor (storage, obj) {
         this.name = obj.name
+        this.description = obj.description
         this.labels = obj.labels || []
         this.type = obj.type
     }

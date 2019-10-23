@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/core",
-  "version": "0.7.0-alpha.20",
+  "version": "0.7.0",
   "description": "The core package of weave",
   "keywords": [
     "Weave",

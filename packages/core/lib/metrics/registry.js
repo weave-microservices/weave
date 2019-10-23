@@ -1,12 +1,25 @@
-const { isPlainObject } = require('../utils')
+const { isPlainObject } = require('@weave-js/core/lib/utils')
 const MetricTypes = require('./types')
 
 module.exports = (broker, options) => {
     return {
-        log: broker.createLogger('metrics'),
+        broker,
+        log: broker.createLogger('Metrics'),
         init () {
-            this.log.debug('Metrics initialized.')
             this.storage = new Map()
+
+            if (options.adapters) {
+                if (!Array.isArray(options.adapters)) {
+                    throw new Error('Metic adapter needs to be an Array')
+                }
+
+                this.adapters = options.adapters.map(adapter => {
+                    adapter.init(this)
+                    return adapter
+                })
+            }
+
+            this.log.debug('Metrics initialized.')
         },
         register (obj) {
             if (!isPlainObject(obj)) {
@@ -34,12 +47,12 @@ module.exports = (broker, options) => {
             }
             item.increment(labels, value, timestamp)
         },
-        decrement (name, labels, value = 1) {
+        decrement (name, labels, value = 1, timestamp) {
             const item = this.storage.get(name)
             if (!item) {
                 throw new Error('Item not found.')
             }
-            item.decrement(value)
+            item.decrement(labels, value, timestamp)
         },
         getMetric (name) {
             const item = this.storage.get(name)

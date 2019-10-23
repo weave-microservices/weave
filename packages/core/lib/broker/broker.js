@@ -604,7 +604,7 @@ const createBroker = (options = {}) => {
     // const loadBalancingStrategy = LoadBalancing.resolve(options.registry.loadBalancingStrategy)
 
     // Metrics module
-    broker.metrics = MetricsStorage(broker, options)
+    broker.metrics = MetricsStorage(broker, options.metrics)
     broker.metrics.init()
 
     // Module initialisation
@@ -652,7 +652,7 @@ const createBroker = (options = {}) => {
             middlewareHandler.add(Middlewares.Metrics())
         }
 
-        // Wrap broker methods
+        // Wrap broker methods for middlewares
         broker.call = middlewareHandler.wrapMethod('call', broker.call)
         broker.multiCall = middlewareHandler.wrapMethod('multiCall', broker.multiCall)
         broker.emit = middlewareHandler.wrapMethod('emit', broker.emit)
