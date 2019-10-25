@@ -16,11 +16,11 @@ const makeBaseCache = (broker, options) => {
             return Promise.resolve()
         },
         log: broker.createLogger('CACHER'),
-        set (hashKey, result, ttl) {
+        set (/* hashKey, result, ttl */) {
             /* istanbul ignore next */
             throw new Error('Method not implemented.')
         },
-        get (hashKey) {
+        get (/* hashKey */) {
             /* istanbul ignore next */
             throw new Error('Method not implemented.')
         },

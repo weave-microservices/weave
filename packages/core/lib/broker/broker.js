@@ -528,7 +528,7 @@ const createBroker = (options = {}) => {
         ping (nodeId, timeout = 3000) {
             if (broker.transport && broker.transport.isConnected) {
                 if (nodeId) {
-                    return new Promise((resolve, reject) => {
+                    return new Promise((resolve) => {
                         const timeoutTimer = setTimeout(() => {
                             broker.bus.off('$node.pong', pongHandler)
                             return resolve(null)
@@ -555,7 +555,7 @@ const createBroker = (options = {}) => {
                         pongs[nodeId] = null
                     })
 
-                    return new Promise((resolve, reject) => {
+                    return new Promise((resolve) => {
                         // todo: handle timeout
                         const timeoutTimer = setTimeout(() => {
                             broker.bus.off('$node.pong', pongHandler)
