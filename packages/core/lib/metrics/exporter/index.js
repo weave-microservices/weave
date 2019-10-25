@@ -1,7 +1,7 @@
-const { isString, isFunction } = require('@weave-js/core/lib/metrics/exporter/node_modules/lodash')
-
+const { isString, isFunction } = require('lodash')
+const { WeaveBrokerOptionsError } = requ
 const adapters = {
-    Event: require('@weave-js/core/lib/metrics/exporter/event')
+    Event: require('./event')
 }
 
 module.exports = {

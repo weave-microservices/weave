@@ -19,7 +19,7 @@ module.exports = () => {
                 })
                 .catch(error => {
                     broker.metrics.decrement(Constants.WEAVE_REQUESTS_IN_FLIGHT)
-                    // broker.metrics.increment(Constants.WEAVE_REQUESTS_ERRORS_TOTAL)
+                    broker.metrics.increment(Constants.WEAVE_REQUESTS_ERRORS_TOTAL)
                     throw error
                 })
         }
@@ -29,7 +29,7 @@ module.exports = () => {
         created (t) {
             this.metrics.register({ type: 'counter', name: Constants.WEAVE_REQUESTS_TOTAL, description: 'Number of total requests.' })
             this.metrics.register({ type: 'gauge', name: Constants.WEAVE_REQUESTS_IN_FLIGHT, description: 'Number of running requests.' })
-            // this.metrics.register({ type: 'counter', name: Constants.WEAVE_REQUESTS_ERRORS_TOTAL, description: 'Number of failed requests.' })
+            this.metrics.register({ type: 'counter', name: Constants.WEAVE_REQUESTS_ERRORS_TOTAL, description: 'Number of failed requests.' })
         },
         localAction: wrapMetricMiddleware
     }
