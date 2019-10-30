@@ -36,7 +36,6 @@ const makeActionHookMiddleware = () =>
             const beforeWildcardHook = hooks.before ? sanitizeHooks(hooks.before['*'], action.service) : null
             const afterWildcardHook = hooks.after ? sanitizeHooks(hooks.after['*'], action.service) : null
             const errorWildcardHook = hooks.error ? sanitizeHooks(hooks.error['*'], action.service) : null
-
             const beforeHook = hooks.before ? sanitizeHooks(hooks.before[name], action.service) : null
             const afterHook = hooks.after ? sanitizeHooks(hooks.after[name], action.service) : null
             const errorHook = hooks.error ? sanitizeHooks(hooks.error[name], action.service) : null
@@ -44,30 +43,33 @@ const makeActionHookMiddleware = () =>
             if (beforeWildcardHook || afterWildcardHook || errorWildcardHook || beforeHook || afterHook || errorHook) {
                 return function actionHookMiddleware (context) {
                     let promise = Promise.resolve()
+
                     // before all hook
                     if (beforeWildcardHook) {
                         promise = promise.then(() => callHook(beforeWildcardHook, action.service, context))
                     }
-                    // before hook
+                    // Before hook
                     if (beforeHook) {
                         promise = promise.then(() => callHook(beforeHook, action.service, context))
                     }
-                    // call action handler
+                    // Call action handler
                     promise = promise.then(() => handler(context))
 
-                    // after hook
+                    // Aafter hook
                     if (afterHook) {
                         promise = promise.then(result => callHook(afterHook, action.service, context, result))
                     }
 
+                    // After wildcard hook
                     if (afterWildcardHook) {
                         promise = promise.then(result => callHook(afterWildcardHook, action.service, context, result))
                     }
 
+                    // Error hook
                     if (errorHook) {
                         promise = promise.catch(error => callHook(errorHook, action.service, context, error))
                     }
-
+                    // Error wildcard hook
                     if (errorWildcardHook) {
                         promise = promise.catch(error => callHook(errorWildcardHook, action.service, context, error))
                     }
@@ -77,4 +79,5 @@ const makeActionHookMiddleware = () =>
         }
         return handler
     }
+
 module.exports = makeActionHookMiddleware
