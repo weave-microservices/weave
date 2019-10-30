@@ -39,12 +39,14 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
     self.schema = schema
     self.log = broker.createLogger(`${self.name}-service`, self)
     self.settings = schema.settings || {}
+    self.meta = schema.meta || {}
     self.version = schema.version
     self.actions = {}
 
     const registryItem = {
         name: self.name,
         settings: self.settings,
+        meta: self.meta,
         version: self.version,
         actions: {},
         events: {}
@@ -211,17 +213,21 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
     function applyMixins (schema) {
         const mixins = Array.isArray(schema.mixins) ? schema.mixins : [schema.mixins]
 
-        const mixedSchema = Array.from(mixins).reverse().reduce((s, mixin) => {
-            for (var key in mixin) {
-                if (lifecycleHook.includes(key)) {
-                    mixin[key] = mixin[key].bind(self)
+        const mixedSchema = Array
+            .from(mixins)
+            .reverse()
+            .reduce((s, mixin) => {
+                for (var key in mixin) {
+                    if (lifecycleHook.includes(key)) {
+                        mixin[key] = mixin[key].bind(self)
+                    }
                 }
-            }
-            if (mixin.mixins) {
-                mixin = applyMixins(mixin)
-            }
-            return mergeSchemas(s, mixin)
-        }, {})
+                if (mixin.mixins) {
+                    mixin = applyMixins(mixin)
+                }
+
+                return mergeSchemas(s, mixin)
+            }, {})
         return mergeSchemas(mixedSchema, schema)
     }
 }

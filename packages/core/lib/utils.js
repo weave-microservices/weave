@@ -78,7 +78,7 @@ module.exports = {
         const schema = Object.assign({}, serviceSchema)
 
         Object.keys(schema).forEach(key => {
-            if (['settings'].includes(key)) {
+            if (['settings', 'meta'].includes(key)) {
                 result[key] = defaultsDeep(schema[key], result[key])
             } else if (['actions', 'events', 'methods'].includes(key)) {
                 result[key] = assign(result[key], schema[key])
