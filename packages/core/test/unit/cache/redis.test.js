@@ -96,23 +96,25 @@ describe('Test usage (without TTL)', () => {
         })
     })
 
-    it('should save date with the key (2).', () => {
+    it('should save date with the key (2).', (done) => {
         cache.set(key1, result)
         return cache.get(key1).then(res => {
             expect(res).toBeDefined()
             expect(res).toEqual(result)
+            done()
         })
     })
 
-    it('should delete data by key.', () => {
+    it('should delete data by key.', (done) => {
         cache.remove(key1)
         return cache.get(key1).then(res => {
             expect(res).toBeDefined()
             expect(res).toBeNull()
+            done()
         })
     })
 
-    it('should clear the cache.', () => {
+    it('should clear the cache.', (done) => {
         cache.set(key1, result)
         cache.set(key2, result)
 
@@ -120,6 +122,7 @@ describe('Test usage (without TTL)', () => {
             .then(() => cache.get(key1).then(res => {
                 expect(res).toBeDefined()
                 expect(res).toBeNull()
+                done()
             }))
     })
 })

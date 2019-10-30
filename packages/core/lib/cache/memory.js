@@ -48,10 +48,12 @@ const makeMemoryCache = (broker, options = {}) => {
             if (ttl == null) {
                 ttl = options.ttl
             }
+
             storage.set(hashKey, {
                 data,
                 expire: ttl ? Date.now() + ttl : null
             })
+
             this.log.debug(`Set ${hashKey}`)
             return Promise.resolve(data)
         },

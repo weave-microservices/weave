@@ -12,10 +12,10 @@
   "main": "./lib/index.js",
   "scripts": {
     "ci": "jest --watch",
-    "test": "NODE_ENV=test jest --no-cache --forceExit",
+    "test": "NODE_ENV=test jest --no-cache",
     "test-spec": "jest --findRelatedTests test/unit/serializers/json.test.js --watch",
     "coverage": "jest --coverage --no-cache",
-    "analyse": "eslint lib/**",
+    "lint": "eslint lib/**",
     "eslint": "eslint --ext=.js lib test dev"
   },
   "repository": {

@@ -604,8 +604,8 @@ const createBroker = (options = {}) => {
     // const loadBalancingStrategy = LoadBalancing.resolve(options.registry.loadBalancingStrategy)
 
     // Metrics module
-    broker.metrics = MetricsStorage(broker, options.metrics)
-    broker.metrics.init()
+    // broker.metrics = MetricsStorage(broker, options.metrics)
+    // broker.metrics.init()
 
     // Module initialisation
     registry.init(broker, middlewareHandler)

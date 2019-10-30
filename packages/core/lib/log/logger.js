@@ -42,12 +42,14 @@ module.exports.createDefaultLogger = (options, bindings) => {
     options.customTypes = Object.assign({}, options.types)
     options.types = mergeTypes(defaultTypes, options.customTypes)
     // options = Object.assign(defaultOptions, options)
-
     const longestBadge = getLongestBadge()
     const longestLabel = getLongestLabel()
 
+    const dummyLogMethod = () => {}
+
     Object.keys(options.types).forEach(type => {
-        logMethods[type] = logger.bind(this, type)
+        const isActive = options.enabled && (LOG_LEVELS.indexOf(options.types[type].logLevel) >= LOG_LEVELS.indexOf(options.logLevel))
+        logMethods[type] = isActive ? logger.bind(this, type) : dummyLogMethod
     })
 
     function mergeTypes (standard, custom) {
@@ -118,8 +120,6 @@ module.exports.createDefaultLogger = (options, bindings) => {
         stream.write(message + '\n')
     }
 
-    const dummyLog = () => {}
-
     const buildMessage = (type, ...args) => {
         let [msg, additional] = [{}, {}]
         if (args.length === 1 && typeof args[0] === 'object' && args[0] !== null) {
@@ -171,9 +171,6 @@ module.exports.createDefaultLogger = (options, bindings) => {
     }
 
     function logger (type, ...messageObject) {
-        if (!options.enabled || (LOG_LEVELS.indexOf(options.types[type].logLevel) < LOG_LEVELS.indexOf(options.logLevel))) {
-            return dummyLog
-        }
         const { stream, logLevel } = options.types[type]
         const message = buildMessage(options.types[type], ...messageObject)
 
