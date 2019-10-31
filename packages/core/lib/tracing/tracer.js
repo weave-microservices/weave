@@ -3,11 +3,14 @@ const Span = require('./span')
 
 module.exports = () => {
     let collectors = []
-    let samplingCointer = 0
+    let samplingCounter = 0
     return {
         init (broker, options) {
             this.options = options
             this.log = broker.createLogger('Tracer')
+            // this.storage = asyncStore()
+            // this.storage.enable()
+
             if (options.enabled) {
                 this.log.info('Tracer initialized.')
                 collectors = options.collectors
@@ -19,7 +22,7 @@ module.exports = () => {
             }
         },
         shouldCollectTracing (span) {
-            samplingCointer++
+            samplingCounter++
 
             if (this.options.samplingRate === 1) {
                 return false
@@ -29,8 +32,8 @@ module.exports = () => {
                 return true
             }
 
-            if (samplingCointer * this.options.samplingRate >= 1) {
-                samplingCointer = 0
+            if (samplingCounter * this.options.samplingRate >= 1) {
+                samplingCounter = 0
                 return true
             }
             return false
