@@ -1,13 +1,15 @@
 const hrTime = require('./time')
+const generateId = require('../utils/uuid')
 
 class Span {
     constructor (tracer, name, options) {
         this.tracer = tracer
         this.options = options
 
-        this.id = options.id
-
+        this.id = options.id || generateId()
+        this.traceId = options.traceId || generateId()
         this.name = name
+        this.type = options.type
         this.tags = {}
         this.error = null
         this.sampled = this.options.sampled ? this.options.sampled : tracer.shouldCollectTracing()
@@ -28,7 +30,7 @@ class Span {
 
     start (time) {
         this.startTime = time || hrTime()
-        this.tracer.invokeCollectorMethod('startSpan', this)
+        this.tracer.invokeCollectorMethod('startedSpan', this)
         return this
     }
 
@@ -44,7 +46,7 @@ class Span {
         this.finishTime = time || hrTime()
         this.duration = this.finishTime - this.startTime
         this.tracer.log.debug('Span finished')
-        this.tracer.invokeCollectorMethod('finishSpan', this)
+        this.tracer.invokeCollectorMethod('finishedSpan', this)
 
         return this
     }

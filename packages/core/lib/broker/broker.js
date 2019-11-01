@@ -28,7 +28,6 @@ const EventEmitter = require('eventemitter2')
 const { WeaveError } = require('../errors')
 const { Tracer } = require('../tracing')
 const { MetricsStorage } = require('../metrics')
-
 // package.json
 const pkg = require('../../package.json')
 /* eslint-disable no-use-before-define */
@@ -232,9 +231,8 @@ const createBroker = (options = {}) => {
             } else {
                 log.debug(`Call action on remote node.`, { action: actionName, nodeId, requestId: context.requestId })
             }
-
             const p = action.handler(context)
-            p.context = context
+            // p.context = context
 
             return p
         },
@@ -369,6 +367,7 @@ const createBroker = (options = {}) => {
                 service.filename = fileName
                 serviceWatcher.call(this, service, onServiceChanged)
             }
+
             return service
         },
         /**
@@ -613,6 +612,8 @@ const createBroker = (options = {}) => {
     contextFactory.init(broker)
     health.init(broker, broker.transport)
     tracer.init(broker, options.tracing)
+    // broker.store = asyncStore
+    // broker.store.enable()
 
     // Initialize caching module
     if (options.cache.enabled) {

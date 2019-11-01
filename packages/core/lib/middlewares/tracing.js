@@ -21,14 +21,16 @@ const wrapTracingMiddleware = function (handler) {
             }
 
             const span = context.startSpan(`action '${context.action.name}'`, {
-                id: context.requestId,
-                requestId: context.requestId,
+                id: context.id,
+                traceId: context.requestId,
                 parentId: context.parentId,
+                type: 'action',
                 tags,
                 sampled: context.tracing
             })
 
             context.span = span
+
             return handler(context)
                 .then(result => {
                     span.finish()
@@ -45,22 +47,19 @@ const wrapTracingMiddleware = function (handler) {
     return handler
 }
 
-// const wrapTracingRemoteMiddleware = function (handler, action) {
-//     const broker = this
-//     const options = broker.options.tracing || {}
+const wrapTracingEventMiddleware = function (handler, action) {
+    const broker = this
 
-//     return function metricsRemoteMiddleware (context) {
-//         if (context.tracing === null) {
-//             context.tracing = shouldCollectTracing(options)
-//         }
-//         return handler(context)
-//     }
-// }
+    return function metricsRemoteMiddleware (context) {
+        console.log(context.requestId)
+        console.log(context.parentId)
+        return handler(context)
+    }
+}
 
 module.exports = () => {
     return {
-        localAction: wrapTracingMiddleware,
-        localEvent: null
-        // remoteAction: wrapTracingRemoteMiddleware
+        localAction: wrapTracingMiddleware
+        // localEvent: wrapTracingEventMiddleware
     }
 }

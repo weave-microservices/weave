@@ -18,12 +18,12 @@ class EventCollector extends BaseCollector {
         this.broker = broker
     }
 
-    startSpan (span) {
+    startedSpan (span) {
         // const data = this.generateTracePayload(span)
         this.broker.emit(this.options.events.started, span)
     }
 
-    finishSpan (span) {
+    finishedSpan (span) {
         // const data = this.generateTracePayload(span)
         this.broker.emit(this.options.events.finished, span)
     }

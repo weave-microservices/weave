@@ -28,6 +28,7 @@ const { loadBalancingStrategy } = require('../constants')
  * @typedef {Object} TracingSettings
  * @property {Boolean} enabled Enable tracing middleware. (default = false)
  * @property {Number} tracingRate Rate of traced actions. (default = 1.0)
+ * @property {Array<String|Object>} collectors Array of tracing collectors.
  */
 
 /**

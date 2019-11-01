@@ -18,8 +18,7 @@ const createContext = (broker, endpoint) => {
         level: 1,
         tracing: null,
         span: null,
-        action: endpoint.action,
-        endpoint,
+        service: null,
         startTime: null,
         startHighResolutionTime: null,
         options: {
@@ -77,6 +76,11 @@ const createContext = (broker, endpoint) => {
         }
     }
 
+    if (endpoint) {
+        newContext.endpoint = endpoint
+        newContext.action = endpoint.action
+        newContext.service = endpoint.action.service
+    }
     return newContext
 }
 

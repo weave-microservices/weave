@@ -35,16 +35,18 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
     }
 
     self.broker = broker
+    self.version = schema.version
     self.name = schema.name
+    self.fullyQualifiedName = self.version ? `${self.name}.${self.version}` : self.name
     self.schema = schema
     self.log = broker.createLogger(`${self.name}-service`, self)
     self.settings = schema.settings || {}
     self.meta = schema.meta || {}
-    self.version = schema.version
     self.actions = {}
 
     const registryItem = {
         name: self.name,
+        fullyQualifiedName: self.fullyQualifiedName,
         settings: self.settings,
         meta: self.meta,
         version: self.version,

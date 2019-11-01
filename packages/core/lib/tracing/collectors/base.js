@@ -7,8 +7,18 @@ class BaseCollector {
         this.tracer = tracer
     }
 
-    finishSpan (span) {
+    startedSpan () {
 
+    }
+
+    finishedSpan (span) {
+
+    }
+
+    flattenObject (object, subobjectsToString = true) {
+        return Object.keys(object).reduce((a, b) => {
+            
+        })
     }
 }
 
