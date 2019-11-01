@@ -27,7 +27,7 @@ function TCPTransporter (options) {
 
     self.messageTypeHelper = TCPMessageTypeHelper(MessageTypes)
 
-    self.connect = (isTryReconnect = false) => {
+    self.connect = (/*isTryReconnect = false*/) => {
         return Promise.resolve()
             .then(() => {
                 if (options.urls) {
@@ -47,7 +47,7 @@ function TCPTransporter (options) {
             })
     }
 
-    self.subscribe = (type, nodeId) => {
+    self.subscribe = (/*type, nodeId*/) => {
         return Promise.resolve()
     }
 
