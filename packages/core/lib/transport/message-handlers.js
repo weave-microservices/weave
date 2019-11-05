@@ -33,7 +33,8 @@ module.exports = (broker, transport, pending) => {
         }
 
         // call the local action handler with context
-        return endpoint.action.handler(context)
+        const p = endpoint.action.handler(context)
+        return p
     }
 
     const onDiscovery = message => {

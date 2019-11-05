@@ -41,6 +41,67 @@ const createTransport = (broker, adapter) => {
         }
     }
 
+    const doRequest = (context, resolve, reject) => {
+        const isStream = context.params && context.params.readable === true && typeof context.params.on === 'function' && typeof context.params.pipe === 'function'
+
+        const request = {
+            targetNodeId: context.nodeId,
+            action: context.action.name,
+            resolve,
+            reject,
+            isStream
+        }
+
+        log.debug(`Send Request for ${request.action} to node ${request.targetNodeId}.`)
+
+        pending.requests.set(context.id, request)
+
+        const payload = {
+            id: context.id,
+            action: context.action.name,
+            params: isStream ? null : context.params,
+            options: {
+                timeout: context.options.timeout,
+                retries: context.options.retries
+            },
+            meta: context.meta,
+            level: context.level,
+            metrics: context.metrics,
+            requestId: context.requestId,
+            parentId: context.parentId,
+            isStream
+        }
+
+        const message = transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload)
+
+        transport.send(message)
+            .then(() => {
+                if (isStream) {
+                    const stream = context.params
+                    payload.meta = {}
+
+                    stream.on('data', chunk => {
+                        const payloadCopy = Object.assign({}, payload)
+                        payloadCopy.params = chunk
+                        stream.pause()
+                        return transport.send(transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy))
+                            .then(() => stream.resume())
+                    })
+
+                    stream.on('end', () => {
+                        const payloadCopy = Object.assign({}, payload)
+                        payloadCopy.params = null
+                        payloadCopy.isStream = false
+                        return transport.send(transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy))
+                    })
+
+                    stream.on('error', (bhunk) => {
+                        return transport.transport(transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload))
+                    })
+                }
+            })
+    }
+
     const transport = {
         log: broker.createLogger('TRANSPORT'),
         isConnected: false,
@@ -105,7 +166,7 @@ const createTransport = (broker, adapter) => {
          * @returns {Promise} Promise
          */
         send (message) {
-            stats.packets.sent = stats.packets.sent + 1
+            this.statistics.sent.packages = this.statistics.sent.packages + 1
             log.trace(`Send ${message.type.toUpperCase()} packet to ${message.targetNodeId || 'all nodes'}`)
             return adapter.preSend(message)
         },
@@ -161,67 +222,6 @@ const createTransport = (broker, adapter) => {
             }
         },
         request (context) {
-            const doRequest = (context, resolve, reject) => {
-                const isStream = context.params && context.params.readable === true && typeof context.params.on === 'function' && typeof context.params.pipe === 'function'
-
-                const request = {
-                    targetNodeId: context.nodeId,
-                    action: context.action.name,
-                    resolve,
-                    reject,
-                    isStream
-                }
-
-                log.debug(`Send Request for ${request.action} to node ${request.targetNodeId}.`)
-
-                pending.requests.set(context.id, request)
-
-                const payload = {
-                    id: context.id,
-                    action: context.action.name,
-                    params: isStream ? null : context.params,
-                    options: {
-                        timeout: context.options.timeout,
-                        retries: context.options.retries
-                    },
-                    meta: context.meta,
-                    level: context.level,
-                    metrics: context.metrics,
-                    requestId: context.requestId,
-                    parentId: context.parentId,
-                    isStream
-                }
-
-                const message = this.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload)
-
-                this.send(message)
-                    .then(() => {
-                        if (isStream) {
-                            const stream = context.params
-                            payload.meta = {}
-
-                            stream.on('data', chunk => {
-                                const payloadCopy = Object.assign({}, payload)
-                                payloadCopy.params = chunk
-                                stream.pause()
-                                return this.send(this.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy))
-                                    .then(() => stream.resume())
-                            })
-
-                            stream.on('end', () => {
-                                const payloadCopy = Object.assign({}, payload)
-                                payloadCopy.params = null
-                                payloadCopy.isStream = false
-                                return this.send(this.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy))
-                            })
-
-                            stream.on('error', (bhunk) => {
-                                return this.send(this.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload))
-                            })
-                        }
-                    })
-            }
-
             // If the queue size is set, check the queue size and reject the job when the limit is reached.
             if (broker.options.transport.maxQueueSize && broker.options.transport.maxQueueSize < pending.requests.size) {
                 return Promise.reject(new WeaveQueueSizeExceededError({
