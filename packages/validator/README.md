@@ -1,0 +1,1 @@
+#Weave object validator

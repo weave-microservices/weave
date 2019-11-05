@@ -4,7 +4,7 @@
  * Copyright 2018 Fachwerk
  */
 
-const ObjectValidator = require('fw-object-validator')
+const ObjectValidator = require('@weave-js/validator')
 const { WeaveParameterValidationError } = require('../errors')
 
 const createValidator = () => {
