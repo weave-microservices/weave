@@ -350,6 +350,7 @@ const createBroker = (options = {}) => {
                 return newService
             } catch (error) {
                 log.error(error)
+                throw error
             }
         },
         /**
