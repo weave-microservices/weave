@@ -1,5 +1,5 @@
 const asyncHooks = require('async_hooks')
-const executionAsyncId = asyncHooks.executionAsyncId;
+const executionAsyncId = asyncHooks.executionAsyncId
 
 module.exports = () => {
     const store = new Map()

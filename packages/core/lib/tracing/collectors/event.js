@@ -54,10 +54,7 @@ class EventCollector extends BaseCollector {
 
     //     return payload
     // }
-    
 /*
-
-
 
     const stopTime = context.startTime + context.duration
 

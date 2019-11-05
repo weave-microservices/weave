@@ -1,7 +1,8 @@
 const BaseCollector = require('./base')
-const fetch = require('fetch')
+const fetch = require('node-fetch')
 
 const convertTime = timestamp => timestamp != null ? Math.round(timestamp * 1000) : null
+const convertId = id => id ? id.replace(/-/g, '').substring(0, 16) : null
 
 class JaegerCollector extends BaseCollector {
     constructor (options) {
@@ -35,42 +36,45 @@ class JaegerCollector extends BaseCollector {
     }
 
     generatePayload () {
-
-        /**{
-            "id": "352bff9a74ca9ad2",
-            "traceId": "5af7183fb1d4cf5f",
-            "parentId": "6b221d5bc9e6496c",
-            "name": "get /api",
-            "timestamp": 1556604172355737,
-            "duration": 1431,
-            "kind": "SERVER",
-            "localEndpoint": {
-                "serviceName": "backend",
-                "ipv4": "192.168.99.1",
-                "port": 3306
-            },
-            "remoteEndpoint": {
-                "ipv4": "172.19.0.2",
-                "port": 58648
-            },
-            "tags": {
-                "http.method": "GET",
-                "http.path": "/api"
-            }
-        } */
         return this.queue.map(span => {
+            const serviceName = span.service ? span.service.fullyQualifiedName : null
             const zipkinPayloadObject = {
-                id: span.id,
-                traceId: span.traceId,
+                id: convertId(span.id),
+                traceId: convertId(span.traceId),
+                parentId: convertId(span.parentId),
                 name: span.name,
                 kind: 'CONSUMER',
+                localEndpoint: { serviceName },
+                remoteEndpoint: { serviceName },
                 timestamp: convertTime(span.startTime),
                 duration: convertTime(span.duration),
+                annotations: [
+                    {
+                        timestamp: convertTime(span.startTime),
+                        value: 'sr'
+                    },
+                    {
+                        timestamp: convertTime(span.finishTime),
+                        value: 'ss'
+                    }
+                ],
                 tags: {
                     'span.type': span.type
                 }
             }
-            
+
+            if (span.error) {
+                zipkinPayloadObject.tags.error = span.error.message
+                zipkinPayloadObject.annotations.push({
+                    value: 'error',
+                    endpoint: {
+                        serviceName: serviceName,
+                        ipv4: '',
+                        port: 0
+                    },
+                    timestamp: convertTime(span.finishTime)
+                })
+            }
 
             return zipkinPayloadObject
         })
@@ -81,15 +85,16 @@ class JaegerCollector extends BaseCollector {
 
         fetch(`${this.options.host}${this.options.endpoint}`, {
             method: 'post',
-            body: JSON.stringify(data),
+            body: data,
             headers: {
                 'Content-Type': 'application/json',
                 'Content-Length': data.length
             }
-        }).then(res => {
-
         })
+            .then(res => res.text())
+            .then(res => {
 
+            })
     }
 
     // generateTracePayload (span) {

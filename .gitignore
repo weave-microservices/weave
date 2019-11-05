@@ -8,3 +8,4 @@ packages/core/node_modules
 packages/db/tests.db
 packages/core/dev/test
 packages/core/coverage
+packages/validator/coverage

@@ -17,7 +17,7 @@ class BaseCollector {
 
     flattenObject (object, subobjectsToString = true) {
         return Object.keys(object).reduce((a, b) => {
-            
+
         })
     }
 }

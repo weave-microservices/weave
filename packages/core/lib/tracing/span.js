@@ -8,8 +8,10 @@ class Span {
 
         this.id = options.id || generateId()
         this.traceId = options.traceId || generateId()
+        this.parentId = options.parentId
         this.name = name
         this.type = options.type
+        this.service = options.service
         this.tags = {}
         this.error = null
         this.sampled = this.options.sampled ? this.options.sampled : tracer.shouldCollectTracing()

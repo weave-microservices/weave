@@ -29,7 +29,7 @@ const RedisTransportAdapter = adapterOptions => {
                 try {
                     Redis = require('ioredis')
                 } catch (error) {
-                    this.log.error(`The package 'ioredis' is not installed. Please install the package with 'npm install nats'.`)
+                    this.log.error(`The package 'ioredis' is not installed. Please install the package with 'npm install ioredis'.`)
                     error.skipRetry = true
                     return reject(error)
                 }

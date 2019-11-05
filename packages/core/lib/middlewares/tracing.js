@@ -25,6 +25,11 @@ const wrapTracingMiddleware = function (handler) {
                 traceId: context.requestId,
                 parentId: context.parentId,
                 type: 'action',
+                service: context.service ? {
+                    name: context.service.name,
+                    fullyQualifiedName: context.service.fullyQualifiedName,
+                    version: context.service.version
+                } : null,
                 tags,
                 sampled: context.tracing
             })
@@ -47,15 +52,15 @@ const wrapTracingMiddleware = function (handler) {
     return handler
 }
 
-const wrapTracingEventMiddleware = function (handler, action) {
-    const broker = this
+// const wrapTracingEventMiddleware = function (handler, action) {
+//     const broker = this
 
-    return function metricsRemoteMiddleware (context) {
-        console.log(context.requestId)
-        console.log(context.parentId)
-        return handler(context)
-    }
-}
+//     return function metricsRemoteMiddleware (context) {
+//         console.log(context.requestId)
+//         console.log(context.parentId)
+//         return handler(context)
+//     }
+// }
 
 module.exports = () => {
     return {
