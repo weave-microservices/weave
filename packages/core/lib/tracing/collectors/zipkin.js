@@ -4,7 +4,7 @@ const fetch = require('node-fetch')
 const convertTime = timestamp => timestamp != null ? Math.round(timestamp * 1000) : null
 const convertId = id => id ? id.replace(/-/g, '').substring(0, 16) : null
 
-class JaegerCollector extends BaseCollector {
+class ZipkinCollector extends BaseCollector {
     constructor (options) {
         super(options)
 
@@ -38,6 +38,7 @@ class JaegerCollector extends BaseCollector {
     generatePayload () {
         return this.queue.map(span => {
             const serviceName = span.service ? span.service.fullyQualifiedName : null
+
             const zipkinPayloadObject = {
                 id: convertId(span.id),
                 traceId: convertId(span.traceId),
@@ -150,4 +151,4 @@ class JaegerCollector extends BaseCollector {
     }*/
 }
 
-module.exports = JaegerCollector
+module.exports = ZipkinCollector
