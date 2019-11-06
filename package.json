@@ -54,7 +54,7 @@
     "eslint": "^6.6.0",
     "eslint-config-fw": "^1.0.3",
     "eslint-loader": "^3.0.2",
-    "lerna": "^3.17.0",
-    "lolex": "^5.0.1"
+    "lerna": "^3.18.3",
+    "lolex": "^5.1.1"
   }
 }

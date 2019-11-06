@@ -35,7 +35,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@weave-js/validator": "^0.7.0",
+    "@weave-js/validator": "^0.7.0-rc.0",
     "args": "^5.0.1",
     "es6-error": "^4.1.1",
     "eventemitter2": "^5.0.1",
