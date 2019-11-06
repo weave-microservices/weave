@@ -27,15 +27,6 @@ const LOG_LEVELS = [
     'fatal'
 ]
 
-/**
- * Configuration object for weave service broker.
- * @typedef {Object} Logger
- * @property {string} nodeId - Name of the Service broker node.
- * @property {string|Object} codec - Codec for data serialization.
- * @property {boolean} hasPower - Indicates whether the Power component is present.
- * @property {boolean} hasWisdom - Indicates whether the Wisdom component is present.
- */
-
 module.exports.createDefaultLogger = (options, bindings) => {
     const logMethods = {}
 

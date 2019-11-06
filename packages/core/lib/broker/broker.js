@@ -1,6 +1,6 @@
 /**
  * Weave service Broker.
- * @module weave2
+ * @module weave
  */
 
 // npm packages
@@ -28,6 +28,7 @@ const EventEmitter = require('eventemitter2')
 const { WeaveError } = require('../errors')
 const { Tracer } = require('../tracing')
 const { MetricsStorage } = require('../metrics')
+
 // package.json
 const pkg = require('../../package.json')
 /* eslint-disable no-use-before-define */

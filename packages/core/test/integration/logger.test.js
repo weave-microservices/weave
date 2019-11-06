@@ -59,6 +59,29 @@ describe('Test logger module.', () => {
             .then(() => broker.stop())
     })
 
+    it('should log with prefix and suffix', (done) => {
+        const doneHookFn = jest.fn()
+        const broker = Weave({
+            nodeId: 'node1',
+            logger: {
+                logLevel: 'info',
+                types: {
+                    info: {
+                        done: doneHookFn
+                    }
+                }
+            }
+        })
+
+        broker.start()
+            .then(() => {
+                broker.log.info({ prefix: 'TEST', message: 'Hallo' })
+                done()
+            })
+            .then(() => clock.uninstall())
+            .then(() => broker.stop())
+    })
+
     // it('should output the log message on stream.', (done) => {
     //     const readStream = new Stream()
 

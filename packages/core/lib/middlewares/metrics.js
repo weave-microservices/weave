@@ -32,8 +32,9 @@ module.exports = () => {
     }
 
     return {
-        created (t) {
+        created () {
             const options = this.options.metrics || {}
+
             if (options.enabled) {
                 this.metrics.register({ type: 'counter', name: Constants.WEAVE_REQUESTS_TOTAL, description: 'Number of total requests.' })
                 this.metrics.register({ type: 'gauge', name: Constants.WEAVE_REQUESTS_IN_FLIGHT, description: 'Number of running requests.' })

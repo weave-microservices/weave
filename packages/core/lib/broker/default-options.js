@@ -68,9 +68,9 @@ const { loadBalancingStrategy } = require('../constants')
  * @property {Number} maxQueueSize Maximum queue size (default = 80000).
  * @property {Number} heartbeatInterval Number of milliseconds in which the heartbeat packet is sent to other nodes. (default = 5000 ms)
  * @property {Number} heartbeatTimeout Number of milliseconds without response before the node is set to the Not Available status. (default = 10000)
- * @property {Number} offlineNodeCheckInterval Interval in milliseconds to check and remove not offline nodes. (default = 30000)
- * @property {Number} maxOfflineTime Maximum time a node can be offline before it is removed from the registry. (default = 600000)
- * @property {String|Object} codec Codec settings
+ * @property {Number} offlineNodeCheckInterval Interval in milliseconds to check and remove not offline nodes. (default = 30000ms)
+ * @property {Number} maxOfflineTime Maximum time a node can be offline before it is removed from the registry. (default = 600000ms)
+ * @property {String|Object} serializer Serializer settings
  */
 
 /**
@@ -145,8 +145,8 @@ module.exports = {
     },
     transport: {
         adapter: null,
-        // codec for transport serialization/deserialization
-        codec: null,
+        // serializer for transport serialization/deserialization
+        serializer: null,
         // maximum queue size
         maxQueueSize: 80000,
         // heartbeat interval
