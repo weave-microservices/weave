@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-rc.3](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.1...@weave-js/core@0.7.0-rc.3) (2019-11-06)
+
+
+### Bug Fixes
+
+* Added missing dependency ([602aafb](https://github.com/fachw3rk/weave/commit/602aafb1dcbaf55dc37d5a49e7b56edcbe20aaee))
+
+
+
+
+
 # [0.7.0-rc.2](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.1...@weave-js/core@0.7.0-rc.2) (2019-11-06)
 
 
