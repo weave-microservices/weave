@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-rc.0](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-alpha.20...@weave-js/core@0.7.0-rc.0) (2019-11-06)
+
+
+### Bug Fixes
+
+* Fixed direct call with node ID ([8cfc1cb](https://github.com/fachw3rk/weave/commit/8cfc1cb2ff1d16367d93c292fcd43688368f5867))
+* Fixed silent argument fpr weave runner ([1173e9e](https://github.com/fachw3rk/weave/commit/1173e9e55aa24a679dc552eac69d0fdbda1beb9c))
+* Memory leak ([c255ab2](https://github.com/fachw3rk/weave/commit/c255ab2322197b6c84009e73a5d5dbe6de7463bb))
+* Throw an error if service creation fails ([b9f01f0](https://github.com/fachw3rk/weave/commit/b9f01f03bddab1c2ba83154a5866f4e0096774fd))
+
+
+
+
+
 # [0.7.0-alpha.20](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-alpha.19...@weave-js/core@0.7.0-alpha.20) (2019-10-03)
 
 

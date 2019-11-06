@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-rc.0](https://github.com/weave-microservices/weave/compare/@weave-js/repl@0.7.0-alpha.36...@weave-js/repl@0.7.0-rc.0) (2019-11-06)
+
+
+### Bug Fixes
+
+* Fixed error ([a0f74a3](https://github.com/weave-microservices/weave/commit/a0f74a3e7bdb4a97040d27913f625883568aa022))
+
+
+### Features
+
+* Added clear command for console ([25f4540](https://github.com/weave-microservices/weave/commit/25f4540b9a7284bad0690859cde563e818365ded))
+
+
+
+
+
 # [0.7.0-alpha.36](https://github.com/weave-microservices/weave/compare/@weave-js/repl@0.7.0-alpha.35...@weave-js/repl@0.7.0-alpha.36) (2019-10-03)
 
 **Note:** Version bump only for package @weave-js/repl
