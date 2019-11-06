@@ -113,6 +113,7 @@ module.exports.createDefaultLogger = (options, bindings) => {
 
     const buildMessage = (type, ...args) => {
         let [msg, additional] = [{}, {}]
+
         if (args.length === 1 && typeof args[0] === 'object' && args[0] !== null) {
             if (args[0] instanceof Error) {
                 [msg] = args
@@ -124,6 +125,7 @@ module.exports.createDefaultLogger = (options, bindings) => {
         } else {
             msg = formatMessage(args)
         }
+
         const rawMessages = {}
         const messages = buildMeta(rawMessages)
 
@@ -153,6 +155,7 @@ module.exports.createDefaultLogger = (options, bindings) => {
         if (type.done) {
             type.done.call(null, msg, rawMessages)
         }
+
         return messages.join(' ')
     }
 
