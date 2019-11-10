@@ -195,7 +195,7 @@ const createBroker = (options = {}) => {
         createLogger,
         getLogger: function () {
             utils.deprecated('The method "broker.getLogger()" is deprecated since weave version 0.7.0. Please use "broker.createLogger()" instead.')
-            return createLogger(arguments)
+            return createLogger(...arguments)
         },
         health,
         registry,
@@ -401,6 +401,10 @@ const createBroker = (options = {}) => {
                 // todo: add timout for service waiter
                 this.log.warn(`Waiting for services '${serviceNames.join(',')}'`)
                 const serviceCheck = () => {
+                    if (!this.isStarted) {
+                        resolve()
+                    }
+
                     if (!Array.isArray(serviceNames)) {
                         serviceNames = [serviceNames]
                     }
