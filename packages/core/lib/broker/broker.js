@@ -613,7 +613,7 @@ const createBroker = (options = {}) => {
     broker.metrics.init()
 
     // Module initialisation
-    registry.init(broker, middlewareHandler)
+    registry.init(broker, middlewareHandler, servicesChanged)
     middlewareHandler.init(broker)
     contextFactory.init(broker)
     health.init(broker, broker.transport)

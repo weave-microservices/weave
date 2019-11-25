@@ -22,14 +22,18 @@ const createNode = (nodeId) => {
         events: null,
         IPList: [],
         update (payload, isReconnected) {
+            const newSequence = payload.sequence || 1
+
             this.services = payload.services
             this.events = payload.events
             this.client = payload.client || {}
             this.IPList = payload.IPList || []
-            const newSequence = payload.sequence || 1
+            
+
             if (newSequence > this.sequence || isReconnected) {
                 this.sequence = newSequence
                 this.offlineTime = null
+
                 return true
             }
             return false
@@ -37,6 +41,7 @@ const createNode = (nodeId) => {
         updateLocalInfo () {
             cpuUsage().then(result => {
                 const newVal = Math.round(result.avg)
+
                 if (this.cpu !== newVal) {
                     this.cpu = Math.round(result.avg)
                     this.cpuSequence++
@@ -58,6 +63,7 @@ const createNode = (nodeId) => {
                 this.offlineTime = Date.now()
                 this.sequence++
             }
+
             this.isAvailable = false
         }
     }

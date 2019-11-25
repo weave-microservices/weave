@@ -13,16 +13,16 @@ const Endpoint = require('./endpoint')
 const { WeaveServiceNotFoundError } = require('../errors')
 const Node = require('./node')
 
-const createRegistry = (middlewareHandler) => {
+const createRegistry = () => {
     const noop = () => {}
 
     // registry object
     const registry = {
-        init (broker) {
+        init (broker, middlewareHandler, serviceChanged) {
             this.broker = broker
             // this.transport = transport
             this.middlewareHandler = middlewareHandler
-
+            this.serviceChanged = serviceChanged
             // create logger
             this.log = broker.createLogger('REGISTRY')
 
@@ -31,6 +31,12 @@ const createRegistry = (middlewareHandler) => {
             this.services = MakeServiceCollection(this)
             this.actions = MakeActionCollection(this)
             this.events = MakeEventCollection(this)
+
+            this.broker.bus.on('$broker.started', () => {
+                if (this.nodes.localNode) {
+                    this.generateLocalNodeInfo(true)
+                }
+            })
         },
         onRegisterLocalAction: noop,
         onRegisterRemoteAction: noop,
@@ -73,6 +79,8 @@ const createRegistry = (middlewareHandler) => {
                 } else {
                     this.log.info(`Service '${service.name}' registered.`)
                 }
+
+                this.serviceChanged(true)
             }
         },
         /**
@@ -87,6 +95,7 @@ const createRegistry = (middlewareHandler) => {
                 // todo: handle events
                 let oldActions
                 let svc = this.services.get(node, service.name, service.version)
+
                 if (!svc) {
                     svc = this.services.add(node, service.name, service.version, service.settings)
                 } else {
@@ -132,6 +141,7 @@ const createRegistry = (middlewareHandler) => {
                 if (service.node !== node) return
 
                 let isExisting = false
+
                 services.forEach((svc) => {
                     if (service.equals(svc.name, svc.version)) {
                         isExisting = true
@@ -142,6 +152,8 @@ const createRegistry = (middlewareHandler) => {
                     this.unregisterService(service.name, service.version, node.id)
                 }
             })
+
+            this.serviceChanged(false)
         },
         /**
          * Register events for a service
@@ -184,6 +196,7 @@ const createRegistry = (middlewareHandler) => {
                 }
 
                 this.actions.add(node, service, action)
+
                 service.addAction(action)
             })
         },
@@ -191,7 +204,12 @@ const createRegistry = (middlewareHandler) => {
             return this.actions.list(options)
         },
         unregisterService (name, version, nodeId) {
-            return this.services.remove(nodeId || this.broker.nodeId, name, version)
+            console.log(name, nodeId)
+            this.services.remove(nodeId || this.broker.nodeId, name, version)
+
+            if (!nodeId || nodeId === this.broker.nodeId) {
+                this.generateLocalNodeInfo(true)
+            }
         },
         unregisterServiceByNodeId (nodeId) {
             return this.services.removeAllByNodeId(nodeId)
@@ -240,15 +258,19 @@ const createRegistry = (middlewareHandler) => {
         },
         getLocalActionEndpoint (actionName) {
             const endpointList = this.getActionEndpoints(actionName)
+
             if (!endpointList) {
                 this.log.warn(`Service ${actionName} is not registered localy.`)
                 throw new WeaveServiceNotFoundError(actionName)
             }
+
             const endpoint = endpointList.getNextLocalEndpoint()
+
             if (!endpoint) {
                 this.log.warn(`Service ${actionName} is not available localy.`)
                 throw new WeaveServiceNotFoundError(actionName)
             }
+
             return endpoint
         },
         getLocalNodeInfo (forceGenerateInfo) {
