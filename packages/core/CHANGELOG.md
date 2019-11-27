@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-rc.8](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.7...@weave-js/core@0.7.0-rc.8) (2019-11-27)
+
+
+### Bug Fixes
+
+* Fixed blocking waitForService method on broker stop ([1c5178e](https://github.com/fachw3rk/weave/commit/1c5178eb70fb8a86c1f8715fb06add2148defb06))
+* Fixed object logs ([0f05dbe](https://github.com/fachw3rk/weave/commit/0f05dbe3b19c2c6ce4223b695f3c139aece75c25))
+* Remove circular references from remote nodes ([14ae7a8](https://github.com/fachw3rk/weave/commit/14ae7a8499d175a2221854ffd9f47124158fb157))
+
+
+
+
+
 # [0.7.0-rc.7](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.1...@weave-js/core@0.7.0-rc.7) (2019-11-06)
 
 
