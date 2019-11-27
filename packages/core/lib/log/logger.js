@@ -101,7 +101,7 @@ module.exports.createDefaultLogger = (options, bindings) => {
         return meta
     }
 
-    const formatMessage = args => util.format(...arrayify(args))
+    const formatMessage = args => util.formatWithOptions({ colors: true, compact: 1, breakLength: Infinity }, ...arrayify(args))
 
     const formatAdditional = ({ prefix, suffix }, args) => {
         return (suffix || prefix) ? '' : formatMessage(args)
