@@ -12,6 +12,7 @@ const MakeEventCollection = require('./collections/event-collection')
 const Endpoint = require('./endpoint')
 const { WeaveServiceNotFoundError } = require('../errors')
 const Node = require('./node')
+const { removeCircularReferences } = require('../utils.js')
 
 const createRegistry = () => {
     const noop = () => {}
@@ -74,6 +75,8 @@ const createRegistry = () => {
 
                 this.nodes.localNode.services.push(service)
 
+                this.generateLocalNodeInfo(this.broker.isStarted)
+                
                 if (svc.version) {
                     this.log.info(`Service '${service.name}' (v${svc.version}) registered.`)
                 } else {
@@ -94,7 +97,7 @@ const createRegistry = () => {
             services.forEach((service) => {
                 // todo: handle events
                 let oldActions
-                let svc = this.services.get(node, service.name, service.version)
+                let svc = this.services.get(node.id, service.name, service.version)
 
                 if (!svc) {
                     svc = this.services.add(node, service.name, service.version, service.settings)
@@ -204,7 +207,6 @@ const createRegistry = () => {
             return this.actions.list(options)
         },
         unregisterService (name, version, nodeId) {
-            console.log(name, nodeId)
             this.services.remove(nodeId || this.broker.nodeId, name, version)
 
             if (!nodeId || nodeId === this.broker.nodeId) {
@@ -300,7 +302,7 @@ const createRegistry = () => {
                 nodeInfo.services = []
             }
 
-            this.nodes.localNode.info = nodeInfo
+            this.nodes.localNode.info = removeCircularReferences(nodeInfo)
             return nodeInfo
         },
         processNodeInfo (payload) {

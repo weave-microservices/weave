@@ -17,7 +17,9 @@ const MakeServiceCatalog = (registry) => {
 
     self.add = (node, name, version, settings) => {
         const item = ServiceItem(node, name, version, settings, node.id === broker.nodeId)
+
         services.push(item)
+
         return item
     }
 

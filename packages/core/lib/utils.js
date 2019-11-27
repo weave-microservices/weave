@@ -14,7 +14,23 @@ const uuid = require('./utils/uuid')
 const RegexCache = new Map()
 const deprecatedList = []
 
+function getCircularReplacer () {
+    const seen = new WeakSet()
+    return (key, value) => {
+        if (typeof value === 'object' && value !== null) {
+            if (seen.has(value)) {
+                return
+            }
+            seen.add(value)
+        }
+        return value
+    }
+}
+
 module.exports = {
+    removeCircularReferences (obj) {
+        return JSON.parse(JSON.stringify(obj, getCircularReplacer()))
+    },
     isPlainObject (o, strict = true) {
         if (o === null || o === undefined) {
             return false
