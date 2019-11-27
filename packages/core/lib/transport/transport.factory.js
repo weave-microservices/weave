@@ -30,17 +30,6 @@ const createTransport = (broker, adapter) => {
         responseStreams: new Map()
     }
 
-    const stats = {
-        packets: {
-            received: {
-                packages: 0
-            },
-            sent: {
-                packages: 0
-            }
-        }
-    }
-
     const doRequest = (context, resolve, reject) => {
         const isStream = context.params && context.params.readable === true && typeof context.params.on === 'function' && typeof context.params.pipe === 'function'
 
@@ -52,7 +41,7 @@ const createTransport = (broker, adapter) => {
             isStream
         }
 
-        log.debug(`Send Request for ${request.action} to node ${request.targetNodeId}.`)
+        log.debug(`Send request for ${request.action} to node ${request.targetNodeId}.`)
 
         pending.requests.set(context.id, request)
 
