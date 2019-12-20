@@ -76,7 +76,7 @@ const createRegistry = () => {
                 this.nodes.localNode.services.push(service)
 
                 this.generateLocalNodeInfo(this.broker.isStarted)
-                
+
                 if (svc.version) {
                     this.log.info(`Service '${service.name}' (v${svc.version}) registered.`)
                 } else {
@@ -115,12 +115,12 @@ const createRegistry = () => {
                 }
 
                 if (oldActions) {
-                    // this.unregisterAction()
+                    // this.deregisterAction()
                     Object.keys(oldActions).forEach(key => {
                         // const action = oldActions[key]
                         if (!service.actions[key]) {
                             /*
-                            function unregisterAction (nodeId, action) {
+                            function deregisterAction (nodeId, action) {
                                 if (actions.has(action.name)) {
                                     const list = actions.get(action.name)
                                     if (list) {
@@ -130,12 +130,6 @@ const createRegistry = () => {
                             }*/
                         }
                     })
-                }
-
-                if (svc.version) {
-                    this.log.info(`Service '${service.name}' (v${svc.version}) registered.`)
-                } else {
-                    this.log.info(`Service '${service.name}' registered.`)
                 }
             })
 
@@ -152,7 +146,7 @@ const createRegistry = () => {
                 })
 
                 if (!isExisting) {
-                    this.unregisterService(service.name, service.version, node.id)
+                    this.deregisterService(service.name, service.version, node.id)
                 }
             })
 
@@ -206,14 +200,20 @@ const createRegistry = () => {
         getActionList (options) {
             return this.actions.list(options)
         },
-        unregisterService (name, version, nodeId) {
+        deregisterService (name, version, nodeId) {
             this.services.remove(nodeId || this.broker.nodeId, name, version)
+
+            // It must be a local service
+            if (!nodeId) {
+                const serviceToRemove = this.nodes.localNode.services.find(service => service.name === name)
+                this.nodes.localNode.services.splice(this.nodes.localNode.services.indexOf(serviceToRemove), 1)
+            }
 
             if (!nodeId || nodeId === this.broker.nodeId) {
                 this.generateLocalNodeInfo(true)
             }
         },
-        unregisterServiceByNodeId (nodeId) {
+        deregisterServiceByNodeId (nodeId) {
             return this.services.removeAllByNodeId(nodeId)
         },
         hasService (serviceName, version, nodeId) {
@@ -332,19 +332,19 @@ const createRegistry = () => {
 
             if (isNew) {
                 this.broker.broadcastLocal('$node.connected', { node, isReconnected })
-                this.log.info(`Node ${node.id} connected!`)
+                this.log.debug(`Node ${node.id} connected!`)
             } else if (isReconnected) {
                 this.broker.broadcastLocal('$node.connected', { node, isReconnected })
-                this.log.info(`Node ${node.id} reconnected!`)
+                this.log.debug(`Node ${node.id} reconnected!`)
             } else {
                 this.broker.broadcastLocal('$node.updated', { node, isReconnected })
-                this.log.info(`Node ${node.id} updated!`)
+                this.log.debug(`Node ${node.id} updated!`)
             }
         },
         nodeDisconnected (nodeId, isUnexpected) {
             const node = this.nodes.get(nodeId)
             if (node && node.isAvailable) {
-                this.unregisterServiceByNodeId(node.id)
+                this.deregisterServiceByNodeId(node.id)
                 node.disconnected(isUnexpected)
                 this.broker.broadcastLocal('$node.disconnected', { nodeId, isUnexpected })
                 this.log.warn(`Node '${node.id}'${isUnexpected ? ' unexpectedly' : ''} disconnected.`)

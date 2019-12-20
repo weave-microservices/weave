@@ -47,7 +47,7 @@ const MakeNodeCollection = (registry) => {
         // disconnected (nodeId, isUnexpected) {
         //     const node = nodes.get(nodeId)
         //     if (node && node.isAvailable) {
-        //         registry.unregisterServiceByNodeId(node.id)
+        //         registry.deregisterServiceByNodeId(node.id)
         //         node.disconnected(isUnexpected)
         //         registry.emit('node.disconnected', nodeId, isUnexpected)
         //         log.warn(`Node '${node.id}'${isUnexpected ? ' unexpectedly' : ''} disconnected.`)

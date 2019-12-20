@@ -143,16 +143,17 @@ const createBroker = (options = {}) => {
 
     const destroyService = service => Promise.resolve()
         .then(() => service.stop())
+        .then(() => log.info(`Service "${service.name}" was stopped.`))
         .then(() => {
-            registry.unregisterService(service.name, service.version)
-            log.info(`Service ${service.name} was stopped.`)
+            registry.deregisterService(service.name, service.version)
+            log.info(`Service "${service.name}" was deregistered.`)
             // Remove service from service store.
             services.splice(services.indexOf(service), 1)
             // Fire services changed event
             servicesChanged(true)
             return Promise.resolve()
         })
-        .catch(error => log.error(`Unable to stop ${service.name} service`, error))
+        .catch(error => log.error(`Unable to stop service "${service.name}"`, error))
 
     const onServiceChanged = (broker, service) => {
         const filename = service.filename
