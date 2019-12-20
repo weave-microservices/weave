@@ -6,12 +6,15 @@
 
 /** @module weave */
 
-// npm packages
+// npm modules
+const path = require('path')
+
+// 3rd party modules
 const kleur = require('kleur')
 const util = require('util')
 const figures = require('figures')
 
-// own packages
+// own modules
 const defaultTypes = require('./types')
 
 // extract colors
@@ -78,7 +81,25 @@ module.exports.createDefaultLogger = (options, bindings) => {
         return date.toISOString()
     }
 
+    const getFilename = () => {
+        const tempStackTrace = Error.prepareStackTrace
+
+        Error.prepareStackTrace = (_, stack) => stack
+
+        const { stack } = new Error()
+
+        Error.prepareStackTrace = tempStackTrace
+
+        const callers = stack.map(x => x.getFileName())
+
+        const firstExternalFilePath = callers.find(x => x !== callers[0])
+
+        return firstExternalFilePath ? path.basename(firstExternalFilePath) : 'anonymous'
+    }
+
     const formatDate = () => `[${getDate()}]`
+
+    const formatFilename = () => gray(`[${getFilename()}]`)
 
     const arrayify = i => Array.isArray(i) ? i : [i]
 
@@ -87,7 +108,7 @@ module.exports.createDefaultLogger = (options, bindings) => {
     const buildMeta = (rawMessages) => {
         const meta = []
 
-        if (options.showTimestamp) {
+        if (options.displayTimestamp) {
             const timestamp = formatDate()
             rawMessages.timestamp = timestamp
             meta.push(timestamp)
@@ -134,23 +155,27 @@ module.exports.createDefaultLogger = (options, bindings) => {
             messages.push(additional.prefix)
         }
 
-        if (options.showBadge && type.badge) {
+        if (options.displayBadge && type.badge) {
             rawMessages.badge = type.badge
             messages.push(kleur[type.color](type.badge.padEnd(longestBadge.length + 1)))
         }
 
-        if (options.showLabel && type.label) {
+        if (options.displayLabel && type.label) {
             rawMessages.label = type.label
             messages.push(kleur[type.color](underline(type.label).padEnd(underline(longestLabel).length + 1)))
         }
 
-        if (options.showModuleName) {
+        if (options.displayModuleName) {
             const moduleName = getModuleName()
             rawMessages.moduleName = moduleName
             messages.push(gray(`[${moduleName}]`))
         }
 
         messages.push(msg)
+
+        if (options.displayFilename) {
+            messages.push(formatFilename())
+        }
 
         if (type.done) {
             type.done.call(null, msg, rawMessages)

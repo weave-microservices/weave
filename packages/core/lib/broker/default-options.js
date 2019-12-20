@@ -42,7 +42,7 @@ const { loadBalancingStrategy } = require('../constants')
  * Configuration object for weave service broker.
  * @typedef {Object} RegistrySettings
  * @property {Boolean} preferLocalActions Prefer local actions over remote actions. (default = true)
- * @property {Number} requestTimeout Time in milliseconds after which a request is rejected. (default = 0)
+ * @property {Number} requestTimeout Time in milliseconds before a action call is rejected. (default = 0)
  * @property {String|Object} loadBalancingStrategy - Stratagy for the internal load balancer. (default = 'round_robin')
  */
 
@@ -79,10 +79,11 @@ const { loadBalancingStrategy } = require('../constants')
  * @property {Boolean} enabled Enable logger.
  * @property {'fatal'|'error'|'warn'|'info'|'debug'|'trace'} logLevel Log level of the messages to be displayed.
  * @property {Stream.Writable|Array} stream Destination to which the data is written, can be a single valid Writable stream or an array holding multiple valid Writable streams. (default = process.stdout).
- * @property {Boolean} showTimestamp Show the current timestamp. (default = true)
- * @property {Boolean} showBadge Show log type badge. (default = true)
- * @property {Boolean} showLabel Show log type label. (default = true)
- * @property {Boolean} showModuleName Show the module name. (default = true)
+ * @property {Boolean} displayTimestamp Show the current timestamp. (default = true)
+ * @property {Boolean} displayBadge Show log type badge. (default = true)
+ * @property {Boolean} displayLabel Show log type label. (default = true)
+ * @property {Boolean} displayModuleName Show the module name. (default = true)
+ * @property {Boolean} displayFilename Show the filename.
  * @property {Object} types Custom log types.
  */
 
@@ -177,10 +178,11 @@ module.exports = {
         enabled: true,
         logLevel: 'info',
         stream: process.stdout,
-        showTimestamp: true,
-        showBadge: true,
-        showLabel: true,
-        showModuleName: true
+        displayTimestamp: true,
+        displayBadge: true,
+        displayLabel: true,
+        displayModuleName: true,
+        displayFilename: false
     },
     // metrics settings
     tracing: {
