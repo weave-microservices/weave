@@ -1,28 +1,23 @@
 # Roadmap
 
-The items on this list are what we have in mind for the next versions of weave. If you are interested in working on one of these items, or if you want to sponsor development to speed things up, feel free to [contact fachwerk](mailto:hello@fachw3rk.de).
+The items on this list are what we have in mind for the next versions of weave. If you are interested in working on one of these items, or if you want to sponsor development to speed things up, feel free to [contact fachwerk software](mailto:hello@fachwerk.io).
 
-## Core
+## Backend
 
-- Modular serializers (MsgPack, Protocol Buffer)
-- Service grouping
-- Unit tests
+- TCP transport with gossip protocol
+- Typescript support
 
+## Hosting
 
-## Modules
-
-- Websocket gateway
-- REPL
-
-## API
-
-- Documentation
+- Deployment server
+- Monitoring and logging
 
 ## Tooling
 
-- CLI module
+- Auto scale agent
+- Designer
 
-## Metrics
+## Reports
 
-- Metric adapter for Zipkin
-
+- Extended metrics
+- Tracing for events
