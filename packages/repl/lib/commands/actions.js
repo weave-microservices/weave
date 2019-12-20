@@ -50,6 +50,7 @@ module.exports = (vorpal, broker) => {
             const tableConf = {}
 
             console.log(table(data, tableConf))
+
             done()
         })
 }

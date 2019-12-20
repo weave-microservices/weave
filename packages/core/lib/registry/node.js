@@ -28,7 +28,6 @@ const createNode = (nodeId) => {
             this.events = payload.events
             this.client = payload.client || {}
             this.IPList = payload.IPList || []
-            
 
             if (newSequence > this.sequence || isReconnected) {
                 this.sequence = newSequence
