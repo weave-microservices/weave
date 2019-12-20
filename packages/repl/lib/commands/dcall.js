@@ -5,7 +5,7 @@ const util = require('util')
 
 module.exports = (vorpal, broker) => {
     vorpal
-        .command('dcall <nodeId> <actionName> [jsonParams]', 'Direct call an action.')
+        .command('dcall <nodeId> <actionName> [jsonParams]', 'Direct call of an action using its node ID.')
         .autocomplete({
             data () {
                 return _.uniq(broker.registry.actions.list({}).map(item => item.name))
