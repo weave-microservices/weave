@@ -357,6 +357,9 @@ const createRegistry = () => {
         },
         getNodeList (options) {
             return this.nodes.list(options)
+        },
+        getServiceList (options) {
+            return this.services.list(options)
         }
     }
 
