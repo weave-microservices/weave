@@ -37,9 +37,9 @@ const MakeNodeCollection = (registry) => {
             const result = []
             nodes.forEach(node => {
                 if (withServices) {
-                    result.push(node)
+                    result.push(omit(node, ['info']))
                 } else {
-                    result.push(omit(node, ['services']))
+                    result.push(omit(node, ['info', 'services']))
                 }
             })
             return result
