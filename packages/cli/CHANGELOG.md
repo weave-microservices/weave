@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-rc.10](https://github.com/weave-microservices/weave/compare/@weave-js/cli@0.7.0-rc.9...@weave-js/cli@0.7.0-rc.10) (2019-12-21)
+
+
+### Features
+
+* Added support for transport connection strings. ([c3473ba](https://github.com/weave-microservices/weave/commit/c3473baa4f40f72f6e196e6615f09a9971fc4cf5))
+
+
+
+
+
 # [0.7.0-rc.9](https://github.com/weave-microservices/weave/compare/@weave-js/cli@0.7.0-rc.8...@weave-js/cli@0.7.0-rc.9) (2019-11-27)
 
 **Note:** Version bump only for package @weave-js/cli

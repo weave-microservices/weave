@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-rc.9](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.8...@weave-js/core@0.7.0-rc.9) (2019-12-21)
+
+
+### Bug Fixes
+
+* Node list ([7169b20](https://github.com/fachw3rk/weave/commit/7169b202ae502ea0de8037ae16ffdceca02896ce))
+* Removed raw informations from node list ([fd9bad1](https://github.com/fachw3rk/weave/commit/fd9bad1a6758560d13ac2053fcc832424737eaa2))
+
+
+### Features
+
+* Added support for transport connection strings. ([c3473ba](https://github.com/fachw3rk/weave/commit/c3473baa4f40f72f6e196e6615f09a9971fc4cf5))
+* Connection string support added. ([fbd2654](https://github.com/fachw3rk/weave/commit/fbd26546cc333510594b29ec13547e519a968c7c))
+* getServiceList short hand method ([cb59016](https://github.com/fachw3rk/weave/commit/cb59016ae9e7040b5c6e077fac019a8e915958da))
+
+
+
+
+
 # [0.7.0-rc.8](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.7...@weave-js/core@0.7.0-rc.8) (2019-11-27)
 
 
