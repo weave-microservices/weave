@@ -5,7 +5,7 @@
  */
 
 const { getIpList } = require('../../utils.js')
-const omit = require('fachwork')
+const { omit } = require('fachwork')
 const Node = require('../node')
 
 const MakeNodeCollection = (registry) => {
