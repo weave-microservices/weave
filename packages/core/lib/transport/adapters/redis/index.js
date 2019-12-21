@@ -114,8 +114,8 @@ module.exports = RedisTransportAdapter
 module.exports.uriToConfig = urlObject => {
     const [_, password] = urlObject.auth ? urlObject.auth.split(':') : []
     return {
-        host: urlObject.hostname || defaultOptions.host,
-        port: urlObject.port || defaultOptions.port,
+        host: urlObject.hostname || defaultOptions.host,
+        port: urlObject.port || defaultOptions.port,
         password
     }
 }
