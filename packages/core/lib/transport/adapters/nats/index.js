@@ -110,3 +110,4 @@ function NATSTransportAdapter (adapterOptions) {
 }
 
 module.exports = NATSTransportAdapter
+

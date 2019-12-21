@@ -8,6 +8,7 @@
 const { defaultsDeep } = require('lodash')
 
 // own packages
+const URIToConfig = require('./URIToConfig')
 const TransportBase = require('../adapter-base')
 const utils = require('../../../utils')
 
@@ -111,11 +112,4 @@ const RedisTransportAdapter = adapterOptions => {
 
 module.exports = RedisTransportAdapter
 
-module.exports.uriToConfig = urlObject => {
-    const [_, password] = urlObject.auth ? urlObject.auth.split(':') : []
-    return {
-        host: urlObject.hostname || defaultOptions.host,
-        port: urlObject.port || defaultOptions.port,
-        password
-    }
-}
+module.exports.uriToConfig = URIToConfig
