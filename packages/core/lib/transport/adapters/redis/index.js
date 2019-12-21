@@ -11,15 +11,17 @@ const { defaultsDeep } = require('lodash')
 const TransportBase = require('../adapter-base')
 const utils = require('../../../utils')
 
+const defaultOptions = {
+    port: 6379,
+    host: '127.0.0.1'
+}
+
 const RedisTransportAdapter = adapterOptions => {
     let clientSub
     let clientPub
 
     // Merge options with default options.
-    adapterOptions = defaultsDeep(adapterOptions, {
-        port: 6379,
-        host: '127.0.0.1'
-    })
+    adapterOptions = defaultsDeep(adapterOptions, defaultOptions)
 
     return Object.assign(TransportBase(adapterOptions), {
         name: 'REDIS',
@@ -108,3 +110,12 @@ const RedisTransportAdapter = adapterOptions => {
 }
 
 module.exports = RedisTransportAdapter
+
+module.exports.uriToConfig = urlObject => {
+    const [_, password] = urlObject.auth ? urlObject.auth.split(':') : []
+    return {
+        host: urlObject.hostname || defaultOptions.host,
+        port: urlObject.port || defaultOptions.port,
+        password
+    }
+}

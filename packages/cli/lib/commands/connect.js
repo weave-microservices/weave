@@ -1,12 +1,13 @@
-const { Weave } = require('@weave-js/core')
+const { Weave, TransportAdapters } = require('@weave-js/core')
+const repl = require('@weave-js/repl')
 
 exports.command = 'connect'
-exports.description = 'Connect to a existing network'
+exports.description = 'Connect to a existing weave structure.'
 exports.builder = {
     transport: {
         alias: 't',
         default: '',
-        description: 'Transport adapter'
+        description: 'Transport connection string'
     },
     loglevel: {
         alias: 'l',
@@ -17,21 +18,18 @@ exports.builder = {
 
 exports.handler = async ({ transport, loglevel }) => {
     if (!transport) {
-        throw new Error('You have to specify a transport adapter.')
+        throw new Error('You have to specify a connection string.')
     }
-
-    const config = {
+    
+    const broker = Weave({
         logger: {
             logLevel: loglevel
+        },
+        transport: {
+            adapter: TransportAdapters.fromURI(transport)
         }
-    }
-
-    config.transport = {
-        adapter: transport
-    }
-
-    const broker = Weave(config)
+    })
 
     broker.start()
-        .then(() => broker.repl())
+        .then(() => repl(broker))
 }
