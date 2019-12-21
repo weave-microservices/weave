@@ -10,8 +10,6 @@ const { defaultsDeep } = require('lodash')
 function NATSTransportAdapter (adapterOptions) {
     let client
 
-    
-
     if (typeof adapterOptions === 'string') {
         adapterOptions = { url: adapterOptions }
     }
@@ -66,7 +64,7 @@ function NATSTransportAdapter (adapterOptions) {
                     this.log.warn(`NATS client is reconnecting...`)
                 })
 
-                client.on('reconnect', (nc) => {
+                client.on('reconnect', () => {
                     if (!this.connected) {
                         this.connected = true
                         this.interruptionCount
@@ -112,3 +110,4 @@ function NATSTransportAdapter (adapterOptions) {
 }
 
 module.exports = NATSTransportAdapter
+

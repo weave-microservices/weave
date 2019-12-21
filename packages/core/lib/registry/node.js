@@ -57,7 +57,7 @@ const createNode = (nodeId) => {
             this.cpu = payload.cpu
             this.cpuSequence = payload.cpuSequence || 1
         },
-        disconnected (isUnexpected) {
+        disconnected () {
             if (this.isAvailable) {
                 this.offlineTime = Date.now()
                 this.sequence++

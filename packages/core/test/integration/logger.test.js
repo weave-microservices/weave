@@ -75,7 +75,7 @@ describe('Test logger module.', () => {
 
         broker.start()
             .then(() => {
-                broker.log.info({ prefix: 'TEST', message: 'Hallo' })
+                broker.log.info({ prefix: 'TEST', message: 'Hello' })
                 done()
             })
             .then(() => clock.uninstall())

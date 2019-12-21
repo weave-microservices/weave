@@ -73,9 +73,11 @@ const MakeServiceCatalog = (registry) => {
     self.getLocalActions = () => {
         const result = []
         // todo: refactoring to array.map()
-        actions.forEach((entry, key) => {
+        actions.forEach(entry => {
             const endpoint = entry.getLocalEndpoint()
-            if (endpoint) result.push(omit(endpoint.action, ['service', 'handler']))
+            if (endpoint) {
+                result.push(omit(endpoint.action, ['service', 'handler']))
+            }
         })
         return result
     }

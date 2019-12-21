@@ -381,9 +381,13 @@ const createBroker = (options = {}) => {
          */
         loadServices (folder = './services', fileMask = '*.service.js') {
             this.log.info(`Searching services in folder '${folder}' with name pattern '${fileMask}'.`)
+
             const serviceFiles = glob.sync(path.join(folder, fileMask))
+
             this.log.info(`${serviceFiles.length} services found.`)
+
             serviceFiles.forEach(fileName => this.loadService(fileName))
+
             return serviceFiles.length
         },
         /**
@@ -552,9 +556,11 @@ const createBroker = (options = {}) => {
                 } else {
                     // handle arrays
                     const pongs = {}
+
                     const nodes = this.registry.getNodeList({})
                         .filter(node => !node.isLocal)
                         .map(node => node.id)
+
                     const onFlight = new Set(nodes)
 
                     nodes.forEach(nodeId => {

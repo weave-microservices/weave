@@ -46,7 +46,7 @@ const createTransportBase = () => {
         preSend (packet) {
             return this.send(packet)
         },
-        send (message) {
+        send (/*message*/) {
             throw new Error('Method "send" not implemented.')
         },
         incommingMessage (messageType, message) {
@@ -71,10 +71,10 @@ const createTransportBase = () => {
             }
         },
         updateStatisticReceived (length) {
-            this.transport.statistics.received.packages++
+            this.transport.statistics.received.packages += length
         },
         updateStatisticSent (length) {
-            this.transport.statistics.sent.packages++
+            this.transport.statistics.sent.packages += length
         }
     }
 }

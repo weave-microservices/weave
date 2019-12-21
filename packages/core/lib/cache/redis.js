@@ -72,12 +72,12 @@ const makeRedisCache = (broker, options = {}) => {
         },
         remove (hashKey) {
             return client.del(hashKey)
-                .then(n => {
+                .then(() => {
                     this.log.debug(`Delete ${hashKey}`)
                 })
         },
         clear (pattern = '*') {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 const stream = client.scanStream({
                     match: pattern
                 })
