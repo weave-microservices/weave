@@ -1,4 +1,5 @@
 const { Weave } = require('@weave-js/core')
+const repl = require('@weave-js/repl')
 
 exports.command = 'start'
 exports.description = 'Start a new Weave broker'
@@ -17,5 +18,7 @@ exports.handler = async ({ url }) => {
         }
     }
     const broker = Weave(config)
-    broker.start().then(() => broker.repl())
+
+    broker.start()
+        .then(() => repl(broker))
 }
