@@ -93,9 +93,9 @@ class ZipkinCollector extends BaseCollector {
             }
         })
             .then(res => res.text())
-            .then(res => {
+            // .then(res => {
 
-            })
+            // })
     }
 
     // generateTracePayload (span) {

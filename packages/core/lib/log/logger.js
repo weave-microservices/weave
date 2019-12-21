@@ -184,7 +184,7 @@ module.exports.createDefaultLogger = (options, bindings) => {
         return messages.join(' ')
     }
 
-    const log = (message, streams = options.stream, typeLogLevel) => {
+    const log = (message, streams = options.stream) => {
         formatStream(streams)
             .forEach(stream => write(stream, message))
     }

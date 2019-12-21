@@ -26,9 +26,9 @@ describe('Cache system', () => {
             }
         })
         node1.start().then(() => {
-            node1.call('testService.cachedAction', { text: 'hallo kevin' })
+            node1.call('testService.cachedAction', { text: 'hello user' })
                 .then(result => {
-                    expect(result).toBe('nivek ollah')
+                    expect(result).toBe('resu olleh')
                     node1.stop()
                     done()
                 })
