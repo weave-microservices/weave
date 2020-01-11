@@ -64,6 +64,15 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
         }
     }
 
+    if (isObject(schema.methods)) {
+        forIn(schema.methods, (method, name) => {
+            if (['log', 'actions', 'log', 'events', 'settings', 'methods', 'dependencies'].includes(name)) {
+                throw new WeaveError(`Invalid method name ${name} in service ${self.name}.`)
+            }
+            self[name] = method.bind(self)
+        })
+    }
+
     if (isObject(schema.actions)) {
         forIn(schema.actions, (action, name) => {
             if (isFunction(action)) {
@@ -81,15 +90,6 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
                 const context = broker.contextFactory.create(endpoint, params, options || {})
                 return wrappedAction(context)
             }
-        })
-    }
-
-    if (isObject(schema.methods)) {
-        forIn(schema.methods, (method, name) => {
-            if (['log', 'actions', 'log', 'events', 'settings', 'methods', 'dependencies'].includes(name)) {
-                throw new WeaveError(`Invalid method name ${name} in service ${self.name}.`)
-            }
-            self[name] = method.bind(self)
         })
     }
 
