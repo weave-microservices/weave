@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-rc.10](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.9...@weave-js/core@0.7.0-rc.10) (2020-01-12)
+
+
+### Bug Fixes
+
+* Changed service init order. ([7b09831](https://github.com/fachw3rk/weave/commit/7b09831c8ef610351ece339dbb327a0a8b211713))
+
+
+
+
+
 # [0.7.0-rc.9](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.8...@weave-js/core@0.7.0-rc.9) (2019-12-21)
 
 
