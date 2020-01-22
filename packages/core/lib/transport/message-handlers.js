@@ -103,6 +103,9 @@ module.exports = (broker, transport, pending) => {
             return Promise.resolve()
         }
 
+        // Merge meta data from response
+        Object.assign(request.context.meta, payload.meta)
+
         if (payload.isStream != null) {
             let stream = pending.responseStreams.get(id)
             if (stream) {

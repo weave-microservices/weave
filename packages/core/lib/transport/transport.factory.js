@@ -36,6 +36,7 @@ const createTransport = (broker, adapter) => {
         const request = {
             targetNodeId: context.nodeId,
             action: context.action.name,
+            context,
             resolve,
             reject,
             isStream
