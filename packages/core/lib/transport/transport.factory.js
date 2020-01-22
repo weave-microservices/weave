@@ -223,12 +223,12 @@ const createTransport = (broker, adapter) => {
 
             return new Promise((resolve, reject) => doRequest(context, resolve, reject))
         },
-        response (target, contextId, data, error) {
+        response (target, contextId, data, meta, error) {
             // Check if data is a stream
             const isStream = data && data.readable === true && typeof data.on === 'function' && typeof data.pipe === 'function'
             const payload = {
                 id: contextId,
-                meta: {},
+                meta,
                 data,
                 success: error == null
             }
