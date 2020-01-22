@@ -85,7 +85,7 @@ const createTransport = (broker, adapter) => {
                     })
 
                     stream.on('error', (bhunk) => {
-                        return transport.transport(transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload))
+                        return transport.send(transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload))
                     })
                 }
             })

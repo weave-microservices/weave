@@ -88,10 +88,10 @@ module.exports = (broker, transport, pending) => {
             context.options.timeout = payload.options.timeout || broker.options.requestTimeout || 0
 
             return localRequestProxy(context)
-                .then(result => transport.response(sender, payload.id, result, null))
-                .catch(error => transport.response(sender, payload.id, null, error))
+                .then(data => transport.response(sender, payload.id, data, context.meta, null))
+                .catch(error => transport.response(sender, payload.id, null, context.meta, error))
         } catch (error) {
-            return transport.response(sender, payload.id, null, error)
+            return transport.response(sender, payload.id, null, payload.meta, error)
         }
     }
 
