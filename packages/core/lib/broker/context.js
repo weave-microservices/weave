@@ -53,7 +53,7 @@ const createContext = (broker, endpoint) => {
             const p = broker.call(actionName, params, options)
             return p.then(result => {
                 if (p.context) {
-                    Object.assign(this.meta, p.context.meta)
+                    this.meta = Object.assign(this.meta, p.context.meta)
                 }
                 return result
             })

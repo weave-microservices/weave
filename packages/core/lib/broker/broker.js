@@ -233,8 +233,10 @@ const createBroker = (options = {}) => {
             } else {
                 log.debug(`Call action on remote node.`, { action: actionName, nodeId, requestId: context.requestId })
             }
+
             const p = action.handler(context)
-            // p.context = context
+
+            p.context = context
 
             return p
         },
