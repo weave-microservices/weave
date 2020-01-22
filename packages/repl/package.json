@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/repl",
-  "version": "0.7.0-rc.11",
+  "version": "0.7.0-rc.12",
   "description": "REPL module for weave",
   "main": "lib/index.js",
   "scripts": {},
@@ -21,7 +21,7 @@
     "vorpal": "^1.12.0"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.7.0-rc.13"
+    "@weave-js/core": "^0.7.0-rc.14"
   },
   "gitHead": "b58f13e136270973da4dda126b1892170d376a90"
 }

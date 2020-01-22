@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-rc.14](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.13...@weave-js/core@0.7.0-rc.14) (2020-01-22)
+
+
+### Bug Fixes
+
+* Another fix for meta data ([243c716](https://github.com/fachw3rk/weave/commit/243c7169b7c0d54eaffa4715a5784ebabf175cfc))
+
+
+
+
+
 # [0.7.0-rc.13](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.12...@weave-js/core@0.7.0-rc.13) (2020-01-22)
 
 
