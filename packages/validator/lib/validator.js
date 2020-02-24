@@ -7,15 +7,40 @@ const flatten = values => values.reduce((a, b) => a.concat(b), [])
 function ModelValidator () {
     const rules = {}
     const messages = defaultMessages
+    const cache = new Map()
 
     const internal = {
-        makeError (type, expected, given, isMissing = false) {
-            return {
-                type,
-                expected,
-                given,
-                isMissing
+        makeErrorCode ({ type, expected, field, origin, messages }) {
+            // return {
+            //     type,
+            //     expected,
+            //     given,
+            //     isMissing
+            // }
+        
+            const error = {
+                type: `'${type}'`,
+                message: `'${messages[type]}'`
             }
+
+            if (field) {
+                error.field = `"${field}"`
+            } else {
+                error.field = 'field'
+            }
+
+            if (expected) {
+                error.expected = expected
+            }
+
+            if (origin) {
+                error.origin = origin
+            }
+            const str = Object.keys(error)
+                .map(key => `${key}: ${error[key]}`)
+                .join(', ')
+            
+            return `errors.push({ ${str} })`
         },
         resolveMessage (error) {
             const message = messages[error.type]
@@ -47,15 +72,113 @@ function ModelValidator () {
                 if (!error.message) {
                     error.message = this.resolveMessage(error)
                 }
+
                 errors.push(error)
             })
+        },
+        getRuleFromSchema (schema) {
+            const ruleGeneratorFunction = rules[schema.type]
+
+            if (!ruleGeneratorFunction) {
+                throw new Error(`Invalid type '${schema.type}' in validator schema.`)
+            }
+
+            return {
+                schema,
+                ruleGeneratorFunction,
+                messages: Object.assign({}, messages, schema.messages)
+            }
+
+        },
+        compileRule (rule, context, path, innerSrc, defaultValue) {
+            const sourceCode = []
+
+            const item = cache.get(rule.schema)
+
+            if (item) {
+
+            } else {
+                rule.index = context.index
+                context.rules[context.index] = rule
+                context.index++
+
+                const result = rule.ruleGeneratorFunction.call(internal, rule, path, context)
+
+                if (result.code) {
+                    const fn = new Function('value', 'field', 'parent', 'errors', 'context', result.code);
+                    context.func[rule.index] = fn
+                    sourceCode.push(this.wrapSourceCode(rule, innerSrc.replace('##INDEX##', rule.index)))
+                } else {
+                    console.log(result)
+                }
+            }
+            return sourceCode.join('\n')
         },
         compile (schema) {
             if (typeof schema !== 'object') {
                 throw new Error('Invalid Schema!')
             }
-            const checks = flatten(Object.keys(schema).map(property => processRule(schema[property], property)))
-            return checkWrapper(checks)
+
+            const context = {
+                index: 0,
+                rules: [],
+                func: [],
+                customs: {}
+            }
+
+            const code = [
+                'let errors = []',
+                'let field'
+            ]
+
+            // prepare schema
+            if (Array.isArray(schema)) {
+
+            } else {
+                const tempSchema = Object.assign({}, schema)
+                schema = {
+                    type: 'object',
+                    props: tempSchema
+                }
+            }
+
+            const rule = internal.getRuleFromSchema(schema)
+            code.push(internal.compileRule(rule, context, null, 'context.func[##INDEX##](value, field, null, errors, context)', 'value'))
+
+            code.push('if (errors.length) {')
+            code.push(`
+                return errors.map(error => {
+                    if (error.message) {
+                        error.message = error.message
+                            .replace(/\\{param\\}/g, error.field || "")
+                            .replace(/\\{expected\\}/g, error.expected != null ? error.expected : "")
+                            .replace(/\\{actual\\}/g, error.actual != null ? error.actual : "")
+                    }
+               
+                    return error
+                })
+            `)
+            code.push('}')
+            code.push('return true')
+    
+            const src = code.join('\n')
+            const checkFn = new Function('value', 'context', src)
+
+            return (data) => {
+                context.data = data
+                return checkFn(data, context)
+            }
+            // const checks = flatten(Object.keys(schema).map(property => processRule(schema[property], property)))
+            // return checkWrapper(checks)
+        },
+        wrapSourceCode (rule, innerSrc, resolveVar) {
+            const code = []
+
+            if (innerSrc) {
+                code.push(innerSrc)
+            }
+
+            return code.join('\n')
         }
     }
 
