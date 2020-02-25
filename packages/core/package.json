@@ -14,8 +14,7 @@
     "ci": "jest --watch",
     "test": "NODE_ENV=test jest --no-cache",
     "coverage": "jest --coverage --no-cache",
-    "lint": "eslint lib/**",
-    "eslint": "eslint --ext=.js lib test dev"
+    "lint": "eslint --ext=.js lib test --fix"
   },
   "repository": {
     "type": "git",
@@ -48,6 +47,7 @@
     "node-object-hash": "^2.0.0"
   },
   "devDependencies": {
+    "eslint": "^6.8.0",
     "ioredis": "^4.14.1",
     "jest": "^24.9.0",
     "jest-cli": "^24.9.0",

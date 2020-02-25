@@ -3,7 +3,9 @@
   "version": "0.7.0-rc.13",
   "description": "REPL module for weave",
   "main": "lib/index.js",
-  "scripts": {},
+  "scripts": {
+    "lint": "eslint --ext=.js lib --fix"
+  },
   "publishConfig": {
     "access": "public"
   },
@@ -21,7 +23,8 @@
     "vorpal": "^1.12.0"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.7.0-rc.15"
+    "@weave-js/core": "^0.7.0-rc.15",
+    "eslint": "^6.8.0"
   },
   "gitHead": "b58f13e136270973da4dda126b1892170d376a90"
 }

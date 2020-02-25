@@ -1,5 +1,5 @@
 const serializers = {
-    json: require('./json')
+  json: require('./json')
 }
 
 module.exports = Object.assign({}, serializers)

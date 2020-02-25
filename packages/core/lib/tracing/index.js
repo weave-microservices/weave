@@ -1,3 +1,3 @@
 module.exports = {
-    Tracer: require('./tracer')
+  Tracer: require('./tracer')
 }

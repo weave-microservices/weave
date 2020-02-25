@@ -1,122 +1,122 @@
 const { Weave, TransportAdapters } = require('../../lib/index')
-const { WeaveError, WeaveServiceNotAvailableError } = require('../../lib/errors')
+const { WeaveError } = require('../../lib/errors')
 const lolex = require('lolex')
 
 describe('Test circuit breaker', () => {
-    let clock
-    const node1 = Weave({
-        nodeId: 'node1',
-        logger: {
-            enabled: false,
-            logLevel: 'fatal'
-        },
-        transport: {
-            adapter: TransportAdapters.Dummy()
-        },
-        circuitBreaker: {
-            enabled: true,
-            failureOnError: true,
-            failureOnTimeout: true,
-            maxFailures: 3
+  let clock
+  const node1 = Weave({
+    nodeId: 'node1',
+    logger: {
+      enabled: false,
+      logLevel: 'fatal'
+    },
+    transport: {
+      adapter: TransportAdapters.Dummy()
+    },
+    circuitBreaker: {
+      enabled: true,
+      failureOnError: true,
+      failureOnTimeout: true,
+      maxFailures: 3
+    }
+  })
+
+  const node2 = Weave({
+    nodeId: 'node2',
+    logger: {
+      enabled: false,
+      logLevel: 'fatal'
+    },
+    transport: {
+      adapter: TransportAdapters.Dummy()
+    }
+  })
+
+  node2.createService({
+    name: 'test',
+    actions: {
+      good () {
+        return 'Everthing is fine.'
+      },
+      bad (context) {
+        if (context.params.error !== true) {
+          return Promise.reject(new WeaveError('No Permission', 666))
+        } else {
+          return 'ok'
         }
-    })
+      },
+      ugly () {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            return resolve('OK')
+          }, 2000)
+        })
+      }
+    }
+  })
 
-    const node2 = Weave({
-        nodeId: 'node2',
-        logger: {
-            enabled: false,
-            logLevel: 'fatal'
-        },
-        transport: {
-            adapter: TransportAdapters.Dummy()
-        }
-    })
+  beforeAll(() => {
+    return node1.start()
+      .then(() => node2.start())
+      .then(() => {
+        clock = lolex.install()
+      })
+  })
 
-    node2.createService({
-        name: 'test',
-        actions: {
-            good () {
-                return 'Everthing is fine.'
-            },
-            bad (context) {
-                if (context.params.error !== true) {
-                    return Promise.reject(new WeaveError('No Permission', 666))
-                } else {
-                    return 'ok'
-                }
-            },
-            ugly () {
-                return new Promise((resolve, reject) => {
-                    setTimeout(() => {
-                        return resolve('OK')
-                    }, 2000)
-                })
-            }
-        }
-    })
+  afterAll(() => {
+    return node1.stop()
+      .then(() => node2.stop())
+      .then(() => clock.uninstall())
+  })
 
-    beforeAll(() => {
-        return node1.start()
-            .then(() => node2.start())
-            .then(() => {
-                clock = lolex.install()
-            })
-    })
+  it('Should call test.good 5 times without problems', () => {
+    return node1.call('test.good')
+      .then(() => node1.call('test.good'))
+      .then(() => node1.call('test.good'))
+      .then(() => node1.call('test.good'))
+      .then(() => node1.call('test.good'))
+      .then(() => node1.call('test.good'))
+      .then(res => expect(res).toBe('Everthing is fine.'))
+  })
 
-    afterAll(() => {
-        return node1.stop()
-            .then(() => node2.stop())
-            .then(() => clock.uninstall())
-    })
-
-    it('Should call test.good 5 times without problems', () => {
-        return node1.call('test.good')
-            .then(() => node1.call('test.good'))
-            .then(() => node1.call('test.good'))
-            .then(() => node1.call('test.good'))
-            .then(() => node1.call('test.good'))
-            .then(() => node1.call('test.good'))
-            .then(res => expect(res).toBe('Everthing is fine.'))
-    })
-
-    it('Should throw error', () => {
+  it('Should throw error', () => {
+    return node1.call('test.bad')
+      .catch(error => {
+        expect(error.name).toBe('WeaveError')
         return node1.call('test.bad')
-            .catch(error => {
-                expect(error.name).toBe('WeaveError')
-                return node1.call('test.bad')
-            })
-            .catch(error => {
-                expect(error.name).toBe('WeaveError')
-                return node1.call('test.bad')
-            })
-            .catch(error => {
-                expect(error.name).toBe('WeaveError')
-                return node1.call('test.bad')
-            })
-            .catch(error => {
-                expect(error.name).toBe('WeaveServiceNotAvailableError')
-                return 'ok'
-            })
-            .then(result => expect(result).toBe('ok'))
-    })
-
-    it('Should switch from half open to open', () => {
-        clock.tick(11000)
+      })
+      .catch(error => {
+        expect(error.name).toBe('WeaveError')
         return node1.call('test.bad')
-            .catch(error => {
-                expect(error.name).toBe('WeaveError')
-                return node1.call('test.bad')
-            })
-            .catch(error => {
-                expect(error.name).toBe('WeaveServiceNotAvailableError')
-                return 'ok'
-            })
-            .then(result => expect(result).toBe('ok'))
-    })
+      })
+      .catch(error => {
+        expect(error.name).toBe('WeaveError')
+        return node1.call('test.bad')
+      })
+      .catch(error => {
+        expect(error.name).toBe('WeaveServiceNotAvailableError')
+        return 'ok'
+      })
+      .then(result => expect(result).toBe('ok'))
+  })
 
-    it('Should switch from half-open to close', () => {
-        clock.tick(11000)
-        return node1.call('test.bad', { error: true })
-            .then(result => expect(result).toBe('ok'))
-    })
+  it('Should switch from half open to open', () => {
+    clock.tick(11000)
+    return node1.call('test.bad')
+      .catch(error => {
+        expect(error.name).toBe('WeaveError')
+        return node1.call('test.bad')
+      })
+      .catch(error => {
+        expect(error.name).toBe('WeaveServiceNotAvailableError')
+        return 'ok'
+      })
+      .then(result => expect(result).toBe('ok'))
+  })
+
+  it('Should switch from half-open to close', () => {
+    clock.tick(11000)
+    return node1.call('test.bad', { error: true })
+      .then(result => expect(result).toBe('ok'))
+  })
 })

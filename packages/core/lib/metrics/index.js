@@ -1,6 +1,6 @@
 const Constants = require('./constants')
 
 module.exports = {
-    MetricsStorage: require('./registry'),
-    Constants
+  MetricsStorage: require('./registry'),
+  Constants
 }

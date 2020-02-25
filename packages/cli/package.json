@@ -3,6 +3,9 @@
   "version": "0.7.0-rc.16",
   "description": "Weave CLI tool",
   "main": "index.js",
+  "scripts": {
+    "lint": "eslint --ext=.js lib --fix"
+  },
   "bin": {
     "weave-cli": "./bin/weave-cli.js"
   },
@@ -37,5 +40,8 @@
     "user-home": "^2.0.0",
     "yargs": "^14.2.0"
   },
-  "gitHead": "b58f13e136270973da4dda126b1892170d376a90"
+  "gitHead": "b58f13e136270973da4dda126b1892170d376a90",
+  "devDependencies": {
+    "eslint": "^6.8.0"
+  }
 }
