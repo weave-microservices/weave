@@ -1,5 +1,5 @@
 const { Weave, TransportAdapters } = require('../../lib/index')
-const { WeaveError } = require('../../lib/errors')
+const { WeaveError, WeaveServiceNotAvailableError } = require('../../lib/errors')
 const lolex = require('lolex')
 
 describe('Test circuit breaker', () => {
@@ -94,7 +94,7 @@ describe('Test circuit breaker', () => {
                 return node1.call('test.bad')
             })
             .catch(error => {
-                expect(error.name).toBe('WeaveServiceNotFoundError')
+                expect(error.name).toBe('WeaveServiceNotAvailableError')
                 return 'ok'
             })
             .then(result => expect(result).toBe('ok'))
@@ -108,7 +108,7 @@ describe('Test circuit breaker', () => {
                 return node1.call('test.bad')
             })
             .catch(error => {
-                expect(error.name).toBe('WeaveServiceNotFoundError')
+                expect(error.name).toBe('WeaveServiceNotAvailableError')
                 return 'ok'
             })
             .then(result => expect(result).toBe('ok'))

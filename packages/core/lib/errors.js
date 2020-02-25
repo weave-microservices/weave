@@ -27,22 +27,29 @@ class WeaveRetrieableError extends WeaveError {
 }
 
 class WeaveServiceNotFoundError extends WeaveRetrieableError {
-    constructor (actionName, nodeId) {
-        const message = `Service ${actionName} not found on node ${nodeId || '<local>'}`
-        super(message, 404, 'WEAVE_SERVICE_NOT_FOUND_ERROR', {
-            actionName,
-            nodeId
-        })
+    constructor (data = {}) {
+        let message
+
+        if (data.actionName && data.nodeId) {
+            message = `Service "${data.actionName}" not found on node "${data.nodeId}".`
+        } else if (data.actionName) {
+            message = `Service "${data.actionName}" not found.`
+        }
+
+        super(message, 404, 'WEAVE_SERVICE_NOT_FOUND_ERROR', data)
     }
 }
 
 class WeaveServiceNotAvailableError extends WeaveRetrieableError {
-    constructor (actionName, nodeId) {
-        const message = `Service ${actionName} not available on node ${nodeId || '<local>'}`
-        super(message, 405, 'WEAVE_SERVICE_NOT_AVAILABLE_ERROR', {
-            actionName,
-            nodeId
-        })
+    constructor (data = {}) {
+        let message
+        if (data.nodeId) {
+            message = `Service "${data.actionName}" not available on node "${data.nodeId}".`
+        } else {
+            message = `Service "${data.actionName}" not available.`
+        }
+
+        super(message, 405, 'WEAVE_SERVICE_NOT_AVAILABLE_ERROR', data)
     }
 }
 
@@ -75,6 +82,19 @@ class WeaveQueueSizeExceededError extends WeaveError {
     }
 }
 
+const restoreError = error => {
+    const ErrorClass = module.exports[error.name]
+
+    if (ErrorClass) {
+        switch (error.name) {
+            case 'WeaveError':
+                return new ErrorClass(error.message, error.code, error.type, error.data)
+            // case 'WeaveParameterValidationError':
+            //     return new ErrorClass(error.message, error.data)
+        }
+    }
+}
+
 module.exports = {
     WeaveBrokerOptionsError,
     WeaveError,
@@ -83,5 +103,6 @@ module.exports = {
     WeaveRequestTimeoutError,
     WeaveRetrieableError,
     WeaveServiceNotAvailableError,
-    WeaveServiceNotFoundError
+    WeaveServiceNotFoundError,
+    restoreError
 }

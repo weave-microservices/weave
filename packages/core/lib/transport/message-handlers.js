@@ -5,7 +5,7 @@
  */
 
 const { Transform } = require('stream')
-const { WeaveError } = require('../errors')
+const { WeaveError, restoreError } = require('../errors')
 const Context = require('../broker/context')
 const MessageTypes = require('./message-types')
 
@@ -32,7 +32,7 @@ module.exports = (broker, transport, pending) => {
             return Promise.reject('Service not found')
         }
 
-        // call the local action handler with context
+        // Call the local action handler with context
         const p = endpoint.action.handler(context)
         return p
     }
@@ -134,14 +134,20 @@ module.exports = (broker, transport, pending) => {
         }
 
         pending.requests.delete(payload.id)
-        // pendingResponseStreams.delete(payload.id)
 
         if (!payload.success) {
-            const error = new WeaveError(`${payload.error ? payload.error.message : 'Unknown error'} on node: '${payload.sender}'`)
+            let error = restoreError(payload.error) // new WeaveError(`${payload.error ? payload.error.message : 'Unknown error'} on node: '${payload.sender}'`)
 
-            error.code = payload.error.code
-            error.name = payload.error.name
-            error.type = payload.error.type
+            if (!error) {
+                error = new Error(payload.error.message)
+                error.name = payload.error.name
+                error.code = payload.error.code
+                error.type = payload.error.type
+                error.data = payload.error.data
+            }
+
+            error.retryable = payload.error.retryable
+            error.nodeId = error.nodeId || payload.sender
 
             if (payload.error.stack) {
                 error.stack = payload.error.stack

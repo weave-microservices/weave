@@ -227,6 +227,7 @@ const createTransport = (broker, adapter) => {
         response (target, contextId, data, meta, error) {
             // Check if data is a stream
             const isStream = data && data.readable === true && typeof data.on === 'function' && typeof data.pipe === 'function'
+
             const payload = {
                 id: contextId,
                 meta,
@@ -248,13 +249,14 @@ const createTransport = (broker, adapter) => {
 
             if (isStream) {
                 const stream = data
-
+                payload.sequence = 0
                 payload.isStream = true
                 stream.pause()
                 this.log.debug('Send new stream chunk to ', target)
 
                 stream.on('data', chunk => {
                     const payloadCopy = Object.assign({}, payload)
+                    payloadCopy.sequence = ++payload.sequence
                     payloadCopy.data = chunk
                     this.log.debug('Send Stream chunk to ', target)
                     stream.pause()
@@ -264,14 +266,26 @@ const createTransport = (broker, adapter) => {
 
                 stream.on('end', () => {
                     const payloadCopy = Object.assign({}, payload)
+
+                    payloadCopy.sequence = ++payload.sequence
                     payloadCopy.data = null
                     payloadCopy.isStream = false
+
                     this.log.debug('Send end stream chunk to ', target)
                     this.send(this.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy))
                 })
 
-                stream.on('error', () => {
-                    this.send(this.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payload))
+                stream.on('error', (error) => {
+                    const payloadCopy = Object.assign({}, payload)
+
+                    payloadCopy.sequence = ++payload.sequence
+                    payloadCopy.isStream = false
+
+                    if (error) {
+                        payloadCopy.success = false
+                    }
+
+                    this.send(this.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy))
                 })
 
                 payload.data = null

@@ -68,24 +68,35 @@ describe('Test errors', () => {
     })
 
     it('Service not available error', () => {
-        const error = new Error.WeaveServiceNotAvailableError('do.something', 'node1')
+        const error = new Error.WeaveServiceNotAvailableError({ actionName: 'do.something', nodeId: 'node1' })
         expect(error).toBeDefined()
         expect(error).toBeInstanceOf(Error.WeaveError)
-        expect(error.message).toBe('Service do.something not available on node node1')
+        expect(error.message).toBe('Service "do.something" not available on node "node1".')
         expect(error.code).toBe(405)
         expect(error.type).toBe('WEAVE_SERVICE_NOT_AVAILABLE_ERROR')
         expect(error.data).toEqual({ actionName: 'do.something', nodeId: 'node1' })
         expect(error.retryable).toBe(true)
     })
 
-    it('Service not available error', () => {
-        const error = new Error.WeaveServiceNotFoundError('do.something', 'node1')
+    it('Service not found error', () => {
+        const error = new Error.WeaveServiceNotFoundError({ actionName: 'do.something', nodeId: 'node1' })
         expect(error).toBeDefined()
         expect(error).toBeInstanceOf(Error.WeaveError)
-        expect(error.message).toBe('Service do.something not found on node node1')
+        expect(error.message).toBe('Service "do.something" not found on node "node1".')
         expect(error.code).toBe(404)
         expect(error.type).toBe('WEAVE_SERVICE_NOT_FOUND_ERROR')
         expect(error.data).toEqual({ actionName: 'do.something', nodeId: 'node1' })
+        expect(error.retryable).toBe(true)
+    })
+
+    it('Service not found error (lokal)', () => {
+        const error = new Error.WeaveServiceNotFoundError({ actionName: 'do.something' })
+        expect(error).toBeDefined()
+        expect(error).toBeInstanceOf(Error.WeaveError)
+        expect(error.message).toBe('Service "do.something" not found.')
+        expect(error.code).toBe(404)
+        expect(error.type).toBe('WEAVE_SERVICE_NOT_FOUND_ERROR')
+        expect(error.data).toEqual({ actionName: 'do.something' })
         expect(error.retryable).toBe(true)
     })
 })

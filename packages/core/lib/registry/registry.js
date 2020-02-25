@@ -10,7 +10,7 @@ const MakeServiceCollection = require('./collections/service-collection')
 const MakeActionCollection = require('./collections/action-collection')
 const MakeEventCollection = require('./collections/event-collection')
 const Endpoint = require('./endpoint')
-const { WeaveServiceNotFoundError } = require('../errors')
+const { WeaveServiceNotFoundError, WeaveServiceNotAvailableError } = require('../errors')
 const Node = require('./node')
 const { removeCircularReferences } = require('../utils.js')
 
@@ -227,20 +227,23 @@ const createRegistry = () => {
                     const endpoint = this.getActionEndpointByNodeId(actionName, opts.nodeId)
                     if (!endpoint) {
                         this.log.warn(`Service ${actionName} is not registered on node ${opts.nodeId}.`)
-                        return new WeaveServiceNotFoundError(actionName)
+                        return new WeaveServiceNotFoundError({ actionName, nodeId: opts.nodeId })
                     }
                     return endpoint
                 } else {
                     const endpointList = this.getActionEndpoints(actionName)
                     if (!endpointList) {
                         this.log.warn(`Service ${actionName} is not registered.`)
-                        return new WeaveServiceNotFoundError(actionName)
+                        return new WeaveServiceNotFoundError({ actionName })
                     }
+
                     const endpoint = endpointList.getNextAvailable()
+
                     if (!endpoint) {
                         this.log.warn(`Service ${actionName} is not available.`)
-                        return new WeaveServiceNotFoundError(actionName)
+                        return new WeaveServiceNotAvailableError({ actionName })
                     }
+
                     return endpoint
                 }
             }
@@ -263,14 +266,14 @@ const createRegistry = () => {
 
             if (!endpointList) {
                 this.log.warn(`Service ${actionName} is not registered localy.`)
-                throw new WeaveServiceNotFoundError(actionName)
+                throw new WeaveServiceNotFoundError({ actionName })
             }
 
             const endpoint = endpointList.getNextLocalEndpoint()
 
             if (!endpoint) {
                 this.log.warn(`Service ${actionName} is not available localy.`)
-                throw new WeaveServiceNotFoundError(actionName)
+                throw new WeaveServiceNotAvailableError({ actionName })
             }
 
             return endpoint

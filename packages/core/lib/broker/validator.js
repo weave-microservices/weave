@@ -20,10 +20,11 @@ const createValidator = () => {
         if (action.params && typeof action.params === 'object') {
             const validate = validator.compile(action.params)
             return context => {
-                const result = validate(context.params)
+                let result = validate(context.params)
                 if (result === true) {
                     return handler(context)
                 } else {
+                    result = result.map(data => Object.assign(data, { nodeId: context.nodeId, action: context.action.name }))
                     return Promise.reject(new WeaveParameterValidationError('Parameter validation error', result))
                 }
             }
