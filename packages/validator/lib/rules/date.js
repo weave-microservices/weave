@@ -22,6 +22,10 @@ module.exports = function checkDate ({ schema, messages }) {
         }
     `)
 
+  code.push(`
+      return value
+  `)
+
   return {
     sanitized,
     code: code.join('\n')

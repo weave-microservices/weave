@@ -41,7 +41,7 @@ describe.only('Date validator', () => {
     expect(result[0].message).toBe('The parameter "date" is not a valid date.')
   })
 
-  it('boolean validator (invalid)', () => {
+  it('should convert the given value in a date - valid', () => {
     const schema = {
       date: { type: 'date', convert: true }
     }
@@ -51,6 +51,6 @@ describe.only('Date validator', () => {
     const validate = validator.compile(schema)
     const result = validate(parameters)
 
-    expect(result).toBe(true)
+    expect(parameters.date instanceof Date).toBe(true)
   })
 })

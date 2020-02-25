@@ -23,8 +23,8 @@ module.exports = function checkBoolean ({ schema, messages }) {
     `)
 
   code.push(`
-        return value
-    `)
+      return value
+  `)
 
   return {
     sanitized,
