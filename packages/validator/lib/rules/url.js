@@ -1,13 +1,27 @@
 const PATTERN = /^https?:\/\/\S+/
 
-module.exports = function checkUrl (value) {
-    if (typeof value !== 'string') {
-        return this.makeError('string')
-    }
+module.exports = function checkUrl ({ schema, messages }) {
+    const code = []
 
-    if (!PATTERN.test(value)) {
-        return this.makeError('url')
-    }
+    code.push(`
+        if (typeof value !== 'string') {
+            ${this.makeErrorCode({ type: 'string', passed: 'value', messages })}
+            return value
+        }
+    `)
 
-    return true
+    code.push(`
+        if (!${PATTERN.toString()}.test(value)) {
+            ${this.makeErrorCode({ type: 'url', passed: 'value', messages })}
+            return value
+        }
+    `)
+
+    code.push(`
+        return value
+    `)
+
+    return {
+        code: code.join('\n')
+    }
 }

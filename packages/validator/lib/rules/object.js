@@ -6,59 +6,59 @@ const identifierRegex = /^[_$a-zA-Z][_$a-zA-Z0-9]*$/
 // Regex to escape quoted property names for eval/new Function
 const escapeEvalRegex = /[''\\\n\r\u2028\u2029]/g
 
-function escapeEvalString(str) {
-	// Based on https://github.com/joliss/js-string-escape
-	return str.replace(escapeEvalRegex, function(character) {
-		switch (character) {
-		case '\'':
-		case '':
-		case '\\':
-			return '\\' + character;
-			// Four possible LineTerminator characters need to be escaped:
-		case '\n':
-			return '\\n'
-		case '\r':
-			return '\\r'
-		case '\u2028':
-			return '\\u2028'
-		case '\u2029':
-			return '\\u2029'
-		}
-	})
+function escapeEvalString (str) {
+    // Based on https://github.com/joliss/js-string-escape
+    return str.replace(escapeEvalRegex, character => {
+        switch (character) {
+            case '\'':
+            case '"':
+            case '':
+            case '\\':
+                return '\\' + character
+                // Four possible LineTerminator characters need to be escaped:
+            case '\n':
+                return '\\n'
+            case '\r':
+                return '\\r'
+            case '\u2028':
+                return '\\u2028'
+            case '\u2029':
+                return '\\u2029'
+        }
+    })
 }
 
 module.exports = function checkObject ({ schema, messages }, path, context) {
-	const code = []
+    const code = []
 
-	// check for type
-	code.push(`
-		if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-			${this.makeErrorCode({ type: 'object',  actual: 'value', messages })}
-			return value;
-		}
-	`)
-	
-	const subSchema = schema.props
-	
+    // check for type
+    code.push(`
+        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+            ${this.makeErrorCode({ type: 'object', passed: 'value', messages })}
+            return value;
+        }
+    `)
+
+    const subSchema = schema.props
+
     if (subSchema) {
         code.push('let parentObject = value')
         code.push('let parentField = field')
-        
+
         const keys = Object.keys(subSchema)
         for (let i = 0; i < keys.length; i++) {
             const property = keys[i]
             const name = escapeEvalString(property)
-			const safeSubName = identifierRegex.test(name) ? `.${name}` : `['${name}']`
-			const safePropName = `parentObject${safeSubName}`
+            const safeSubName = identifierRegex.test(name) ? `.${name}` : `['${name}']`
+            const safePropName = `parentObject${safeSubName}`
             const newPath = (path ? path + '.' : '') + property
-            
-			code.push(`\n// Field: ${escapeEvalString(newPath)}`)
-			code.push(`field = parentField ? parentField + '${safeSubName}' : '${name}';`)
-			code.push(`value = ${safePropName};`)
 
+            code.push(`\n// Field: ${escapeEvalString(newPath)}`)
+            code.push(`field = parentField ? parentField + '${safeSubName}' : '${name}';`)
+            code.push(`value = ${safePropName};`)
 
             const rule = this.getRuleFromSchema(subSchema[property])
-            code.push(this.compileRule(rule, context, newPath, 'context.func[##INDEX##](value, field, null, errors, context)', safePropName))
+            code.push(this.compileRule(rule, context, newPath, `${safePropName} = context.func[##INDEX##](value, field, parentObject, errors, context)`, safePropName))
         }
 
         code.push(`

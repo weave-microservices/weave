@@ -1,13 +1,33 @@
-module.exports = function checkBoolean (value, schema) {
-    if (schema.convert === true && typeof value !== 'boolean') {
-        if (value === 1 || value === 0 || value === 'true' || value === 'false' || value === '1' || value === '0') {
-            return true
+module.exports = function checkBoolean ({ schema, messages }) {
+    const code = []
+    let sanitized = false
+
+    if (schema.convert) {
+        sanitized = true
+        code.push(`
+            if (typeof value !== 'boolean') {
+                if (value === 1 || value === 'true') {
+                    value = true
+                } else if (value === 0 || value === 'false') {
+                    value = false
+                }
+            }
+        `)
+    }
+
+    code.push(`
+        if (typeof value !== 'boolean') {
+            ${this.makeErrorCode({ type: 'boolean', passed: 'value', messages })}
+            return value
         }
-    }
+    `)
 
-    if (typeof value !== 'boolean') {
-        return this.makeError('boolean')
-    }
+    code.push(`
+        return value
+    `)
 
-    return true
+    return {
+        sanitized,
+        code: code.join('\n')
+    }
 }
