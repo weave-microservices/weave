@@ -49,7 +49,7 @@ describe.only('Date validator', () => {
     const parameters = { date: '2020-02-24T15:17:51.908Z' }
     const validator = ModelValidator()
     const validate = validator.compile(schema)
-    const result = validate(parameters)
+    validate(parameters)
 
     expect(parameters.date instanceof Date).toBe(true)
   })
