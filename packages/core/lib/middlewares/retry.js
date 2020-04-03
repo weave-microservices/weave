@@ -2,7 +2,7 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2018 Fachwerk
+ * Copyright 2020 Fachwerk
  */
 
 const { delay } = require('../utils')

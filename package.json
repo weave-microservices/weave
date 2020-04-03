@@ -6,7 +6,7 @@
     "link": "lerna link --force-local",
     "test": "lerna run test",
     "audit": "lerna exec --concurrency 1 npm audit fix",
-    "lint": "lerna run lint"
+    "lint": "concurrently \"lerna run lint --stream\" "
   },
   "repository": {
     "type": "git",
@@ -52,10 +52,11 @@
   "homepage": "https://weave-js.com",
   "dependencies": {},
   "devDependencies": {
-    "eslint": "^6.6.0",
+    "concurrently": "^5.1.0",
+    "eslint": "^6.8.0",
     "eslint-config-fw": "^1.0.3",
-    "eslint-loader": "^3.0.2",
-    "lerna": "^3.18.3",
-    "lolex": "^5.1.1"
+    "eslint-loader": "^4.0.0",
+    "lerna": "^3.20.2",
+    "lolex": "^6.0.0"
   }
 }
