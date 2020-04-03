@@ -1,5 +1,5 @@
 module.exports = {
-    required: "The Field {param} is required.",
+    required: 'The Field {param} is required.',
     string: `The parameter "{param}" have to be a string.`,
     stringMin: `The parameter "{param}" must be at least {expected} characters long.`,
     stringMax: `The parameter "{param}" must be at least {expected} characters long.`,
