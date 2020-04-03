@@ -5,7 +5,8 @@
     "setup": "lerna bootstrap --hoist",
     "link": "lerna link --force-local",
     "test": "lerna run test",
-    "audit": "lerna exec --concurrency 1 npm audit fix"
+    "audit": "lerna exec --concurrency 1 npm audit fix",
+    "lint": "lerna run lint"
   },
   "repository": {
     "type": "git",

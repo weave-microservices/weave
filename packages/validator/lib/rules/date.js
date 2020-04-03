@@ -1,15 +1,33 @@
-module.exports = function checkDate (value, schema) {
-    if (schema.convert === true && !(value instanceof Date)) {
-        value = new Date(value)
-    }
+module.exports = function checkDate ({ schema, messages }) {
+  const code = []
+  let sanitized = false
 
-    if (!(value instanceof Date)) {
-        return this.makeError('date')
-    }
+  code.push(`
+        const initialValue = value
+    `)
 
-    if (isNaN(value.getTime())) {
-        return this.makeError('date')
-    }
+  if (schema.convert) {
+    sanitized = true
+    code.push(`
+            if (!(value instanceof Date)) {
+                value = new Date(value)
+            }
+        `)
+  }
 
-    return true
+  code.push(`
+        if (!(value instanceof Date) || isNaN(value.getTime())) {
+            ${this.makeErrorCode({ type: 'date', passed: 'initialValue', messages })}
+            return value
+        }
+    `)
+
+  code.push(`
+      return value
+  `)
+
+  return {
+    sanitized,
+    code: code.join('\n')
+  }
 }

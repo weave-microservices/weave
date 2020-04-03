@@ -5,24 +5,24 @@
  */
 
 const Endpoint = (state, node, service, action) => {
-    const self = Object.create(null)
+  const self = Object.create(null)
 
-    self.node = node
-    self.service = service
-    self.action = action
-    self.isLocal = self.node.id === state.nodeId
-    self.state = true
-    self.name = `${node.id}:${action.name}`
+  self.node = node
+  self.service = service
+  self.action = action
+  self.isLocal = self.node.id === state.nodeId
+  self.state = true
+  self.name = `${node.id}:${action.name}`
 
-    self.updateAction = (newAction) => {
-        self.action = newAction
-    }
+  self.updateAction = (newAction) => {
+    self.action = newAction
+  }
 
-    self.isAvailable = () => {
-        return self.state
-    }
+  self.isAvailable = () => {
+    return self.state
+  }
 
-    return self
+  return self
 }
 
 module.exports = Endpoint

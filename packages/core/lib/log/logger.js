@@ -22,179 +22,179 @@ const { gray, underline } = kleur
 
 // default log levels
 const LOG_LEVELS = [
-    'trace',
-    'debug',
-    'info',
-    'warn',
-    'error',
-    'fatal'
+  'trace',
+  'debug',
+  'info',
+  'warn',
+  'error',
+  'fatal'
 ]
 
 module.exports.createDefaultLogger = (options, bindings) => {
-    const logMethods = {}
+  const logMethods = {}
 
-    options.customTypes = Object.assign({}, options.types)
-    options.types = mergeTypes(defaultTypes, options.customTypes)
-    // options = Object.assign(defaultOptions, options)
-    const longestBadge = getLongestBadge()
-    const longestLabel = getLongestLabel()
+  options.customTypes = Object.assign({}, options.types)
+  options.types = mergeTypes(defaultTypes, options.customTypes)
+  // options = Object.assign(defaultOptions, options)
+  const longestBadge = getLongestBadge()
+  const longestLabel = getLongestLabel()
 
-    const dummyLogMethod = () => {}
+  const dummyLogMethod = () => {}
 
-    Object.keys(options.types).forEach(type => {
-        const isActive = options.enabled && (LOG_LEVELS.indexOf(options.types[type].logLevel) >= LOG_LEVELS.indexOf(options.logLevel))
-        logMethods[type] = isActive ? logger.bind(this, type) : dummyLogMethod
+  Object.keys(options.types).forEach(type => {
+    const isActive = options.enabled && (LOG_LEVELS.indexOf(options.types[type].logLevel) >= LOG_LEVELS.indexOf(options.logLevel))
+    logMethods[type] = isActive ? logger.bind(this, type) : dummyLogMethod
+  })
+
+  function mergeTypes (standard, custom) {
+    const types = Object.assign({}, standard)
+
+    Object.keys(custom).forEach(type => {
+      types[type] = Object.assign({}, types[type], custom[type])
     })
 
-    function mergeTypes (standard, custom) {
-        const types = Object.assign({}, standard)
+    return types
+  }
 
-        Object.keys(custom).forEach(type => {
-            types[type] = Object.assign({}, types[type], custom[type])
-        })
+  const getModuleName = () => {
+    let module
+    if (bindings.service) {
+      module = bindings.service.name
+    } else if (bindings.moduleName) {
+      module = bindings.moduleName
+    }
+    return `${bindings.nodeId}/${module}`
+  }
 
-        return types
+  function getLongestBadge () {
+    const labels = Object.keys(options.types).map(x => options.types[x].badge)
+    return labels.reduce((x, y) => x.length > y.length ? x : y)
+  }
+
+  function getLongestLabel () {
+    const labels = Object.keys(options.types).map(x => options.types[x].label)
+    return labels.reduce((x, y) => x.length > y.length ? x : y)
+  }
+
+  const getDate = () => {
+    const date = new Date()
+    return date.toISOString()
+  }
+
+  const getFilename = () => {
+    const tempStackTrace = Error.prepareStackTrace
+
+    Error.prepareStackTrace = (_, stack) => stack
+
+    const { stack } = new Error()
+
+    Error.prepareStackTrace = tempStackTrace
+
+    const callers = stack.map(x => x.getFileName())
+
+    const firstExternalFilePath = callers.find(x => x !== callers[0])
+
+    return firstExternalFilePath ? path.basename(firstExternalFilePath) : 'anonymous'
+  }
+
+  const formatDate = () => `[${getDate()}]`
+
+  const formatFilename = () => gray(`[${getFilename()}]`)
+
+  const arrayify = i => Array.isArray(i) ? i : [i]
+
+  const formatStream = stream => arrayify(stream)
+
+  const buildMeta = (rawMessages) => {
+    const meta = []
+
+    if (options.displayTimestamp) {
+      const timestamp = formatDate()
+      rawMessages.timestamp = timestamp
+      meta.push(timestamp)
     }
 
-    const getModuleName = () => {
-        let module
-        if (bindings.service) {
-            module = bindings.service.name
-        } else if (bindings.moduleName) {
-            module = bindings.moduleName
-        }
-        return `${bindings.nodeId}/${module}`
+    if (meta.length !== 0) {
+      meta.push(`${figures.pointerSmall}`)
+      return meta.map(item => gray(item))
     }
 
-    function getLongestBadge () {
-        const labels = Object.keys(options.types).map(x => options.types[x].badge)
-        return labels.reduce((x, y) => x.length > y.length ? x : y)
+    return meta
+  }
+
+  const formatMessage = args => util.formatWithOptions({ colors: true, compact: 1, breakLength: Infinity }, ...arrayify(args))
+
+  const formatAdditional = ({ prefix, suffix }, args) => {
+    return (suffix || prefix) ? '' : formatMessage(args)
+  }
+
+  const write = (stream, message) => {
+    stream.write(message + '\n')
+  }
+
+  const buildMessage = (type, ...args) => {
+    let [msg, additional] = [{}, {}]
+
+    if (args.length === 1 && typeof args[0] === 'object' && args[0] !== null) {
+      if (args[0] instanceof Error) {
+        [msg] = args
+      } else {
+        const [{ prefix, message, suffix }] = args
+        additional = Object.assign({}, { prefix, suffix })
+        msg = message ? formatMessage(message) : formatAdditional(additional, args)
+      }
+    } else {
+      msg = formatMessage(args)
     }
 
-    function getLongestLabel () {
-        const labels = Object.keys(options.types).map(x => options.types[x].label)
-        return labels.reduce((x, y) => x.length > y.length ? x : y)
+    const rawMessages = {}
+    const messages = buildMeta(rawMessages)
+
+    if (additional.prefix) {
+      rawMessages.prefix = additional.prefix
+      messages.push(additional.prefix)
     }
 
-    const getDate = () => {
-        const date = new Date()
-        return date.toISOString()
+    if (options.displayBadge && type.badge) {
+      rawMessages.badge = type.badge
+      messages.push(kleur[type.color](type.badge.padEnd(longestBadge.length + 1)))
     }
 
-    const getFilename = () => {
-        const tempStackTrace = Error.prepareStackTrace
-
-        Error.prepareStackTrace = (_, stack) => stack
-
-        const { stack } = new Error()
-
-        Error.prepareStackTrace = tempStackTrace
-
-        const callers = stack.map(x => x.getFileName())
-
-        const firstExternalFilePath = callers.find(x => x !== callers[0])
-
-        return firstExternalFilePath ? path.basename(firstExternalFilePath) : 'anonymous'
+    if (options.displayLabel && type.label) {
+      rawMessages.label = type.label
+      messages.push(kleur[type.color](underline(type.label).padEnd(underline(longestLabel).length + 1)))
     }
 
-    const formatDate = () => `[${getDate()}]`
-
-    const formatFilename = () => gray(`[${getFilename()}]`)
-
-    const arrayify = i => Array.isArray(i) ? i : [i]
-
-    const formatStream = stream => arrayify(stream)
-
-    const buildMeta = (rawMessages) => {
-        const meta = []
-
-        if (options.displayTimestamp) {
-            const timestamp = formatDate()
-            rawMessages.timestamp = timestamp
-            meta.push(timestamp)
-        }
-
-        if (meta.length !== 0) {
-            meta.push(`${figures.pointerSmall}`)
-            return meta.map(item => gray(item))
-        }
-
-        return meta
+    if (options.displayModuleName) {
+      const moduleName = getModuleName()
+      rawMessages.moduleName = moduleName
+      messages.push(gray(`[${moduleName}]`))
     }
 
-    const formatMessage = args => util.formatWithOptions({ colors: true, compact: 1, breakLength: Infinity }, ...arrayify(args))
+    messages.push(msg)
 
-    const formatAdditional = ({ prefix, suffix }, args) => {
-        return (suffix || prefix) ? '' : formatMessage(args)
+    if (options.displayFilename) {
+      messages.push(formatFilename())
     }
 
-    const write = (stream, message) => {
-        stream.write(message + '\n')
+    if (type.done) {
+      type.done.call(null, msg, rawMessages)
     }
 
-    const buildMessage = (type, ...args) => {
-        let [msg, additional] = [{}, {}]
+    return messages.join(' ')
+  }
 
-        if (args.length === 1 && typeof args[0] === 'object' && args[0] !== null) {
-            if (args[0] instanceof Error) {
-                [msg] = args
-            } else {
-                const [{ prefix, message, suffix }] = args
-                additional = Object.assign({}, { prefix, suffix })
-                msg = message ? formatMessage(message) : formatAdditional(additional, args)
-            }
-        } else {
-            msg = formatMessage(args)
-        }
+  const log = (message, streams = options.stream) => {
+    formatStream(streams)
+      .forEach(stream => write(stream, message))
+  }
 
-        const rawMessages = {}
-        const messages = buildMeta(rawMessages)
+  function logger (type, ...messageObject) {
+    const { stream, logLevel } = options.types[type]
+    const message = buildMessage(options.types[type], ...messageObject)
 
-        if (additional.prefix) {
-            rawMessages.prefix = additional.prefix
-            messages.push(additional.prefix)
-        }
+    return log(message, stream, logLevel)
+  }
 
-        if (options.displayBadge && type.badge) {
-            rawMessages.badge = type.badge
-            messages.push(kleur[type.color](type.badge.padEnd(longestBadge.length + 1)))
-        }
-
-        if (options.displayLabel && type.label) {
-            rawMessages.label = type.label
-            messages.push(kleur[type.color](underline(type.label).padEnd(underline(longestLabel).length + 1)))
-        }
-
-        if (options.displayModuleName) {
-            const moduleName = getModuleName()
-            rawMessages.moduleName = moduleName
-            messages.push(gray(`[${moduleName}]`))
-        }
-
-        messages.push(msg)
-
-        if (options.displayFilename) {
-            messages.push(formatFilename())
-        }
-
-        if (type.done) {
-            type.done.call(null, msg, rawMessages)
-        }
-
-        return messages.join(' ')
-    }
-
-    const log = (message, streams = options.stream) => {
-        formatStream(streams)
-            .forEach(stream => write(stream, message))
-    }
-
-    function logger (type, ...messageObject) {
-        const { stream, logLevel } = options.types[type]
-        const message = buildMessage(options.types[type], ...messageObject)
-
-        return log(message, stream, logLevel)
-    }
-
-    return logMethods
+  return logMethods
 }

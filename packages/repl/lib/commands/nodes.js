@@ -3,43 +3,43 @@ const chalk = require('chalk')
 const { table } = require('table')
 
 module.exports = (vorpal, broker) => {
-    vorpal
-        .command('nodes', 'List connected nodes')
-        .action((args, done) => {
-            const data = []
-            data.push([
-                chalk.bold('Node ID'),
-                chalk.bold('Services'),
-                chalk.bold('Version'),
-                chalk.bold('Client'),
-                chalk.bold('IP'),
-                chalk.bold('State'),
-                chalk.bold('CPU')
-            ])
+  vorpal
+    .command('nodes', 'List connected nodes')
+    .action((args, done) => {
+      const data = []
+      data.push([
+        chalk.bold('Node ID'),
+        chalk.bold('Services'),
+        chalk.bold('Version'),
+        chalk.bold('Client'),
+        chalk.bold('IP'),
+        chalk.bold('State'),
+        chalk.bold('CPU')
+      ])
 
-            const nodes = broker.registry.nodes.list({})
+      const nodes = broker.registry.nodes.list({})
 
-            nodes.map(node => {
-                let cpuLoad = '?'
-                if (node.cpu !== null) {
-                    const width = 20
-                    const c = Math.round(node.cpu / (100 / width))
-                    cpuLoad = ['['].concat(Array(c).fill('■'), Array(width - c).fill('.'), ['] ', node.cpu.toFixed(0), '%']).join('')
-                }
+      nodes.map(node => {
+        let cpuLoad = '?'
+        if (node.cpu !== null) {
+          const width = 20
+          const c = Math.round(node.cpu / (100 / width))
+          cpuLoad = ['['].concat(Array(c).fill('■'), Array(width - c).fill('.'), ['] ', node.cpu.toFixed(0), '%']).join('')
+        }
 
-                data.push([
-                    node.id === broker.nodeId ? `${node.id}(*)` : node.id,
-                    node.services ? Object.keys(node.services).length : 0,
-                    node.client.version,
-                    node.client.type,
-                    node.IPList[0],
-                    node.isAvailable ? chalk.bgGreen.black(' ONLINE ') : chalk.bgRed.white.bold(' OFFLINE '),
-                    cpuLoad
-                ])
-            })
-            const tableConf = {}
+        data.push([
+          node.id === broker.nodeId ? `${node.id}(*)` : node.id,
+          node.services ? Object.keys(node.services).length : 0,
+          node.client.version,
+          node.client.type,
+          node.IPList[0],
+          node.isAvailable ? chalk.bgGreen.black(' ONLINE ') : chalk.bgRed.white.bold(' OFFLINE '),
+          cpuLoad
+        ])
+      })
+      const tableConf = {}
 
-            console.log(table(data, tableConf))
-            done()
-        })
+      console.log(table(data, tableConf))
+      done()
+    })
 }

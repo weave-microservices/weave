@@ -5,20 +5,20 @@
  */
 
 module.exports.loadBalancingStrategy = {
-    ROUND_ROBIN: 'round_robin',
-    RANDOM: 'random'
+  ROUND_ROBIN: 'round_robin',
+  RANDOM: 'random'
 }
 
 module.exports.lifecycleHook = [
-    'created',
-    'started',
-    'stopped'
+  'created',
+  'started',
+  'stopped'
 ]
 
 module.exports.logLevel = {
-    trace: 'trace',
-    info: 'info',
-    debug: 'debug',
-    warn: 'warn',
-    fatal: 'fatal'
+  trace: 'trace',
+  info: 'info',
+  debug: 'debug',
+  warn: 'warn',
+  fatal: 'fatal'
 }

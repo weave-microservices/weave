@@ -5,9 +5,9 @@
  */
 
 module.exports = {
-    BaseAdapter: require('./adapter-base'),
-    Redis: require('./redis'),
-    NATS: require('./nats'),
-    Dummy: require('./dummy'),
-    TCP: require('./tcp')
+  BaseAdapter: require('./adapter-base'),
+  Redis: require('./redis'),
+  NATS: require('./nats'),
+  Dummy: require('./dummy'),
+  TCP: require('./tcp')
 }
