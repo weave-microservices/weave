@@ -2,8 +2,6 @@ const fs = require('fs')
 const path = require('path')
 const defaultMessages = require('./messages')
 
-const flatten = values => values.reduce((a, b) => a.concat(b), [])
-
 function ModelValidator () {
     const rules = {}
     const messages = defaultMessages
@@ -11,13 +9,6 @@ function ModelValidator () {
 
     const internal = {
         makeErrorCode ({ type, expected, field, origin, messages }) {
-            // return {
-            //     type,
-            //     expected,
-            //     given,
-            //     isMissing
-            // }
-        
             const error = {
                 type: `'${type}'`,
                 message: `'${messages[type]}'`
@@ -39,7 +30,7 @@ function ModelValidator () {
             const str = Object.keys(error)
                 .map(key => `${key}: ${error[key]}`)
                 .join(', ')
-            
+
             return `errors.push({ ${str} })`
         },
         resolveMessage (error) {
@@ -88,7 +79,6 @@ function ModelValidator () {
                 ruleGeneratorFunction,
                 messages: Object.assign({}, messages, schema.messages)
             }
-
         },
         compileRule (rule, context, path, innerSrc, defaultValue) {
             const sourceCode = []
@@ -122,7 +112,7 @@ function ModelValidator () {
             const context = {
                 index: 0,
                 rules: [],
-                func: [],
+                func: [],
                 customs: {}
             }
 
@@ -160,7 +150,7 @@ function ModelValidator () {
             `)
             code.push('}')
             code.push('return true')
-    
+
             const src = code.join('\n')
             const checkFn = new Function('value', 'context', src)
 
@@ -168,8 +158,6 @@ function ModelValidator () {
                 context.data = data
                 return checkFn(data, context)
             }
-            // const checks = flatten(Object.keys(schema).map(property => processRule(schema[property], property)))
-            // return checkWrapper(checks)
         },
         wrapSourceCode (rule, innerSrc, resolveVar) {
             const code = []
@@ -186,65 +174,6 @@ function ModelValidator () {
         const fileName = path.parse(file).name
         rules[fileName] = require(path.join(__dirname, 'rules', file))
     })
-
-    function processRule (rule, property) {
-        const checks = []
-
-        if (rules[rule.type]) {
-            checks.push({
-                name: property,
-                fn: rules[rule.type],
-                rule
-            })
-        }
-
-        if (typeof rule === 'string') {
-            rule = {
-                type: rule
-            }
-        }
-
-        if (rule.type === 'object' && rule.properties) {
-            checks.push({
-                name: property,
-                fn: internal.compile(rule.properties),
-                rule
-            })
-        }
-        return checks
-    }
-
-    function checkWrapper (checks) {
-        return function (object, _schema, path) {
-            const errors = []
-
-            for (let i = 0; i <= checks.length - 1; i++) {
-                const check = checks[i]
-                let value
-                let fieldPath
-
-                if (check.name) {
-                    value = object[check.name]
-                    fieldPath = (path ? path + '.' : '') + check.name
-                } else {
-                    value = object
-                    fieldPath = path || ''
-                }
-
-                if (value !== undefined) {
-                    const result = check.fn.call(internal, object[check.name], check.rule)
-                    if (result !== true) {
-                        internal.handleResult(errors, fieldPath, result)
-                    }
-                } else {
-                    if (!check.rule.optional) {
-                        internal.handleResult(errors, fieldPath, internal.makeError('required'))
-                    }
-                }
-            }
-            return errors.length !== 0 ? errors : true
-        }
-    }
 
     return {
         compile: internal.compile,

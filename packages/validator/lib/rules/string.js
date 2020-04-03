@@ -4,7 +4,7 @@ module.exports = function cheackString ({ schema, messages }, path, context) {
 
     code.push(`
         if (typeof value !== 'string') {
-            ${this.makeErrorCode({ type: 'string',  actual: 'value', messages })}
+            ${this.makeErrorCode({ type: 'string', actual: 'value', messages })}
             return value
         }
     `)
