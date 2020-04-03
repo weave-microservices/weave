@@ -1,6 +1,6 @@
 const ModelValidator = require('../lib/validator')
 
-describe.only('Boolean validator', () => {
+describe('Boolean validator', () => {
   it('boolean validator (valid)', () => {
     const schema = {
       isActive: { type: 'boolean' }

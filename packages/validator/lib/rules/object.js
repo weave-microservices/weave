@@ -6,6 +6,7 @@ const identifierRegex = /^[_$a-zA-Z][_$a-zA-Z0-9]*$/
 // Regex to escape quoted property names for eval/new Function
 const escapeEvalRegex = /[''\\\n\r\u2028\u2029]/g
 
+/* istanbul ignore next */
 function escapeEvalString (str) {
   // Based on https://github.com/joliss/js-string-escape
   return str.replace(escapeEvalRegex, character => {
@@ -49,7 +50,7 @@ module.exports = function checkObject ({ schema, messages }, path, context) {
     for (let i = 0; i < keys.length; i++) {
       const property = keys[i]
       const name = escapeEvalString(property)
-      const safeSubName = identifierRegex.test(name) ? `.${name}` : `['${name}']`
+      const safeSubName = identifierRegex.test(name) ? `.${name}` : `["${name}"]`
       const safePropName = `parentObject${safeSubName}`
       const newPath = (path ? path + '.' : '') + property
 
@@ -62,12 +63,12 @@ module.exports = function checkObject ({ schema, messages }, path, context) {
     }
 
     code.push(`
-			return parentObject
-		`)
+        return parentObject
+    `)
   } else {
     code.push(`
-            return value
-        `)
+        return value
+    `)
   }
 
   return {

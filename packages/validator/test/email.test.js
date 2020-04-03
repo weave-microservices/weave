@@ -1,6 +1,6 @@
 const ModelValidator = require('../lib/validator')
 
-describe.only('Email validator', () => {
+describe('Email validator', () => {
   it('email validator (valid)', () => {
     const schema = {
       email: { type: 'email' }
@@ -30,6 +30,19 @@ describe.only('Email validator', () => {
   it('email validator - invalid, not a string', () => {
     const schema = {
       email: { type: 'email' }
+    }
+
+    const parameters = { email: new Date() }
+    const validator = ModelValidator()
+    const validate = validator.compile(schema)
+    const result = validate(parameters)
+
+    expect(result[0].message).toBe('The parameter "email" have to be a string.')
+  })
+
+  it('shöuld use precise mode', () => {
+    const schema = {
+      email: { type: 'email', mode: 'precise' }
     }
 
     const parameters = { email: new Date() }

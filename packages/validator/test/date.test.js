@@ -1,6 +1,6 @@
 const ModelValidator = require('../lib/validator')
 
-describe.only('Date validator', () => {
+describe('Date validator', () => {
   it('should validate with shortcut definition', () => {
     const schema = {
       date: 'date'

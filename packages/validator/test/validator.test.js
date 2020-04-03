@@ -1,6 +1,6 @@
 const ModelValidator = require('../lib/validator')
 
-describe.only('Validator test', () => {
+describe('Validator test', () => {
   it('should call custom validator', () => {
     const schema = {
       id: { type: 'has' }
@@ -16,5 +16,23 @@ describe.only('Validator test', () => {
 
     expect(validationHandler.mock.calls.length).toBe(1)
     expect(result).toBe(true)
+  })
+})
+
+describe('Validator test', () => {
+  it('should throw an error if unkown validator is defined', () => {
+    try {
+      const schema = {
+        id: { type: 'undefined!!' }
+      }
+
+      const parameters = { id: new Date(), name: 'kevin ries' }
+      const validator = ModelValidator()
+      const validate = validator.compile(schema)
+      expect(validate).toThrow('')
+      validate(parameters)
+    } catch (error) {
+      expect(error.message).toBe('Invalid type \'undefined!!\' in validator schema.')
+    }
   })
 })

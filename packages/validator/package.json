@@ -6,7 +6,7 @@
   "scripts": {
     "test": "NODE_ENV=test jest --no-cache",
     "coverage": "jest --coverage --no-cache",
-    "lint": "eslint --ext=.js lib test --fix"
+    "lint": "eslint . --ext .js --fix"
   },
   "publishConfig": {
     "access": "public"
@@ -21,9 +21,9 @@
   "devDependencies": {
     "eslint": "^6.8.0",
     "eslint-config-fw": "^1.0.3",
-    "eslint-loader": "^3.0.3",
-    "jest": "^25.1.0",
-    "jest-cli": "^25.1.0"
+    "eslint-loader": "^4.0.0",
+    "jest": "^25.2.7",
+    "jest-cli": "^25.2.7"
   },
   "gitHead": "b58f13e136270973da4dda126b1892170d376a90"
 }

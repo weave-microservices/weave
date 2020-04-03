@@ -1,6 +1,6 @@
 const ModelValidator = require('../lib/validator')
 
-describe.only('Any validator', () => {
+describe('Any validator', () => {
   it('any value', () => {
     const schema = {
       id: { type: 'any' },

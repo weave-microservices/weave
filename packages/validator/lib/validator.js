@@ -33,40 +33,6 @@ function ModelValidator () {
 
       return `errors.push({ ${str} })`
     },
-    // resolveMessage (error) {
-    //     const message = messages[error.type]
-    //     if (message) {
-    //         return message
-    //             .replace('{param}', error.params)
-    //             .replace('{expected}', error.expected)
-    //     }
-    // },
-    // check (type, value, schema) {
-    //     if (!rules[type]) {
-    //         throw new Error(`Invalid type ${type}`)
-    //     }
-    //     return rules[type].call(this, value, schema)
-    // },
-    // handleResult (errors, paramPath, result) {
-    //     let items
-    //     if (Array.isArray(result)) {
-    //         items = result
-    //     } else {
-    //         items = [result]
-    //     }
-
-    //     items.forEach(error => {
-    //         if (!error.params) {
-    //             error.params = paramPath
-    //         }
-
-    //         if (!error.message) {
-    //             error.message = this.resolveMessage(error)
-    //         }
-
-    //         errors.push(error)
-    //     })
-    // },
     getRuleFromSchema (schema) {
       if (typeof schema === 'string') {
         schema = {
@@ -163,11 +129,8 @@ function ModelValidator () {
 
       return function (data) {
         context.data = data
-        // data.id = Number(data.id)
         return checkFn.call(self, data, context)
       }
-      // const checks = flatten(Object.keys(schema).map(property => processRule(schema[property], property)))
-      // return checkWrapper(checks)
     },
     wrapSourceCode (rule, innerSrc, resolveVar) {
       const code = []
@@ -204,65 +167,6 @@ function ModelValidator () {
     const fileName = path.parse(file).name
     rules[fileName] = require(path.join(__dirname, 'rules', file))
   })
-
-  // function processRule (rule, property) {
-  //     const checks = []
-
-  //     if (rules[rule.type]) {
-  //         checks.push({
-  //             name: property,
-  //             fn: rules[rule.type],
-  //             rule
-  //         })
-  //     }
-
-  //     if (typeof rule === 'string') {
-  //         rule = {
-  //             type: rule
-  //         }
-  //     }
-
-  //     if (rule.type === 'object' && rule.properties) {
-  //         checks.push({
-  //             name: property,
-  //             fn: internal.compile(rule.properties),
-  //             rule
-  //         })
-  //     }
-  //     return checks
-  // }
-
-  // function checkWrapper (checks) {
-  //     return function (object, _schema, path) {
-  //         const errors = []
-
-  //         for (let i = 0; i <= checks.length - 1; i++) {
-  //             const check = checks[i]
-  //             let value
-  //             let fieldPath
-
-  //             if (check.name) {
-  //                 value = object[check.name]
-  //                 fieldPath = (path ? path + '.' : '') + check.name
-  //             } else {
-  //                 value = object
-  //                 fieldPath = path || ''
-  //             }
-
-  //             if (value !== undefined) {
-  //                 const result = check.fn.call(internal, object[check.name], check.rule)
-  //                 if (result !== true) {
-  //                     internal.handleResult(errors, fieldPath, result)
-  //                 }
-  //             } else {
-  //                 if (!check.rule.optional) {
-  //                     internal.handleResult(errors, fieldPath, internal.makeError('required'))
-  //                 }
-  //             }
-  //         }
-  //         return errors.length !== 0 ? errors : true
-  //     }
-  // }
 
   return {
     compile: internal.compile,

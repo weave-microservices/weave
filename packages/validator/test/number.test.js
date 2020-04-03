@@ -1,6 +1,6 @@
 const ModelValidator = require('../lib/validator')
 
-describe.only('Number validator', () => {
+describe('Number validator', () => {
   it('should validate number with short-hand definition', () => {
     const schema = {
       id: 'number'

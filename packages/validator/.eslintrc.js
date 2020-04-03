@@ -1,3 +1,1 @@
-const coreConfig = require("../../.eslintrc.js")
-
-module.exports = coreConfig
+module.exports = require("../../.eslintrc.js")

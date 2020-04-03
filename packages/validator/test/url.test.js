@@ -1,6 +1,6 @@
 const ModelValidator = require('../lib/validator')
 
-describe.only('URL validator', () => {
+describe('URL validator', () => {
   it('should pass with https', () => {
     const schema = {
       url: { type: 'url' }
