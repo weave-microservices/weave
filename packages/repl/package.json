@@ -4,7 +4,7 @@
   "description": "REPL module for weave",
   "main": "lib/index.js",
   "scripts": {
-    "lint": "eslint --ext=.js lib --fix"
+    "lint": "eslint . --ext .js --fix"
   },
   "publishConfig": {
     "access": "public"
