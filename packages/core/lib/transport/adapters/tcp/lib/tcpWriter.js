@@ -22,17 +22,24 @@ module.exports = (adapter, options) => {
           socket.setNoDelay(true)
           socket.nodeId = nodeId
           socket.lastUsage = Date.now()
+
           addSocket(nodeId, socket, true)
 
           adapter.sendHello(nodeId)
             .then(() => resolve(socket))
             .catch(error => reject(error))
         })
+
         socket.on('error', error => {
           removeSocket(nodeId)
+
           self.emit('error', error, nodeId)
-          if (error) reject(error)
+
+          if (error) {
+            reject(error)
+          }
         })
+
         socket.unref()
       } catch (error) {
         if (error) {
@@ -44,6 +51,7 @@ module.exports = (adapter, options) => {
 
   const addSocket = (nodeId, socket, force) => {
     const s = sockets.get(nodeId)
+
     if (!force && s && !s.destroyed) {
       return
     }
@@ -56,6 +64,7 @@ module.exports = (adapter, options) => {
     if (socket && !socket.destroyed) {
       socket.destroy()
     }
+
     sockets.delete(nodeId)
   }
 
@@ -74,8 +83,10 @@ module.exports = (adapter, options) => {
           const header = Buffer.alloc(headerSize)
           header.writeInt32BE(data.length + headerSize, 1)
           header.writeInt8(adapter.messageTypeHelper.getIndexByType(type), 5)
+
           const crc = header[1] ^ header[2] ^ header[3] ^ header[4] ^ header[5]
           header[0] = crc
+
           const payload = Buffer.concat([header, data])
 
           try {

@@ -163,12 +163,23 @@ function TCPTransporter (options) {
     node.port = port
     node.sequence = 0
     self.broker.registry.nodes.add(nodeId, node)
+
     return node
   }
 
   function startTCPServer () {
     tcpReader = TCPReader(self, options)
     tcpWriter = TCPWriter(self, options)
+
+    tcpReader.on('error', (_, nodeID) => {
+      self.log.debug('TCP client error on ')
+      this.nodes.disconnected(nodeID, false)
+    })
+
+    tcpReader.on('end', nodeID => {
+      self.log.debug('TCP connection ended with')
+      this.nodes.disconnected(nodeID, false)
+    })
     return tcpReader.listen()
   }
 
