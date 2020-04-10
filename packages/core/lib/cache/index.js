@@ -3,6 +3,7 @@
  * -----
  * Copyright 2020 Fachwerk
  */
+
 const { isString, isFunction } = require('lodash')
 const { WeaveBrokerOptionsError } = require('../errors')
 
@@ -26,10 +27,12 @@ module.exports = {
     }
 
     let cacheFactory
+
     if (cacheOptions === true) {
       cacheFactory = this.adapters.Memory
     } else if (isString(cacheOptions)) {
       const cache = getByName(cacheOptions)
+
       if (cache) {
         cacheFactory = cache
       } else {

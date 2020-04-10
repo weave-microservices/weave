@@ -40,6 +40,7 @@ const makeMemoryCache = (broker, options = {}) => {
           item.expire = Date.now()//  + options_.ttl
         }
         this.log.debug(`Get ${cacheKey}`)
+
         return Promise.resolve(item.data)
       }
       return Promise.resolve(null)

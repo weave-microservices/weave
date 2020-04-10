@@ -28,9 +28,8 @@ const EventEmitter = require('eventemitter2')
 const { WeaveError } = require('../errors')
 const { Tracer } = require('../tracing')
 const { MetricsStorage } = require('../metrics')
-
-// package.json
 const pkg = require('../../package.json')
+
 /* eslint-disable no-use-before-define */
 /**
  *  Creates a new Weave instance
@@ -44,6 +43,7 @@ const createBroker = (options = {}) => {
       enabled: false
     }
   }
+
   // merge options with default options
   options = defaultsDeep(options, defaultOptions)
 

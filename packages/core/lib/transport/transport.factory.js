@@ -4,7 +4,7 @@
  * Copyright 2020 Fachwerk
  */
 
-// own packages
+// Own packages
 const { WeaveError, WeaveQueueSizeExceededError } = require('../errors')
 const MessageTypes = require('./message-types')
 const utils = require('../utils')
@@ -24,6 +24,7 @@ const createTransport = (broker, adapter) => {
 
   const nodeId = broker.nodeId
   const log = broker.createLogger('TRANSPORT')
+
   const pending = {
     requests: new Map(),
     requestStreams: new Map(),
@@ -72,8 +73,10 @@ const createTransport = (broker, adapter) => {
 
           stream.on('data', chunk => {
             const payloadCopy = Object.assign({}, payload)
+
             payloadCopy.params = chunk
             stream.pause()
+
             return transport.send(transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy))
               .then(() => stream.resume())
           })
