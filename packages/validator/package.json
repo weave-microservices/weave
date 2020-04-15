@@ -25,5 +25,6 @@
     "jest": "^25.2.7",
     "jest-cli": "^25.2.7"
   },
-  "gitHead": "b58f13e136270973da4dda126b1892170d376a90"
+  "gitHead": "b58f13e136270973da4dda126b1892170d376a90",
+  "dependencies": {}
 }

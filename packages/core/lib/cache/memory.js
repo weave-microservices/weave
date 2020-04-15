@@ -31,7 +31,7 @@ const makeMemoryCache = (broker, options = {}) => {
       }
     })
   }
-  
+
   const cache = Object.assign(base, {
     name,
     get (cacheKey) {

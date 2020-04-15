@@ -6,7 +6,7 @@
 
 // node modules
 const os = require('os')
-const { defaultsDeep, assign, uniqWith, compact, flatten } = require('lodash')
+const { defaultsDeep, uniqWith, compact, flatten } = require('lodash')
 const { yellow, bold } = require('kleur')
 
 const uuid = require('./utils/uuid')
@@ -97,7 +97,7 @@ module.exports = {
       if (['settings', 'meta'].includes(key)) {
         result[key] = defaultsDeep(schema[key], result[key])
       } else if (['actions', 'events', 'methods'].includes(key)) {
-        result[key] = assign(result[key], schema[key])
+        result[key] = Object.assign(result[key], schema[key])
       } else if (['started', 'stopped', 'created'].includes(key)) {
         if ((typeof result[key] === 'function' || Array.isArray(result[key])) && (typeof schema[key] === 'function' || Array.isArray(schema[key]))) {
           result[key] = mergeHook(result[key], schema[key])
