@@ -30,7 +30,7 @@ function generateHash (key) {
 }
 
 function registerCacheMetrics (metrics) {
-  metrics.register({})
+  // todo: register metric stores
 }
 
 const makeBaseCache = (broker, options) => {
