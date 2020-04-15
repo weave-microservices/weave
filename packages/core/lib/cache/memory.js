@@ -14,7 +14,7 @@ const makeMemoryCache = (broker, options = {}) => {
 
   const timer = setInterval(() => {
     checkTtl()
-  }, options.ttl)
+  }, 3000)
 
   timer.unref()
 
@@ -23,22 +23,25 @@ const makeMemoryCache = (broker, options = {}) => {
 
   const checkTtl = () => {
     const now = Date.now()
+
     storage.forEach((item, hashKey) => {
       if (item.expire && item.expire < now) {
         cache.log.debug(`Delete ${hashKey}`)
-        delete storage[hashKey]
+        storage.delete(hashKey)
       }
     })
   }
-
+  
   const cache = Object.assign(base, {
     name,
     get (cacheKey) {
       const item = storage.get(cacheKey)
+
       if (item) {
         if (options.ttl) {
           item.expire = Date.now()//  + options_.ttl
         }
+
         this.log.debug(`Get ${cacheKey}`)
 
         return Promise.resolve(item.data)
@@ -56,6 +59,7 @@ const makeMemoryCache = (broker, options = {}) => {
       })
 
       this.log.debug(`Set ${hashKey}`)
+
       return Promise.resolve(data)
     },
     remove (hashKey) {
@@ -64,7 +68,7 @@ const makeMemoryCache = (broker, options = {}) => {
       return Promise.resolve()
     },
     clear (match = '**') {
-      storage.forEach((item, key) => {
+      storage.forEach((_, key) => {
         if (utils.match(key, match)) {
           this.log.debug(`Delete ${key}`)
           this.remove(key)
