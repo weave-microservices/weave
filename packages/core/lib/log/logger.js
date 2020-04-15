@@ -18,7 +18,7 @@ const figures = require('figures')
 const defaultTypes = require('./types')
 
 // extract colors
-const { gray, underline } = kleur
+const { gray, underline, grey, dim } = kleur
 
 // default log levels
 const LOG_LEVELS = [
@@ -158,6 +158,13 @@ module.exports.createDefaultLogger = (options, bindings) => {
     if (options.displayBadge && type.badge) {
       rawMessages.badge = type.badge
       messages.push(kleur[type.color](type.badge.padEnd(longestBadge.length + 1)))
+    }
+
+    if (msg instanceof Error && msg.stack) {
+      const [name, ...rest] = msg.stack.split('\n')
+      messages.push(name)
+      messages.push(dim(grey(rest.map(l => l.replace(/^/, '\n')).join(''))))
+      return messages.join(' ')
     }
 
     if (options.displayLabel && type.label) {
