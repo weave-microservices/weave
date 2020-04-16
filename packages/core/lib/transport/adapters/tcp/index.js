@@ -342,7 +342,7 @@ module.exports = function SwimTransport (adapterOptions) {
     try {
       // const message = self.deserialize(data)
       // const payload = message.payload
-      self.incommingMessage(type, data)
+      self.onIncomingMessage(type, data, socket)
     } catch (error) {
 
     }
