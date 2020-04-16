@@ -122,6 +122,7 @@ const createDiscoveryService = (adapter, options) => {
               setInterval(() => sendMessage({
                 namespace: adapter.broker.options.namespace,
                 nodeId: adapter.broker.nodeId,
+                port: options.port
               }), 2000)
             })
         })

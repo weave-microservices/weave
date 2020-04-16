@@ -40,7 +40,24 @@ module.exports = function SwimTransport (adapterOptions) {
     self.log.info('TCP transport adapter started.')
   }
 
-  self.send = () => {
+  self.send = (message) => {
+    if (!message.targetNodeId || ![
+      MessageTypes.MESSAGE_REQUEST,
+      MessageTypes.MESSAGE_RESPONSE,
+      MessageTypes.MESSAGE_EVENT,
+      MessageTypes.MESSAGE_GOSSIP_HELLO,
+      MessageTypes.MESSAGE_GOSSIP_REQUEST,
+      MessageTypes.MESSAGE_GOSSIP_RESPONSE
+    ].includes(message.type)) {
+      return Promise.resolve()
+    }
+    const data = self.serialize(message)
+
+    tcpWriter.send(message.targetNodeId, message.type, data)
+
+    if (self.connected) {
+      // clientPub.publish(self.getTopic(message.type, message.targetNodeId), data)
+    }
     return Promise.resolve()
   }
 
@@ -79,7 +96,7 @@ module.exports = function SwimTransport (adapterOptions) {
         if (!node) {
           self.log.debug(`Discoverd a new node ${nodeId}`)
 
-          node = addDiscoveredNode(nodeId)
+          node = addDiscoveredNode(nodeId, host, port)
         } else if (!node.isAvailable) {
           self.log.debug(`Node is still not available: ${node.id}`)
         }
@@ -129,6 +146,7 @@ module.exports = function SwimTransport (adapterOptions) {
     list.forEach(node => {
       if (node.isAvailable) {
         payload.online[node.id] = [node.sequence, node.cpuSequence || 0, node.cpu || 0]
+
         if (!node.isLocal) {
           onlineNodes.push(node)
         }
