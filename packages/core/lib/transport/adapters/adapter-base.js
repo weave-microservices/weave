@@ -10,8 +10,9 @@ const createTransportBase = () => {
   let prefix = 'WEAVE'
 
   return {
-    bus: new EventEmitter(),
     name: null,
+    bus: new EventEmitter(),
+    afterInit: null,
     isConnected: false,
     interruptCounter: 0,
     repeatAttemptCounter: 0,
@@ -24,6 +25,11 @@ const createTransportBase = () => {
       if (broker.options.namespace) {
         prefix += `-${broker.options.namespace}`
       }
+
+      if (this.afterInit) {
+        this.afterInit.call(this)
+      }
+
       return Promise.resolve()
     },
     /**

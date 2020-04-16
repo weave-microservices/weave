@@ -44,25 +44,23 @@ const createDiscoveryService = (adapter, options) => {
   const bus = new EventEmitter()
   const servers = []
   const ips = getIPs()
-  const HEADER_TYPE_LENGHT = 1
   const MESSAGE_TYPE_LENGHT = 1
-  
 
   const startServer = (host, port, multicastAddress) => {
     return new Promise((resolve, reject) => {
       try {
         const socket = dgram.createSocket({ type: options.discovery.type, reuseAddr: true })
 
-        socket.on('message', (msg, info) => {
-          const messageType = Buffer.prototype.readUInt8.call(msg, 0)
-          const payload = msg.slice(MESSAGE_TYPE_LENGHT)
+        socket.on('message', (message, info) => {
+          const messageType = Buffer.prototype.readUInt8.call(message, 0)
+          const payload = message.slice(MESSAGE_TYPE_LENGHT)
 
           switch (messageType) {
-            case messageTypes.HELLO:
-              bus.emit('message', codec.encode(payload))
-              break
-            default:
-              onUnknown(msg, info)
+          case messageTypes.HELLO:
+            onMessage(payload, info)
+            break
+          default:
+            onUnknown(payload, info)
           }
         })
 
@@ -83,12 +81,22 @@ const createDiscoveryService = (adapter, options) => {
     })
   }
 
-  function sendMessage () {
+  const onMessage = (buffer, info) => {
+    const message = codec.decode(buffer)
+    message.host = info.address
+    bus.emit('message', message)
+  }
+
+  const onUnknown = (message, info) => {
+    adapter.log.debug(`Received an unknown data package from host "${info.address}"`)
+  }
+
+  function sendMessage (payload) {
     const header = new Buffer(MESSAGE_TYPE_LENGHT)
     Buffer.prototype.writeUInt8.call(header, messageTypes.HELLO, 0)
 
-    const message = Buffer.concat([header, codec.encode({ data: 'Hello world from MAC!' })])
-  
+    const message = Buffer.concat([header, codec.encode(payload)])
+
     servers.forEach(server => {
       server.destinatins.forEach(host => {
         server.send(message, options.discovery.port, host, (error) => {
@@ -113,7 +121,10 @@ const createDiscoveryService = (adapter, options) => {
             .then(() => {
               console.log('running')
     
-              setInterval(() => sendMessage(), 2000)
+              setInterval(() => sendMessage({
+                namespace: adapter.broker.options.namespace,
+                nodeId: adapter.broker.nodeId,
+              }), 2000)
             })
         })
       
