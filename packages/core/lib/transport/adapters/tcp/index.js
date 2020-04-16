@@ -2,9 +2,13 @@
 const { defaultsDeep } = require('lodash')
 const TransportBase = require('../adapter-base')
 const Swim = require('./discovery/index')
+const MessageTypes = require('../../message-types')
+const TCPReader = require('./tcpReader')
+const TCPWriter = require('./tcpWriter')
+const TCPMessageTypeHelper = require('./tcp-messagetypes')
 
 const defaultOptions = {
-  port: 56733,
+  port: 56734,
   discovery: {
     enabled: true,
     type: 'udp4',
@@ -17,6 +21,10 @@ module.exports = function SwimTransport (adapterOptions) {
   adapterOptions = defaultsDeep(adapterOptions, defaultOptions)
 
   const self = TransportBase(adapterOptions)
+  let tcpReader
+  let tcpWriter
+  let gossipTimer
+
   self.afterInit = function () {
     self.nodes = this.broker.registry.nodes
     self.registry = self.broker.registry
@@ -26,6 +34,10 @@ module.exports = function SwimTransport (adapterOptions) {
 
   self.connect = async () => {
     await startDiscoveryServer()
+    await startTCPServer()
+    await startTimers()
+
+    self.log.info('TCP transport adapter started.')
   }
 
   self.send = () => {
@@ -33,15 +45,31 @@ module.exports = function SwimTransport (adapterOptions) {
   }
 
   self.close = () => {
+    clearInterval(gossipTimer)
     return Promise.resolve()
   }
 
-  function addDiscoveredNode(nodeId, host, port) {
+  function addDiscoveredNode (nodeId, host, port) {
     const node = self.broker.registry.nodes.createNode(nodeId)
+    node.isLocal = false
     node.isAvailable = false
+    node.IPList = [host]
+    node.hostname = host
+    node.port = port
+    node.sequence = 0
+
     self.broker.registry.nodes.add(node.id, node)
 
     return node
+  }
+
+  self.onIncomingMessage = (type, data, socket) => {
+    switch (type) {
+    case MessageTypes.MESSAGE_GOSSIP_HELLO: return onGossipHelloMessage(data, socket)
+    case MessageTypes.MESSAGE_GOSSIP_REQUEST: return onGossipRequestMessage(data, socket)
+    case MessageTypes.MESSAGE_GOSSIP_RESPONSE: return onGossipResponseMessage(data, socket)
+    default: return onMessage(type, data, socket)
+    }
   }
 
   function startDiscoveryServer () {
@@ -49,17 +77,236 @@ module.exports = function SwimTransport (adapterOptions) {
       if (nodeId && nodeId !== self.broker.nodeId) {
         let node = self.broker.registry.nodes.get(nodeId)
         if (!node) {
-          self.log.debug(`Discoverd a new node`)
+          self.log.debug(`Discoverd a new node ${nodeId}`)
 
           node = addDiscoveredNode(nodeId)
         } else if (!node.isAvailable) {
-          self.log.debug(`Discoverd a new node`)
-
+          self.log.debug(`Node is still not available: ${node.id}`)
         }
       }
     })
 
     self.swim.init()
+  }
+
+  function startTCPServer () {
+    tcpReader = TCPReader(self, adapterOptions)
+    tcpWriter = TCPWriter(self, adapterOptions)
+
+    tcpReader.on('message', onMessage)
+
+    tcpReader.on('error', (_, nodeID) => {
+      self.log.debug('TCP client error on ')
+      this.nodes.disconnected(nodeID, false)
+    })
+
+    tcpReader.on('end', nodeID => {
+      self.log.debug('TCP connection ended with')
+      this.nodes.disconnected(nodeID, false)
+    })
+
+    return tcpReader.listen()
+  }
+
+  function startTimers () {
+    gossipTimer = setInterval(() => sendGossipRequest(), 2000)
+  }
+
+  function sendGossipRequest () {
+    const list = self.broker.registry.nodes.toArray()
+    if (!list || list.length === 0) {
+      return
+    }
+
+    const payload = {
+      online: {},
+      offline: {}
+    }
+
+    const onlineNodes = []
+    const offlineNodes = []
+
+    list.forEach(node => {
+      if (node.isAvailable) {
+        payload.online[node.id] = [node.sequence, node.cpuSequence || 0, node.cpu || 0]
+        if (!node.isLocal) {
+          onlineNodes.push(node)
+        }
+      } else {
+        offlineNodes.push(node)
+        payload.offline[node.id] = [node.sequence, node.cpuSequence || 0, node.cpu || 0]
+      }
+    })
+
+    if (Object.keys(payload.online).length === 0) {
+      delete payload.online
+    }
+
+    if (Object.keys(payload.offline).length === 0) {
+      delete payload.offline
+    }
+
+    if (onlineNodes.length > 0) {
+      sendGossipRequestToRandomEndpoint(payload, onlineNodes)
+    }
+
+    if (offlineNodes.length > 0) {
+      sendGossipRequestToRandomEndpoint(payload, offlineNodes)
+    }
+  }
+
+  function sendGossipRequestToRandomEndpoint (payload, nodes) {
+    if (!nodes || nodes.length === 0) {
+      return
+    }
+
+    const destinationNode = nodes[Math.floor(Math.random() * nodes.length)]
+    if (destinationNode) {
+      const message = self.transport.createMessage(MessageTypes.MESSAGE_GOSSIP_REQUEST, destinationNode.id, payload)
+      self.send(message)
+    }
+  }
+
+  function onGossipHelloMessage (packet, socket) {
+    try {
+      const message = self.deserialize(packet)
+      const payload = message.payload
+      const nodeId = payload.sender
+
+      const node = self.broker.registry.nodes.get(nodeId)
+
+      if (!node) {
+        self.addNodeToOfflineList({ nodeId, host: payload.host, port: payload.port })
+      }
+    } catch (error) {
+      self.log.error('Invalid gossip hello message.', error.message)
+    }
+  }
+
+  function onGossipRequestMessage (data, socket) {
+    try {
+      const message = self.deserialize(data)
+      const payload = message.payload
+      const list = self.broker.registry.nodes.toArray()
+
+      const response = {
+        online: {},
+        offline: {}
+      }
+
+      list.map(node => {
+        const online = payload.online ? payload.online[node.id] : null
+        const offline = payload.offline ? payload.offline[node.id] : null
+
+        // eslint-disable-next-line no-unused-vars
+        let sequence, cpuSequence, cpu
+
+        if (offline) {
+          sequence = offline
+        } else {
+          [sequence, cpuSequence, cpu] = online
+        }
+
+        // self.log.debug(sequence, cpuSequence)
+        if (offline) {
+          // sender said node is offline
+          if (!node.isAvailable) {
+            // we know node is offline
+          } else if (!node.isLocal) {
+            // I am this node myself
+            if (node.id === self.nodeId) {
+
+            }
+          } else if (node.isLocal) {
+            node.sequence++
+            const nodeInfo = self.broker.registry.getLocalNodeInfo(true)
+            response.online[node.id] = [nodeInfo, node.cpuSequence || 0, node.cpu || 0]
+          }
+        } else if (online) {
+          if (node.isAvailable) {
+            if (cpuSequence > node.cpuSequence) {
+              node.heartbeat({
+                cpu,
+                cpuSequence
+              })
+            } else if (cpuSequence < node.cpuSequence) {
+              response.online[node.id] = [node.cpuSequence || 0, node.cpu || 0]
+            }
+          } else {
+            return
+          }
+        }
+      })
+
+      if (Object.keys(response.online).length === 0) {
+        delete response.online
+      }
+
+      if (Object.keys(response.offline).length === 0) {
+        delete response.offline
+      }
+
+      if (response.online || response.offline) {
+        const destinationNode = self.broker.registry.nodes.get(payload.sender)
+        const message = self.transport.createMessage(MessageTypes.MESSAGE_GOSSIP_RESPONSE, destinationNode.id, response)
+        self.send(message)
+      }
+    } catch (error) {
+      self.log.error(error)
+    }
+  }
+
+  function onGossipResponseMessage (data, socket) {
+    try {
+      const message = self.deserialize(data)
+      const payload = message.payload
+      // const list = self.registry.nodes.toArray()
+
+      if (payload.online) {
+        Object.keys(payload.online).forEach(nodeId => {
+          if (nodeId === self.nodeId) return
+
+          const item = payload.online[nodeId]
+
+          if (!Array.isArray(item)) return
+
+          const [info, cpuSequence, cpu] = item
+
+          const node = self.broker.registry.nodes.get(nodeId)
+
+          if (info && (!node || node.sequence < info.sequence)) {
+            // if node is a new node or has a higher sequence update local info.
+            info.sender = nodeId
+            self.broker.registry.processNodeInfo(info)
+          }
+
+          if (node && cpuSequence && cpuSequence > node.cpuSequence) {
+            node.heartbeat({
+              cpu,
+              cpuSequence
+            })
+          }
+        })
+      }
+
+      if (payload.offline) {
+        Object.keys(payload.offline).forEach(nodeId => {
+          if (nodeId === self.nodeId) return
+        })
+      }
+    } catch (error) {
+      self.log.error(error)
+    }
+  }
+
+  function onMessage (type, data, socket) {
+    try {
+      // const message = self.deserialize(data)
+      // const payload = message.payload
+      self.incommingMessage(type, data)
+    } catch (error) {
+
+    }
   }
 
   return self

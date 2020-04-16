@@ -35,7 +35,8 @@ module.exports = (adapter, options) => {
     socket.pipe(parser)
 
     parser.on('data', (type, message) => {
-      adapter.onIncomingMessage(type, message)
+      self.emit('message', type, message)
+      // adapter.onIncomingMessage(type, message)
     })
   }
 

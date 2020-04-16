@@ -101,7 +101,7 @@ const createDiscoveryService = (adapter, options) => {
       server.destinatins.forEach(host => {
         server.send(message, options.discovery.port, host, (error) => {
           if (!error) {
-            console.log(`Message sent to ${host}:${options.discovery.port}`)
+            adapter.log.debug(`Message sent to ${host}:${options.discovery.port}`)
           }
         })
       })
@@ -119,21 +119,14 @@ const createDiscoveryService = (adapter, options) => {
         .then(() => {
           return Promise.all(ips.map(ip => startServer(ip, options.discovery.port, options.discovery.multicastAddress)))
             .then(() => {
-              console.log('running')
-    
               setInterval(() => sendMessage({
                 namespace: adapter.broker.options.namespace,
                 nodeId: adapter.broker.nodeId,
               }), 2000)
             })
         })
-      
     }
   }
 }
-
-
-
-
 
 module.exports = createDiscoveryService
