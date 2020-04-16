@@ -110,7 +110,7 @@ const createDiscoveryService = (adapter, options) => {
 
   return {
     bus,
-    init () {
+    init (port) {
       if (!options.discovery.enabled) {
         return Promise.resolve()
       }
@@ -122,7 +122,7 @@ const createDiscoveryService = (adapter, options) => {
               setInterval(() => sendMessage({
                 namespace: adapter.broker.options.namespace,
                 nodeId: adapter.broker.nodeId,
-                port: options.port
+                port: port
               }), 2000)
             })
         })

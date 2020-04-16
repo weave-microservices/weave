@@ -33,8 +33,8 @@ module.exports = function SwimTransport (adapterOptions) {
   self.swim = Swim(self, adapterOptions)
 
   self.connect = async () => {
-    await startDiscoveryServer()
-    await startTCPServer()
+    const port = await startTCPServer()
+    await startDiscoveryServer(port)
     await startTimers()
 
     self.log.info('TCP transport adapter started.')
@@ -105,7 +105,7 @@ module.exports = function SwimTransport (adapterOptions) {
     }
   }
 
-  function startDiscoveryServer () {
+  function startDiscoveryServer (port) {
     self.swim.bus.on('message', ({ nodeId, host, port }) => {
       if (nodeId && nodeId !== self.broker.nodeId) {
         let node = self.broker.registry.nodes.get(nodeId)
@@ -119,7 +119,7 @@ module.exports = function SwimTransport (adapterOptions) {
       }
     })
 
-    self.swim.init()
+    self.swim.init(port)
   }
 
   function startTCPServer () {
@@ -130,12 +130,17 @@ module.exports = function SwimTransport (adapterOptions) {
 
     tcpReader.on('error', (_, nodeID) => {
       self.log.debug('TCP client error on ')
-      this.nodes.disconnected(nodeID, false)
+      // this.nodes.disconnected(nodeID, false)
     })
 
     tcpReader.on('end', nodeID => {
       self.log.debug('TCP connection ended with')
-      this.nodes.disconnected(nodeID, false)
+      // this.nodes.disconnected(nodeID, false)
+    })
+
+    tcpWriter.on('error', (_, nodeID) => {
+      self.log.debug('TCP server error on ')
+      // this.nodes.disconnected(nodeID, false)
     })
 
     return tcpReader.listen()
