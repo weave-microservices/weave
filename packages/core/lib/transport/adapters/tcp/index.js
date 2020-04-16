@@ -38,15 +38,15 @@ module.exports = function SwimTransport (adapterOptions) {
 
   function addDiscoveredNode(nodeId, host, port) {
     const node = self.broker.registry.nodes.createNode(nodeId)
-
+    node.isAvailable = false
     self.broker.registry.nodes.add(node.id, node)
 
-    return newNode
+    return node
   }
 
   function startDiscoveryServer () {
     self.swim.bus.on('message', ({ nodeId, host, port }) => {
-      if (nodeId) { //  && nodeId !== self.broker.nodeId
+      if (nodeId && nodeId !== self.broker.nodeId) {
         let node = self.broker.registry.nodes.get(nodeId)
         if (!node) {
           self.log.debug(`Discoverd a new node`)
