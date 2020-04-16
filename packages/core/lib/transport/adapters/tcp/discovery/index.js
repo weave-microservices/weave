@@ -13,7 +13,7 @@ const getIPs = () => {
   }).reduce((a, b) => a.concat(b), [])
 }
 
-const messageType = {
+const messageTypes = {
   HELLO: 4
 }
 
@@ -45,10 +45,8 @@ const createDiscoveryService = (adapter, options) => {
   const servers = []
   const ips = getIPs()
   const HEADER_TYPE_LENGHT = 1
-  const port = 1111
   const MESSAGE_TYPE_LENGHT = 1
   
-const   
 
   const startServer = (host, port, multicastAddress) => {
     return new Promise((resolve, reject) => {
@@ -60,7 +58,7 @@ const
           const payload = msg.slice(MESSAGE_TYPE_LENGHT)
 
           switch (messageType) {
-            case messageType.HELLO:
+            case messageTypes.HELLO:
               bus.emit('message', codec.encode(payload))
               break
             default:
@@ -87,15 +85,15 @@ const
 
   function sendMessage () {
     const header = new Buffer(MESSAGE_TYPE_LENGHT)
-    Buffer.prototype.writeUInt8.call(header, messageType.HELLO, 0)
+    Buffer.prototype.writeUInt8.call(header, messageTypes.HELLO, 0)
 
-    const message = Buffer.concat([header, codec.encode({ data: 'Hello World from Mac!!!!' }) ])
+    const message = Buffer.concat([header, codec.encode({ data: 'Hello world from MAC!' })])
   
     servers.forEach(server => {
       server.destinatins.forEach(host => {
-        server.send(message, port, host, (error) => {
+        server.send(message, options.discovery.port, host, (error) => {
           if (!error) {
-            console.log(`Message sent to ${host}:${port}`)
+            console.log(`Message sent to ${host}:${options.discovery.port}`)
           }
         })
       })
