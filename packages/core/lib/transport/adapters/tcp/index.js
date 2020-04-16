@@ -61,6 +61,22 @@ module.exports = function SwimTransport (adapterOptions) {
     return Promise.resolve()
   }
 
+  self.sendHello = nodeId => {
+    const node = self.broker.registry.nodes.get(nodeId)
+    if (!node) {
+      return Promise.reject(new Error('Node not found.'))
+    }
+
+    const localNode = self.broker.registry.nodes.localNode
+
+    const message = self.transport.createMessage(MessageTypes.MESSAGE_GOSSIP_HELLO, nodeId, {
+      host: localNode.IPList[0],
+      port: localNode.port
+    })
+    self.send(message)
+    return Promise.resolve()
+  }
+
   self.close = () => {
     clearInterval(gossipTimer)
     return Promise.resolve()
