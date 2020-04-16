@@ -9,5 +9,5 @@ module.exports = {
   Redis: require('./redis'),
   NATS: require('./nats'),
   Dummy: require('./dummy'),
-  TCP: require('./_tcp')
+  TCP: require('./tcp')
 }
