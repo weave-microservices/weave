@@ -148,6 +148,7 @@ module.exports = function SwimTransport (adapterOptions) {
 
   function startTimers () {
     gossipTimer = setInterval(() => sendGossipRequest(), 2000)
+    gossipTimer.unref()
   }
 
   function sendGossipRequest () {

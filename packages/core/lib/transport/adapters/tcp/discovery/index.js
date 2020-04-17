@@ -119,11 +119,13 @@ const createDiscoveryService = (adapter, options) => {
         .then(() => {
           return Promise.all(ips.map(ip => startServer(ip, options.discovery.port, options.discovery.multicastAddress)))
             .then(() => {
-              setInterval(() => sendMessage({
+              const discoverTimer = setInterval(() => sendMessage({
                 namespace: adapter.broker.options.namespace,
                 nodeId: adapter.broker.nodeId,
                 port: port
               }), 2000)
+
+              discoverTimer.unref()
             })
         })
     }
