@@ -1,14 +1,11 @@
 const vorpal = require('vorpal')()
-const glob = require('glob')
 const path = require('path')
+const fs = require('fs')
 
 function registerCommands (vorpal, broker) {
-  const files = glob.sync(path.join(__dirname, 'commands', '*.js'))
-  files.sort()
-  files.forEach(file => {
-    if (path.basename(file) !== 'index.js') {
-      require(file)(vorpal, broker)
-    }
+  const commandsFolderPath = path.join(__dirname, 'commands')
+  fs.readdirSync(commandsFolderPath).forEach(file => {
+    require(path.join(commandsFolderPath, file))(vorpal, broker)
   })
 }
 

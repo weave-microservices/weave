@@ -162,8 +162,10 @@ module.exports.createDefaultLogger = (options, bindings) => {
 
     if (msg instanceof Error && msg.stack) {
       const [name, ...rest] = msg.stack.split('\n')
+
       messages.push(name)
       messages.push(dim(grey(rest.map(l => l.replace(/^/, '\n')).join(''))))
+
       return messages.join(' ')
     }
 
