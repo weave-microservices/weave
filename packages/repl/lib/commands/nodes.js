@@ -1,6 +1,6 @@
 
-const chalk = require('chalk')
 const { table } = require('table')
+const cliUI = require('../utils/cli-ui')
 
 module.exports = (vorpal, broker) => {
   vorpal
@@ -8,13 +8,13 @@ module.exports = (vorpal, broker) => {
     .action((args, done) => {
       const data = []
       data.push([
-        chalk.bold('Node ID'),
-        chalk.bold('Services'),
-        chalk.bold('Version'),
-        chalk.bold('Client'),
-        chalk.bold('IP'),
-        chalk.bold('State'),
-        chalk.bold('CPU')
+        cliUI.tableHeaderText('Node ID'),
+        cliUI.tableHeaderText('Services'),
+        cliUI.tableHeaderText('Version'),
+        cliUI.tableHeaderText('Client'),
+        cliUI.tableHeaderText('IP'),
+        cliUI.tableHeaderText('State'),
+        cliUI.tableHeaderText('CPU')
       ])
 
       const nodes = broker.registry.nodes.list({})
@@ -33,7 +33,7 @@ module.exports = (vorpal, broker) => {
           node.client.version,
           node.client.type,
           node.IPList[0],
-          node.isAvailable ? chalk.bgGreen.black(' ONLINE ') : chalk.bgRed.white.bold(' OFFLINE '),
+          node.isAvailable ? cliUI.successLabel(' ONLINE ') : cliUI.failureLabel(' OFFLINE '),
           cpuLoad
         ])
       })

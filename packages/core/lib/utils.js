@@ -16,7 +16,7 @@ const deprecatedList = []
 
 function getCircularReplacer () {
   const seen = new WeakSet()
-  return (key, value) => {
+  return (_, value) => {
     if (typeof value === 'object' && value !== null) {
       if (seen.has(value)) {
         return

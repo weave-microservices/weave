@@ -1,6 +1,6 @@
 
-const chalk = require('chalk')
 const { table } = require('table')
+const cliUI = require('../utils/cli-ui')
 
 module.exports = (vorpal, broker) => {
   vorpal
@@ -8,12 +8,12 @@ module.exports = (vorpal, broker) => {
     .action((args, done) => {
       const data = []
       data.push([
-        chalk.bold('Service'),
-        chalk.bold('Version'),
-        chalk.bold('State'),
-        chalk.bold('Actions'),
-        chalk.bold('Events'),
-        chalk.bold('Nodes')
+        cliUI.tableHeaderText('Service'),
+        cliUI.tableHeaderText('Version'),
+        cliUI.tableHeaderText('State'),
+        cliUI.tableHeaderText('Actions'),
+        cliUI.tableHeaderText('Events'),
+        cliUI.tableHeaderText('Nodes')
       ])
 
       const list = []
@@ -50,7 +50,7 @@ module.exports = (vorpal, broker) => {
         data.push([
           service.name,
           service.version ? service.version : 1,
-          service.isAvailable ? chalk.bgGreen.black('  OK  ') : chalk.bgRed.white.bold(' FAILURE '),
+          service.isAvailable ? cliUI.successLabel('  OK  ') : cliUI.failureLabel(' FAILURE '),
           service.actions,
           service.events,
           service.nodes.length
