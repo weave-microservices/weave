@@ -104,10 +104,14 @@ module.exports = function SwimTransport (adapterOptions) {
 
   self.onIncomingMessage = (type, data, socket) => {
     switch (type) {
-    case MessageTypes.MESSAGE_GOSSIP_HELLO: return onGossipHelloMessage(data, socket)
-    case MessageTypes.MESSAGE_GOSSIP_REQUEST: return onGossipRequestMessage(data, socket)
-    case MessageTypes.MESSAGE_GOSSIP_RESPONSE: return onGossipResponseMessage(data, socket)
-    default: return onMessage(type, data, socket)
+    case MessageTypes.MESSAGE_GOSSIP_HELLO:
+      return onGossipHelloMessage(data, socket)
+    case MessageTypes.MESSAGE_GOSSIP_REQUEST:
+      return onGossipRequestMessage(data, socket)
+    case MessageTypes.MESSAGE_GOSSIP_RESPONSE:
+      return onGossipResponseMessage(data, socket)
+    default:
+      return self.incommingMessage(type, data)
     }
   }
 
@@ -347,8 +351,8 @@ module.exports = function SwimTransport (adapterOptions) {
 
   function onMessage (type, data, socket) {
     try {
-      // const message = self.deserialize(data)
       // const payload = message.payload
+
       self.onIncomingMessage(type, data, socket)
     } catch (error) {
 
