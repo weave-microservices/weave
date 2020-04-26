@@ -36,8 +36,11 @@ module.exports = function SwimTransport (adapterOptions) {
     const port = await startTCPServer()
     await startDiscoveryServer(port)
     await startTimers()
+  
+    self.bus.emit('$adapter.connected', false)
 
     self.log.info('TCP transport adapter started.')
+    return Promise.resolve()
   }
 
   self.send = (message) => {
@@ -51,6 +54,7 @@ module.exports = function SwimTransport (adapterOptions) {
     ].includes(message.type)) {
       return Promise.resolve()
     }
+
     const data = self.serialize(message)
 
     tcpWriter.send(message.targetNodeId, message.type, data)
@@ -63,6 +67,7 @@ module.exports = function SwimTransport (adapterOptions) {
 
   self.sendHello = nodeId => {
     const node = self.broker.registry.nodes.get(nodeId)
+
     if (!node) {
       return Promise.reject(new Error('Node not found.'))
     }
@@ -73,6 +78,7 @@ module.exports = function SwimTransport (adapterOptions) {
       host: localNode.IPList[0],
       port: localNode.port
     })
+
     self.send(message)
     return Promise.resolve()
   }

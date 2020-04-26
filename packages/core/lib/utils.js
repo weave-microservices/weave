@@ -40,7 +40,9 @@ module.exports = {
     const constructorUndefined = o.constructor === undefined
     const constructorObject = o.constructor === Object
     const typeOfConstructorObject = typeof o.constructor === 'function'
+
     let r
+
     if (strict === true) {
       r = (instanceOfObject || typeOfObject) && (constructorUndefined || constructorObject)
     } else {

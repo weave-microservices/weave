@@ -32,14 +32,17 @@ const createTransportBase = () => {
 
       return Promise.resolve()
     },
+    subscribe () {
+      return Promise.resolve()
+    },
     /**
-         *
-         * Connection handler
-         * @instance
-         * @param {*} wasReconnect Was it a reconnection atemp?
-         * @param {boolean} [startHeartbeatTimers=true] Start timers for this adapter
-         * @returns {void}
-         */
+     *
+     * Connection handler
+     * @instance
+     * @param {*} wasReconnect Was it a reconnection atemp?
+     * @param {boolean} [startHeartbeatTimers=true] Start timers for this adapter
+     * @returns {void}
+    */
     connected (wasReconnect, startHeartbeatTimers = true) {
       this.bus.emit('$adapter.connected', wasReconnect, startHeartbeatTimers)
     },
