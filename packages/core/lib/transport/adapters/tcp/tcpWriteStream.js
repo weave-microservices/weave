@@ -16,10 +16,15 @@ module.exports = class TCPWriteStream extends Writable {
   _write (chunk, encoding, callback) {
     let packet = chunk
 
+    if (this.buffer && this.buffer.length > 0) {
+      packet = Buffer.concat([this.buffer, chunk])
+      this.buffer = null
+    }
+
     while (packet.length > 0) {
       if (packet.length < 6) {
         this.buffer = Buffer.from(packet)
-        callback()
+        return callback()
       }
 
       if (packet.length > maxPacketSize) {
@@ -28,7 +33,7 @@ module.exports = class TCPWriteStream extends Writable {
 
       const crc = packet[1] ^ packet[2] ^ packet[3] ^ packet[4] ^ packet[5]
       if (crc !== packet[0]) {
-        callback(new Error('Invalid cyclic redundancy check.'))
+        return callback(new Error('Invalid cyclic redundancy check.'))
       }
 
       const length = packet.readInt32BE(1)

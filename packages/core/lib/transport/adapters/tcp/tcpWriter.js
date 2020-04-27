@@ -83,6 +83,7 @@ module.exports = (adapter, options) => {
       .then(socket => {
         return new Promise((resolve, reject) => {
           const header = Buffer.alloc(headerSize)
+          
           header.writeInt32BE(data.length + headerSize, 1)
           header.writeInt8(messageTypeHelper.getIndexByType(type), 5)
 
