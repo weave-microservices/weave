@@ -27,6 +27,8 @@ module.exports = (adapter, options) => {
     })
   }
 
+
+
   function onTCPClientConnected (socket) {
     sockets.push(socket)
 
@@ -34,11 +36,31 @@ module.exports = (adapter, options) => {
     const parser = new TCPWriteStream(adapter, socket)
     socket.pipe(parser)
 
+    parser.on('error', error => {
+      adapter.log.warn('Packet parser error!', err)
+      closeSocket(socket)
+    })
+
+
     parser.on('data', (type, message) => {
       self.emit('message', type, message)
       // adapter.onIncomingMessage(type, message)
     })
+
+    socket.on('error', error => {
+      adapter.log.warn('TCP connection error!', err)
+      closeSocket(socket)
+    })
+
+    socket.on('close', (isError) => {
+      closeSocket(socket)
+    })
   }
+
+  function closeSocket (socket) {
+		socket.destroy()
+		sockets.splice(sockets.indexOf(socket), 1)
+	}
 
   return self
 }
