@@ -36,8 +36,8 @@ module.exports = function SwimTransport (adapterOptions) {
     const port = await startTCPServer()
     await startDiscoveryServer(port)
     await startTimers()
-  
-    self.bus.emit('$adapter.connected', false)
+
+    self.bus.emit('$adapter.connected', false, false)
 
     self.log.info('TCP transport adapter started.')
     return Promise.resolve()
@@ -62,6 +62,7 @@ module.exports = function SwimTransport (adapterOptions) {
     if (self.connected) {
       // clientPub.publish(self.getTopic(message.type, message.targetNodeId), data)
     }
+
     return Promise.resolve()
   }
 
