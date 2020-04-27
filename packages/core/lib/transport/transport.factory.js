@@ -379,10 +379,7 @@ const createTransport = (broker, adapter) => {
   }
 
   function startHeartbeatTimer () {
-    heartbeatTimer = setInterval(() => {
-      sendHeartbeat()
-    }, broker.options.transport.heartbeatInterval)
-
+    heartbeatTimer = setInterval(() => sendHeartbeat(), broker.options.transport.heartbeatInterval)
     heartbeatTimer.unref()
   }
 
