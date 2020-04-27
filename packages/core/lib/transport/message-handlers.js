@@ -180,10 +180,11 @@ module.exports = (broker, transport, pending) => {
 
   const onEvent = payload => {
     registry.events.emitLocal(payload.eventName, payload.data, payload.sender, payload.groups, payload.isBroadcast)
-    // localEventEmitter(payload.eventName, payload.data, payload.sender, payload.groups, payload.isBroadcast)
   }
 
-  const onDisconnect = payload => registry.nodeDisconnected(payload.sender, false)
+  const onDisconnect = payload => {
+    return registry.nodeDisconnected(payload.sender, false)
+  }
 
   const onHeartbeat = payload => {
     // registry.nodes.heartbeat(payload)

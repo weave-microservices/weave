@@ -57,13 +57,7 @@ module.exports = function SwimTransport (adapterOptions) {
 
     const data = self.serialize(message)
 
-    tcpWriter.send(message.targetNodeId, message.type, data)
-
-    if (self.connected) {
-      // clientPub.publish(self.getTopic(message.type, message.targetNodeId), data)
-    }
-
-    return Promise.resolve()
+    return tcpWriter.send(message.targetNodeId, message.type, data)
   }
 
   self.sendHello = nodeId => {
@@ -139,20 +133,21 @@ module.exports = function SwimTransport (adapterOptions) {
 
     tcpReader.on('message', onMessage)
 
-    tcpReader.on('error', (_, nodeID) => {
-      self.log.debug('TCP client error on ')
+    tcpWriter.on('error', (error, nodeID) => {
+      self.log.debug('TCP client error on ', error)
       // this.nodes.disconnected(nodeID, false)
+      self.broker.registry.nodeDisconnected(nodeID, true)
     })
 
-    tcpReader.on('end', nodeID => {
+    tcpWriter.on('end', nodeID => {
       self.log.debug('TCP connection ended with')
-      // this.nodes.disconnected(nodeID, false)
+      self.broker.registry.nodeDisconnected(nodeID, false)
     })
 
-    tcpWriter.on('error', (_, nodeID) => {
-      self.log.debug('TCP server error on ')
-      // this.nodes.disconnected(nodeID, false)
-    })
+    // tcpWriter.on('error', (_, nodeID) => {
+    //   self.log.debug('TCP server error on ')
+    //   // this.nodes.disconnected(nodeID, false)
+    // })
 
     return tcpReader.listen()
   }
@@ -214,7 +209,9 @@ module.exports = function SwimTransport (adapterOptions) {
     const destinationNode = nodes[Math.floor(Math.random() * nodes.length)]
     if (destinationNode) {
       const message = self.transport.createMessage(MessageTypes.MESSAGE_GOSSIP_REQUEST, destinationNode.id, payload)
-      self.send(message)
+      self.send(message).catch(() => {
+        self.log.debug(`Unable to send gossip response to ${destinationNode.id}`)
+      })
     }
   }
 
@@ -300,7 +297,7 @@ module.exports = function SwimTransport (adapterOptions) {
       if (response.online || response.offline) {
         const destinationNode = self.broker.registry.nodes.get(payload.sender)
         const message = self.transport.createMessage(MessageTypes.MESSAGE_GOSSIP_RESPONSE, destinationNode.id, response)
-        self.send(message)
+        self.send(message).catch(() => {})
       }
     } catch (error) {
       self.log.error(error)
