@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-rc.19](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.18...@weave-js/core@0.7.0-rc.19) (2020-04-28)
+
+**Note:** Version bump only for package @weave-js/core
+
+
+
+
+
 # [0.7.0-rc.18](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.17...@weave-js/core@0.7.0-rc.18) (2020-04-28)
 
 **Note:** Version bump only for package @weave-js/core
