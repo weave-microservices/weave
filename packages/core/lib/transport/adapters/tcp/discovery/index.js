@@ -42,9 +42,10 @@ const messageTypes = {
 const createDiscoveryService = (adapter, options) => {
   const codec = Codec(options)
   const bus = new EventEmitter()
-  const servers = []
   const ips = getIPs()
   const MESSAGE_TYPE_LENGHT = 1
+  let servers = []
+  let discoverTimer
 
   const startServer = (host, port, multicastAddress) => {
     return new Promise((resolve, reject) => {
@@ -108,6 +109,14 @@ const createDiscoveryService = (adapter, options) => {
     })
   }
 
+  function stopDiscovery () {
+    if (discoverTimer) {
+      clearInterval(discoverTimer)
+      adapter.log.info('UDP discovery service stopped')
+      discoverTimer = null
+    }
+  }
+
   return {
     bus,
     init (port) {
@@ -119,7 +128,7 @@ const createDiscoveryService = (adapter, options) => {
         .then(() => {
           return Promise.all(ips.map(ip => startServer(ip, options.discovery.port, options.discovery.multicastAddress)))
             .then(() => {
-              const discoverTimer = setInterval(() => sendMessage({
+              discoverTimer = setInterval(() => sendMessage({
                 namespace: adapter.broker.options.namespace,
                 nodeId: adapter.broker.nodeId,
                 port: port
@@ -128,6 +137,11 @@ const createDiscoveryService = (adapter, options) => {
               discoverTimer.unref()
             })
         })
+    },
+    close () {
+      stopDiscovery()
+      servers.forEach(server => server.close())
+      servers = []
     }
   }
 }

@@ -105,5 +105,15 @@ module.exports = (adapter, options) => {
       })
   }
 
+  self.close = () => {
+    sockets.forEach(socket => {
+      if (!socket.destroyed) {
+        socket.destroy()
+      }
+      socket.end()
+    })
+    sockets.clear()
+  }
+
   return self
 }

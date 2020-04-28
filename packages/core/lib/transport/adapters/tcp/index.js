@@ -82,6 +82,17 @@ module.exports = function SwimTransport (adapterOptions) {
 
   self.close = () => {
     clearInterval(gossipTimer)
+    if (tcpReader) {
+      tcpReader.close()
+    }
+    if (tcpWriter) {
+      tcpWriter.close()
+    }
+    if (tcpReader) {
+      tcpReader.close()
+    }
+
+    self.swim.close()
     return Promise.resolve()
   }
 

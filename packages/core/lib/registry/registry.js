@@ -347,13 +347,13 @@ const createRegistry = () => {
 
       if (isNew) {
         this.broker.broadcastLocal('$node.connected', { node, isReconnected })
-        this.log.debug(`Node ${node.id} connected!`)
+        this.log.info(`Node ${node.id} connected!`)
       } else if (isReconnected) {
         this.broker.broadcastLocal('$node.connected', { node, isReconnected })
-        this.log.debug(`Node ${node.id} reconnected!`)
+        this.log.info(`Node ${node.id} reconnected!`)
       } else {
         this.broker.broadcastLocal('$node.updated', { node, isReconnected })
-        this.log.debug(`Node ${node.id} updated!`)
+        this.log.info(`Node ${node.id} updated!`)
       }
     },
     nodeDisconnected (nodeId, isUnexpected) {

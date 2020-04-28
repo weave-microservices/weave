@@ -4,7 +4,7 @@ const TCPWriteStream = require('./tcpWriteStream')
 
 module.exports = (adapter, options) => {
   const self = Object.assign({}, EventEmitter.prototype)
-  const sockets = []
+  let sockets = []
   let server
 
   self.isConnected = false
@@ -27,10 +27,16 @@ module.exports = (adapter, options) => {
     })
   }
 
+  self.close = () => {
+    if (server && self.isConnected) {
+      sockets.forEach(socket => socket.destroy())
+      sockets = []
+    }
+  }
+
   function onTCPClientConnected (socket) {
     sockets.push(socket)
 
-    // const address = socket.remoteAddress
     const parser = new TCPWriteStream(adapter, socket)
     socket.pipe(parser)
 
