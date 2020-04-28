@@ -8,7 +8,7 @@ const TCPWriter = require('./tcpWriter')
 const TCPMessageTypeHelper = require('./tcp-messagetypes')
 
 const defaultOptions = {
-  port: 56734,
+  port: null,
   discovery: {
     enabled: true,
     type: 'udp4',

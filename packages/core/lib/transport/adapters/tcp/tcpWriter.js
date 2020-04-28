@@ -8,6 +8,7 @@ module.exports = (adapter, options) => {
   const sockets = new Map()
   const messageTypeHelper = TCPMessageTypeHelper(MessageTypes)
   const headerSize = 6
+  
   const connect = nodeId => {
     const node = adapter.broker.registry.nodes.get(nodeId)
     if (!node) {
@@ -83,7 +84,7 @@ module.exports = (adapter, options) => {
       .then(socket => {
         return new Promise((resolve, reject) => {
           const header = Buffer.alloc(headerSize)
-          
+
           header.writeInt32BE(data.length + headerSize, 1)
           header.writeInt8(messageTypeHelper.getIndexByType(type), 5)
 

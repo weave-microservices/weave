@@ -22,12 +22,10 @@ module.exports = (adapter, options) => {
         const port = server.address().port
         self.isConnected = true
         adapter.log.info(`TCP server is listening on port ${port}`)
-        resolve(options.port)
+        resolve(port)
       })
     })
   }
-
-
 
   function onTCPClientConnected (socket) {
     sockets.push(socket)
@@ -37,10 +35,9 @@ module.exports = (adapter, options) => {
     socket.pipe(parser)
 
     parser.on('error', error => {
-      adapter.log.warn('Packet parser error!', err)
+      adapter.log.warn('Packet parser error!', error)
       closeSocket(socket)
     })
-
 
     parser.on('data', (type, message) => {
       self.emit('message', type, message)
@@ -48,7 +45,7 @@ module.exports = (adapter, options) => {
     })
 
     socket.on('error', error => {
-      adapter.log.warn('TCP connection error!', err)
+      adapter.log.warn('TCP connection error!', error)
       closeSocket(socket)
     })
 
@@ -58,9 +55,9 @@ module.exports = (adapter, options) => {
   }
 
   function closeSocket (socket) {
-		socket.destroy()
-		sockets.splice(sockets.indexOf(socket), 1)
-	}
+    socket.destroy()
+    sockets.splice(sockets.indexOf(socket), 1)
+  }
 
   return self
 }
