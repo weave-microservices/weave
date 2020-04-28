@@ -37,7 +37,7 @@ module.exports = function SwimTransport (adapterOptions) {
     await startDiscoveryServer(port)
     await startTimers()
 
-    self.bus.emit('$adapter.connected', false, false)
+    self.bus.emit('$adapter.connected', false, false, false)
 
     self.log.info('TCP transport adapter started.')
     return Promise.resolve()
@@ -119,6 +119,8 @@ module.exports = function SwimTransport (adapterOptions) {
 
           node = addDiscoveredNode(nodeId, host, port)
         } else if (!node.isAvailable) {
+          // update tcp port
+          node.port = port
           self.log.debug(`Node is still not available: ${node.id}`)
         }
       }
@@ -207,6 +209,7 @@ module.exports = function SwimTransport (adapterOptions) {
     }
 
     const destinationNode = nodes[Math.floor(Math.random() * nodes.length)]
+    console.log(Date.now() - destinationNode.lastHeartbeatTime, destinationNode.id)
     if (destinationNode) {
       const message = self.transport.createMessage(MessageTypes.MESSAGE_GOSSIP_REQUEST, destinationNode.id, payload)
       self.send(message).catch(() => {
