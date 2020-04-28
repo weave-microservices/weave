@@ -228,8 +228,8 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
           mixin = applyMixins(mixin)
         }
 
-        return mergeSchemas(s, mixin)
-      }, {})
+        return s ? mergeSchemas(s, mixin) : mixin
+      }, null)
     return mergeSchemas(mixedSchema, schema)
   }
 }
