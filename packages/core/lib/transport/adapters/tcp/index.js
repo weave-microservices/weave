@@ -56,7 +56,6 @@ module.exports = function SwimTransport (adapterOptions) {
     }
 
     const data = self.serialize(message)
-
     return tcpWriter.send(message.targetNodeId, message.type, data)
   }
 
@@ -209,9 +208,9 @@ module.exports = function SwimTransport (adapterOptions) {
     }
 
     const destinationNode = nodes[Math.floor(Math.random() * nodes.length)]
-    console.log(Date.now() - destinationNode.lastHeartbeatTime, destinationNode.id)
     if (destinationNode) {
       const message = self.transport.createMessage(MessageTypes.MESSAGE_GOSSIP_REQUEST, destinationNode.id, payload)
+
       self.send(message).catch(() => {
         self.log.debug(`Unable to send gossip response to ${destinationNode.id}`)
       })
@@ -254,7 +253,7 @@ module.exports = function SwimTransport (adapterOptions) {
 
         if (offline) {
           sequence = offline
-        } else {
+        } else if (online) {
           [sequence, cpuSequence, cpu] = online
         }
 

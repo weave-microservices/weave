@@ -226,7 +226,7 @@ const createRegistry = () => {
         if (opts && opts.nodeId) { // remote
           const endpoint = this.getActionEndpointByNodeId(actionName, opts.nodeId)
           if (!endpoint) {
-            this.log.warn(`Service ${actionName} is not registered on node ${opts.nodeId}.`)
+            this.log.warn(`Service "${actionName}" is not registered on node ${opts.nodeId}.`)
             return new WeaveServiceNotFoundError({ actionName, nodeId: opts.nodeId })
           }
           return endpoint
@@ -240,7 +240,7 @@ const createRegistry = () => {
           const endpoint = endpointList.getNextAvailable()
 
           if (!endpoint) {
-            this.log.warn(`Service ${actionName} is not available.`)
+            this.log.warn(`Service "${actionName}" is not available.`)
             return new WeaveServiceNotAvailableError({ actionName })
           }
 

@@ -27,10 +27,6 @@ const MakeNodeCollection = (registry) => {
       return nodes.get(id)
     },
     remove (id) {
-      const node = nodes.get(id)
-      if (node && node.isAvailable) {
-        return false
-      }
       return nodes.delete(id)
     },
     list ({ withServices = true }) {

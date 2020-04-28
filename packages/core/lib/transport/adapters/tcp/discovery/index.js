@@ -92,7 +92,7 @@ const createDiscoveryService = (adapter, options) => {
   }
 
   function sendMessage (payload) {
-    const header = new Buffer(MESSAGE_TYPE_LENGHT)
+    const header = Buffer.alloc(MESSAGE_TYPE_LENGHT)
     Buffer.prototype.writeUInt8.call(header, messageTypes.HELLO, 0)
 
     const message = Buffer.concat([header, codec.encode(payload)])
