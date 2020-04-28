@@ -155,11 +155,11 @@ const createTransport = (broker, adapter) => {
       return this.send(this.createMessage(MessageTypes.MESSAGE_INFO, sender, info))
     },
     /**
-         *
-         * Send a message
-         * @param {Message} message Message to send
-         * @returns {Promise} Promise
-         */
+      *
+      * Send a message
+      * @param {Message} message Message to send
+      * @returns {Promise} Promise
+    */
     send (message) {
       this.statistics.sent.packages = this.statistics.sent.packages + 1
       log.trace(`Send ${message.type.toUpperCase()} packet to ${message.targetNodeId || 'all nodes'}`)

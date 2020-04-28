@@ -27,7 +27,7 @@ const createTransportBase = () => {
       }
 
       if (this.afterInit) {
-        this.afterInit.call(this)
+        this.afterInit()
       }
 
       return Promise.resolve()

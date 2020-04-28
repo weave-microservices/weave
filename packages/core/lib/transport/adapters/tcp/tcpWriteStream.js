@@ -28,10 +28,11 @@ module.exports = class TCPWriteStream extends Writable {
       }
 
       if (packet.length > maxPacketSize) {
-				return callback(new Error(`Incoming packet is larger than the 'maxPacketSize' limit (${packet.length} > ${maxPacketSize})!`));
-			}
+        return callback(new Error(`Incoming packet is larger than the 'maxPacketSize' limit (${packet.length} > ${maxPacketSize})!`))
+      }
 
       const crc = packet[1] ^ packet[2] ^ packet[3] ^ packet[4] ^ packet[5]
+
       if (crc !== packet[0]) {
         return callback(new Error('Invalid cyclic redundancy check.'))
       }

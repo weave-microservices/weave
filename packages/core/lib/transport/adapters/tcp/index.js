@@ -36,10 +36,13 @@ module.exports = function SwimTransport (adapterOptions) {
     const port = await startTCPServer()
     await startDiscoveryServer(port)
     await startTimers()
-
+    
+    self.log.info('TCP transport adapter started.')
+    
+    self.broker.registry.generateLocalNodeInfo()
+    
     self.bus.emit('$adapter.connected', false, false, false)
 
-    self.log.info('TCP transport adapter started.')
     return Promise.resolve()
   }
 
@@ -84,13 +87,14 @@ module.exports = function SwimTransport (adapterOptions) {
 
   function addDiscoveredNode (nodeId, host, port) {
     const node = self.broker.registry.nodes.createNode(nodeId)
+
     node.isLocal = false
     node.isAvailable = false
     node.IPList = [host]
     node.hostname = host
     node.port = port
     node.sequence = 0
-
+    node.offlineTime = Date.now()
     self.broker.registry.nodes.add(node.id, node)
 
     return node
@@ -136,8 +140,7 @@ module.exports = function SwimTransport (adapterOptions) {
 
     tcpWriter.on('error', (error, nodeID) => {
       self.log.debug('TCP client error on ', error)
-      // this.nodes.disconnected(nodeID, false)
-      self.broker.registry.nodeDisconnected(nodeID, true)
+      self.broker.registry.nodeDisconnected(nodeID, false)
     })
 
     tcpWriter.on('end', nodeID => {
@@ -180,8 +183,10 @@ module.exports = function SwimTransport (adapterOptions) {
           onlineNodes.push(node)
         }
       } else {
+        if (node.sequence > 0) {
+          payload.offline[node.id] = node.sequence
+        }
         offlineNodes.push(node)
-        payload.offline[node.id] = [node.sequence, node.cpuSequence || 0, node.cpu || 0]
       }
     })
 
@@ -257,16 +262,29 @@ module.exports = function SwimTransport (adapterOptions) {
           [sequence, cpuSequence, cpu] = online
         }
 
-        // self.log.debug(sequence, cpuSequence)
+        if (!sequence || sequence < node.sequence) {
+          // our node info is newer than the
+          if (node.isAvailable) {
+            const info = self.broker.registry.getNodeInfo(node.id)
+            response.online[node.id] = [info, node.cpuSequence || 0, node.cpu || 0]
+          } else {
+            response.offline[node.id] = node.sequence
+          }
+          return
+        }
+
         if (offline) {
           // sender said node is offline
           if (!node.isAvailable) {
             // we know node is offline
-          } else if (!node.isLocal) {
-            // I am this node myself
-            if (node.id === self.nodeId) {
-
+            if (sequence > node.sequence) {
+              node.sequence = sequence
             }
+            return
+          } else if (!node.isLocal) {
+            // we know, the node is offline
+            self.broker.registry.nodes.disconnected(node.id, false)
+            node.sequence = sequence + 1
           } else if (node.isLocal) {
             node.sequence++
             const nodeInfo = self.broker.registry.getLocalNodeInfo(true)
@@ -314,16 +332,29 @@ module.exports = function SwimTransport (adapterOptions) {
 
       if (payload.online) {
         Object.keys(payload.online).forEach(nodeId => {
-          if (nodeId === self.nodeId) return
+          if (nodeId === self.broker.nodeId) {
+            return
+          }
 
           const item = payload.online[nodeId]
 
-          if (!Array.isArray(item)) return
+          if (!Array.isArray(item)) {
+            return
+          }
 
-          const [info, cpuSequence, cpu] = item
+          let info
+          let cpuSequence
+          let cpu
+
+          if (item.length === 1) {
+            [info] = item
+          } else if (item.length === 2) {
+            [cpuSequence, cpu] = item
+          } else if (item.length === 3) {
+            [info, cpuSequence, cpu] = item
+          }
 
           const node = self.broker.registry.nodes.get(nodeId)
-
           if (info && (!node || node.sequence < info.sequence)) {
             // if node is a new node or has a higher sequence update local info.
             info.sender = nodeId
@@ -339,9 +370,24 @@ module.exports = function SwimTransport (adapterOptions) {
         })
       }
 
+      // Offline nodes
       if (payload.offline) {
         Object.keys(payload.offline).forEach(nodeId => {
-          if (nodeId === self.nodeId) return
+          if (nodeId === self.broker.nodeId) return
+
+          const sequence = payload.offline[nodeId]
+          const node = self.broker.registry.nodes.get(nodeId)
+
+          if (!node) {
+            return
+          }
+          // the remote node is newer
+          if (sequence > node.sequence) {
+            if (node.isAvailable) {
+              self.broker.registry.nodes.disconnected(node.id, false)
+            }
+            node.sequence = sequence
+          }
         })
       }
     } catch (error) {
@@ -355,7 +401,7 @@ module.exports = function SwimTransport (adapterOptions) {
 
       self.onIncomingMessage(type, data, socket)
     } catch (error) {
-
+      console.log(error)
     }
   }
 

@@ -225,13 +225,16 @@ const createRegistry = () => {
       } else {
         if (opts && opts.nodeId) { // remote
           const endpoint = this.getActionEndpointByNodeId(actionName, opts.nodeId)
+
           if (!endpoint) {
             this.log.warn(`Service "${actionName}" is not registered on node ${opts.nodeId}.`)
             return new WeaveServiceNotFoundError({ actionName, nodeId: opts.nodeId })
           }
+
           return endpoint
         } else {
           const endpointList = this.getActionEndpoints(actionName)
+
           if (!endpointList) {
             this.log.warn(`Service ${actionName} is not registered.`)
             return new WeaveServiceNotFoundError({ actionName })
@@ -278,6 +281,15 @@ const createRegistry = () => {
 
       return endpoint
     },
+    getNodeInfo (nodeId) {
+      const node = this.nodes.get(nodeId)
+
+      if (!node) {
+        return null
+      }
+
+      return node.info
+    },
     getLocalNodeInfo (forceGenerateInfo) {
       if (forceGenerateInfo || !this.nodes.localNode.info) {
         return this.generateLocalNodeInfo()
@@ -285,7 +297,7 @@ const createRegistry = () => {
 
       return this.nodes.localNode.info
     },
-    generateLocalNodeInfo (incrementSequence) {
+    generateLocalNodeInfo (incrementSequence = false) {
       const { client, IPList, sequence } = this.nodes.localNode
       const nodeInfo = { client, IPList, sequence }
 
