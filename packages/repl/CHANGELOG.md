@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-rc.15](https://github.com/weave-microservices/weave/compare/@weave-js/repl@0.7.0-rc.14...@weave-js/repl@0.7.0-rc.15) (2020-04-28)
+
+
+### Bug Fixes
+
+* linting ([a592f35](https://github.com/weave-microservices/weave/commit/a592f35524d934b61841655bb0fc794b3bf46b99))
+
+
+
+
+
 # [0.7.0-rc.14](https://github.com/weave-microservices/weave/compare/@weave-js/repl@0.7.0-rc.13...@weave-js/repl@0.7.0-rc.14) (2020-02-25)
 
 **Note:** Version bump only for package @weave-js/repl
