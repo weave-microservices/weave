@@ -41,7 +41,6 @@ module.exports = (adapter, options) => {
 
     parser.on('data', (type, message) => {
       self.emit('message', type, message)
-      // adapter.onIncomingMessage(type, message)
     })
 
     socket.on('error', error => {
