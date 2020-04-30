@@ -1,6 +1,6 @@
-const { isFunction, isObject, forIn, cloneDeep } = require('lodash')
+const { isObject, cloneDeep } = require('lodash')
 const { mergeSchemas } = require('../utils/options')
-const { wrapInArray } = require('../utils/utils')
+const { wrapInArray, isFunction } = require('../utils/utils')
 
 const { lifecycleHook } = require('../constants')
 const { promisify } = require('fachwork')
@@ -67,7 +67,8 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
   }
 
   if (isObject(schema.methods)) {
-    forIn(schema.methods, (method, name) => {
+    Object.keys(schema.methods).map(name => {
+      const method = schema.methods[name]
       if (['log', 'actions', 'log', 'events', 'settings', 'methods', 'dependencies'].includes(name)) {
         throw new WeaveError(`Invalid method name ${name} in service ${self.name}.`)
       }
@@ -76,12 +77,15 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
   }
 
   if (isObject(schema.actions)) {
-    forIn(schema.actions, (action, name) => {
+    Object.keys(schema.actions).map(name => {
+      let action = schema.actions[name]
+
       if (isFunction(action)) {
         action = {
           handler: action
         }
       }
+
       const innerAction = createActionHandler(cloneDeep(action), name)
       registryItem.actions[innerAction.name] = innerAction
 
@@ -96,7 +100,8 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
   }
 
   if (isObject(schema.events)) {
-    forIn(schema.events, (event, name) => {
+    Object.keys(schema.events).map(name => {
+      let event = schema.events[name]
       if (isFunction(event)) {
         event = {
           handler: event
@@ -236,10 +241,11 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
 
           return s ? mergeSchemas(s, mixin) : mixin
         }, null)
-      return mergeSchemas(mixedSchema, schema)
+      const sc = mergeSchemas(mixedSchema, schema)
+      console.log(sc)
+      return sc
     }
     return schema
-
   }
 }
 

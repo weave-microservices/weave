@@ -165,19 +165,19 @@ const createRegistry = () => {
         this.events.add(node, service, event)
 
         if (node.isLocal) {
-          event.handler = this.onRegisterLocalEvent(event)
+          event.handler = this.middlewareHandler.wrapHandler('localEvent', event.handler, event) // this.onRegisterLocalEvent(event)
         }
 
         service.addEvent(event)
       })
     },
     /**
-         * Register actions for a service
-         * @param {*} node Node
-         * @param {*} service Service object
-         * @param {*} actions Service actions
-         * @returns {void}
-         */
+     * Register actions for a service
+     * @param {*} node Node
+     * @param {*} service Service object
+     * @param {*} actions Service actions
+     * @returns {void}
+    */
     registerActions (node, service, actions) {
       Object.keys(actions).forEach((key) => {
         const action = actions[key]
@@ -187,9 +187,9 @@ const createRegistry = () => {
         }
 
         if (node.isLocal) {
-          action.handler = this.onRegisterLocalAction(action)
+          action.handler = this.middlewareHandler.wrapHandler('localAction', action.handler, action)// this.onRegisterLocalAction(action)
         } else {
-          action.handler = this.onRegisterRemoteAction(action)
+          action.handler = this.middlewareHandler.wrapHandler('remoteAction', this.broker.transport.request.bind(this.broker.transport), action)// this.onRegisterRemoteAction(action)
         }
 
         this.actions.add(node, service, action)

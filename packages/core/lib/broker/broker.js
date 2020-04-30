@@ -697,17 +697,17 @@ const createBroker = (options = {}) => {
     broker.createService(require('../services/node.service'))
   }
 
-  registry.onRegisterLocalAction = action => {
-    return middlewareHandler.wrapHandler('localAction', action.handler, action)
-  }
+  // registry.onRegisterLocalAction = action => {
+  //   return 
+  // }
 
-  registry.onRegisterRemoteAction = action => {
-    return middlewareHandler.wrapHandler('remoteAction', broker.transport.request.bind(broker.transport), action)
-  }
+  // registry.onRegisterRemoteAction = action => {
+  //   return middlewareHandler.wrapHandler('remoteAction', broker.transport.request.bind(broker.transport), action)
+  // }
 
-  registry.onRegisterLocalEvent = event => {
-    return middlewareHandler.wrapHandler('localEvent', event.handler, event)
-  }
+  // registry.onRegisterLocalEvent = event => {
+  //   return middlewareHandler.wrapHandler('localEvent', event.handler, event)
+  // }
 
   // Call middleware hook for broker created.
   middlewareHandler.callHandlersSync('created', [broker])

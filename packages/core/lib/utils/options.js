@@ -1,24 +1,56 @@
 
-const { wrapInArray, cloneObject, compact, flatten } = require('./utils')
+const { wrapInArray, clone, compact, flatten, isFunction, deepMerge } = require('./utils')
 
-function updateProp (propName, target, source) {
-  if (source[propName] !== undefined) {
-    target[propName] = source[propName]
-  }
-}
-function mergeMeta (source, target) {
-  return Object.assign(source, target)
-}
-function mergeUniqueArrays (source, target) {
-  compact(flatten([target, source]))
+const wrapHandler = action => isFunction(action) ? { handler: action } : action
+
+function mergeMeta (source, targetSchema) {
+  return Object.assign(source, targetSchema)
 }
 
-function mergeActions (source, target) {
-  return Object.assign(source, target)
+function mergeUniqueArrays (source, targetSchema) {
+  return compact(flatten([targetSchema, source]))
 }
 
-function mergeLifecicleHooks (source, target) {
-  return compact(flatten([target, source]))
+function mergeActions (source, targetSchema) {
+  Object.keys(source).map(key => {
+    // prevent action merge
+    if (source[key] === false && targetSchema[key]) {
+      delete targetSchema[key]
+      return
+    }
+
+    const sourceAction = wrapHandler(source[key])
+    const targetSchemaAction = wrapHandler(targetSchema[key])
+
+    targetSchema[key] = deepMerge(sourceAction, targetSchemaAction)
+  })
+
+  return targetSchema
+}
+
+function mergeEvents (source, targetSchema) {
+  Object.keys(source).map(key => {
+
+  })
+  return Object.assign(source, targetSchema)
+}
+
+function mergeMethods (source, targetSchema) {
+  return Object.assign(source, targetSchema)
+}
+
+function mergeSettings (source, targetSchema) {
+  return Object.assign(source, targetSchema)
+}
+
+function mergeActionHooks (source, targetSchema) {
+  return compact(flatten([targetSchema, source]))
+}
+
+function mergeLifecicleHooks (source, targetSchema) {
+  const flat = flatten([targetSchema, source])
+  const comp = compact(flat)
+  return comp
 }
 
 function mergeHook (parentValue, childValue) {
@@ -44,35 +76,35 @@ function mergeHook (parentValue, childValue) {
 }
 
 module.exports.mergeSchemas = (childSchema, parentSchema) => {
-  const target = Object.assign({}, childSchema)
-  const sourceSchema = Object.assign({}, parentSchema)
+  const targetSchema = clone(childSchema)
+  const sourceSchema = clone(parentSchema)
 
   Object.keys(sourceSchema).forEach(key => {
     if (['name', 'version'].includes(key)) {
       // override value
-      target[key] = sourceSchema[key]
+      targetSchema[key] = sourceSchema[key]
     } else if (key === 'dependencies') {
-      target[key] = mergeUniqueArrays(sourceSchema[key], target[key] || {})
+      targetSchema[key] = mergeUniqueArrays(sourceSchema[key], targetSchema[key])
     } else if (key === 'mixins') {
-      target[key] = mergeUniqueArrays(sourceSchema[key], target[key] || {})
+      targetSchema[key] = mergeUniqueArrays(sourceSchema[key], targetSchema[key] || {})
     } else if (key === 'settings') {
-      target[key] = mergeSettings(sourceSchema[key], target[key])
+      targetSchema[key] = mergeSettings(sourceSchema[key], targetSchema[key])
     } else if (key === 'meta') {
-      target[key] = mergeMeta(sourceSchema[key], target[key])
+      targetSchema[key] = mergeMeta(sourceSchema[key], targetSchema[key])
     } else if (key === 'actions') {
-      target[key] = mergeActions(sourceSchema[key], target[key] || {})
+      targetSchema[key] = mergeActions(sourceSchema[key], targetSchema[key] || {})
     } else if (key === 'hooks') {
-      target[key] = mergeHooks(sourceSchema[key], target[key])
+      targetSchema[key] = mergeActionHooks(sourceSchema[key], targetSchema[key])
     } else if (key === 'events') {
-      target[key] = mergeEvents(sourceSchema[key], target[key] || {})
+      targetSchema[key] = mergeEvents(sourceSchema[key], targetSchema[key] || {})
     } else if (key === 'methods') {
-      target[key] = mergeMethods(sourceSchema[key], target[key] || {})
+      targetSchema[key] = mergeMethods(sourceSchema[key], targetSchema[key] || {})
     } else if (['started', 'stopped', 'created'].includes(key)) {
-      target[key] = mergeLifecicleHooks(sourceSchema[key], target[key])
+      targetSchema[key] = mergeLifecicleHooks(sourceSchema[key], targetSchema[key])
     } else {
-
+      
     }
   })
 
-  return target
+  return targetSchema
 }
