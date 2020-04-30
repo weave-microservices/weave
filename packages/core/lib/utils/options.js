@@ -30,9 +30,18 @@ function mergeActions (source, targetSchema) {
 
 function mergeEvents (source, targetSchema) {
   Object.keys(source).map(key => {
+    const sourceEvent = wrapHandler(source[key])
+    const targetEvent = wrapHandler(targetSchema[key])
 
+    let handler = compact(flatten([sourceEvent ? sourceEvent.handler : null, targetEvent ? targetEvent.handler : null]))
+    if (handler.length === 1) {
+      handler = handler[0]
+    }
+
+    targetSchema[key] = deepMerge(sourceEvent, targetEvent)
+    targetSchema[key].handler = handler
   })
-  return Object.assign(source, targetSchema)
+  return targetSchema
 }
 
 function mergeMethods (source, targetSchema) {

@@ -1,6 +1,6 @@
 const { isObject, cloneDeep } = require('lodash')
 const { mergeSchemas } = require('../utils/options')
-const { wrapInArray, isFunction } = require('../utils/utils')
+const { wrapInArray, isFunction, clone, wrapHandler } = require('../utils/utils')
 
 const { lifecycleHook } = require('../constants')
 const { promisify } = require('fachwork')
@@ -81,9 +81,7 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
       let action = schema.actions[name]
 
       if (isFunction(action)) {
-        action = {
-          handler: action
-        }
+        action = wrapHandler(action)
       }
 
       const innerAction = createActionHandler(cloneDeep(action), name)
@@ -103,15 +101,22 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
     Object.keys(schema.events).map(name => {
       let event = schema.events[name]
       if (isFunction(event)) {
-        event = {
-          handler: event
-        }
+        event = wrapHandler(event)
       } else if (isObject(event)) {
-        event = Object.assign({}, event)
+        event = clone(event)
       }
 
       if (!event.handler) {
         throw new WeaveError(`Missing event handler for '${name}' event in service '${self.name}'`)
+      }
+
+      let handler
+      if (isFunction(event.handler)) {
+        handler = promisify(event.handler)
+      } else if (Array.isArray(event.handler)) {
+        handler = event.handler.map(h => {
+          return promisify(h)
+        })
       }
 
       if (!event.name) {
@@ -119,11 +124,17 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
       }
 
       event.service = self
-      const handler = event.handler
 
-      event.handler = (payload, sender, eventName) => {
-        // todo: error handling for events
-        return handler.apply(self, [payload, sender, eventName])
+      if (isFunction(event.handler)) {
+        event.handler = (payload, sender, eventName) => {
+          // todo: error handling for events
+          return handler.apply(self, [payload, sender, eventName])
+        }
+      } else if (Array.isArray(event.handler)) {
+        event.handler = (payload, sender, eventName) => {
+          // todo: error handling for events
+          return Promise.all(handler.map(fn => fn.apply(self, [payload, sender, eventName])))
+        }
       }
 
       registryItem.events[name] = event
@@ -241,9 +252,7 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
 
           return s ? mergeSchemas(s, mixin) : mixin
         }, null)
-      const sc = mergeSchemas(mixedSchema, schema)
-      console.log(sc)
-      return sc
+      return mergeSchemas(mixedSchema, schema)
     }
     return schema
   }
