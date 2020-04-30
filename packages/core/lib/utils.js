@@ -40,13 +40,13 @@ module.exports = {
     const constructorUndefined = o.constructor === undefined
     const constructorObject = o.constructor === Object
     const typeOfConstructorObject = typeof o.constructor === 'function'
-    let r
+    let result
     if (strict === true) {
-      r = (instanceOfObject || typeOfObject) && (constructorUndefined || constructorObject)
+      result = (instanceOfObject || typeOfObject) && (constructorUndefined || constructorObject)
     } else {
-      r = (constructorUndefined || typeOfConstructorObject)
+      result = (constructorUndefined || typeOfConstructorObject)
     }
-    return r
+    return result
   },
   generateToken () {
     return uuid()

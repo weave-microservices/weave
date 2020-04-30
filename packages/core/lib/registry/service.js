@@ -1,5 +1,7 @@
 const { isFunction, isObject, forIn, cloneDeep } = require('lodash')
-const { mergeSchemas } = require('../utils')
+const { mergeSchemas } = require('../utils/options')
+const { wrapInArray } = require('../utils/utils')
+
 const { lifecycleHook } = require('../constants')
 const { promisify } = require('fachwork')
 const { WeaveError } = require('../errors')
@@ -213,24 +215,31 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
   }
 
   function applyMixins (schema) {
-    const mixins = Array.isArray(schema.mixins) ? schema.mixins : [schema.mixins]
+    const mixins = wrapInArray(schema.mixins)
 
-    const mixedSchema = Array
-      .from(mixins)
-      .reverse()
-      .reduce((s, mixin) => {
-        for (var key in mixin) {
-          if (lifecycleHook.includes(key)) {
-            mixin[key] = mixin[key].bind(self)
+    if (mixins.length > 0) {
+      const mixedSchema = Array
+        .from(mixins)
+        .reverse()
+        .reduce((s, mixin) => {
+          for (var key in mixin) {
+            // bind scope for life cycle hooks
+            if (lifecycleHook.includes(key)) {
+              mixin[key] = mixin[key].bind(self)
+            }
           }
-        }
-        if (mixin.mixins) {
-          mixin = applyMixins(mixin)
-        }
 
-        return mergeSchemas(s, mixin)
-      }, {})
-    return mergeSchemas(mixedSchema, schema)
+          // process mixins of mixins
+          if (mixin.mixins) {
+            mixin = applyMixins(mixin)
+          }
+
+          return s ? mergeSchemas(s, mixin) : mixin
+        }, null)
+      return mergeSchemas(mixedSchema, schema)
+    }
+    return schema
+
   }
 }
 
