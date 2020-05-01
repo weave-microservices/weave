@@ -179,7 +179,7 @@ module.exports = (broker, transport, pending) => {
   }
 
   const onEvent = payload => {
-    registry.events.emitLocal(payload.eventName, payload.data, payload.sender, payload.groups, payload.isBroadcast)
+    return registry.events.emitLocal(payload.eventName, payload.data, payload.sender, payload.groups, payload.isBroadcast)
     // localEventEmitter(payload.eventName, payload.data, payload.sender, payload.groups, payload.isBroadcast)
   }
 

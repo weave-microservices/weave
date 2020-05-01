@@ -65,22 +65,25 @@ const MakeEventCollection = (registry) => {
       return distinct
     },
     emitLocal (eventName, payload, sender, groups, isBroadcast) {
+      const promises = []
       getAllEventsByEventName(eventName)
         .filter(endpointList => (groups == null || groups.length === 0 || groups.includes(endpointList.groupName)))
         .map(list => {
           if (isBroadcast) {
             list.endpoints.map(endpoint => {
               if (endpoint.isLocal && endpoint.action.handler) {
-                endpoint.action.handler(payload, sender, eventName)
+                promises.push(endpoint.action.handler(payload, sender, eventName))
               }
             })
           } else {
             const endpoint = list.getNextLocalEndpoint()
             if (endpoint && endpoint.isLocal && endpoint.action.handler) {
-              endpoint.action.handler(payload, sender, eventName)
+              promises.push(endpoint.action.handler(payload, sender, eventName))
             }
           }
         })
+
+      return Promise.all(promises)
     },
     list ({ onlyLocals = false, skipInternals = false, withEndpoints = false }) {
       const result = []

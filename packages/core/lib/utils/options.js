@@ -52,18 +52,18 @@ function mergeSettings (source, targetSchema) {
 
 function mergeActionHooks (source, target) {
   Object.keys(source).map(hookName => {
-    if (!target[hookName]) {
+    if (target[hookName] === null) {
       target[hookName] = {}
     }
 
     Object.keys(source[hookName]).map(actionName => {
-      const sourceHookAction = wrapInArray(source[hookName][actionName])
-      const targetHookAction = wrapInArray(target[hookName][actionName])
+      const sourceHookAction = wrapHandler(source[hookName][actionName])
+      const targetHookAction = wrapHandler(target[hookName][actionName])
 
       target[hookName][actionName] = compact(flatten([sourceHookAction, targetHookAction]))
     })
   })
-  return target
+  targetSchema
 }
 
 function mergeLifecicleHooks (source, targetSchema) {

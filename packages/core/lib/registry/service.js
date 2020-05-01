@@ -10,6 +10,8 @@ const { WeaveError } = require('../errors')
  * The complete Triforce, or one or more components of the Triforce.
  * @typedef {Object} ServiceSchema
  * @property {string} name - Name of the Service.
+ * @property {string} version - Version of the service.
+ * @property {object} methods - Private methods of the service
  * @property {Array.<ServiceSchema>} mixins The mixins option accepts an array of mixin objects. These mixin objects can contain instance options like normal instance objects, and they will be merged against the eventual options using the same option merging logic in Vue.extend(). e.g. If your mixin contains a created hook and the component itself also has one, both functions will be called.
  * @property {object} settings - Indicates whether the Power component is present.
  * @property {object} actions - Indicates whether the Wisdom component is present.
@@ -66,10 +68,14 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
     }
   }
 
+  // Call service creating middleware hook
+  middlewareHandler.callHandlersAsync('serviceCreating', [self])
+  
   if (isObject(schema.methods)) {
     Object.keys(schema.methods).map(name => {
       const method = schema.methods[name]
-      if (['log', 'actions', 'log', 'events', 'settings', 'methods', 'dependencies'].includes(name)) {
+  
+      if (['log', 'actions', 'meta', 'events', 'settings', 'methods', 'dependencies', 'version', 'dependencies', 'broker', 'created', 'started', 'stopped'].includes(name)) {
         throw new WeaveError(`Invalid method name ${name} in service ${self.name}.`)
       }
 
@@ -91,6 +97,7 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
       const wrappedAction = middlewareHandler.wrapHandler('localAction', innerAction.handler, innerAction)
       const endpoint = broker.registry.createPrivateEndpoint(innerAction)
 
+      // Make the action callable via this.actions["actionName"]
       self.actions[name] = (params, options) => {
         const context = broker.contextFactory.create(endpoint, params, options || {})
         return wrappedAction(context)
@@ -113,10 +120,10 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
 
       let handler
       if (isFunction(event.handler)) {
-        handler = promisify(event.handler)
+        handler = promisify(event.handler, { scope: self })
       } else if (Array.isArray(event.handler)) {
         handler = event.handler.map(h => {
-          return promisify(h)
+          return promisify(h, { scope: self })
         })
       }
 
@@ -154,9 +161,7 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
 
   self.start = () => {
     return Promise.resolve()
-      .then(() => {
-        return middlewareHandler.callHandlersAsync('serviceStarting', [self])
-      })
+      .then(() => middlewareHandler.callHandlersAsync('serviceStarting', [self]))
       .then(() => {
         if (schema.dependencies) {
           return broker.waitForServices(schema.dependencies, self.settings.$dependencyTimeout || 0)
@@ -172,17 +177,12 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
             .reduce((p, hook) => p.then(hook), Promise.resolve())
         }
       })
-      .then(() => {
-        registerLocalService(registryItem)
-        return null
-      })
-      .then(() => {
-        return middlewareHandler.callHandlersAsync('serviceStarted', [self])
-      })
+      .then(() => registerLocalService(registryItem))
+      .then(() => middlewareHandler.callHandlersAsync('serviceStarted', [self]))
   }
 
   self.stop = () => {
-    self.log.trace(`Stopping service "${self.name}"`)
+    self.log.info(`Stopping service "${self.name}"...`)
     return Promise.resolve()
       .then(() => {
         return middlewareHandler.callHandlersAsync('serviceStopping', [self])
@@ -198,9 +198,8 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
             .reduce((p, hook) => p.then(hook), Promise.resolve())
         }
       })
-      .then(() => {
-        return middlewareHandler.callHandlersAsync('serviceStopped', [self])
-      })
+      .then(() => middlewareHandler.callHandlersAsync('serviceStopped', [self], { reverse: true }))
+      .then(() => self.log.info(`Service "${self.name}" stopped`))
   }
 
   middlewareHandler.callHandlersSync('serviceCreated', [self])
