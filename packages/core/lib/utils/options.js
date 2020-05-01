@@ -1,6 +1,5 @@
 
-const { wrapInArray, clone, compact, flatten, isFunction, deepMerge, wrapHandler } = require('./utils')
-
+const { wrapInArray, clone, compact, flatten, deepMerge, wrapHandler } = require('./utils')
 
 function mergeMeta (source, targetSchema) {
   return Object.assign(source, targetSchema)
@@ -51,8 +50,20 @@ function mergeSettings (source, targetSchema) {
   return Object.assign(source, targetSchema)
 }
 
-function mergeActionHooks (source, targetSchema) {
-  return compact(flatten([targetSchema, source]))
+function mergeActionHooks (source, target) {
+  Object.keys(source).map(hookName => {
+    if (!target[hookName]) {
+      target[hookName] = {}
+    }
+
+    Object.keys(source[hookName]).map(actionName => {
+      const sourceHookAction = wrapInArray(source[hookName][actionName])
+      const targetHookAction = wrapInArray(target[hookName][actionName])
+
+      target[hookName][actionName] = compact(flatten([sourceHookAction, targetHookAction]))
+    })
+  })
+  return target
 }
 
 function mergeLifecicleHooks (source, targetSchema) {
@@ -102,7 +113,7 @@ module.exports.mergeSchemas = (childSchema, parentSchema) => {
     } else if (key === 'actions') {
       targetSchema[key] = mergeActions(sourceSchema[key], targetSchema[key] || {})
     } else if (key === 'hooks') {
-      targetSchema[key] = mergeActionHooks(sourceSchema[key], targetSchema[key])
+      targetSchema[key] = mergeActionHooks(sourceSchema[key], targetSchema[key] || {})
     } else if (key === 'events') {
       targetSchema[key] = mergeEvents(sourceSchema[key], targetSchema[key] || {})
     } else if (key === 'methods') {
