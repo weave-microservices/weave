@@ -1,7 +1,6 @@
 
-const { wrapInArray, clone, compact, flatten, isFunction, deepMerge } = require('./utils')
+const { wrapInArray, clone, compact, flatten, isFunction, deepMerge, wrapHandler } = require('./utils')
 
-const wrapHandler = action => isFunction(action) ? { handler: action } : action
 
 function mergeMeta (source, targetSchema) {
   return Object.assign(source, targetSchema)
