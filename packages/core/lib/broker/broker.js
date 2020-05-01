@@ -260,6 +260,7 @@ const createBroker = (options = {}) => {
          * @returns {void}
          */
     emit (eventName, payload, groups) {
+      const promises = []
       if (groups && !Array.isArray(groups)) {
         groups = [groups]
       }
@@ -276,7 +277,7 @@ const createBroker = (options = {}) => {
         if (endpoint) {
           if (endpoint.node.id === this.nodeId) {
             // Local event. Call handler
-            endpoint.action.handler(payload, endpoint.node.id, eventName)
+            promises.push(endpoint.action.handler(payload, endpoint.node.id, eventName))
           } else {
             const e = groupedEndpoints[endpoint.node.id]
             if (e) {
@@ -289,16 +290,18 @@ const createBroker = (options = {}) => {
       })
 
       if (this.transport) {
-        this.transport.sendBalancedEvent(eventName, payload, groupedEndpoints)
+        promises.push(this.transport.sendBalancedEvent(eventName, payload, groupedEndpoints))
       }
+
+      return Promise.all(promises)
     },
     /**
-         * Send a broadcasted event to all services.
-         * @param {String} eventName Name of the event
-         * @param {any} payload Payload
-         * @param {*} [groups=null] Groups
-         * @returns {void}
-         */
+     * Send a broadcasted event to all services.
+     * @param {String} eventName Name of the event
+     * @param {any} payload Payload
+     * @param {*} [groups=null] Groups
+     * @returns {void}
+    */
     broadcast (eventName, payload, groups = null) {
       if (this.transport) {
         // Avoid to broadcast internal events.
@@ -318,12 +321,12 @@ const createBroker = (options = {}) => {
       return this.broadcastLocal(eventName, payload, groups)
     },
     /**
-         *Send a broadcasted event to all local services.
-         * @param {String} eventName Name of the event
-         * @param {any} payload Payload
-         * @param {*} [groups=null] Groups
-         * @returns {void}
-         */
+     *Send a broadcasted event to all local services.
+    * @param {String} eventName Name of the event
+    * @param {any} payload Payload
+    * @param {*} [groups=null] Groups
+    * @returns {void}
+    */
     broadcastLocal (eventName, payload, groups = null) {
       // If the given group is no array - wrap it.
       if (groups && !Array.isArray(groups)) {
@@ -333,7 +336,8 @@ const createBroker = (options = {}) => {
       if (/^\$/.test(eventName)) {
         this.bus.emit(eventName, payload)
       }
-      registry.events.emitLocal(eventName, payload, this.nodeId, groups, true)
+
+      return registry.events.emitLocal(eventName, payload, this.nodeId, groups, true)
     },
     /* eslint-disable no-use-before-define */
     /**
@@ -438,6 +442,7 @@ const createBroker = (options = {}) => {
          * @returns {Promise} Promise
          */
     start () {
+      const startTime = Date.now()
       return Promise.resolve()
         .then(() => middlewareHandler.callHandlersAsync('starting', [this], true))
         .then(() => {
@@ -453,7 +458,6 @@ const createBroker = (options = {}) => {
         })
         .then(() => {
           this.isStarted = true
-          log.success(`Weave node with ${services.length} services started successfully.`)
           this.broadcastLocal('$broker.started')
         })
         .then(() => {
@@ -466,6 +470,10 @@ const createBroker = (options = {}) => {
           if (this.isStarted && options.started) {
             options.started.call(this)
           }
+        })
+        .then(() => {
+          const duration = Date.now() - startTime
+          log.success(`Node "${nodeId}" with ${services.length} services successfully started in ${duration}.`)
         })
     },
     /**
