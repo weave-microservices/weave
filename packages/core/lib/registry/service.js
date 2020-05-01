@@ -72,6 +72,7 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
       if (['log', 'actions', 'log', 'events', 'settings', 'methods', 'dependencies'].includes(name)) {
         throw new WeaveError(`Invalid method name ${name} in service ${self.name}.`)
       }
+
       self[name] = method.bind(self)
     })
   }
@@ -169,7 +170,6 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
           return schema.started
             .map(hook => promisify(hook, { scope: self }))
             .reduce((p, hook) => p.then(hook), Promise.resolve())
-          // return Promise.all(schema.started.map(startedHook => promisify(startedHook, { scope: self })()))
         }
       })
       .then(() => {

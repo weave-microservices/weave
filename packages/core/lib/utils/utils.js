@@ -7,6 +7,8 @@ module.exports.compact = arr => arr.filter(Boolean)
 
 module.exports.isFunction = obj => typeof obj === 'function'
 
+module.exports.wrapHandler = action => module.exports.isFunction(action) ? { handler: action } : action
+
 module.exports.clone = function clone (obj) {
   if (obj === null || typeof obj !== 'object') {
     return obj
