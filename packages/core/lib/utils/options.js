@@ -57,41 +57,16 @@ function mergeActionHooks (source, target) {
     }
 
     Object.keys(source[hookName]).map(actionName => {
-      const sourceHookAction = wrapHandler(source[hookName][actionName])
-      const targetHookAction = wrapHandler(target[hookName][actionName])
+      const sourceHookAction = wrapInArray(source[hookName][actionName])
+      const targetHookAction = wrapInArray(target[hookName][actionName])
 
       target[hookName][actionName] = compact(flatten([sourceHookAction, targetHookAction]))
     })
   })
-  targetSchema
 }
 
 function mergeLifecicleHooks (source, targetSchema) {
-  const flat = flatten([targetSchema, source])
-  const comp = compact(flat)
-  return comp
-}
-
-function mergeHook (parentValue, childValue) {
-  if (childValue) {
-    if (parentValue) {
-      if (Array.isArray(parentValue)) {
-        return parentValue.concat(childValue)
-      } else {
-        return [parentValue, childValue]
-      }
-    } else {
-      return wrapInArray(childValue)
-    }
-  }
-
-  return childValue
-    ? Array.isArray(parentValue)
-      ? parentValue.concat(childValue)
-      : Array.isArray(childValue)
-        ? childValue
-        : [childValue]
-    : parentValue
+  return compact(flatten([targetSchema, source]))
 }
 
 module.exports.mergeSchemas = (childSchema, parentSchema) => {
@@ -113,7 +88,7 @@ module.exports.mergeSchemas = (childSchema, parentSchema) => {
     } else if (key === 'actions') {
       targetSchema[key] = mergeActions(sourceSchema[key], targetSchema[key] || {})
     } else if (key === 'hooks') {
-      targetSchema[key] = mergeActionHooks(sourceSchema[key], targetSchema[key] || {})
+      targetSchema[key] = mergeActionHooks(sourceSchema[key], targetSchema[key] || {})
     } else if (key === 'events') {
       targetSchema[key] = mergeEvents(sourceSchema[key], targetSchema[key] || {})
     } else if (key === 'methods') {
@@ -121,7 +96,8 @@ module.exports.mergeSchemas = (childSchema, parentSchema) => {
     } else if (['started', 'stopped', 'created'].includes(key)) {
       targetSchema[key] = mergeLifecicleHooks(sourceSchema[key], targetSchema[key])
     } else {
-      
+      // default action for properties
+      targetSchema[key] = sourceSchema[key]
     }
   })
 

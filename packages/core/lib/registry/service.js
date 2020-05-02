@@ -70,11 +70,11 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
 
   // Call service creating middleware hook
   middlewareHandler.callHandlersAsync('serviceCreating', [self])
-  
+
   if (isObject(schema.methods)) {
     Object.keys(schema.methods).map(name => {
       const method = schema.methods[name]
-  
+
       if (['log', 'actions', 'meta', 'events', 'settings', 'methods', 'dependencies', 'version', 'dependencies', 'broker', 'created', 'started', 'stopped'].includes(name)) {
         throw new WeaveError(`Invalid method name ${name} in service ${self.name}.`)
       }

@@ -706,7 +706,7 @@ const createBroker = (options = {}) => {
   }
 
   // registry.onRegisterLocalAction = action => {
-  //   return 
+  //   return
   // }
 
   // registry.onRegisterRemoteAction = action => {

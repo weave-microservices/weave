@@ -11,8 +11,8 @@ module.exports = function SwimTransport (options) {
     await startDiscoveryServer()
   }
 
-  function startDiscoveryServer() {
-    
+  function startDiscoveryServer () {
+
   }
 
   return self
