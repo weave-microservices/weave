@@ -24,6 +24,8 @@ const { WeaveError } = require('../errors')
 
 const createService = (broker, middlewareHandler, addLocalService, registerLocalService, schema) => {
   const self = Object.create(null)
+  self.broker = broker
+  self.log = broker.createLogger(`${self.name}-service`, self)
 
   // Check if a schema is given
   if (!schema) {
@@ -34,16 +36,17 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
     schema = applyMixins(schema)
   }
 
+  // Call service creating middleware hook
+  middlewareHandler.callHandlersSync('serviceCreating', [self, schema])
+
   if (!schema.name) {
     throw new WeaveError('Service name is missing!')
   }
 
-  self.broker = broker
   self.version = schema.version
   self.name = schema.name
   self.fullyQualifiedName = self.version ? `${self.name}.${self.version}` : self.name
   self.schema = schema
-  self.log = broker.createLogger(`${self.name}-service`, self)
   self.settings = schema.settings || {}
   self.meta = schema.meta || {}
   self.actions = {}
@@ -68,13 +71,10 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
     }
   }
 
-  // Call service creating middleware hook
-  middlewareHandler.callHandlersAsync('serviceCreating', [self])
-  
   if (isObject(schema.methods)) {
     Object.keys(schema.methods).map(name => {
       const method = schema.methods[name]
-  
+
       if (['log', 'actions', 'meta', 'events', 'settings', 'methods', 'dependencies', 'version', 'dependencies', 'broker', 'created', 'started', 'stopped'].includes(name)) {
         throw new WeaveError(`Invalid method name ${name} in service ${self.name}.`)
       }

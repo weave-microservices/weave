@@ -1,6 +1,6 @@
 const { Weave, TransportAdapters } = require('../../lib/index')
 
-describe('Test middlware hooks', () => {
+describe('Middleware hooks', () => {
   it('should call hooks in the right order', (done) => {
     const order = []
 
@@ -45,6 +45,9 @@ describe('Test middlware hooks', () => {
       started: () => {
         order.push('started')
       },
+      serviceCreating: function () {
+        order.push('serviceCreating')
+      },
       serviceCreated: function () {
         order.push('serviceCreated')
       },
@@ -85,7 +88,8 @@ describe('Test middlware hooks', () => {
     broker.start()
       .then(() => broker.stop())
       .then(() => {
-        expect(order.join('-')).toBe('serviceCreated-starting-serviceStarting-serviceStarted-started-stopping-serviceStopping-serviceStopped-stopped')
+        expect(order.join('-'))
+          .toBe('serviceCreating-serviceCreated-starting-serviceStarting-serviceStarted-started-stopping-serviceStopping-serviceStopped-stopped')
         done()
       })
   })
@@ -207,6 +211,48 @@ describe('Test middlware hooks', () => {
 
     broker1.start()
     expect(broker1.fancyTestmethod).toBeDefined()
+  })
+})
+
+describe('Service creating hook', () => {
+  it('should modify the given service schema', (done) => {
+    const middleware = {
+      serviceCreating: (_, schema) => {
+        if (!schema.methods) {
+          schema.methods = {}
+        }
+        schema.methods.pull = () => {
+          return 'return pull'
+        }
+      }
+    }
+
+    const broker = Weave({
+      nodeId: 'node1',
+      logger: {
+        enabled: false
+      },
+      middlewares: [middleware]
+    })
+
+    broker.createService({
+      name: 'testService',
+      actions: {
+        callPull () {
+          // call hook injected method.
+          return this.pull()
+        }
+      }
+    })
+
+    broker.start()
+      .then(() => {
+        return broker.call('testService.callPull')
+          .then(res => {
+            expect(res).toBe('return pull')
+            done()
+          })
+      })
   })
 })
 
