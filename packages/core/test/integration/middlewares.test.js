@@ -255,4 +255,3 @@ describe('Service creating hook', () => {
       })
   })
 })
-
