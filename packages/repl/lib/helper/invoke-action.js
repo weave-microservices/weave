@@ -8,6 +8,53 @@ const removeCircularReferences = require('../utils/remove-circular-references')
 
 const util = require('util')
 
+function handleResult (result, args) {
+  // Save response
+  if (args.options.s) {
+    const resultIsStream = isStream(result)
+    let filePath
+
+    if (typeof args.options.s === 'string') {
+      filePath = path.resolve(args.options.s)
+    } else {
+      filePath = path.resolve(`${args.actionName}.response`)
+
+      if (resultIsStream) {
+        filePath += '.stream'
+      } else {
+        filePath += isObject(result) ? '.json' : '.txt'
+      }
+    }
+
+    if (resultIsStream) {
+      fs.createWriteStream(filePath).pipe(result)
+    } else {
+      const data = isObject(result) ? JSON.stringify(removeCircularReferences(result), null, 2) : result
+      fs.writeFileSync(filePath, data, 'utf8')
+    }
+  }
+
+  console.log(cliUI.warningText('>> Response:'))
+  console.log(util.inspect(result, {
+    showHidden: false,
+    depth: 4,
+    colors: true
+  }))
+}
+
+function handleError (error) {
+  const [name, ...rest] = error.stack.split('\n')
+
+  console.log(cliUI.errorText('>> ERROR:', error.message))
+  console.log(cliUI.text(name))
+  console.log(cliUI.neutralText(rest.map(l => l.replace(/^/, '\n')).join('')))
+  console.log('Data: ', util.inspect(error.data, {
+    showHidden: false,
+    depth: 4,
+    colors: true
+  }))
+}
+
 module.exports = (broker) =>
   (args, done) => {
     const callOptions = {
@@ -81,50 +128,7 @@ module.exports = (broker) =>
     console.log(cliUI.infoText(`>> Call "${args.actionName}" with params:`), payload)
 
     broker.call(args.actionName, payload, callOptions)
-      .then(result => {
-        // Save response
-        if (args.options.s) {
-          const resultIsStream = isStream(result)
-          let filePath
-
-          if (typeof args.options.s === 'string') {
-            filePath = path.resolve(args.options.s)
-          } else {
-            filePath = path.resolve(`${args.actionName}.response`)
-
-            if (resultIsStream) {
-              filePath += '.stream'
-            } else {
-              filePath += isObject(result) ? '.json' : '.txt'
-            }
-          }
-
-          if (resultIsStream) {
-            fs.createWriteStream(filePath).pipe(result)
-          } else {
-            const data = isObject(result) ? JSON.stringify(removeCircularReferences(result), null, 2) : result
-            fs.writeFileSync(filePath, data, 'utf8')
-          }
-        }
-
-        console.log(cliUI.warningText('>> Response:'))
-        console.log(util.inspect(result, {
-          showHidden: false,
-          depth: 4,
-          colors: true
-        }))
-      })
-      .catch(error => {
-        const [name, ...rest] = error.stack.split('\n')
-
-        console.log(cliUI.errorText('>> ERROR:', error.message))
-        console.log(cliUI.text(name))
-        console.log(cliUI.neutralText(rest.map(l => l.replace(/^/, '\n')).join('')))
-        console.log('Data: ', util.inspect(error.data, {
-          showHidden: false,
-          depth: 4,
-          colors: true
-        }))
-      })
+      .then(result => handleResult(result, args))
+      .catch(error => handleError(error))
       .finally(done)
   }
