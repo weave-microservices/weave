@@ -27,10 +27,6 @@ const MakeNodeCollection = (registry) => {
       return nodes.get(id)
     },
     remove (id) {
-      const node = nodes.get(id)
-      if (node && node.isAvailable) {
-        return false
-      }
       return nodes.delete(id)
     },
     list ({ withServices = true }) {
@@ -44,15 +40,15 @@ const MakeNodeCollection = (registry) => {
       })
       return result
     },
-    // disconnected (nodeId, isUnexpected) {
-    //     const node = nodes.get(nodeId)
-    //     if (node && node.isAvailable) {
-    //         registry.deregisterServiceByNodeId(node.id)
-    //         node.disconnected(isUnexpected)
-    //         registry.emit('node.disconnected', nodeId, isUnexpected)
-    //         log.warn(`Node '${node.id}'${isUnexpected ? ' unexpectedly' : ''} disconnected.`)
-    //     }
-    // },
+    disconnected (nodeId, isUnexpected) {
+      const node = nodes.get(nodeId)
+      if (node && node.isAvailable) {
+        registry.deregisterServiceByNodeId(node.id)
+        node.disconnected(isUnexpected)
+        broker.broadcastLocal('$node.disconnected', nodeId, isUnexpected)
+        registry.log.warn(`Node '${node.id}'${isUnexpected ? ' unexpectedly' : ''} disconnected.`)
+      }
+    },
     toArray () {
       const result = []
       nodes.forEach(node => result.push(node))

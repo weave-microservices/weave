@@ -244,17 +244,10 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
             }
           }
 
-          // process mixins of mixins
-          if (mixin.mixins) {
-            mixin = applyMixins(mixin)
-          }
-
           return s ? mergeSchemas(s, mixin) : mixin
         }, null)
       return mergeSchemas(mixedSchema, schema)
     }
-    return schema
   }
 }
-
 module.exports = createService

@@ -99,6 +99,7 @@ const createTransport = (broker, adapter) => {
     log: broker.createLogger('TRANSPORT'),
     isConnected: false,
     isReady: false,
+    pending,
     resolveConnect: null,
     adapterName: adapter.name,
     statistics: {
@@ -135,6 +136,7 @@ const createTransport = (broker, adapter) => {
       this.isConnected = false
       this.isReady = false
       stopTimers()
+
       return this.send(this.createMessage(MessageTypes.MESSAGE_DISCONNECT))
         .then(() => adapter.close())
     },
@@ -153,11 +155,11 @@ const createTransport = (broker, adapter) => {
       return this.send(this.createMessage(MessageTypes.MESSAGE_INFO, sender, info))
     },
     /**
-         *
-         * Send a message
-         * @param {Message} message Message to send
-         * @returns {Promise} Promise
-         */
+      *
+      * Send a message
+      * @param {Message} message Message to send
+      * @returns {Promise} Promise
+    */
     send (message) {
       this.statistics.sent.packages = this.statistics.sent.packages + 1
       log.trace(`Send ${message.type.toUpperCase()} packet to ${message.targetNodeId || 'all nodes'}`)
@@ -199,12 +201,15 @@ const createTransport = (broker, adapter) => {
       pending.responseStreams.delete(requestId)
     },
     removePendingRequestsByNodeId (nodeId) {
-      log.debug('Remove pending requests.')
+      log.debug(`Remove pending requests for node ${nodeId}.`)
       pending.requests.forEach((request, requestId) => {
         if (request.nodeId === nodeId) {
           pending.requests.delete(requestId)
         }
         request.reject(new WeaveError(`Remove pending requests for node ${nodeId}.`))
+
+        pending.requestStreams.delete(requestId)
+        pending.responseStreams.delete(requestId)
       })
     },
     createMessage (type, targetNodeId, payload) {
@@ -301,7 +306,7 @@ const createTransport = (broker, adapter) => {
     }
   }
 
-  const onConnect = (wasReconnect, startHeartbeatTimers = true) =>
+  const onConnect = (wasReconnect, useHeartbeatTimer = true, useRemoteNodeCheckTimer = true, useOfflineCheckTimer = true) =>
     Promise.resolve()
       .then(() => {
         if (!wasReconnect) {
@@ -321,8 +326,17 @@ const createTransport = (broker, adapter) => {
       })
       .then(() => {
         startUpdateLocalNodeTimer()
-        if (startHeartbeatTimers) {
-          startTimers()
+
+        if (useHeartbeatTimer) {
+          startHeartbeatTimer()
+        }
+
+        if (useRemoteNodeCheckTimer) {
+          startRemoteNodeCheckTimer()
+        }
+
+        if (useOfflineCheckTimer) {
+          startOfflineNodeCheckTimer()
         }
       })
 
@@ -364,21 +378,18 @@ const createTransport = (broker, adapter) => {
     ])
   }
 
-  function startTimers () {
-    heartbeatTimer = setInterval(() => {
-      sendHeartbeat()
-    }, broker.options.transport.heartbeatInterval)
-
+  function startHeartbeatTimer () {
+    heartbeatTimer = setInterval(() => sendHeartbeat(), broker.options.transport.heartbeatInterval)
     heartbeatTimer.unref()
+  }
 
-    checkNodesTimer = setInterval(() => {
-      checkRemoteNodes()
-    }, broker.options.transport.heartbeatTimeout)
+  function startRemoteNodeCheckTimer () {
+    checkNodesTimer = setInterval(() => checkRemoteNodes(), broker.options.transport.heartbeatTimeout)
     checkNodesTimer.unref()
+  }
 
-    checkOfflineNodesTimer = setInterval(() => {
-      checkOfflineNodes()
-    }, broker.options.transport.offlineNodeCheckInterval)
+  function startOfflineNodeCheckTimer () {
+    checkOfflineNodesTimer = setInterval(() => checkOfflineNodes(), broker.options.transport.offlineNodeCheckInterval)
     checkOfflineNodesTimer.unref()
   }
 
@@ -421,6 +432,7 @@ const createTransport = (broker, adapter) => {
     })
   }
 
+  // Removes the node after a given time from the registry.
   function checkOfflineNodes () {
     const now = Date.now()
     broker.registry.nodes.list({}).forEach(node => {

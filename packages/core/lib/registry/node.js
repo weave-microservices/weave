@@ -11,7 +11,10 @@ const createNode = (nodeId) => {
     id: nodeId,
     info: null,
     isLocal: false,
-    client: null,
+    client: {
+      type: null,
+      version: null
+    },
     cpu: null,
     cpuSequence: null,
     lastHeartbeatTime: Date.now(),

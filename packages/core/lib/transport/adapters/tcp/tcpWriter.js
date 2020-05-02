@@ -1,9 +1,12 @@
 const net = require('net')
 const { EventEmitter } = require('events')
+const MessageTypes = require('../../message-types')
+const TCPMessageTypeHelper = require('./tcp-messagetypes')
 
 module.exports = (adapter, options) => {
   const self = Object.assign({}, EventEmitter.prototype)
   const sockets = new Map()
+  const messageTypeHelper = TCPMessageTypeHelper(MessageTypes)
   const headerSize = 6
 
   const connect = nodeId => {
@@ -81,8 +84,9 @@ module.exports = (adapter, options) => {
       .then(socket => {
         return new Promise((resolve, reject) => {
           const header = Buffer.alloc(headerSize)
+
           header.writeInt32BE(data.length + headerSize, 1)
-          header.writeInt8(adapter.messageTypeHelper.getIndexByType(type), 5)
+          header.writeInt8(messageTypeHelper.getIndexByType(type), 5)
 
           const crc = header[1] ^ header[2] ^ header[3] ^ header[4] ^ header[5]
           header[0] = crc
@@ -99,6 +103,16 @@ module.exports = (adapter, options) => {
           }
         })
       })
+  }
+
+  self.close = () => {
+    sockets.forEach(socket => {
+      if (!socket.destroyed) {
+        socket.destroy()
+      }
+      socket.end()
+    })
+    sockets.clear()
   }
 
   return self

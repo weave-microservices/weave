@@ -16,6 +16,8 @@ const MESSAGE_PONG = 'pong'
 const MESSAGE_DISCONNECT = 'disconnect'
 const MESSAGE_HEARTBEAT = 'heartbeat'
 const MESSAGE_EVENT = 'event'
+
+// gossip messages
 const MESSAGE_GOSSIP_REQUEST = 'gossip_request'
 const MESSAGE_GOSSIP_RESPONSE = 'gossip_response'
 const MESSAGE_GOSSIP_HELLO = 'gossip_hello'

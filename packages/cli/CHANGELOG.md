@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-rc.20](https://github.com/weave-microservices/weave/compare/@weave-js/cli@0.7.0-rc.19...@weave-js/cli@0.7.0-rc.20) (2020-04-28)
+
+**Note:** Version bump only for package @weave-js/cli
+
+
+
+
+
+# [0.7.0-rc.19](https://github.com/weave-microservices/weave/compare/@weave-js/cli@0.7.0-rc.18...@weave-js/cli@0.7.0-rc.19) (2020-04-28)
+
+**Note:** Version bump only for package @weave-js/cli
+
+
+
+
+
+# [0.7.0-rc.18](https://github.com/weave-microservices/weave/compare/@weave-js/cli@0.7.0-rc.17...@weave-js/cli@0.7.0-rc.18) (2020-04-28)
+
+
+### Bug Fixes
+
+* linting ([a592f35](https://github.com/weave-microservices/weave/commit/a592f35524d934b61841655bb0fc794b3bf46b99))
+
+
+
+
+
 # [0.7.0-rc.17](https://github.com/weave-microservices/weave/compare/@weave-js/cli@0.7.0-rc.16...@weave-js/cli@0.7.0-rc.17) (2020-02-25)
 
 **Note:** Version bump only for package @weave-js/cli
