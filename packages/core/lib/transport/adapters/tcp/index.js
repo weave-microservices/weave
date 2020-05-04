@@ -5,7 +5,7 @@ const Swim = require('./discovery/index')
 const MessageTypes = require('../../message-types')
 const TCPReader = require('./tcpReader')
 const TCPWriter = require('./tcpWriter')
-const TCPMessageTypeHelper = require('./tcp-messagetypes')
+// const TCPMessageTypeHelper = require('./tcp-messagetypes')
 
 const defaultOptions = {
   port: null,
@@ -36,11 +36,12 @@ module.exports = function SwimTransport (adapterOptions) {
     const port = await startTCPServer()
     await startDiscoveryServer(port)
     await startTimers()
-    
+
     self.log.info('TCP transport adapter started.')
-    
+
     self.broker.registry.generateLocalNodeInfo()
-    
+    self.broker.registry.nodes.localNode.port = port
+
     self.bus.emit('$adapter.connected', false, false, false)
 
     return Promise.resolve()
@@ -238,11 +239,10 @@ module.exports = function SwimTransport (adapterOptions) {
       const message = self.deserialize(packet)
       const payload = message.payload
       const nodeId = payload.sender
-
       const node = self.broker.registry.nodes.get(nodeId)
 
       if (!node) {
-        self.addNodeToOfflineList({ nodeId, host: payload.host, port: payload.port })
+        addDiscoveredNode(nodeId, payload.host, payload.port)
       }
     } catch (error) {
       self.log.error('Invalid gossip hello message.', error.message)
@@ -284,8 +284,9 @@ module.exports = function SwimTransport (adapterOptions) {
           return
         }
 
+        // sender said node is offline
         if (offline) {
-          // sender said node is offline
+          // our node knows, the node is offline
           if (!node.isAvailable) {
             // we know node is offline
             if (sequence > node.sequence) {
@@ -295,9 +296,9 @@ module.exports = function SwimTransport (adapterOptions) {
           } else if (!node.isLocal) {
             // we know, the node is offline
             self.broker.registry.nodes.disconnected(node.id, false)
-            node.sequence = sequence + 1
+            node.sequence = sequence
           } else if (node.isLocal) {
-            node.sequence++
+            node.sequence = sequence + 1
             const nodeInfo = self.broker.registry.getLocalNodeInfo(true)
             response.online[node.id] = [nodeInfo, node.cpuSequence || 0, node.cpu || 0]
           }
