@@ -55,75 +55,93 @@ function handleError (error) {
   }))
 }
 
+function prepareOptions (args) {
+  return {
+    meta: {
+      $repl: true
+    },
+    nodeId: args.nodeId
+  }
+}
+
+function preparePayloadArguments (args, payload, done) {
+  if (typeof (args.jsonParams) === 'string') {
+    try {
+      payload = JSON.parse(args.jsonParams)
+    } catch (error) {
+      console.log(error.message)
+      done()
+    }
+  } else {
+    payload = {}
+    const options = convertArgs(args.options)
+
+    // Remove save parameter from params
+    if (args.options.s) {
+      delete options.s
+    }
+
+    Object.keys(options).map(key => {
+      payload[key] = options[key]
+    })
+  }
+}
+
+function preparePayloadFile (args, payload) {
+  if (args.options.f) {
+    let filePath
+
+    if (typeof args.options.f === 'string') {
+      filePath = path.resolve(args.options.f)
+    } else {
+      filePath = path.resolve(`${args.actionName}.params.json`)
+    }
+
+    if (fs.existsSync(filePath)) {
+      try {
+        payload = JSON.parse(fs.readFileSync(filePath, 'utf8'))
+      } catch (error) {
+        console.log(cliUI.errorText('Can\'t parse parameter file'), error)
+      }
+    } else {
+      console.log(cliUI.errorText(`File not found: ${filePath}`))
+    }
+  }
+}
+
+function preparePayloadStream (args, payload) {
+  if (args.options.stream) {
+    let filePath
+
+    if (typeof args.options.stream === 'string') {
+      filePath = path.resolve(args.options.stream)
+    } else {
+      filePath = path.resolve(`${args.actionName}.file`)
+    }
+
+    if (fs.existsSync(filePath)) {
+      console.log(cliUI.infoText(`Send stream from ${filePath}`))
+      payload = fs.createReadStream(filePath)
+    } else {
+      console.log(cliUI.errorText(`File not found: ${filePath}`))
+    }
+  }
+}
+
 module.exports = (broker) =>
   (args, done) => {
-    const callOptions = {
-      meta: {
-        $repl: true
-      },
-      nodeId: args.nodeId
-    }
+    const callOptions = prepareOptions(args)
 
     let payload
 
-    if (typeof (args.jsonParams) === 'string') {
-      try {
-        payload = JSON.parse(args.jsonParams)
-      } catch (error) {
-        console.log(error.message)
-        done()
-      }
-    } else {
-      payload = {}
-      const options = convertArgs(args.options)
-
-      // Remove save parameter from params
-      if (args.options.s) {
-        delete options.s
-      }
-
-      Object.keys(options).map(key => {
-        payload[key] = options[key]
-      })
-    }
+    // try to get data from arguments
+    preparePayloadArguments(args, payload, done)
 
     // Send parameters from file
-    if (args.options.f) {
-      let filePath
+    preparePayloadFile(args, payload)
 
-      if (typeof args.options.f === 'string') {
-        filePath = path.resolve(args.options.f)
-      } else {
-        filePath = path.resolve(`${args.actionName}.params.json`)
-      }
-
-      if (fs.existsSync(filePath)) {
-        try {
-          payload = JSON.parse(fs.readFileSync(filePath, 'utf8'))
-        } catch (error) {
-          console.log(cliUI.errorText('Can\'t parse parameter file'), error)
-        }
-      } else {
-        console.log(cliUI.errorText(`File not found: ${filePath}`))
-      }
-    }
-
-    if (args.options.stream) {
-      let filePath
-
-      if (typeof args.options.stream === 'string') {
-        filePath = path.resolve(args.options.stream)
-      } else {
-        filePath = path.resolve(`${args.actionName}.file`)
-      }
-
-      if (fs.existsSync(filePath)) {
-        console.log(cliUI.infoText(`Send stream from ${filePath}`))
-        payload = fs.createReadStream(filePath)
-      } else {
-        console.log(cliUI.errorText(`File not found: ${filePath}`))
-      }
-    }
+    // Prepare send file stream
+    preparePayloadStream(args, payload)
 
     console.log(cliUI.infoText(`>> Call "${args.actionName}" with params:`), payload)
 
