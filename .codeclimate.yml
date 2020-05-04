@@ -29,7 +29,7 @@ plugins:
       languages:
       - javascript
   eslint:
-    enabled: true
+    enabled: false
     channel: "eslint-6"
   fixme:
     enabled: true
