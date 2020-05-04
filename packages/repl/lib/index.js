@@ -10,6 +10,11 @@ function registerCommands (vorpal, broker) {
 }
 
 module.exports = broker => {
+
+  if (!broker) {
+    throw new Error('You have to pass a weave broker instance.')
+  }
+
   vorpal.find('exit').remove()
 
   // exit command

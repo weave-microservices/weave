@@ -32,7 +32,7 @@ const createNode = (nodeId) => {
       this.client = payload.client || {}
       this.IPList = payload.IPList || []
 
-      if (newSequence > this.sequence || isReconnected) {
+      if ((newSequence > this.sequence) || isReconnected === true) {
         this.sequence = newSequence
         this.offlineTime = null
 
@@ -53,7 +53,7 @@ const createNode = (nodeId) => {
     heartbeat (payload) {
       if (!this.isAvailable) {
         this.isAvailable = true
-        this.offlineTime = Date.now()
+        this.offlineTime = null
       }
 
       this.lastHeartbeatTime = Date.now()
