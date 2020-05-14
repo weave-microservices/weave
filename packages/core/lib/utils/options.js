@@ -47,7 +47,7 @@ function mergeMethods (source, targetSchema) {
 }
 
 function mergeSettings (source, targetSchema) {
-  return Object.assign(source, targetSchema)
+  return deepMerge(targetSchema, source)
 }
 
 function mergeActionHooks (source, target) {
@@ -69,37 +69,37 @@ function mergeLifecicleHooks (source, targetSchema) {
   return compact(flatten([targetSchema, source]))
 }
 
-module.exports.mergeSchemas = (childSchema, parentSchema) => {
-  const targetSchema = clone(childSchema)
-  const sourceSchema = clone(parentSchema)
+module.exports.mergeSchemas = (mixin, targetSchema) => {
+  const mixinSchema = clone(mixin)
+  const resultSchema = clone(targetSchema)
 
-  Object.keys(sourceSchema).forEach(key => {
+  Object.keys(resultSchema).forEach(key => {
     if (['name', 'version'].includes(key)) {
       // override value
-      targetSchema[key] = sourceSchema[key]
+      mixinSchema[key] = resultSchema[key]
     } else if (key === 'dependencies') {
-      targetSchema[key] = mergeUniqueArrays(sourceSchema[key], targetSchema[key])
+      mixinSchema[key] = mergeUniqueArrays(resultSchema[key], mixinSchema[key])
     } else if (key === 'mixins') {
-      targetSchema[key] = mergeUniqueArrays(sourceSchema[key], targetSchema[key] || {})
+      mixinSchema[key] = mergeUniqueArrays(resultSchema[key], mixinSchema[key] || {})
     } else if (key === 'settings') {
-      targetSchema[key] = mergeSettings(sourceSchema[key], targetSchema[key])
+      mixinSchema[key] = mergeSettings(resultSchema[key], mixinSchema[key])
     } else if (key === 'meta') {
-      targetSchema[key] = mergeMeta(sourceSchema[key], targetSchema[key])
+      mixinSchema[key] = mergeMeta(resultSchema[key], mixinSchema[key])
     } else if (key === 'actions') {
-      targetSchema[key] = mergeActions(sourceSchema[key], targetSchema[key] || {})
+      mixinSchema[key] = mergeActions(resultSchema[key], mixinSchema[key] || {})
     } else if (key === 'hooks') {
-      targetSchema[key] = mergeActionHooks(sourceSchema[key], targetSchema[key] || {})
+      mixinSchema[key] = mergeActionHooks(resultSchema[key], mixinSchema[key] || {})
     } else if (key === 'events') {
-      targetSchema[key] = mergeEvents(sourceSchema[key], targetSchema[key] || {})
+      mixinSchema[key] = mergeEvents(resultSchema[key], mixinSchema[key] || {})
     } else if (key === 'methods') {
-      targetSchema[key] = mergeMethods(sourceSchema[key], targetSchema[key] || {})
+      mixinSchema[key] = mergeMethods(resultSchema[key], mixinSchema[key] || {})
     } else if (['started', 'stopped', 'created'].includes(key)) {
-      targetSchema[key] = mergeLifecicleHooks(sourceSchema[key], targetSchema[key])
+      mixinSchema[key] = mergeLifecicleHooks(resultSchema[key], mixinSchema[key])
     } else {
       // default action for properties
-      targetSchema[key] = sourceSchema[key]
+      mixinSchema[key] = resultSchema[key]
     }
   })
 
-  return targetSchema
+  return mixinSchema
 }

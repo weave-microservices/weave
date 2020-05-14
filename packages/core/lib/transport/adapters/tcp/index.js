@@ -34,6 +34,7 @@ module.exports = function SwimTransport (adapterOptions) {
 
   self.connect = async () => {
     const port = await startTCPServer()
+
     await startDiscoveryServer(port)
     await startTimers()
 

@@ -248,6 +248,7 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
         }, null)
       return mergeSchemas(mixedSchema, schema)
     }
+    return schema
   }
 }
 module.exports = createService
