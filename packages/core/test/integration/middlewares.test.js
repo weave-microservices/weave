@@ -68,6 +68,27 @@ describe('Middleware hooks', () => {
       },
       stopped: () => {
         order.push('stopped')
+      },
+      localAction: (handler, a) => {
+        return function (context) {
+          order.push('localAction1')
+          return handler(context).then(res => {
+            order.push('localAction2')
+            return res
+          })
+        }
+      },
+      emit (next) {
+        return (event, payload) => {
+          order.push('emit')
+          return next(event, payload)
+        }
+      },
+      broadcast (next) {
+        return (event, payload) => {
+          order.push('broadcast')
+          return next(event, payload)
+        }
       }
     }
 
@@ -82,14 +103,21 @@ describe('Middleware hooks', () => {
 
     broker.createService({
       name: 'testService',
-      actions: {}
+      actions: {
+        test (context) {
+          context.emit('hihi')
+          context.broadcast('hoho')
+          return true
+        }
+      }
     })
 
     broker.start()
+      .then(() => broker.call('testService.test'))
       .then(() => broker.stop())
       .then(() => {
         expect(order.join('-'))
-          .toBe('serviceCreating-serviceCreated-starting-serviceStarting-serviceStarted-started-stopping-serviceStopping-serviceStopped-stopped')
+          .toBe('serviceCreating-serviceCreated-starting-serviceStarting-serviceStarted-started-localAction1-emit-broadcast-localAction2-stopping-serviceStopping-serviceStopped-stopped')
         done()
       })
   })
