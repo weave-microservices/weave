@@ -43,27 +43,34 @@ module.exports = (broker, options) => {
       const type = new MetricType(this, obj)
 
       this.storage.set(obj.name, type)
+
       return type
     },
     increment (name, labels, value = 1, timestamp) {
       const item = this.storage.get(name)
+
       if (!item) {
         throw new Error('Item not found.')
       }
+
       item.increment(labels, value, timestamp)
     },
     decrement (name, labels, value = 1, timestamp) {
       const item = this.storage.get(name)
+
       if (!item) {
         throw new Error('Item not found.')
       }
+
       item.decrement(labels, value, timestamp)
     },
     getMetric (name) {
       const item = this.storage.get(name)
+
       if (!item) {
         throw new Error('Item not found.')
       }
+
       return item
     },
     list () {

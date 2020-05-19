@@ -7,18 +7,6 @@ module.exports = class Gauge extends BaseMetricType {
     this.value = 0
   }
 
-  increment (labels, value, timestamp) {
-    const item = this.get(labels)
-
-    this.set(labels, (item ? item.value : 0) + value)
-  }
-
-  decrement (labels, value, timestamp) {
-    const item = this.get(labels)
-
-    this.set(labels, (item ? item.value : 0) - value)
-  }
-
   generateSnapshot () {
     return Array.from(this.values)
       .map(([labelString, item]) => {
@@ -29,7 +17,7 @@ module.exports = class Gauge extends BaseMetricType {
       })
   }
 
-  set (labels, value, timestamp) {
+  set (value, labels, timestamp) {
     const labelString = this.stringifyLabels(labels)
     const item = this.values.get(labelString)
 

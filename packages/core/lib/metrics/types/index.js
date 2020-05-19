@@ -1,10 +1,12 @@
 const types = {
   Counter: require('./counter'),
-  Gauge: require('./gauge')
+  Gauge: require('./gauge'),
+  Info: require('./gauge')
 }
 
 const getByName = name => {
   const n = Object.keys(types).find(i => i.toLocaleLowerCase() === name.toLocaleLowerCase())
+
   if (n) {
     return types[n]
   }

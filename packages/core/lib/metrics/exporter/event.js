@@ -6,6 +6,7 @@ module.exports = options => {
         eventName: '$metrics.changed',
         interval: 5000
       })
+
       this.registry = registry
 
       if (this.options.interval > 0) {

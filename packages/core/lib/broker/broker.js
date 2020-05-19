@@ -29,6 +29,7 @@ const { WeaveError } = require('../errors')
 const { Tracer } = require('../tracing')
 const { MetricsStorage } = require('../metrics')
 const pkg = require('../../package.json')
+const registerBrokerMetrics = require('./broker-metrics')
 
 /* eslint-disable no-use-before-define */
 /**
@@ -63,11 +64,11 @@ const createBroker = (options = {}) => {
 
   /* eslint-disable no-use-before-define */
   /**
-     * Create a new Logger.
-     * @param {string} moduleName - Name of the module
-     * @param {*} service - Service properties
-     * @returns {import('../log/logger.js/index.js.js').Logger} Logger
-     */
+   * Create a new Logger.
+   * @param {string} moduleName - Name of the module
+   * @param {*} service - Service properties
+   * @returns {import('../log/logger.js/index.js.js').Logger} Logger
+   */
   /* eslint-enable no-use-before-define */
   const createLogger = (moduleName, service) => {
     const bindings = {
@@ -87,7 +88,7 @@ const createBroker = (options = {}) => {
       return options.logger(bindings, options.logLevel)
     }
 
-    // only show info in production mode
+    // Only show info in production mode
     if (process.env.NODE_ENV === 'production') {
       options.logger.logLevel = options.logger.logLevel || 'info'
     } else if (process.env.NODE_ENV === 'test') {
@@ -133,6 +134,7 @@ const createBroker = (options = {}) => {
   const serviceWatcher = function (service, onServiceChanged) {
     if (service.filename && onServiceChanged) {
       const debouncedOnServiceChange = debounce(onServiceChanged, 500)
+
       const watcher = fs.watch(service.filename, (eventType, filename) => {
         log.info(`The Service ${service.name} has been changed. (${eventType}, ${filename}) `)
         watcher.close()
@@ -180,9 +182,9 @@ const createBroker = (options = {}) => {
   // broker object
   const broker = {
     /**
-         * Event bus
-         * @returns {EventEmitter} Service object.
-         */
+    * Event bus
+    * @returns {EventEmitter} Service object.
+    */
     bus: new EventEmitter({
       wildcard: true,
       maxListeners: 1000
@@ -204,12 +206,12 @@ const createBroker = (options = {}) => {
       return registry.getNextAvailableActionEndpoint(actionName, options)
     },
     /**
-         * Call a action.
-         * @param {*} actionName Name of the action.
-         * @param {*} params Action parameters
-         * @param {*} [opts={}] Options
-         * @returns {Promise} Promise
-         */
+     * Call a action.
+     * @param {*} actionName Name of the action.
+     * @param {*} params Action parameters
+     * @param {*} [opts={}] Options
+     * @returns {Promise} Promise
+    */
     call (actionName, params, opts = {}) {
       const endpoint = registry.getNextAvailableActionEndpoint(actionName, opts)
 
@@ -241,10 +243,10 @@ const createBroker = (options = {}) => {
       return p
     },
     /**
-         * Call multiple actions.
-         * @param {Array<Action>} actions Array of actions.
-         * @returns {Promise} Promise
-         */
+     * Call multiple actions.
+     * @param {Array<Action>} actions Array of actions.
+     * @returns {Promise} Promise
+    */
     multiCall (actions) {
       if (Array.isArray(actions)) {
         return Promise.all(actions.map(item => this.call(item.actionName, item.params, item.options)))
@@ -253,14 +255,15 @@ const createBroker = (options = {}) => {
       }
     },
     /**
-         * Emit a event on all services (grouped and load balanced).
-         * @param {String} eventName Name of the event
-         * @param {any} payload Payload
-         * @param {*} [groups=null] Groups
-         * @returns {void}
-         */
+     * Emit a event on all services (grouped and load balanced).
+     * @param {String} eventName Name of the event
+     * @param {any} payload Payload
+     * @param {*} [groups=null] Groups
+     * @returns {void}
+     */
     emit (eventName, payload, groups) {
       const promises = []
+
       if (groups && !Array.isArray(groups)) {
         groups = [groups]
       }
@@ -307,6 +310,7 @@ const createBroker = (options = {}) => {
         // Avoid to broadcast internal events.
         if (!/^\$/.test(eventName)) {
           const endpoints = registry.events.getAllEndpointsUniqueNodes(eventName, groups)
+
           if (endpoints) {
             endpoints.map(endpoint => {
               if (endpoint.node.id !== this.nodeId) {
@@ -318,10 +322,11 @@ const createBroker = (options = {}) => {
           }
         }
       }
+
       return this.broadcastLocal(eventName, payload, groups)
     },
     /**
-     *Send a broadcasted event to all local services.
+    *Send a broadcasted event to all local services.
     * @param {String} eventName Name of the event
     * @param {any} payload Payload
     * @param {*} [groups=null] Groups
@@ -332,6 +337,7 @@ const createBroker = (options = {}) => {
       if (groups && !Array.isArray(groups)) {
         groups = [groups]
       }
+
       // Emit the event on the internal event bus
       if (/^\$/.test(eventName)) {
         this.bus.emit(eventName, payload)
@@ -341,10 +347,10 @@ const createBroker = (options = {}) => {
     },
     /* eslint-disable no-use-before-define */
     /**
-         * Create a new Service and add it to the registry
-         * @param {import('../registry/service.js').ServiceSchema} schema - Schema of the Service
-         * @returns {Service} Service object.
-         */
+     * Create a new Service and add it to the registry
+     * @param {import('../registry/service.js').ServiceSchema} schema - Schema of the Service
+     * @returns {Service} Service object.
+    */
     /* eslint-enable2 no-use-before-define */
     createService (schema) {
       try {
@@ -362,10 +368,10 @@ const createBroker = (options = {}) => {
       }
     },
     /**
-         * Load and register a service from file.
-         * @param {string} fileName Path to the service file.
-         * @returns {Service} Service
-         */
+     * Load and register a service from file.
+     * @param {string} fileName Path to the service file.
+     * @returns {Service} Service
+    */
     loadService (fileName) {
       const filePath = path.resolve(fileName)
       const schema = require(filePath)
@@ -380,11 +386,11 @@ const createBroker = (options = {}) => {
       return service
     },
     /**
-         * Load services from a folder.
-         * @param {string} [folder='./services'] Path of the folder.
-         * @param {string} [fileMask='*.service.js'] Pattern of the service files
-         * @returns {number} Amount of services
-         */
+     * Load services from a folder.
+     * @param {string} [folder='./services'] Path of the folder.
+     * @param {string} [fileMask='*.service.js'] Pattern of the service files
+     * @returns {number} Amount of services
+    */
     loadServices (folder = './services', fileMask = '*.service.js') {
       this.log.info(`Searching services in folder '${folder}' with name pattern '${fileMask}'.`)
 
@@ -397,13 +403,13 @@ const createBroker = (options = {}) => {
       return serviceFiles.length
     },
     /**
-         * Wait for services before continuing startup.
-         * @param {Array.<string>} serviceNames Names of the services
-         * @param {Number} timeout Time in Miliseconds before the broker stops.
-         * @param {Number} interval Time in Miliseconds to check for services.
-         * @returns {Promise} Promise
-         */
-    waitForServices (serviceNames, timeout, interval) {
+     * Wait for services before continuing startup.
+     * @param {Array.<string>} serviceNames Names of the services
+     * @param {Number} timeout Time in Miliseconds before the broker stops.
+     * @param {Number} interval Time in Miliseconds to check for services.
+     * @returns {Promise} Promise
+    */
+    waitForServices (serviceNames, timeout, interval = 500) {
       if (typeof serviceNames === 'string') {
         serviceNames = [serviceNames]
       }
@@ -411,6 +417,7 @@ const createBroker = (options = {}) => {
       return new Promise((resolve, reject) => {
         // todo: add timout for service waiter
         this.log.warn(`Waiting for services '${serviceNames.join(',')}'`)
+
         const serviceCheck = () => {
           if (!this.isStarted) {
             resolve()
@@ -432,15 +439,15 @@ const createBroker = (options = {}) => {
             return reject(new WeaveError('The waiting of the services is interrupted due to a timeout.', 500, 'WAIT_FOR_SERVICE', { services: serviceNames }))
           }
 
-          this.options.waitForServiceInterval = setTimeout(serviceCheck, interval || 500)
+          this.options.waitForServiceInterval = setTimeout(serviceCheck, interval)
         }
         serviceCheck()
       })
     },
     /**
-         * Starts the broker.
-         * @returns {Promise} Promise
-         */
+     * Starts the broker.
+     * @returns {Promise} Promise
+    */
     start () {
       const startTime = Date.now()
       return Promise.resolve()
@@ -477,9 +484,9 @@ const createBroker = (options = {}) => {
         })
     },
     /**
-         * Start the broker in REPL mode.
-         * @returns {Promise} Promise
-         */
+     * Start the broker in REPL mode.
+     * @returns {Promise} Promise
+    */
     repl () {
       let repl
       // start the REPL module - if installed
@@ -495,9 +502,9 @@ const createBroker = (options = {}) => {
       }
     },
     /**
-         * Stops the broker.
-         * @returns {Promise} Promise
-         */
+     * Stops the broker.
+     * @returns {Promise} Promise
+    */
     stop () {
       this.isStarted = false
       return Promise.resolve()
@@ -540,11 +547,11 @@ const createBroker = (options = {}) => {
         })
     },
     /**
-         * Send a ping to connected nodes.
-         * @param {*} nodeId Node id
-         * @param {number} [timeout=3000] Ping timeout
-         * @returns {Array} Ping result
-         */
+     * Send a ping to connected nodes.
+     * @param {*} nodeId Node id
+     * @param {number} [timeout=3000] Ping timeout
+     * @returns {Array} Ping result
+    */
     ping (nodeId, timeout = 3000) {
       if (broker.transport && broker.transport.isConnected) {
         if (nodeId) {
@@ -616,6 +623,7 @@ const createBroker = (options = {}) => {
       adapter: options.transport
     }
   }
+
   if (options.transport.adapter) {
     const adapter = TransportAdapters.resolve(options.transport)
     if (adapter) {
@@ -628,6 +636,7 @@ const createBroker = (options = {}) => {
   // Metrics module
   broker.metrics = MetricsStorage(broker, options.metrics)
   broker.metrics.init()
+  registerBrokerMetrics(broker)
 
   // Module initialisation
   registry.init(broker, middlewareHandler, servicesChanged)
@@ -684,6 +693,8 @@ const createBroker = (options = {}) => {
     broker.multiCall = middlewareHandler.wrapMethod('multiCall', broker.multiCall)
     broker.emit = middlewareHandler.wrapMethod('emit', broker.emit)
     broker.broadcast = middlewareHandler.wrapMethod('broadcast', broker.broadcast)
+    broker.broadcastLocal = middlewareHandler.wrapMethod('broadcastLocal', broker.broadcastLocal)
+    broker.loadService = middlewareHandler.wrapMethod('loadService', broker.loadService)
     broker.createService = middlewareHandler.wrapMethod('createService', broker.createService)
   }
 

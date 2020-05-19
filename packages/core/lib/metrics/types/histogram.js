@@ -1,6 +1,6 @@
 const BaseMetricType = require('./base')
 
-module.exports = class Gauge extends BaseMetricType {
+module.exports = class Info extends BaseMetricType {
   constructor (store, obj) {
     super(store, obj)
     this.values = new Map()

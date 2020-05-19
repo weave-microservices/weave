@@ -12,22 +12,21 @@ module.exports = () => {
 
     if (options.enabled) {
       return function metricMiddleware (context) {
-        broker.metrics.increment(Constants.WEAVE_REQUESTS_TOTAL)
-        broker.metrics.increment(Constants.WEAVE_REQUESTS_IN_FLIGHT)
+        broker.metrics.increment(Constants.REQUESTS_TOTAL)
+        broker.metrics.increment(Constants.REQUESTS_IN_FLIGHT)
 
         return handler(context)
           .then(result => {
-            broker.metrics.decrement(Constants.WEAVE_REQUESTS_IN_FLIGHT)
+            broker.metrics.decrement(Constants.REQUESTS_IN_FLIGHT)
             return result
           })
           .catch(error => {
-            broker.metrics.decrement(Constants.WEAVE_REQUESTS_IN_FLIGHT)
-            broker.metrics.increment(Constants.WEAVE_REQUESTS_ERRORS_TOTAL)
+            broker.metrics.decrement(Constants.REQUESTS_IN_FLIGHT)
+            broker.metrics.increment(Constants.REQUESTS_ERRORS_TOTAL)
             throw error
           })
       }
     }
-
     return handler
   }
 
@@ -50,7 +49,22 @@ module.exports = () => {
     },
     localAction: wrapMetricMiddleware,
     emit (next) {
-      return next
+      return (event, payload) => {
+        this.metrics.increment(Constants.EVENT_TOTAL_EMITS)
+        return next(event, payload)
+      }
+    },
+    broadcast (next) {
+      return (event, payload) => {
+        this.metrics.increment(Constants.EVENT_TOTAL_BROADCASTS)
+        return next(event, payload)
+      }
+    },
+    broadcastLocal (next) {
+      return (event, payload) => {
+        this.metrics.increment(Constants.EVENT_TOTAL_BROADCASTS_LOCAL)
+        return next(event, payload)
+      }
     }
   }
 }
