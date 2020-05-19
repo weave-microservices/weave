@@ -36,11 +36,21 @@ module.exports = () => {
       const options = this.options.metrics || {}
 
       if (options.enabled) {
-        this.metrics.register({ type: 'counter', name: Constants.WEAVE_REQUESTS_TOTAL, description: 'Number of total requests.' })
-        this.metrics.register({ type: 'gauge', name: Constants.WEAVE_REQUESTS_IN_FLIGHT, description: 'Number of running requests.' })
-        this.metrics.register({ type: 'counter', name: Constants.WEAVE_REQUESTS_ERRORS_TOTAL, description: 'Number of failed requests.' })
+        // Request metrics
+        this.metrics.register({ type: 'counter', name: Constants.REQUESTS_TOTAL, description: 'Number of total requests.' })
+        this.metrics.register({ type: 'gauge', name: Constants.REQUESTS_IN_FLIGHT, description: 'Number of running requests.' })
+        this.metrics.register({ type: 'counter', name: Constants.REQUESTS_ERRORS_TOTAL, description: 'Number of failed requests.' })
+
+        // Event metrics
+        this.metrics.register({ type: 'counter', name: Constants.EVENT_TOTAL_EMITS, description: 'Number of total emitted events.' })
+        this.metrics.register({ type: 'counter', name: Constants.EVENT_TOTAL_BROADCASTS, description: 'Number of total broadcasted events.' })
+        this.metrics.register({ type: 'counter', name: Constants.EVENT_TOTAL_BROADCASTS_LOCAL, description: 'Number of total local broadcasted events.' })
+        this.metrics.register({ type: 'counter', name: Constants.EVENT_TOTAL_RECEIVED, description: 'Number of total received events.' })
       }
     },
-    localAction: wrapMetricMiddleware
+    localAction: wrapMetricMiddleware,
+    emit (next) {
+      return next
+    }
   }
 }

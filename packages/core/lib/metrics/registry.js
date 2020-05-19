@@ -26,6 +26,10 @@ module.exports = (broker, options) => {
         throw new Error('Param needs to be an object.')
       }
 
+      if (!obj.type) {
+        throw new Error('Type is missing.')
+      }
+
       if (!obj.name) {
         throw new Error('Name is missing.')
       }
@@ -37,6 +41,7 @@ module.exports = (broker, options) => {
       }
 
       const type = new MetricType(this, obj)
+
       this.storage.set(obj.name, type)
       return type
     },
