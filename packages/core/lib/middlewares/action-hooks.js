@@ -48,10 +48,12 @@ const makeActionHookMiddleware = () =>
           if (beforeWildcardHook) {
             promise = promise.then(() => callHook(beforeWildcardHook, action.service, context))
           }
+
           // Before hook
           if (beforeHook) {
             promise = promise.then(() => callHook(beforeHook, action.service, context))
           }
+          
           // Call action handler
           promise = promise.then(() => handler(context))
 

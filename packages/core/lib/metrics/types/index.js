@@ -1,7 +1,7 @@
 const types = {
   Counter: require('./counter'),
   Gauge: require('./gauge'),
-  Info: require('./gauge')
+  Info: require('./info')
 }
 
 const getByName = name => {
