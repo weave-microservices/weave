@@ -12,7 +12,7 @@ const { loadBalancingStrategy } = require('../constants')
  * Configuration object for weave service broker.
  * @typedef {Object} BulkheadSettings
  * @property {Boolean} enabled Enable bulkhead middleware. (default = false)
- * @property {Number} concurrency Maximum concurrent calls. (default = 15)
+ * @property {Number} concurrentCalls Maximum concurrent calls. (default = 15)
  * @property {Number} maxQueueSize Maximum queue size. (default = 150)
  */
 
@@ -128,7 +128,7 @@ const { loadBalancingStrategy } = require('../constants')
 module.exports = {
   bulkhead: {
     enabled: false,
-    concurrency: 15,
+    concurrentCalls: 15,
     maxQueueSize: 150
   },
   // cache settings

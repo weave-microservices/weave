@@ -55,7 +55,7 @@ describe('Test bulkhead middleware', () => {
 
   it('should call the action 2 times bevore the requests get queued', (done) => {
     broker.options.bulkhead.enabled = true
-    broker.options.bulkhead.concurrency = 2
+    broker.options.bulkhead.concurrentCalls = 2
     broker.options.bulkhead.maxQueueSize = 10
 
     contentFactory.init(broker)
@@ -98,7 +98,7 @@ describe('Test bulkhead middleware', () => {
 
   it('should call the action 2 times immediately bevore the last requests get queued', (done) => {
     broker.options.bulkhead.enabled = true
-    broker.options.bulkhead.concurrency = 2
+    broker.options.bulkhead.concurrentCalls = 2
     broker.options.bulkhead.maxQueueSize = 10
 
     contentFactory.init(broker)
