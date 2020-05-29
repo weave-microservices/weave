@@ -195,6 +195,7 @@ const createBroker = (options = {}) => {
     contextFactory,
     isStarted: false,
     log,
+    tracer,
     createLogger,
     getLogger: function () {
       utils.deprecated('The method "broker.getLogger()" is deprecated since weave version 0.7.0. Please use "broker.createLogger()" instead.')
@@ -480,26 +481,8 @@ const createBroker = (options = {}) => {
         })
         .then(() => {
           const duration = Date.now() - startTime
-          log.success(`Node "${nodeId}" with ${services.length} services successfully started in ${duration}.`)
+          log.success(`Node "${nodeId}" with ${services.length} services successfully started in ${duration}ms.`)
         })
-    },
-    /**
-     * Start the broker in REPL mode.
-     * @returns {Promise} Promise
-    */
-    repl () {
-      let repl
-      // start the REPL module - if installed
-      try {
-        repl = require('@weave-js/repl')
-      } catch (error) {
-        this.log.error('To use REPL with weave, you have to install the REPL package with the command \'npm install @weave-js/repl\'.')
-        return
-      }
-
-      if (repl) {
-        return repl(this)
-      }
     },
     /**
      * Stops the broker.
@@ -608,7 +591,17 @@ const createBroker = (options = {}) => {
       }
       return Promise.resolve(nodeId ? null : [])
     },
-    tracer
+    fatalError (message, error, killProcess = true) {
+      if (options.logger.enabled) {
+        log.fatal(message)
+      } else {
+        console.log(message, error)
+      }
+
+      if (killProcess) {
+        process.exit(1)
+      }
+    }
   }
 
   // Register internal broker events
@@ -644,8 +637,6 @@ const createBroker = (options = {}) => {
   contextFactory.init(broker)
   health.init(broker, broker.transport)
   tracer.init(broker, options.tracing)
-  // broker.store = asyncStore
-  // broker.store.enable()
 
   // Initialize caching module
   if (options.cache.enabled) {
@@ -701,6 +692,7 @@ const createBroker = (options = {}) => {
   registerMiddlewares(options.middlewares)
 
   // Stop the broker greaceful
+  /* istanbul ignore next */
   const onClose = () => broker.stop()
     .catch(error => broker.log.error(error))
     .then(() => process.exit(0))

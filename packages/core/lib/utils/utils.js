@@ -9,6 +9,18 @@ module.exports.isFunction = obj => typeof obj === 'function'
 
 module.exports.wrapHandler = action => module.exports.isFunction(action) ? { handler: action } : action
 
+module.exports.isStream = obj => obj && obj.readable === true && typeof obj.on === 'function' && typeof obj.pipe === 'function'
+
+module.exports.isStreamObjectMode = obj => obj.readableObjectMode === true || (obj._readableState && obj._readableState.objectMode === true)
+
+module.exports.promiseDelay = (promise, ms) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(promise)
+    }, ms)
+  })
+}
+
 module.exports.clone = function clone (obj) {
   if (obj === null || typeof obj !== 'object') {
     return obj

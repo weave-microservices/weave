@@ -195,7 +195,17 @@ const startBroker = () => {
   node.start()
     .then(() => {
       if (flags.repl) {
-        node.repl()
+        let repl
+        try {
+          repl = require('@weave-js/repl')
+        } catch (error) {
+          node.log.error('To use REPL with weave, you have to install the REPL package with the command \'npm install @weave-js/repl\'.')
+          return
+        }
+
+        if (repl) {
+          return repl(node)
+        }
       }
     })
 }

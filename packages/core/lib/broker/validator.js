@@ -20,8 +20,10 @@ const createValidator = () => {
     localAction (handler, action) {
       if (action.params && typeof action.params === 'object') {
         const validate = validator.compile(action.params)
+
         return context => {
           let result = validate(context.params)
+
           if (result === true) {
             return handler(context)
           } else {
@@ -30,6 +32,7 @@ const createValidator = () => {
           }
         }
       }
+
       return handler
     }
   }

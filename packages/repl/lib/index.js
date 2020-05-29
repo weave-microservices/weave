@@ -1,6 +1,7 @@
 const vorpal = require('vorpal')()
 const path = require('path')
 const fs = require('fs')
+const cliUI = require('./utils/cli-ui')
 
 function registerCommands (vorpal, broker) {
   const commandsFolderPath = path.join(__dirname, 'commands')
@@ -10,7 +11,6 @@ function registerCommands (vorpal, broker) {
 }
 
 module.exports = broker => {
-
   if (!broker) {
     throw new Error('You have to pass a weave broker instance.')
   }
@@ -29,7 +29,8 @@ module.exports = broker => {
     })
 
   registerCommands(vorpal, broker)
+
   vorpal
-    .delimiter('weave $')
+    .delimiter(cliUI.whiteText('weave') + cliUI.successText('$'))
     .show()
 }

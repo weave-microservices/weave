@@ -73,11 +73,11 @@ module.exports = (broker, options) => {
 
       return item
     },
-    list () {
-      const results = Array.from(this.storage).map(([name, metric]) => {
-        return {
-          values: metric.toObject()
-        }
+    list (options = {}) {
+      const results = []
+
+      this.storage.forEach(metric => {
+        results.push(metric.toObject())
       })
 
       return results

@@ -54,11 +54,13 @@ module.exports = (vorpal, broker) => {
       const printResult = (duration) => {
         console.log(cliUI.successText('\nBenchmark results:\n'))
         console.log(cliUI.infoText(`${formatNumber(responseCounter)} requests in ${getTimespan(duration)}`))
+
         if (errorCounter > 0) {
           console.log(cliUI.errorText(`${formatNumber(errorCounter)} error(s) ${formatNumber(errorCounter / responseCounter * 100)}%`))
         } else {
           console.log(cliUI.neutralText('0 errors'))
         }
+
         console.log(`Requests per second: ${cliUI.highlightedText(formatNumber(responseCounter / duration * 1000))}`)
         console.log(`	Average time: ${cliUI.highlightedText(getTimespan(sumTime / responseCounter))}`)
         console.log(`	Min time: ${cliUI.highlightedText(getTimespan(minTime))}`)
@@ -89,6 +91,7 @@ module.exports = (vorpal, broker) => {
           spinner.stop()
           const diffTotal = process.hrtime(startTotalTime)
           const durationTotal = (diffTotal[0] + diffTotal[1] / 1e9) * 1000
+
           printResult(durationTotal)
           return done()
         }

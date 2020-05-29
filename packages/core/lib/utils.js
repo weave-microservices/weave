@@ -6,9 +6,7 @@
 
 // node modules
 const os = require('os')
-const { defaultsDeep, uniqWith, compact, flatten } = require('lodash')
 const { yellow, bold } = require('kleur')
-
 const uuid = require('./utils/uuid')
 
 const RegexCache = new Map()
@@ -56,79 +54,27 @@ module.exports = {
   createNodeId () {
     return `${os.hostname()}-${process.pid}`
   },
-  mergeSchemas (mixinSchema, serviceSchema) {
-    function updateProp (propName, target, source) {
-      if (source[propName] !== undefined) {
-        target[propName] = source[propName]
-      }
-    }
-
-    // const flatten = arr => arr.reduce((a, b) => a.concat(b), [])
-    // const compact = arr => arr.filter(Boolean)
-
-    function mergeHook (parentValue, childValue) {
-      if (childValue) {
-        if (parentValue) {
-          if (Array.isArray(parentValue)) {
-            return parentValue.concat(childValue)
-          } else {
-            return [parentValue, childValue]
-          }
-        } else {
-          if (Array.isArray(childValue)) {
-            return childValue
-          } else {
-            return [childValue]
-          }
-        }
-      }
-
-      return childValue
-        ? Array.isArray(parentValue)
-          ? parentValue.concat(childValue)
-          : Array.isArray(childValue)
-            ? childValue
-            : [childValue]
-        : parentValue
-    }
-
-    const result = Object.assign({}, mixinSchema)
-    const schema = Object.assign({}, serviceSchema)
-
-    Object.keys(schema).forEach(key => {
-      if (['settings', 'meta'].includes(key)) {
-        result[key] = defaultsDeep(schema[key], result[key])
-      } else if (['actions', 'events', 'methods'].includes(key)) {
-        result[key] = Object.assign(result[key], schema[key])
-      } else if (['started', 'stopped', 'created'].includes(key)) {
-        if ((typeof result[key] === 'function' || Array.isArray(result[key])) && (typeof schema[key] === 'function' || Array.isArray(schema[key]))) {
-          result[key] = mergeHook(result[key], schema[key])
-        } else {
-          result[key] = schema[key]
-        }
-      } else if (['mixins', 'dependencies'].includes(key)) {
-        result[key] = uniqWith(compact(flatten([schema[key], result[key]])))
-      } else {
-        updateProp(key, result, schema)
-      }
-    })
-
-    return result
-  },
   bytesToSize (bytes) {
-    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
-    if (bytes === 0) return '0 Byte'
-    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)))
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+
+    if (bytes === 0) {
+      return '0 Byte'
+    }
+
+    const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)))
+
     return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i]
   },
   promiseTimeout (ms, promise, error = null) {
     let id
+
     const timeout = new Promise((resolve, reject) => {
       id = setTimeout(() => {
         clearTimeout(id)
         reject(error)
       }, ms)
     })
+
     // Returns a race between our timeout and the passed in promise
     return Promise.race([
       promise,

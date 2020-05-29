@@ -7,7 +7,7 @@
 // Own packages
 const { WeaveError, WeaveQueueSizeExceededError } = require('../errors')
 const MessageTypes = require('./message-types')
-const utils = require('../utils')
+const utils = require('../utils/utils')
 const createMessageHandler = require('./message-handlers')
 
 /**
@@ -32,7 +32,7 @@ const createTransport = (broker, adapter) => {
   }
 
   const doRequest = (context, resolve, reject) => {
-    const isStream = context.params && context.params.readable === true && typeof context.params.on === 'function' && typeof context.params.pipe === 'function'
+    const isStream = utils.isStream(context.params)
 
     const request = {
       targetNodeId: context.nodeId,
@@ -65,7 +65,7 @@ const createTransport = (broker, adapter) => {
 
     const message = transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload)
 
-    transport.send(message)
+    return transport.send(message)
       .then(() => {
         if (isStream) {
           const stream = context.params
@@ -114,10 +114,12 @@ const createTransport = (broker, adapter) => {
       return new Promise(resolve => {
         this.resolveConnect = resolve
         this.log.info('Connecting to transport adapter...')
+
         const doConnect = (isTryReconnect) => {
           const errorHandler = error => {
             this.log.warn('Connection failed')
             this.log.debug('Error ' + error.message)
+
             if (!error.skipRetry) {
               setTimeout(() => {
                 this.log.info('Reconnecting')
@@ -125,16 +127,20 @@ const createTransport = (broker, adapter) => {
               }, 5 * 1000)
             }
           }
-          return adapter.connect(isTryReconnect, errorHandler)
+          return adapter
+            .connect(isTryReconnect, errorHandler)
             .catch(errorHandler)
         }
+
         doConnect(false)
       })
     },
     disconnect () {
       broker.broadcastLocal('$transporter.disconnected', { isGracefull: true })
+
       this.isConnected = false
       this.isReady = false
+
       stopTimers()
 
       return this.send(this.createMessage(MessageTypes.MESSAGE_DISCONNECT))
@@ -234,7 +240,7 @@ const createTransport = (broker, adapter) => {
     },
     response (target, contextId, data, meta, error) {
       // Check if data is a stream
-      const isStream = data && data.readable === true && typeof data.on === 'function' && typeof data.pipe === 'function'
+      const isStream = utils.isStream(data)
 
       const payload = {
         id: contextId,
@@ -425,7 +431,10 @@ const createTransport = (broker, adapter) => {
   function checkRemoteNodes () {
     const now = Date.now()
     broker.registry.nodes.list({ withServices: true }).forEach(node => {
-      if (node.isLocal || !node.isAvailable) return
+      if (node.isLocal || !node.isAvailable) {
+        return
+      }
+
       if (now - (node.lastHeartbeatTime || 0) > broker.options.transport.heartbeatTimeout) {
         broker.registry.nodeDisconnected(node.id, true)
       }
@@ -436,7 +445,9 @@ const createTransport = (broker, adapter) => {
   function checkOfflineNodes () {
     const now = Date.now()
     broker.registry.nodes.list({}).forEach(node => {
-      if (node.isLocal || node.isAvailable) return
+      if (node.isLocal || node.isAvailable) {
+        return
+      }
 
       if ((now - node.offlineTime) > broker.options.transport.maxOfflineTime) {
         broker.registry.removeNode(node.id)

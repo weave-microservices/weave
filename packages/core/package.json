@@ -46,6 +46,7 @@
     "node-fetch": "^2.6.0"
   },
   "devDependencies": {
+    "@weave-js/repl": "^0.7.0-rc.17",
     "eslint": "^6.8.0",
     "ioredis": "^4.14.1",
     "jest": "^24.9.0",

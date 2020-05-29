@@ -27,13 +27,13 @@ module.exports = class Gauge extends BaseMetricType {
       if (item.value !== value) {
         item.labels = labels
         item.value = value
-        item.timestamp = timestamp ? timestamp : Date.now()
+        item.timestamp = timestamp || Date.now()
       }
     } else {
       const item = {
         labels: labels,
         value: value,
-        timestamp: timestamp ? timestamp : Date.now()
+        timestamp: timestamp || Date.now()
       }
 
       this.values.set(labelString, item)
