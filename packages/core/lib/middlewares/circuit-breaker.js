@@ -127,7 +127,6 @@ module.exports = () => {
       log = this.createLogger('circuit-breaker')
 
       if (options.enabled) {
-        
         // registe metrics
 
         createWindowTimer(options.windowTime)

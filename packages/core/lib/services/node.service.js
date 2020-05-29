@@ -20,6 +20,7 @@ module.exports = {
         const services = this.broker.registry.services.list({ withActions, withNodeService })
         services.forEach(service => {
           let item = results.find(result => result.name === service.name && result.version === service.version)
+
           if (item) {
             item.nodes.push(service.nodeId)
             if (service.actions) {

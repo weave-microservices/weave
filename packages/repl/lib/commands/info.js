@@ -5,7 +5,7 @@ const cliUI = require('../utils/cli-ui')
 
 module.exports = (vorpal, broker) => {
   vorpal
-    .command('info', 'Show node informations. (in development)')
+    .command('info', 'Show node informations.')
     .action((args, done) => {
       const gauge = clui.Gauge
       const brokerHealth = broker.health.getNodeHealthInfo()

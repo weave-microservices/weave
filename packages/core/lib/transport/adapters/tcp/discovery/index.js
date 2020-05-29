@@ -6,38 +6,17 @@ const Codec = require('./codec')
 const getIPs = () => {
   const interfaces = os.networkInterfaces()
 
-  return Object.keys(interfaces).map(name => {
-    return interfaces[name]
-      .filter(int => int.family === 'IPv4')
-      .map(int => int.address)
-  }).reduce((a, b) => a.concat(b), [])
+  return Object.keys(interfaces)
+    .map(name => {
+      return interfaces[name]
+        .filter(int => int.family === 'IPv4')
+        .map(int => int.address)
+    }).reduce((a, b) => a.concat(b), [])
 }
 
 const messageTypes = {
   HELLO: 4
 }
-
-// function broadcastAddress (int = 'en0', address) {
-//   if (!hasInterface(allInterfaces, int)) {
-//     throw new Error(`Unknown network interface (${int}).`)
-//   }
-
-//   // if an address is given, look it up under the given network interface
-//   // otherwise just get the first IPv4 occurence for that network interface
-//   if (address) {
-//     addr_info = allInterfaces[int].find(e => e.address === address)
-//   } else {
-//     addr_info = allInterfaces[int].find(e => e.family === 'IPv4')
-//   }
-
-//   if (!addr_info) {
-//     throw new Error('No address info found. Specify a valid address.')
-//   }
-
-//   // bitwise OR over the splitted NAND netmask, then glue them back together with a dot character to form an ip
-//   // we have to do a NAND operation because of the 2-complements; getting rid of all the 'prepended' 1's with & 0xFF
-//   return addr_splitted.map((e, i) => (~netmask_splitted[i] & 0xFF) | e).join('.')
-// }
 
 const createDiscoveryService = (adapter, options) => {
   const codec = Codec(options)
@@ -69,7 +48,7 @@ const createDiscoveryService = (adapter, options) => {
           socket.setMulticastInterface(host)
           socket.addMembership(multicastAddress, host)
           socket.setMulticastTTL(1)
-          socket.destinatins = [multicastAddress]
+          socket.destinations = [multicastAddress]
           adapter.log.info(`listening to ${host}:${port}`)
         })
 
@@ -99,7 +78,7 @@ const createDiscoveryService = (adapter, options) => {
     const message = Buffer.concat([header, codec.encode(payload)])
 
     servers.forEach(server => {
-      server.destinatins.forEach(host => {
+      server.destinations.forEach(host => {
         server.send(message, options.discovery.port, host, (error) => {
           if (!error) {
             adapter.log.debug(`Message sent to ${host}:${options.discovery.port}`)
@@ -109,11 +88,25 @@ const createDiscoveryService = (adapter, options) => {
     })
   }
 
+  function sendDiscoveryPackage (port) {
+    sendMessage({
+      namespace: adapter.broker.options.namespace,
+      nodeId: adapter.broker.nodeId,
+      port: port
+    })
+  }
+
+  function startDiscovering (port) {
+    discoverTimer = setInterval(() => sendDiscoveryPackage(port), 2000)
+
+    discoverTimer.unref()
+  }
+
   function stopDiscovery () {
     if (discoverTimer) {
       clearInterval(discoverTimer)
-      adapter.log.info('UDP discovery service stopped')
       discoverTimer = null
+      adapter.log.info('UDP discovery service stopped')
     }
   }
 
@@ -124,19 +117,9 @@ const createDiscoveryService = (adapter, options) => {
         return Promise.resolve()
       }
 
-      return Promise.resolve()
-        .then(() => {
-          return Promise.all(ips.map(ip => startServer(ip, options.discovery.port, options.discovery.multicastAddress)))
-            .then(() => {
-              discoverTimer = setInterval(() => sendMessage({
-                namespace: adapter.broker.options.namespace,
-                nodeId: adapter.broker.nodeId,
-                port: port
-              }), 2000)
-
-              discoverTimer.unref()
-            })
-        })
+      return Promise.all(ips.map(ip => startServer(ip, options.discovery.port, options.discovery.multicastAddress)))
+        .then(() => setTimeout(() => sendDiscoveryPackage(port), Math.floor(Math.random() * 500) + 1))
+        .then(() => startDiscovering(port))
     },
     close () {
       stopDiscovery()

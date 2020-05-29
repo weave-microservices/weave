@@ -108,6 +108,7 @@ module.exports = (broker, transport, pending) => {
 
     if (payload.isStream != null) {
       let stream = pending.responseStreams.get(id)
+
       if (stream) {
         if (!payload.isStream) {
           transport.log.debug('Stream closing received from ', payload.sender)
@@ -118,6 +119,7 @@ module.exports = (broker, transport, pending) => {
           transport.log.debug('Stream chunk received from ', payload.sender)
           stream.write(payload.data.type === 'Buffer' ? Buffer.from(payload.data) : payload.data)
         }
+
         return request.resolve(payload.data)
       } else {
         stream = new Transform({
@@ -126,6 +128,7 @@ module.exports = (broker, transport, pending) => {
             return done()
           }
         })
+
         transport.log.debug('New stream received from ', payload.sender)
 
         pending.responseStreams.set(id, stream)
@@ -218,9 +221,11 @@ module.exports = (broker, transport, pending) => {
         throw new WeaveError('Message payload missing!')
       }
 
-      if (payload.sender === broker.nodeId) {
-        return
-      }
+      // skip own packages
+      // if (payload.sender === broker.nodeId) {
+      //   // todo: Add ID conflict detection.
+      //   return
+      // }
 
       // stats.packets.received = stats.packets.received + 1
 

@@ -60,12 +60,14 @@ describe('Test bulkhead middleware', () => {
 
     contentFactory.init(broker)
     let flow = []
+
     const handler = jest.fn((context) => {
       flow.push('handler-' + context.params.p)
       return new Promise(resolve => {
         setTimeout(() => resolve(), 10)
       })
     })
+
     const contexts = [...Array(10)].map((_, i) => contentFactory.create(endpoint, { p: i }))
     const wrappedHandler = middleware.localAction.call(broker, handler, action)
 

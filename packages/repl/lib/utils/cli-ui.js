@@ -30,6 +30,9 @@ module.exports = {
   neutralText (text) {
     return kleur.gray(text)
   },
+  whiteText (text) {
+    return kleur.white(text)
+  },
   warningText (text) {
     return kleur.yellow(text)
   },

@@ -394,6 +394,7 @@ module.exports = function SwimTransport (adapterOptions) {
           if (!node) {
             return
           }
+
           // the remote node is newer
           if (sequence > node.sequence) {
             if (node.isAvailable) {

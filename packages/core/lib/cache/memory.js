@@ -65,6 +65,7 @@ const makeMemoryCache = (broker, options = {}) => {
     remove (hashKey) {
       storage.delete(hashKey)
       this.log.debug(`Delete ${hashKey}`)
+
       return Promise.resolve()
     },
     clear (match = '**') {
