@@ -72,7 +72,7 @@ const createContext = (broker, endpoint) => {
 
   // generate a context Id
   if (!newContext.id) {
-    newContext.id = utils.generateToken()
+    newContext.id = utils.uuid()
     if (!newContext.requestId) {
       newContext.requestId = newContext.id
     }

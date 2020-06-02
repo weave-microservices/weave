@@ -1,18 +1,7 @@
 const dgram = require('dgram')
-const os = require('os')
+const { getIpList } = require('@weave-js/utils')
 const EventEmitter = require('events').EventEmitter
 const Codec = require('./codec')
-
-const getIPs = () => {
-  const interfaces = os.networkInterfaces()
-
-  return Object.keys(interfaces)
-    .map(name => {
-      return interfaces[name]
-        .filter(int => int.family === 'IPv4')
-        .map(int => int.address)
-    }).reduce((a, b) => a.concat(b), [])
-}
 
 const messageTypes = {
   HELLO: 4
@@ -21,8 +10,9 @@ const messageTypes = {
 const createDiscoveryService = (adapter, options) => {
   const codec = Codec(options)
   const bus = new EventEmitter()
-  const ips = getIPs()
+  const ips = getIpList(false)
   const MESSAGE_TYPE_LENGHT = 1
+
   let servers = []
   let discoverTimer
 

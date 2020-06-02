@@ -5,7 +5,7 @@
   "author": "Kevin Ries <kevin.ries@fachwerk.io>",
   "homepage": "https://weave-js.com/packages/utils",
   "license": "ISC",
-  "main": "lib/in.js",
+  "main": "lib/index.js",
   "directories": {
     "lib": "lib",
     "test": "tests"

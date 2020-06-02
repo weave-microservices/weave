@@ -2,7 +2,7 @@ const cliUI = require('../utils/cli-ui')
 const _ = require('lodash')
 const createSpinner = require('../utils/create-spinner')
 const formatNumber = require('../utils/format-number')
-const getTimespan = require('../utils/timespan')
+const { timespanFromUnixTimes } = require('@weave-js/utils')
 
 module.exports = (vorpal, broker) => {
   vorpal
@@ -53,7 +53,7 @@ module.exports = (vorpal, broker) => {
 
       const printResult = (duration) => {
         console.log(cliUI.successText('\nBenchmark results:\n'))
-        console.log(cliUI.infoText(`${formatNumber(responseCounter)} requests in ${getTimespan(duration)}`))
+        console.log(cliUI.infoText(`${formatNumber(responseCounter)} requests in ${timespanFromUnixTimes(duration)}`))
 
         if (errorCounter > 0) {
           console.log(cliUI.errorText(`${formatNumber(errorCounter)} error(s) ${formatNumber(errorCounter / responseCounter * 100)}%`))
@@ -62,9 +62,9 @@ module.exports = (vorpal, broker) => {
         }
 
         console.log(`Requests per second: ${cliUI.highlightedText(formatNumber(responseCounter / duration * 1000))}`)
-        console.log(`	Average time: ${cliUI.highlightedText(getTimespan(sumTime / responseCounter))}`)
-        console.log(`	Min time: ${cliUI.highlightedText(getTimespan(minTime))}`)
-        console.log(`	Max time: ${cliUI.highlightedText(getTimespan(maxTime))}`)
+        console.log(`	Average time: ${cliUI.highlightedText(timespanFromUnixTimes(sumTime / responseCounter))}`)
+        console.log(`	Min time: ${cliUI.highlightedText(timespanFromUnixTimes(minTime))}`)
+        console.log(`	Max time: ${cliUI.highlightedText(timespanFromUnixTimes(maxTime))}`)
       }
 
       const handleRequest = (startTime, error) => {

@@ -16,6 +16,7 @@ const defaultOptions = require('./default-options')
 const Logger = require('../log/logger')
 const createServiceFromSchema = require('../registry/service')
 const utils = require('@weave-js/utils')
+const { deprecatedMethodWarning } = require('../utils')
 const createMiddlewareHandler = require('./middleware-handler')
 const createRegistry = require('../registry/registry')
 const createContextFactory = require('./context.factory')
@@ -199,7 +200,7 @@ const createBroker = (options = {}) => {
     tracer,
     createLogger,
     getLogger: function () {
-      utils.deprecated('The method "broker.getLogger()" is deprecated since weave version 0.7.0. Please use "broker.createLogger()" instead.')
+      deprecatedMethodWarning('The method "broker.getLogger()" is deprecated since weave version 0.7.0. Please use "broker.createLogger()" instead.')
       return createLogger(...arguments)
     },
     health,

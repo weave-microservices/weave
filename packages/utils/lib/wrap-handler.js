@@ -1,1 +1,2 @@
-module.exports.wrapHandler = action => module.exports.isFunction(action) ? { handler: action } : action
+const { isFunction } = require('./is-function')
+module.exports.wrapHandler = action => isFunction(action) ? { handler: action } : action

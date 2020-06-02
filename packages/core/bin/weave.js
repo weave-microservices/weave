@@ -4,7 +4,7 @@
 const fs = require('fs')
 const path = require('path')
 const _ = require('lodash')
-const isPlainObject = require('../lib/utils/is-plain-object')
+const { isPlainObject, deepMerge } = require('@weave-js/utils')
 const Args = require('args')
 
 // own packages
@@ -79,7 +79,7 @@ const loadConfigFile = () => {
 }
 
 const mergeOptions = () => {
-  config = _.defaultsDeep(configFile, defaultOptions)
+  config = deepMerge(configFile, defaultOptions)
   // if (config.logger == null && !flags.silent) {
   //     config.logger = console
   // }

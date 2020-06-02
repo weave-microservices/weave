@@ -12,7 +12,7 @@ const MakeEventCollection = require('./collections/event-collection')
 const Endpoint = require('./endpoint')
 const { WeaveServiceNotFoundError, WeaveServiceNotAvailableError } = require('../errors')
 const Node = require('./node')
-const { saveCopy } = require('@weave-js/utils')
+const { safeCopy } = require('@weave-js/utils')
 
 const createRegistry = () => {
   const noop = () => {}
@@ -318,7 +318,7 @@ const createRegistry = () => {
         nodeInfo.services = []
       }
 
-      this.nodes.localNode.info = saveCopy(nodeInfo)
+      this.nodes.localNode.info = safeCopy(nodeInfo)
       return nodeInfo
     },
     processNodeInfo (payload) {

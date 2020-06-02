@@ -2,9 +2,7 @@ const path = require('path')
 const fs = require('fs')
 const cliUI = require('../utils/cli-ui')
 const convertArgs = require('../utils/convert-args')
-const isStream = require('../utils/is-stream')
-const isObject = require('../utils/is-object')
-const removeCircularReferences = require('../utils/remove-circular-references')
+const { safeCopy, isStream, isObject } = require('@weave-js/utils')
 
 const util = require('util')
 
@@ -29,7 +27,7 @@ function handleResult (result, args) {
     if (resultIsStream) {
       fs.createWriteStream(filePath).pipe(result)
     } else {
-      const data = isObject(result) ? JSON.stringify(removeCircularReferences(result), null, 2) : result
+      const data = isObject(result) ? JSON.stringify(safeCopy(result), null, 2) : result
       fs.writeFileSync(filePath, data, 'utf8')
     }
   }

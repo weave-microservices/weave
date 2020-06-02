@@ -1,18 +1,16 @@
 const os = require('os')
 
-module.exports.getIpList = function getIpList () {
-  const list = []
+module.exports.getIpList = function getIpList (skipInternal = true) {
   const interfaces = os.networkInterfaces()
+  return Object.keys(interfaces)
+    .map(name => {
+      let IPs = interfaces[name]
+        .filter(int => int.family === 'IPv4')
 
-  for (const iface in interfaces) {
-    for (const i in interfaces[iface]) {
-      const f = interfaces[iface][i]
-      if (f.family === 'IPv4' && !f.internal) {
-        list.push(f.address)
-        break
+      if (skipInternal) {
+        IPs = IPs.filter(int => !int.internal)
       }
-    }
-  }
 
-  return list
+      return IPs.map(int => int.address)
+    }).reduce((a, b) => a.concat(b), [])
 }
