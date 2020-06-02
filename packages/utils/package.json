@@ -1,0 +1,33 @@
+{
+  "name": "@weave-js/utils",
+  "version": "0.9.0",
+  "description": "Weave utility library",
+  "author": "Kevin Ries <kevin.ries@fachwerk.io>",
+  "homepage": "https://weave-js.com/packages/utils",
+  "license": "ISC",
+  "main": "lib/in.js",
+  "directories": {
+    "lib": "lib",
+    "test": "tests"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/weave-microservices/weave.git"
+  },
+  "scripts": {
+    "ci": "jest --watch",
+    "test": "NODE_ENV=test jest --no-cache",
+    "coverage": "jest --coverage --no-cache",
+    "lint": "eslint . --ext .js --fix"
+  },
+  "bugs": {
+    "url": "https://github.com/weave-microservices/weave/issues"
+  },
+  "devDependencies": {
+    "jest": "^26.0.1",
+    "jest-cli": "^26.0.1"
+  }
+}

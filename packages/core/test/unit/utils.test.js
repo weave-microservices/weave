@@ -1,10 +1,13 @@
-const utils = require('../../lib/utils')
+const match = require('../../lib/utils/match')
+const utils = require('../../lib/utils/index.js')
+const isPlainObject = require('../../lib/utils/is-plain-object')
+
 const os = require('os')
 
 describe('Test utils lib', () => {
   it('Is Object', () => {
-    expect(utils.isPlainObject({})).toBe(true)
-    expect(utils.isPlainObject('')).toBe(false)
+    expect(isPlainObject({})).toBe(true)
+    expect(isPlainObject('')).toBe(false)
   })
 
   it('should generate a unique uuid', () => {
@@ -44,19 +47,19 @@ describe('Test utils lib', () => {
   })
 
   it('should match patterns', () => {
-    expect(utils.match('1.2.3', '1.2.3')).toBe(true)
-    expect(utils.match('1.2.3.4', '1.2.3.4')).toBe(true)
+    expect(match('1.2.3', '1.2.3')).toBe(true)
+    expect(match('1.2.3.4', '1.2.3.4')).toBe(true)
 
-    expect(utils.match('1.2.3', '1.2.*')).toBe(true)
-    expect(utils.match('1.3.3', '1.2.*')).toBe(false)
+    expect(match('1.2.3', '1.2.*')).toBe(true)
+    expect(match('1.3.3', '1.2.*')).toBe(false)
 
-    expect(utils.match('1.2.3', '1.?.3')).toBe(true)
-    expect(utils.match('1.2.3', '$1.?.3')).toBe(false)
+    expect(match('1.2.3', '1.?.3')).toBe(true)
+    expect(match('1.2.3', '$1.?.3')).toBe(false)
 
-    expect(utils.match('1', '*')).toBe(true)
-    expect(utils.match('11', '**')).toBe(true)
+    expect(match('1', '*')).toBe(true)
+    expect(match('11', '**')).toBe(true)
 
-    expect(utils.match('12.45.67', '12.45.**')).toBe(true)
+    expect(match('12.45.67', '12.45.**')).toBe(true)
   })
 
   it('should print a deprecatet warning.', () => {
@@ -85,6 +88,7 @@ describe('Test utils lib', () => {
       d: true,
       e: (a) => {}
     }
+
     // circular reference
     source.b.bd = source
     const copy = utils.saveCopy(source)

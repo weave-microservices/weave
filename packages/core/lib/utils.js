@@ -7,9 +7,8 @@
 // node modules
 const os = require('os')
 const { yellow, bold } = require('kleur')
-const uuid = require('./utils/uuid')
+const { uuid } = require('@weave-js/utils')
 
-const RegexCache = new Map()
 const deprecatedList = []
 
 function getCircularReplacer () {

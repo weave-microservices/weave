@@ -4,7 +4,7 @@
  * Copyright 2020 Fachwerk
  */
 
-const utils = require('../utils')
+const { match } = require('@weave-js/utils')
 const createBase = require('./base')
 
 const makeMemoryCache = (broker, options = {}) => {
@@ -68,9 +68,9 @@ const makeMemoryCache = (broker, options = {}) => {
 
       return Promise.resolve()
     },
-    clear (match = '**') {
+    clear (pattern = '**') {
       storage.forEach((_, key) => {
-        if (utils.match(key, match)) {
+        if (match(key, pattern)) {
           this.log.debug(`Delete ${key}`)
           this.remove(key)
         }

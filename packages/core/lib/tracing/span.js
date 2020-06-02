@@ -1,13 +1,13 @@
 const hrTime = require('./time')
-const generateId = require('../utils/uuid')
+const { uuid } = require('@weave-js/utils')
 
 class Span {
   constructor (tracer, name, options) {
     this.tracer = tracer
     this.options = options
 
-    this.id = options.id || generateId()
-    this.traceId = options.traceId || generateId()
+    this.id = options.id || uuid()
+    this.traceId = options.traceId || uuid()
     this.parentId = options.parentId
     this.name = name
     this.type = options.type

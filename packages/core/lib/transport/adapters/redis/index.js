@@ -10,7 +10,7 @@ const { defaultsDeep } = require('lodash')
 // own packages
 const URIToConfig = require('./URIToConfig')
 const TransportBase = require('../adapter-base')
-const utils = require('../../../utils')
+const utils = require('@weave-js/utils')
 
 const defaultOptions = {
   port: 6379,

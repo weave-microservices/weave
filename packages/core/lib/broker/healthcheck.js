@@ -5,7 +5,7 @@
  */
 
 const os = require('os')
-const { bytesToSize } = require('../utils')
+const { bytesToSize } = require('@weave-js/utils')
 
 const createHealthcheck = () => {
   return {

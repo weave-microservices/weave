@@ -5,7 +5,7 @@
  */
 const { omit } = require('fachwork')
 const EndpointList = require('../endpoint-list')
-const { match } = require('../../utils.js')
+const { match } = require('@weave-js/utils')
 
 const MakeEventCollection = (registry) => {
   const broker = registry.broker

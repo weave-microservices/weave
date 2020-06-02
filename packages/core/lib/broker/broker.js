@@ -7,6 +7,7 @@
 const { defaultsDeep } = require('lodash')
 const path = require('path')
 const fs = require('fs')
+const os = require('os')
 const { debounce } = require('fachwork')
 const glob = require('glob')
 
@@ -14,7 +15,7 @@ const glob = require('glob')
 const defaultOptions = require('./default-options')
 const Logger = require('../log/logger')
 const createServiceFromSchema = require('../registry/service')
-const utils = require('../utils')
+const utils = require('@weave-js/utils')
 const createMiddlewareHandler = require('./middleware-handler')
 const createRegistry = require('../registry/registry')
 const createContextFactory = require('./context.factory')
@@ -57,7 +58,7 @@ const createBroker = (options = {}) => {
   }
 
   // If no node id is set - create one.
-  const nodeId = options.nodeId || utils.createNodeId()
+  const nodeId = options.nodeId || `${os.hostname()}-${process.pid}`
   // Set version to pakage version
   const version = pkg.version
   const services = []

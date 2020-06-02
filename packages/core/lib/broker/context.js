@@ -5,7 +5,7 @@
  */
 'use strict'
 
-const utils = require('../utils')
+const utils = require('@weave-js/utils')
 const { WeaveMaxCallLevelError } = require('../errors')
 
 const createContext = (broker, endpoint) => {

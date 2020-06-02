@@ -1,5 +1,5 @@
 
-const { wrapInArray, clone, compact, flatten, deepMerge, wrapHandler } = require('@weave-js/utils')
+const { wrapInArray, clone, compact, flatten, deepMerge, wrapHandler } = require('./utils')
 
 function mergeMeta (source, targetSchema) {
   return Object.assign(source, targetSchema)

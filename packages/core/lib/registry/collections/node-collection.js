@@ -4,7 +4,7 @@
  * Copyright 2020 Fachwerk
  */
 
-const { getIpList } = require('../../utils.js')
+const { getIpList } = require('@weave-js/utils')
 const { omit } = require('fachwork')
 const Node = require('../node')
 

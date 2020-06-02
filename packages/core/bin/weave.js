@@ -4,6 +4,7 @@
 const fs = require('fs')
 const path = require('path')
 const _ = require('lodash')
+const isPlainObject = require('../lib/utils/is-plain-object')
 const Args = require('args')
 
 // own packages
@@ -100,7 +101,7 @@ const mergeOptions = () => {
         obj[key] = v
       }
 
-      if (_.isPlainObject(obj[key])) {
+      if (isPlainObject(obj[key])) {
         obj[key] = overwriteFromEnv(obj[key], key)
       }
     })

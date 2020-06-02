@@ -5,7 +5,7 @@
  * Copyright 2020 Fachwerk
  */
 
-const { delay } = require('../utils')
+const { delay } = require('@weave-js/utils')
 
 const wrapRetryMiddleware = function (handler, action) {
   const self = this
