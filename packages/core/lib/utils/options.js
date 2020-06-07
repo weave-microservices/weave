@@ -47,7 +47,7 @@ function mergeMethods (source, targetSchema) {
 }
 
 function mergeSettings (source, targetSchema) {
-  return deepMerge(targetSchema, source)
+  return Object.assign(targetSchema, source)
 }
 
 function mergeActionHooks (source, target) {
