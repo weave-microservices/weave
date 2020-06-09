@@ -3,7 +3,7 @@
 // npm packages
 const fs = require('fs')
 const path = require('path')
-const { isPlainObject, deepMerge } = require('@weave-js/utils')
+const { isPlainObject, defaultsDeep } = require('@weave-js/utils')
 const Args = require('args')
 
 // own packages
@@ -80,7 +80,7 @@ const loadConfigFile = () => {
 }
 
 const mergeOptions = () => {
-  config = deepMerge(configFile, defaultOptions)
+  config = defaultsDeep(defaultOptions, configFile)
 
   const overwriteFromEnv = (obj, prefix) => {
     Object.keys(obj).forEach(key => {
