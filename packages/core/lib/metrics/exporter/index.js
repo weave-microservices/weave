@@ -1,4 +1,4 @@
-const { isString, isFunction } = require('lodash')
+const { isString, isFunction } = require('@weave-js/utils')
 const { WeaveBrokerOptionsError } = require('../../errors')
 
 const adapters = {

@@ -4,9 +4,9 @@
  * Copyright 2020 Fachwerk
  */
 
-const { cpuUsage } = require('fachwork')
+const { cpuUsage } = require('@weave-js/utils')
 
-const createNode = (nodeId) => {
+const createNode = nodeId => {
   return {
     id: nodeId,
     info: null,

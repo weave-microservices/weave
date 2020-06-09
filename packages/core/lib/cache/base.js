@@ -4,7 +4,7 @@
  * Copyright 2020 Fachwerk
  */
 const crypto = require('crypto')
-const { isObject } = require('lodash')
+const { isObject } = require('@weave-js/utils')
 
 function getCacheKeyByObject (val) {
   if (Array.isArray(val)) {
@@ -21,12 +21,10 @@ function getCacheKeyByObject (val) {
 }
 
 function generateHash (key) {
-  const hast = crypto
+  return crypto
     .createHash('sha1')
     .update(key)
     .digest('base64')
-
-  return hast
 }
 
 function registerCacheMetrics (metrics) {

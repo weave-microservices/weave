@@ -4,7 +4,7 @@
  * Copyright 2020 Fachwerk
  */
 
-const { omit } = require('fachwork')
+const { omit } = require('@weave-js/utils')
 
 module.exports = {
   name: '$node',

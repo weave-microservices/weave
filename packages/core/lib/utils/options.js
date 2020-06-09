@@ -1,8 +1,12 @@
 
-const { wrapInArray, clone, compact, flatten, deepMerge, wrapHandler } = require('@weave-js/utils')
+const { wrapInArray, clone, compact, flatten, deepMerge, wrapHandler, defaultsDeep } = require('@weave-js/utils')
+
+function mergeSettings (source, targetSchema) {
+  return defaultsDeep(source, targetSchema)
+}
 
 function mergeMeta (source, targetSchema) {
-  return Object.assign(source, targetSchema)
+  return defaultsDeep(source, targetSchema)
 }
 
 function mergeUniqueArrays (source, targetSchema) {
@@ -44,10 +48,6 @@ function mergeEvents (source, targetSchema) {
 
 function mergeMethods (source, targetSchema) {
   return Object.assign(source, targetSchema)
-}
-
-function mergeSettings (source, targetSchema) {
-  return Object.assign(targetSchema, source)
 }
 
 function mergeActionHooks (source, target) {

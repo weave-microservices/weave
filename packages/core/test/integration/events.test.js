@@ -1,8 +1,17 @@
 const { Weave } = require('../../lib/index')
 
 let flow = []
+const MixedService = {
+  events: {
+    'user.created' () {
+      flow.push(`${this.broker.nodeId}-${this.name}-mixed.created`)
+    }
+  }
+}
+
 const UserService = {
   name: 'user',
+  mixins: [MixedService],
   events: {
     'user.created' () {
       flow.push(`${this.broker.nodeId}-${this.name}-user.created`)
@@ -122,6 +131,7 @@ describe('Action hooks', () => {
     master.emit('user.created')
     expect(flow).toEqual([
       'user-1-user-user.created',
+      'user-1-user-mixed.created',
       'payment-1-payment-user.created',
       'notification-1-notification-user.created'
     ])
@@ -131,6 +141,7 @@ describe('Action hooks', () => {
     master.emit('user.created')
     expect(flow).toEqual([
       'user-2-user-user.created',
+      'user-2-user-mixed.created',
       'payment-2-payment-user.created',
       'notification-2-notification-user.created'
     ])
@@ -140,6 +151,7 @@ describe('Action hooks', () => {
     master.emit('user.created')
     expect(flow).toEqual([
       'user-3-user-user.created',
+      'user-3-user-mixed.created',
       'payment-3-payment-user.created',
       'notification-1-notification-user.created'
     ])
@@ -163,7 +175,8 @@ describe('Action hooks', () => {
   it('should emit a event with group.', () => {
     master.emit('user.created', null, 'user')
     expect(flow).toEqual([
-      'user-1-user-user.created'
+      'user-1-user-user.created',
+      'user-1-user-mixed.created'
     ])
   })
 
@@ -171,6 +184,7 @@ describe('Action hooks', () => {
     master.emit('user.created', null, ['user', 'notification'])
     expect(flow).toEqual([
       'user-2-user-user.created',
+      'user-2-user-mixed.created',
       'notification-2-notification-user.created'
     ])
   })
@@ -179,8 +193,11 @@ describe('Action hooks', () => {
     master.broadcast('user.created')
     expect(flow).toEqual([
       'user-1-user-user.created',
+      'user-1-user-mixed.created',
       'user-2-user-user.created',
+      'user-2-user-mixed.created',
       'user-3-user-user.created',
+      'user-3-user-mixed.created',
       'payment-1-payment-user.created',
       'payment-2-payment-user.created',
       'payment-3-payment-user.created',
@@ -193,8 +210,11 @@ describe('Action hooks', () => {
     master.broadcast('user.created', null, 'user')
     expect(flow).toEqual([
       'user-1-user-user.created',
+      'user-1-user-mixed.created',
       'user-2-user-user.created',
-      'user-3-user-user.created'
+      'user-2-user-mixed.created',
+      'user-3-user-user.created',
+      'user-3-user-mixed.created'
     ])
   })
 
@@ -202,8 +222,11 @@ describe('Action hooks', () => {
     master.broadcast('user.created', null, ['user', 'payment'])
     expect(flow).toEqual([
       'user-1-user-user.created',
+      'user-1-user-mixed.created',
       'user-2-user-user.created',
+      'user-2-user-mixed.created',
       'user-3-user-user.created',
+      'user-3-user-mixed.created',
       'payment-1-payment-user.created',
       'payment-2-payment-user.created',
       'payment-3-payment-user.created'

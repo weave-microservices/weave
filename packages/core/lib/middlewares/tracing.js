@@ -12,10 +12,7 @@ const wrapTracingMiddleware = function (handler) {
     return function metricsLocalMiddleware (context) {
       const tags = {
         requestLevel: context.level,
-        action: context.action ? {
-          name: context.action.name,
-          shortName: context.action.shortName
-        } : null,
+        action: context.action ? { name: context.action.name, shortName: context.action.shortName } : null,
         remoteCall: !!context.callerNodeId,
         nodeId: context.nodeId
       }

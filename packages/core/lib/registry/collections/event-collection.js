@@ -3,7 +3,7 @@
  * -----
  * Copyright 2020 Fachwerk
  */
-const { omit } = require('fachwork')
+const { omit } = require('@weave-js/utils')
 const EndpointList = require('../endpoint-list')
 const { match } = require('@weave-js/utils')
 

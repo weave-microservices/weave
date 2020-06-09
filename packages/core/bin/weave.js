@@ -3,7 +3,6 @@
 // npm packages
 const fs = require('fs')
 const path = require('path')
-const _ = require('lodash')
 const { isPlainObject, deepMerge } = require('@weave-js/utils')
 const Args = require('args')
 
@@ -51,9 +50,11 @@ const loadConfigFile = () => {
   if (flags.config) {
     filePath = path.isAbsolute(flags.config) ? flags.config : path.resolve(process.cwd(), flags.config)
   }
+
   if (!filePath && fs.existsSync(path.resolve(process.cwd(), defaultConfigFileName))) {
     filePath = path.resolve(process.cwd(), defaultConfigFileName)
   }
+
   if (!filePath && fs.existsSync(path.resolve(process.cwd(), defaultConfigFileName))) {
     filePath = path.resolve(process.cwd(), defaultConfigFileName)
   }
@@ -80,9 +81,6 @@ const loadConfigFile = () => {
 
 const mergeOptions = () => {
   config = deepMerge(configFile, defaultOptions)
-  // if (config.logger == null && !flags.silent) {
-  //     config.logger = console
-  // }
 
   const overwriteFromEnv = (obj, prefix) => {
     Object.keys(obj).forEach(key => {
@@ -129,11 +127,13 @@ const loadServices = () => {
       } else {
         // Load file or dir
         const svcPath = path.isAbsolute(p) ? p : path.resolve(process.cwd(), p)
+
         if (!fs.existsSync(svcPath)) {
           throw new WeaveError(`Path not found: ${svcPath}`)
         }
 
         const isDir = fs.lstatSync(svcPath).isDirectory()
+
         if (isDir) {
           node.loadServices(svcPath)
         } else {
@@ -143,6 +143,7 @@ const loadServices = () => {
     })
   } else if (process.env.SERVICES || process.env.SERVICEDIR) {
     const svcDir = process.env.SERVICEDIR || ''
+
     if (fs.existsSync(svcDir) && !process.env.SERVICES) {
       // Load all services from directory
       node.loadServices(path.isAbsolute(svcDir) ? svcDir : path.resolve(process.cwd(), svcDir))
@@ -165,6 +166,7 @@ const loadServices = () => {
           }
 
           const svcPath = path.resolve(dir, name)
+
           if (!fs.existsSync(svcPath)) {
             throw new WeaveError(`Path not found: ${svcPath}`)
           }
@@ -197,6 +199,7 @@ const startBroker = () => {
     .then(() => {
       if (flags.repl) {
         let repl
+
         try {
           repl = require('@weave-js/repl')
         } catch (error) {

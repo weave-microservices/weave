@@ -1,9 +1,8 @@
-const { isObject, cloneDeep } = require('lodash')
+const { cloneDeep } = require('lodash')
 const { mergeSchemas } = require('../utils/options')
-const { wrapInArray, isFunction, clone, wrapHandler } = require('@weave-js/utils')
+const { wrapInArray, isFunction, clone, wrapHandler, promisify, isObject } = require('@weave-js/utils')
 
 const { lifecycleHook } = require('../constants')
-const { promisify } = require('fachwork')
 const { WeaveError } = require('../errors')
 
 /**

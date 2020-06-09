@@ -5,7 +5,7 @@
  */
 
 const { getIpList } = require('@weave-js/utils')
-const { omit } = require('fachwork')
+const { omit } = require('@weave-js/utils')
 const Node = require('../node')
 
 const MakeNodeCollection = (registry) => {
