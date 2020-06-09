@@ -4,6 +4,7 @@ module.exports.merge = function merge (target, source) {
   if (!isObject(target) || !isObject(source)) {
     return source
   }
+
   const tempTarget = Object.assign({}, target)
 
   Object.keys(source).forEach(key => {

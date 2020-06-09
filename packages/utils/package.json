@@ -27,7 +27,10 @@
     "url": "https://github.com/weave-microservices/weave/issues"
   },
   "devDependencies": {
-    "jest": "^26.0.1",
-    "jest-cli": "^26.0.1"
+    "eslint-config-fw": "^1.0.3",
+    "eslint-loader": "^4.0.2",
+    "eslint": "^7.1.0",
+    "jest-cli": "^26.0.1",
+    "jest": "^26.0.1"
   }
 }

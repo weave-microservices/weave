@@ -1,1 +1,4 @@
-module.exports.isFunction = obj => typeof obj === 'function'
+const tagTester = require('./helper/tag-tester')
+
+module.exports.isFunction = obj => tagTester('Function')(obj)
+

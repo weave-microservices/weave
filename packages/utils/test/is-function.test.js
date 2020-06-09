@@ -3,7 +3,7 @@ const utils = require('../lib')
 describe('IP List function', () => {
   it('should flatten an array a single level deep (1)', () => {
     const func = function () {
-      // function 
+      // function
     }
 
     const result = utils.isFunction(func)

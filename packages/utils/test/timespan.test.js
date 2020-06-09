@@ -1,7 +1,6 @@
 const utils = require('../lib')
 
 describe('Timespan function', () => {
-
   it('should return "just now"', () => {
     const time = 0
     const resultLong = utils.timespanFromUnixTimes(time)
