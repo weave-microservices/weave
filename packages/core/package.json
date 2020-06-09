@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/core",
-  "version": "0.7.0-rc.20",
+  "version": "0.7.0-rc.21",
   "description": "The core package of weave",
   "keywords": [
     "Weave",
@@ -46,7 +46,7 @@
     "node-fetch": "^2.6.0"
   },
   "devDependencies": {
-    "@weave-js/repl": "^0.7.0-rc.18",
+    "@weave-js/repl": "^0.7.0-rc.19",
     "eslint": "^7.1.0",
     "ioredis": "^4.17.3",
     "jest": "^26.0.1",

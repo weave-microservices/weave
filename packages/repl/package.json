@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/repl",
-  "version": "0.7.0-rc.18",
+  "version": "0.7.0-rc.19",
   "description": "REPL module for weave",
   "main": "lib/index.js",
   "scripts": {
@@ -20,7 +20,7 @@
     "vorpal": "^1.12.0"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.7.0-rc.20",
+    "@weave-js/core": "^0.7.0-rc.21",
     "eslint": "^6.8.0"
   },
   "gitHead": "b2c0ecb9d40d4f358e07902264023d8d96d3a5b1"
