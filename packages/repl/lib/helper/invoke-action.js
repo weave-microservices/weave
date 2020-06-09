@@ -71,7 +71,6 @@ function preparePayloadArguments (args, payload, done) {
       done()
     }
   } else {
-    payload = {}
     const options = convertArgs(args.options)
 
     // Remove save parameter from params
@@ -130,7 +129,8 @@ module.exports = (broker) =>
   (args, done) => {
     const callOptions = prepareOptions(args)
 
-    let payload
+    // eslint-disable-next-line prefer-const
+    let payload = {}
 
     // try to get data from arguments
     preparePayloadArguments(args, payload, done)
