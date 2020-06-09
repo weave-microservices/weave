@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/utils",
-  "version": "0.9.0",
+  "version": "0.9.1-rc.0",
   "description": "Weave utility library",
   "author": "Kevin Ries <kevin.ries@fachwerk.io>",
   "homepage": "https://weave-js.com/packages/utils",
@@ -27,10 +27,10 @@
     "url": "https://github.com/weave-microservices/weave/issues"
   },
   "devDependencies": {
+    "eslint": "^7.1.0",
     "eslint-config-fw": "^1.0.3",
     "eslint-loader": "^4.0.2",
-    "eslint": "^7.1.0",
-    "jest-cli": "^26.0.1",
-    "jest": "^26.0.1"
+    "jest": "^26.0.1",
+    "jest-cli": "^26.0.1"
   }
 }
