@@ -23,6 +23,9 @@
     "coverage": "jest --coverage --no-cache",
     "lint": "eslint . --ext .js --fix"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "bugs": {
     "url": "https://github.com/weave-microservices/weave/issues"
   },
@@ -32,5 +35,6 @@
     "eslint-loader": "^4.0.2",
     "jest": "^26.0.1",
     "jest-cli": "^26.0.1"
-  }
+  },
+  "gitHead": "b2c0ecb9d40d4f358e07902264023d8d96d3a5b1"
 }
