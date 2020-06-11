@@ -80,7 +80,7 @@ const loadConfigFile = () => {
 }
 
 const mergeOptions = () => {
-  config = defaultsDeep(defaultOptions, configFile)
+  config = defaultsDeep(configFile, defaultOptions)
 
   const overwriteFromEnv = (obj, prefix) => {
     Object.keys(obj).forEach(key => {
