@@ -71,7 +71,7 @@ const createDiscoveryService = (adapter, options) => {
       server.destinations.forEach(host => {
         server.send(message, options.discovery.port, host, (error) => {
           if (!error) {
-            adapter.log.debug(`Message sent to ${host}:${options.discovery.port}`)
+            adapter.log.trace(`Message sent to ${host}:${options.discovery.port}`)
           }
         })
       })
