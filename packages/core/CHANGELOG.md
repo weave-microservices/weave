@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-rc.22](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.21...@weave-js/core@0.7.0-rc.22) (2020-06-11)
+
+
+### Bug Fixes
+
+* Config merge from file ([edfdc86](https://github.com/fachw3rk/weave/commit/edfdc86a86dc96582622d15a3c914c7f2c266e41))
+
+
+
+
+
 # [0.7.0-rc.21](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.20...@weave-js/core@0.7.0-rc.21) (2020-06-09)
 
 **Note:** Version bump only for package @weave-js/core

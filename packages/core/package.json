@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/core",
-  "version": "0.7.0-rc.21",
+  "version": "0.7.0-rc.22",
   "description": "The core package of weave",
   "keywords": [
     "Weave",
@@ -34,7 +34,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@weave-js/utils": "^0.9.1-rc.0",
+    "@weave-js/utils": "^0.9.1-rc.1",
     "@weave-js/validator": "^0.7.0-rc.4",
     "args": "^5.0.1",
     "es6-error": "^4.1.1",
@@ -46,7 +46,7 @@
     "node-fetch": "^2.6.0"
   },
   "devDependencies": {
-    "@weave-js/repl": "^0.7.0-rc.19",
+    "@weave-js/repl": "^0.7.0-rc.20",
     "eslint": "^7.1.0",
     "ioredis": "^4.17.3",
     "jest": "^26.0.1",
