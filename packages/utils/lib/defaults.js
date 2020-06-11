@@ -10,6 +10,11 @@ module.exports.defaultsDeep = function defaultsDeep (object) {
 
   for (let index = 1; index < length; index++) {
     const source = arguments[index]
+
+    if (!source) {
+      continue
+    }
+
     const keys = Object.keys(source)
     const le = keys.length
 
