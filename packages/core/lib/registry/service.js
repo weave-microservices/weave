@@ -237,6 +237,9 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
         .reverse()
         .reduce((s, mixin) => {
           for (var key in mixin) {
+            if (mixin.mixins) {
+              mixin = applyMixins(mixin)
+            }
             // bind scope for life cycle hooks
             if (lifecycleHook.includes(key)) {
               mixin[key] = mixin[key].bind(self)
