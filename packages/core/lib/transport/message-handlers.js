@@ -66,6 +66,7 @@ module.exports = (broker, transport, pending) => {
           }
         } else if (payload.isStream) {
           stream = new Transform({
+            objectMode: payload.meta && payload.meta.$isObjectModeStream,
             transform: function (chunk, encoding, done) {
               this.push(chunk)
               return done()
@@ -123,6 +124,7 @@ module.exports = (broker, transport, pending) => {
         return request.resolve(payload.data)
       } else {
         stream = new Transform({
+          objectMode: payload.meta && payload.meta.$isObjectModeStream,
           transform: function (chunk, encoding, done) {
             this.push(chunk)
             return done()

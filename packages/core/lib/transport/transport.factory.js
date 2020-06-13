@@ -63,6 +63,11 @@ const createTransport = (broker, adapter) => {
       isStream
     }
 
+    if (isStream && utils.isStreamObjectMode(context.params)) {
+      payload.meta = payload.meta || {}
+      payload.meta.$isObjectModeStream = true
+    }
+
     const message = transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload)
 
     return transport.send(message)
@@ -70,6 +75,10 @@ const createTransport = (broker, adapter) => {
         if (isStream) {
           const stream = context.params
           payload.meta = {}
+
+          if (utils.isStreamObjectMode(context.params)) {
+            payload.meta.$isObjectModeStream = true
+          }
 
           stream.on('data', chunk => {
             const payloadCopy = Object.assign({}, payload)
@@ -241,7 +250,6 @@ const createTransport = (broker, adapter) => {
     response (target, contextId, data, meta, error) {
       // Check if data is a stream
       const isStream = utils.isStream(data)
-
       const payload = {
         id: contextId,
         meta,
@@ -265,6 +273,12 @@ const createTransport = (broker, adapter) => {
         const stream = data
         payload.sequence = 0
         payload.isStream = true
+
+        if (utils.isStreamObjectMode(data)) {
+          payload.meta = payload.meta || {}
+          payload.meta.$isObjectModeStream = true
+        }
+
         stream.pause()
         this.log.debug('Send new stream chunk to ', target)
 
