@@ -25,4 +25,12 @@ describe('IP List function', () => {
 
     expect(result).toBe(false)
   })
+
+  it('should work with async functions', () => {
+    const func = async () => {}
+    const func2 = async function () {}
+
+    expect(utils.isFunction(func)).toBe(true)
+    expect(utils.isFunction(func2)).toBe(true)
+  })
 })
