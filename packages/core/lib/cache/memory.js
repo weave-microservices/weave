@@ -75,6 +75,7 @@ const makeMemoryCache = (broker, options = {}) => {
           this.remove(key)
         }
       })
+      return Promise.resolve()
     }
   })
 
