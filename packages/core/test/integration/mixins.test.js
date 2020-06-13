@@ -1,6 +1,7 @@
 const { Weave } = require('../../lib/index')
 const ServiceHookMixin = require('./mixins/service-hook.mixin')
 const hasServiceScope = require('./scope-checks/service.scope')
+const nested1 = require('./mixins/nested1.mixin')
 
 describe('Service lifetime hooks within mixins', () => {
   it('should call lifecycle hook "created" with correct scope if there are nested hooks from a mixin.', done => {
@@ -100,5 +101,27 @@ describe('Service lifetime hooks error handling', () => {
     await expect(node1.start()
       .then(() => node1.stop())
     ).rejects.toThrow('Rejected hook from stopped')
+  })
+
+  it('should mix in nested mixins.', async () => {
+    const node1 = Weave({
+      nodeId: 'node1',
+      logger: {
+        enabled: false
+      }
+    })
+
+    const service = node1.createService({
+      name: 'testService',
+      mixins: [nested1()],
+      stopped () {
+        // return Promise.reject(new Error('sss'))
+      }
+    })
+
+    expect(service.actions.a).toBeDefined()
+    expect(service.actions.b).toBeDefined()
+    expect(service.actions.c).toBeDefined()
+    expect(service.actions.d).not.toBeDefined()
   })
 })
