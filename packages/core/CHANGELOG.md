@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-rc.23](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.22...@weave-js/core@0.7.0-rc.23) (2020-06-13)
+
+
+### Bug Fixes
+
+* Added missing mixin schema merge ([6b16470](https://github.com/fachw3rk/weave/commit/6b1647038bdc0094ae995c0aea70468b075b80db))
+
+
+### Features
+
+* Added support for object streams ([6b174dd](https://github.com/fachw3rk/weave/commit/6b174ddd6dd66969c79f8ce9d2fa09f9fdfd55d1))
+
+
+
+
+
 # [0.7.0-rc.22](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.21...@weave-js/core@0.7.0-rc.22) (2020-06-11)
 
 
