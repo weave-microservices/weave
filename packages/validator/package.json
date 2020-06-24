@@ -22,7 +22,7 @@
     "eslint": "^6.8.0",
     "eslint-config-fw": "^1.0.3",
     "eslint-loader": "^4.0.0",
-    "jest": "^25.2.7",
+    "jest": "^26.1.0",
     "jest-cli": "^25.2.7"
   },
   "gitHead": "b2c0ecb9d40d4f358e07902264023d8d96d3a5b1"
