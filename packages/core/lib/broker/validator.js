@@ -1,7 +1,7 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2018 Fachwerk
+ * Copyright 2020 Fachwerk
  */
 
 const ObjectValidator = require('@weave-js/validator')
@@ -16,20 +16,25 @@ const createValidator = () => {
     addRule: (type, ruleFn) => objectValidator.addRule(type, ruleFn)
   }
 
-  validator.middleware = function (handler, action) {
-    if (action.params && typeof action.params === 'object') {
-      const validate = validator.compile(action.params)
-      return context => {
-        let result = validate(context.params)
-        if (result === true) {
-          return handler(context)
-        } else {
-          result = result.map(data => Object.assign(data, { nodeId: context.nodeId, action: context.action.name }))
-          return Promise.reject(new WeaveParameterValidationError('Parameter validation error', result))
+  validator.middleware = {
+    localAction (handler, action) {
+      if (action.params && typeof action.params === 'object') {
+        const validate = validator.compile(action.params)
+
+        return context => {
+          let result = validate(context.params)
+
+          if (result === true) {
+            return handler(context)
+          } else {
+            result = result.map(data => Object.assign(data, { nodeId: context.nodeId, action: context.action.name }))
+            return Promise.reject(new WeaveParameterValidationError('Parameter validation error', result))
+          }
         }
       }
+
+      return handler
     }
-    return handler
   }
 
   return validator

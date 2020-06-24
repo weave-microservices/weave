@@ -1,10 +1,10 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2018 Fachwerk
+ * Copyright 2020 Fachwerk
  */
 
-const { omit } = require('fachwork')
+const { omit } = require('@weave-js/utils')
 
 module.exports = {
   name: '$node',
@@ -20,6 +20,7 @@ module.exports = {
         const services = this.broker.registry.services.list({ withActions, withNodeService })
         services.forEach(service => {
           let item = results.find(result => result.name === service.name && result.version === service.version)
+
           if (item) {
             item.nodes.push(service.nodeId)
             if (service.actions) {

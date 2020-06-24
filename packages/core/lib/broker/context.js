@@ -1,11 +1,11 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2018 Fachwerk
+ * Copyright 2020 Fachwerk
  */
 'use strict'
 
-const utils = require('../utils')
+const utils = require('@weave-js/utils')
 const { WeaveMaxCallLevelError } = require('../errors')
 
 const createContext = (broker, endpoint) => {
@@ -51,10 +51,12 @@ const createContext = (broker, endpoint) => {
       }
 
       const p = broker.call(actionName, params, options)
+
       return p.then(result => {
         if (p.context) {
           this.meta = Object.assign(this.meta, p.context.meta)
         }
+
         return result
       })
     },
@@ -70,7 +72,7 @@ const createContext = (broker, endpoint) => {
 
   // generate a context Id
   if (!newContext.id) {
-    newContext.id = utils.generateToken()
+    newContext.id = utils.uuid()
     if (!newContext.requestId) {
       newContext.requestId = newContext.id
     }
@@ -81,6 +83,7 @@ const createContext = (broker, endpoint) => {
     newContext.action = endpoint.action
     newContext.service = endpoint.action.service
   }
+
   return newContext
 }
 

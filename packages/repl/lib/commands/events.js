@@ -1,5 +1,5 @@
 
-const chalk = require('chalk')
+const cliUI = require('../utils/cli-ui')
 const { table } = require('table')
 
 module.exports = (vorpal, broker) => {
@@ -8,21 +8,22 @@ module.exports = (vorpal, broker) => {
     .action((args, done) => {
       const data = []
       data.push([
-        chalk.bold('Event'),
-        chalk.bold('Group'),
-        chalk.bold('State'),
-        chalk.bold('Nodes')
+        cliUI.tableHeaderText('Event'),
+        cliUI.tableHeaderText('Group'),
+        cliUI.tableHeaderText('State'),
+        cliUI.tableHeaderText('Nodes')
       ])
 
       const events = broker.registry.events.list({
         withEndpoints: true
       })
+
       events.map(event => {
         if (event) {
           data.push([
             event.name,
             event.groupName,
-            event.hasAvailable ? chalk.bgGreen.black('  OK  ') : chalk.bgRed.white.bold(' FAILURE '),
+            event.hasAvailable ? cliUI.successLabel('  OK  ') : cliUI.failureLabel(' FAILURE '),
             event.count
           ])
         }

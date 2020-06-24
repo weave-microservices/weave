@@ -1,7 +1,7 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2018 Fachwerk
+ * Copyright 2020 Fachwerk
  */
 
 const wrapTracingMiddleware = function (handler) {
@@ -12,10 +12,7 @@ const wrapTracingMiddleware = function (handler) {
     return function metricsLocalMiddleware (context) {
       const tags = {
         requestLevel: context.level,
-        action: context.action ? {
-          name: context.action.name,
-          shortName: context.action.shortName
-        } : null,
+        action: context.action ? { name: context.action.name, shortName: context.action.shortName } : null,
         remoteCall: !!context.callerNodeId,
         nodeId: context.nodeId
       }

@@ -1,13 +1,13 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2018 Fachwerk
+ * Copyright 2020 Fachwerk
  */
 
-// own packages
+// Own packages
 const { WeaveError, WeaveQueueSizeExceededError } = require('../errors')
 const MessageTypes = require('./message-types')
-const utils = require('../utils')
+const utils = require('@weave-js/utils')
 const createMessageHandler = require('./message-handlers')
 
 /**
@@ -24,6 +24,7 @@ const createTransport = (broker, adapter) => {
 
   const nodeId = broker.nodeId
   const log = broker.createLogger('TRANSPORT')
+
   const pending = {
     requests: new Map(),
     requestStreams: new Map(),
@@ -31,7 +32,7 @@ const createTransport = (broker, adapter) => {
   }
 
   const doRequest = (context, resolve, reject) => {
-    const isStream = context.params && context.params.readable === true && typeof context.params.on === 'function' && typeof context.params.pipe === 'function'
+    const isStream = utils.isStream(context.params)
 
     const request = {
       targetNodeId: context.nodeId,
@@ -62,18 +63,29 @@ const createTransport = (broker, adapter) => {
       isStream
     }
 
+    if (isStream && utils.isStreamObjectMode(context.params)) {
+      payload.meta = payload.meta || {}
+      payload.meta.$isObjectModeStream = true
+    }
+
     const message = transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload)
 
-    transport.send(message)
+    return transport.send(message)
       .then(() => {
         if (isStream) {
           const stream = context.params
           payload.meta = {}
 
+          if (utils.isStreamObjectMode(context.params)) {
+            payload.meta.$isObjectModeStream = true
+          }
+
           stream.on('data', chunk => {
             const payloadCopy = Object.assign({}, payload)
+
             payloadCopy.params = chunk
             stream.pause()
+
             return transport.send(transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy))
               .then(() => stream.resume())
           })
@@ -96,6 +108,7 @@ const createTransport = (broker, adapter) => {
     log: broker.createLogger('TRANSPORT'),
     isConnected: false,
     isReady: false,
+    pending,
     resolveConnect: null,
     adapterName: adapter.name,
     statistics: {
@@ -110,10 +123,12 @@ const createTransport = (broker, adapter) => {
       return new Promise(resolve => {
         this.resolveConnect = resolve
         this.log.info('Connecting to transport adapter...')
+
         const doConnect = (isTryReconnect) => {
           const errorHandler = error => {
             this.log.warn('Connection failed')
             this.log.debug('Error ' + error.message)
+
             if (!error.skipRetry) {
               setTimeout(() => {
                 this.log.info('Reconnecting')
@@ -121,17 +136,22 @@ const createTransport = (broker, adapter) => {
               }, 5 * 1000)
             }
           }
-          return adapter.connect(isTryReconnect, errorHandler)
+          return adapter
+            .connect(isTryReconnect, errorHandler)
             .catch(errorHandler)
         }
+
         doConnect(false)
       })
     },
     disconnect () {
       broker.broadcastLocal('$transporter.disconnected', { isGracefull: true })
+
       this.isConnected = false
       this.isReady = false
+
       stopTimers()
+
       return this.send(this.createMessage(MessageTypes.MESSAGE_DISCONNECT))
         .then(() => adapter.close())
     },
@@ -150,11 +170,11 @@ const createTransport = (broker, adapter) => {
       return this.send(this.createMessage(MessageTypes.MESSAGE_INFO, sender, info))
     },
     /**
-         *
-         * Send a message
-         * @param {Message} message Message to send
-         * @returns {Promise} Promise
-         */
+      *
+      * Send a message
+      * @param {Message} message Message to send
+      * @returns {Promise} Promise
+    */
     send (message) {
       this.statistics.sent.packages = this.statistics.sent.packages + 1
       log.trace(`Send ${message.type.toUpperCase()} packet to ${message.targetNodeId || 'all nodes'}`)
@@ -196,12 +216,15 @@ const createTransport = (broker, adapter) => {
       pending.responseStreams.delete(requestId)
     },
     removePendingRequestsByNodeId (nodeId) {
-      log.debug('Remove pending requests.')
+      log.debug(`Remove pending requests for node ${nodeId}.`)
       pending.requests.forEach((request, requestId) => {
         if (request.nodeId === nodeId) {
           pending.requests.delete(requestId)
         }
         request.reject(new WeaveError(`Remove pending requests for node ${nodeId}.`))
+
+        pending.requestStreams.delete(requestId)
+        pending.responseStreams.delete(requestId)
       })
     },
     createMessage (type, targetNodeId, payload) {
@@ -226,8 +249,7 @@ const createTransport = (broker, adapter) => {
     },
     response (target, contextId, data, meta, error) {
       // Check if data is a stream
-      const isStream = data && data.readable === true && typeof data.on === 'function' && typeof data.pipe === 'function'
-
+      const isStream = utils.isStream(data)
       const payload = {
         id: contextId,
         meta,
@@ -251,6 +273,12 @@ const createTransport = (broker, adapter) => {
         const stream = data
         payload.sequence = 0
         payload.isStream = true
+
+        if (utils.isStreamObjectMode(data)) {
+          payload.meta = payload.meta || {}
+          payload.meta.$isObjectModeStream = true
+        }
+
         stream.pause()
         this.log.debug('Send new stream chunk to ', target)
 
@@ -298,7 +326,7 @@ const createTransport = (broker, adapter) => {
     }
   }
 
-  const onConnect = (wasReconnect, startHeartbeatTimers = true) =>
+  const onConnect = (wasReconnect, useHeartbeatTimer = true, useRemoteNodeCheckTimer = true, useOfflineCheckTimer = true) =>
     Promise.resolve()
       .then(() => {
         if (!wasReconnect) {
@@ -318,8 +346,17 @@ const createTransport = (broker, adapter) => {
       })
       .then(() => {
         startUpdateLocalNodeTimer()
-        if (startHeartbeatTimers) {
-          startTimers()
+
+        if (useHeartbeatTimer) {
+          startHeartbeatTimer()
+        }
+
+        if (useRemoteNodeCheckTimer) {
+          startRemoteNodeCheckTimer()
+        }
+
+        if (useOfflineCheckTimer) {
+          startOfflineNodeCheckTimer()
         }
       })
 
@@ -361,21 +398,18 @@ const createTransport = (broker, adapter) => {
     ])
   }
 
-  function startTimers () {
-    heartbeatTimer = setInterval(() => {
-      sendHeartbeat()
-    }, broker.options.transport.heartbeatInterval)
-
+  function startHeartbeatTimer () {
+    heartbeatTimer = setInterval(() => sendHeartbeat(), broker.options.transport.heartbeatInterval)
     heartbeatTimer.unref()
+  }
 
-    checkNodesTimer = setInterval(() => {
-      checkRemoteNodes()
-    }, broker.options.transport.heartbeatTimeout)
+  function startRemoteNodeCheckTimer () {
+    checkNodesTimer = setInterval(() => checkRemoteNodes(), broker.options.transport.heartbeatTimeout)
     checkNodesTimer.unref()
+  }
 
-    checkOfflineNodesTimer = setInterval(() => {
-      checkOfflineNodes()
-    }, broker.options.transport.offlineNodeCheckInterval)
+  function startOfflineNodeCheckTimer () {
+    checkOfflineNodesTimer = setInterval(() => checkOfflineNodes(), broker.options.transport.offlineNodeCheckInterval)
     checkOfflineNodesTimer.unref()
   }
 
@@ -411,17 +445,23 @@ const createTransport = (broker, adapter) => {
   function checkRemoteNodes () {
     const now = Date.now()
     broker.registry.nodes.list({ withServices: true }).forEach(node => {
-      if (node.isLocal || !node.isAvailable) return
+      if (node.isLocal || !node.isAvailable) {
+        return
+      }
+
       if (now - (node.lastHeartbeatTime || 0) > broker.options.transport.heartbeatTimeout) {
         broker.registry.nodeDisconnected(node.id, true)
       }
     })
   }
 
+  // Removes the node after a given time from the registry.
   function checkOfflineNodes () {
     const now = Date.now()
     broker.registry.nodes.list({}).forEach(node => {
-      if (node.isLocal || node.isAvailable) return
+      if (node.isLocal || node.isAvailable) {
+        return
+      }
 
       if ((now - node.offlineTime) > broker.options.transport.maxOfflineTime) {
         broker.registry.removeNode(node.id)

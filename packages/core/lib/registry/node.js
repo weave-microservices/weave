@@ -1,17 +1,20 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2018 Fachwerk
+ * Copyright 2020 Fachwerk
  */
 
-const { cpuUsage } = require('fachwork')
+const { cpuUsage } = require('@weave-js/utils')
 
-const createNode = (nodeId) => {
+const createNode = nodeId => {
   return {
     id: nodeId,
     info: null,
     isLocal: false,
-    client: null,
+    client: {
+      type: null,
+      version: null
+    },
     cpu: null,
     cpuSequence: null,
     lastHeartbeatTime: Date.now(),
@@ -29,7 +32,7 @@ const createNode = (nodeId) => {
       this.client = payload.client || {}
       this.IPList = payload.IPList || []
 
-      if (newSequence > this.sequence || isReconnected) {
+      if ((newSequence > this.sequence) || isReconnected === true) {
         this.sequence = newSequence
         this.offlineTime = null
 
@@ -50,7 +53,7 @@ const createNode = (nodeId) => {
     heartbeat (payload) {
       if (!this.isAvailable) {
         this.isAvailable = true
-        this.offlineTime = Date.now()
+        this.offlineTime = null
       }
 
       this.lastHeartbeatTime = Date.now()

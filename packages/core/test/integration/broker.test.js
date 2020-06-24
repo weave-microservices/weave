@@ -209,6 +209,7 @@ describe('Ping', () => {
       },
       transport: 'dummy'
     })
+
     return broker.start()
       .then(() => broker.ping())
       .then(res => {
@@ -358,6 +359,38 @@ describe('Ping', () => {
           broker2.stop()
         ])
       })
+  })
+})
+
+describe('Test broker error handling', () => {
+  const ERROR_CODE = 1
+  let broker
+
+  beforeEach(d => {
+    broker = Weave({
+      nodeId: 'node1',
+      logger: {
+        enabled: false,
+        logLevel: 'fatal'
+      }
+    })
+
+    broker.start()
+      .then(() => d())
+  })
+
+  afterEach(() => {
+    broker.stop()
+      .catch(_ => {})
+  })
+
+it('"fatalError" should kill the node process', () => {
+    const realProcess = process
+    const exitMock = jest.fn()
+
+    global.process = { ...realProcess, exit: exitMock }
+    broker.fatalError('Throw some fatal error')
+    expect(exitMock).toHaveBeenCalledWith(ERROR_CODE)
   })
 })
 

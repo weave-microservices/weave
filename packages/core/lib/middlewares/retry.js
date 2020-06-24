@@ -2,10 +2,10 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2018 Fachwerk
+ * Copyright 2020 Fachwerk
  */
 
-const { delay } = require('../utils')
+const { delay } = require('@weave-js/utils')
 
 const wrapRetryMiddleware = function (handler, action) {
   const self = this

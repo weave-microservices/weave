@@ -1,19 +1,18 @@
-const chalk = require('chalk')
-const _ = require('lodash')
-const { convertArgs } = require('../utils')
+const cliUI = require('../utils/cli-ui')
+const convertArgs = require('../utils/convert-args')
 
 module.exports = (vorpal, broker) => {
   vorpal
     .command('emit <eventName>', 'Emit a event.')
     .autocomplete({
       data () {
-        return _.uniq(broker.registry.events.list({}).map(item => item.name))
+        return [...new Set(broker.registry.events.list({}).map(item => item.name))]
       }
     })
     .allowUnknownOptions()
     .action((args, done) => {
       const payload = convertArgs(args.options)
-      console.log(chalk.yellow.bold(`>> Emit '${args.eventName}' with payload:`), payload)
+      console.log(cliUI.infoText(`>> Emit '${args.eventName}' with payload:`), payload)
       broker.emit(args.eventName, payload)
       done()
     })

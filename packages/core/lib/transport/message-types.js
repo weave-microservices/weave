@@ -1,7 +1,7 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2018 Fachwerk
+ * Copyright 2020 Fachwerk
  */
 
 const MESSAGE_UNKNOWN = 'unknown'
@@ -16,6 +16,8 @@ const MESSAGE_PONG = 'pong'
 const MESSAGE_DISCONNECT = 'disconnect'
 const MESSAGE_HEARTBEAT = 'heartbeat'
 const MESSAGE_EVENT = 'event'
+
+// gossip messages
 const MESSAGE_GOSSIP_REQUEST = 'gossip_request'
 const MESSAGE_GOSSIP_RESPONSE = 'gossip_response'
 const MESSAGE_GOSSIP_HELLO = 'gossip_hello'

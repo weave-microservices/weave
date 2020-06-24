@@ -1,10 +1,10 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2018 Fachwerk
+ * Copyright 2020 Fachwerk
  */
 
-const { omit } = require('fachwork')
+const { omit } = require('@weave-js/utils')
 const createEndpointList = require('../endpoint-list')
 
 const MakeActionCollection = (registry) => {

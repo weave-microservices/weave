@@ -7,14 +7,15 @@
 const { defaultsDeep } = require('lodash')
 const path = require('path')
 const fs = require('fs')
-const { debounce } = require('fachwork')
+const os = require('os')
 const glob = require('glob')
+const { debounce } = require('@weave-js/utils')
 
 // own packages
 const defaultOptions = require('./default-options')
 const Logger = require('../log/logger')
 const createServiceFromSchema = require('../registry/service')
-const utils = require('../utils')
+const { deprecatedMethodWarning } = require('../utils')
 const createMiddlewareHandler = require('./middleware-handler')
 const createRegistry = require('../registry/registry')
 const createContextFactory = require('./context.factory')
@@ -28,9 +29,9 @@ const EventEmitter = require('eventemitter2')
 const { WeaveError } = require('../errors')
 const { Tracer } = require('../tracing')
 const { MetricsStorage } = require('../metrics')
-
-// package.json
 const pkg = require('../../package.json')
+const registerBrokerMetrics = require('./broker-metrics')
+
 /* eslint-disable no-use-before-define */
 /**
  *  Creates a new Weave instance
@@ -44,6 +45,7 @@ const createBroker = (options = {}) => {
       enabled: false
     }
   }
+
   // merge options with default options
   options = defaultsDeep(options, defaultOptions)
 
@@ -56,18 +58,18 @@ const createBroker = (options = {}) => {
   }
 
   // If no node id is set - create one.
-  const nodeId = options.nodeId || utils.createNodeId()
+  const nodeId = options.nodeId || `${os.hostname()}-${process.pid}`
   // Set version to pakage version
   const version = pkg.version
   const services = []
 
   /* eslint-disable no-use-before-define */
   /**
-     * Create a new Logger.
-     * @param {string} moduleName - Name of the module
-     * @param {*} service - Service properties
-     * @returns {import('../log/logger.js/index.js.js').Logger} Logger
-     */
+   * Create a new Logger.
+   * @param {string} moduleName - Name of the module
+   * @param {*} service - Service properties
+   * @returns {import('../log/logger.js/index.js.js').Logger} Logger
+   */
   /* eslint-enable no-use-before-define */
   const createLogger = (moduleName, service) => {
     const bindings = {
@@ -87,7 +89,7 @@ const createBroker = (options = {}) => {
       return options.logger(bindings, options.logLevel)
     }
 
-    // only show info in production mode
+    // Only show info in production mode
     if (process.env.NODE_ENV === 'production') {
       options.logger.logLevel = options.logger.logLevel || 'info'
     } else if (process.env.NODE_ENV === 'test') {
@@ -133,6 +135,7 @@ const createBroker = (options = {}) => {
   const serviceWatcher = function (service, onServiceChanged) {
     if (service.filename && onServiceChanged) {
       const debouncedOnServiceChange = debounce(onServiceChanged, 500)
+
       const watcher = fs.watch(service.filename, (eventType, filename) => {
         log.info(`The Service ${service.name} has been changed. (${eventType}, ${filename}) `)
         watcher.close()
@@ -180,9 +183,9 @@ const createBroker = (options = {}) => {
   // broker object
   const broker = {
     /**
-         * Event bus
-         * @returns {EventEmitter} Service object.
-         */
+    * Event bus
+    * @returns {EventEmitter} Service object.
+    */
     bus: new EventEmitter({
       wildcard: true,
       maxListeners: 1000
@@ -193,9 +196,10 @@ const createBroker = (options = {}) => {
     contextFactory,
     isStarted: false,
     log,
+    tracer,
     createLogger,
     getLogger: function () {
-      utils.deprecated('The method "broker.getLogger()" is deprecated since weave version 0.7.0. Please use "broker.createLogger()" instead.')
+      deprecatedMethodWarning('The method "broker.getLogger()" is deprecated since weave version 0.7.0. Please use "broker.createLogger()" instead.')
       return createLogger(...arguments)
     },
     health,
@@ -204,12 +208,12 @@ const createBroker = (options = {}) => {
       return registry.getNextAvailableActionEndpoint(actionName, options)
     },
     /**
-         * Call a action.
-         * @param {*} actionName Name of the action.
-         * @param {*} params Action parameters
-         * @param {*} [opts={}] Options
-         * @returns {Promise} Promise
-         */
+     * Call a action.
+     * @param {*} actionName Name of the action.
+     * @param {*} params Action parameters
+     * @param {*} [opts={}] Options
+     * @returns {Promise} Promise
+    */
     call (actionName, params, opts = {}) {
       const endpoint = registry.getNextAvailableActionEndpoint(actionName, opts)
 
@@ -241,10 +245,10 @@ const createBroker = (options = {}) => {
       return p
     },
     /**
-         * Call multiple actions.
-         * @param {Array<Action>} actions Array of actions.
-         * @returns {Promise} Promise
-         */
+     * Call multiple actions.
+     * @param {Array<Action>} actions Array of actions.
+     * @returns {Promise} Promise
+    */
     multiCall (actions) {
       if (Array.isArray(actions)) {
         return Promise.all(actions.map(item => this.call(item.actionName, item.params, item.options)))
@@ -253,13 +257,15 @@ const createBroker = (options = {}) => {
       }
     },
     /**
-         * Emit a event on all services (grouped and load balanced).
-         * @param {String} eventName Name of the event
-         * @param {any} payload Payload
-         * @param {*} [groups=null] Groups
-         * @returns {void}
-         */
+     * Emit a event on all services (grouped and load balanced).
+     * @param {String} eventName Name of the event
+     * @param {any} payload Payload
+     * @param {*} [groups=null] Groups
+     * @returns {void}
+     */
     emit (eventName, payload, groups) {
+      const promises = []
+
       if (groups && !Array.isArray(groups)) {
         groups = [groups]
       }
@@ -276,7 +282,7 @@ const createBroker = (options = {}) => {
         if (endpoint) {
           if (endpoint.node.id === this.nodeId) {
             // Local event. Call handler
-            endpoint.action.handler(payload, endpoint.node.id, eventName)
+            promises.push(endpoint.action.handler(payload, endpoint.node.id, eventName))
           } else {
             const e = groupedEndpoints[endpoint.node.id]
             if (e) {
@@ -289,21 +295,24 @@ const createBroker = (options = {}) => {
       })
 
       if (this.transport) {
-        this.transport.sendBalancedEvent(eventName, payload, groupedEndpoints)
+        promises.push(this.transport.sendBalancedEvent(eventName, payload, groupedEndpoints))
       }
+
+      return Promise.all(promises)
     },
     /**
-         * Send a broadcasted event to all services.
-         * @param {String} eventName Name of the event
-         * @param {any} payload Payload
-         * @param {*} [groups=null] Groups
-         * @returns {void}
-         */
+     * Send a broadcasted event to all services.
+     * @param {String} eventName Name of the event
+     * @param {any} payload Payload
+     * @param {*} [groups=null] Groups
+     * @returns {void}
+    */
     broadcast (eventName, payload, groups = null) {
       if (this.transport) {
         // Avoid to broadcast internal events.
         if (!/^\$/.test(eventName)) {
           const endpoints = registry.events.getAllEndpointsUniqueNodes(eventName, groups)
+
           if (endpoints) {
             endpoints.map(endpoint => {
               if (endpoint.node.id !== this.nodeId) {
@@ -315,32 +324,35 @@ const createBroker = (options = {}) => {
           }
         }
       }
+
       return this.broadcastLocal(eventName, payload, groups)
     },
     /**
-         *Send a broadcasted event to all local services.
-         * @param {String} eventName Name of the event
-         * @param {any} payload Payload
-         * @param {*} [groups=null] Groups
-         * @returns {void}
-         */
+    *Send a broadcasted event to all local services.
+    * @param {String} eventName Name of the event
+    * @param {any} payload Payload
+    * @param {*} [groups=null] Groups
+    * @returns {void}
+    */
     broadcastLocal (eventName, payload, groups = null) {
       // If the given group is no array - wrap it.
       if (groups && !Array.isArray(groups)) {
         groups = [groups]
       }
+
       // Emit the event on the internal event bus
       if (/^\$/.test(eventName)) {
         this.bus.emit(eventName, payload)
       }
-      registry.events.emitLocal(eventName, payload, this.nodeId, groups, true)
+
+      return registry.events.emitLocal(eventName, payload, this.nodeId, groups, true)
     },
     /* eslint-disable no-use-before-define */
     /**
-         * Create a new Service and add it to the registry
-         * @param {import('../registry/service.js').ServiceSchema} schema - Schema of the Service
-         * @returns {Service} Service object.
-         */
+     * Create a new Service and add it to the registry
+     * @param {import('../registry/service.js').ServiceSchema} schema - Schema of the Service
+     * @returns {Service} Service object.
+    */
     /* eslint-enable2 no-use-before-define */
     createService (schema) {
       try {
@@ -358,10 +370,10 @@ const createBroker = (options = {}) => {
       }
     },
     /**
-         * Load and register a service from file.
-         * @param {string} fileName Path to the service file.
-         * @returns {Service} Service
-         */
+     * Load and register a service from file.
+     * @param {string} fileName Path to the service file.
+     * @returns {Service} Service
+    */
     loadService (fileName) {
       const filePath = path.resolve(fileName)
       const schema = require(filePath)
@@ -376,11 +388,11 @@ const createBroker = (options = {}) => {
       return service
     },
     /**
-         * Load services from a folder.
-         * @param {string} [folder='./services'] Path of the folder.
-         * @param {string} [fileMask='*.service.js'] Pattern of the service files
-         * @returns {number} Amount of services
-         */
+     * Load services from a folder.
+     * @param {string} [folder='./services'] Path of the folder.
+     * @param {string} [fileMask='*.service.js'] Pattern of the service files
+     * @returns {number} Amount of services
+    */
     loadServices (folder = './services', fileMask = '*.service.js') {
       this.log.info(`Searching services in folder '${folder}' with name pattern '${fileMask}'.`)
 
@@ -393,13 +405,13 @@ const createBroker = (options = {}) => {
       return serviceFiles.length
     },
     /**
-         * Wait for services before continuing startup.
-         * @param {Array.<string>} serviceNames Names of the services
-         * @param {Number} timeout Time in Miliseconds before the broker stops.
-         * @param {Number} interval Time in Miliseconds to check for services.
-         * @returns {Promise} Promise
-         */
-    waitForServices (serviceNames, timeout, interval) {
+     * Wait for services before continuing startup.
+     * @param {Array.<string>} serviceNames Names of the services
+     * @param {Number} timeout Time in Miliseconds before the broker stops.
+     * @param {Number} interval Time in Miliseconds to check for services.
+     * @returns {Promise} Promise
+    */
+    waitForServices (serviceNames, timeout, interval = 500) {
       if (typeof serviceNames === 'string') {
         serviceNames = [serviceNames]
       }
@@ -407,6 +419,7 @@ const createBroker = (options = {}) => {
       return new Promise((resolve, reject) => {
         // todo: add timout for service waiter
         this.log.warn(`Waiting for services '${serviceNames.join(',')}'`)
+
         const serviceCheck = () => {
           if (!this.isStarted) {
             resolve()
@@ -428,16 +441,17 @@ const createBroker = (options = {}) => {
             return reject(new WeaveError('The waiting of the services is interrupted due to a timeout.', 500, 'WAIT_FOR_SERVICE', { services: serviceNames }))
           }
 
-          this.options.waitForServiceInterval = setTimeout(serviceCheck, interval || 500)
+          this.options.waitForServiceInterval = setTimeout(serviceCheck, interval)
         }
         serviceCheck()
       })
     },
     /**
-         * Starts the broker.
-         * @returns {Promise} Promise
-         */
+     * Starts the broker.
+     * @returns {Promise} Promise
+    */
     start () {
+      const startTime = Date.now()
       return Promise.resolve()
         .then(() => middlewareHandler.callHandlersAsync('starting', [this], true))
         .then(() => {
@@ -453,7 +467,6 @@ const createBroker = (options = {}) => {
         })
         .then(() => {
           this.isStarted = true
-          log.success(`Weave node with ${services.length} services started successfully.`)
           this.broadcastLocal('$broker.started')
         })
         .then(() => {
@@ -467,29 +480,15 @@ const createBroker = (options = {}) => {
             options.started.call(this)
           }
         })
+        .then(() => {
+          const duration = Date.now() - startTime
+          log.success(`Node "${nodeId}" with ${services.length} services successfully started in ${duration}ms.`)
+        })
     },
     /**
-         * Start the broker in REPL mode.
-         * @returns {Promise} Promise
-         */
-    repl () {
-      let repl
-      // start the REPL module - if installed
-      try {
-        repl = require('@weave-js/repl')
-      } catch (error) {
-        this.log.error('To use REPL with weave, you have to install the REPL package with the command \'npm install @weave-js/repl\'.')
-        return
-      }
-
-      if (repl) {
-        return repl(this)
-      }
-    },
-    /**
-         * Stops the broker.
-         * @returns {Promise} Promise
-         */
+     * Stops the broker.
+     * @returns {Promise} Promise
+    */
     stop () {
       this.isStarted = false
       return Promise.resolve()
@@ -532,11 +531,11 @@ const createBroker = (options = {}) => {
         })
     },
     /**
-         * Send a ping to connected nodes.
-         * @param {*} nodeId Node id
-         * @param {number} [timeout=3000] Ping timeout
-         * @returns {Array} Ping result
-         */
+     * Send a ping to connected nodes.
+     * @param {*} nodeId Node id
+     * @param {number} [timeout=3000] Ping timeout
+     * @returns {Array} Ping result
+    */
     ping (nodeId, timeout = 3000) {
       if (broker.transport && broker.transport.isConnected) {
         if (nodeId) {
@@ -593,7 +592,17 @@ const createBroker = (options = {}) => {
       }
       return Promise.resolve(nodeId ? null : [])
     },
-    tracer
+    fatalError (message, error, killProcess = true) {
+      if (options.logger.enabled) {
+        log.fatal(message)
+      } else {
+        console.log(message, error)
+      }
+
+      if (killProcess) {
+        process.exit(1)
+      }
+    }
   }
 
   // Register internal broker events
@@ -608,6 +617,7 @@ const createBroker = (options = {}) => {
       adapter: options.transport
     }
   }
+
   if (options.transport.adapter) {
     const adapter = TransportAdapters.resolve(options.transport)
     if (adapter) {
@@ -620,6 +630,7 @@ const createBroker = (options = {}) => {
   // Metrics module
   broker.metrics = MetricsStorage(broker, options.metrics)
   broker.metrics.init()
+  registerBrokerMetrics(broker)
 
   // Module initialisation
   registry.init(broker, middlewareHandler, servicesChanged)
@@ -627,8 +638,6 @@ const createBroker = (options = {}) => {
   contextFactory.init(broker)
   health.init(broker, broker.transport)
   tracer.init(broker, options.tracing)
-  // broker.store = asyncStore
-  // broker.store.enable()
 
   // Initialize caching module
   if (options.cache.enabled) {
@@ -676,12 +685,15 @@ const createBroker = (options = {}) => {
     broker.multiCall = middlewareHandler.wrapMethod('multiCall', broker.multiCall)
     broker.emit = middlewareHandler.wrapMethod('emit', broker.emit)
     broker.broadcast = middlewareHandler.wrapMethod('broadcast', broker.broadcast)
+    broker.broadcastLocal = middlewareHandler.wrapMethod('broadcastLocal', broker.broadcastLocal)
+    broker.loadService = middlewareHandler.wrapMethod('loadService', broker.loadService)
     broker.createService = middlewareHandler.wrapMethod('createService', broker.createService)
   }
 
   registerMiddlewares(options.middlewares)
 
   // Stop the broker greaceful
+  /* istanbul ignore next */
   const onClose = () => broker.stop()
     .catch(error => broker.log.error(error))
     .then(() => process.exit(0))
@@ -697,17 +709,17 @@ const createBroker = (options = {}) => {
     broker.createService(require('../services/node.service'))
   }
 
-  registry.onRegisterLocalAction = action => {
-    return middlewareHandler.wrapHandler('localAction', action.handler, action)
-  }
+  // registry.onRegisterLocalAction = action => {
+  //   return
+  // }
 
-  registry.onRegisterRemoteAction = action => {
-    return middlewareHandler.wrapHandler('remoteAction', broker.transport.request.bind(broker.transport), action)
-  }
+  // registry.onRegisterRemoteAction = action => {
+  //   return middlewareHandler.wrapHandler('remoteAction', broker.transport.request.bind(broker.transport), action)
+  // }
 
-  registry.onRegisterLocalEvent = event => {
-    return middlewareHandler.wrapHandler('localEvent', event.handler, event)
-  }
+  // registry.onRegisterLocalEvent = event => {
+  //   return middlewareHandler.wrapHandler('localEvent', event.handler, event)
+  // }
 
   // Call middleware hook for broker created.
   middlewareHandler.callHandlersSync('created', [broker])

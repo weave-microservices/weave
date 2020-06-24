@@ -1,13 +1,16 @@
-const { isFunction, isObject, forIn, cloneDeep } = require('lodash')
-const { mergeSchemas } = require('../utils')
+const { cloneDeep } = require('lodash')
+const { mergeSchemas } = require('../utils/options')
+const { wrapInArray, isFunction, clone, wrapHandler, promisify, isObject } = require('@weave-js/utils')
+
 const { lifecycleHook } = require('../constants')
-const { promisify } = require('fachwork')
 const { WeaveError } = require('../errors')
 
 /**
  * The complete Triforce, or one or more components of the Triforce.
  * @typedef {Object} ServiceSchema
  * @property {string} name - Name of the Service.
+ * @property {string} version - Version of the service.
+ * @property {object} methods - Private methods of the service
  * @property {Array.<ServiceSchema>} mixins The mixins option accepts an array of mixin objects. These mixin objects can contain instance options like normal instance objects, and they will be merged against the eventual options using the same option merging logic in Vue.extend(). e.g. If your mixin contains a created hook and the component itself also has one, both functions will be called.
  * @property {object} settings - Indicates whether the Power component is present.
  * @property {object} actions - Indicates whether the Wisdom component is present.
@@ -20,6 +23,8 @@ const { WeaveError } = require('../errors')
 
 const createService = (broker, middlewareHandler, addLocalService, registerLocalService, schema) => {
   const self = Object.create(null)
+  self.broker = broker
+  self.log = broker.createLogger(`${self.name}-service`, self)
 
   // Check if a schema is given
   if (!schema) {
@@ -30,16 +35,17 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
     schema = applyMixins(schema)
   }
 
+  // Call service creating middleware hook
+  middlewareHandler.callHandlersSync('serviceCreating', [self, schema])
+
   if (!schema.name) {
     throw new WeaveError('Service name is missing!')
   }
 
-  self.broker = broker
   self.version = schema.version
   self.name = schema.name
   self.fullyQualifiedName = self.version ? `${self.name}.${self.version}` : self.name
   self.schema = schema
-  self.log = broker.createLogger(`${self.name}-service`, self)
   self.settings = schema.settings || {}
   self.meta = schema.meta || {}
   self.actions = {}
@@ -65,27 +71,32 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
   }
 
   if (isObject(schema.methods)) {
-    forIn(schema.methods, (method, name) => {
-      if (['log', 'actions', 'log', 'events', 'settings', 'methods', 'dependencies'].includes(name)) {
+    Object.keys(schema.methods).map(name => {
+      const method = schema.methods[name]
+
+      if (['log', 'actions', 'meta', 'events', 'settings', 'methods', 'dependencies', 'version', 'dependencies', 'broker', 'created', 'started', 'stopped'].includes(name)) {
         throw new WeaveError(`Invalid method name ${name} in service ${self.name}.`)
       }
+
       self[name] = method.bind(self)
     })
   }
 
   if (isObject(schema.actions)) {
-    forIn(schema.actions, (action, name) => {
+    Object.keys(schema.actions).map(name => {
+      let action = schema.actions[name]
+
       if (isFunction(action)) {
-        action = {
-          handler: action
-        }
+        action = wrapHandler(action)
       }
+
       const innerAction = createActionHandler(cloneDeep(action), name)
       registryItem.actions[innerAction.name] = innerAction
 
       const wrappedAction = middlewareHandler.wrapHandler('localAction', innerAction.handler, innerAction)
       const endpoint = broker.registry.createPrivateEndpoint(innerAction)
 
+      // Make the action callable via this.actions["actionName"]
       self.actions[name] = (params, options) => {
         const context = broker.contextFactory.create(endpoint, params, options || {})
         return wrappedAction(context)
@@ -94,17 +105,25 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
   }
 
   if (isObject(schema.events)) {
-    forIn(schema.events, (event, name) => {
+    Object.keys(schema.events).map(name => {
+      let event = schema.events[name]
       if (isFunction(event)) {
-        event = {
-          handler: event
-        }
+        event = wrapHandler(event)
       } else if (isObject(event)) {
-        event = Object.assign({}, event)
+        event = clone(event)
       }
 
       if (!event.handler) {
         throw new WeaveError(`Missing event handler for '${name}' event in service '${self.name}'`)
+      }
+
+      let handler
+      if (isFunction(event.handler)) {
+        handler = promisify(event.handler, { scope: self })
+      } else if (Array.isArray(event.handler)) {
+        handler = event.handler.map(h => {
+          return promisify(h, { scope: self })
+        })
       }
 
       if (!event.name) {
@@ -112,11 +131,17 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
       }
 
       event.service = self
-      const handler = event.handler
 
-      event.handler = (payload, sender, eventName) => {
-        // todo: error handling for events
-        return handler.apply(self, [payload, sender, eventName])
+      if (isFunction(event.handler)) {
+        event.handler = (payload, sender, eventName) => {
+          // todo: error handling for events
+          return handler.apply(self, [payload, sender, eventName])
+        }
+      } else if (Array.isArray(event.handler)) {
+        event.handler = (payload, sender, eventName) => {
+          // todo: error handling for events
+          return Promise.all(handler.map(fn => fn.apply(self, [payload, sender, eventName])))
+        }
       }
 
       registryItem.events[name] = event
@@ -135,9 +160,7 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
 
   self.start = () => {
     return Promise.resolve()
-      .then(() => {
-        return middlewareHandler.callHandlersAsync('serviceStarting', [self])
-      })
+      .then(() => middlewareHandler.callHandlersAsync('serviceStarting', [self]))
       .then(() => {
         if (schema.dependencies) {
           return broker.waitForServices(schema.dependencies, self.settings.$dependencyTimeout || 0)
@@ -151,20 +174,14 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
           return schema.started
             .map(hook => promisify(hook, { scope: self }))
             .reduce((p, hook) => p.then(hook), Promise.resolve())
-          // return Promise.all(schema.started.map(startedHook => promisify(startedHook, { scope: self })()))
         }
       })
-      .then(() => {
-        registerLocalService(registryItem)
-        return null
-      })
-      .then(() => {
-        return middlewareHandler.callHandlersAsync('serviceStarted', [self])
-      })
+      .then(() => registerLocalService(registryItem))
+      .then(() => middlewareHandler.callHandlersAsync('serviceStarted', [self]))
   }
 
   self.stop = () => {
-    self.log.trace(`Stopping service "${self.name}"`)
+    self.log.info(`Stopping service "${self.name}"...`)
     return Promise.resolve()
       .then(() => {
         return middlewareHandler.callHandlersAsync('serviceStopping', [self])
@@ -180,9 +197,8 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
             .reduce((p, hook) => p.then(hook), Promise.resolve())
         }
       })
-      .then(() => {
-        return middlewareHandler.callHandlersAsync('serviceStopped', [self])
-      })
+      .then(() => middlewareHandler.callHandlersAsync('serviceStopped', [self], { reverse: true }))
+      .then(() => self.log.info(`Service "${self.name}" stopped`))
   }
 
   middlewareHandler.callHandlersSync('serviceCreated', [self])
@@ -213,25 +229,28 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
   }
 
   function applyMixins (schema) {
-    const mixins = Array.isArray(schema.mixins) ? schema.mixins : [schema.mixins]
+    const mixins = wrapInArray(schema.mixins)
 
-    const mixedSchema = Array
-      .from(mixins)
-      .reverse()
-      .reduce((s, mixin) => {
-        for (var key in mixin) {
-          if (lifecycleHook.includes(key)) {
-            mixin[key] = mixin[key].bind(self)
+    if (mixins.length > 0) {
+      const mixedSchema = Array
+        .from(mixins)
+        .reverse()
+        .reduce((s, mixin) => {
+          for (var key in mixin) {
+            if (mixin.mixins) {
+              mixin = applyMixins(mixin)
+            }
+            // bind scope for life cycle hooks
+            if (lifecycleHook.includes(key)) {
+              mixin[key] = mixin[key].bind(self)
+            }
           }
-        }
-        if (mixin.mixins) {
-          mixin = applyMixins(mixin)
-        }
 
-        return mergeSchemas(s, mixin)
-      }, {})
-    return mergeSchemas(mixedSchema, schema)
+          return s ? mergeSchemas(s, mixin) : mixin
+        }, null)
+      return mergeSchemas(mixedSchema, schema)
+    }
+    return schema
   }
 }
-
 module.exports = createService

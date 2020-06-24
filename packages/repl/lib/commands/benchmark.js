@@ -1,6 +1,8 @@
-const chalk = require('chalk')
+const cliUI = require('../utils/cli-ui')
 const _ = require('lodash')
-const util = require('../utils')
+const createSpinner = require('../utils/create-spinner')
+const formatNumber = require('../utils/format-number')
+const { timespanFromUnixTimes } = require('@weave-js/utils')
 
 module.exports = (vorpal, broker) => {
   vorpal
@@ -14,7 +16,7 @@ module.exports = (vorpal, broker) => {
       }
     })
     .action((args, done) => {
-      const spinner = util.createSpinner('🚀  Running benchmark... ')
+      const spinner = createSpinner('🚀  Running benchmark... ')
       const action = args.action
 
       let time = args.options.time != null ? Number(args.options.time) : null
@@ -50,20 +52,26 @@ module.exports = (vorpal, broker) => {
       }, (time !== null ? time : 60) * 1000)
 
       const printResult = (duration) => {
-        const errorString = errorCounter > 0 ? chalk.red.bold(`${util.formatNumber(errorCounter)} error(s) ${util.formatNumber(errorCounter / responseCounter * 100)}%`) : chalk.grey('0 errors')
+        console.log(cliUI.successText('\nBenchmark results:\n'))
+        console.log(cliUI.infoText(`${formatNumber(responseCounter)} requests in ${timespanFromUnixTimes(duration)}`))
 
-        console.log(chalk.green.bold('\nBenchmark results:\n'))
-        console.log(chalk.bold(`${util.formatNumber(responseCounter)} requests in ${util.humanizeTime(duration)}`, errorString))
-        console.log(`Requests/second: ${chalk.bold(util.formatNumber(responseCounter / duration * 1000))}`)
-        console.log(`	Average time: ${chalk.bold(util.humanizeTime(sumTime / responseCounter))}`)
-        console.log(`	Min time: ${chalk.bold(util.humanizeTime(minTime))}`)
-        console.log(`	Max time: ${chalk.bold(util.humanizeTime(maxTime))}`)
+        if (errorCounter > 0) {
+          console.log(cliUI.errorText(`${formatNumber(errorCounter)} error(s) ${formatNumber(errorCounter / responseCounter * 100)}%`))
+        } else {
+          console.log(cliUI.neutralText('0 errors'))
+        }
+
+        console.log(`Requests per second: ${cliUI.highlightedText(formatNumber(responseCounter / duration * 1000))}`)
+        console.log(`	Average time: ${cliUI.highlightedText(timespanFromUnixTimes(sumTime / responseCounter))}`)
+        console.log(`	Min time: ${cliUI.highlightedText(timespanFromUnixTimes(minTime))}`)
+        console.log(`	Max time: ${cliUI.highlightedText(timespanFromUnixTimes(maxTime))}`)
       }
 
       const handleRequest = (startTime, error) => {
         if (error) {
           errorCounter++
         }
+
         responseCounter++
 
         const diff = process.hrtime(startTime)
@@ -83,9 +91,11 @@ module.exports = (vorpal, broker) => {
           spinner.stop()
           const diffTotal = process.hrtime(startTotalTime)
           const durationTotal = (diffTotal[0] + diffTotal[1] / 1e9) * 1000
+
           printResult(durationTotal)
           return done()
         }
+
         if (requestCounter % 10 * 1000) {
           doRequest()
         } else {

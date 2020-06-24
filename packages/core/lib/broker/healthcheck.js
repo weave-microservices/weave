@@ -1,11 +1,11 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2018 Fachwerk
+ * Copyright 2020 Fachwerk
  */
 
 const os = require('os')
-const { bytesToSize } = require('../utils')
+const { bytesToSize } = require('@weave-js/utils')
 
 const createHealthcheck = () => {
   return {

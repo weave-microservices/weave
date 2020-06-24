@@ -1,11 +1,35 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2018 Fachwerk
+ * Copyright 2020 Fachwerk
  */
+const crypto = require('crypto')
+const { isObject } = require('@weave-js/utils')
 
-const { hash } = require('node-object-hash')({ sort: false, coerce: false })
-const { isObject } = require('lodash')
+function getCacheKeyByObject (val) {
+  if (Array.isArray(val)) {
+    return val.map(object => getCacheKeyByObject(object)).join('/')
+  } else if (isObject(val)) {
+    return Object.keys(val).map(key => {
+      return [key, getCacheKeyByObject(val[key])].join('/')
+    }).join('/')
+  } else if (val !== null) {
+    return val.toString()
+  } else {
+    return 'null'
+  }
+}
+
+function generateHash (key) {
+  return crypto
+    .createHash('sha1')
+    .update(key)
+    .digest('base64')
+}
+
+function registerCacheMetrics (metrics) {
+  // todo: register metric stores
+}
 
 const makeBaseCache = (broker, options) => {
   const cache = {
@@ -13,7 +37,12 @@ const makeBaseCache = (broker, options) => {
       ttl: null
     }, options),
     init () {
-      return Promise.resolve()
+      this.broker = broker
+      this.metrics = broker.metrics
+
+      if (this.broker) {
+        registerCacheMetrics(this.metrics)
+      }
     },
     log: broker.createLogger('CACHER'),
     set (/* hashKey, result, ttl */) {
@@ -36,25 +65,37 @@ const makeBaseCache = (broker, options) => {
       /* istanbul ignore next */
       return Promise.resolve()
     },
-    getCachingHash (actionName, params, keys) {
-      if (params) {
+    getCachingHash (actionName, params, meta, keys) {
+      if (params || meta) {
         const prefix = `${actionName}:`
+
         if (keys) {
           if (keys.length === 1) {
             const value = params[keys[0]]
-            return prefix + (isObject(value) ? hash(value) : value)
+            const key = getCacheKeyByObject(value)
+            return prefix + (isObject(value) ? key : value)
           }
+
           if (keys.length > 0) {
-            const res = keys.reduce((p, key, i) => {
-              const value = params[key]
-              return p + (i ? '|' : '') + (isObject(value) ? hash(value) : value)
+            const res = keys.reduce((pre, property, i) => {
+              const value = params[property]
+              let hash
+              if (isObject(value)) {
+                const key = getCacheKeyByObject(value)
+                hash = generateHash(key)
+              } else {
+                hash = value
+              }
+
+              return pre + (i > 0 ? '|' : '') + hash
             }, prefix)
             return res
           }
         } else {
-          return prefix + hash(params)
+          return prefix + generateHash(getCacheKeyByObject(params))
         }
       }
+
       return actionName
     }
   }
@@ -62,13 +103,15 @@ const makeBaseCache = (broker, options) => {
   cache.middleware = (handler, action) => {
     if (action.cache) {
       return function cacheMiddleware (context) {
-        const cacheHashKey = cache.getCachingHash(action.name, context.params, action.cache.keys)
+        const cacheHashKey = cache.getCachingHash(action.name, context.params, context.meta, action.cache.keys)
         context.isCachedResult = false
+
         return cache.get(cacheHashKey).then((content) => {
           if (content !== null) {
             context.isCachedResult = true
             return content
           }
+
           return handler(context).then((result) => {
             cache.set(cacheHashKey, result, action.cache.ttl)
             return result

@@ -1,6 +1,6 @@
 
-const chalk = require('chalk')
 const { table } = require('table')
+const cliUI = require('../utils/cli-ui')
 
 module.exports = (vorpal, broker) => {
   vorpal
@@ -8,11 +8,11 @@ module.exports = (vorpal, broker) => {
     .action((args, done) => {
       const data = []
       data.push([
-        chalk.bold('Action'),
-        chalk.bold('Nodes'),
-        chalk.bold('State'),
-        chalk.bold('Cached'),
-        chalk.bold('Params')
+        ('Action'),
+        cliUI.tableHeaderText('Nodes'),
+        cliUI.tableHeaderText('State'),
+        cliUI.tableHeaderText('Cached'),
+        cliUI.tableHeaderText('Params')
       ])
 
       const list = []
@@ -29,8 +29,8 @@ module.exports = (vorpal, broker) => {
           data.push([
             action.name,
             item.hasLocal ? `(*)${item.count}` : item.count,
-            item.hasAvailable ? chalk.bgGreen.black('  OK  ') : chalk.bgRed.white.bold(' FAILURE '),
-            action.cache ? chalk.green('Yes') : chalk.gray('No'),
+            item.hasAvailable ? cliUI.successLabel('  OK  ') : cliUI.failureLabel(' FAILURE '),
+            action.cache ? cliUI.successText('Yes') : cliUI.neutralText('No'),
             params
           ])
         }
@@ -40,7 +40,7 @@ module.exports = (vorpal, broker) => {
         data.push([
           service.name,
           service.version ? service.version : 1,
-          service.isAvailable ? chalk.bgGreen.black('  OK  ') : chalk.bgRed.white.bold(' FAILURE '),
+          service.isAvailable ? cliUI.successLabel('  OK  ') : cliUI.failureLabel(' FAILURE '),
           service.actions,
           service.events,
           service.nodes.length

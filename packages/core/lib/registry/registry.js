@@ -1,7 +1,7 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2018 Fachwerk
+ * Copyright 2020 Fachwerk
  */
 
 // own packages
@@ -12,7 +12,7 @@ const MakeEventCollection = require('./collections/event-collection')
 const Endpoint = require('./endpoint')
 const { WeaveServiceNotFoundError, WeaveServiceNotAvailableError } = require('../errors')
 const Node = require('./node')
-const { removeCircularReferences } = require('../utils.js')
+const { safeCopy } = require('@weave-js/utils')
 
 const createRegistry = () => {
   const noop = () => {}
@@ -21,9 +21,10 @@ const createRegistry = () => {
   const registry = {
     init (broker, middlewareHandler, serviceChanged) {
       this.broker = broker
-      // this.transport = transport
+
       this.middlewareHandler = middlewareHandler
       this.serviceChanged = serviceChanged
+
       // create logger
       this.log = broker.createLogger('REGISTRY')
 
@@ -42,11 +43,11 @@ const createRegistry = () => {
     onRegisterLocalAction: noop,
     onRegisterRemoteAction: noop,
     /**
-         * Check action visibility
-         * @param {*} action Action definition
-         * @param {*} node Node object
-         * @returns {Boolean} Is visible
-         */
+     * Check action visibility
+     * @param {*} action Action definition
+     * @param {*} node Node object
+     * @returns {Boolean} Is visible
+    */
     checkActionVisibility (action, node) {
       if (typeof action.visibility === 'undefined' || action.visibility === 'public') {
         return true
@@ -57,11 +58,11 @@ const createRegistry = () => {
       return false
     },
     /**
-         *
-         * Register a local service
-         * @param {*} svc Service definition
-         * @returns {void}
-         */
+     *
+     * Register a local service
+     * @param {*} svc Service definition
+     * @returns {void}
+    */
     registerLocalService (svc) {
       if (!this.services.has(svc.name, svc.version, this.broker.nodeId)) {
         const service = this.services.add(this.nodes.localNode, svc.name, svc.version, svc.settings)
@@ -165,19 +166,19 @@ const createRegistry = () => {
         this.events.add(node, service, event)
 
         if (node.isLocal) {
-          event.handler = this.onRegisterLocalEvent(event)
+          event.handler = this.middlewareHandler.wrapHandler('localEvent', event.handler, event) // this.onRegisterLocalEvent(event)
         }
 
         service.addEvent(event)
       })
     },
     /**
-         * Register actions for a service
-         * @param {*} node Node
-         * @param {*} service Service object
-         * @param {*} actions Service actions
-         * @returns {void}
-         */
+     * Register actions for a service
+     * @param {*} node Node
+     * @param {*} service Service object
+     * @param {*} actions Service actions
+     * @returns {void}
+    */
     registerActions (node, service, actions) {
       Object.keys(actions).forEach((key) => {
         const action = actions[key]
@@ -187,9 +188,9 @@ const createRegistry = () => {
         }
 
         if (node.isLocal) {
-          action.handler = this.onRegisterLocalAction(action)
+          action.handler = this.middlewareHandler.wrapHandler('localAction', action.handler, action)// this.onRegisterLocalAction(action)
         } else {
-          action.handler = this.onRegisterRemoteAction(action)
+          action.handler = this.middlewareHandler.wrapHandler('remoteAction', this.broker.transport.request.bind(this.broker.transport), action)// this.onRegisterRemoteAction(action)
         }
 
         this.actions.add(node, service, action)
@@ -225,22 +226,25 @@ const createRegistry = () => {
       } else {
         if (opts && opts.nodeId) { // remote
           const endpoint = this.getActionEndpointByNodeId(actionName, opts.nodeId)
+
           if (!endpoint) {
-            this.log.warn(`Service ${actionName} is not registered on node ${opts.nodeId}.`)
+            this.log.warn(`Service "${actionName}" is not registered on node ${opts.nodeId}.`)
             return new WeaveServiceNotFoundError({ actionName, nodeId: opts.nodeId })
           }
+
           return endpoint
         } else {
           const endpointList = this.getActionEndpoints(actionName)
+
           if (!endpointList) {
-            this.log.warn(`Service ${actionName} is not registered.`)
+            this.log.warn(`Service "${actionName}" is not registered.`)
             return new WeaveServiceNotFoundError({ actionName })
           }
 
           const endpoint = endpointList.getNextAvailable()
 
           if (!endpoint) {
-            this.log.warn(`Service ${actionName} is not available.`)
+            this.log.warn(`Service "${actionName}" is not available.`)
             return new WeaveServiceNotAvailableError({ actionName })
           }
 
@@ -265,18 +269,27 @@ const createRegistry = () => {
       const endpointList = this.getActionEndpoints(actionName)
 
       if (!endpointList) {
-        this.log.warn(`Service ${actionName} is not registered localy.`)
+        this.log.warn(`Service "${actionName}" is not registered localy.`)
         throw new WeaveServiceNotFoundError({ actionName })
       }
 
       const endpoint = endpointList.getNextLocalEndpoint()
 
       if (!endpoint) {
-        this.log.warn(`Service ${actionName} is not available localy.`)
+        this.log.warn(`Service "${actionName}" is not available localy.`)
         throw new WeaveServiceNotAvailableError({ actionName })
       }
 
       return endpoint
+    },
+    getNodeInfo (nodeId) {
+      const node = this.nodes.get(nodeId)
+
+      if (!node) {
+        return null
+      }
+
+      return node.info
     },
     getLocalNodeInfo (forceGenerateInfo) {
       if (forceGenerateInfo || !this.nodes.localNode.info) {
@@ -285,7 +298,7 @@ const createRegistry = () => {
 
       return this.nodes.localNode.info
     },
-    generateLocalNodeInfo (incrementSequence) {
+    generateLocalNodeInfo (incrementSequence = false) {
       const { client, IPList, sequence } = this.nodes.localNode
       const nodeInfo = { client, IPList, sequence }
 
@@ -305,7 +318,7 @@ const createRegistry = () => {
         nodeInfo.services = []
       }
 
-      this.nodes.localNode.info = removeCircularReferences(nodeInfo)
+      this.nodes.localNode.info = safeCopy(nodeInfo)
       return nodeInfo
     },
     processNodeInfo (payload) {
@@ -335,13 +348,13 @@ const createRegistry = () => {
 
       if (isNew) {
         this.broker.broadcastLocal('$node.connected', { node, isReconnected })
-        this.log.debug(`Node ${node.id} connected!`)
+        this.log.info(`Node "${node.id}" connected!`)
       } else if (isReconnected) {
         this.broker.broadcastLocal('$node.connected', { node, isReconnected })
-        this.log.debug(`Node ${node.id} reconnected!`)
+        this.log.info(`Node "${node.id}" reconnected!`)
       } else {
         this.broker.broadcastLocal('$node.updated', { node, isReconnected })
-        this.log.debug(`Node ${node.id} updated!`)
+        this.log.info(`Node "${node.id}" updated!`)
       }
     },
     nodeDisconnected (nodeId, isUnexpected) {
@@ -350,13 +363,13 @@ const createRegistry = () => {
         this.deregisterServiceByNodeId(node.id)
         node.disconnected(isUnexpected)
         this.broker.broadcastLocal('$node.disconnected', { nodeId, isUnexpected })
-        this.log.warn(`Node '${node.id}'${isUnexpected ? ' unexpectedly' : ''} disconnected.`)
+        this.log.warn(`Node "${node.id}"${isUnexpected ? ' unexpectedly' : ''} disconnected.`)
       }
     },
     removeNode (nodeId) {
       this.nodes.remove(nodeId)
       this.broker.broadcastLocal('$node.removed', { nodeId })
-      this.log.warn(`Node '${nodeId}' removed.`)
+      this.log.warn(`Node "${nodeId}" removed.`)
     },
     getNodeList (options) {
       return this.nodes.list(options)

@@ -1,9 +1,10 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2018 Fachwerk
+ * Copyright 2020 Fachwerk
  */
-const { isString, isFunction } = require('lodash')
+
+const { isString, isFunction } = require('@weave-js/utils')
 const { WeaveBrokerOptionsError } = require('../errors')
 
 const adapters = {
@@ -26,10 +27,12 @@ module.exports = {
     }
 
     let cacheFactory
+
     if (cacheOptions === true) {
       cacheFactory = this.adapters.Memory
     } else if (isString(cacheOptions)) {
       const cache = getByName(cacheOptions)
+
       if (cache) {
         cacheFactory = cache
       } else {

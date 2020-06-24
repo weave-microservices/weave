@@ -1,7 +1,7 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2018 Fachwerk
+ * Copyright 2020 Fachwerk
  */
 
 // npm packages
@@ -10,7 +10,7 @@ const { defaultsDeep } = require('lodash')
 // own packages
 const URIToConfig = require('./URIToConfig')
 const TransportBase = require('../adapter-base')
-const utils = require('../../../utils')
+const utils = require('@weave-js/utils')
 
 const defaultOptions = {
   port: 6379,
@@ -33,6 +33,7 @@ const RedisTransportAdapter = adapterOptions => {
           Redis = require('ioredis')
         } catch (error) {
           this.log.error('The package \'ioredis\' is not installed. Please install the package with \'npm install ioredis\'.')
+
           error.skipRetry = true
           return reject(error)
         }
@@ -41,7 +42,9 @@ const RedisTransportAdapter = adapterOptions => {
 
         clientSub.on('connect', () => {
           clientPub = new Redis(adapterOptions)
+
           this.log.info('Redis SUB client connected.')
+
           clientPub.on('connect', () => {
             if (this.interruptionCount > 0 && !this.isConnected) {
               this.bus.emit('adapter.connected', true)

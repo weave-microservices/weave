@@ -1,7 +1,7 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2018 Fachwerk
+ * Copyright 2020 Fachwerk
  */
 
 module.exports = () => {
@@ -20,6 +20,7 @@ module.exports = () => {
         storage.delete(item.name)
         return
       }
+
       item.callCounter = 0
       item.failureCouter = 0
     })
@@ -38,6 +39,7 @@ module.exports = () => {
       }
       storage.set(endpoint.name, item)
     }
+
     return item
   }
 
@@ -54,6 +56,7 @@ module.exports = () => {
   function failure (item, error, options) {
     item.callCounter++
     item.failureCouter++
+
     checkThreshold(item, options)
   }
 
@@ -67,12 +70,14 @@ module.exports = () => {
     item.state = 'CIRCUIT_BREAKER_OPEN'
     item.endpoint.state = false
     item.circuitBreakerTimer = setTimeout(() => halfOpenCircuitBreaker(item), item.options.halfOpenTimeout)
+
     log.debug(`Circuit breaker has been opened for endpoint '${item.endpoint.name}'`)
   }
 
   function halfOpenCircuitBreaker (item) {
     item.state = 'CIRCUIT_BREAKER_HALF_OPEN'
     item.endpoint.state = true
+
     log.debug(`Circuit breaker has been half opened for endpoint '${item.endpoint.name}'`)
   }
 
@@ -81,16 +86,19 @@ module.exports = () => {
     item.callCounter = 0
     item.state = 'CIRCUIT_BREAKER_CLOSED'
     item.endpoint.state = true
+
     if (item.circuitBreakerTimer) {
       clearTimeout(item.circuitBreakerTimer)
       item.circuitBreakerTimer = null
     }
+
     log.debug(`Circuit breaker has been closed for endpoint '${item.endpoint.name}'`)
   }
 
   function wrapCircuitBreakerMiddleware (handler, action) {
     const self = this
     const options = Object.assign({}, self.options.circuitBreaker, action.circuitBreaker || {})
+
     if (options.enabled) {
       return function curcuitBreakerMiddleware (context) {
         const endpoint = context.endpoint
@@ -100,10 +108,12 @@ module.exports = () => {
           .then(result => {
             const item = getEndpointState(endpoint, options)
             success(item, options)
+
             return result
           })
           .catch(error => {
             failure(item, error, options)
+
             return Promise.reject(error)
           })
       }
@@ -113,9 +123,12 @@ module.exports = () => {
 
   return {
     created () {
-      log = this.createLogger('circuit-breaker')
       const options = this.options.circuitBreaker
+      log = this.createLogger('circuit-breaker')
+
       if (options.enabled) {
+        // registe metrics
+
         createWindowTimer(options.windowTime)
       }
     },

@@ -1,4 +1,4 @@
-module.exports = (vorpal, broker) => {
+module.exports = (vorpal) => {
   vorpal
     .command('clear', 'Clear console.')
     .alias('cc')

@@ -1,7 +1,7 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2018 Fachwerk
+ * Copyright 2020 Fachwerk
  */
 
 const { WeaveQueueSizeExceededError } = require('../errors')
@@ -16,7 +16,7 @@ const wrapBulkheadMiddleware = function (handler, action) {
 
     const callNext = () => {
       if (queue.length === 0) return
-      if (currentlyInFlight >= bulkheadOptions.concurrency) return
+      if (currentlyInFlight >= bulkheadOptions.concurrentCalls) return
 
       const item = queue.shift()
 
@@ -36,7 +36,7 @@ const wrapBulkheadMiddleware = function (handler, action) {
 
     return function bulkheadMiddlware (context) {
       // Execute action immediately
-      if (currentlyInFlight < bulkheadOptions.concurrency) {
+      if (currentlyInFlight < bulkheadOptions.concurrentCalls) {
         currentlyInFlight++
         return handler(context)
           .then(result => {

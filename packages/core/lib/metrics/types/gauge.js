@@ -9,11 +9,13 @@ module.exports = class Gauge extends BaseMetricType {
 
   increment (labels, value, timestamp) {
     const item = this.get(labels)
+
     this.set(labels, (item ? item.value : 0) + value)
   }
 
   decrement (labels, value, timestamp) {
     const item = this.get(labels)
+
     this.set(labels, (item ? item.value : 0) - value)
   }
 
@@ -30,7 +32,9 @@ module.exports = class Gauge extends BaseMetricType {
   set (labels, value, timestamp) {
     const labelString = this.stringifyLabels(labels)
     const item = this.values.get(labelString)
+
     this.value = value
+
     if (item) {
       if (item.value !== value) {
         item.labels = labels
@@ -41,6 +45,7 @@ module.exports = class Gauge extends BaseMetricType {
         labels: labels,
         value: value
       }
+
       this.values.set(labelString, item)
     }
     return item

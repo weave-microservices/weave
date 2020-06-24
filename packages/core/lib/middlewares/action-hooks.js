@@ -1,7 +1,7 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2018 Fachwerk
+ * Copyright 2020 Fachwerk
  */
 
 function callHook (hook, service, context, result) {
@@ -16,6 +16,7 @@ function sanitizeHooks (hooks, service) {
   if (typeof hooks === 'string') {
     hooks = hooks.split(' ')
   }
+
   if (Array.isArray(hooks)) {
     return hooks.map((hook) => {
       if (typeof hook === 'string') {
@@ -24,6 +25,7 @@ function sanitizeHooks (hooks, service) {
       return hook
     })
   }
+
   return hooks
 }
 
@@ -48,10 +50,12 @@ const makeActionHookMiddleware = () =>
           if (beforeWildcardHook) {
             promise = promise.then(() => callHook(beforeWildcardHook, action.service, context))
           }
+
           // Before hook
           if (beforeHook) {
             promise = promise.then(() => callHook(beforeHook, action.service, context))
           }
+
           // Call action handler
           promise = promise.then(() => handler(context))
 
@@ -73,6 +77,7 @@ const makeActionHookMiddleware = () =>
           if (errorWildcardHook) {
             promise = promise.catch(error => callHook(errorWildcardHook, action.service, context, error))
           }
+
           return promise
         }
       }

@@ -3,6 +3,76 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-rc.23](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.22...@weave-js/core@0.7.0-rc.23) (2020-06-13)
+
+
+### Bug Fixes
+
+* Added missing mixin schema merge ([6b16470](https://github.com/fachw3rk/weave/commit/6b1647038bdc0094ae995c0aea70468b075b80db))
+
+
+### Features
+
+* Added support for object streams ([6b174dd](https://github.com/fachw3rk/weave/commit/6b174ddd6dd66969c79f8ce9d2fa09f9fdfd55d1))
+
+
+
+
+
+# [0.7.0-rc.22](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.21...@weave-js/core@0.7.0-rc.22) (2020-06-11)
+
+
+### Bug Fixes
+
+* Config merge from file ([edfdc86](https://github.com/fachw3rk/weave/commit/edfdc86a86dc96582622d15a3c914c7f2c266e41))
+
+
+
+
+
+# [0.7.0-rc.21](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.20...@weave-js/core@0.7.0-rc.21) (2020-06-09)
+
+**Note:** Version bump only for package @weave-js/core
+
+
+
+
+
+# [0.7.0-rc.20](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.19...@weave-js/core@0.7.0-rc.20) (2020-06-09)
+
+**Note:** Version bump only for package @weave-js/core
+
+
+
+
+
+# [0.7.0-rc.19](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.18...@weave-js/core@0.7.0-rc.19) (2020-04-28)
+
+**Note:** Version bump only for package @weave-js/core
+
+
+
+
+
+# [0.7.0-rc.18](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.17...@weave-js/core@0.7.0-rc.18) (2020-04-28)
+
+**Note:** Version bump only for package @weave-js/core
+
+
+
+
+
+# [0.7.0-rc.17](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.16...@weave-js/core@0.7.0-rc.17) (2020-04-28)
+
+
+### Bug Fixes
+
+* linting ([a592f35](https://github.com/fachw3rk/weave/commit/a592f35524d934b61841655bb0fc794b3bf46b99))
+
+
+
+
+
 # [0.7.0-rc.16](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.15...@weave-js/core@0.7.0-rc.16) (2020-02-25)
 
 **Note:** Version bump only for package @weave-js/core

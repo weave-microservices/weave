@@ -1,7 +1,7 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2018 Fachwerk
+ * Copyright 2020 Fachwerk
  */
 
 const { Transform } = require('stream')
@@ -66,6 +66,7 @@ module.exports = (broker, transport, pending) => {
           }
         } else if (payload.isStream) {
           stream = new Transform({
+            objectMode: payload.meta && payload.meta.$isObjectModeStream,
             transform: function (chunk, encoding, done) {
               this.push(chunk)
               return done()
@@ -108,6 +109,7 @@ module.exports = (broker, transport, pending) => {
 
     if (payload.isStream != null) {
       let stream = pending.responseStreams.get(id)
+
       if (stream) {
         if (!payload.isStream) {
           transport.log.debug('Stream closing received from ', payload.sender)
@@ -118,14 +120,17 @@ module.exports = (broker, transport, pending) => {
           transport.log.debug('Stream chunk received from ', payload.sender)
           stream.write(payload.data.type === 'Buffer' ? Buffer.from(payload.data) : payload.data)
         }
+
         return request.resolve(payload.data)
       } else {
         stream = new Transform({
+          objectMode: payload.meta && payload.meta.$isObjectModeStream,
           transform: function (chunk, encoding, done) {
             this.push(chunk)
             return done()
           }
         })
+
         transport.log.debug('New stream received from ', payload.sender)
 
         pending.responseStreams.set(id, stream)
@@ -179,11 +184,12 @@ module.exports = (broker, transport, pending) => {
   }
 
   const onEvent = payload => {
-    registry.events.emitLocal(payload.eventName, payload.data, payload.sender, payload.groups, payload.isBroadcast)
-    // localEventEmitter(payload.eventName, payload.data, payload.sender, payload.groups, payload.isBroadcast)
+    return registry.events.emitLocal(payload.eventName, payload.data, payload.sender, payload.groups, payload.isBroadcast)
   }
 
-  const onDisconnect = payload => registry.nodeDisconnected(payload.sender, false)
+  const onDisconnect = payload => {
+    return registry.nodeDisconnected(payload.sender, false)
+  }
 
   const onHeartbeat = payload => {
     // registry.nodes.heartbeat(payload)
@@ -217,9 +223,11 @@ module.exports = (broker, transport, pending) => {
         throw new WeaveError('Message payload missing!')
       }
 
-      if (payload.sender === broker.nodeId) {
-        return
-      }
+      // skip own packages
+      // if (payload.sender === broker.nodeId) {
+      //   // todo: Add ID conflict detection.
+      //   return
+      // }
 
       // stats.packets.received = stats.packets.received + 1
 

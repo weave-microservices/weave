@@ -64,7 +64,7 @@ describe('Test logger module.', () => {
     const broker = Weave({
       nodeId: 'node1',
       logger: {
-        logLevel: 'info',
+        logLevel: 'fatal',
         types: {
           info: {
             done: doneHookFn

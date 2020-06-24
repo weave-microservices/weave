@@ -1,8 +1,7 @@
 const { Weave } = require('../../../lib/index')
-const utils = require('../../../lib/utils')
+const utils = require('@weave-js/utils')
 
 const Middleware = require('../../../lib/middlewares/bulkhead')
-// const Context = require('../../../lib/broker/context')
 const createContextFactory = require('../../../lib/broker/context.factory')
 
 const config = {
@@ -55,17 +54,19 @@ describe('Test bulkhead middleware', () => {
 
   it('should call the action 2 times bevore the requests get queued', (done) => {
     broker.options.bulkhead.enabled = true
-    broker.options.bulkhead.concurrency = 2
+    broker.options.bulkhead.concurrentCalls = 2
     broker.options.bulkhead.maxQueueSize = 10
 
     contentFactory.init(broker)
     let flow = []
+
     const handler = jest.fn((context) => {
       flow.push('handler-' + context.params.p)
       return new Promise(resolve => {
         setTimeout(() => resolve(), 10)
       })
     })
+
     const contexts = [...Array(10)].map((_, i) => contentFactory.create(endpoint, { p: i }))
     const wrappedHandler = middleware.localAction.call(broker, handler, action)
 
@@ -98,7 +99,7 @@ describe('Test bulkhead middleware', () => {
 
   it('should call the action 2 times immediately bevore the last requests get queued', (done) => {
     broker.options.bulkhead.enabled = true
-    broker.options.bulkhead.concurrency = 2
+    broker.options.bulkhead.concurrentCalls = 2
     broker.options.bulkhead.maxQueueSize = 10
 
     contentFactory.init(broker)

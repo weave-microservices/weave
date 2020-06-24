@@ -1,10 +1,10 @@
 {
   "name": "@weave-js/cli",
-  "version": "0.7.0-rc.17",
+  "version": "0.7.0-rc.24",
   "description": "Weave CLI tool",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint --ext=.js lib --fix"
+    "lint": "eslint . --ext .js --fix"
   },
   "bin": {
     "weave-cli": "./bin/weave-cli.js"
@@ -20,8 +20,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@weave-js/core": "^0.7.0-rc.16",
-    "@weave-js/repl": "^0.7.0-rc.14",
+    "@weave-js/core": "^0.7.0-rc.23",
+    "@weave-js/repl": "^0.7.0-rc.21",
     "async": "^3.1.0",
     "consolidate": "^0.15.1",
     "download-git-repo": "^2.0.0",
@@ -40,7 +40,7 @@
     "user-home": "^2.0.0",
     "yargs": "^14.2.0"
   },
-  "gitHead": "b58f13e136270973da4dda126b1892170d376a90",
+  "gitHead": "b2c0ecb9d40d4f358e07902264023d8d96d3a5b1",
   "devDependencies": {
     "eslint": "^6.8.0"
   }

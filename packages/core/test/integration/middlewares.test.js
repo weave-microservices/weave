@@ -1,6 +1,6 @@
 const { Weave, TransportAdapters } = require('../../lib/index')
 
-describe('Test middlware hooks', () => {
+describe('Middleware hooks', () => {
   it('should call hooks in the right order', (done) => {
     const order = []
 
@@ -45,6 +45,9 @@ describe('Test middlware hooks', () => {
       started: () => {
         order.push('started')
       },
+      serviceCreating: function () {
+        order.push('serviceCreating')
+      },
       serviceCreated: function () {
         order.push('serviceCreated')
       },
@@ -65,6 +68,27 @@ describe('Test middlware hooks', () => {
       },
       stopped: () => {
         order.push('stopped')
+      },
+      localAction: (handler, a) => {
+        return function (context) {
+          order.push('localAction1')
+          return handler(context).then(res => {
+            order.push('localAction2')
+            return res
+          })
+        }
+      },
+      emit (next) {
+        return (event, payload) => {
+          order.push('emit')
+          return next(event, payload)
+        }
+      },
+      broadcast (next) {
+        return (event, payload) => {
+          order.push('broadcast')
+          return next(event, payload)
+        }
       }
     }
 
@@ -79,13 +103,21 @@ describe('Test middlware hooks', () => {
 
     broker.createService({
       name: 'testService',
-      actions: {}
+      actions: {
+        test (context) {
+          context.emit('hihi')
+          context.broadcast('hoho')
+          return true
+        }
+      }
     })
 
     broker.start()
+      .then(() => broker.call('testService.test'))
       .then(() => broker.stop())
       .then(() => {
-        expect(order.join('-')).toBe('serviceCreated-starting-serviceStarting-serviceStarted-started-stopping-serviceStopping-serviceStopped-stopped')
+        expect(order.join('-'))
+          .toBe('serviceCreating-serviceCreated-starting-serviceStarting-serviceStarted-started-localAction1-emit-broadcast-localAction2-stopping-serviceStopping-serviceStopped-stopped')
         done()
       })
   })
@@ -210,3 +242,44 @@ describe('Test middlware hooks', () => {
   })
 })
 
+describe('Service creating hook', () => {
+  it('should modify the given service schema', (done) => {
+    const middleware = {
+      serviceCreating: (_, schema) => {
+        if (!schema.methods) {
+          schema.methods = {}
+        }
+        schema.methods.pull = () => {
+          return 'return pull'
+        }
+      }
+    }
+
+    const broker = Weave({
+      nodeId: 'node1',
+      logger: {
+        enabled: false
+      },
+      middlewares: [middleware]
+    })
+
+    broker.createService({
+      name: 'testService',
+      actions: {
+        callPull () {
+          // call hook injected method.
+          return this.pull()
+        }
+      }
+    })
+
+    broker.start()
+      .then(() => {
+        return broker.call('testService.callPull')
+          .then(res => {
+            expect(res).toBe('return pull')
+            done()
+          })
+      })
+  })
+})

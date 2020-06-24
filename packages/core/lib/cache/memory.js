@@ -1,10 +1,10 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2018 Fachwerk
+ * Copyright 2020 Fachwerk
  */
 
-const utils = require('../utils')
+const { match } = require('@weave-js/utils')
 const createBase = require('./base')
 
 const makeMemoryCache = (broker, options = {}) => {
@@ -14,7 +14,7 @@ const makeMemoryCache = (broker, options = {}) => {
 
   const timer = setInterval(() => {
     checkTtl()
-  }, options.ttl)
+  }, 3000)
 
   timer.unref()
 
@@ -23,10 +23,11 @@ const makeMemoryCache = (broker, options = {}) => {
 
   const checkTtl = () => {
     const now = Date.now()
+
     storage.forEach((item, hashKey) => {
       if (item.expire && item.expire < now) {
         cache.log.debug(`Delete ${hashKey}`)
-        delete storage[hashKey]
+        storage.delete(hashKey)
       }
     })
   }
@@ -35,11 +36,14 @@ const makeMemoryCache = (broker, options = {}) => {
     name,
     get (cacheKey) {
       const item = storage.get(cacheKey)
+
       if (item) {
         if (options.ttl) {
           item.expire = Date.now()//  + options_.ttl
         }
+
         this.log.debug(`Get ${cacheKey}`)
+
         return Promise.resolve(item.data)
       }
       return Promise.resolve(null)
@@ -55,20 +59,23 @@ const makeMemoryCache = (broker, options = {}) => {
       })
 
       this.log.debug(`Set ${hashKey}`)
+
       return Promise.resolve(data)
     },
     remove (hashKey) {
       storage.delete(hashKey)
       this.log.debug(`Delete ${hashKey}`)
+
       return Promise.resolve()
     },
-    clear (match = '**') {
-      storage.forEach((item, key) => {
-        if (utils.match(key, match)) {
+    clear (pattern = '**') {
+      storage.forEach((_, key) => {
+        if (match(key, pattern)) {
           this.log.debug(`Delete ${key}`)
           this.remove(key)
         }
       })
+      return Promise.resolve()
     }
   })
 

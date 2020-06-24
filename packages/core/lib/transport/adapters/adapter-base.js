@@ -1,7 +1,7 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2018 Fachwerk
+ * Copyright 2020 Fachwerk
  */
 
 const EventEmitter = require('events').EventEmitter
@@ -10,8 +10,9 @@ const createTransportBase = () => {
   let prefix = 'WEAVE'
 
   return {
-    bus: new EventEmitter(),
     name: null,
+    bus: new EventEmitter(),
+    afterInit: null,
     isConnected: false,
     interruptCounter: 0,
     repeatAttemptCounter: 0,
@@ -24,16 +25,24 @@ const createTransportBase = () => {
       if (broker.options.namespace) {
         prefix += `-${broker.options.namespace}`
       }
+
+      if (this.afterInit) {
+        this.afterInit()
+      }
+
+      return Promise.resolve()
+    },
+    subscribe () {
       return Promise.resolve()
     },
     /**
-         *
-         * Connection handler
-         * @instance
-         * @param {*} wasReconnect Was it a reconnection atemp?
-         * @param {boolean} [startHeartbeatTimers=true] Start timers for this adapter
-         * @returns {void}
-         */
+     *
+     * Connection handler
+     * @instance
+     * @param {*} wasReconnect Was it a reconnection atemp?
+     * @param {boolean} [startHeartbeatTimers=true] Start timers for this adapter
+     * @returns {void}
+    */
     connected (wasReconnect, startHeartbeatTimers = true) {
       this.bus.emit('$adapter.connected', wasReconnect, startHeartbeatTimers)
     },

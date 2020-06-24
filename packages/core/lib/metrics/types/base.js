@@ -10,7 +10,9 @@ module.exports = class BaseMetricType {
     if (this.labels.length === 0 || labels === null) {
       return ''
     }
+
     const parts = []
+
     labels.forEach(label => {
       if (typeof label === 'number') {
         parts.push(label)
@@ -36,6 +38,7 @@ module.exports = class BaseMetricType {
     return {
       type: this.type,
       name: this.name,
+      description: this.description,
       value: this.snapshot()
     }
   }
