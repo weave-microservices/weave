@@ -14,7 +14,7 @@
   "dependencies": {
     "@weave-js/utils": "^0.9.1-rc.2",
     "clui": "^0.3.6",
-    "kleur": "^3.0.3",
+    "kleur": "^4.0.1",
     "ora": "^4.0.4",
     "table": "^5.4.6",
     "vorpal": "^1.12.0"
