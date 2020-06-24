@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@weave-js/core": "^0.7.0-rc.23",
-    "eslint": "^6.8.0"
+    "eslint": "^7.3.1"
   },
   "gitHead": "b2c0ecb9d40d4f358e07902264023d8d96d3a5b1"
 }
