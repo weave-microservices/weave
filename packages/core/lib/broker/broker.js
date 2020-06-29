@@ -238,7 +238,7 @@ const createBroker = (options = {}) => {
         log.debug('Call action on remote node.', { action: actionName, nodeId, requestId: context.requestId })
       }
 
-      const p = action.handler(context)
+      const p = action.handler(context, endpoint.service, broker)
 
       p.context = context
 
