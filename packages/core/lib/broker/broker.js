@@ -647,7 +647,11 @@ const createBroker = (options = {}) => {
     log.info(`Cache module: ${broker.cache.name}`)
   }
 
-  // Register all middlewares (including user defined)
+  /**
+   * Register middlewares
+   * @param {Array<Object>} customMiddlewares Array of user defined middlewares
+   * @returns {void}
+   */
   const registerMiddlewares = customMiddlewares => {
     // Register custom middlewares
     if (Array.isArray(customMiddlewares) && customMiddlewares.length > 0) {
@@ -708,18 +712,6 @@ const createBroker = (options = {}) => {
   if (options.loadNodeService) {
     broker.createService(require('../services/node.service'))
   }
-
-  // registry.onRegisterLocalAction = action => {
-  //   return
-  // }
-
-  // registry.onRegisterRemoteAction = action => {
-  //   return middlewareHandler.wrapHandler('remoteAction', broker.transport.request.bind(broker.transport), action)
-  // }
-
-  // registry.onRegisterLocalEvent = event => {
-  //   return middlewareHandler.wrapHandler('localEvent', event.handler, event)
-  // }
 
   // Call middleware hook for broker created.
   middlewareHandler.callHandlersSync('created', [broker])
