@@ -22,26 +22,25 @@
   "dependencies": {
     "@weave-js/core": "^0.7.0-rc.23",
     "@weave-js/repl": "^0.7.0-rc.21",
-    "async": "^3.1.0",
+    "async": "^3.2.0",
     "consolidate": "^0.15.1",
-    "download-git-repo": "^2.0.0",
+    "download-git-repo": "^3.0.2",
     "exeq": "^3.0.0",
-    "handlebars": "^4.4.3",
-    "inquirer": "^7.0.0",
-    "kleur": "^3.0.3",
-    "lodash": "^4.17.15",
+    "handlebars": "^4.7.6",
+    "inquirer": "^7.3.3",
+    "kleur": "^4.0.2",
     "metalsmith": "^2.3.0",
     "minimatch": "^3.0.4",
-    "mkdirp": "^0.5.1",
+    "mkdirp": "^1.0.4",
     "multimatch": "^4.0.0",
-    "ora": "^4.0.2",
-    "rimraf": "^3.0.0",
-    "update-notifier": "^3.0.1",
+    "ora": "^4.0.5",
+    "rimraf": "^3.0.2",
+    "update-notifier": "^4.1.0",
     "user-home": "^2.0.0",
-    "yargs": "^14.2.0"
+    "yargs": "^15.4.1"
   },
   "gitHead": "b2c0ecb9d40d4f358e07902264023d8d96d3a5b1",
   "devDependencies": {
-    "eslint": "^6.8.0"
+    "eslint": "^7.5.0"
   }
 }

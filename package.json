@@ -1,5 +1,5 @@
 {
-  "name": "weave",
+  "name": "@weave-js",
   "scripts": {
     "postinstall": "lerna bootstrap --hoist",
     "setup": "lerna bootstrap --hoist",
@@ -50,13 +50,11 @@
     "url": "https://github.com/weave-microservices/weave/issues"
   },
   "homepage": "https://weave-js.com",
-  "dependencies": {},
   "devDependencies": {
     "concurrently": "^5.2.0",
-    "eslint": "^6.8.0",
+    "eslint": "^7.5.0",
     "eslint-config-fw": "^1.0.3",
-    "eslint-loader": "^4.0.2",
-    "lerna": "^3.20.2",
+    "lerna": "^3.22.1",
     "lolex": "^6.0.0"
   }
 }

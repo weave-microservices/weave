@@ -1,5 +1,4 @@
 const cliUI = require('../utils/cli-ui')
-const _ = require('lodash')
 const createSpinner = require('../utils/create-spinner')
 const formatNumber = require('../utils/format-number')
 const { timespanFromUnixTimes } = require('@weave-js/utils')
@@ -12,7 +11,7 @@ module.exports = (vorpal, broker) => {
     .option('--nodeID <nodeID>', 'NodeID (direct call)')
     .autocomplete({
       data () {
-        return _.uniq(broker.registry.actions.list({}).map(item => item.name))
+        return [...new Set(broker.registry.actions.list({}).map(item => item.name))]
       }
     })
     .action((args, done) => {

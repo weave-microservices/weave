@@ -1,4 +1,3 @@
-const { cloneDeep } = require('lodash')
 const { mergeSchemas } = require('../utils/options')
 const { wrapInArray, isFunction, clone, wrapHandler, promisify, isObject } = require('@weave-js/utils')
 
@@ -90,7 +89,7 @@ const createService = (broker, middlewareHandler, addLocalService, registerLocal
         action = wrapHandler(action)
       }
 
-      const innerAction = createActionHandler(cloneDeep(action), name)
+      const innerAction = createActionHandler(clone(action), name)
       registryItem.actions[innerAction.name] = innerAction
 
       const wrappedAction = middlewareHandler.wrapHandler('localAction', innerAction.handler, innerAction)

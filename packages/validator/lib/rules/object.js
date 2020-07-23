@@ -42,6 +42,7 @@ module.exports = function checkObject ({ schema, messages }, path, context) {
 
   const subSchema = schema.props
 
+  // handle sube schemas
   if (subSchema) {
     code.push('let parentObject = value')
     code.push('let parentField = field')
@@ -63,7 +64,7 @@ module.exports = function checkObject ({ schema, messages }, path, context) {
     }
 
     code.push(`
-        return parentObject
+      return parentObject
     `)
   } else {
     code.push(`

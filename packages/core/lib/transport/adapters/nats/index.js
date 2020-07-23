@@ -5,7 +5,7 @@
  */
 
 const TransportBase = require('../adapter-base')
-const { defaultsDeep } = require('lodash')
+const { defaultsDeep } = require('@weave-js/utils')
 
 function NATSTransportAdapter (adapterOptions) {
   let client

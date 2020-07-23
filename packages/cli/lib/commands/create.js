@@ -1,6 +1,6 @@
 
 // npm packages
-const _ = require('lodash')
+const { isFunction } = require('@weave-js/utils')
 const async = require('async')
 const download = require('download-git-repo')
 const exeq = require('exeq')
@@ -147,7 +147,7 @@ function handler (opts) {
         }
 
         // metalsmith.before
-        if (templateMeta.metalsmith && _.isFunction(templateMeta.metalsmith.before)) {
+        if (templateMeta.metalsmith && isFunction(templateMeta.metalsmith.before)) {
           templateMeta.metalsmith.before.call(templateMeta, metalsmith)
         }
 
@@ -156,7 +156,7 @@ function handler (opts) {
           .use(renderTemplate(templateMeta.skipInterpolation))
 
         // metalsmith.after
-        if (templateMeta.metalsmith && _.isFunction(templateMeta.metalsmith.after)) {
+        if (templateMeta.metalsmith && isFunction(templateMeta.metalsmith.after)) {
           templateMeta.metalsmith.after.call(templateMeta, metalsmith)
         }
 
@@ -171,7 +171,7 @@ function handler (opts) {
             }
 
             // metalsmith.complete
-            if (templateMeta.metalsmith && _.isFunction(templateMeta.metalsmith.complete)) {
+            if (templateMeta.metalsmith && isFunction(templateMeta.metalsmith.complete)) {
               templateMeta.metalsmith.complete.call(templateMeta, metalsmith)
             }
             resolve()

@@ -3,10 +3,10 @@ module.exports = function checkArray ({ schema, messages }) {
 
   return {
     code: `
-            if (${enumString}.indexOf(value) === -1) {
-                ${this.makeErrorCode({ type: 'enumValues', passed: 'value', messages })}
-            }
-            return value
-        `
+      if (${enumString}.indexOf(value) === -1) {
+        ${this.makeErrorCode({ type: 'enumValues', passed: 'value', messages })}
+      }
+      return value
+    `
   }
 }

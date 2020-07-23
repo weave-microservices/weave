@@ -5,9 +5,17 @@
   "keywords": [
     "Weave",
     "Microservice",
+    "Microservices",
     "Framework",
-    "Docker",
-    "SAAS"
+    "SAAS",
+    "Backend",
+    "Pubsub",
+    "Scalable",
+    "Messagebus",
+    "RPC",
+    "Distributed",
+    "Services",
+    "Micro"
   ],
   "main": "./lib/index.js",
   "scripts": {
@@ -38,19 +46,17 @@
     "@weave-js/validator": "^0.7.0-rc.4",
     "args": "^5.0.1",
     "es6-error": "^4.1.1",
-    "eventemitter2": "^5.0.1",
+    "eventemitter2": "^6.4.3",
     "figures": "^3.2.0",
-    "glob": "^7.1.5",
-    "kleur": "^3.0.3",
-    "lodash": "^4.17.15",
+    "glob": "^7.1.6",
+    "kleur": "^4.0.2",
     "node-fetch": "^2.6.0"
   },
   "devDependencies": {
-    "@weave-js/repl": "^0.7.0-rc.21",
-    "eslint": "^7.1.0",
+    "eslint": "^7.5.0",
     "ioredis": "^4.17.3",
-    "jest": "^26.0.1",
-    "jest-cli": "^26.0.1",
+    "jest": "^26.1.0",
+    "jest-cli": "^26.1.0",
     "nats": "^1.4.9"
   },
   "directories": {

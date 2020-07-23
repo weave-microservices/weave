@@ -4,7 +4,7 @@
  */
 
 // npm packages
-const { defaultsDeep } = require('lodash')
+const { defaultsDeep } = require('@weave-js/utils')
 const path = require('path')
 const fs = require('fs')
 const os = require('os')
