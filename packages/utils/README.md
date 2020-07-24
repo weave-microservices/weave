@@ -1,11 +1,18 @@
-# `utils`
+# Weave Utilities
 
-> TODO: description
+[![NPM Version](https://img.shields.io/npm/v/@weave-js/utils.svg)](https://www.npmjs.com/package/@weave-js/utils)
+[![Build Status](https://travis-ci.com/weave-microservices/weave.svg?branch=master)](https://travis-ci.com/weave-microservices/weave)
+[![Dependencies](https://david-dm.org/weave-microservices/weave.svg)](https://david-dm.org/weave-microservices/weave.svg)
+[![Downloads](https://img.shields.io/npm/dt/@weave-js/utils.svg)](https://www.npmjs.com/package/@weave-js/utils)
 
-## Usage
+> Shared Weave utility functions
 
-```
-const utils = require('utils');
+## About
 
-// TODO: DEMONSTRATE API
-```
+This is a repository for utility functionality that is shared between different Weave plugins and used by the core repository.
+
+## License
+
+Copyright (c) 2020 [Weave contributors](https://github.com/weave-microservices/weave/graphs/contributors)
+
+Licensed under the [MIT license](LICENSE).

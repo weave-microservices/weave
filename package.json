@@ -1,5 +1,5 @@
 {
-  "name": "@weave-js",
+  "name": "weave-js",
   "scripts": {
     "postinstall": "lerna bootstrap --hoist",
     "setup": "lerna bootstrap --hoist",

@@ -3,7 +3,6 @@ const { Weave } = require('../../../lib/index')
 
 const Middleware = require('../../../lib/middlewares/metrics')
 // const Context = require('../../../lib/broker/context')
-// const createContextFactory = require('../../../lib/broker/context.factory')
 
 const config = {
   logger: {
