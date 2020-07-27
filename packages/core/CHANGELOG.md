@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-rc.25](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.24...@weave-js/core@0.7.0-rc.25) (2020-07-27)
+
+
+### Bug Fixes
+
+* Option merging for mixins ([c76996f](https://github.com/fachw3rk/weave/commit/c76996f4cced0fb27e8aaa29d5bedbb569ce90e5))
+
+
+
+
+
 # [0.7.0-rc.24](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.23...@weave-js/core@0.7.0-rc.24) (2020-07-27)
 
 
