@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-rc.24](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.23...@weave-js/core@0.7.0-rc.24) (2020-07-27)
+
+
+### Bug Fixes
+
+* Fixed merging of action hooks  if the target does not exist. ([9be8f28](https://github.com/fachw3rk/weave/commit/9be8f289be3ab3e93afb0bac5cc2ec317fa1d80e))
+
+
+
+
+
 # [0.7.0-rc.23](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.7.0-rc.22...@weave-js/core@0.7.0-rc.23) (2020-06-13)
 
 

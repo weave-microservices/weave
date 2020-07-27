@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/utils",
-  "version": "0.9.1-rc.2",
+  "version": "0.9.1-rc.3",
   "description": "Weave utility library",
   "author": "Kevin Ries <kevin.ries@fachwerk.io>",
   "homepage": "https://weave-js.com/packages/utils",
@@ -35,6 +35,5 @@
     "jest": "^26.0.1",
     "jest-cli": "^26.0.1"
   },
-  "gitHead": "b2c0ecb9d40d4f358e07902264023d8d96d3a5b1",
-  "dependencies": {}
+  "gitHead": "b2c0ecb9d40d4f358e07902264023d8d96d3a5b1"
 }

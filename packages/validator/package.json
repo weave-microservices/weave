@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/validator",
-  "version": "0.7.0-rc.4",
+  "version": "0.7.0-rc.5",
   "description": "Weave js object validator.",
   "main": "lib/validator.js",
   "scripts": {

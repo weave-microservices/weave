@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/core",
-  "version": "0.7.0-rc.23",
+  "version": "0.7.0-rc.24",
   "description": "The core package of weave",
   "keywords": [
     "Weave",
@@ -42,8 +42,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@weave-js/utils": "^0.9.1-rc.2",
-    "@weave-js/validator": "^0.7.0-rc.4",
+    "@weave-js/utils": "^0.9.1-rc.3",
+    "@weave-js/validator": "^0.7.0-rc.5",
     "args": "^5.0.1",
     "es6-error": "^4.1.1",
     "eventemitter2": "^6.4.3",
