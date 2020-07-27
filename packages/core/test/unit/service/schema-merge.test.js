@@ -122,7 +122,7 @@ describe('Service schema merging', () => {
     expect(mergedService.methods.privateMethod1).toBeDefined()
   })
 
-  it.only('should merge schema hooks', () => {
+  it('should merge schema hooks', () => {
     const mergedService = mergeSchemas(service2, service1)
     expect(mergedService.hooks.before).toBeDefined()
     expect(mergedService.hooks.before.a1).toBeDefined()
