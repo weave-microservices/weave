@@ -1,6 +1,33 @@
 const { mergeSchemas } = require('../../../lib/utils/options')
 // options.mergeSchemas()
 
+const mixin = {
+  name: 'service2',
+  meta: {
+    $official: true,
+    distributor: 'name'
+  },
+  settings: {
+    queueSize: 6,
+    protocol: 'http',
+    credentials: {
+      username: 'default',
+      password: 'default'
+    }
+  },
+
+  actions: {
+    m2 () {},
+    m3 () {}
+  },
+  events: {
+    me1 () {},
+    me2 () {}
+  },
+  created: jest.fn(),
+  started: jest.fn()
+}
+
 const service1 = {
   name: 'service1',
   meta: {
@@ -36,6 +63,7 @@ const service1 = {
 
 const service2 = {
   name: 'service2',
+  mixins: [mixin],
   meta: {
     $official: true,
     distributor: 'name'

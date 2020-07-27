@@ -6,7 +6,7 @@
 'use strict'
 
 const utils = require('@weave-js/utils')
-const { deprecatedWarning } = require('../utils/deprecated-warning')
+// const { deprecatedWarning } = require('../utils/deprecated-warning')
 const { WeaveMaxCallLevelError } = require('../errors')
 
 const createContext = (broker, endpoint) => {
@@ -15,7 +15,6 @@ const createContext = (broker, endpoint) => {
     nodeId: broker.nodeId || null,
     callerNodeId: null,
     get params () {
-      deprecatedWarning('The "params" property of context is deprecated. Please use the "data" property instead.')
       return this.data
     },
     set params (value) {
