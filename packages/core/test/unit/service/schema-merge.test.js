@@ -14,6 +14,11 @@ const service1 = {
       username: 'John'
     }
   },
+  hooks: {
+    before: {
+      a1: () => {}
+    }
+  },
   actions: {
     a1 () {},
     a3: false
@@ -41,6 +46,11 @@ const service2 = {
     credentials: {
       username: 'default',
       password: 'default'
+    }
+  },
+  hooks: {
+    before: {
+      a2: () => {}
     }
   },
   actions: {
@@ -110,5 +120,12 @@ describe('Service schema merging', () => {
     const mergedService = mergeSchemas(service2, service1)
     expect(mergedService.methods).toBeDefined()
     expect(mergedService.methods.privateMethod1).toBeDefined()
+  })
+
+  it.only('should merge schema hooks', () => {
+    const mergedService = mergeSchemas(service2, service1)
+    expect(mergedService.hooks.before).toBeDefined()
+    expect(mergedService.hooks.before.a1).toBeDefined()
+    expect(mergedService.hooks.before.a2).toBeDefined()
   })
 })
