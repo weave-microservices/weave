@@ -86,6 +86,7 @@ const createContext = (broker, endpoint) => {
   }
 
   if (endpoint) {
+    newContext.nodeId = endpoint.node.id
     newContext.endpoint = endpoint
     newContext.action = endpoint.action
     newContext.service = endpoint.action.service

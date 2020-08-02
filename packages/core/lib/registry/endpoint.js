@@ -4,13 +4,13 @@
  * Copyright 2020 Fachwerk
  */
 
-const Endpoint = (state, node, service, action) => {
+const Endpoint = (broker, node, service, action) => {
   const self = Object.create(null)
 
   self.node = node
   self.service = service
   self.action = action
-  self.isLocal = self.node.id === state.nodeId
+  self.isLocal = self.node.id === broker.nodeId
   self.state = true
   self.name = `${node.id}:${action.name}`
 

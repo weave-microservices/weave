@@ -16,7 +16,6 @@ const createContextFactory = () => ({
 
     opts = opts || {}
     context.setParams(params)
-    context.nodeId = endpoint.node.id
     context.timeout = opts.timeout || 0
     context.retryCount = opts.retryCount
     context.options = opts

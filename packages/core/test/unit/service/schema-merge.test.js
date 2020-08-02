@@ -44,6 +44,9 @@ const service1 = {
   hooks: {
     before: {
       a1: () => {}
+    },
+    after: {
+      a3: () => {}
     }
   },
   actions: {
@@ -79,6 +82,12 @@ const service2 = {
   hooks: {
     before: {
       a2: () => {}
+    },
+    after: {
+      a3: [
+        () => {},
+        () => {}
+      ]
     }
   },
   actions: {
@@ -155,5 +164,7 @@ describe('Service schema merging', () => {
     expect(mergedService.hooks.before).toBeDefined()
     expect(mergedService.hooks.before.a1).toBeDefined()
     expect(mergedService.hooks.before.a2).toBeDefined()
+    expect(mergedService.hooks.after.a3).toBeDefined()
+    expect(mergedService.hooks.after.a3.length).toBe(3)
   })
 })
