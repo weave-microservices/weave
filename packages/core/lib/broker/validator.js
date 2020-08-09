@@ -17,7 +17,7 @@ const createValidator = () => {
         const validate = validator.compile(action.params)
 
         return context => {
-          let result = validate(context.params)
+          let result = validate(context.data)
 
           if (result === true) {
             return handler(context)

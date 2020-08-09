@@ -15,7 +15,7 @@ module.exports = {
         withNodeService: { type: 'boolean', optional: true }
       },
       handler (context) {
-        const { withActions, withNodeService } = context.params
+        const { withActions, withNodeService } = context.data
         const results = []
         const services = this.broker.registry.services.list({ withActions, withNodeService })
         services.forEach(service => {
@@ -53,12 +53,12 @@ module.exports = {
     },
     actions: {
       handler (context) {
-        return this.broker.registry.getActionList(context.params)
+        return this.broker.registry.getActionList(context.data)
       }
     },
     events: {
       handler (context) {
-        return this.broker.registry.events.list(context.params)
+        return this.broker.registry.events.list(context.data)
       }
     },
     health: {
@@ -68,7 +68,7 @@ module.exports = {
     },
     list: {
       handler (context) {
-        return this.broker.registry.getNodeList(context.params)
+        return this.broker.registry.getNodeList(context.data)
       }
     }
   }

@@ -32,7 +32,7 @@ const createTransport = (broker, adapter) => {
   }
 
   const doRequest = (context, resolve, reject) => {
-    const isStream = utils.isStream(context.params)
+    const isStream = utils.isStream(context.data)
 
     const request = {
       targetNodeId: context.nodeId,
@@ -50,7 +50,7 @@ const createTransport = (broker, adapter) => {
     const payload = {
       id: context.id,
       action: context.action.name,
-      params: isStream ? null : context.params,
+      params: isStream ? null : context.data,
       options: {
         timeout: context.options.timeout,
         retries: context.options.retries
@@ -63,7 +63,7 @@ const createTransport = (broker, adapter) => {
       isStream
     }
 
-    if (isStream && utils.isStreamObjectMode(context.params)) {
+    if (isStream && utils.isStreamObjectMode(context.data)) {
       payload.meta = payload.meta || {}
       payload.meta.$isObjectModeStream = true
     }
@@ -73,17 +73,17 @@ const createTransport = (broker, adapter) => {
     return transport.send(message)
       .then(() => {
         if (isStream) {
-          const stream = context.params
+          const stream = context.data
           payload.meta = {}
 
-          if (utils.isStreamObjectMode(context.params)) {
+          if (utils.isStreamObjectMode(context.data)) {
             payload.meta.$isObjectModeStream = true
           }
 
           stream.on('data', chunk => {
             const payloadCopy = Object.assign({}, payload)
 
-            payloadCopy.params = chunk
+            payloadCopy.data = chunk
             stream.pause()
 
             return transport.send(transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy))
@@ -92,7 +92,7 @@ const createTransport = (broker, adapter) => {
 
           stream.on('end', () => {
             const payloadCopy = Object.assign({}, payload)
-            payloadCopy.params = null
+            payloadCopy.data = null
             payloadCopy.isStream = false
             return transport.send(transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy))
           })

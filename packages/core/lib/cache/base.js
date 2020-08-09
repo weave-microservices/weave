@@ -103,7 +103,7 @@ const makeBaseCache = (broker, options) => {
   cache.middleware = (handler, action) => {
     if (action.cache) {
       return function cacheMiddleware (context) {
-        const cacheHashKey = cache.getCachingHash(action.name, context.params, context.meta, action.cache.keys)
+        const cacheHashKey = cache.getCachingHash(action.name, context.data, context.meta, action.cache.keys)
         context.isCachedResult = false
 
         return cache.get(cacheHashKey).then((content) => {

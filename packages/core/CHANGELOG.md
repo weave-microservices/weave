@@ -722,7 +722,7 @@ Streaming support has been implemented. Node.js streams can be transferred as pa
         actions: {
             save (context) {
                 const fileStream = fs.createWriteStream(`/temp/${context.meta.filename}`)
-                context.params.pipe(fileStream)                
+                context.data.pipe(fileStream)                
             }
         }
     })
@@ -740,7 +740,7 @@ Streaming support has been implemented. Node.js streams can be transferred as pa
         }
         actions: {
             save (context) {
-                return fs.createReadStream(context.params.filename)           
+                return fs.createReadStream(context.data.filename)           
             }
         }
     })

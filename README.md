@@ -55,7 +55,7 @@ broker.createService({
     name: 'math',
     actions: {
         add(context) {
-            return Number(context.params.a) + Number(context.params.b)
+            return Number(context.data.a) + Number(context.data.b)
         }
     }
 });

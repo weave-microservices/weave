@@ -17,7 +17,7 @@ describe('Test param validator', () => {
             name: { type: 'string', minLength: 10 }
           },
           handler (context) {
-            return `Hello ${context.params.name}!`
+            return `Hello ${context.data.name}!`
           }
         }
       }
@@ -49,7 +49,7 @@ describe('Test param validator', () => {
             name: 'string'
           },
           handler (context) {
-            return `Hello ${context.params.name}!`
+            return `Hello ${context.data.name}!`
           }
         }
       }

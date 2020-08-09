@@ -40,7 +40,7 @@ describe('Test broker call service', () => {
       name: 'testService',
       actions: {
         sayHello (context) {
-          return `Hello ${context.params.name}!`
+          return `Hello ${context.data.name}!`
         }
       }
     })

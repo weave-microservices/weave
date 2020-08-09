@@ -61,7 +61,7 @@ module.exports = (broker, transport, pending) => {
             return
           } else {
             transport.log.debug('Stream chunk received from ', payload.sender)
-            stream.write(payload.params.type === 'Buffer' ? Buffer.from(payload.params.data) : payload.params)
+            stream.write(payload.data.type === 'Buffer' ? Buffer.from(payload.data.data) : payload.data)
             return
           }
         } else if (payload.isStream) {
@@ -79,7 +79,7 @@ module.exports = (broker, transport, pending) => {
       const context = Context(broker, endpoint)
 
       context.id = payload.id
-      context.setParams(stream || payload.params)
+      context.setParams(stream || payload.data)
       context.parentId = payload.parentId
       context.requestId = payload.requestId
       context.meta = payload.meta

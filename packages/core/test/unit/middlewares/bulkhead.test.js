@@ -61,7 +61,7 @@ describe('Test bulkhead middleware', () => {
     let flow = []
 
     const handler = jest.fn((context) => {
-      flow.push('handler-' + context.params.p)
+      flow.push('handler-' + context.data.p)
       return new Promise(resolve => {
         setTimeout(() => resolve(), 10)
       })
@@ -105,7 +105,7 @@ describe('Test bulkhead middleware', () => {
     contentFactory.init(broker)
     let flow = []
     const handler = jest.fn((context) => {
-      flow.push('handler-' + context.params.p)
+      flow.push('handler-' + context.data.p)
       return new Promise(resolve => {
         setTimeout(() => resolve(), 10)
       })
@@ -113,7 +113,7 @@ describe('Test bulkhead middleware', () => {
     const contexts = [...Array(20)].map((_, i) => contentFactory.create(endpoint, { p: i }))
     const wrappedHandler = middleware.localAction.call(broker, handler, action)
 
-    Promise.all(contexts.map(context => wrappedHandler(context).catch(error => flow.push(error.name + '-' + context.params.p))))
+    Promise.all(contexts.map(context => wrappedHandler(context).catch(error => flow.push(error.name + '-' + context.data.p))))
     expect(handler).toBeCalledTimes(2)
     // expect(flow).toEqual([
     //     'handler-0',

@@ -10,7 +10,7 @@ module.exports = {
         b: 'number'
       },
       handler (context) {
-        return Number(context.params.a) + Number(context.params.b)
+        return Number(context.data.a) + Number(context.data.b)
       }
     },
     round: {
@@ -21,7 +21,7 @@ module.exports = {
         value: 'number'
       },
       handler (context) {
-        return Math.round(context.params.value)
+        return Math.round(context.data.value)
       }
     }
   }

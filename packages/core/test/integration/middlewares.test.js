@@ -126,7 +126,7 @@ describe('Middleware hooks', () => {
     const middleware = {
       localAction: function (handler) {
         return context => {
-          context.params.paramFromMiddleware = 'hello world'
+          context.data.paramFromMiddleware = 'hello world'
           return handler(context)
         }
       }
@@ -146,7 +146,7 @@ describe('Middleware hooks', () => {
       name: 'testService',
       actions: {
         helloWorld (context) {
-          return context.params
+          return context.data
         }
       }
     })
@@ -165,7 +165,7 @@ describe('Middleware hooks', () => {
     const middleware = {
       remoteAction: function (handler) {
         return context => {
-          context.params.paramFromMiddleware = 'hello world'
+          context.data.paramFromMiddleware = 'hello world'
           return handler(context)
         }
       }
@@ -198,7 +198,7 @@ describe('Middleware hooks', () => {
       name: 'math',
       actions: {
         add (context) {
-          return { params: context.params, result: Number(context.params.a) + Number(context.params.b) }
+          return { params: context.data, result: Number(context.data.a) + Number(context.data.b) }
         }
       }
     })

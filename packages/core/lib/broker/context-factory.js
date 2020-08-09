@@ -50,22 +50,22 @@ const createContextFactory = () => ({
 
     return context
   },
-  createFromPayload (payload) {
-    const context = createContext(this.broker, { name: payload.action })
+  // createFromPayload (payload) {
+  //   const context = createContext(this.broker, { name: payload.action })
 
-    context.nodeId = this.broker.nodeId
-    context.id = payload.id
-    context.setParams(payload.params)
-    context.parentId = payload.parentId
-    context.requestId = payload.requestId
-    context.timeout = payload.timeout || 0
-    context.meta = payload.meta
-    context.metrics = payload.metrics
-    context.level = payload.level
-    context.callerNodeId = payload.sender
+  //   context.nodeId = this.broker.nodeId
+  //   context.id = payload.id
+  //   context.setParams(payload.params)
+  //   context.parentId = payload.parentId
+  //   context.requestId = payload.requestId
+  //   context.timeout = payload.timeout || 0
+  //   context.meta = payload.meta
+  //   context.metrics = payload.metrics
+  //   context.level = payload.level
+  //   context.callerNodeId = payload.sender
 
-    return context
-  }
+  //   return context
+  // }
 })
 
 module.exports = createContextFactory

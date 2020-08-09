@@ -92,7 +92,7 @@ describe('Test broker call service', () => {
       name: 'testService',
       actions: {
         sayHello (context) {
-          return `Hello ${context.params.name}!`
+          return `Hello ${context.data.name}!`
         }
       }
     })
@@ -148,7 +148,7 @@ describe('Test broker call error handling', () => {
       name: 'testService',
       actions: {
         sayHello (context) {
-          return context.call('testService.greetings', context.params)
+          return context.call('testService.greetings', context.data)
         },
         greetings (context) {
           return Promise.reject(new Error('Error from action level ' + context.level))

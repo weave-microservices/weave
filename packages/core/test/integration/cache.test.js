@@ -20,7 +20,7 @@ describe('Cache system', () => {
             keys: ['text']
           },
           handler (context) {
-            return context.params.text.split('').reverse().join('')
+            return context.data.text.split('').reverse().join('')
           }
         }
       }

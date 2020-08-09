@@ -15,7 +15,6 @@ describe('Test context factory.', () => {
     contextFactory.init(broker)
 
     expect(contextFactory.create).toBeDefined()
-    expect(contextFactory.createFromPayload).toBeDefined()
 
     // create context
     const context = contextFactory.create(endpoint, {})

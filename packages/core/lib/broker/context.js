@@ -20,13 +20,13 @@ const createContext = (broker, endpoint) => {
     set params (value) {
       this.data = value
     },
-    data: null,
+    data: {},
     meta: {},
     level: 1,
     tracing: null,
     span: null,
     service: null,
-    startTime: null,
+    // startTime: null,
     startHighResolutionTime: null,
     options: {
       timeout: null,
@@ -35,7 +35,7 @@ const createContext = (broker, endpoint) => {
     duration: 0,
     stopTime: 0,
     setParams (newParams) {
-      this.params = newParams || {}
+      this.data = newParams || {}
     },
     emit (eventName, payload, groups) {
       return broker.emit(eventName, payload, groups)
@@ -44,15 +44,14 @@ const createContext = (broker, endpoint) => {
       return broker.broadcast(eventName, payload, groups)
     },
     /**
-         * Call a action.
-         * @param {string} actionName Name of the action.
-         * @param {object} params Parameter
-         * @param {object} [options={}] Call options
-         * @returns {Promise} Promise
-         */
+     * Call a action.
+     * @param {string} actionName Name of the action.
+     * @param {object} params Parameter
+     * @param {object} [options={}] Call options
+     * @returns {Promise} Promise
+    */
     call (actionName, params, options = {}) {
       options.parentContext = this
-
       if (options.maxCallLevel < this.level) {
         return Promise.reject(new WeaveMaxCallLevelError(broker.nodeId, this.level))
       }
@@ -63,7 +62,6 @@ const createContext = (broker, endpoint) => {
         if (p.context) {
           this.meta = Object.assign(this.meta, p.context.meta)
         }
-
         return result
       })
     },
