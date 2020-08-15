@@ -11,11 +11,11 @@ const createContextFactory = () => ({
   init (broker) {
     this.broker = broker
   },
-  create (endpoint, params, opts) {
+  create (endpoint, data, opts) {
     const context = createContext(this.broker, endpoint)
 
     opts = opts || {}
-    context.setParams(params)
+    context.setParams(data)
     context.timeout = opts.timeout || 0
     context.retryCount = opts.retryCount
     context.options = opts

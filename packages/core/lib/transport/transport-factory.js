@@ -50,7 +50,7 @@ const createTransport = (broker, adapter) => {
     const payload = {
       id: context.id,
       action: context.action.name,
-      params: isStream ? null : context.data,
+      data: isStream ? null : context.data,
       options: {
         timeout: context.options.timeout,
         retries: context.options.retries

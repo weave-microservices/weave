@@ -22,7 +22,7 @@ const createContextFactory = require('./context-factory')
 const Middlewares = require('../middlewares')
 const createValidator = require('./validator')
 const Cache = require('../cache')
-const createHealthcheck = require('./healthcheck')
+const createHealthcheck = require('./health')
 const TransportAdapters = require('../transport/adapters')
 const createTransport = require('../transport')
 const EventEmitter = require('eventemitter2')
@@ -214,7 +214,7 @@ const createBroker = (options = {}) => {
      * @param {*} [opts={}] Options
      * @returns {Promise} Promise
     */
-    call (actionName, params, opts = {}) {
+    call (actionName, data, opts = {}) {
       const endpoint = registry.getNextAvailableActionEndpoint(actionName, opts)
 
       if (endpoint instanceof Error) {
@@ -229,7 +229,7 @@ const createBroker = (options = {}) => {
         context = opts.context
         context.nodeId = nodeId
       } else {
-        context = contextFactory.create(endpoint, params, opts)
+        context = contextFactory.create(endpoint, data, opts)
       }
 
       if (endpoint.isLocal) {
@@ -394,14 +394,10 @@ const createBroker = (options = {}) => {
      * @returns {number} Amount of services
     */
     loadServices (folder = './services', fileMask = '*.service.js') {
-      this.log.info(`Searching services in folder '${folder}' with name pattern '${fileMask}'.`)
-
       const serviceFiles = glob.sync(path.join(folder, fileMask))
-
+      this.log.info(`Searching services in folder '${folder}' with name pattern '${fileMask}'.`)
       this.log.info(`${serviceFiles.length} services found.`)
-
       serviceFiles.forEach(fileName => this.loadService(fileName))
-
       return serviceFiles.length
     },
     /**

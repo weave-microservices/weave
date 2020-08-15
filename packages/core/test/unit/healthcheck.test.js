@@ -1,5 +1,5 @@
 const { Weave } = require('../../lib/index')
-const HealthCheck = require('../../lib/broker/healthcheck')
+const HealthCheck = require('../../lib/broker/health')
 // const os = require('os')
 const pkg = require('../../package.json')
 

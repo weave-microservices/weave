@@ -7,7 +7,7 @@
 const os = require('os')
 const { bytesToSize } = require('@weave-js/utils')
 
-const createHealthcheck = () => {
+const createHealth = () => {
   return {
     init (broker, transport) {
       this.broker = broker
@@ -76,4 +76,4 @@ const createHealthcheck = () => {
   }
 }
 
-module.exports = createHealthcheck
+module.exports = createHealth
