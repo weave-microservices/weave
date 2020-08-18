@@ -3,13 +3,13 @@
  * @module weave
  */
 
-// npm packages
-const { defaultsDeep } = require('@weave-js/utils')
+// node packages
 const path = require('path')
 const fs = require('fs')
 const os = require('os')
 const glob = require('glob')
-const { debounce } = require('@weave-js/utils')
+
+const { debounce, defaultsDeep } = require('@weave-js/utils')
 
 // own packages
 const defaultOptions = require('./default-options')
