@@ -10,8 +10,14 @@ function registerCommands (vorpal, broker) {
   })
 }
 
-module.exports = broker => {
+const registerCustomCommands = (vorpal, broker, commands) => commands.map(registerCustomCommand => registerCustomCommand(vorpal, broker))
+
+module.exports = (broker, customCommands = []) => {
   if (!broker) {
+    throw new Error('You have to pass a weave broker instance.')
+  }
+
+  if (!Array.isArray(customCommands)) {
     throw new Error('You have to pass a weave broker instance.')
   }
 
@@ -23,12 +29,14 @@ module.exports = broker => {
     .alias('quit')
     .alias('exit')
     .action((args, done) => {
-      broker.stop()
+      broker
+        .stop()
         .then(() => process.exit(0))
       done()
     })
 
   registerCommands(vorpal, broker)
+  registerCustomCommands(customCommands)
 
   vorpal
     .delimiter(cliUI.whiteText('weave') + cliUI.successText('$'))
