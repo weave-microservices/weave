@@ -25,10 +25,10 @@ const createRegistry = () => {
       this.middlewareHandler = middlewareHandler
       this.serviceChanged = serviceChanged
 
-      // create logger
+      // init logger
       this.log = broker.createLogger('REGISTRY')
 
-      // create collections
+      // init collections
       this.nodes = MakeNodeCollection(this)
       this.services = MakeServiceCollection(this)
       this.actions = MakeActionCollection(this)

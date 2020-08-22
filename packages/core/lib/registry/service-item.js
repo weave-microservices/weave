@@ -32,6 +32,7 @@ const ServiceItem = (node, name, version, settings, local) => {
     self.settings = service.settings
     self.version = service.version
   }
+
   return self
 }
 

@@ -44,7 +44,6 @@ module.exports = () => {
     startSpan (name, options) {
       const span = new Span(this, name, Object.assign({
         type: 'custom'
-
       }, options))
 
       span.start()

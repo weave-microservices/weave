@@ -1,7 +1,6 @@
 const collectors = {
   Console: require('./console'),
-  Event: require('./event'),
-  Zipkin: require('./zipkin')
+  Event: require('./event')
 }
 
 const getByName = name => {

@@ -7,7 +7,7 @@
 const EventEmitter = require('events').EventEmitter
 
 const createTransportBase = () => {
-  let prefix = 'WEAVE'
+  let prefix = 'weave'
 
   return {
     name: null,
@@ -23,7 +23,7 @@ const createTransportBase = () => {
       this.messageHandler = messageHandler
 
       if (broker.options.namespace) {
-        prefix += `-${broker.options.namespace}`
+        prefix = `${prefix}-${broker.options.namespace}`
       }
 
       if (this.afterInit) {
@@ -50,7 +50,8 @@ const createTransportBase = () => {
       this.bus.emit('$adapter.disconnected')
     },
     getTopic (cmd, nodeId) {
-      return prefix + '.' + cmd + (nodeId ? '.' + nodeId : '')
+      const topic = prefix + '.' + cmd + (nodeId ? '.' + nodeId : '')
+      return topic
     },
     preSend (packet) {
       return this.send(packet)

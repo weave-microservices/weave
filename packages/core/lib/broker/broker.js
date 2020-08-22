@@ -210,7 +210,7 @@ const createBroker = (options = {}) => {
     /**
      * Call a action.
      * @param {*} actionName Name of the action.
-     * @param {*} params Action parameters
+     * @param {*} data Action parameters
      * @param {*} [opts={}] Options
      * @returns {Promise} Promise
     */
@@ -408,23 +408,16 @@ const createBroker = (options = {}) => {
      * @returns {Promise} Promise
     */
     waitForServices (serviceNames, timeout, interval = 500) {
-      if (typeof serviceNames === 'string') {
+      if (!Array.isArray(serviceNames)) {
         serviceNames = [serviceNames]
       }
+
       const startTimestamp = Date.now()
       return new Promise((resolve, reject) => {
         // todo: add timout for service waiter
         this.log.warn(`Waiting for services '${serviceNames.join(',')}'`)
 
         const serviceCheck = () => {
-          if (!this.isStarted) {
-            resolve()
-          }
-
-          if (!Array.isArray(serviceNames)) {
-            serviceNames = [serviceNames]
-          }
-
           const count = serviceNames.filter(serviceName => registry.hasService(serviceName))
 
           this.log.wait(`${count.length} services of ${serviceNames.length} available. Waiting...`)

@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
