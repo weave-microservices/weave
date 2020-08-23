@@ -210,7 +210,7 @@ const createBroker = (options = {}) => {
     /**
      * Call a action.
      * @param {*} actionName Name of the action.
-     * @param {*} params Action parameters
+     * @param {*} data Action parameters
      * @param {*} [opts={}] Options
      * @returns {Promise} Promise
     */

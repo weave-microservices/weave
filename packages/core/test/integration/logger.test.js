@@ -12,6 +12,14 @@ describe('Test logger module.', () => {
     clock.uninstall()
   })
 
+  it('should disable logger if logger is set to null.', () => {
+    const broker = Weave({
+      logger: null
+    })
+
+    expect(broker.options.logger.enabled).toBe(false)
+  })
+
   it('should provide default log methods.', () => {
     const broker = Weave({
       logger: {
