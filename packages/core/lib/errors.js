@@ -4,11 +4,10 @@
  * Copyright 2020 Fachwerk
  */
 
-const ExtendableError = require('es6-error')
-
-class WeaveError extends ExtendableError {
+class WeaveError extends Error {
   constructor (message, code, type, data) {
     super(message)
+    this.name = this.constructor.name
     this.code = code || 500
     this.type = type
     this.data = data

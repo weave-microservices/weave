@@ -38,7 +38,6 @@ module.exports = (vorpal, broker) => {
       let requestCounter = 0
       let responseCounter = 0
       let errorCounter = 0
-
       let sumTime = 0
       let minTime = null
       let maxTime = null
