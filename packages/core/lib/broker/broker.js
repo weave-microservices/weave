@@ -3,13 +3,13 @@
  * @module weave
  */
 
-// npm packages
-const { defaultsDeep } = require('@weave-js/utils')
+// node packages
 const path = require('path')
 const fs = require('fs')
 const os = require('os')
 const glob = require('glob')
-const { debounce } = require('@weave-js/utils')
+
+const { debounce, defaultsDeep } = require('@weave-js/utils')
 
 // own packages
 const defaultOptions = require('./default-options')
@@ -408,23 +408,16 @@ const createBroker = (options = {}) => {
      * @returns {Promise} Promise
     */
     waitForServices (serviceNames, timeout, interval = 500) {
-      if (typeof serviceNames === 'string') {
+      if (!Array.isArray(serviceNames)) {
         serviceNames = [serviceNames]
       }
+
       const startTimestamp = Date.now()
       return new Promise((resolve, reject) => {
         // todo: add timout for service waiter
         this.log.warn(`Waiting for services '${serviceNames.join(',')}'`)
 
         const serviceCheck = () => {
-          if (!this.isStarted) {
-            resolve()
-          }
-
-          if (!Array.isArray(serviceNames)) {
-            serviceNames = [serviceNames]
-          }
-
           const count = serviceNames.filter(serviceName => registry.hasService(serviceName))
 
           this.log.wait(`${count.length} services of ${serviceNames.length} available. Waiting...`)

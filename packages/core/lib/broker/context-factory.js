@@ -49,7 +49,7 @@ const createContextFactory = () => ({
     }
 
     return context
-  },
+  }
   // createFromPayload (payload) {
   //   const context = createContext(this.broker, { name: payload.action })
 

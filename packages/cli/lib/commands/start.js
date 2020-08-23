@@ -17,6 +17,7 @@ exports.handler = async ({ url }) => {
       logLevel: 'info'
     }
   }
+
   const broker = Weave(config)
 
   broker.start()

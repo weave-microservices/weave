@@ -46,6 +46,7 @@ describe('Test IN-Memory message flow', () => {
         enabled: false
       }
     })
+
     const cache = CacheMemory(broker)
     cache.init()
     cache.clear = jest.fn()

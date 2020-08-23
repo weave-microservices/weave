@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 const BaseCollector = require('./base')
 
 class ConsoleCollector extends BaseCollector {

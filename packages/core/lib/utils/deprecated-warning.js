@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 const { yellow, bold } = require('kleur')
 
 const deprecatedList = []

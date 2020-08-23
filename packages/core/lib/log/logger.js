@@ -17,7 +17,6 @@ const figures = require('figures')
 // own modules
 const defaultTypes = require('./types')
 
-// extract colors
 const { gray, underline, grey, dim } = kleur
 
 // default log levels
@@ -35,7 +34,6 @@ module.exports.createDefaultLogger = (options, bindings) => {
 
   options.customTypes = Object.assign({}, options.types)
   options.types = mergeTypes(defaultTypes, options.customTypes)
-  // options = Object.assign(defaultOptions, options)
   const longestBadge = getLongestBadge()
   const longestLabel = getLongestLabel()
 
