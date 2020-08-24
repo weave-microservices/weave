@@ -2,14 +2,13 @@
 
 [![NPM Version](https://img.shields.io/npm/v/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/utils)
 [![Build Status](https://travis-ci.com/weave-microservices/weave.svg?branch=master)](https://travis-ci.com/weave-microservices/weave)
-[![Dependencies](https://david-dm.org/weave-microservices/weave.svg)](https://david-dm.org/weave-microservices/weave.svg)
 [![Downloads](https://img.shields.io/npm/dt/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/utils)
 
 > Weave core module
 
 ## About
 
-This is a repository of the Weave core module.
+This is the repository of the Weave core module.
 
 ## License
 

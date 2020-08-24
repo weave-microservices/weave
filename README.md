@@ -4,7 +4,6 @@
 [![NPM Version](https://img.shields.io/npm/v/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/core)
 [![Build Status](https://travis-ci.com/weave-microservices/weave.svg?branch=master)](https://travis-ci.com/weave-microservices/weave)
 [![CodeFactor](https://www.codefactor.io/repository/github/weave-microservices/weave/badge)](https://www.codefactor.io/repository/github/weave-microservices/weave/overview/dev)
-[![Dependencies](https://david-dm.org/weave-microservices/weave.svg)](https://david-dm.org/weave-microservices/weave.svg)
 [![Downloads](https://img.shields.io/npm/dt/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/core)
 
 > Weave is a fast and easy to use microservice framework for node.js.
@@ -13,7 +12,7 @@
 # Features
 
 - No master/leader node
-- Pluggable transporters (NATS, Redis)
+- Pluggable transporters (TCP, NATS, Redis)
 - Automatic service discovery
 - Multiple services per node
 - Service mixins
@@ -52,21 +51,21 @@ const broker = Weave({
 })
 
 broker.createService({
-    name: 'math',
-    actions: {
-        add(context) {
-            return Number(context.data.a) + Number(context.data.b)
-        }
+  name: 'math',
+  actions: {
+    add(context) {
+      return Number(context.data.a) + Number(context.data.b)
     }
-});
+  }
+})
 
 broker.start()
-    .then(() => {
-        // Call service
-        broker.call('math.add', { a: 5, b: 3 })
-            .then(result => console.log('5 + 3 =', result))
-            .catch(error => console.error(`Something went wrong! ${error.message}`))
-    })
+  .then(() => {
+    // Call service
+    broker.call('math.add', { a: 5, b: 3 })
+      .then(result => console.log('5 + 3 =', result))
+      .catch(error => console.error(`Something went wrong! ${error.message}`))
+  })
 
 ```
 
@@ -75,7 +74,7 @@ broker.start()
 There are a number of sample applications available:
 
 ```javascript
-    // todo
+  // todo
 ```
 
 
