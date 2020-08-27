@@ -5,7 +5,7 @@
  */
 'use strict'
 
-const ServiceItem = (node, name, version, settings, local) => {
+exports.createServiceItem = (node, name, version, settings, local) => {
   const self = Object.create(null)
 
   self.name = name
@@ -35,5 +35,3 @@ const ServiceItem = (node, name, version, settings, local) => {
 
   return self
 }
-
-module.exports = ServiceItem

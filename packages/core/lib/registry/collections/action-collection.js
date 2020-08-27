@@ -5,9 +5,21 @@
  */
 
 const { omit } = require('@weave-js/utils')
-const createEndpointList = require('../endpoint-list')
+const { createEndpointList } = require('./endpoint-collection')
 
-const MakeActionCollection = (registry) => {
+/**
+ * Configuration object for weave service broker.
+ * @typedef {Object} ActionCollection
+ * @property {Function} add Enable metric middleware. (default = false)
+ * @property {Array<String|Object>} adapters Array of metric adapters.
+ */
+
+/**
+ * Create an action collection.
+ * @param {any} registry Reference to the registry.
+ * @returns {ActionCollection} Action collection
+ */
+exports.createActionCollection = (registry) => {
   const broker = registry.broker
   const actions = new Map()
 
@@ -77,5 +89,3 @@ const MakeActionCollection = (registry) => {
     }
   }
 }
-
-module.exports = MakeActionCollection

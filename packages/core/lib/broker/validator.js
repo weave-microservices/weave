@@ -7,7 +7,7 @@
 const ObjectValidator = require('@weave-js/validator')
 const { WeaveParameterValidationError } = require('../errors')
 
-const createValidator = () => {
+exports.createValidator = () => {
   const validator = ObjectValidator()
 
   // attach the middleware to object validator
@@ -34,5 +34,3 @@ const createValidator = () => {
 
   return validator
 }
-
-module.exports = createValidator

@@ -19,7 +19,7 @@ const defaultTypes = require('./types')
 
 const { gray, underline, grey, dim } = kleur
 
-// default log levels
+// log levels
 const LOG_LEVELS = [
   'trace',
   'debug',
@@ -29,11 +29,12 @@ const LOG_LEVELS = [
   'fatal'
 ]
 
-module.exports.createDefaultLogger = (options, bindings) => {
+exports.createDefaultLogger = (options, bindings) => {
   const logMethods = {}
 
   options.customTypes = Object.assign({}, options.types)
   options.types = mergeTypes(defaultTypes, options.customTypes)
+
   const longestBadge = getLongestBadge()
   const longestLabel = getLongestLabel()
 
@@ -44,7 +45,7 @@ module.exports.createDefaultLogger = (options, bindings) => {
     logMethods[type] = isActive ? logger.bind(this, type) : dummyLogMethod
   })
 
-  function mergeTypes (standard, custom) {
+  const mergeTypes = (standard, custom) => {
     const types = Object.assign({}, standard)
 
     Object.keys(custom).forEach(type => {
@@ -64,12 +65,12 @@ module.exports.createDefaultLogger = (options, bindings) => {
     return `${bindings.nodeId}/${module}`
   }
 
-  function getLongestBadge () {
+  const getLongestBadge = () => {
     const labels = Object.keys(options.types).map(x => options.types[x].badge)
     return labels.reduce((x, y) => x.length > y.length ? x : y)
   }
 
-  function getLongestLabel () {
+  const getLongestLabel = () => {
     const labels = Object.keys(options.types).map(x => options.types[x].label)
     return labels.reduce((x, y) => x.length > y.length ? x : y)
   }

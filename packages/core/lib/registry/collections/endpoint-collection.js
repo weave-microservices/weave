@@ -4,18 +4,15 @@
  * Copyright 2020 Fachwerk
  */
 
-const Endpoint = require('./endpoint')
-const { loadBalancingStrategy } = require('../constants')
+const { createEndpoint } = require('../endpoint')
+const { loadBalancingStrategy } = require('../../constants')
 
-const EndpointList = (broker, name, groupName) => {
+exports.createEndpointList = (broker, name, groupName) => {
   const self = Object.create(null)
   const options = broker.options
   const list = self.endpoints = []
   let counter = 0
   self.state = broker
-
-  const EndpointFactory = Endpoint
-
   self.name = name
   self.groupName = groupName
   self.isInternal = name.startsWith('$')
@@ -33,7 +30,7 @@ const EndpointList = (broker, name, groupName) => {
       return false
     }
 
-    const newEndpoint = EndpointFactory(broker, node, service, action)
+    const newEndpoint = createEndpoint(broker, node, service, action)
 
     list.push(newEndpoint)
     setLocalEndpoints()
@@ -133,5 +130,3 @@ const EndpointList = (broker, name, groupName) => {
     }
   }
 }
-
-module.exports = EndpointList

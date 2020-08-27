@@ -4,32 +4,33 @@
  * Copyright 2020 Fachwerk
  */
 
-const EndpointList = require('../endpoint-list')
+const { createEndpointCollection } = require('./endpoint-collection')
 const { omit, remove } = require('@weave-js/utils')
+const { createServiceItem } = require('../service-item')
 
-const ServiceItem = require('../service-item')
-
-const MakeServiceCatalog = (registry) => {
-  const self = Object.create(null)
+exports.createServiceCollection = (registry) => {
+  const serviceCollection = Object.create(null)
   const broker = registry.broker
-  const services = self.services = []
+  const services = serviceCollection.services = []
   const actions = new Map()
   const options = broker.options
 
-  self.add = (node, name, version, settings) => {
-    const item = ServiceItem(node, name, version, settings, node.id === broker.nodeId)
+  const findServiceByNode = (nodeId, name) => {
+    return services.find(service => service.name === name && service.nodeId === nodeId)
+  }
 
+  serviceCollection.add = (node, name, version, settings) => {
+    const item = createServiceItem(node, name, version, settings, node.id === broker.nodeId)
     services.push(item)
-
     return item
   }
 
-  self.get = (nodeId, name, version) => services.find(svc => svc.equals(name, version, nodeId))
+  serviceCollection.get = (nodeId, name, version) => services.find(svc => svc.equals(name, version, nodeId))
 
-  self.has = (name, version, nodeId) => !!services.find(svc => svc.equals(name, version, nodeId))
+  serviceCollection.has = (name, version, nodeId) => !!services.find(svc => svc.equals(name, version, nodeId))
 
-  self.remove = (nodeId, name, version) => {
-    const service = self.get(nodeId, name, version)
+  serviceCollection.remove = (nodeId, name, version) => {
+    const service = serviceCollection.get(nodeId, name, version)
 
     if (service) {
       registry.actions.removeByService(service)
@@ -38,7 +39,7 @@ const MakeServiceCatalog = (registry) => {
     }
   }
 
-  self.removeAllByNodeId = (nodeId) => {
+  serviceCollection.removeAllByNodeId = (nodeId) => {
     remove(services, service => {
       if (service.node.id === nodeId) {
         registry.actions.removeByService(service)
@@ -49,11 +50,11 @@ const MakeServiceCatalog = (registry) => {
     })
   }
 
-  self.registerAction = (nodeId, action) => {
+  serviceCollection.registerAction = (nodeId, action) => {
     let endPointList = actions.get(action.name)
 
     if (!endPointList) {
-      endPointList = EndpointList(broker, options)
+      endPointList = createEndpointCollection(broker, options)
       endPointList.isInternal = action.name.substring(0, 1) === '$'
       actions.set(action.name, endPointList)
     }
@@ -67,11 +68,9 @@ const MakeServiceCatalog = (registry) => {
     return endPointList.add(nodeId, action)
   }
 
-  self.tryFindActionsByActionName = (actionName) => {
-    return actions.get(actionName)
-  }
+  serviceCollection.tryFindActionsByActionName = (actionName) => actions.get(actionName)
 
-  self.getLocalActions = () => {
+  serviceCollection.getLocalActions = () => {
     const result = []
     // todo: refactoring to array.map()
     actions.forEach(entry => {
@@ -83,7 +82,7 @@ const MakeServiceCatalog = (registry) => {
     return result
   }
 
-  self.getActionsList = () => {
+  serviceCollection.getActionsList = () => {
     const result = []
     actions.forEach((action, key) => {
       const item = {
@@ -96,7 +95,7 @@ const MakeServiceCatalog = (registry) => {
     return result
   }
 
-  self.list = ({ localOnly = false, withActions = false, withEvents = false, withNodeService = false, withSettings = false }) => {
+  serviceCollection.list = ({ localOnly = false, withActions = false, withEvents = false, withNodeService = false, withSettings = false }) => {
     const result = []
     services.forEach((service) => {
       if (/^\$node/.test(service.name) && !withNodeService) {
@@ -142,18 +141,12 @@ const MakeServiceCatalog = (registry) => {
     return result
   }
 
-  self.findEndpointByNodeId = (actionName, nodeId) => {
-    const endpointListItem = self.tryFindActionsByActionName(actionName)
+  serviceCollection.findEndpointByNodeId = (actionName, nodeId) => {
+    const endpointListItem = serviceCollection.tryFindActionsByActionName(actionName)
     if (endpointListItem) {
       return endpointListItem.endpointByNodeId(nodeId)
     }
   }
 
-  return self
-
-  function findServiceByNode (nodeId, name) {
-    return services.find(service => service.name === name && service.nodeId === nodeId)
-  }
+  return serviceCollection
 }
-
-module.exports = MakeServiceCatalog

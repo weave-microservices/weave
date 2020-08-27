@@ -6,16 +6,16 @@
 
 const { getIpList } = require('@weave-js/utils')
 const { omit } = require('@weave-js/utils')
-const Node = require('../node')
+const { createNode } = require('../node')
 
-const MakeNodeCollection = (registry) => {
+exports.createNodeCollection = (registry) => {
   const broker = registry.broker
   const nodes = new Map()
 
   const nodeCollection = {
     localNode: null,
     createNode (nodeId) {
-      return Node(nodeId)
+      return createNode(nodeId)
     },
     add (id, node) {
       nodes.set(id, node)
@@ -58,7 +58,7 @@ const MakeNodeCollection = (registry) => {
 
   // get Local node informations and add it to the collection by
   const addLocalNode = () => {
-    const node = Node(broker.nodeId)
+    const node = createNode(broker.nodeId)
 
     node.isLocal = true
     node.IPList = getIpList()
@@ -79,5 +79,3 @@ const MakeNodeCollection = (registry) => {
 
   return nodeCollection
 }
-
-module.exports = MakeNodeCollection

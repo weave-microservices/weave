@@ -6,7 +6,7 @@
 
 const { cpuUsage } = require('@weave-js/utils')
 
-const createNode = nodeId => {
+exports.createNode = (nodeId) => {
   return {
     id: nodeId,
     info: null,
@@ -70,5 +70,3 @@ const createNode = nodeId => {
     }
   }
 }
-
-module.exports = createNode

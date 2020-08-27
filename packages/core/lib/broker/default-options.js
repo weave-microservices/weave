@@ -125,7 +125,12 @@ const { loadBalancingStrategy } = require('../constants')
  * @property {TransportSettings} transport Transport settings.
  * @property {Boolean} watchServices Monitor services and automatically reload them when changes are made.
  */
-module.exports = {
+
+/**
+ * Return the default options
+ * @returns {BrokerOptions} Broker options
+ */
+exports.getDefaultOptions = () => ({
   bulkhead: {
     enabled: false,
     concurrentCalls: 15,
@@ -211,4 +216,4 @@ module.exports = {
   validateActionParams: true,
   // reload service on code change
   watchServices: false
-}
+})

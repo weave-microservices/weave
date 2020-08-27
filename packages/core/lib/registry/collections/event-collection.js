@@ -4,10 +4,10 @@
  * Copyright 2020 Fachwerk
  */
 const { omit } = require('@weave-js/utils')
-const EndpointList = require('../endpoint-list')
+const { createEndpointList } = require('./endpoint-collection')
 const { match } = require('@weave-js/utils')
 
-const MakeEventCollection = (registry) => {
+exports.createEventCollection = (registry) => {
   const broker = registry.broker
   const events = []
   const getAllEventsByEventName = (eventName) => events.filter(list => match(eventName, list.name))
@@ -17,7 +17,7 @@ const MakeEventCollection = (registry) => {
       const groupName = event.group || service.name
       let endpointList = this.get(event.name, groupName)
       if (!endpointList) {
-        endpointList = EndpointList(broker, event.name, groupName)
+        endpointList = createEndpointList(broker, event.name, groupName)
         events.push(endpointList)
       }
       return endpointList.add(node, service, event)
@@ -125,5 +125,3 @@ const MakeEventCollection = (registry) => {
     }
   }
 }
-
-module.exports = MakeEventCollection

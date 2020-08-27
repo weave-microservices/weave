@@ -7,7 +7,7 @@
 
 const createContext = require('./context')
 
-const createContextFactory = () => ({
+exports.createContextFactory = () => ({
   init (broker) {
     this.broker = broker
   },
@@ -42,6 +42,7 @@ const createContextFactory = () => ({
       context.span = opts.parentContext.span
     }
 
+    // set request ID for metrics
     if (context.metrics || context.nodeId !== this.broker.nodeId) {
       if (!context.requestId) {
         context.requestId = context.id
@@ -50,22 +51,4 @@ const createContextFactory = () => ({
 
     return context
   }
-  // createFromPayload (payload) {
-  //   const context = createContext(this.broker, { name: payload.action })
-
-  //   context.nodeId = this.broker.nodeId
-  //   context.id = payload.id
-  //   context.setParams(payload.params)
-  //   context.parentId = payload.parentId
-  //   context.requestId = payload.requestId
-  //   context.timeout = payload.timeout || 0
-  //   context.meta = payload.meta
-  //   context.metrics = payload.metrics
-  //   context.level = payload.level
-  //   context.callerNodeId = payload.sender
-
-  //   return context
-  // }
 })
-
-module.exports = createContextFactory

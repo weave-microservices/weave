@@ -4,7 +4,7 @@
  * Copyright 2020 Fachwerk
  */
 
-const createMiddlewareHandler = () => {
+exports.createMiddlewareHandler = () => {
   const list = []
   return {
     init (broker) {
@@ -67,5 +67,3 @@ const createMiddlewareHandler = () => {
     }
   }
 }
-
-module.exports = createMiddlewareHandler
