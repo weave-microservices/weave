@@ -1,11 +1,11 @@
 const { Weave } = require('../../lib/index')
-const createContextFactory = require('../../lib/broker/context-factory')
-const createEndpoint = require('../../lib/registry/endpoint')
+const { createContextFactory } = require('../../lib/broker/context-factory')
+// const { createEndpoint } = require('../../lib/registry/endpoint')
 
-const fakeAction = {
-  name: 'testaction',
-  handler: () => {}
-}
+// const fakeAction = {
+//   name: 'testaction',
+//   handler: () => {}
+// }
 
 describe('Test context factxory.', () => {
   it('should create an empty context.', () => {

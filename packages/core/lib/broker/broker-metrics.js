@@ -1,6 +1,6 @@
 const { Constants } = require('../metrics')
 
-module.exports = function registerMetrics (broker) {
+exports.registerMetrics = (broker) => {
   if (broker.metrics) {
     broker.metrics.register({ name: Constants.WEAVE_ENVIRONMENT, type: 'info', description: 'Node environment.' }).set('nodejs')
     broker.metrics.register({ name: Constants.WEAVE_VERSION, type: 'info', description: 'Weave version.' }).set(broker.version)

@@ -4,7 +4,7 @@
  * Copyright 2020 Fachwerk
  */
 
-const Endpoint = (broker, node, service, action) => {
+exports.createEndpoint = (broker, node, service, action) => {
   const self = Object.create(null)
 
   self.node = node
@@ -24,5 +24,3 @@ const Endpoint = (broker, node, service, action) => {
 
   return self
 }
-
-module.exports = Endpoint

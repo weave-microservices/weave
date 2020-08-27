@@ -5,18 +5,18 @@
  */
 
 // own packages
-const MakeNodeCollection = require('./collections/node-collection')
-const MakeServiceCollection = require('./collections/service-collection')
-const MakeActionCollection = require('./collections/action-collection')
-const MakeEventCollection = require('./collections/event-collection')
-const Endpoint = require('./endpoint')
+const { createNodeCollection } = require('./collections/node-collection')
+const { createServiceCollection } = require('./collections/service-collection')
+const { createActionCollection } = require('./collections/action-collection')
+const { createEventCollection } = require('./collections/event-collection')
+const { createEndpoint } = require('./endpoint')
+const { createNode } = require('./node')
 const { WeaveServiceNotFoundError, WeaveServiceNotAvailableError } = require('../errors')
-const Node = require('./node')
 const { safeCopy } = require('@weave-js/utils')
 
-const createRegistry = () => {
-  const noop = () => {}
+const noop = () => {}
 
+exports.createRegistry = () => {
   // registry object
   const registry = {
     init (broker, middlewareHandler, serviceChanged) {
@@ -29,11 +29,12 @@ const createRegistry = () => {
       this.log = broker.createLogger('REGISTRY')
 
       // init collections
-      this.nodes = MakeNodeCollection(this)
-      this.services = MakeServiceCollection(this)
-      this.actions = MakeActionCollection(this)
-      this.events = MakeEventCollection(this)
+      this.nodes = createNodeCollection(this)
+      this.services = createServiceCollection(this)
+      this.actions = createActionCollection(this)
+      this.events = createEventCollection(this)
 
+      // register an event handler for "$broker.started".
       this.broker.bus.on('$broker.started', () => {
         if (this.nodes.localNode) {
           this.generateLocalNodeInfo(true)
@@ -154,12 +155,12 @@ const createRegistry = () => {
       this.serviceChanged(false)
     },
     /**
-         * Register events for a service
-         * @param {*} node Node
-         * @param {*} service Service object
-         * @param {*} events Service events
-         * @returns {void}
-         */
+     * Register events for a service
+     * @param {*} node Node
+     * @param {*} service Service object
+     * @param {*} events Service events
+     * @returns {void}
+    */
     registerEvents (node, service, events) {
       Object.keys(events).forEach((key) => {
         const event = events[key]
@@ -263,7 +264,7 @@ const createRegistry = () => {
       return this.actions.get(actionName)
     },
     createPrivateEndpoint (action) {
-      return Endpoint(this.broker, this.nodes.localNode, action.service, action)
+      return createEndpoint(this.broker, this.nodes.localNode, action.service, action)
     },
     getLocalActionEndpoint (actionName) {
       const endpointList = this.getActionEndpoints(actionName)
@@ -330,7 +331,7 @@ const createRegistry = () => {
       // There is no node with the specified ID. It must therefore be a new node.
       if (!node) {
         isNew = true
-        node = Node(nodeId)
+        node = createNode(nodeId)
         this.nodes.add(nodeId, node)
       } else if (!node.isAvailable) {
         // Node exists, but is marked as unavailable. It must therefore be a reconnected node.
@@ -381,5 +382,3 @@ const createRegistry = () => {
 
   return registry
 }
-
-module.exports = createRegistry

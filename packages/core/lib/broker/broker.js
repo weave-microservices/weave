@@ -8,19 +8,16 @@ const path = require('path')
 const fs = require('fs')
 const os = require('os')
 const glob = require('glob')
-
 const { debounce, defaultsDeep } = require('@weave-js/utils')
-
-// own packages
-const defaultOptions = require('./default-options')
-const Logger = require('../log/logger')
-const createServiceFromSchema = require('../registry/service')
+const { getDefaultOptions } = require('./default-options')
+const { createDefaultLogger } = require('../log/logger')
+const { createServiceFromSchema } = require('../registry/service')
 const { deprecatedWarning } = require('../utils')
-const createMiddlewareHandler = require('./middleware-manager')
-const createRegistry = require('../registry/registry')
-const createContextFactory = require('./context-factory')
+const { createMiddlewareHandler } = require('./middleware-manager')
+const { createRegistry } = require('../registry/registry')
+const { createContextFactory } = require('./context-factory')
 const Middlewares = require('../middlewares')
-const createValidator = require('./validator')
+const { createValidator } = require('./validator')
 const Cache = require('../cache')
 const createHealthcheck = require('./health')
 const TransportAdapters = require('../transport/adapters')
@@ -29,8 +26,8 @@ const EventEmitter = require('eventemitter2')
 const { WeaveError } = require('../errors')
 const { Tracer } = require('../tracing')
 const { MetricsStorage } = require('../metrics')
+const { registerMetrics } = require('./broker-metrics')
 const pkg = require('../../package.json')
-const registerBrokerMetrics = require('./broker-metrics')
 
 /* eslint-disable no-use-before-define */
 /**
@@ -46,20 +43,26 @@ const createBroker = (options = {}) => {
     }
   }
 
+  // get default options
+  const defaultOptions = getDefaultOptions()
+
   // merge options with default options
   options = defaultsDeep(options, defaultOptions)
 
+  // started hook is set but is not type of function
   if (options.started && typeof options.started !== 'function') {
     throw new WeaveError('Started hook have to be a function.')
   }
 
+  // stopped hook is set but is not type of function
   if (options.stopped && typeof options.stopped !== 'function') {
     throw new WeaveError('Stopped hook have to be a function.')
   }
 
   // If no node id is set - create one.
   const nodeId = options.nodeId || `${os.hostname()}-${process.pid}`
-  // Set version to pakage version
+
+  // Take version from package.json
   const version = pkg.version
   const services = []
 
@@ -98,7 +101,7 @@ const createBroker = (options = {}) => {
       options.logger.logLevel = options.logger.logLevel || 'debug'
     }
 
-    return Logger.createDefaultLogger(options.logger, bindings)
+    return createDefaultLogger(options.logger, bindings)
   }
 
   // Create the default logger for the broker.
@@ -448,11 +451,13 @@ const createBroker = (options = {}) => {
             return this.transport.connect()
           }
         })
-        .then(() => Promise.all(services.map(service => service.start())))
-        .catch(error => {
-          this.log.error('Unable to start all services', error)
-          clearInterval(options.waitForServiceInterval)
-          return Promise.reject(error)
+        .then(() => {
+          return Promise.all(services.map(service => service.start()))
+            .catch(error => {
+              this.log.error('Unable to start all services', error)
+              clearInterval(options.waitForServiceInterval)
+              throw error
+            })
         })
         .then(() => {
           this.isStarted = true
@@ -619,7 +624,7 @@ const createBroker = (options = {}) => {
   // Metrics module
   broker.metrics = MetricsStorage(broker, options.metrics)
   broker.metrics.init()
-  registerBrokerMetrics(broker)
+  registerMetrics(broker)
 
   // Module initialisation
   registry.init(broker, middlewareHandler, servicesChanged)
