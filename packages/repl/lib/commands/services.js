@@ -23,9 +23,7 @@ module.exports = (vorpal, broker) => {
       })
 
       services.map(service => {
-        let item = list.find(i => {
-          return i.name === service.name
-        })
+        let item = list.find(item => item.name === service.name && item.version === service.version)
         if (item) {
           item.nodes.push({
             nodeId: service.nodeId,
@@ -34,7 +32,7 @@ module.exports = (vorpal, broker) => {
         } else {
           item = Object.create(null)
           item.name = service.name
-          // item.version = service.version ? service.version : 1
+          item.version = service.version
           item.isAvailable = service.isAvailable
           item.actions = service.actions ? Object.keys(service.actions).length : 0
           item.events = service.events ? Object.keys(service.events).length : 0
@@ -49,7 +47,7 @@ module.exports = (vorpal, broker) => {
       list.map(service => {
         data.push([
           service.name,
-          service.version ? service.version : 1,
+          service.version ? service.version : '-',
           service.isAvailable ? cliUI.successLabel('  OK  ') : cliUI.failureLabel(' FAILURE '),
           service.actions,
           service.events,
