@@ -2,7 +2,7 @@ const { Weave } = require('@weave-js/core')
 const repl = require('@weave-js/repl')
 
 exports.command = 'start'
-exports.description = 'Start a new Weave broker'
+exports.description = 'Start a new weave broker'
 exports.builder = {
   url: {
     alias: 'u',

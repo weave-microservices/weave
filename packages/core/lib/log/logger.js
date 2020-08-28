@@ -29,31 +29,47 @@ const LOG_LEVELS = [
   'fatal'
 ]
 
+const dummyLogMethod = () => {}
+
+const mergeTypes = (standard, custom) => {
+  const types = Object.assign({}, standard)
+
+  Object.keys(custom).forEach(type => {
+    types[type] = Object.assign({}, types[type], custom[type])
+  })
+
+  return types
+}
+
+const getLongestBadge = (options) => {
+  const labels = Object.keys(options.types).map(x => options.types[x].badge)
+  return labels.reduce((x, y) => x.length > y.length ? x : y)
+}
+
+const getLongestLabel = (options) => {
+  const labels = Object.keys(options.types).map(x => options.types[x].label)
+  return labels.reduce((x, y) => x.length > y.length ? x : y)
+}
+
+const getDate = () => {
+  const date = new Date()
+  return date.toISOString()
+}
+
 exports.createDefaultLogger = (options, bindings) => {
   const logMethods = {}
 
   options.customTypes = Object.assign({}, options.types)
   options.types = mergeTypes(defaultTypes, options.customTypes)
 
-  const longestBadge = getLongestBadge()
-  const longestLabel = getLongestLabel()
-
-  const dummyLogMethod = () => {}
-
+  // process log types
   Object.keys(options.types).forEach(type => {
     const isActive = options.enabled && (LOG_LEVELS.indexOf(options.types[type].logLevel) >= LOG_LEVELS.indexOf(options.logLevel))
     logMethods[type] = isActive ? logger.bind(this, type) : dummyLogMethod
   })
 
-  const mergeTypes = (standard, custom) => {
-    const types = Object.assign({}, standard)
-
-    Object.keys(custom).forEach(type => {
-      types[type] = Object.assign({}, types[type], custom[type])
-    })
-
-    return types
-  }
+  const longestBadge = getLongestBadge(options)
+  const longestLabel = getLongestLabel(options)
 
   const getModuleName = () => {
     let module
@@ -63,21 +79,6 @@ exports.createDefaultLogger = (options, bindings) => {
       module = bindings.moduleName
     }
     return `${bindings.nodeId}/${module}`
-  }
-
-  const getLongestBadge = () => {
-    const labels = Object.keys(options.types).map(x => options.types[x].badge)
-    return labels.reduce((x, y) => x.length > y.length ? x : y)
-  }
-
-  const getLongestLabel = () => {
-    const labels = Object.keys(options.types).map(x => options.types[x].label)
-    return labels.reduce((x, y) => x.length > y.length ? x : y)
-  }
-
-  const getDate = () => {
-    const date = new Date()
-    return date.toISOString()
   }
 
   const getFilename = () => {
