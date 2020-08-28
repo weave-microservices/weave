@@ -33,6 +33,7 @@
     "kleur": "^4.0.2",
     "metalsmith": "^2.3.0",
     "minimatch": "^3.0.4",
+    "minimist": "^1.2.5",
     "mkdirp": "^1.0.4",
     "multimatch": "^4.0.0",
     "ora": "^4.0.5",
