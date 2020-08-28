@@ -3,11 +3,9 @@ const { cleanArgs } = require('./utils/args')
 const updateNotifier = require('update-notifier')
 const pkg = require('../package.json')
 const { program } = require('commander')
+
 updateNotifier({ pkg }).notify()
 
-// command packages
-// const start = require('./commands/start')
-// const connect = require('./commands/connect')
 program
   .version(`@weave-js/cli ${require('../package').version}`)
   .usage('<command> [options]')
@@ -21,7 +19,7 @@ program
 program
   .command('start')
   .description('create a new project powered by vue-cli-service')
-  .option('-c, --config <configPath>', 'Start broker with config file.')
+  .option('-c, --config [configPath]', 'Start broker with config file.')
   .option('-s, --services <servicePath>', 'Start broker with services loaded from the given path.')
   .option('-r, --repl', 'Start broker with REPL.')
   .option('-w, --watch', 'Start broker with service watcher.')

@@ -22,7 +22,10 @@ exports.handler = async (args) => {
     const broker = Weave(config)
 
     // load services
-    loadServices(broker, args.services)
+    if (args.services) {
+      loadServices(broker, args.services)
+    }
+
     // start broker
     await broker.start()
 

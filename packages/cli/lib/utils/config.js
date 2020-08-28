@@ -1,12 +1,13 @@
 const path = require('path')
 const fs = require('fs')
+const { isString } = require('@weave-js/utils')
 const { getDefaultOptions } = require('@weave-js/core').defaultOptions
 
 const defaultConfigFileName = 'weave.config.js'
 
 exports.getConfig = (flags) => {
   let filePath
-  if (flags.config) {
+  if (flags.config && isString(flags.config)) {
     filePath = path.isAbsolute(flags.config) ? flags.config : path.resolve(process.cwd(), flags.config)
   }
 
