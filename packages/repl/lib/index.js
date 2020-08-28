@@ -36,7 +36,7 @@ module.exports = (broker, customCommands = []) => {
     })
 
   registerCommands(vorpal, broker)
-  registerCustomCommands(customCommands)
+  registerCustomCommands(vorpal, broker, customCommands)
 
   vorpal
     .delimiter(cliUI.whiteText('weave') + cliUI.successText('$'))
