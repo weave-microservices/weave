@@ -5,7 +5,7 @@
  */
 'use strict'
 
-const utils = require('@weave-js/utils')
+const { uuid } = require('@weave-js/utils')
 // const { deprecatedWarning } = require('../utils/deprecated-warning')
 const { WeaveMaxCallLevelError } = require('../errors')
 
@@ -77,7 +77,7 @@ const createContext = (broker, endpoint) => {
 
   // generate a context Id
   if (!newContext.id) {
-    newContext.id = utils.uuid()
+    newContext.id = uuid()
     if (!newContext.requestId) {
       newContext.requestId = newContext.id
     }
