@@ -76,13 +76,14 @@ module.exports = (broker, transport, pending) => {
         }
       }
       const endpoint = registry.getLocalActionEndpoint(payload.action)
-      const context = Context(broker, endpoint)
+      const context = Context(broker)
 
+      context.setEndpoint(endpoint)
       context.id = payload.id
       context.setParams(stream || payload.data)
       context.parentId = payload.parentId
       context.requestId = payload.requestId
-      context.meta = payload.meta
+      context.meta = payload.meta || {}
       context.metrics = payload.metrics
       context.level = payload.level
       context.callerNodeId = payload.sender
@@ -184,7 +185,27 @@ module.exports = (broker, transport, pending) => {
   }
 
   const onEvent = payload => {
-    return registry.events.emitLocal(payload.eventName, payload.data, payload.sender, payload.groups, payload.isBroadcast)
+    // todo: reconstruct event context
+    const context = Context(broker)
+
+    // context.setEndpoint(endpoint)
+    context.id = payload.id
+    context.setParams(payload.data)
+    context.parentId = payload.parentId
+    context.requestId = payload.requestId
+    context.meta = payload.meta || {}
+    context.metrics = payload.metrics
+    context.level = payload.level
+    context.callerNodeId = payload.sender
+    context.options.timeout = payload.options.timeout || broker.options.requestTimeout || 0
+
+    // add event infos
+    context.eventName = payload.eventName
+    context.eventType = payload.isBroadcast ? 'broadcast' : 'emit'
+
+    return registry.events.emitLocal(context)
+
+    // return registry.events.emitLocal(payload.eventName, payload.data, payload.sender, payload.groups, payload.isBroadcast)
   }
 
   const onDisconnect = payload => {

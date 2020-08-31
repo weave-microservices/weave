@@ -31,6 +31,7 @@ exports.createEventCollection = (registry) => {
       })
     },
     getBalancedEndpoints (eventName, groups) {
+      const ev = events
       return getAllEventsByEventName(eventName)
         .filter(endpointList => (groups == null || groups.length === 0 || groups.includes(endpointList.groupName)))
         .map(endpointList => ({ endpoint: endpointList.getNextAvailable(), endpointList }))
@@ -64,21 +65,23 @@ exports.createEventCollection = (registry) => {
 
       return distinct
     },
-    emitLocal (eventName, payload, sender, groups, isBroadcast) {
+    emitLocal (context) {
       const promises = []
-      getAllEventsByEventName(eventName)
+      const groups = context.eventGroups
+      const isBroadcast = ['broadcast', 'localBroadcast'].includes(context.eventType)
+      getAllEventsByEventName(context.eventName)
         .filter(endpointList => (groups == null || groups.length === 0 || groups.includes(endpointList.groupName)))
         .map(list => {
           if (isBroadcast) {
             list.endpoints.map(endpoint => {
               if (endpoint.isLocal && endpoint.action.handler) {
-                promises.push(endpoint.action.handler(payload, sender, eventName))
+                promises.push(endpoint.action.handler(context))
               }
             })
           } else {
             const endpoint = list.getNextLocalEndpoint()
             if (endpoint && endpoint.isLocal && endpoint.action.handler) {
-              promises.push(endpoint.action.handler(payload, sender, eventName))
+              promises.push(endpoint.action.handler(context))
             }
           }
         })

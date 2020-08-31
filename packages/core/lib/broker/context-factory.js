@@ -12,7 +12,11 @@ exports.createContextFactory = () => ({
     this.broker = broker
   },
   create (endpoint, data, opts) {
-    const context = createContext(this.broker, endpoint)
+    const context = createContext(this.broker)
+
+    if (endpoint) {
+      context.setEndpoint(endpoint)
+    }
 
     opts = opts || {}
     context.setParams(data)

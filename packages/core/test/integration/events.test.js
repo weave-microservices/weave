@@ -74,6 +74,7 @@ const createNodes = (ns) => {
       adapter: 'dummy'
     }
   }
+
   const mainNode = Weave(Object.assign({ namespace: ns, nodeId: 'master' }, settings))
   mainNode.createService(Object.assign({}, OtherService))
   mainNode.createService(Object.assign({}, OtherService, { name: 'other2' }))
@@ -116,7 +117,7 @@ const createNodes = (ns) => {
   ]
 }
 
-describe('Events', () => {
+describe('Event flow(remote)', () => {
   const nodes = createNodes('balanced')
   const master = nodes[0]
   const nodeUser1 = nodes[1]
@@ -173,7 +174,7 @@ describe('Events', () => {
   })
 
   it('should emit a event with group.', () => {
-    master.emit('user.created', null, 'user')
+    master.emit('user.created', null, ['user'])
     expect(flow).toEqual([
       'user-1-user-user.created',
       'user-1-user-mixed.created'
@@ -187,6 +188,17 @@ describe('Events', () => {
       'user-2-user-mixed.created',
       'notification-2-notification-user.created'
     ])
+  })
+})
+
+describe.only('Broadcast events', () => {
+  const nodes = createNodes('broadcast')
+  const master = nodes[0]
+
+  beforeAll(() => Promise.all(nodes.map(node => node.start())))
+  afterAll(() => Promise.all(nodes.map(node => node.stop())))
+  beforeEach(() => {
+    flow = []
   })
 
   it('should broadcast a event to all services.', () => {
@@ -206,8 +218,8 @@ describe('Events', () => {
     ])
   })
 
-  it('should broadcast a event to services grouped by name.', () => {
-    master.broadcast('user.created', null, 'user')
+  it.only('should broadcast a event to services grouped by name.', () => {
+    master.broadcast('user.created', null, ['user'])
     expect(flow).toEqual([
       'user-1-user-user.created',
       'user-1-user-mixed.created',
@@ -231,5 +243,60 @@ describe('Events', () => {
       'payment-2-payment-user.created',
       'payment-3-payment-user.created'
     ])
+  })
+})
+
+describe('Remote events', () => {
+  let broker1
+  let broker2
+  const testEventS1 = jest.fn()
+  const testEventS2 = jest.fn()
+
+  beforeEach(async (done) => {
+    broker1 = Weave({
+      nodeId: 'node1',
+      transport: {
+        adapter: 'dummy'
+      }
+    })
+
+    broker2 = Weave({
+      nodeId: 'node2',
+      transport: {
+        adapter: 'dummy'
+      }
+    })
+
+    broker1.createService({
+      name: 'testService1',
+      events: {
+        testEvent1: testEventS1
+      }
+    })
+
+    broker2.createService({
+      name: 'testService2',
+      events: {
+        testEvent2: testEventS2
+      }
+    })
+
+    await Promise.all([broker1.start(), broker2.start()])
+    done()
+  })
+
+  afterEach(async (done) => {
+    await Promise.all([broker1.stop(), broker2.stop()])
+    done()
+  })
+
+  it('should call remote events', () => {
+    broker1.emit('testEvent1')
+    expect(testEventS1).toHaveBeenCalledTimes(1)
+  })
+
+  it('should call remote events with data', () => {
+    broker1.emit('testEvent1', { userId: 123 })
+    expect(testEventS1).toHaveBeenCalledTimes(2)
   })
 })

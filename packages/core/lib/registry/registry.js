@@ -164,12 +164,12 @@ exports.createRegistry = () => {
     registerEvents (node, service, events) {
       Object.keys(events).forEach((key) => {
         const event = events[key]
-        this.events.add(node, service, event)
-
+        
         if (node.isLocal) {
           event.handler = this.middlewareHandler.wrapHandler('localEvent', event.handler, event) // this.onRegisterLocalEvent(event)
         }
-
+        
+        this.events.add(node, service, event)
         service.addEvent(event)
       })
     },

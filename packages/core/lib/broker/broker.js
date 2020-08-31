@@ -263,42 +263,59 @@ const createBroker = (options = {}) => {
      * Emit a event on all services (grouped and load balanced).
      * @param {String} eventName Name of the event
      * @param {any} payload Payload
-     * @param {*} [groups=null] Groups
+     * @param {*} [options=null] Groups
      * @returns {void}
      */
-    emit (eventName, payload, groups) {
-      const promises = []
-
-      if (groups && !Array.isArray(groups)) {
-        groups = [groups]
+    emit (eventName, payload, options) {
+      if (Array.isArray(options)) {
+        options = { groups: options }
+      } else if (options == null) {
+        options = {}
       }
+
+      const promises = []
+      const context = contextFactory.create(null, payload, options)
+      context.eventType = 'emit'
+      context.eventName = eventName
+      context.eventGroups = options.groups
 
       // Emit system events
       if (/^\$/.test(eventName)) {
         this.bus.emit(eventName, payload)
       }
 
-      const endpoints = registry.events.getBalancedEndpoints(eventName, groups)
+      const endpoints = registry.events.getBalancedEndpoints(eventName, options.groups)
       const groupedEndpoints = {}
 
       endpoints.map(([endpoint, groupName]) => {
         if (endpoint) {
           if (endpoint.node.id === this.nodeId) {
             // Local event. Call handler
-            promises.push(endpoint.action.handler(payload, endpoint.node.id, eventName))
+            promises.push(endpoint.action.handler(context))
           } else {
             const e = groupedEndpoints[endpoint.node.id]
             if (e) {
               e.push(groupName)
             } else {
-              groupedEndpoints[endpoint.node.id] = [groupName]
+              groupedEndpoints[endpoint.node.id] = {
+                endpoint,
+                groups: [groupName]
+              }
             }
           }
         }
       })
 
+      // send remote events
       if (this.transport) {
-        promises.push(this.transport.sendBalancedEvent(eventName, payload, groupedEndpoints))
+        Object.values(groupedEndpoints)
+          .forEach(groupedEndpoint => {
+            const newContext = context.copy()
+            newContext.setEndpoint(groupedEndpoint.endpoint)
+            newContext.eventGroups = groupedEndpoint.groups
+            promises.push(this.transport.sendEvent(newContext))
+          })
+        // this.transport.sendBalancedEvent(eventName, payload, groupedEndpoints)
       }
 
       return Promise.all(promises)
@@ -307,48 +324,68 @@ const createBroker = (options = {}) => {
      * Send a broadcasted event to all services.
      * @param {String} eventName Name of the event
      * @param {any} payload Payload
-     * @param {*} [groups=null] Groups
+     * @param {*} [options=null] Groups
      * @returns {void}
     */
-    broadcast (eventName, payload, groups = null) {
+    broadcast (eventName, payload, options) {
+      if (Array.isArray(options)) {
+        options = { groups: options }
+      } else if (options == null) {
+        options = {}
+      }
+
+      const promises = []
+
       if (this.transport) {
+        // create context
+        // todo: create an event context object
+        const context = contextFactory.create(null, payload, options)
+        context.eventType = 'broadcast'
+        context.eventName = eventName
+        context.eventGroups = options.groups
+
         // Avoid to broadcast internal events.
         if (!/^\$/.test(eventName)) {
-          const endpoints = registry.events.getAllEndpointsUniqueNodes(eventName, groups)
+          const endpoints = registry.events.getAllEndpointsUniqueNodes(eventName, options.groups)
 
-          if (endpoints) {
-            endpoints.map(endpoint => {
-              if (endpoint.node.id !== this.nodeId) {
-                if (this.transport) {
-                  this.transport.sendBroadcastEvent(endpoint.node.id, eventName, payload, groups)
-                }
-              }
-            })
-          }
+          endpoints.map(endpoint => {
+            if (endpoint.node.id !== this.nodeId) {
+              const newContext = context.copy()
+              newContext.setEndpoint(endpoint)
+              promises.push(this.transport.sendEvent(newContext))
+            }
+          })
         }
       }
 
-      return this.broadcastLocal(eventName, payload, groups)
+      promises.push(this.broadcastLocal(eventName, payload, options))
+      return Promise.all(promises)
     },
     /**
     *Send a broadcasted event to all local services.
     * @param {String} eventName Name of the event
     * @param {any} payload Payload
-    * @param {*} [groups=null] Groups
+    * @param {*} [options=null] Options
     * @returns {void}
     */
-    broadcastLocal (eventName, payload, groups = null) {
+    broadcastLocal (eventName, payload, options) {
       // If the given group is no array - wrap it.
-      if (groups && !Array.isArray(groups)) {
-        groups = [groups]
+      if (Array.isArray(options)) {
+        options = { groups: options }
+      } else if (options == null) {
+        options = {}
       }
+
+      const context = contextFactory.create(null, payload, options)
+      context.eventType = 'broadcastLocal'
+      context.eventName = eventName
 
       // Emit the event on the internal event bus
       if (/^\$/.test(eventName)) {
         this.bus.emit(eventName, payload)
       }
 
-      return registry.events.emitLocal(eventName, payload, this.nodeId, groups, true)
+      return registry.events.emitLocal(context)
     },
     /* eslint-disable no-use-before-define */
     /**

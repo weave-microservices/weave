@@ -73,7 +73,7 @@ describe('Test tracing', () => {
   it('Started event should be the expected format.', () => {
     return node1.call('test.hello')
       .then(() => {
-        const startedEvent = flow[0]
+        const startedEvent =  flow[0]
 
         // expect(startedEvent.id).toBeDefined()
         expect(startedEvent.id).toBeDefined()

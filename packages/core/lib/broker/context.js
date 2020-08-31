@@ -9,11 +9,13 @@ const { uuid } = require('@weave-js/utils')
 // const { deprecatedWarning } = require('../utils/deprecated-warning')
 const { WeaveMaxCallLevelError } = require('../errors')
 
-const createContext = (broker, endpoint) => {
+const createContext = (broker) => {
   const newContext = {
     id: null,
     nodeId: broker.nodeId || null,
     callerNodeId: null,
+    parentContext: null,
+    endpoint: null,
     get params () {
       return this.data
     },
@@ -36,6 +38,12 @@ const createContext = (broker, endpoint) => {
     stopTime: 0,
     setParams (newParams) {
       this.data = newParams || {}
+    },
+    setEndpoint (endpoint) {
+      this.nodeId = endpoint.node.id
+      this.endpoint = endpoint
+      this.action = endpoint.action
+      this.service = endpoint.action.service
     },
     emit (eventName, payload, groups) {
       return broker.emit(eventName, payload, groups)
@@ -72,6 +80,23 @@ const createContext = (broker, endpoint) => {
         this.span = broker.tracer.startSpan(name, options)
       }
       return this.span
+    },
+    copy () {
+      const newContext = createContext(broker)
+
+      newContext.nodeId = this.nodeId
+      newContext.options = this.options
+      newContext.data = this.data
+      newContext.meta = this.meta
+      newContext.parentContext = this.parentContext
+      newContext.callerNodeId = this.callerNodeId
+      newContext.level = this.level
+      newContext.options = this.options
+      newContext.eventName = this.eventName
+      newContext.eventType = this.eventType
+      newContext.eventGroups = this.eventGroups
+
+      return newContext
     }
   }
 
@@ -81,13 +106,6 @@ const createContext = (broker, endpoint) => {
     if (!newContext.requestId) {
       newContext.requestId = newContext.id
     }
-  }
-
-  if (endpoint) {
-    newContext.nodeId = endpoint.node.id
-    newContext.endpoint = endpoint
-    newContext.action = endpoint.action
-    newContext.service = endpoint.action.service
   }
 
   return newContext

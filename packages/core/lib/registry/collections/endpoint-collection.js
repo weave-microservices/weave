@@ -121,7 +121,8 @@ exports.createEndpointList = (broker, name, groupName) => {
       if (counter >= endpointList.length) {
         counter = 0
       }
-      return endpointList[counter++]
+      const res = endpointList[counter++]
+      return res
     } else {
       const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1) + min)
       return endpointList[randomInt(0, endpointList.length - 1)]

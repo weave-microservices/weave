@@ -201,6 +201,27 @@ const createTransport = (broker, adapter) => {
           }))
         })
     },
+    sendEvent (context) {
+      const isBroadcast = context.eventType === 'broadcast'
+      return this.send(this.createMessage(MessageTypes.MESSAGE_EVENT, context.endpoint ? context.nodeId : null, {
+        data: context.data,
+        eventName: context.eventName,
+        groups: context.eventGroups,
+        options: context.options,
+        isBroadcast
+      }))
+      // const nodeGroups = context.nodeGroups
+      // Object.keys(nodeGroups)
+      //   .map(nodeId => [nodeId, nodeGroups[nodeId]])
+      //   .map(([nodeId, groups]) => {
+      //     this.send(this.createMessage(MessageTypes.MESSAGE_EVENT, nodeId, {
+      //       data,
+      //       eventName,
+      //       groups,
+      //       isBroadcast: false
+      //     }))
+      //   })
+    },
     sendBroadcastEvent (nodeId, eventName, data, groups) {
       log.trace(`Send ${eventName} to ${nodeId}`)
       this.send(this.createMessage(MessageTypes.MESSAGE_EVENT, nodeId, {

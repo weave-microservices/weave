@@ -1,8 +1,8 @@
 const { mergeSchemas } = require('../utils/options')
-const { wrapInArray, isFunction, clone, wrapHandler, promisify, isObject } = require('@weave-js/utils')
+const { wrapInArray, isFunction, clone, wrapHandler, isObject, promisify } = require('@weave-js/utils')
 const { lifecycleHook } = require('../constants')
 const { WeaveError } = require('../errors')
-
+// const { promisify } = require('util')
 /**
  * The complete Triforce, or one or more components of the Triforce.
  * @typedef {Object} ServiceSchema
@@ -66,7 +66,7 @@ const createEvent = (service, eventDefinition, name) => {
   }
 
   // Event handler has to be a function
-  if (!isFunction(event.handler) || !Array.isArray(event.handler)) {
+  if (!isFunction(event.handler) && !Array.isArray(event.handler)) {
     throw new WeaveError(`Missing event handler for "${name}" on service "${service.name}".`)
   }
 
@@ -74,10 +74,10 @@ const createEvent = (service, eventDefinition, name) => {
 
   let handler
   if (isFunction(event.handler)) {
-    handler = promisify(event.handler, { scope: service })
+    handler = promisify(event.handler.bind(service))
   } else if (Array.isArray(event.handler)) {
     handler = event.handler.map(h => {
-      return promisify(h, { scope: service })
+      return promisify(h.bind(service))
     })
   }
 
@@ -86,11 +86,9 @@ const createEvent = (service, eventDefinition, name) => {
   }
 
   if (isFunction(handler)) {
-    event.handler = (context) => handler.apply(service, context)
+    event.handler = (context) => handler(context)
   } else if (Array.isArray(handler)) {
-    event.handler = (context) => {
-      return Promise.all(handler.map(h => h.apply(service, context)))
-    }
+    event.handler = (context) => Promise.all(handler.map(h => h(context)))
   }
 
   return event
@@ -175,6 +173,7 @@ exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, r
 
   // Action object
   service.actions = {}
+  service.events = {}
 
   // Create the service registry item
   const registryItem = {
@@ -248,8 +247,10 @@ exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, r
       const event = createEvent(service, eventDefinition, name)
       // wrap event
 
-      registryItem.events[name] = (a, b, c) => {
+      registryItem.events[name] = event
 
+      service.events[name] = () => {
+        return event.handler({})
       }
     })
   }
@@ -280,12 +281,12 @@ exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, r
         }
       }).then(() => {
         if (isFunction(schema.started)) {
-          return promisify(schema.started, { scope: service })()
+          return promisify(schema.started.bind(service))()
         }
 
         if (Array.isArray(schema.started)) {
           return schema.started
-            .map(hook => promisify(hook, { scope: service }))
+            .map(hook => promisify(hook.bind(service)))
             .reduce((p, hook) => p.then(hook), Promise.resolve())
         }
       })
@@ -302,12 +303,12 @@ exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, r
       })
       .then(() => {
         if (isFunction(schema.stopped)) {
-          return promisify(schema.stopped, { scope: service })()
+          return promisify(schema.stopped.bind(service))()
         }
 
         if (Array.isArray(schema.stopped)) {
           return schema.stopped
-            .map(hook => promisify(hook, { scope: service }))
+            .map(hook => promisify(hook.bind(service)))
             .reduce((p, hook) => p.then(hook), Promise.resolve())
         }
       })
