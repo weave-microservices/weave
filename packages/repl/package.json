@@ -16,7 +16,7 @@
     "clui": "^0.3.6",
     "kleur": "^4.0.1",
     "ora": "^5.0.0",
-    "table": "^5.4.6",
+    "table": "^6.0.1",
     "vorpal": "^1.12.0"
   },
   "devDependencies": {
