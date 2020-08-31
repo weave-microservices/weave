@@ -39,11 +39,11 @@ describe('Test tracing', () => {
       }
     },
     events: {
-      '$tracing.trace.span.started' (res) {
-        flow.push(res)
+      '$tracing.trace.span.started' ({ data }) {
+        flow.push(data)
       },
-      '$tracing.trace.span.finished' (res) {
-        flow.push(res)
+      '$tracing.trace.span.finished' ({ data }) {
+        flow.push(data)
       }
     }
   })
@@ -64,7 +64,7 @@ describe('Test tracing', () => {
 
   it('Started and finished event should be triggered.', (done) => {
     return node1.call('test.hello')
-      .then(res => {
+      .then(() => {
         expect(flow.length).toBe(2)
         done()
       })
@@ -73,7 +73,7 @@ describe('Test tracing', () => {
   it('Started event should be the expected format.', () => {
     return node1.call('test.hello')
       .then(() => {
-        const startedEvent =  flow[0]
+        const startedEvent = flow[0]
 
         // expect(startedEvent.id).toBeDefined()
         expect(startedEvent.id).toBeDefined()

@@ -191,7 +191,7 @@ describe('Event flow(remote)', () => {
   })
 })
 
-describe.only('Broadcast events', () => {
+describe('Broadcast events', () => {
   const nodes = createNodes('broadcast')
   const master = nodes[0]
 
@@ -218,7 +218,7 @@ describe.only('Broadcast events', () => {
     ])
   })
 
-  it.only('should broadcast a event to services grouped by name.', () => {
+  it('should broadcast a event to services grouped by name.', () => {
     master.broadcast('user.created', null, ['user'])
     expect(flow).toEqual([
       'user-1-user-user.created',
@@ -298,5 +298,11 @@ describe('Remote events', () => {
   it('should call remote events with data', () => {
     broker1.emit('testEvent1', { userId: 123 })
     expect(testEventS1).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('Event context', () => {
+  it('should call an action from an event', () => {
+
   })
 })

@@ -202,7 +202,7 @@ describe('Service lifetime hooks', () => {
 })
 
 describe('Service actions', () => {
-  it.only('should fail with an malformed action description', () => {
+  it('should fail with an malformed action description', () => {
     const node1 = Weave({
       nodeId: 'node1',
       logger: {

@@ -6,7 +6,6 @@
 'use strict'
 
 const { uuid } = require('@weave-js/utils')
-// const { deprecatedWarning } = require('../utils/deprecated-warning')
 const { WeaveMaxCallLevelError } = require('../errors')
 
 const createContext = (broker) => {
