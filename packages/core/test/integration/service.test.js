@@ -1,5 +1,6 @@
 const { Weave } = require('../../lib/index')
 const hasServiceScope = require('./scope-checks/service.scope')
+const malformedActionService = require('../services/malformed-action.service')
 
 describe('Test broker call service', () => {
   it('should call a service.', (done) => {
@@ -196,6 +197,21 @@ describe('Service lifetime hooks', () => {
       }
     })
 
+    node1.start().then(() => node1.stop())
+  })
+})
+
+describe('Service actions', () => {
+  it.only('should fail with an malformed action description', () => {
+    const node1 = Weave({
+      nodeId: 'node1',
+      logger: {
+        enabled: false
+      }
+    })
+
+    const createService = () => node1.createService(malformedActionService)
+    expect(createService).toThrowError('Missing action handler in "timeout" on service "malformed-action"')
     node1.start().then(() => node1.stop())
   })
 })

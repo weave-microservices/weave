@@ -116,7 +116,7 @@ const createNodes = (ns) => {
   ]
 }
 
-describe('Action hooks', () => {
+describe('Events', () => {
   const nodes = createNodes('balanced')
   const master = nodes[0]
   const nodeUser1 = nodes[1]

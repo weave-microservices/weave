@@ -19,12 +19,23 @@ const { WeaveError } = require('../errors')
  * @property {function():promise} stopped Hook that is called before the service is stopped.
  */
 
-const createActionHandler = (service, action, name) => {
+const createAction = (service, actionDefinition, name) => {
+  let action
+
+  // if the handler is a method (short form), we wrap the method in our handler object.
+  if (isFunction(actionDefinition)) {
+    action = wrapHandler(actionDefinition)
+  } else if (isObject(actionDefinition)) {
+    action = clone(actionDefinition)
+  } else {
+    throw new WeaveError(`Invalid action definition in "${name}" on service "${service.name}".`)
+  }
+
   const handler = action.handler
 
   // Action handler has to be a function
   if (!isFunction(handler)) {
-    throw new WeaveError(`Missing action handler in ${name} on service ${service.name}.`)
+    throw new WeaveError(`Missing action handler in "${name}" on service "${service.name}".`)
   }
 
   action.name = service.name + '.' + (action.name || name)
@@ -40,6 +51,49 @@ const createActionHandler = (service, action, name) => {
   action.handler = promisify(handler.bind(service))
 
   return action
+}
+
+const createEvent = (service, eventDefinition, name) => {
+  let event
+
+  // if the handler is a method (short form), we wrap the method in our handler object.
+  if (isFunction(eventDefinition)) {
+    event = wrapHandler(eventDefinition)
+  } else if (isObject(eventDefinition)) {
+    event = clone(eventDefinition)
+  } else {
+    throw new WeaveError(`Invalid event definition "${name}" on service "${service.name}".`)
+  }
+
+  // Event handler has to be a function
+  if (!isFunction(event.handler) || !Array.isArray(event.handler)) {
+    throw new WeaveError(`Missing event handler for "${name}" on service "${service.name}".`)
+  }
+
+  event.service = service
+
+  let handler
+  if (isFunction(event.handler)) {
+    handler = promisify(event.handler, { scope: service })
+  } else if (Array.isArray(event.handler)) {
+    handler = event.handler.map(h => {
+      return promisify(h, { scope: service })
+    })
+  }
+
+  if (!event.name) {
+    event.name = name
+  }
+
+  if (isFunction(handler)) {
+    event.handler = (context) => handler.apply(service, context)
+  } else if (Array.isArray(handler)) {
+    event.handler = (context) => {
+      return Promise.all(handler.map(h => h.apply(service, context)))
+    }
+  }
+
+  return event
 }
 
 const applyMixins = (service, schema) => {
@@ -160,14 +214,12 @@ exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, r
   // Bind and register service actions
   if (isObject(schema.actions)) {
     Object.keys(schema.actions).map(name => {
-      let action = schema.actions[name]
+      const actionDefinition = schema.actions[name]
 
-      // if the handler is a method (short form), we wrap the method in our handler object.
-      if (isFunction(action)) {
-        action = wrapHandler(action)
-      }
+      // skip actions that are set to false
+      if (actionDefinition === false) return
 
-      const innerAction = createActionHandler(service, clone(action), name)
+      const innerAction = createAction(service, clone(actionDefinition), name)
       registryItem.actions[innerAction.name] = innerAction
 
       const wrappedAction = middlewareHandler.wrapHandler('localAction', innerAction.handler, innerAction)
@@ -192,47 +244,13 @@ exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, r
   // Bind and register service events
   if (isObject(schema.events)) {
     Object.keys(schema.events).map(name => {
-      let event = schema.events[name]
-
+      const eventDefinition = schema.events[name]
+      const event = createEvent(service, eventDefinition, name)
       // wrap event
-      if (isFunction(event)) {
-        event = wrapHandler(event)
-      } else if (isObject(event)) {
-        event = clone(event)
+
+      registryItem.events[name] = (a, b, c) => {
+
       }
-
-      if (!event.handler) {
-        throw new WeaveError(`Missing event handler for '${name}' event in service '${service.name}'`)
-      }
-
-      let handler
-      if (isFunction(event.handler)) {
-        handler = promisify(event.handler, { scope: service })
-      } else if (Array.isArray(event.handler)) {
-        handler = event.handler.map(h => {
-          return promisify(h, { scope: service })
-        })
-      }
-
-      if (!event.name) {
-        event.name = name
-      }
-
-      event.service = service
-
-      if (isFunction(event.handler)) {
-        event.handler = (payload, sender, eventName) => {
-          // todo: error handling for events
-          return handler.apply(service, [payload, sender, eventName])
-        }
-      } else if (Array.isArray(event.handler)) {
-        event.handler = (payload, sender, eventName) => {
-          // todo: error handling for events
-          return Promise.all(handler.map(fn => fn.apply(service, [payload, sender, eventName])))
-        }
-      }
-
-      registryItem.events[name] = event
     })
   }
 
@@ -247,6 +265,12 @@ exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, r
     }
   }
 
+  // start method for service.
+  // 1. call "serviceStarting" middleware hook
+  // 2. wait for services this service depend on
+  // 3. call service started lifecycle hook
+  // 4. register service local
+  // 5. call "serviceStarted" middleware hook
   service.start = () => {
     return Promise.resolve()
       .then(() => middlewareHandler.callHandlersAsync('serviceStarting', [service]))
@@ -269,6 +293,7 @@ exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, r
       .then(() => middlewareHandler.callHandlersAsync('serviceStarted', [service]))
   }
 
+  // stop method for service
   service.stop = () => {
     service.log.info(`Stopping service "${service.name}"...`)
     return Promise.resolve()
