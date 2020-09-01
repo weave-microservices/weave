@@ -27,14 +27,14 @@ module.exports = (broker, transport, pending) => {
     // From all available local endpoints - get one.
     const endpoint = endpointList.getNextLocalEndpoint()
 
+    // if ther is no endpoint, reject
     if (!endpoint) {
       transport.log.warn(`Service ${actionName} is not available localy.`)
       return Promise.reject('Service not found')
     }
 
     // Call the local action handler with context
-    const p = endpoint.action.handler(context)
-    return p
+    return endpoint.action.handler(context)
   }
 
   const onDiscovery = message => {
