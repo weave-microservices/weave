@@ -15,12 +15,6 @@ const createContext = (broker) => {
     callerNodeId: null,
     parentContext: null,
     endpoint: null,
-    get params () {
-      return this.data
-    },
-    set params (value) {
-      this.data = value
-    },
     data: {},
     meta: {},
     level: 1,
