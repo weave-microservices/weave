@@ -9,7 +9,7 @@ const { createNodeCollection } = require('./collections/node-collection')
 const { createServiceCollection } = require('./collections/service-collection')
 const { createActionCollection } = require('./collections/action-collection')
 const { createEventCollection } = require('./collections/event-collection')
-const { createEndpoint } = require('./endpoint')
+const { createActionEndpoint } = require('./action-endpoint')
 const { createNode } = require('./node')
 const { WeaveServiceNotFoundError, WeaveServiceNotAvailableError } = require('../errors')
 const { safeCopy } = require('@weave-js/utils')
@@ -263,8 +263,8 @@ exports.createRegistry = () => {
     getActionEndpoints (actionName) {
       return this.actions.get(actionName)
     },
-    createPrivateEndpoint (action) {
-      return createEndpoint(this.broker, this.nodes.localNode, action.service, action)
+    createPrivateActionEndpoint (action) {
+      return createActionEndpoint(this.broker, this.nodes.localNode, action.service, action)
     },
     getLocalActionEndpoint (actionName) {
       const endpointList = this.getActionEndpoints(actionName)

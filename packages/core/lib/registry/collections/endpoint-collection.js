@@ -4,7 +4,7 @@
  * Copyright 2020 Fachwerk
  */
 
-const { createEndpoint } = require('../endpoint')
+const { createActionEndpoint } = require('../action-endpoint')
 const { loadBalancingStrategy } = require('../../constants')
 
 exports.createEndpointList = (broker, name, groupName) => {
@@ -22,7 +22,7 @@ exports.createEndpointList = (broker, name, groupName) => {
     self.localEndpoints = list.filter(endpoint => endpoint.isLocal)
   }
 
-  self.add = (node, service, action) => {
+  self.add = (node, service, action) => { // todo: addaction
     const foundEndpoint = list.find(endpoint => endpoint.node.id === node.id && endpoint.service.name === service.name)
 
     if (foundEndpoint) {
@@ -30,7 +30,7 @@ exports.createEndpointList = (broker, name, groupName) => {
       return false
     }
 
-    const newEndpoint = createEndpoint(broker, node, service, action)
+    const newEndpoint = createActionEndpoint(broker, node, service, action)
 
     list.push(newEndpoint)
     setLocalEndpoints()

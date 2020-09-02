@@ -222,7 +222,7 @@ exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, r
       registryItem.actions[innerAction.name] = innerAction
 
       const wrappedAction = middlewareHandler.wrapHandler('localAction', innerAction.handler, innerAction)
-      const endpoint = broker.registry.createPrivateEndpoint(innerAction)
+      const endpoint = broker.registry.createPrivateActionEndpoint(innerAction)
 
       // Make the action accessable via this.actions["actionName"]
       service.actions[name] = (params, options) => {

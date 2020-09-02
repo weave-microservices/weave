@@ -4,18 +4,18 @@
  * Copyright 2020 Fachwerk
  */
 
-exports.createEndpoint = (broker, node, service, action) => {
+exports.createEventEndpoint = (broker, node, service, event) => {
   const self = Object.create(null)
 
   self.node = node
   self.service = service
-  self.action = action
+  self.event = event
   self.isLocal = self.node.id === broker.nodeId
   self.state = true
-  self.name = `${node.id}:${action.name}`
+  self.name = `${node.id}:${event.name}`
 
-  self.updateAction = (newAction) => {
-    self.action = newAction
+  self.updateEvent = (newEvent) => {
+    self.event = newEvent
   }
 
   self.isAvailable = () => {
