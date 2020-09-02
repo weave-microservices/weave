@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.8.0-alpha.1](https://github.com/weave-microservices/weave/compare/@weave-js/utils@0.9.1-rc.3...@weave-js/utils@0.8.0-alpha.1) (2020-09-02)
+
+**Note:** Version bump only for package @weave-js/utils
+
+
+
+
+
 ## [0.9.1-rc.3](https://github.com/weave-microservices/weave/compare/@weave-js/utils@0.9.1-rc.2...@weave-js/utils@0.9.1-rc.3) (2020-07-27)
 
 **Note:** Version bump only for package @weave-js/utils

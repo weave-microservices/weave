@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.8.0-alpha.1](https://github.com/weave-microservices/weave/compare/@weave-js/repl@0.7.0-rc.23...@weave-js/repl@0.8.0-alpha.1) (2020-09-02)
+
+
+### Bug Fixes
+
+* Custom command registration ([7079d24](https://github.com/weave-microservices/weave/commit/7079d247e611c78c444e2cf2e55361ce68103741))
+* Incorrect display of services with multiple versions ([3131403](https://github.com/weave-microservices/weave/commit/31314035e53b727a9deecb803b338ec18ef62898))
+
+
+### Features
+
+* Added custom commands for REPL ([80d0d89](https://github.com/weave-microservices/weave/commit/80d0d89a708e4c05fee5e77ca17108b420648824))
+
+
+
+
+
 # [0.7.0-rc.23](https://github.com/weave-microservices/weave/compare/@weave-js/repl@0.7.0-rc.22...@weave-js/repl@0.7.0-rc.23) (2020-07-27)
 
 **Note:** Version bump only for package @weave-js/repl

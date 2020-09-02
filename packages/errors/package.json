@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/errors",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.1",
   "description": "Custom errors made simple",
   "author": "Kevin Ries <kevin.ries@fachwerk.io>",
   "homepage": "https://weave-js.com/packages/errors",
