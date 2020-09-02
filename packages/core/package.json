@@ -31,9 +31,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "bin": {
-    "weave": "./bin/weave.js"
-  },
   "author": {
     "name": "Kevin Ries",
     "company": "Fachwerk Software",
