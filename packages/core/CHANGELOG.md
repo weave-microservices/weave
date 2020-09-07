@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.8.0-alpha.4](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.8.0-alpha.3...@weave-js/core@0.8.0-alpha.4) (2020-09-07)
+
+**Note:** Version bump only for package @weave-js/core
+
+
+
+
+
 # [0.8.0-alpha.3](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.8.0-alpha.2...@weave-js/core@0.8.0-alpha.3) (2020-09-02)
 
 **Note:** Version bump only for package @weave-js/core

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.8.0-alpha.2](https://github.com/weave-microservices/weave/compare/@weave-js/utils@0.8.0-alpha.1...@weave-js/utils@0.8.0-alpha.2) (2020-09-07)
+
+
+### Bug Fixes
+
+* Improved support for objects (prototype) ([2ffa878](https://github.com/weave-microservices/weave/commit/2ffa878f5a9bedde8ac191315c68817d34bd4556))
+
+
+
+
+
 # [0.8.0-alpha.1](https://github.com/weave-microservices/weave/compare/@weave-js/utils@0.9.1-rc.3...@weave-js/utils@0.8.0-alpha.1) (2020-09-02)
 
 **Note:** Version bump only for package @weave-js/utils
