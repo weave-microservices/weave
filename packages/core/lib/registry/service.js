@@ -20,7 +20,7 @@ const { WeaveError } = require('../errors')
  */
 
 const createAction = (service, actionDefinition, name) => {
-  let action
+  let action = actionDefinition
 
   // if the handler is a method (short form), we wrap the method in our handler object.
   if (isFunction(actionDefinition)) {

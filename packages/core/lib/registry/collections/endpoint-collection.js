@@ -46,6 +46,7 @@ exports.createEndpointList = (broker, name, groupName) => {
       return null
     }
 
+    // If there is a local service, get a local endpoint
     if (self.isInternal && self.hasLocal()) {
       return self.getNextLocalEndpoint()
     }

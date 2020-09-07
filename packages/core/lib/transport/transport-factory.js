@@ -16,7 +16,7 @@ const createMessageHandler = require('./message-handlers')
  * @param {Object} adapter Adapter wrapper
  * @returns {Transport} transport
  */
-const createTransport = (broker, adapter) => {
+exports.createTransport = (broker, adapter) => {
   let heartbeatTimer
   let checkNodesTimer
   let checkOfflineNodesTimer
@@ -490,5 +490,3 @@ const createTransport = (broker, adapter) => {
     })
   }
 }
-
-module.exports = createTransport

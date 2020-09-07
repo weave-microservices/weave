@@ -8,8 +8,8 @@
 const { uuid } = require('@weave-js/utils')
 const { WeaveMaxCallLevelError } = require('../errors')
 
-const createContext = (broker) => {
-  const newContext = {
+exports.createContext = (broker) => {
+  const context = {
     id: null,
     nodeId: broker.nodeId || null,
     callerNodeId: null,
@@ -21,7 +21,6 @@ const createContext = (broker) => {
     tracing: null,
     span: null,
     service: null,
-    // startTime: null,
     startHighResolutionTime: null,
     options: {
       timeout: null,
@@ -75,7 +74,7 @@ const createContext = (broker) => {
       return this.span
     },
     copy () {
-      const newContext = createContext(broker)
+      const newContext = exports.createContext(broker)
 
       newContext.nodeId = this.nodeId
       newContext.options = this.options
@@ -94,14 +93,13 @@ const createContext = (broker) => {
   }
 
   // generate a context Id
-  if (!newContext.id) {
-    newContext.id = uuid()
-    if (!newContext.requestId) {
-      newContext.requestId = newContext.id
+  if (!context.id) {
+    context.id = uuid()
+    if (!context.requestId) {
+      context.requestId = context.id
     }
   }
 
-  return newContext
+  return context
 }
 
-module.exports = createContext

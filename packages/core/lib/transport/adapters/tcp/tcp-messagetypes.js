@@ -1,8 +1,12 @@
-module.exports = messagetypes => {
+exports = messagetypes => {
   const messageTypeIndexes = {}
-  Object.keys(messagetypes).forEach((messageType, index) => {
-    messageTypeIndexes[messagetypes[messageType]] = index
-  })
+
+  Object
+    .keys(messagetypes)
+    .forEach((messageType, index) => {
+      messageTypeIndexes[messagetypes[messageType]] = index
+    })
+
   return {
     getIndexByType (messageType) {
       return messageTypeIndexes[messageType]

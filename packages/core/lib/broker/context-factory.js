@@ -5,7 +5,7 @@
  */
 'use strict'
 
-const createContext = require('./context')
+const { createContext } = require('./context')
 
 exports.createContextFactory = () => ({
   init (broker) {
@@ -14,9 +14,9 @@ exports.createContextFactory = () => ({
   create (endpoint, data, opts) {
     const context = createContext(this.broker)
 
-    if (endpoint) {
-      context.setEndpoint(endpoint)
-    }
+    // if (endpoint) {
+    //   context.setEndpoint(endpoint)
+    // }
 
     opts = opts || {}
     context.setParams(data)
@@ -51,6 +51,13 @@ exports.createContextFactory = () => ({
       if (!context.requestId) {
         context.requestId = context.id
       }
+    }
+
+    if (endpoint) {
+      context.nodeId = endpoint.node.id
+      context.endpoint = endpoint
+      context.action = endpoint.action
+      context.service = endpoint.action.service
     }
 
     return context

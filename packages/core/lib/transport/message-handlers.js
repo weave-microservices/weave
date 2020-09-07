@@ -6,7 +6,7 @@
 
 const { Transform } = require('stream')
 const { WeaveError, restoreError } = require('../errors')
-const Context = require('../broker/context')
+const { createContext } = require('../broker/context')
 const MessageTypes = require('./message-types')
 
 module.exports = (broker, transport, pending) => {
@@ -76,7 +76,7 @@ module.exports = (broker, transport, pending) => {
         }
       }
       const endpoint = registry.getLocalActionEndpoint(payload.action)
-      const context = Context(broker)
+      const context = createContext(broker)
 
       context.setEndpoint(endpoint)
       context.id = payload.id
@@ -186,7 +186,7 @@ module.exports = (broker, transport, pending) => {
 
   const onEvent = payload => {
     // todo: reconstruct event context
-    const context = Context(broker)
+    const context = createContext(broker)
 
     // context.setEndpoint(endpoint)
     context.id = payload.id

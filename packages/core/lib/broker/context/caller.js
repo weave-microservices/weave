@@ -1,6 +1,6 @@
-const { WeaveMaxCallLevelError } = require('../errors')
+const { WeaveMaxCallLevelError } = require('../../errors')
 
-exports.caller = (context, broker) => ({
+exports.createCall = (context, broker) => ({
   /**
    * Call a action.
    * @param {string} actionName Name of the action.

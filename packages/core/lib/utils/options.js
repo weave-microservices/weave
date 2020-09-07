@@ -71,7 +71,7 @@ function mergeLifecicleHooks (source, targetSchema) {
   return compact(flatten([targetSchema, source]))
 }
 
-module.exports.mergeSchemas = (mixin, targetSchema) => {
+exports.mergeSchemas = (mixin, targetSchema) => {
   const mixinSchema = clone(mixin)
   const resultSchema = clone(targetSchema)
 

@@ -79,6 +79,7 @@ module.exports = function SwimTransport (adapterOptions) {
     })
 
     self.send(message)
+
     return Promise.resolve()
   }
 
@@ -95,6 +96,7 @@ module.exports = function SwimTransport (adapterOptions) {
     }
 
     self.swim.close()
+
     return Promise.resolve()
   }
 

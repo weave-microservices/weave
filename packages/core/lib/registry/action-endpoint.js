@@ -5,22 +5,22 @@
  */
 
 exports.createActionEndpoint = (broker, node, service, action) => {
-  const self = Object.create(null)
-
-  self.node = node
-  self.service = service
-  self.action = action
-  self.isLocal = self.node.id === broker.nodeId
-  self.state = true
-  self.name = `${node.id}:${action.name}`
-
-  self.updateAction = (newAction) => {
-    self.action = newAction
+  const endpoint = {
+    node,
+    service,
+    action,
+    isLocal: node.id === broker.nodeId,
+    state: true,
+    name: `${node.id}:${action.name}`
   }
 
-  self.isAvailable = () => {
-    return self.state
+  endpoint.updateAction = (newAction) => {
+    endpoint.action = newAction
   }
 
-  return self
+  endpoint.isAvailable = () => {
+    return endpoint.state === true
+  }
+
+  return endpoint
 }

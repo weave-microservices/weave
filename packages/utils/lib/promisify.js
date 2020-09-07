@@ -3,7 +3,7 @@ module.exports.promisify = function promisify (callback) {
     const args = arguments
     return new Promise((resolve, reject) => {
       try {
-        return resolve(callback(...args))
+        return resolve(callback.apply(this, args))
       } catch (error) {
         return reject(error)
       }

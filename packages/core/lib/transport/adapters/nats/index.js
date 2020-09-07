@@ -32,6 +32,7 @@ function NATSTransportAdapter (adapterOptions) {
           error.skipRetry = true
           return reject(error)
         }
+
         client = NATS.connect(adapterOptions)
 
         client.on('connect', () => {

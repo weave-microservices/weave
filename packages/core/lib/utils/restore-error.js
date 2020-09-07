@@ -1,6 +1,6 @@
 const errors = require('../new-errors')
 
-module.exports = error => {
+exports.restoreError = (error) => {
   const ErrorClass = errors[error.name]
 
   if (ErrorClass) {

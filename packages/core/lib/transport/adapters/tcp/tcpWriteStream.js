@@ -2,7 +2,7 @@
 const { Writable } = require('stream')
 const MessageTypes = require('../../message-types')
 const TCPMessageTypeHelper = require('./tcp-messagetypes')
-const maxPacketSize = 1 * 1024 * 1024
+const maxPacketSize = 1 * 1024 * 1024 * 50
 
 module.exports = class TCPWriteStream extends Writable {
   constructor (adapter, socket) {

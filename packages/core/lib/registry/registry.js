@@ -89,12 +89,12 @@ exports.createRegistry = () => {
       }
     },
     /**
-         *
-         * Register a remote service
-         * @param {*} node Node
-         * @param {*} services Service definition
-         * @returns {void}
-         */
+     *
+     * Register a remote service
+     * @param {*} node Node
+     * @param {*} services Service definition
+     * @returns {void}
+    */
     registerRemoteServices (node, services) {
       services.forEach((service) => {
         // todo: handle events
@@ -225,9 +225,11 @@ exports.createRegistry = () => {
       if (typeof actionName !== 'string') {
         return actionName
       } else {
-        if (opts && opts.nodeId) { // remote
+        // check if the action call is intended for a specific remote node
+        if (opts.nodeId) {
           const endpoint = this.getActionEndpointByNodeId(actionName, opts.nodeId)
 
+          // no endpoint for this action & node ID found
           if (!endpoint) {
             this.log.warn(`Service "${actionName}" is not registered on node ${opts.nodeId}.`)
             return new WeaveServiceNotFoundError({ actionName, nodeId: opts.nodeId })

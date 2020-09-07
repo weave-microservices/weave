@@ -12,7 +12,7 @@ const { debounce, defaultsDeep } = require('@weave-js/utils')
 const { getDefaultOptions } = require('./default-options')
 const { createDefaultLogger } = require('../log/logger')
 const { createServiceFromSchema } = require('../registry/service')
-const { deprecatedWarning } = require('../utils')
+const { createDeprecatedWarning } = require('../utils/deprecated-warning')
 const { createMiddlewareHandler } = require('./middleware-manager')
 const { createRegistry } = require('../registry/registry')
 const { createContextFactory } = require('./context-factory')
@@ -21,13 +21,13 @@ const { createValidator } = require('./validator')
 const Cache = require('../cache')
 const createHealthcheck = require('./health')
 const TransportAdapters = require('../transport/adapters')
-const createTransport = require('../transport')
+const { createTransport } = require('../transport/transport-factory')
 const EventEmitter = require('eventemitter2')
 const { WeaveError } = require('../errors')
 const { Tracer } = require('../tracing')
 const { MetricsStorage } = require('../metrics')
 const { registerMetrics } = require('./broker-metrics')
-const pkg = require('../../package.json')
+const { version } = require('../../package.json')
 
 /* eslint-disable no-use-before-define */
 /**
@@ -62,8 +62,7 @@ const createBroker = (options = {}) => {
   // If no node id is set - create one.
   const nodeId = options.nodeId || `${os.hostname()}-${process.pid}`
 
-  // Take version from package.json
-  const version = pkg.version
+  // internal service collection.
   const services = []
 
   /* eslint-disable no-use-before-define */
@@ -202,7 +201,7 @@ const createBroker = (options = {}) => {
     tracer,
     createLogger,
     getLogger: function () {
-      deprecatedWarning('The method "broker.getLogger()" is deprecated since weave version 0.7.0. Please use "broker.createLogger()" instead.')
+      createDeprecatedWarning('The method "broker.getLogger()" is deprecated since weave version 0.7.0. Please use "broker.createLogger()" instead.')
       return createLogger(...arguments)
     },
     health,
