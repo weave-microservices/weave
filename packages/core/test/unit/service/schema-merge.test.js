@@ -1,5 +1,4 @@
 const { mergeSchemas } = require('../../../lib/utils/options')
-// options.mergeSchemas()
 
 class TestClass {
   send () {
@@ -174,5 +173,7 @@ describe('Service schema merging', () => {
     expect(mergedService.hooks.before.a2).toBeDefined()
     expect(mergedService.hooks.after.a3).toBeDefined()
     expect(mergedService.hooks.after.a3.length).toBe(3)
+    expect(mergedService.settings.prototype.send).toBeDefined()
+    expect(typeof mergedService.settings.prototype.send).toBe('function')
   })
 })

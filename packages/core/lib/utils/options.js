@@ -1,5 +1,13 @@
 
-const { wrapInArray, clone, compact, flatten, deepMerge, wrapHandler, defaultsDeep } = require('@weave-js/utils')
+const {
+  clone,
+  compact,
+  deepMerge,
+  defaultsDeep,
+  flatten,
+  wrapHandler,
+  wrapInArray
+} = require('@weave-js/utils')
 
 function mergeSettings (source, targetSchema) {
   return defaultsDeep(source, targetSchema)

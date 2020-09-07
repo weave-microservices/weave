@@ -1,8 +1,9 @@
+/* istanbul ignore file */
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
  * Copyright 2020 Fachwerk
- */
+*/
 
 const { omit } = require('@weave-js/utils')
 

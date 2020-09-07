@@ -25,7 +25,6 @@ function sanitizeHooks (hooks, service) {
       return hook
     })
   }
-
   return hooks
 }
 
