@@ -1,6 +1,12 @@
 const { mergeSchemas } = require('../../../lib/utils/options')
 // options.mergeSchemas()
 
+class TestClass {
+  send () {
+    return jest.fn()
+  }
+}
+
 const mixin = {
   name: 'service2',
   meta: {
@@ -39,7 +45,8 @@ const service1 = {
     protocol: 'https',
     credentials: {
       username: 'John'
-    }
+    },
+    prototype: new TestClass()
   },
   hooks: {
     before: {
@@ -71,6 +78,7 @@ const service2 = {
     $official: true,
     distributor: 'name'
   },
+  adapter: new TestClass(),
   settings: {
     queueSize: 6,
     protocol: 'http',
