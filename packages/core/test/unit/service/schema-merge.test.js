@@ -1,6 +1,33 @@
 const { mergeSchemas } = require('../../../lib/utils/options')
 // options.mergeSchemas()
 
+const mixin = {
+  name: 'service2',
+  meta: {
+    $official: true,
+    distributor: 'name'
+  },
+  settings: {
+    queueSize: 6,
+    protocol: 'http',
+    credentials: {
+      username: 'default',
+      password: 'default'
+    }
+  },
+
+  actions: {
+    m2 () {},
+    m3 () {}
+  },
+  events: {
+    me1 () {},
+    me2 () {}
+  },
+  created: jest.fn(),
+  started: jest.fn()
+}
+
 const service1 = {
   name: 'service1',
   meta: {
@@ -12,6 +39,11 @@ const service1 = {
     protocol: 'https',
     credentials: {
       username: 'John'
+    }
+  },
+  hooks: {
+    before: {
+      a1: () => {}
     }
   },
   actions: {
@@ -31,6 +63,7 @@ const service1 = {
 
 const service2 = {
   name: 'service2',
+  mixins: [mixin],
   meta: {
     $official: true,
     distributor: 'name'
@@ -41,6 +74,11 @@ const service2 = {
     credentials: {
       username: 'default',
       password: 'default'
+    }
+  },
+  hooks: {
+    before: {
+      a2: () => {}
     }
   },
   actions: {
@@ -110,5 +148,12 @@ describe('Service schema merging', () => {
     const mergedService = mergeSchemas(service2, service1)
     expect(mergedService.methods).toBeDefined()
     expect(mergedService.methods.privateMethod1).toBeDefined()
+  })
+
+  it('should merge schema hooks', () => {
+    const mergedService = mergeSchemas(service2, service1)
+    expect(mergedService.hooks.before).toBeDefined()
+    expect(mergedService.hooks.before.a1).toBeDefined()
+    expect(mergedService.hooks.before.a2).toBeDefined()
   })
 })

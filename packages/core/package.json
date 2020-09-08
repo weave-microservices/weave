@@ -1,13 +1,21 @@
 {
   "name": "@weave-js/core",
-  "version": "0.7.0-rc.23",
+  "version": "0.7.0-rc.25",
   "description": "The core package of weave",
   "keywords": [
     "Weave",
     "Microservice",
+    "Microservices",
     "Framework",
-    "Docker",
-    "SAAS"
+    "SAAS",
+    "Backend",
+    "Pubsub",
+    "Scalable",
+    "Messagebus",
+    "RPC",
+    "Distributed",
+    "Services",
+    "Micro"
   ],
   "main": "./lib/index.js",
   "scripts": {
@@ -34,28 +42,26 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@weave-js/utils": "^0.9.1-rc.2",
-    "@weave-js/validator": "^0.7.0-rc.4",
+    "@weave-js/utils": "^0.9.1-rc.3",
+    "@weave-js/validator": "^0.7.0-rc.5",
     "args": "^5.0.1",
     "es6-error": "^4.1.1",
     "eventemitter2": "^6.4.3",
     "figures": "^3.2.0",
-    "glob": "^7.1.5",
-    "kleur": "^4.0.1",
-    "lodash": "^4.17.15",
+    "glob": "^7.1.6",
+    "kleur": "^4.0.2",
     "node-fetch": "^2.6.0"
   },
   "devDependencies": {
-    "@weave-js/repl": "^0.7.0-rc.21",
-    "eslint": "^7.1.0",
+    "eslint": "^7.5.0",
     "ioredis": "^4.17.3",
-    "jest": "^26.0.1",
-    "jest-cli": "^26.0.1",
+    "jest": "^26.1.0",
+    "jest-cli": "^26.1.0",
     "nats": "^1.4.9"
   },
   "directories": {
     "lib": "lib",
     "test": "test"
   },
-  "gitHead": "b2c0ecb9d40d4f358e07902264023d8d96d3a5b1"
+  "gitHead": "266c531bb9c7f56f2578c09259b8413357db8538"
 }

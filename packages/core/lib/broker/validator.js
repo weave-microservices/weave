@@ -8,14 +8,9 @@ const ObjectValidator = require('@weave-js/validator')
 const { WeaveParameterValidationError } = require('../errors')
 
 const createValidator = () => {
-  const objectValidator = ObjectValidator()
+  const validator = ObjectValidator()
 
-  const validator = {
-    compile: schema => objectValidator.compile(schema),
-    validate: (obj, schema) => objectValidator.validate(obj, schema),
-    addRule: (type, ruleFn) => objectValidator.addRule(type, ruleFn)
-  }
-
+  // attach the middleware to object validator
   validator.middleware = {
     localAction (handler, action) {
       if (action.params && typeof action.params === 'object') {

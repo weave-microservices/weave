@@ -1,0 +1,27 @@
+{
+  "name": "errors",
+  "version": "0.7.0-rc.2",
+  "description": "Custom errors made simple",
+  "author": "Kevin Ries <kevin.ries@fachwerk.io>",
+  "homepage": "https://weave-js.com/packages/errors",
+  "license": "MIT",
+  "main": "lib/errors.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/weave-microservices/weave.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/weave-microservices/weave/issues"
+  },
+  "gitHead": "266c531bb9c7f56f2578c09259b8413357db8538"
+}

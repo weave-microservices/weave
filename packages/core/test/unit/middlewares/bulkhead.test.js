@@ -2,7 +2,7 @@ const { Weave } = require('../../../lib/index')
 const utils = require('@weave-js/utils')
 
 const Middleware = require('../../../lib/middlewares/bulkhead')
-const createContextFactory = require('../../../lib/broker/context.factory')
+const createContextFactory = require('../../../lib/broker/context-factory')
 
 const config = {
   logger: {

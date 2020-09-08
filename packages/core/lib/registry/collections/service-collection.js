@@ -5,7 +5,8 @@
  */
 
 const EndpointList = require('../endpoint-list')
-const { omit, forIn, remove } = require('lodash')
+const { omit, remove } = require('@weave-js/utils')
+
 const ServiceItem = require('../service-item')
 
 const MakeServiceCatalog = (registry) => {
@@ -122,17 +123,20 @@ const MakeServiceCatalog = (registry) => {
 
       if (withActions) {
         item.actions = {}
-        forIn(service.actions, action => {
-          item.actions[action.name] = omit(action, ['handler', 'service'])
-        })
+        Object.values(service.actions)
+          .forEach(action => {
+            item.actions[action.name] = omit(action, ['handler', 'service'])
+          })
       }
 
       if (withEvents) {
         item.events = {}
-        forIn(service.events, event => {
-          item.events[event.name] = omit(event, ['service', 'handler'])
-        })
+        Object.values(service.events)
+          .forEach(event => {
+            item.events[event.name] = omit(event, ['service', 'handler'])
+          })
       }
+
       result.push(item)
     })
     return result

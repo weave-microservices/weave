@@ -384,7 +384,7 @@ describe('Test broker error handling', () => {
       .catch(_ => {})
   })
 
-it('"fatalError" should kill the node process', () => {
+  it('"fatalError" should kill the node process', () => {
     const realProcess = process
     const exitMock = jest.fn()
 

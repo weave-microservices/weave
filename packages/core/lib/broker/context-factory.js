@@ -51,12 +51,6 @@ const createContextFactory = () => ({
 
     return context
   },
-  // createFromEndpoint (endpoint, params) {
-  //     const context = createContext(this.broker, endpoint)
-  //     context.nodeId = endpoint.node.id
-  //     context.setParams(params)
-  //     return context
-  // },
   createFromPayload (payload) {
     const context = createContext(this.broker, { name: payload.action })
 

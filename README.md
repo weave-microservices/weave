@@ -1,4 +1,5 @@
-<img src="https://raw.githubusercontent.com/fachw3rk/weave/HEAD/Logo.png" width="400">
+
+# [Weave](https://github.com/weave-microservices/weave)
 
 [![NPM Version](https://img.shields.io/npm/v/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/core)
 [![Build Status](https://travis-ci.com/weave-microservices/weave.svg?branch=master)](https://travis-ci.com/weave-microservices/weave)
@@ -6,7 +7,7 @@
 [![Dependencies](https://david-dm.org/weave-microservices/weave.svg)](https://david-dm.org/weave-microservices/weave.svg)
 [![Downloads](https://img.shields.io/npm/dt/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/core)
 
-> Weave is a fast and easy to use microservice framework for NodeJS.
+> Weave is a fast and easy to use microservice framework for node.js.
 
 
 # Features
@@ -24,16 +25,58 @@
 - Health monitoring, metrics & statistics
 - Logging system with multiple configurable writable streams
 - Fault tolerant
+- ...
+  
+## Installation
 
-## Ecosystem
+### Using NPM
+```
+$ npm install @weave-js/core
+```
 
-| Name | Status | Description |
-| ------- | ------- | ------- |
-| core | [![npm version](https://img.shields.io/npm/v/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/core) | Weave core module |
-| cli | [![npm version](https://img.shields.io/npm/v/@weave-js/cli.svg)](https://www.npmjs.com/package/@weave-js/cli) | Project scaffolding and service debugging |
-| repl | [![npm version](https://img.shields.io/npm/v/@weave-js/repl.svg)](https://www.npmjs.com/package/@weave-js/repl) | Interactive developer console |
-| web | [![npm version](https://img.shields.io/npm/v/@weave-js/web.svg)](https://www.npmjs.com/package/@weave-js/web) | Web API gateway service mixin |
+### Using yarn
 
+```
+$ yarn add @weave-js/core
+```
+
+## Usage
+
+This example shows you how to create a `math` service with an `add` action which can add two numbers.
+
+```js
+const { Weave } = require('@weave-js/core')
+
+const broker = Weave({
+    nodeId: 'my-first-node'
+})
+
+broker.createService({
+    name: 'math',
+    actions: {
+        add(context) {
+            return Number(context.params.a) + Number(context.params.b)
+        }
+    }
+});
+
+broker.start()
+    .then(() => {
+        // Call service
+        broker.call('math.add', { a: 5, b: 3 })
+            .then(result => console.log('5 + 3 =', result))
+            .catch(error => console.error(`Something went wrong! ${error.message}`))
+    })
+
+```
+
+## Sample applications
+
+There are a number of sample applications available:
+
+```javascript
+    // todo
+```
 
 
 ## Documentation
@@ -51,6 +94,6 @@ Refer to the [Weave CLI documentation](https://weave.fachwerk.io) for more detai
 
 ## License
 
-Copyright (c) 2019 by Fachwerk Software
+Copyright (c) 2020 by Fachwerk Software
 
 Licensed under the [MIT license](LICENSE).

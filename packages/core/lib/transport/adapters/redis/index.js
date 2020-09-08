@@ -5,7 +5,7 @@
  */
 
 // npm packages
-const { defaultsDeep } = require('lodash')
+const { defaultsDeep } = require('@weave-js/utils')
 
 // own packages
 const URIToConfig = require('./URIToConfig')

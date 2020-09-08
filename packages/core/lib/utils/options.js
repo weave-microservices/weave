@@ -52,7 +52,7 @@ function mergeMethods (source, targetSchema) {
 
 function mergeActionHooks (source, target) {
   Object.keys(source).map(hookName => {
-    if (target[hookName] === null) {
+    if (!target[hookName]) {
       target[hookName] = {}
     }
 
@@ -63,6 +63,8 @@ function mergeActionHooks (source, target) {
       target[hookName][actionName] = compact(flatten([sourceHookAction, targetHookAction]))
     })
   })
+
+  return target
 }
 
 function mergeLifecicleHooks (source, targetSchema) {

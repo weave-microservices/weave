@@ -2,7 +2,7 @@ const { yellow, bold } = require('kleur')
 
 const deprecatedList = []
 
-module.exports.deprecatedMethodWarning = function deprecatedMethodWarning (prop, msg, colored = true) {
+module.exports.deprecatedWarning = function deprecatedWarning (prop, msg, colored = true) {
   if (!msg) {
     msg = prop
   }

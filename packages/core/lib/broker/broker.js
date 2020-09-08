@@ -4,7 +4,7 @@
  */
 
 // npm packages
-const { defaultsDeep } = require('lodash')
+const { defaultsDeep } = require('@weave-js/utils')
 const path = require('path')
 const fs = require('fs')
 const os = require('os')
@@ -15,10 +15,10 @@ const { debounce } = require('@weave-js/utils')
 const defaultOptions = require('./default-options')
 const Logger = require('../log/logger')
 const createServiceFromSchema = require('../registry/service')
-const { deprecatedMethodWarning } = require('../utils')
-const createMiddlewareHandler = require('./middleware-handler')
+const { deprecatedWarning } = require('../utils')
+const createMiddlewareHandler = require('./middleware-manager')
 const createRegistry = require('../registry/registry')
-const createContextFactory = require('./context.factory')
+const createContextFactory = require('./context-factory')
 const Middlewares = require('../middlewares')
 const createValidator = require('./validator')
 const Cache = require('../cache')
@@ -199,7 +199,7 @@ const createBroker = (options = {}) => {
     tracer,
     createLogger,
     getLogger: function () {
-      deprecatedMethodWarning('The method "broker.getLogger()" is deprecated since weave version 0.7.0. Please use "broker.createLogger()" instead.')
+      deprecatedWarning('The method "broker.getLogger()" is deprecated since weave version 0.7.0. Please use "broker.createLogger()" instead.')
       return createLogger(...arguments)
     },
     health,
@@ -238,7 +238,7 @@ const createBroker = (options = {}) => {
         log.debug('Call action on remote node.', { action: actionName, nodeId, requestId: context.requestId })
       }
 
-      const p = action.handler(context)
+      const p = action.handler(context, endpoint.service, broker)
 
       p.context = context
 
@@ -647,7 +647,11 @@ const createBroker = (options = {}) => {
     log.info(`Cache module: ${broker.cache.name}`)
   }
 
-  // Register all middlewares (including user defined)
+  /**
+   * Register middlewares
+   * @param {Array<Object>} customMiddlewares Array of user defined middlewares
+   * @returns {void}
+   */
   const registerMiddlewares = customMiddlewares => {
     // Register custom middlewares
     if (Array.isArray(customMiddlewares) && customMiddlewares.length > 0) {
@@ -708,18 +712,6 @@ const createBroker = (options = {}) => {
   if (options.loadNodeService) {
     broker.createService(require('../services/node.service'))
   }
-
-  // registry.onRegisterLocalAction = action => {
-  //   return
-  // }
-
-  // registry.onRegisterRemoteAction = action => {
-  //   return middlewareHandler.wrapHandler('remoteAction', broker.transport.request.bind(broker.transport), action)
-  // }
-
-  // registry.onRegisterLocalEvent = event => {
-  //   return middlewareHandler.wrapHandler('localEvent', event.handler, event)
-  // }
 
   // Call middleware hook for broker created.
   middlewareHandler.callHandlersSync('created', [broker])

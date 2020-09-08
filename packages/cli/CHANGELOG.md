@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-rc.26](https://github.com/weave-microservices/weave/compare/@weave-js/cli@0.7.0-rc.25...@weave-js/cli@0.7.0-rc.26) (2020-07-27)
+
+**Note:** Version bump only for package @weave-js/cli
+
+
+
+
+
+# [0.7.0-rc.25](https://github.com/weave-microservices/weave/compare/@weave-js/cli@0.7.0-rc.24...@weave-js/cli@0.7.0-rc.25) (2020-07-27)
+
+**Note:** Version bump only for package @weave-js/cli
+
+
+
+
+
 # [0.7.0-rc.24](https://github.com/weave-microservices/weave/compare/@weave-js/cli@0.7.0-rc.23...@weave-js/cli@0.7.0-rc.24) (2020-06-13)
 
 **Note:** Version bump only for package @weave-js/cli

@@ -4,4 +4,4 @@
  * Copyright 2020 Fachwerk
  */
 
-module.exports = require('./transport.factory')
+module.exports = require('./transport-factory')

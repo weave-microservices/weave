@@ -6,6 +6,7 @@
 'use strict'
 
 const utils = require('@weave-js/utils')
+// const { deprecatedWarning } = require('../utils/deprecated-warning')
 const { WeaveMaxCallLevelError } = require('../errors')
 
 const createContext = (broker, endpoint) => {
@@ -13,7 +14,13 @@ const createContext = (broker, endpoint) => {
     id: null,
     nodeId: broker.nodeId || null,
     callerNodeId: null,
-    params: null,
+    get params () {
+      return this.data
+    },
+    set params (value) {
+      this.data = value
+    },
+    data: null,
     meta: {},
     level: 1,
     tracing: null,
