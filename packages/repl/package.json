@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/repl",
-  "version": "0.7.0-rc.23",
+  "version": "0.7.0-rc.24",
   "description": "REPL module for weave",
   "main": "lib/index.js",
   "scripts": {
@@ -12,7 +12,7 @@
   "author": "Kevin Ries",
   "license": "MIT",
   "dependencies": {
-    "@weave-js/utils": "^0.9.1-rc.3",
+    "@weave-js/utils": "^0.9.1-rc.4",
     "clui": "^0.3.6",
     "kleur": "^4.0.2",
     "ora": "^5.0.0",
@@ -20,7 +20,7 @@
     "vorpal": "^1.12.0"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.7.0-rc.25",
+    "@weave-js/core": "^0.7.0-rc.26",
     "eslint": "^7.5.0"
   },
   "gitHead": "266c531bb9c7f56f2578c09259b8413357db8538"

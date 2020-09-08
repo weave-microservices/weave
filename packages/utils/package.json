@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/utils",
-  "version": "0.9.1-rc.3",
+  "version": "0.9.1-rc.4",
   "description": "Weave utility library",
   "author": "Kevin Ries <kevin.ries@fachwerk.io>",
   "homepage": "https://weave-js.com/packages/utils",

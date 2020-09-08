@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/validator",
-  "version": "0.7.0-rc.5",
+  "version": "0.7.0-rc.6",
   "description": "Weave js object validator.",
   "main": "lib/validator.js",
   "scripts": {
@@ -19,9 +19,9 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "eslint-loader": "^4.0.0",
     "eslint": "^7.5.0",
     "eslint-config-fw": "^1.0.3",
+    "eslint-loader": "^4.0.0",
     "jest": "^26.1.0",
     "jest-cli": "^26.1.0"
   },
