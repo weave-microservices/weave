@@ -394,58 +394,43 @@ describe('Test broker error handling', () => {
   })
 })
 
-// describe('Test repl', () => {
-//     jest.mock('@weave-js/repl')
-//     const repl = require('@weave-js/repl')
-//     repl.mockImplementation(() => jest.fn())
+describe.only('Test broker context chaining', () => {
+  const broker = Weave({
+    nodeId: 'node1',
+    logger: {
+      enabled: false,
+      logLevel: 'fatal'
+    }
+  })
 
-//     it('should switch to repl mode', () => {
-//         const broker = Weave({
-//             logger: {
-//                 logLevel: 'fatal'
-//             }
-//         })
-//         broker.repl()
+  broker.createService({
+    name: 'post',
+    actions: {
+      before (context) {
+        return context.call('post.find')
+      },
+      find: jest.fn(context => context)
+    }
+  })
 
-//         expect(repl).toHaveBeenCalledTimes(1)
-//         expect(repl).toHaveBeenCalledWith(broker, null)
-//     })
-// })
+  beforeAll(() => broker.start())
+  afterAll(() => broker.stop())
 
-// describe('Signal handling', () => {
-//     it(`should handle SIGTERM`, (done) => {
-//         const broker = Weave({
-//             nodeId: 'node1',
-//             logger: {
-//                 logLevel: 'fatal'
-//             }
-//         })
-//         broker.stop = jest.fn()
-//         return broker.start()
-//             .then(() => {
-//                 process.once('SIGTERM', () => {
-//                     expect(broker.stop).toHaveBeenCalledTimes(1)
-//                     done()
-//                 })
-//                 process.kill(process.pid, 'SIGTERM')
-//             })
-//     })
+  it('level should be = 1', () => {
+    broker.call('post.find').then(context => {
+      expect(context.id).toBeDefined()
+      expect(context.level).toBe(1)
+      expect(context.id).toEqual(context.requestId)
+      expect(context.parentContext).toBe(null)
+    })
+  })
 
-//     it(`should handle SIGINT`, (done) => {
-//         const broker = Weave({
-//             nodeId: 'node1',
-//             logger: {
-//                 logLevel: 'fatal'
-//             }
-//         })
-//         broker.stop = jest.fn()
-//         return broker.start()
-//             .then(() => {
-//                 process.once('SIGINT', () => {
-//                     expect(broker.stop).toHaveBeenCalledTimes(1)
-//                     done()
-//                 })
-//                 process.kill(process.pid, 'SIGTERM')
-//             })
-//     })
-// })
+  it('should increment level on chained calls', () => {
+    broker.call('post.before').then(context => {
+      expect(context.id).toBeDefined()
+      expect(context.level).toBe(2)
+      expect(context.id).toEqual(context.requestId)
+      expect(context.parentContext).toBe(null)
+    })
+  })
+})

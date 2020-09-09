@@ -20,7 +20,7 @@ exports.clone = function clone (obj) {
   }
 
   // lastly, handle objects
-  const clonedObj = new obj.constructor()
+  const clonedObj = Object.create(Object.getPrototypeOf(obj))
   for (var prop in obj) {
     if (obj.hasOwnProperty(prop)) {
       clonedObj[prop] = clone(obj[prop])
@@ -28,22 +28,4 @@ exports.clone = function clone (obj) {
   }
 
   return clonedObj
-
-  // if (obj === null || typeof obj !== 'object') {
-  //   return obj
-  // } else if (Array.isArray(obj)) {
-  //   var clonedArr = []
-  //   obj.forEach(function (element) {
-  //     clonedArr.push(clone(element))
-  //   })
-  //   return clonedArr
-  // } else {
-  //   const clonedObj = new obj.constructor()
-  //   for (var prop in obj) {
-  //     if (obj.hasOwnProperty(prop)) {
-  //       clonedObj[prop] = clone(obj[prop])
-  //     }
-  //   }
-  //   return clonedObj
-  // }
 }
