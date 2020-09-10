@@ -14,10 +14,6 @@ exports.createContextFactory = () => ({
   create (endpoint, data, opts) {
     const context = createContext(this.broker)
 
-    // if (endpoint) {
-    //   context.setEndpoint(endpoint)
-    // }
-
     opts = opts || {}
     context.setParams(data)
     context.timeout = opts.timeout || 0

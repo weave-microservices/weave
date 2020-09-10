@@ -407,6 +407,11 @@ describe.only('Test broker context chaining', () => {
     name: 'post',
     actions: {
       before (context) {
+        const flow = [{ requestId: context.requestId, contextId: context.id, parentId: context.parentId }]
+        return context.call('post.before2', { flow })
+      },
+      before2 (context) {
+        context.data.flow.push({ requestId: context.requestId, contextId: context.id, parentId: context.parentId })
         return context.call('post.find')
       },
       find: jest.fn(context => context)
@@ -428,7 +433,7 @@ describe.only('Test broker context chaining', () => {
   it('should increment level on chained calls', () => {
     broker.call('post.before').then(context => {
       expect(context.id).toBeDefined()
-      expect(context.level).toBe(2)
+      expect(context.level).toBe(3)
       expect(context.id).toEqual(context.requestId)
       expect(context.parentContext).toBe(null)
     })
