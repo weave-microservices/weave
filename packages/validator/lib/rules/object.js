@@ -34,11 +34,11 @@ module.exports = function checkObject ({ schema, messages }, path, context) {
 
   // check for type
   code.push(`
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            ${this.makeErrorCode({ type: 'object', passed: 'value', messages })}
-            return value;
-        }
-    `)
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+      ${this.makeErrorCode({ type: 'object', passed: 'value', messages })}
+      return value;
+    }
+  `)
 
   const subSchema = schema.props
 

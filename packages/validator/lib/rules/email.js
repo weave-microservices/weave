@@ -8,15 +8,15 @@ module.exports = function checkEmail ({ schema, messages }) {
 
   code.push(`
         if (typeof value !== 'string') {
-            ${this.makeErrorCode({ type: 'string', passed: 'value', messages })}
-            return value
+          ${this.makeErrorCode({ type: 'string', passed: 'value', messages })}
+          return value
         }
     `)
 
   code.push(`
         if (!${pattern.toString()}.test(value)) {
-            ${this.makeErrorCode({ type: 'email', passed: 'value', messages })}
-            return value
+          ${this.makeErrorCode({ type: 'email', passed: 'value', messages })}
+          return value
         }
     `)
 
