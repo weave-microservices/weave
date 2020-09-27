@@ -394,7 +394,7 @@ describe('Test broker error handling', () => {
   })
 })
 
-describe.only('Test broker context chaining', () => {
+describe('Test broker context chaining', () => {
   const broker = Weave({
     nodeId: 'node1',
     logger: {

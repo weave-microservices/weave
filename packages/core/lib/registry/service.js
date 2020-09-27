@@ -225,14 +225,14 @@ exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, r
       const endpoint = broker.registry.createPrivateActionEndpoint(innerAction)
 
       // Make the action accessable via this.actions["actionName"]
-      service.actions[name] = (params, options) => {
+      service.actions[name] = (data, options) => {
         let context
         // reuse context
         if (options && options.context) {
           context = options.context
         } else {
           // create a new context
-          context = broker.contextFactory.create(endpoint, params, options || {})
+          context = broker.contextFactory.create(endpoint, data, options || {})
         }
 
         return wrappedAction(context)

@@ -1,13 +1,6 @@
-/*
- * Author: Kevin Ries (kevin@fachw3rk.de)
- * -----
- * Copyright 2020 Fachwerk
- */
+exports.Weave = require('./broker/broker')
+exports.Errors = require('./errors')
+exports.TransportAdapters = require('./transport/adapters')
+exports.Constants = require('./constants')
 
-module.exports = {
-  Weave: require('./broker/broker'),
-  defaultOptions: require('./broker/default-options'),
-  Errors: require('./errors'),
-  TransportAdapters: require('./transport/adapters'),
-  Constants: require('./constants')
-}
+exports.defaultOptions = require('./broker/default-options')

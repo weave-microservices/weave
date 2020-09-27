@@ -31,7 +31,6 @@ exports.createEventCollection = (registry) => {
       })
     },
     getBalancedEndpoints (eventName, groups) {
-      const ev = events
       return getAllEventsByEventName(eventName)
         .filter(endpointList => (groups == null || groups.length === 0 || groups.includes(endpointList.groupName)))
         .map(endpointList => ({ endpoint: endpointList.getNextAvailable(), endpointList }))

@@ -122,14 +122,14 @@ exports.createRegistry = () => {
             // const action = oldActions[key]
             if (!service.actions[key]) {
               /*
-                            function deregisterAction (nodeId, action) {
-                                if (actions.has(action.name)) {
-                                    const list = actions.get(action.name)
-                                    if (list) {
-                                        list.removeByNodeId(nodeId)
-                                    }
-                                }
-                            }*/
+                function deregisterAction (nodeId, action) {
+                    if (actions.has(action.name)) {
+                        const list = actions.get(action.name)
+                        if (list) {
+                            list.removeByNodeId(nodeId)
+                        }
+                    }
+                }*/
             }
           })
         }
@@ -164,11 +164,11 @@ exports.createRegistry = () => {
     registerEvents (node, service, events) {
       Object.keys(events).forEach((key) => {
         const event = events[key]
-        
+
         if (node.isLocal) {
           event.handler = this.middlewareHandler.wrapHandler('localEvent', event.handler, event) // this.onRegisterLocalEvent(event)
         }
-        
+
         this.events.add(node, service, event)
         service.addEvent(event)
       })

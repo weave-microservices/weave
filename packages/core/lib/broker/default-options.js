@@ -164,7 +164,8 @@ exports.getDefaultOptions = () => ({
     // interval to check and remove not offline nodes.
     offlineNodeCheckInterval: 30 * 1000,
     // Maximum time a node can be offline before it is removed from the registry.
-    maxOfflineTime: 1000 * 60 * 10
+    maxOfflineTime: 1000 * 60 * 10,
+    maxPacketSize: -1
   },
   // load $node service
   loadNodeService: true,
