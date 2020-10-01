@@ -12,3 +12,4 @@ packages/core/coverage
 packages/validator/coverage
 packages/utils/coverage
 
+packages/core/core/coverage
