@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/nats-transport",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Weave NATS transport adapter",
   "main": "lib/index.js",
   "scripts": {
