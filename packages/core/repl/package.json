@@ -20,7 +20,7 @@
     "vorpal": "^1.12.0"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.7.0-rc.25",
+    "@weave-js/core": "^0.8.0-alpha.4",
     "eslint": "^7.5.0"
   },
   "gitHead": "19371c8bca2bf6733ae30b23cd5a316c3bcdb5f4"
