@@ -18,7 +18,7 @@ function NATSTransportAdapter (adapterOptions) {
     url: 'nats://localhost:4222'
   })
 
-  return Object.assign(TransportAdapters.TransportBase(adapterOptions), {
+  return Object.assign(TransportAdapters.BaseAdapter(adapterOptions), {
     name: 'NATS',
     connect () {
       return new Promise((resolve, reject) => {

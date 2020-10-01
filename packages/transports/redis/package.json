@@ -1,7 +1,7 @@
 {
   "name": "@weave-js/redis-transport",
   "version": "0.7.0",
-  "description": "weave cqrs module",
+  "description": "weave redis transport adapter module",
   "main": "lib/index.js",
   "scripts": {
     "ci": "jest --watch",
@@ -20,11 +20,11 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@weave-js/core": "0.7.0-rc.25"
+    "@weave-js/core": "^0.8.0-alpha.4"
   },
   "devDependencies": {
-    "@weave-js/core": "0.7.0-rc.25",
-    "eslint": "^7.7.0",
+    "@weave-js/core": "^0.8.0-alpha.4",
+    "eslint": "^7.10.0",
     "eslint-config-fw": "^1.0.3",
     "eslint-loader": "^4.0.2",
     "istanbul": "^0.4.5",
@@ -32,15 +32,13 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "setupFilesAfterEnv": [
-      "../test/setup.js"
-    ],
     "rootDir": "./lib",
     "roots": [
-      "../test/integration"
+      "../test"
     ]
   },
   "dependencies": {
+    "@weave-js/utils": "^0.8.0-alpha.2",
     "ioredis": "^4.17.3"
   }
 }

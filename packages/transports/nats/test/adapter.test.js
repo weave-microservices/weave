@@ -1,5 +1,5 @@
 const { Weave } = require('@weave-js/core')
-const REDISTransport = require('../../lib/index')
+const NATSTransport = require('../lib/index')
 
 describe('REDIS transport adapter', () => {
   let broker1
@@ -11,11 +11,11 @@ describe('REDIS transport adapter', () => {
     broker1 = Weave({
       nodeId: 'node1',
       logger: {
-        logLevel: 'debug'
+        enabled: false
       },
-      namespace: 'redis',
+      namespace: 'nats',
       transport: {
-        adapter: REDISTransport()
+        adapter: NATSTransport()
       },
       started: startedHook1
     })
@@ -32,11 +32,11 @@ describe('REDIS transport adapter', () => {
     broker2 = Weave({
       nodeId: 'node2',
       logger: {
-        logLevel: 'debug'
+        enabled: false
       },
-      namespace: 'redis',
+      namespace: 'nats',
       transport: {
-        adapter: REDISTransport()
+        adapter: NATSTransport()
       },
       started: startedHook2
     })
