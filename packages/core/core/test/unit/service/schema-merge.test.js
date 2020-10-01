@@ -197,6 +197,7 @@ describe('dependencies', () => {
       dependencies: ['service1', 'service2']
     }
 
-    const mergedSchema = mergeSchemas(service2, mergeSchemas(service3, service2))
+    const mergedSchema = mergeSchemas(service1, mergeSchemas(service3, service2))
+    expect(mergedSchema.dependencies.length).toBe(6)
   })
 })
