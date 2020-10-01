@@ -7,7 +7,7 @@
     "lint": "eslint . --ext .js --fix"
   },
   "bin": {
-    "weave-cli": "./bin/weave-cli.js"
+    "weave": "./bin/weave.js"
   },
   "publishConfig": {
     "access": "public"
@@ -23,21 +23,12 @@
     "@weave-js/core": "^0.8.0-alpha.4",
     "@weave-js/repl": "^0.8.0-alpha.2",
     "@weave-js/utils": "^0.8.0-alpha.2",
-    "async": "^3.2.0",
     "commander": "^6.0.0",
     "consolidate": "^0.15.1",
-    "download-git-repo": "^3.0.2",
-    "exeq": "^3.0.0",
-    "handlebars": "^4.7.6",
     "inquirer": "^7.3.3",
     "kleur": "^4.0.2",
-    "metalsmith": "^2.3.0",
-    "minimatch": "^3.0.4",
-    "minimist": "^1.2.5",
     "mkdirp": "^1.0.4",
-    "multimatch": "^4.0.0",
     "ora": "^4.0.5",
-    "rimraf": "^3.0.2",
     "update-notifier": "^4.1.0",
     "user-home": "^2.0.0"
   },
