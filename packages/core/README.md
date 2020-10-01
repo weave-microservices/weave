@@ -1,17 +1,14 @@
-# Weave Core
+# **Weave Core Packages**
 
-[![NPM Version](https://img.shields.io/npm/v/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/utils)
-[![Build Status](https://travis-ci.com/weave-microservices/weave.svg?branch=master)](https://travis-ci.com/weave-microservices/weave)
-[![Downloads](https://img.shields.io/npm/dt/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/utils)
+Core libraries:
 
-> Weave core module
-
-## About
-
-This is the repository of the Weave core module.
-
-## License
-
-Copyright (c) 2020 [Weave contributors](https://github.com/weave-microservices/weave/graphs/contributors)
-
-Licensed under the [MIT license](LICENSE).
+- [core](core)  
+   Provides a function for executing a commands.
+- [cli](cli)  
+   Provides a function for querying Read and View Models.
+- [errors](errors)  
+   Provides a Redux storage helper.
+- [repl](rrepl)
+   Provides a local Event Broker
+- [validator](validator)
+   Provides a local Event Broker

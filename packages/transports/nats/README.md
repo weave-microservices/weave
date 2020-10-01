@@ -1,0 +1,1 @@
+# Weave NATS transport adapter

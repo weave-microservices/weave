@@ -1,0 +1,2 @@
+# Weave REDIS transport adapter
+

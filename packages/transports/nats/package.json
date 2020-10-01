@@ -1,0 +1,46 @@
+{
+  "name": "@weave-js/nats-transport",
+  "version": "0.7.0",
+  "description": "Weave NATS transport adapter",
+  "main": "lib/index.js",
+  "scripts": {
+    "ci": "jest --watch",
+    "test": "jest --no-cache",
+    "coverage": "jest --coverage --no-cache",
+    "lint": "eslint --ext=.js lib test --fix"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": {
+    "name": "Kevin Ries",
+    "company": "Fachwerk Software",
+    "email": "kevin.ries@fachwerk.io",
+    "url": "https://weave.fachwerk.io"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@weave-js/core": "0.7.0-rc.25"
+  },
+  "dependencies": {
+    "nats": "^1.4.12"
+  },
+  "devDependencies": {
+    "@weave-js/core": "0.7.0-rc.25",
+    "eslint": "^7.7.0",
+    "eslint-config-fw": "^1.0.3",
+    "eslint-loader": "^4.0.2",
+    "istanbul": "^0.4.5",
+    "jest": "^26.4.2"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": [
+      "../test/setup.js"
+    ],
+    "rootDir": "./lib",
+    "roots": [
+      "../test/integration"
+    ]
+  }
+}
