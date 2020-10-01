@@ -1,7 +1,8 @@
 {
     "ci": true,
     "packages": [
-      "packages/*"
+      "packages/core/*",
+      "packages/transports/*"
     ],
     "version": "independent",
     "command": {
