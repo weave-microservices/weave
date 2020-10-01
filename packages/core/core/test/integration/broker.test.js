@@ -422,7 +422,7 @@ describe('Test broker context chaining', () => {
   afterAll(() => broker.stop())
 
   it('level should be = 1', () => {
-    broker.call('post.find').then(context => {
+    return broker.call('post.find').then(context => {
       expect(context.id).toBeDefined()
       expect(context.level).toBe(1)
       expect(context.id).toEqual(context.requestId)
@@ -431,10 +431,11 @@ describe('Test broker context chaining', () => {
   })
 
   it('should increment level on chained calls', () => {
-    broker.call('post.before').then(context => {
+    return broker.call('post.before').then(context => {
       expect(context.id).toBeDefined()
       expect(context.level).toBe(3)
-      expect(context.id).toEqual(context.requestId)
+      expect(context.id).not.toEqual(context.requestId)
+      expect(context.options.parentContext.parentId).toEqual(context.requestId)
       expect(context.parentContext).toBe(null)
     })
   })
