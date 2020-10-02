@@ -4,7 +4,7 @@
  * Copyright 2020 Fachwerk
  */
 
-const createBase = require('./base')
+const { BaseCache } = require('@weave-js/core')
 
 const makeRedisCache = (broker, options = {}) => {
   // prepare options

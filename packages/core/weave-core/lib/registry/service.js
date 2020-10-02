@@ -1,5 +1,5 @@
 const { mergeSchemas } = require('../utils/options')
-const { wrapInArray, isFunction, clone, wrapHandler, isObject, promisify } = require('../../../weave-utils/lib')
+const { wrapInArray, isFunction, clone, wrapHandler, isObject, promisify } = require('@weave-js/utils')
 const { lifecycleHook } = require('../constants')
 const { WeaveError } = require('../errors')
 

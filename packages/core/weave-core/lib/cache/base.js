@@ -4,7 +4,7 @@
  * Copyright 2020 Fachwerk
  */
 const crypto = require('crypto')
-const { isObject } = require('../../../weave-utils/lib')
+const { isObject } = require('@weave-js/utils')
 
 function getCacheKeyByObject (val) {
   if (Array.isArray(val)) {
@@ -31,7 +31,7 @@ function registerCacheMetrics (metrics) {
   // todo: register metric stores
 }
 
-const makeBaseCache = (broker, options) => {
+exports.createCacheBase = (broker, options) => {
   const cache = {
     options: Object.assign({
       ttl: null
@@ -124,4 +124,3 @@ const makeBaseCache = (broker, options) => {
 
   return cache
 }
-module.exports = makeBaseCache

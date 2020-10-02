@@ -1,4 +1,4 @@
-const { Weave } = require('../../../lib/index')
+const { Weave } = require('@weave-js/core')
 const CacheRedis = require('../../../lib/cache/redis')
 // const SlowService = require('../../services/slow.service')
 
@@ -9,6 +9,7 @@ describe('Test IN-Memory cache initialization', () => {
         enabled: false
       }
     })
+
     const cache = CacheRedis(broker)
     expect(cache.options).toBeDefined()
     expect(cache.options.ttl).toBeNull()

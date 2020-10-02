@@ -5,7 +5,7 @@
  */
 
 const { createEndpointCollection } = require('./endpoint-collection')
-const { omit, remove } = require('../../../../weave-utils/lib')
+const { omit, remove } = require('@weave-js/utils')
 const { createServiceItem } = require('../service-item')
 
 exports.createServiceCollection = (registry) => {

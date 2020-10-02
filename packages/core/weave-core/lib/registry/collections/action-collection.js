@@ -4,7 +4,7 @@
  * Copyright 2020 Fachwerk
  */
 
-const { omit } = require('../../../../weave-utils/lib')
+const { omit } = require('@weave-js/utils')
 const { createEndpointList } = require('./endpoint-collection')
 
 /**

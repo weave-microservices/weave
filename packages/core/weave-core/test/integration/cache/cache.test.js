@@ -1,4 +1,4 @@
-const { Weave } = require('../../lib/index')
+const { Weave } = require('../../../lib/index')
 
 describe('Cache system', () => {
   it('should call lifecycle hook "created" with correct scope if there are nested hooks from a mixin.', (done) => {

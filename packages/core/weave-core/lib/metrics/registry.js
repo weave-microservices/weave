@@ -1,4 +1,4 @@
-const { isPlainObject } = require('../../../weave-utils/lib')
+const { isPlainObject } = require('@weave-js/utils')
 const MetricTypes = require('./types')
 
 module.exports = (broker, options) => {

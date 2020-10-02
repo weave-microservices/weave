@@ -4,6 +4,8 @@
  * Copyright 2020 Fachwerk
  */
 
+const { safeCopy } = require('@weave-js/utils')
+
 // own packages
 const { createNodeCollection } = require('./collections/node-collection')
 const { createServiceCollection } = require('./collections/service-collection')
@@ -12,7 +14,6 @@ const { createEventCollection } = require('./collections/event-collection')
 const { createActionEndpoint } = require('./action-endpoint')
 const { createNode } = require('./node')
 const { WeaveServiceNotFoundError, WeaveServiceNotAvailableError } = require('../errors')
-const { safeCopy } = require('../../../weave-utils/lib')
 
 const noop = () => {}
 

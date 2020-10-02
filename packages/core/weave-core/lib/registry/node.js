@@ -4,7 +4,7 @@
  * Copyright 2020 Fachwerk
  */
 
-const { cpuUsage } = require('../../../weave-utils/lib')
+const { cpuUsage } = require('@weave-js/utils')
 
 exports.createNode = (nodeId) => {
   return {

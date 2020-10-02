@@ -7,7 +7,7 @@
 // Own packages
 const { WeaveError, WeaveQueueSizeExceededError } = require('../errors')
 const MessageTypes = require('./message-types')
-const utils = require('../../../weave-utils/lib')
+const utils = require('@weave-js/utils')
 const createMessageHandler = require('./message-handlers')
 
 /**

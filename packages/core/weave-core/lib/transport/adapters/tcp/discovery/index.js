@@ -1,5 +1,5 @@
 const dgram = require('dgram')
-const { getIpList } = require('../../../../../../weave-utils/lib')
+const { getIpList } = require('@weave-js/utils')
 const EventEmitter = require('events').EventEmitter
 const Codec = require('./codec')
 

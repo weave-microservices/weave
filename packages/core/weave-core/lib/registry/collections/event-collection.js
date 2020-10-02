@@ -3,9 +3,8 @@
  * -----
  * Copyright 2020 Fachwerk
  */
-const { omit } = require('../../../../weave-utils/lib')
+const { omit, match } = require('@weave-js/utils')
 const { createEndpointList } = require('./endpoint-collection')
-const { match } = require('../../../../weave-utils/lib')
 
 exports.createEventCollection = (registry) => {
   const broker = registry.broker

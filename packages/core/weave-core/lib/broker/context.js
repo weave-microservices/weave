@@ -5,7 +5,7 @@
  */
 'use strict'
 
-const { uuid } = require('../../../weave-utils/lib')
+const { uuid } = require('@weave-js/utils')
 const { WeaveMaxCallLevelError } = require('../errors')
 
 exports.createContext = (broker) => {

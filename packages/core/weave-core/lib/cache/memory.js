@@ -4,11 +4,11 @@
  * Copyright 2020 Fachwerk
  */
 
-const { match } = require('../../../weave-utils/lib')
-const createBase = require('./base')
+const { match } = require('@weave-js/utils')
+const { createCacheBase } = require('./base')
 
 const makeMemoryCache = (broker, options = {}) => {
-  const base = createBase(broker, options)
+  const base = createCacheBase(broker, options)
   const storage = new Map()
   const name = 'Memory'
 

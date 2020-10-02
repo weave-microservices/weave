@@ -1,5 +1,5 @@
-const CacheBase = require('../../../lib/cache/base')
 const { Weave } = require('../../../lib/index')
+const { createCacheBase } = require('../../../lib/cache/base')
 
 const config = {
   logger: {
@@ -11,7 +11,7 @@ const config = {
 describe('Test base cache factory', () => {
   it('constructor.', () => {
     const broker = Weave(config)
-    const baseBroker = CacheBase(broker)
+    const baseBroker = createCacheBase(broker)
 
     expect(baseBroker.log).toBeDefined()
     expect(baseBroker.set).toBeDefined()
@@ -24,14 +24,14 @@ describe('Test base cache factory', () => {
 
   it('Options.', () => {
     const broker = Weave(config)
-    const baseBroker = CacheBase(broker)
+    const baseBroker = createCacheBase(broker)
 
     expect(baseBroker.options.ttl).toBe(null)
   })
 
   it('Not implemented methods.', () => {
     const broker = Weave(config)
-    const baseBroker = CacheBase(broker)
+    const baseBroker = createCacheBase(broker)
 
     try {
       baseBroker.set('abc', 'def', 5000)

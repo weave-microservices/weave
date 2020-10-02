@@ -4,7 +4,7 @@
  * Copyright 2020 Fachwerk
  */
 
-const { promiseTimeout } = require('../../../weave-utils/lib')
+const { promiseTimeout } = require('@weave-js/utils')
 const { WeaveRequestTimeoutError } = require('../errors')
 
 const wrapTimeoutMiddleware = function (handler, action) {

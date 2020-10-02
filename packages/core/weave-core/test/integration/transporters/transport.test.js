@@ -1,5 +1,5 @@
-const { Weave } = require('../../lib/index')
-const MathService = require('../services/math.service')
+const { Weave } = require('../../../lib/index')
+const MathService = require('../../services/math.service')
 
 describe('Transport', () => {
   it('should return results of all connected nodes.', done => {

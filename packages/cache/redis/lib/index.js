@@ -1,0 +1,1 @@
+exports.REDISCache = require('./adapter')

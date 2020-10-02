@@ -1,5 +1,5 @@
 const hrTime = require('./time')
-const { uuid } = require('../../../weave-utils/lib')
+const { uuid } = require('@weave-js/utils')
 
 class Span {
   constructor (tracer, name, options) {

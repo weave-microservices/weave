@@ -1,5 +1,5 @@
 const { Weave } = require('@weave-js/core')
-const repl = require('../../../../weave-repl/lib')
+const repl = require('@weave-js/repl')
 const { getConfig } = require('../../utils/config')
 const { loadServices } = require('./services')
 

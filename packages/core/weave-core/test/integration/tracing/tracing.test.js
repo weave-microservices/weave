@@ -1,4 +1,4 @@
-const { Weave, TransportAdapters } = require('../../lib/index')
+const { Weave, TransportAdapters } = require('../../../lib/index')
 
 describe('Test tracing', () => {
   let flow = []

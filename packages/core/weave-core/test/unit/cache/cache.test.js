@@ -1,5 +1,5 @@
 const { Weave } = require('../../../lib/index')
-const CacheBase = require('../../../lib/cache/base')
+const { createCacheBase } = require('../../../lib/cache/base')
 
 // const SlowService = require('../../services/slow.service')
 
@@ -9,7 +9,7 @@ describe('Test cache hash creation', () => {
       enabled: false
     }
   })
-  const cacheBase = CacheBase(broker, {})
+  const cacheBase = createCacheBase(broker, {})
 
   it('should return the action name if no parameter was passed,', () => {
     const hash = cacheBase.getCachingHash('testAction')
@@ -30,7 +30,7 @@ describe('Test cache middleware', () => {
     }
   })
   const handler = jest.fn(() => Promise.resolve('hooray!!!'))
-  const cacheBase = CacheBase(broker, {})
+  const cacheBase = createCacheBase(broker, {})
   const service = {}
 
   it('should be defined', () => {

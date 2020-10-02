@@ -4,8 +4,7 @@
  * Copyright 2020 Fachwerk
  */
 
-const { getIpList } = require('../../../../weave-utils/lib')
-const { omit } = require('../../../../weave-utils/lib')
+const { getIpList, omit } = require('@weave-js/utils')
 const { createNode } = require('../node')
 
 exports.createNodeCollection = (registry) => {

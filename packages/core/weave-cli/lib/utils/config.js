@@ -1,6 +1,6 @@
 const path = require('path')
 const fs = require('fs')
-const { isString } = require('../../../weave-utils/lib')
+const { isString } = require('@weave-js/utils')
 const { getDefaultOptions } = require('@weave-js/core').defaultOptions
 
 const defaultConfigFileName = 'weave.config.js'

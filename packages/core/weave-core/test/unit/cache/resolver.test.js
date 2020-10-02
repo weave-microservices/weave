@@ -18,10 +18,10 @@ describe('Test Cache resolver', () => {
     expect(inMemoryCache).toBeDefined()
   })
 
-  it('should resolve REDIS cache.', () => {
-    const inMemoryCache = cache.resolve('redis')
-    expect(inMemoryCache).toBeDefined()
-  })
+  // it('should resolve REDIS cache.', () => {
+  //   const inMemoryCache = cache.resolve('redis')
+  //   expect(inMemoryCache).toBeDefined()
+  // })
 
   it('should resolve custom cache module.', () => {
     const customCache = () => {}
