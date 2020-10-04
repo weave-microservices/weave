@@ -1,6 +1,7 @@
 const { Weave } = require('../../lib/index')
 const hasServiceScope = require('./scope-checks/service.scope')
 const malformedActionService = require('../services/malformed-action.service')
+const MathV2 = require('../services/v2.math.service')
 
 describe('Test broker call service', () => {
   it('should call a service.', (done) => {
@@ -228,5 +229,23 @@ describe('Protected service actions', () => {
     const createService = () => node1.createService(malformedActionService)
     expect(createService).toThrowError('Missing action handler in "timeout" on service "malformed-action"')
     node1.start().then(() => node1.stop())
+  })
+})
+
+describe('Versioned Services', () => {
+  it('should create an versioned service', async (done) => {
+    const node1 = Weave({
+      nodeId: 'node1',
+      logger: {
+        enabled: false
+      }
+    })
+
+    node1.createService(MathV2)
+
+    await node1.start()
+    expect(node1.registry.services.services.find(service => service.name === 'math').version).toBe(2)
+    await node1.stop()
+    done()
   })
 })

@@ -41,6 +41,7 @@ exports.createActionCollection = (registry) => {
       })
     },
     remove (actionName, node) {
+      // todo: switch property order
       const endpoints = actions.get(actionName)
       if (endpoints) {
         endpoints.removeByNodeId(node.id)

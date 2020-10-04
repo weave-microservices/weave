@@ -94,8 +94,8 @@ exports.createRegistry = () => {
     },
     /**
      *
-     * Register a remote service
-     * @param {*} node Node
+     * Register a remote service.
+     * @param {*} node Node instance
      * @param {*} services Service definition
      * @returns {void}
     */
@@ -103,12 +103,15 @@ exports.createRegistry = () => {
       services.forEach((service) => {
         // todo: handle events
         let oldActions
+        let oldEvents
         let svc = this.services.get(node.id, service.name, service.version)
 
         if (!svc) {
           svc = this.services.add(node, service.name, service.version, service.settings)
         } else {
+          // Update existing service with new actions
           oldActions = Object.assign({}, svc.actions)
+          oldEvents = Object.assign({}, svc.events)
           svc.update(service)
         }
 
@@ -122,26 +125,26 @@ exports.createRegistry = () => {
 
         if (oldActions) {
           // this.deregisterAction()
-          Object.keys(oldActions).forEach(key => {
-            // const action = oldActions[key]
-            if (!service.actions[key]) {
-              /*
-                function deregisterAction (nodeId, action) {
-                    if (actions.has(action.name)) {
-                        const list = actions.get(action.name)
-                        if (list) {
-                            list.removeByNodeId(nodeId)
-                        }
-                    }
-                }*/
+          Object.keys(oldActions).forEach(actionName => {
+            if (!service.actions[actionName]) {
+              this.actions.remove(actionName, node)
+            }
+          })
+        }
+
+        if (oldEvents) {
+          Object.keys(oldEvents).forEach(eventName => {
+            if (!service.actions[eventName]) {
+              this.events.remove(eventName, node)
             }
           })
         }
       })
 
       // remove old services
-      this.services.services.forEach((service) => {
-        if (service.node !== node) return
+      const oldServices = Array.from(this.services.services)
+      oldServices.forEach((service) => {
+        if (service.node.id !== node.id) return
 
         let isExisting = false
 

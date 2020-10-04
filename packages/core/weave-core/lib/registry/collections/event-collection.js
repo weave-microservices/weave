@@ -8,7 +8,7 @@ const { createEndpointList } = require('./endpoint-collection')
 
 exports.createEventCollection = (registry) => {
   const broker = registry.broker
-  const events = []
+  const events = [] // todo: refactor to js Map
   const getAllEventsByEventName = (eventName) => events.filter(list => match(eventName, list.name))
 
   return {
@@ -23,6 +23,13 @@ exports.createEventCollection = (registry) => {
     },
     get (eventName, groupName) {
       return events.find(endpointList => endpointList.name === eventName && endpointList.groupName === groupName)
+    },
+    remove (node, eventName) {
+      events.map(list => {
+        if (list.name === eventName) {
+          list.removeByNodeId(node.id)
+        }
+      })
     },
     removeByService (service) {
       events.map(list => {

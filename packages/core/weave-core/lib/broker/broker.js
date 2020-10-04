@@ -70,7 +70,7 @@ const createBroker = (options = {}) => {
    * Create a new Logger.
    * @param {string} moduleName - Name of the module
    * @param {*} service - Service properties
-   * @returns {import('../log/logger.js/index.js.js.js.js').Logger} Logger
+   * @returns {import('../log/logger.js/index.js').Logger} Logger
    */
   /* eslint-enable no-use-before-define */
   const createLogger = (moduleName, service) => {
