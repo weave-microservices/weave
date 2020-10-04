@@ -54,9 +54,11 @@ exports.createRegistry = () => {
       if (typeof action.visibility === 'undefined' || action.visibility === 'public') {
         return true
       }
+
       if (action.visibility === 'protected' && node.isLocal) {
         return true
       }
+
       return false
     },
     /**
@@ -72,6 +74,7 @@ exports.createRegistry = () => {
         if (svc.actions) {
           this.registerActions(this.nodes.localNode, service, svc.actions)
         }
+
         if (svc.events) {
           this.registerEvents(this.nodes.localNode, service, svc.events)
         }

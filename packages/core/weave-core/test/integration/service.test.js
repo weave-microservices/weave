@@ -215,3 +215,18 @@ describe('Service actions', () => {
     node1.start().then(() => node1.stop())
   })
 })
+
+describe('Protected service actions', () => {
+  it('should fail with an malformed action description', () => {
+    const node1 = Weave({
+      nodeId: 'node1',
+      logger: {
+        enabled: false
+      }
+    })
+
+    const createService = () => node1.createService(malformedActionService)
+    expect(createService).toThrowError('Missing action handler in "timeout" on service "malformed-action"')
+    node1.start().then(() => node1.stop())
+  })
+})
