@@ -1,62 +1,62 @@
 const hrTime = require('./time')
 const { uuid } = require('@weave-js/utils')
 
-class Span {
-  constructor (tracer, name, options) {
-    this.tracer = tracer
-    this.options = options
+exports.createSpan = (tracer, name, options) => {
+  const span = Object.assign({}, {
+    name,
+    id: options.id || tracer.broker.getUUID(),
+    traceId: options.traceId || tracer.broker.getUUID(),
+    type: options.type,
+    sampled: options.sampled || tracer.shouldSample(),
+    service: options.service,
+    tags: {}
+  })
 
-    this.id = options.id || uuid()
-    this.traceId = options.traceId || uuid()
-    this.parentId = options.parentId
-    this.name = name
-    this.type = options.type
-    this.service = options.service
-    this.tags = {}
-    this.error = null
-    this.sampled = this.options.sampled ? this.options.sampled : tracer.shouldCollectTracing()
-
-    this.startTime = null
-    this.finishTime = null
-    this.duration = null
-
-    if (this.options.tags) {
-      this.addTags(this.options.tags)
-    }
+  span.service = {
+    name: options.service.name,
+    version: options.service.version,
+    fullyQualifiedName: options.service.fullyQualifiedName
   }
 
-  addTags (tags) {
-    Object.assign(this.tags, tags)
-    return this
+  span.addTags = (tags) => {
+    Object.assign(span.tags, tags)
+    return span
   }
 
-  start (time) {
-    this.startTime = time || hrTime()
-    this.tracer.invokeCollectorMethod('startedSpan', this)
-    return this
+  span.start = (time) => {
+    span.startTime = time || hrTime()
+    tracer.invokeCollectorMethod('startedSpan', [span])
+    return span
   }
 
-  startChildSpan (name, options) {
+  span.startChildSpan = (name, options) => {
     const parentOptions = {
       parentId: options.parentId,
       sampled: options.sampled
     }
-    return this.tracer.startSpan(name, Object.assign(parentOptions, options))
+    return tracer.startSpan(name, Object.assign(parentOptions, options))
   }
 
-  finish (time) {
-    this.finishTime = time || hrTime()
-    this.duration = this.finishTime - this.startTime
-    this.tracer.log.debug('Span finished')
-    this.tracer.invokeCollectorMethod('finishedSpan', this)
+  span.finish = (time) => {
+    span.finishTime = time || hrTime()
+    span.duration = span.finishTime - span.startTime
+    tracer.log.debug('Span finished')
+    tracer.invokeCollectorMethod('finishedSpan', [span])
 
-    return this
+    return span
   }
 
-  setError (error) {
-    this.error = error
-    return this
+  span.isActive = () => span.finishTime !== null
+
+  span.setError = (error) => {
+    span.error = error
+    return span
   }
+
+  if (options.tags) {
+    span.addTags(options.tags)
+  }
+
+
+  return span
 }
-
-module.exports = Span

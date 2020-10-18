@@ -4,16 +4,12 @@
  * Copyright 2020 Fachwerk
  */
 
+exports.PROTOCOL_VERSION = 1
+
 exports.loadBalancingStrategy = {
   ROUND_ROBIN: 'round_robin',
   RANDOM: 'random'
 }
-
-exports.lifecycleHook = [
-  'created',
-  'started',
-  'stopped'
-]
 
 exports.logLevel = {
   trace: 'trace',

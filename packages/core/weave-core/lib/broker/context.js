@@ -5,7 +5,7 @@
  */
 'use strict'
 
-const { uuid } = require('@weave-js/utils')
+const { uuid, isFunction } = require('@weave-js/utils')
 const { WeaveMaxCallLevelError } = require('../errors')
 
 exports.createContext = (broker) => {
@@ -37,11 +37,13 @@ exports.createContext = (broker) => {
       this.action = endpoint.action
       this.service = endpoint.action.service
     },
-    emit (eventName, payload, groups) {
-      return broker.emit(eventName, payload, groups)
+    emit (eventName, payload, options = {}) {
+      options.parentContext = this
+      return broker.emit(eventName, payload, options)
     },
-    broadcast (eventName, payload, groups) {
-      return broker.broadcast(eventName, payload, groups)
+    broadcast (eventName, payload, options = {}) {
+      options.parentContext = this
+      return broker.broadcast(eventName, payload, options)
     },
     /**
      * Call a action.
@@ -73,6 +75,12 @@ exports.createContext = (broker) => {
       }
       return this.span
     },
+    finishSpan () {
+      if (this.span) {
+        this.span.finish()
+        return this.span
+      }
+    },
     copy () {
       const newContext = exports.createContext(broker)
 
@@ -94,7 +102,11 @@ exports.createContext = (broker) => {
 
   // generate a context Id
   if (!context.id) {
-    context.id = uuid()
+    if (broker.options.uuidFactory && isFunction(broker.options.uuidFactory)) {
+      context.id = broker.options.uuidFactory.call(context, broker)
+    } else {
+      context.id = uuid()
+    }
     if (!context.requestId) {
       context.requestId = context.id
     }

@@ -1,84 +1,84 @@
 const BaseCollector = require('./base')
 
-class EventCollector extends BaseCollector {
-  constructor (options) {
-    super(options)
-
-    this.options = Object.assign({
-      events: {
-        started: '$tracing.trace.span.started',
-        finished: '$tracing.trace.span.finished'
-      },
-      broadcast: false
-    })
-  }
-
-  init (broker, tracer) {
-    super.init(tracer)
-    this.broker = broker
-  }
-
-  startedSpan (span) {
-    // const data = this.generateTracePayload(span)
-    this.broker.emit(this.options.events.started, span)
-  }
-
-  finishedSpan (span) {
-    // const data = this.generateTracePayload(span)
-    this.broker.emit(this.options.events.finished, span)
-  }
-
-  // generateTracePayload (span) {
-  //     const payload = {
-  //         id: context.id,
-  //         nodeId: context.nodeId,
-  //         level: context.level,
-  //         isRemoteCall: !!context.callerNodeId,
-  //         requestId: context.requestId,
-  //         startTime: span.startTime
-  //     }
-
-  //     if (context.action) {
-  //         payload.action = {
-  //             name: context.action.name
-  //         }
-  //     }
-
-  //     if (context.parentId) {
-  //         payload.parentId = context.parentId
-  //     }
-
-  //     if (payload.isRemoteCall) {
-  //         payload.callerNodeId = context.callerNodeId
-  //     }
-
-  //     return payload
-  // }
-/*
-
-    const stopTime = context.startTime + context.duration
-
-    if (context.tracing) {
-        const payload = generateTracingBody(context)
-        payload.stopTime = stopTime
-        payload.isCachedResult = !!context.isCachedResult
-
-        if (context.action) {
-            payload.action = {
-                name: context.action.name
-            }
-        }
-
-        if (error) {
-            payload.error = {
-                name: error.name,
-                code: error.code,
-                type: error.type,
-                message: error.message
-            }
-        }
-        broker.emit('tracing.trace.span.finished', payload)
-    }*/
+const mergeDefaultOptions = (options) => {
+  return Object.assign({
+    interval: 5000,
+    eventName: '$tracing.trace.spans',
+    sendStartSpan: false,
+    sendFinishedSpan: true,
+    broadcast: false
+  }, options)
 }
 
-module.exports = EventCollector
+module.exports = (options) => {
+  options = mergeDefaultOptions(options)
+
+  const exporter = new BaseCollector(options)
+
+  const queue = []
+
+  let timer
+
+  const generateTracingData = () => {
+    return Array
+      .from(queue)
+      .map(span => {
+        const newSpan = Object.assign({}, span)
+
+        if (newSpan.error) {
+          newSpan.error = exporter.getErrorFields(newSpan.error)
+        }
+
+        return newSpan
+      })
+  }
+
+  const flushQueue = () => {
+    if (queue.length === 0) return
+
+    const data = generateTracingData()
+    queue.length = 0
+
+    if (options.broadcast) {
+      exporter.broker.broadcast(options.eventName, data)
+    } else {
+      exporter.broker.emit(options.eventName, data)
+    }
+  }
+
+  exporter.init = (tracer) => {
+    exporter.initBase(tracer)
+
+    if (options.interval > 0) {
+      timer = setInterval(() => flushQueue(), options.interval)
+      timer.unref()
+    }
+  }
+
+  exporter.startedSpan = (span) => {
+    if (options.sendStartSpan) {
+      queue.push(span)
+      if (!timer) {
+        flushQueue()
+      }
+    }
+  }
+
+  exporter.finishedSpan = (span) => {
+    if (options.sendFinishedSpan) {
+      queue.push(span)
+      if (!timer) {
+        flushQueue()
+      }
+    }
+  }
+
+  exporter.stop = async () => {
+    if (timer) {
+      clearInterval(timer)
+      timer = null
+    }
+  }
+
+  return exporter
+}

@@ -194,7 +194,7 @@ exports.getDefaultOptions = () => ({
   tracing: {
     enabled: false,
     samplingRate: 1.0,
-    collectors: ['event']
+    collectors: []
   },
   // namespace
   namespace: '',

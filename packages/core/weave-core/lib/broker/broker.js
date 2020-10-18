@@ -8,7 +8,7 @@ const path = require('path')
 const fs = require('fs')
 const os = require('os')
 const glob = require('glob')
-const { debounce, defaultsDeep } = require('@weave-js/utils')
+const { isFunction, debounce, defaultsDeep, uuid } = require('@weave-js/utils')
 const { getDefaultOptions } = require('./default-options')
 const { createDefaultLogger } = require('../log/logger')
 const { createServiceFromSchema } = require('../registry/service')
@@ -28,6 +28,7 @@ const { Tracer } = require('../tracing')
 const { MetricsStorage } = require('../metrics')
 const { registerMetrics } = require('./broker-metrics')
 const { version } = require('../../package.json')
+const { brotliCompress } = require('zlib')
 
 /* eslint-disable no-use-before-define */
 /**
@@ -112,7 +113,6 @@ const createBroker = (options = {}) => {
   const contextFactory = createContextFactory()
   const health = createHealthcheck()
   const validator = createValidator()
-  const tracer = Tracer()
 
   // Internal Methods
   const addLocalServices = service => {
@@ -198,11 +198,16 @@ const createBroker = (options = {}) => {
     contextFactory,
     isStarted: false,
     log,
-    tracer,
     createLogger,
     getLogger: function () {
       createDeprecatedWarning('The method "broker.getLogger()" is deprecated since weave version 0.7.0. Please use "broker.createLogger()" instead.')
       return createLogger(...arguments)
+    },
+    getUUID () {
+      if (broker.options.uuidFactory && isFunction(broker.options.uuidFactory)) {
+        return broker.options.uuidFactory(broker)
+      }
+      return uuid()
     },
     health,
     registry,
@@ -274,6 +279,7 @@ const createBroker = (options = {}) => {
 
       const promises = []
       const context = contextFactory.create(null, payload, options)
+
       context.eventType = 'emit'
       context.eventName = eventName
       context.eventGroups = options.groups
@@ -506,7 +512,7 @@ const createBroker = (options = {}) => {
         })
         .then(() => middlewareHandler.callHandlersAsync('started', [this], true))
         .then(() => {
-          if (this.isStarted && options.started) {
+          if (this.isStarted && options.started && isFunction(options.started)) {
             options.started.call(this)
           }
         })
@@ -526,10 +532,12 @@ const createBroker = (options = {}) => {
           log.info('Shutting down the node...')
         })
         .then(() => middlewareHandler.callHandlersAsync('stopping', [this], true))
-        .then(() => Promise.all(services.map(service => service.stop())))
-        .catch(error => {
-          this.log.error('Unable to stop all services.', error)
-          return Promise.reject(error)
+        .then(() => {
+          return Promise.all(services.map(service => service.stop()))
+            .catch(error => {
+              this.log.error('Unable to stop all services.', error)
+              return Promise.reject(error)
+            })
         })
         .then(() => {
           if (this.transport) {
@@ -538,7 +546,14 @@ const createBroker = (options = {}) => {
         })
         .then(() => {
           if (this.cache) {
+            log.debug('Stopping caching adapters.')
             return this.cache.stop()
+          }
+        })
+        .then(() => {
+          if (this.tracer) {
+            log.debug('Stopping tracing adapters.')
+            return this.tracer.stop()
           }
         })
         .then(() => middlewareHandler.callHandlersAsync('stopped', [this], true))
@@ -667,7 +682,6 @@ const createBroker = (options = {}) => {
   middlewareHandler.init(broker)
   contextFactory.init(broker)
   health.init(broker, broker.transport)
-  tracer.init(broker, options.tracing)
 
   // Initialize caching module
   if (options.cache.enabled) {
@@ -675,6 +689,12 @@ const createBroker = (options = {}) => {
     broker.cache = createCache(broker, options.cache)
     broker.cache.init()
     log.info(`Cache module: ${broker.cache.name}`)
+  }
+
+  // Initialize tracing module
+  if (options.tracing.enabled) {
+    broker.tracer = Tracer()
+    broker.tracer.init(broker, options.tracing)
   }
 
   /**

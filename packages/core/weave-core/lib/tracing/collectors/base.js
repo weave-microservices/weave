@@ -1,24 +1,43 @@
+const { isObject } = require('@weave-js/utils')
+
 class BaseCollector {
   constructor (options) {
     this.options = options || {}
   }
 
-  init (tracer) {
+  initBase (tracer) {
     this.tracer = tracer
+    this.broker = tracer.broker
+    this.log = tracer.log
   }
 
-  startedSpan () {
+  startedSpan () {}
 
+  finishedSpan (span) {}
+
+  stop () {}
+
+  flattenTags (obj, convertToString = false, path = '') {
+    if (!obj) return null
+
+    return Object.keys(obj).reduce((res, k) => {
+      const o = obj[k]
+      const pp = (path ? path + '.' : '') + k
+
+      if (isObject(o)) { Object.assign(res, this.flattenTags(o, convertToString, pp)) } else if (o !== undefined) {
+        res[pp] = convertToString ? String(o) : o
+      }
+
+      return res
+    }, {})
   }
 
-  finishedSpan (span) {
+  getErrorFields (error) {
+    if (!error) {
+      return null
+    }
 
-  }
-
-  flattenObject (object, subobjectsToString = true) {
-    return Object.keys(object).reduce((a, b) => {
-
-    })
+    return error.stack
   }
 }
 

@@ -4,7 +4,7 @@
  * Copyright 2020 Fachwerk
  */
 
-const ObjectValidator = require('../../../weave-validator/lib/validator')
+const ObjectValidator = require('@weave-js/validator')
 const { WeaveParameterValidationError } = require('../errors')
 
 exports.createValidator = () => {

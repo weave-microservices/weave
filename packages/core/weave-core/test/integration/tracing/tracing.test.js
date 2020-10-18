@@ -1,35 +1,111 @@
-const { Weave, TransportAdapters } = require('../../../lib/index')
+const { omit, delay } = require('@weave-js/utils')
+const { TransportAdapters, TracingAdapters } = require('../../../lib/index')
+const { createNode } = require('../../helper')
+const { posts, users } = require('../../helper/data')
+
+const pickSpanFields = (spans, fieldsToOmit = []) => {
+  return spans.map(span => {
+    span = omit(span, ['startTime', 'duration', 'finishTime'])
+    return span
+  })
+}
 
 describe('Test tracing', () => {
   let flow = []
-
-  const node1 = Weave({
-    nodeId: 'node1',
+  let id = 0
+  const defaultSettings = {
     logger: {
-      enabled: false,
-      logLevel: 'fatal'
+      enabled: false
+      // logLevel: 'fatal'
     },
     transport: {
-      adapter: TransportAdapters.Dummy()
+      adapter: 'dummy'
     },
     tracing: {
-      enabled: true
+      enabled: true,
+      collectors: [
+        TracingAdapters.Event({
+          interval: 0
+        })
+      ]
+    },
+    uuidFactory (broker) {
+      return `${broker.nodeId}-${++id}`
     }
-  })
+  }
 
-  const node2 = Weave({
-    nodeId: 'node2',
-    logger: {
-      enabled: false,
-      logLevel: 'fatal'
-    },
-    transport: {
-      adapter: TransportAdapters.Dummy()
-    },
-    tracing: {
-      enabled: true
+  const node1 = createNode(Object.assign({ nodeId: 'node1' }, defaultSettings), [{
+    name: 'tracing-collector',
+    events: {
+      '$tracing.trace.spans' (ctx) {
+        flow.push(...ctx.data)
+      }
     }
-  })
+  }])
+
+  const node2 = createNode(Object.assign({ nodeId: 'node2' }, defaultSettings), [{
+    name: 'post',
+    actions: {
+      list (context) {
+        const $posts = Array.from(posts)
+        return Promise.all($posts.map(async post => {
+          post.author = await context.call('user.get', { id: post.author })
+          return post
+        }))
+      }
+    }
+  }])
+
+  const node3 = createNode(Object.assign({ nodeId: 'node3' }, defaultSettings), [{
+    name: 'user',
+    actions: {
+      get (context) {
+        const user = users.find(user => user.id === context.data.id)
+        return user
+      }
+    }
+  }])
+
+  const node4 = createNode(Object.assign({ nodeId: 'node4' }, defaultSettings), [{
+    name: 'friends'
+  }])
+  // const node1 = Weave({
+  //   nodeId: 'node1',
+  //   logger: {
+  //     enabled: false,
+  //     logLevel: 'fatal'
+  //   },
+  //   transport: {
+  //     adapter: TransportAdapters.Dummy()
+  //   },
+  //   tracing: {
+  //     enabled: true,
+  //     collectors: [
+  //       TracingAdapters.Event({
+  //         interval: 0
+  //       })
+  //     ]
+  //   }
+  // })
+
+  // const node2 = Weave({
+  //   nodeId: 'node2',
+  //   logger: {
+  //     enabled: false,
+  //     logLevel: 'fatal'
+  //   },
+  //   transport: {
+  //     adapter: TransportAdapters.Dummy()
+  //   },
+  //   tracing: {
+  //     enabled: true,
+  //     collectors: [
+  //       TracingAdapters.Event({
+  //         interval: 0
+  //       })
+  //     ]
+  //   }
+  // })
 
   node2.createService({
     name: 'test',
@@ -37,84 +113,85 @@ describe('Test tracing', () => {
       hello (context) {
         return 'Hello'
       }
-    },
-    events: {
-      '$tracing.trace.span.started' ({ data }) {
-        flow.push(data)
-      },
-      '$tracing.trace.span.finished' ({ data }) {
-        flow.push(data)
-      }
     }
   })
 
-  beforeAll(() => {
-    return node1.start()
-      .then(() => node2.start())
-  })
+  beforeAll(() => Promise.all([
+    node1.start(),
+    node2.start(),
+    node3.start(),
+    node4.start()
+  ]))
 
-  afterAll(() => {
-    return node1.stop()
-      .then(() => node2.stop())
-  })
+  afterAll(() => Promise.all([
+    node1.stop(),
+    node2.stop(),
+    node3.stop(),
+    node4.stop()
+  ]))
 
   afterEach(() => {
     flow = []
+    id = 0
   })
 
-  it('Started and finished event should be triggered.', (done) => {
-    return node1.call('test.hello')
-      .then(() => {
-        expect(flow.length).toBe(2)
-        done()
-      })
+  it('Started and finished event should be triggered.', async () => {
+    await node1.waitForServices(['post', 'user', 'friends'])
+    const result = await node2.call('post.list')
+    expect(result).toMatchSnapshot()
+
+    flow.sort((a, b) => a.startTime - b.startTime)
+
+    const spans = pickSpanFields(flow)
+
+    expect(spans).toMatchSnapshot()
   })
 
-  it('Started event should be the expected format.', () => {
-    return node1.call('test.hello')
-      .then(() => {
-        const startedEvent = flow[0]
+  // it('Started event should be the expected format.', () => {
+  //   return node1.call('test.hello')
+  //     .then(() => {
+  //       const startedEvent = flow[0]
 
-        // expect(startedEvent.id).toBeDefined()
-        expect(startedEvent.id).toBeDefined()
-        expect(startedEvent.name).toBe('action \'test.hello\'')
-        expect(startedEvent.tags).toBeDefined()
-        expect(startedEvent.tags.nodeId).toBe('node2')
-        // expect(startedEvent.callerNodeId).toBe('node1')
-        expect(startedEvent.tags.remoteCall).toBe(true)
-        // expect(startedEvent.nodeId).toBe('node2')
-        expect(startedEvent.startTime).toBeDefined()
-        // expect(startedEvent.callerNodeId).toBe('node1')
-      })
-  })
+  //       // expect(startedEvent.id).toBeDefined()
+  //       expect(startedEvent.id).toBeDefined()
+  //       expect(startedEvent.name).toBe('action \'test.hello\'')
+  //       expect(startedEvent.tags).toBeDefined()
+  //       expect(startedEvent.tags.nodeId).toBe('node2')
+  //       // expect(startedEvent.callerNodeId).toBe('node1')
+  //       expect(startedEvent.tags.remoteCall).toBe(true)
+  //       // expect(startedEvent.nodeId).toBe('node2')
+  //       expect(startedEvent.startTime).toBeDefined()
+  //       // expect(startedEvent.callerNodeId).toBe('node1')
+  //     })
+  // })
 
-  it('Finished event should be the expected format.', () => {
-    return node1.call('test.hello')
-      .then(res => {
-        const startedEvent = flow[1]
+  // it('Finished event should be the expected format.', () => {
+  //   return node1.call('test.hello')
+  //     .then(res => {
+  //       const startedEvent = flow[1]
 
-        expect(startedEvent.id).toBeDefined()
-        expect(startedEvent.name).toBe('action \'test.hello\'')
-        expect(startedEvent.tags).toBeDefined()
-        expect(startedEvent.tags.nodeId).toBe('node2')
-        // expect(startedEvent.callerNodeId).toBe('node1')
-        expect(startedEvent.startTime).toBeDefined()
-        expect(startedEvent.finishTime).toBeDefined()
-        expect(startedEvent.duration).toBeDefined()
+  //       expect(startedEvent.id).toBeDefined()
+  //       expect(startedEvent.name).toBe('action \'test.hello\'')
+  //       expect(startedEvent.tags).toBeDefined()
+  //       expect(startedEvent.tags.nodeId).toBe('node2')
+  //       // expect(startedEvent.callerNodeId).toBe('node1')
+  //       expect(startedEvent.startTime).toBeDefined()
+  //       expect(startedEvent.finishTime).toBeDefined()
+  //       expect(startedEvent.duration).toBeDefined()
 
-        expect(startedEvent.tags.remoteCall).toBe(true)
+  //       expect(startedEvent.tags.remoteCall).toBe(true)
 
-        // expect(startedEvent.id).toBeDefined()
-        // expect(startedEvent.requestId).toBeDefined()
-        // expect(startedEvent.callerNodeId).toBe('node1')
-        // expect(startedEvent.isRemoteCall).toBe(true)
-        // expect(startedEvent.nodeId).toBe('node2')
-        // expect(startedEvent.startTime).toBeDefined()
-        // expect(startedEvent.callerNodeId).toBe('node1')
-        // expect(startedEvent.stopTime).toBeDefined()
-        // expect(startedEvent.isCachedResult).toBeDefined()
-        // expect(startedEvent.isCachedResult).toBe(false)
-        // expect(startedEvent.stopTime).toBeGreaterThan(startedEvent.startTime)
-      })
-  })
+  //       // expect(startedEvent.id).toBeDefined()
+  //       // expect(startedEvent.requestId).toBeDefined()
+  //       // expect(startedEvent.callerNodeId).toBe('node1')
+  //       // expect(startedEvent.isRemoteCall).toBe(true)
+  //       // expect(startedEvent.nodeId).toBe('node2')
+  //       // expect(startedEvent.startTime).toBeDefined()
+  //       // expect(startedEvent.callerNodeId).toBe('node1')
+  //       // expect(startedEvent.stopTime).toBeDefined()
+  //       // expect(startedEvent.isCachedResult).toBeDefined()
+  //       // expect(startedEvent.isCachedResult).toBe(false)
+  //       // expect(startedEvent.stopTime).toBeGreaterThan(startedEvent.startTime)
+  //     })
+  // })
 })

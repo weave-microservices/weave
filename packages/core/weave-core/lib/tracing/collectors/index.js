@@ -1,6 +1,9 @@
+const { isFunction } = require('@weave-js/utils')
+
 const collectors = {
   Console: require('./console'),
-  Event: require('./event')
+  Event: require('./event'),
+  BaseCollector: require('./base')
 }
 
 const getByName = name => {
@@ -8,14 +11,25 @@ const getByName = name => {
   return collectors[n]
 }
 
-module.exports.resolveCollector = (collector, tracer) => {
+exports.resolveCollector = (collector, tracer) => {
   let CollectorClass
   if (typeof collector === 'string') {
     CollectorClass = getByName(collector)
   }
+
+  if (isFunction(collector) || typeof collector === 'object') {
+    return collector
+  }
+
   if (!CollectorClass) {
     throw new Error('Tracer not found')
   }
 
   return new CollectorClass(collector)
 }
+
+exports.Base = collectors.BaseCollector
+
+exports.Console = collectors.Console
+
+exports.Event = collectors.Event

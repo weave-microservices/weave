@@ -1,6 +1,5 @@
 const { mergeSchemas } = require('../utils/options')
 const { wrapInArray, isFunction, clone, wrapHandler, isObject, promisify } = require('@weave-js/utils')
-const { lifecycleHook } = require('../constants')
 const { WeaveError } = require('../errors')
 
 /**
@@ -105,9 +104,10 @@ const applyMixins = (service, schema) => {
         if (mixin.mixins) {
           mixin = applyMixins(service, mixin)
         }
+
         for (var key in mixin) {
           // bind scope for life cycle hooks
-          if (lifecycleHook.includes(key)) {
+          if (['created', 'started', 'stopped'].includes(key)) {
             mixin[key] = mixin[key].bind(service)
           }
         }

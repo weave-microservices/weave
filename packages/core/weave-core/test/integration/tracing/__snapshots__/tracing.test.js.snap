@@ -1,0 +1,787 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test tracing Started and finished event should be triggered. 1`] = `
+Array [
+  Object {
+    "author": Object {
+      "id": 3,
+      "name": "Hank Schrader",
+    },
+    "id": 1,
+    "title": "Post 1",
+  },
+  Object {
+    "author": Object {
+      "id": 1,
+      "name": "Walter White",
+    },
+    "id": 2,
+    "title": "Post 2",
+  },
+  Object {
+    "author": Object {
+      "id": 2,
+      "name": "Jesse Pinkman",
+    },
+    "id": 3,
+    "title": "Post 3",
+  },
+]
+`;
+
+exports[`Test tracing Started and finished event should be triggered. 2`] = `
+Array [
+  Object {
+    "id": "node2-55",
+    "name": "action 'post.list'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "post",
+      "name": "post",
+    },
+    "tags": Object {
+      "action": Object {
+        "name": "post.list",
+        "shortName": "list",
+      },
+      "nodeId": "node2",
+      "remoteCall": false,
+      "requestLevel": 1,
+    },
+    "traceId": "node2-55",
+    "type": "action",
+  },
+  Object {
+    "id": "node2-56",
+    "name": "action 'user.get'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "user",
+      "name": "user",
+    },
+    "tags": Object {
+      "action": Object {
+        "name": "user.get",
+        "shortName": "get",
+      },
+      "nodeId": "node3",
+      "remoteCall": true,
+      "requestLevel": 2,
+    },
+    "traceId": "node2-55",
+    "type": "action",
+  },
+  Object {
+    "id": "node2-58",
+    "name": "action 'user.get'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "user",
+      "name": "user",
+    },
+    "tags": Object {
+      "action": Object {
+        "name": "user.get",
+        "shortName": "get",
+      },
+      "nodeId": "node3",
+      "remoteCall": true,
+      "requestLevel": 2,
+    },
+    "traceId": "node2-55",
+    "type": "action",
+  },
+  Object {
+    "id": "node2-60",
+    "name": "action 'user.get'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "user",
+      "name": "user",
+    },
+    "tags": Object {
+      "action": Object {
+        "name": "user.get",
+        "shortName": "get",
+      },
+      "nodeId": "node3",
+      "remoteCall": true,
+      "requestLevel": 2,
+    },
+    "traceId": "node2-55",
+    "type": "action",
+  },
+  Object {
+    "id": "node1-65",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-66",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-70",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-71",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-75",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-76",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-80",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-81",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-85",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-86",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-90",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-91",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-95",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-96",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-100",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-101",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-105",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-106",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-110",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-111",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-115",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-116",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-120",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-121",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-125",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-126",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-130",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-131",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-135",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-136",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-140",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-141",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-145",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-146",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-150",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-151",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-155",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-156",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-160",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-161",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-165",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-166",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-170",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-171",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-175",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-176",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-180",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-181",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-185",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-186",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-190",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-191",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-195",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-196",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-200",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-201",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-205",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-206",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-210",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-211",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-215",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-216",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-220",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-221",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-225",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-226",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-230",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-231",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-235",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-236",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-240",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-241",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-245",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-246",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-250",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-251",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-255",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-256",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-260",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-261",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-265",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-266",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-270",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "nodeId": "node1",
+      "remoteCall": true,
+    },
+    "traceId": "node1-271",
+    "type": "event",
+  },
+]
+`;

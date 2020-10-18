@@ -27,7 +27,9 @@ exports.createServiceCollection = (registry) => {
 
   serviceCollection.get = (nodeId, name, version) => services.find(svc => svc.equals(name, version, nodeId))
 
-  serviceCollection.has = (name, version, nodeId) => !!services.find(svc => svc.equals(name, version, nodeId))
+  serviceCollection.has = (name, version, nodeId) => {
+    return !!services.find(svc => svc.equals(name, version, nodeId))
+  }
 
   serviceCollection.remove = (nodeId, name, version) => {
     const service = serviceCollection.get(nodeId, name, version)
