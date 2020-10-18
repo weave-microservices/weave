@@ -2,7 +2,8 @@
     "ci": true,
     "packages": [
       "packages/core/*",
-      "packages/transports/*"
+      "packages/transports/*",
+      "packages/tracing-adapters/*"
     ],
     "version": "independent",
     "command": {
