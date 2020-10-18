@@ -27,6 +27,7 @@ function ModelValidator () {
       if (passed) {
         error.passed = passed
       }
+
       const str = Object.keys(error)
         .map(key => `${key}: ${error[key]}`)
         .join(', ')
@@ -38,6 +39,20 @@ function ModelValidator () {
         schema = {
           type: schema
         }
+      } else if (Array.isArray(schema)) {
+        if (schema.length === 0) {
+          throw new Error('Invalid schema.')
+        }
+
+        schema = {
+          type: 'multi',
+          rules: schema
+        }
+
+        // todo: handle optionals
+        schema.optional = schema.rules
+          .map(s => internal.getRuleFromSchema(s))
+          .every(r => r.schema.optional === true)
       }
 
       const ruleGeneratorFunction = rules[schema.type]
@@ -76,9 +91,9 @@ function ModelValidator () {
 
       return sourceCode.join('\n')
     },
-    compile (schema) {
+    compile (schema, options = {}) {
       if (typeof schema !== 'object') {
-        throw new Error('Invalid Schema!')
+        throw new Error('Invalid Schema.')
       }
 
       const self = this
@@ -89,6 +104,8 @@ function ModelValidator () {
         func: []
       }
 
+      cache.clear()
+
       const code = [
         'const errors = []',
         'let field'
@@ -96,7 +113,8 @@ function ModelValidator () {
 
       // prepare schema
       if (Array.isArray(schema)) {
-
+        const rule = internal.getRuleFromSchema(schema)
+        schema = rule.schema
       } else {
         const tempSchema = Object.assign({}, schema)
         schema = {
