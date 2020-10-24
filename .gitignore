@@ -14,3 +14,4 @@ packages/utils/coverage
 
 packages/core/core/coverage
 packages/*/coverage
+packages/core/weave-core/coverage
