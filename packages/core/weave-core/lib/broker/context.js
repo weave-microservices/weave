@@ -54,8 +54,8 @@ exports.createContext = (broker) => {
     */
     call (actionName, params, options = {}) {
       options.parentContext = this
-      if (options.maxCallLevel < this.level) {
-        return Promise.reject(new WeaveMaxCallLevelError(broker.nodeId, this.level))
+      if (broker.options.registry.maxCallLevel > 0 && this.level >= broker.options.registry.maxCallLevel) {
+        return Promise.reject(new WeaveMaxCallLevelError({ nodeId: broker.nodeId, maxCallLevel: broker.options.registry.maxCallLevel }))
       }
 
       const p = broker.call(actionName, params, options)

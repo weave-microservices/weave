@@ -43,6 +43,7 @@ const { loadBalancingStrategy } = require('../constants')
  * @typedef {Object} RegistrySettings
  * @property {Boolean} preferLocalActions Prefer local actions over remote actions. (default = true)
  * @property {Number} requestTimeout Time in milliseconds before a action call is rejected. (default = 0)
+ * @property {Number} maxCallLevel Maximum request depth level.
  * @property {String|Object} loadBalancingStrategy - Stratagy for the internal load balancer. (default = 'round_robin')
  */
 
@@ -204,6 +205,8 @@ exports.getDefaultOptions = () => ({
     preferLocalActions: true,
     // request timeout in ms
     requestTimeout: 0,
+    // maximum request level
+    maxCallLevel: 0,
     // loadbalancing stategy
     loadBalancingStrategy: loadBalancingStrategy.ROUND_ROBIN
   },

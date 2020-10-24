@@ -1,5 +1,4 @@
 const hrTime = require('./time')
-const { uuid } = require('@weave-js/utils')
 
 exports.createSpan = (tracer, name, options) => {
   const span = Object.assign({}, {
@@ -56,7 +55,6 @@ exports.createSpan = (tracer, name, options) => {
   if (options.tags) {
     span.addTags(options.tags)
   }
-
 
   return span
 }

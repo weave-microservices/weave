@@ -81,6 +81,12 @@ class WeaveQueueSizeExceededError extends WeaveError {
   }
 }
 
+class WeaveMaxCallLevelError extends WeaveError {
+  constructor (data) {
+    super(`Request level has reached the limit (${data.maxCallLevel}) on node "${data.nodeId}".`, 500, 'WEAVE_MAX_CALL_LEVEL_ERROR', data)
+  }
+}
+
 const restoreError = error => {
   const ErrorClass = module.exports[error.name]
 
@@ -96,6 +102,7 @@ const restoreError = error => {
 
 module.exports = {
   WeaveBrokerOptionsError,
+  WeaveMaxCallLevelError,
   WeaveError,
   WeaveParameterValidationError,
   WeaveQueueSizeExceededError,

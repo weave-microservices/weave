@@ -16,7 +16,7 @@ const figures = require('figures')
 
 // own modules
 const defaultTypes = require('./types')
-
+const { isStreamObjectMode } = require('@weave-js/utils')
 const { gray, underline, grey, dim } = kleur
 
 // log levels

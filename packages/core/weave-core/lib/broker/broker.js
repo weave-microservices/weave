@@ -14,7 +14,7 @@ const { createDefaultLogger } = require('../log/logger')
 const { createServiceFromSchema } = require('../registry/service')
 const { createDeprecatedWarning } = require('../utils/deprecated-warning')
 const { createMiddlewareHandler } = require('./middleware-manager')
-const { createRegistry } = require('../registry/registry')
+const { createRegistry } = require('../registry')
 const { createContextFactory } = require('./context-factory')
 const Middlewares = require('../middlewares')
 const { createValidator } = require('./validator')
@@ -28,7 +28,6 @@ const { Tracer } = require('../tracing')
 const { MetricsStorage } = require('../metrics')
 const { registerMetrics } = require('./broker-metrics')
 const { version } = require('../../package.json')
-const { brotliCompress } = require('zlib')
 
 /* eslint-disable no-use-before-define */
 /**
