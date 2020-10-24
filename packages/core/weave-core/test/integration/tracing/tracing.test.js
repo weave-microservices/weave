@@ -1,5 +1,5 @@
-const { omit, delay } = require('@weave-js/utils')
-const { TransportAdapters, TracingAdapters } = require('../../../lib/index')
+const { omit } = require('@weave-js/utils')
+const { TracingAdapters } = require('../../../lib/index')
 const { createNode } = require('../../helper')
 const { posts, users } = require('../../helper/data')
 

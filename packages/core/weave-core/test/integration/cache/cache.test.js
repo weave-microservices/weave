@@ -5,12 +5,11 @@ describe('Cache system', () => {
     const node1 = Weave({
       nodeId: 'node1',
       loadNodeService: false,
-      loadInternalMiddlewares: false,
       logger: {
         enabled: false
       },
       cache: {
-        enabled: false
+        enabled: true
       }
     })
 
@@ -31,8 +30,12 @@ describe('Cache system', () => {
       node1.call('testService.cachedAction', { text: 'hello user' })
         .then(result => {
           expect(result).toBe('resu olleh')
-          node1.stop()
-          done()
+          node1.call('testService.cachedAction', { text: 'hello user' })
+            .then(result => {
+              expect(result).toBe('resu olleh')
+              node1.stop()
+              done()
+            })
         })
     })
   })

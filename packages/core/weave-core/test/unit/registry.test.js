@@ -1,6 +1,6 @@
 const { Weave, Errors } = require('../../lib/index')
 const { createNode } = require('../../lib/registry/node')
-const { createRegistry } = require('../../lib/registry/registry')
+const { createRegistry } = require('../../lib/registry')
 
 const brokerSettings = {
   logger: {

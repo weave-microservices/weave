@@ -440,3 +440,50 @@ describe('Test broker context chaining', () => {
     })
   })
 })
+
+describe('Test maxCallLevel', () => {
+  const broker = Weave({
+    nodeId: 'node1',
+    logger: {
+      enabled: false,
+      logLevel: 'fatal'
+    },
+    registry: {
+      maxCallLevel: 1
+    }
+  })
+
+  broker.createService({
+    name: 'post',
+    actions: {
+      before (context) {
+        const flow = [{ requestId: context.requestId, contextId: context.id, parentId: context.parentId }]
+        return context.call('post.before2', { flow })
+      },
+      before2 (context) {
+        context.data.flow.push({ requestId: context.requestId, contextId: context.id, parentId: context.parentId })
+        return context.call('post.find')
+      },
+      find: jest.fn(context => context)
+    }
+  })
+
+  beforeAll(() => broker.start())
+  afterAll(() => broker.stop())
+
+  it('level should be = 1', () => {
+    return broker.call('post.find').then(context => {
+      expect(context.id).toBeDefined()
+      expect(context.level).toBe(1)
+      expect(context.id).toEqual(context.requestId)
+      expect(context.parentContext).toBe(null)
+    })
+  })
+
+  it('should increment level on chained calls', () => {
+    return broker.call('post.before')
+      .catch(error => {
+        expect(error.message).toBe('Request level has reached the limit (1) on node "node1".')
+      })
+  })
+})

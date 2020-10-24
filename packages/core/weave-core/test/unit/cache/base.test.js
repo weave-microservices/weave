@@ -57,5 +57,29 @@ describe('Test base cache factory', () => {
       expect(error.message).toBe('Method not implemented.')
     }
   })
+
+  it('schould generate a caching hash.', () => {
+    const broker = Weave(config)
+    const baseBroker = createCacheBase(broker)
+
+    const hash = baseBroker.getCachingHash('test.action', { name: 'Kevin' })
+    expect(hash).toMatchSnapshot()
+  })
+
+  it('schould generate a caching hash (with 1 key)', () => {
+    const broker = Weave(config)
+    const baseBroker = createCacheBase(broker)
+
+    const hash = baseBroker.getCachingHash('test.action', { name: 'Kevin', age: 19 }, null, ['name'])
+    expect(hash).toMatchSnapshot()
+  })
+
+  it('schould generate a caching hash (with 1 key)', () => {
+    const broker = Weave(config)
+    const baseBroker = createCacheBase(broker)
+
+    const hash = baseBroker.getCachingHash('test.action', { name: 'Kevin', age: 19, hobbies: ['coding', 'gym', 'swimming'], height: null }, null, ['name', 'age', 'hobbies', 'height'])
+    expect(hash).toMatchSnapshot()
+  })
 })
 
