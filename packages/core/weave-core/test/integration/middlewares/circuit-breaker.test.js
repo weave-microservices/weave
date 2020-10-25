@@ -1,6 +1,6 @@
-const { Weave, TransportAdapters } = require('../../lib/index')
-const { WeaveError } = require('../../lib/errors')
-const lolex = require('lolex')
+const { Weave, TransportAdapters } = require('../../../lib/index')
+const { WeaveError } = require('../../../lib/errors')
+const FakeTimers = require('@sinonjs/fake-timers')
 
 describe('Test circuit breaker', () => {
   let clock
@@ -59,7 +59,7 @@ describe('Test circuit breaker', () => {
     return node1.start()
       .then(() => node2.start())
       .then(() => {
-        clock = lolex.install()
+        clock = FakeTimers.install()
       })
   })
 

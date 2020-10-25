@@ -1,5 +1,5 @@
 const { Weave } = require('../../lib/index')
-const lolex = require('lolex')
+const lolex = require('@sinonjs/fake-timers')
 // const Stream = require('./helper/TestStream')
 
 describe('Test logger module.', () => {

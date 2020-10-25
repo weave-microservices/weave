@@ -1,5 +1,5 @@
 const utils = require('../lib')
-const lolex = require('lolex')
+const lolex = require('@sinonjs/fake-timers')
 
 describe('Debounce', () => {
   let clock

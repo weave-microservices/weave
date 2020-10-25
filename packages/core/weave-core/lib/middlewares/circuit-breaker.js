@@ -123,13 +123,12 @@ module.exports = () => {
 
   return {
     created () {
-      const options = this.options.circuitBreaker
       log = this.createLogger('circuit-breaker')
-
-      if (options.enabled) {
-        // registe metrics
-
-        createWindowTimer(options.windowTime)
+    },
+    started () {
+      const { enabled, windowTime } = this.options.circuitBreaker
+      if (enabled) {
+        createWindowTimer(windowTime)
       }
     },
     localAction: wrapCircuitBreakerMiddleware,

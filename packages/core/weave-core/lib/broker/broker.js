@@ -743,6 +743,10 @@ const createBroker = (options = {}) => {
     broker.createService = middlewareHandler.wrapMethod('createService', broker.createService)
   }
 
+  if (isFunction(options.beforeRegisterMiddlewares)) {
+    options.beforeRegisterMiddlewares.call(broker)
+  }
+
   registerMiddlewares(options.middlewares)
 
   // Stop the broker greaceful

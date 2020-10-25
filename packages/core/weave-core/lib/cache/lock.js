@@ -1,4 +1,4 @@
-module.exports = function createLock () {
+exports.ttlcreateLock = () => {
   const locked = new Map()
   return {
     acquire (key, ttl) {
