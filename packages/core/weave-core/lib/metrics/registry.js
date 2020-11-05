@@ -4,6 +4,7 @@ const MetricTypes = require('./types')
 module.exports = (broker, options) => {
   return {
     broker,
+    options,
     log: broker.createLogger('Metrics'),
     init () {
       this.storage = new Map()

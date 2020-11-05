@@ -1,14 +1,26 @@
 const BaseMetricType = require('./base')
 
-module.exports = class Info extends BaseMetricType {
-  constructor (store, obj) {
-    super(store, obj)
-    this.values = new Map()
+module.exports = class Histogram extends BaseMetricType {
+  constructor (registry, obj) {
+    super(registry, obj)
     this.value = 0
+
+    // create default buckets
+    if (obj.buckets) {
+      this.buckets = registry.options.defaultBuckets
+    }
+
+    this.buckets = this.buckets.sort((a, b) => a - b)
   }
 
-  increment (labels, value, timestamp) {
-    const item = this.get(labels)
+  observe (value, labels, timestamp) {
+    const labelString = this.stringifyLabels(labels)
+
+    const item = this.values.get(labelString)
+
+    if (!value) {
+
+    }
 
     this.set(labels, (item ? item.value : 0) + value)
   }

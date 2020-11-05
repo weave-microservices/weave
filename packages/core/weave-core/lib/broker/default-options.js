@@ -176,7 +176,8 @@ exports.getDefaultOptions = () => ({
   loadInternalMiddlewares: true,
   metrics: {
     enabled: false,
-    adapters: []
+    adapters: [],
+    defaultBuckets: [1, 5, 10, 20, 25, 30, 50, 100, 250, 500, 1000, 2500, 5000, 10000]
   },
   // broker middelwares
   middlewares: null,

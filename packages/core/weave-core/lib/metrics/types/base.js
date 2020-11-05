@@ -1,27 +1,33 @@
 module.exports = class BaseMetricType {
-  constructor (storage, obj) {
+  constructor (registry, obj) {
+    this.registry = registry
     this.name = obj.name
     this.description = obj.description
+    this.values = new Map()
     this.labels = obj.labels || []
     this.type = obj.type
   }
 
   stringifyLabels (labels) {
-    if (this.labels.length === 0 || labels === null) {
+    if (this.labels.length === 0 || labels === null || typeof labels !== 'object') {
       return ''
     }
 
     const parts = []
 
-    labels.forEach(label => {
-      if (typeof label === 'number') {
-        parts.push(label)
-      } else if (typeof label === 'string') {
-        parts.push(label)
+    this.labels.forEach(labelName => {
+      const value = labels[labelName]
+      if (typeof value === 'number') {
+        parts.push(value)
+      } else if (typeof value === 'string') {
+        parts.push(value)
+      } else if (typeof value === 'boolean') {
+        parts.push('' + value)
       } else {
         parts.push('')
       }
     })
+
     return parts.join('|')
   }
 
