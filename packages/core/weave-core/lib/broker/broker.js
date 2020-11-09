@@ -168,6 +168,7 @@ const createBroker = (options = {}) => {
         delete require.cache[key]
       }
     })
+
     // Service has changed - 1. destroy the service, then reload it
     destroyService(service)
       .then(() => broker.loadService(filename))
