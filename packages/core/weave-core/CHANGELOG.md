@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.8.0-alpha.7](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.8.0-alpha.6...@weave-js/core@0.8.0-alpha.7) (2020-11-09)
+
+
+### Features
+
+* Added custom UUID generator function in Options ([2aed695](https://github.com/fachw3rk/weave/commit/2aed695a0075d0a445b500393243f1fea9633e0f))
+
+
+
+
+
 # [0.8.0-alpha.6](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.8.0-alpha.5...@weave-js/core@0.8.0-alpha.6) (2020-10-01)
 
 **Note:** Version bump only for package @weave-js/core

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.8.0-alpha.2](https://github.com/weave-microservices/weave/compare/@weave-js/validator@0.8.0-alpha.1...@weave-js/validator@0.8.0-alpha.2) (2020-11-09)
+
+
+### Features
+
+* Added a mulit value type ([2bcadcc](https://github.com/weave-microservices/weave/commit/2bcadccf03f6da6568627b2468c7650d85131b43))
+
+
+
+
+
 # [0.8.0-alpha.1](https://github.com/weave-microservices/weave/compare/@weave-js/validator@0.7.0-rc.5...@weave-js/validator@0.8.0-alpha.1) (2020-10-01)
 
 **Note:** Version bump only for package @weave-js/validator
