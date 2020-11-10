@@ -17,6 +17,7 @@ const createMessageHandler = require('./message-handlers')
  * @returns {Transport} transport
  */
 exports.createTransport = (broker, adapter) => {
+  const transport = Object.create(null)
   let heartbeatTimer
   let checkNodesTimer
   let checkOfflineNodesTimer
@@ -69,7 +70,6 @@ exports.createTransport = (broker, adapter) => {
     }
 
     const message = transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload)
-
     return transport.send(message)
       .then(() => {
         if (isStream) {
@@ -104,247 +104,282 @@ exports.createTransport = (broker, adapter) => {
       })
   }
 
-  const transport = {
-    log: broker.createLogger('TRANSPORT'),
-    isConnected: false,
-    isReady: false,
-    pending,
-    resolveConnect: null,
-    adapterName: adapter.name,
-    statistics: {
-      received: {
-        packages: 0
-      },
-      sent: {
-        packages: 0
-      }
+  transport.log = broker.createLogger('TRANSPORT')
+  transport.isConnected = false
+  transport.isReady = false
+  transport.pending = pending
+  transport.resolveConnect = null
+  transport.adapterName = adapter.name
+
+  transport.statistics = {
+    received: {
+      packages: 0
     },
-    connect () {
-      return new Promise(resolve => {
-        this.resolveConnect = resolve
-        this.log.info('Connecting to transport adapter...')
+    sent: {
+      packages: 0
+    }
+  }
 
-        const doConnect = (isTryReconnect) => {
-          const errorHandler = error => {
-            this.log.warn('Connection failed')
-            this.log.debug('Error ' + error.message)
+  transport.connect = () => {
+    return new Promise(resolve => {
+      transport.resolveConnect = resolve
+      transport.log.info('Connecting to transport adapter...')
 
-            if (!error.skipRetry) {
-              setTimeout(() => {
-                this.log.info('Reconnecting')
-                doConnect(true)
-              }, 5 * 1000)
-            }
+      const doConnect = (isTryReconnect) => {
+        const errorHandler = error => {
+          transport.log.warn('Connection failed')
+          transport.log.debug('Error ' + error.message)
+
+          if (!error.skipRetry) {
+            setTimeout(() => {
+              transport.log.info('Reconnecting')
+              doConnect(true)
+            }, 5 * 1000)
           }
-          return adapter
-            .connect(isTryReconnect, errorHandler)
-            .catch(errorHandler)
         }
-
-        doConnect(false)
-      })
-    },
-    disconnect () {
-      broker.broadcastLocal('$transporter.disconnected', { isGracefull: true })
-
-      this.isConnected = false
-      this.isReady = false
-
-      stopTimers()
-
-      return this.send(this.createMessage(MessageTypes.MESSAGE_DISCONNECT))
-        .then(() => adapter.close())
-    },
-    setReady () {
-      if (this.isConnected) {
-        this.isReady = true
-        this.sendNodeInfo()
-      }
-    },
-    sendNodeInfo (sender) {
-      if (!transport.isConnected || !transport.isReady) {
-        return Promise.resolve()
+        return adapter
+          .connect(isTryReconnect, errorHandler)
+          .catch(errorHandler)
       }
 
-      const info = broker.registry.getLocalNodeInfo()
-      return this.send(this.createMessage(MessageTypes.MESSAGE_INFO, sender, info))
-    },
-    /**
-      *
-      * Send a message
-      * @param {Message} message Message to send
-      * @returns {Promise} Promise
-    */
-    send (message) {
-      this.statistics.sent.packages = this.statistics.sent.packages + 1
-      log.trace(`Send ${message.type.toUpperCase()} packet to ${message.targetNodeId || 'all nodes'}`)
-      return adapter.preSend(message)
-    },
-    sendPing (nodeId) {
-      return this.send(this.createMessage(MessageTypes.MESSAGE_PING, nodeId, { dispatchTime: Date.now() }))
-    },
-    discoverNodes () {
-      this.send(this.createMessage(MessageTypes.MESSAGE_DISCOVERY))
-    },
-    discoverNode (target) {
-      this.send(this.createMessage(MessageTypes.MESSAGE_DISCOVERY, target))
-    },
-    sendBalancedEvent (eventName, data, nodeGroups) {
-      Object.keys(nodeGroups)
-        .map(nodeId => [nodeId, nodeGroups[nodeId]])
-        .map(([nodeId, groups]) => {
-          this.send(this.createMessage(MessageTypes.MESSAGE_EVENT, nodeId, {
-            data,
-            eventName,
-            groups,
-            isBroadcast: false
-          }))
-        })
-    },
-    sendEvent (context) {
-      const isBroadcast = context.eventType === 'broadcast'
-      return this.send(this.createMessage(MessageTypes.MESSAGE_EVENT, context.endpoint ? context.nodeId : null, {
-        data: context.data,
-        eventName: context.eventName,
-        groups: context.eventGroups,
-        options: context.options,
-        isBroadcast
-      }))
-      // const nodeGroups = context.nodeGroups
-      // Object.keys(nodeGroups)
-      //   .map(nodeId => [nodeId, nodeGroups[nodeId]])
-      //   .map(([nodeId, groups]) => {
-      //     this.send(this.createMessage(MessageTypes.MESSAGE_EVENT, nodeId, {
-      //       data,
-      //       eventName,
-      //       groups,
-      //       isBroadcast: false
-      //     }))
-      //   })
-    },
-    sendBroadcastEvent (nodeId, eventName, data, groups) {
-      log.trace(`Send ${eventName} to ${nodeId}`)
-      this.send(this.createMessage(MessageTypes.MESSAGE_EVENT, nodeId, {
-        data,
-        eventName,
-        groups,
-        isBroadcast: true
-      }))
-    },
-    removePendingRequestsById (requestId) {
-      pending.requests.delete(requestId)
+      doConnect(false)
+    })
+  }
+
+  transport.disconnect = () => {
+    broker.broadcastLocal('$transporter.disconnected', { isGracefull: true })
+
+    transport.isConnected = false
+    transport.isReady = false
+
+    stopTimers()
+
+    const message = transport.createMessage(MessageTypes.MESSAGE_DISCONNECT)
+    return transport.send(message)
+      .then(() => adapter.close())
+  }
+
+  transport.setReady = () => {
+    if (transport.isConnected) {
+      transport.isReady = true
+      transport.sendNodeInfo()
+    }
+  }
+
+  /**
+   * Send node informations.
+   * @param {*} sender sender node ID.
+   * @returns {Promise} Promise
+  */
+  transport.sendNodeInfo = (sender) => {
+    if (!transport.isConnected || !transport.isReady) {
+      return Promise.resolve()
+    }
+
+    const info = broker.registry.getLocalNodeInfo()
+    const message = transport.createMessage(MessageTypes.MESSAGE_INFO, sender, info)
+    return transport.send(message)
+  }
+
+  /**
+  * Send a message
+  * @param {Message} message Message to send
+  * @returns {Promise} Promise
+  */
+  transport.send = (message) => {
+    transport.statistics.sent.packages = transport.statistics.sent.packages + 1
+    log.trace(`Send ${message.type.toUpperCase()} packet to ${message.targetNodeId || 'all nodes'}`)
+    return adapter.preSend(message)
+  }
+
+  transport.sendPing = (nodeId) => {
+    const pingMessage = transport.createMessage(MessageTypes.MESSAGE_PING, nodeId, { dispatchTime: Date.now() })
+    return transport.send(pingMessage)
+  }
+
+  transport.discoverNodes = () => {
+    const discoveryMessage = transport.createMessage(MessageTypes.MESSAGE_DISCOVERY)
+    transport.send(discoveryMessage)
+  }
+
+  transport.discoverNode = (target) => {
+    const discoveryMessage = transport.createMessage(MessageTypes.MESSAGE_DISCOVERY, target)
+    transport.send(discoveryMessage)
+  }
+
+  // transport.sendBalancedEvent = (eventName, data, nodeGroups) => {
+  //   Object.keys(nodeGroups)
+  //     .map(nodeId => [nodeId, nodeGroups[nodeId]])
+  //     .map(([nodeId, groups]) => {
+  //       const payload = {
+  //         data,
+  //         eventName,
+  //         groups,
+  //         isBroadcast: false
+  //       }
+
+  //       const message = transport.createMessage(MessageTypes.MESSAGE_EVENT, nodeId, payload)
+
+  //       transport.send(message)
+  //     })
+  // }
+
+  transport.sendEvent = (context) => {
+    const isBroadcast = context.eventType === 'broadcast'
+
+    const payload = {
+      data: context.data,
+      eventName: context.eventName,
+      groups: context.eventGroups,
+      // options: context.options,
+      meta: context.meta,
+      level: context.level,
+      metrics: context.metrics,
+      requestId: context.requestId,
+      parentId: context.parentId,
+      isBroadcast
+    }
+
+    const message = transport.createMessage(MessageTypes.MESSAGE_EVENT, context.endpoint ? context.nodeId : null, payload)
+    return transport.send(message)
+  }
+
+  transport.sendBroadcastEvent = (nodeId, eventName, data, groups) => {
+    log.trace(`Send ${eventName} to ${nodeId}`)
+
+    const payload = {
+      data,
+      eventName,
+      groups,
+      isBroadcast: true
+    }
+
+    const message = transport.createMessage(MessageTypes.MESSAGE_EVENT, nodeId, payload)
+    transport.send(message)
+  }
+
+  transport.removePendingRequestsById = (requestId) => {
+    pending.requests.delete(requestId)
+    pending.requestStreams.delete(requestId)
+    pending.responseStreams.delete(requestId)
+  }
+
+  transport.removePendingRequestsByNodeId = (nodeId) => {
+    log.debug(`Remove pending requests for node ${nodeId}.`)
+    pending.requests.forEach((request, requestId) => {
+      if (request.nodeId === nodeId) {
+        pending.requests.delete(requestId)
+      }
+      request.reject(new WeaveError(`Remove pending requests for node ${nodeId}.`))
+
       pending.requestStreams.delete(requestId)
       pending.responseStreams.delete(requestId)
-    },
-    removePendingRequestsByNodeId (nodeId) {
-      log.debug(`Remove pending requests for node ${nodeId}.`)
-      pending.requests.forEach((request, requestId) => {
-        if (request.nodeId === nodeId) {
-          pending.requests.delete(requestId)
-        }
-        request.reject(new WeaveError(`Remove pending requests for node ${nodeId}.`))
+    })
+  }
 
-        pending.requestStreams.delete(requestId)
-        pending.responseStreams.delete(requestId)
-      })
-    },
-    createMessage (type, targetNodeId, payload) {
-      return {
-        type: type || MessageTypes.MESSAGE_UNKNOWN,
-        targetNodeId,
-        payload: payload || {}
-      }
-    },
-    request (context) {
-      // If the queue size is set, check the queue size and reject the job when the limit is reached.
-      if (broker.options.transport.maxQueueSize && broker.options.transport.maxQueueSize < pending.requests.size) {
-        return Promise.reject(new WeaveQueueSizeExceededError({
-          action: context.action.name,
-          limit: broker.options.transport.maxQueueSize,
-          nodeId: context.nodeId,
-          size: pending.requests.size
-        }))
-      }
-
-      return new Promise((resolve, reject) => doRequest(context, resolve, reject))
-    },
-    response (target, contextId, data, meta, error) {
-      // Check if data is a stream
-      const isStream = utils.isStream(data)
-      const payload = {
-        id: contextId,
-        meta,
-        data,
-        success: error == null
-      }
-
-      if (error) {
-        payload.error = {
-          name: error.name,
-          message: error.message,
-          nodeId: error.nodeId || nodeId,
-          code: error.code,
-          type: error.type,
-          stack: error.stack,
-          data: error.data
-        }
-      }
-
-      if (isStream) {
-        const stream = data
-        payload.sequence = 0
-        payload.isStream = true
-
-        if (utils.isStreamObjectMode(data)) {
-          payload.meta = payload.meta || {}
-          payload.meta.$isObjectModeStream = true
-        }
-
-        stream.pause()
-        this.log.debug('Send new stream chunk to ', target)
-
-        stream.on('data', chunk => {
-          const payloadCopy = Object.assign({}, payload)
-          payloadCopy.sequence = ++payload.sequence
-          payloadCopy.data = chunk
-          this.log.debug('Send Stream chunk to ', target)
-          stream.pause()
-          return this.send(this.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy))
-            .then(() => stream.resume())
-        })
-
-        stream.on('end', () => {
-          const payloadCopy = Object.assign({}, payload)
-
-          payloadCopy.sequence = ++payload.sequence
-          payloadCopy.data = null
-          payloadCopy.isStream = false
-
-          this.log.debug('Send end stream chunk to ', target)
-          this.send(this.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy))
-        })
-
-        stream.on('error', (error) => {
-          const payloadCopy = Object.assign({}, payload)
-
-          payloadCopy.sequence = ++payload.sequence
-          payloadCopy.isStream = false
-
-          if (error) {
-            payloadCopy.success = false
-          }
-
-          this.send(this.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy))
-        })
-
-        payload.data = null
-
-        return this.send(this.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payload))
-          .then(() => stream.resume())
-      }
-
-      return this.send(this.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payload))
+  transport.createMessage = (type, targetNodeId, payload) => {
+    return {
+      type: type || MessageTypes.MESSAGE_UNKNOWN,
+      targetNodeId,
+      payload: payload || {}
     }
+  }
+
+  transport.request = (context) => {
+    // If the queue size is set, check the queue size and reject the job when the limit is reached.
+    if (broker.options.transport.maxQueueSize && broker.options.transport.maxQueueSize < pending.requests.size) {
+      return Promise.reject(new WeaveQueueSizeExceededError({
+        action: context.action.name,
+        limit: broker.options.transport.maxQueueSize,
+        nodeId: context.nodeId,
+        size: pending.requests.size
+      }))
+    }
+
+    return new Promise((resolve, reject) => doRequest(context, resolve, reject))
+  }
+
+  transport.response = (target, contextId, data, meta, error) => {
+    // Check if data is a stream
+    const isStream = utils.isStream(data)
+    const payload = {
+      id: contextId,
+      meta,
+      data,
+      success: error == null
+    }
+
+    if (error) {
+      payload.error = {
+        name: error.name,
+        message: error.message,
+        nodeId: error.nodeId || nodeId,
+        code: error.code,
+        type: error.type,
+        stack: error.stack,
+        data: error.data
+      }
+    }
+
+    if (isStream) {
+      const stream = data
+      payload.sequence = 0
+      payload.isStream = true
+
+      if (utils.isStreamObjectMode(data)) {
+        payload.meta = payload.meta || {}
+        payload.meta.$isObjectModeStream = true
+      }
+
+      stream.pause()
+      transport.log.debug('Send new stream chunk to ', target)
+
+      stream.on('data', chunk => {
+        const payloadCopy = Object.assign({}, payload)
+        payloadCopy.sequence = ++payload.sequence
+        payloadCopy.data = chunk
+        transport.log.debug('Send Stream chunk to ', target)
+        stream.pause()
+
+        const message = transport.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy)
+
+        return transport.send(message)
+          .then(() => stream.resume())
+      })
+
+      stream.on('end', () => {
+        const payloadCopy = Object.assign({}, payload)
+
+        payloadCopy.sequence = ++payload.sequence
+        payloadCopy.data = null
+        payloadCopy.isStream = false
+
+        transport.log.debug('Send end stream chunk to ', target)
+        const message = transport.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy)
+        transport.send(message)
+      })
+
+      stream.on('error', (error) => {
+        const payloadCopy = Object.assign({}, payload)
+
+        payloadCopy.sequence = ++payload.sequence
+        payloadCopy.isStream = false
+
+        if (error) {
+          payloadCopy.success = false
+        }
+        const message = transport.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy)
+        transport.send(message)
+      })
+
+      payload.data = null
+      const message = transport.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payload)
+      return transport.send(message)
+        .then(() => stream.resume())
+    }
+
+    const message = transport.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payload)
+    return transport.send(message)
   }
 
   const onConnect = (wasReconnect, useHeartbeatTimer = true, useRemoteNodeCheckTimer = true, useOfflineCheckTimer = true) =>
@@ -456,11 +491,14 @@ exports.createTransport = (broker, adapter) => {
 
     log.trace(`Send heartbeat from ${node.id}`)
 
-    transport.send(transport.createMessage(MessageTypes.MESSAGE_HEARTBEAT, null, {
+    const payload = {
       cpu: node.cpu,
       cpuSequence: node.cpuSequence,
       sequence: node.sequence
-    }))
+    }
+
+    const message = transport.createMessage(MessageTypes.MESSAGE_HEARTBEAT, null, payload)
+    transport.send(message)
   }
 
   function checkRemoteNodes () {

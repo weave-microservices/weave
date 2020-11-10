@@ -17,7 +17,7 @@ const { WeaveError } = require('../errors')
  * @property {function():void} created Hook that is called after the service is created.
  * @property {function():promise} started Hook that is called before the service is started.
  * @property {function():promise} stopped Hook that is called before the service is stopped.
- */
+*/
 
 const createAction = (service, actionDefinition, name) => {
   let action = actionDefinition

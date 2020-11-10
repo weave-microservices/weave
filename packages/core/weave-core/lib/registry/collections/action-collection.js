@@ -12,81 +12,90 @@ const { createEndpointList } = require('./endpoint-collection')
  * @typedef {Object} ActionCollection
  * @property {Function} add Enable metric middleware. (default = false)
  * @property {Array<String|Object>} adapters Array of metric adapters.
- */
+*/
 
 /**
  * Create an action collection.
  * @param {any} registry Reference to the registry.
  * @returns {ActionCollection} Action collection
- */
+*/
 exports.createActionCollection = (registry) => {
+  const actionCollection = Object.create(null)
   const broker = registry.broker
   const actions = new Map()
 
-  return {
-    add (node, service, action) {
-      let endPointList = actions.get(action.name)
-      if (!endPointList) {
-        endPointList = createEndpointList(broker, action.name)
-        actions.set(action.name, endPointList)
-      }
-      return endPointList.add(node, service, action)
-    },
-    get (actionName) {
-      return actions.get(actionName)
-    },
-    removeByService (service) {
-      actions.forEach(list => {
-        list.removeByService(service)
-      })
-    },
-    remove (actionName, node) {
-      // todo: switch property order
-      const endpoints = actions.get(actionName)
-      if (endpoints) {
-        endpoints.removeByNodeId(node.id)
-      }
-    },
-    list ({ onlyLocals = false, skipInternals = false, withEndpoints = false }) {
-      const result = []
-      actions.forEach(action => {
-        if (skipInternals && /^\$node/.test(action.name)) {
-          return
-        }
+  actionCollection.add = (node, service, action) => {
+    let endPointList = actions.get(action.name)
+    if (!endPointList) {
+      endPointList = createEndpointList(broker, action.name)
+      actions.set(action.name, endPointList)
+    }
+    return endPointList.add(node, service, action)
+  }
 
-        if (onlyLocals && !action.hasLocal()) {
-          return
-        }
+  actionCollection.get = (actionName) => {
+    return actions.get(actionName)
+  }
 
-        const item = {
-          name: action.name,
-          hasAvailable: action.hasAvailable(),
-          hasLocal: action.hasLocal(),
-          count: action.count(),
-          params: action.params
-        }
+  actionCollection.removeByService = (service) => {
+    actions.forEach(list => {
+      list.removeByService(service)
+    })
+  }
 
-        if (item.count > 0) {
-          const endpoint = action.endpoints[0]
-          if (endpoint) {
-            item.action = omit(endpoint.action, ['handler', 'service'])
-          }
-        }
-        if (item.action == null || item.action.protected) {
-          return
-        }
-
-        if (withEndpoints) {
-          item.endpoints = action.endpoints.map(endpoint => {
-            return {
-              nodeId: endpoint.node.id,
-              state: endpoint.state
-            }
-          })
-        }
-        result.push(item)
-      })
-      return result
+  actionCollection.remove = (actionName, node) => {
+    // todo: switch property order
+    const endpoints = actions.get(actionName)
+    if (endpoints) {
+      endpoints.removeByNodeId(node.id)
     }
   }
+
+  actionCollection.list = ({ onlyLocals = false, skipInternals = false, withEndpoints = false } = {}) => {
+    const result = []
+
+    actions.forEach(action => {
+      if (skipInternals && /^\$node/.test(action.name)) {
+        return
+      }
+
+      if (onlyLocals && !action.hasLocal()) {
+        return
+      }
+
+      // todo: don't create an new object
+      const item = {
+        name: action.name,
+        hasAvailable: action.hasAvailable(),
+        hasLocal: action.hasLocal(),
+        count: action.count(),
+        params: action.params
+      }
+
+      if (item.count > 0) {
+        const endpoint = action.endpoints[0]
+        if (endpoint) {
+          item.action = omit(endpoint.action, ['handler', 'service'])
+        }
+      }
+
+      if (item.action == null || item.action.protected) {
+        return
+      }
+
+      if (withEndpoints) {
+        item.endpoints = action.endpoints.map(endpoint => {
+          return {
+            nodeId: endpoint.node.id,
+            state: endpoint.state
+          }
+        })
+      }
+
+      result.push(item)
+    })
+    return result
+  }
+
+  return actionCollection
 }

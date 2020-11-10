@@ -16,7 +16,7 @@ const figures = require('figures')
 
 // own modules
 const defaultTypes = require('./types')
-const { isStreamObjectMode } = require('@weave-js/utils')
+// const { isStreamObjectMode } = require('@weave-js/utils')
 const { gray, underline, grey, dim } = kleur
 
 // log levels
@@ -78,6 +78,7 @@ exports.createDefaultLogger = (options, bindings) => {
     } else if (bindings.moduleName) {
       module = bindings.moduleName
     }
+
     return `${bindings.nodeId}/${module}`
   }
 
@@ -91,7 +92,6 @@ exports.createDefaultLogger = (options, bindings) => {
     Error.prepareStackTrace = tempStackTrace
 
     const callers = stack.map(x => x.getFileName())
-
     const firstExternalFilePath = callers.find(x => x !== callers[0])
 
     return firstExternalFilePath ? path.basename(firstExternalFilePath) : 'anonymous'

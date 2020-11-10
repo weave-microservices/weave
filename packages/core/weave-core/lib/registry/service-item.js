@@ -5,33 +5,34 @@
  */
 'use strict'
 
+// todo: find a better name
 exports.createServiceItem = (node, name, version, settings, local) => {
-  const self = Object.create(null)
+  const serviceItem = Object.create(null)
 
-  self.name = name
-  self.node = node
-  self.settings = settings || {}
-  self.version = version
-  self.actions = {}
-  self.events = {}
-  self.isLocal = local
+  serviceItem.name = name
+  serviceItem.node = node
+  serviceItem.settings = settings || {}
+  serviceItem.version = version
+  serviceItem.actions = {}
+  serviceItem.events = {}
+  serviceItem.isLocal = local
 
-  self.addAction = (action) => {
-    self.actions[action.name] = action
+  serviceItem.addAction = (action) => {
+    serviceItem.actions[action.name] = action
   }
 
-  self.addEvent = (event) => {
-    self.events[event.name] = event
+  serviceItem.addEvent = (event) => {
+    serviceItem.events[event.name] = event
   }
 
-  self.equals = (name, version, nodeId) => {
-    return self.name === name && self.version === version && (nodeId == null || self.node.id === nodeId)
+  serviceItem.equals = (name, version, nodeId) => {
+    return serviceItem.name === name && serviceItem.version === version && (nodeId == null || serviceItem.node.id === nodeId)
   }
 
-  self.update = (service) => {
-    self.settings = service.settings
-    self.version = service.version
+  serviceItem.update = (service) => {
+    serviceItem.settings = service.settings
+    serviceItem.version = service.version
   }
 
-  return self
+  return serviceItem
 }

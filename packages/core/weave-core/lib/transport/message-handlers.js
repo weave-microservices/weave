@@ -197,7 +197,10 @@ module.exports = (broker, transport, pending) => {
     context.metrics = payload.metrics
     context.level = payload.level
     context.callerNodeId = payload.sender
-    context.options.timeout = payload.options.timeout || broker.options.requestTimeout || 0
+    
+    if (payload.timeout) {
+      context.options.timeout = payload.timeout
+    }
 
     // add event infos
     context.eventName = payload.eventName

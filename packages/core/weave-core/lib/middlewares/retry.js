@@ -15,7 +15,7 @@ const wrapRetryMiddleware = function (handler, action) {
   if (options.enabled) {
     // Return middlware handler
     return function retryMiddleware (context) {
-      // if the context has no retry count - set it to zero.
+      // if the context has no repeat count, set it to zero.
       if (context.retryCount === undefined) {
         context.retryCount = 0
       }

@@ -5,22 +5,22 @@
  */
 
 exports.createEventEndpoint = (broker, node, service, event) => {
-  const self = Object.create(null)
+  const eventEndpoint = Object.create(null)
 
-  self.node = node
-  self.service = service
-  self.event = event
-  self.isLocal = self.node.id === broker.nodeId
-  self.state = true
-  self.name = `${node.id}:${event.name}`
+  eventEndpoint.node = node
+  eventEndpoint.service = service
+  eventEndpoint.event = event
+  eventEndpoint.isLocal = eventEndpoint.node.id === broker.nodeId
+  eventEndpoint.state = true
+  eventEndpoint.name = `${node.id}:${event.name}`
 
-  self.updateEvent = (newEvent) => {
-    self.event = newEvent
+  eventEndpoint.updateEvent = (newEvent) => {
+    eventEndpoint.event = newEvent
   }
 
-  self.isAvailable = () => {
-    return self.state
+  eventEndpoint.isAvailable = () => {
+    return eventEndpoint.state
   }
 
-  return self
+  return eventEndpoint
 }

@@ -90,16 +90,6 @@ const wrapTracingLocalEventMiddleware = function (handler, event) {
   return handler
 }
 
-// const wrapTracingEventMiddleware = function (handler, action) {
-//     const broker = this
-
-//     return function metricsRemoteMiddleware (context) {
-//         console.log(context.requestId)
-//         console.log(context.parentId)
-//         return handler(context)
-//     }
-// }
-
 module.exports = (broker) => {
   return {
     localAction: wrapTracingLocalActionMiddleware,
