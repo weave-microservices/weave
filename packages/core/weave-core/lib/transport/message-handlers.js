@@ -197,7 +197,7 @@ module.exports = (broker, transport, pending) => {
     context.metrics = payload.metrics
     context.level = payload.level
     context.callerNodeId = payload.sender
-    
+
     if (payload.timeout) {
       context.options.timeout = payload.timeout
     }
@@ -207,10 +207,9 @@ module.exports = (broker, transport, pending) => {
     context.eventType = payload.isBroadcast ? 'broadcast' : 'emit'
 
     return registry.events.emitLocal(context)
-
-    // return registry.events.emitLocal(payload.eventName, payload.data, payload.sender, payload.groups, payload.isBroadcast)
   }
 
+  // Disconnected message handöer
   const onDisconnect = payload => {
     return registry.nodeDisconnected(payload.sender, false)
   }

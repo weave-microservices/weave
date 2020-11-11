@@ -66,11 +66,11 @@ module.exports = (broker, options) => {
       item.decrement(labels, value, timestamp)
     },
     timer (name, labels, timestamp) {
-      const item = this.storage.get(name)
-      if (item) {
+      // const item = this.storage.get(name)
+      // if (item) {
 
-      }
-      item.observe(labels, value, timestamp)
+      // }
+      // item.observe(labels, value, timestamp)
     },
     getMetric (name) {
       const item = this.storage.get(name)

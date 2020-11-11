@@ -207,23 +207,6 @@ exports.createTransport = (broker, adapter) => {
     transport.send(discoveryMessage)
   }
 
-  // transport.sendBalancedEvent = (eventName, data, nodeGroups) => {
-  //   Object.keys(nodeGroups)
-  //     .map(nodeId => [nodeId, nodeGroups[nodeId]])
-  //     .map(([nodeId, groups]) => {
-  //       const payload = {
-  //         data,
-  //         eventName,
-  //         groups,
-  //         isBroadcast: false
-  //       }
-
-  //       const message = transport.createMessage(MessageTypes.MESSAGE_EVENT, nodeId, payload)
-
-  //       transport.send(message)
-  //     })
-  // }
-
   transport.sendEvent = (context) => {
     const isBroadcast = context.eventType === 'broadcast'
 
@@ -231,7 +214,6 @@ exports.createTransport = (broker, adapter) => {
       data: context.data,
       eventName: context.eventName,
       groups: context.eventGroups,
-      // options: context.options,
       meta: context.meta,
       level: context.level,
       metrics: context.metrics,
