@@ -37,7 +37,7 @@
     "rimraf": "^3.0.2",
     "update-notifier": "^4.1.0",
     "user-home": "^2.0.0",
-    "yargs": "^15.4.1"
+    "yargs": "^16.2.0"
   },
   "gitHead": "266c531bb9c7f56f2578c09259b8413357db8538",
   "devDependencies": {
