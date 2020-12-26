@@ -168,6 +168,7 @@ exports.getDefaultOptions = () => ({
     maxOfflineTime: 1000 * 60 * 10,
     maxPacketSize: -1
   },
+  errorHandler: null,
   // load $node service
   loadNodeService: true,
   // load Internal service actions

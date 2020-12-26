@@ -47,19 +47,19 @@ exports.createCacheBase = (broker, options) => {
     log: broker.createLogger('CACHER'),
     set (/* hashKey, result, ttl */) {
       /* istanbul ignore next */
-      throw new Error('Method not implemented.')
+      broker.handleError(new Error('Method not implemented.'))
     },
     get (/* hashKey */) {
       /* istanbul ignore next */
-      throw new Error('Method not implemented.')
+      broker.handleError(new Error('Method not implemented.'))
     },
     remove () {
       /* istanbul ignore next */
-      throw new Error('Method not implemented.')
+      broker.handleError(new Error('Method not implemented.'))
     },
     clear () {
       /* istanbul ignore next */
-      throw new Error('Method not implemented.')
+      broker.handleError(new Error('Method not implemented.'))
     },
     stop () {
       /* istanbul ignore next */

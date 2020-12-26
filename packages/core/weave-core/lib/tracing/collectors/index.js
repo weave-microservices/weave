@@ -11,7 +11,7 @@ const getByName = name => {
   return collectors[n]
 }
 
-exports.resolveCollector = (collector, tracer) => {
+exports.resolveCollector = (broker, collector, tracer) => {
   let CollectorClass
   if (typeof collector === 'string') {
     CollectorClass = getByName(collector)
@@ -22,7 +22,7 @@ exports.resolveCollector = (collector, tracer) => {
   }
 
   if (!CollectorClass) {
-    throw new Error('Tracer not found')
+    broker.handleError(new Error('Tracer not found'))
   }
 
   return new CollectorClass(collector)

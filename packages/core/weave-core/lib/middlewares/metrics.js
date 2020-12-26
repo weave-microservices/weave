@@ -28,7 +28,7 @@ module.exports = () => {
           .catch(error => {
             broker.metrics.decrement(Constants.REQUESTS_IN_FLIGHT, { type, serviceName, actionName, callerNodeId })
             broker.metrics.increment(Constants.REQUESTS_ERRORS_TOTAL)
-            throw error
+            broker.handleError(error)
           })
       }
     }

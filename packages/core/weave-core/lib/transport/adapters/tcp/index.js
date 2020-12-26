@@ -50,9 +50,11 @@ module.exports = function SwimTransport (adapterOptions) {
 
   self.send = (message) => {
     if (!message.targetNodeId || ![
+      MessageTypes.MESSAGE_PING,
+      MessageTypes.MESSAGE_PONG,
+      MessageTypes.MESSAGE_EVENT,
       MessageTypes.MESSAGE_REQUEST,
       MessageTypes.MESSAGE_RESPONSE,
-      MessageTypes.MESSAGE_EVENT,
       MessageTypes.MESSAGE_GOSSIP_HELLO,
       MessageTypes.MESSAGE_GOSSIP_REQUEST,
       MessageTypes.MESSAGE_GOSSIP_RESPONSE

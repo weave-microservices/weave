@@ -236,14 +236,14 @@ module.exports = (broker, transport, pending) => {
   return (type, data) => {
     try {
       if (data === null) {
-        throw new WeaveError('Packet missing!')
+        broker.handleError(new WeaveError('Packet missing!'))
       }
 
       const message = data
       const payload = message.payload
 
       if (!payload) {
-        throw new WeaveError('Message payload missing!')
+        broker.handleError(new WeaveError('Message payload missing!'))
       }
 
       // skip own packages

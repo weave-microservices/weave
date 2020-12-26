@@ -11,7 +11,7 @@ module.exports = (broker, options) => {
 
       if (options.adapters) {
         if (!Array.isArray(options.adapters)) {
-          throw new Error('Metic adapter needs to be an Array')
+          broker.handleError(new Error('Metic adapter needs to be an Array'))
         }
 
         this.adapters = options.adapters.map(adapter => {
@@ -24,21 +24,21 @@ module.exports = (broker, options) => {
     },
     register (obj) {
       if (!isPlainObject(obj)) {
-        throw new Error('Param needs to be an object.')
+        broker.handleError(new Error('Param needs to be an object.'))
       }
 
       if (!obj.type) {
-        throw new Error('Type is missing.')
+        broker.handleError(new Error('Type is missing.'))
       }
 
       if (!obj.name) {
-        throw new Error('Name is missing.')
+        broker.handleError(new Error('Name is missing.'))
       }
 
       const MetricType = MetricTypes.resolve(obj.type)
 
       if (!MetricType) {
-        throw new Error('Unknown metric type.')
+        broker.handleError(new Error('Unknown metric type.'))
       }
 
       const type = new MetricType(this, obj)
@@ -51,7 +51,7 @@ module.exports = (broker, options) => {
       const item = this.storage.get(name)
 
       if (!item) {
-        throw new Error('Item not found.')
+        broker.handleError(new Error('Item not found.'))
       }
 
       item.increment(labels, value, timestamp)
@@ -60,7 +60,7 @@ module.exports = (broker, options) => {
       const item = this.storage.get(name)
 
       if (!item) {
-        throw new Error('Item not found.')
+        broker.handleError(new Error('Item not found.'))
       }
 
       item.decrement(labels, value, timestamp)
@@ -76,7 +76,7 @@ module.exports = (broker, options) => {
       const item = this.storage.get(name)
 
       if (!item) {
-        throw new Error('Item not found.')
+        broker.handleError(new Error('Item not found.'))
       }
 
       return item

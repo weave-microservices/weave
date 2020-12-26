@@ -49,16 +49,6 @@ const createBroker = (options = {}) => {
   // merge options with default options
   options = defaultsDeep(options, defaultOptions)
 
-  // started hook is set but is not type of function
-  if (options.started && typeof options.started !== 'function') {
-    throw new WeaveError('Started hook have to be a function.')
-  }
-
-  // stopped hook is set but is not type of function
-  if (options.stopped && typeof options.stopped !== 'function') {
-    throw new WeaveError('Stopped hook have to be a function.')
-  }
-
   // If no node id is set - create one.
   const nodeId = options.nodeId || `${os.hostname()}-${process.pid}`
 
@@ -226,6 +216,7 @@ const createBroker = (options = {}) => {
 
       if (endpoint instanceof Error) {
         return Promise.reject(endpoint)
+          .catch(error => this.handleError(error))
       }
 
       const action = endpoint.action
@@ -411,7 +402,7 @@ const createBroker = (options = {}) => {
         return newService
       } catch (error) {
         log.error(error)
-        throw error
+        this.handleError(error)
       }
     },
     /**
@@ -498,7 +489,7 @@ const createBroker = (options = {}) => {
             .catch(error => {
               this.log.error('Unable to start all services', error)
               clearInterval(options.waitForServiceInterval)
-              throw error
+              this.handleError(error)
             })
         })
         .then(() => {
@@ -512,7 +503,7 @@ const createBroker = (options = {}) => {
         })
         .then(() => middlewareHandler.callHandlersAsync('started', [this], true))
         .then(() => {
-          if (this.isStarted && options.started && isFunction(options.started)) {
+          if (this.isStarted && isFunction(options.started)) {
             options.started.call(this)
           }
         })
@@ -558,10 +549,8 @@ const createBroker = (options = {}) => {
         })
         .then(() => middlewareHandler.callHandlersAsync('stopped', [this], true))
         .then(() => {
-          if (!this.isStarted) {
-            if (options.stopped) {
-              options.stopped.call(this)
-            }
+          if (!this.isStarted && isFunction(options.stopped)) {
+            options.stopped.call(this)
           }
         })
         .then(() => {
@@ -637,6 +626,17 @@ const createBroker = (options = {}) => {
       }
       return Promise.resolve(nodeId ? null : [])
     },
+    /**
+     * Global error handler of the broker.
+     * @param {*} error Error
+     * @returns {void}
+     */
+    handleError (error) {
+      if (options.errorHandler) {
+        return options.errorHandler.call(broker, error)
+      }
+      throw error
+    },
     fatalError (message, error, killProcess = true) {
       if (options.logger.enabled) {
         log.fatal(message)
@@ -664,7 +664,7 @@ const createBroker = (options = {}) => {
   }
 
   if (options.transport.adapter) {
-    const adapter = TransportAdapters.resolve(options.transport)
+    const adapter = TransportAdapters.resolve(broker, options.transport)
     if (adapter) {
       broker.transport = createTransport(broker, adapter)
     }
@@ -740,8 +740,9 @@ const createBroker = (options = {}) => {
     broker.emit = middlewareHandler.wrapMethod('emit', broker.emit)
     broker.broadcast = middlewareHandler.wrapMethod('broadcast', broker.broadcast)
     broker.broadcastLocal = middlewareHandler.wrapMethod('broadcastLocal', broker.broadcastLocal)
-    broker.loadService = middlewareHandler.wrapMethod('loadService', broker.loadService)
     broker.createService = middlewareHandler.wrapMethod('createService', broker.createService)
+    broker.loadService = middlewareHandler.wrapMethod('loadService', broker.loadService)
+    broker.loadServices = middlewareHandler.wrapMethod('loadServices', broker.loadServices)
   }
 
   if (isFunction(options.beforeRegisterMiddlewares)) {
@@ -756,6 +757,9 @@ const createBroker = (options = {}) => {
     .catch(error => broker.log.error(error))
     .then(() => process.exit(0))
 
+  // if (!process.setMaxListeners) {
+  //   console.log(typeof process)
+  // }
   process.setMaxListeners(0)
   process.on('beforeExit', onClose)
   process.on('exit', onClose)

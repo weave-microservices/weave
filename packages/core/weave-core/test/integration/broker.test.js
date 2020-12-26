@@ -1,32 +1,6 @@
 const { Weave } = require('../../lib/index')
 
 describe('Test broker lifecycle', () => {
-  it('should verify that started hook is a fuction.', () => {
-    expect(() => {
-      Weave({
-        nodeId: 'node1',
-        logger: {
-          enabled: false,
-          logLevel: 'fatal'
-        },
-        started: {}
-      })
-    }).toThrow('Started hook have to be a function.')
-  })
-
-  it('should verify that stopped hook is a fuction.', () => {
-    expect(() => {
-      Weave({
-        nodeId: 'node1',
-        logger: {
-          enabled: false,
-          logLevel: 'fatal'
-        },
-        stopped: {}
-      })
-    }).toThrow('Stopped hook have to be a function.')
-  })
-
   it('should create a broker and call the started/stopped hook.', (done) => {
     const startedHook = jest.fn()
     const stoppedHook = jest.fn()
@@ -487,3 +461,59 @@ describe('Test maxCallLevel', () => {
       })
   })
 })
+
+describe('Error handler', () => {
+  const errorHandler = jest.fn()
+
+  const broker = Weave({
+    nodeId: 'node1',
+    errorHandler: errorHandler
+  })
+
+  broker.createService({
+    name: 'test',
+    actions: {
+      callAndThrowError (context) {
+        throw new Error('Something went wrong')
+      }
+    }
+  })
+  it('should call the global error handler', () => {
+    return broker.start()
+      .then(() => {
+        return broker.call('test.callAndThrowError')
+          .then(() => {
+            expect(errorHandler).toBeCalled()
+          })
+          // .catch((error) => {
+          //   expect(error.message).toBe('Something went wrongs')
+          //   done()
+          // })
+      })
+  })
+})
+
+describe('Error handler', () => {
+  const broker = Weave({
+    nodeId: 'node1'
+  })
+
+  broker.createService({
+    name: 'test',
+    actions: {
+      callAndThrowError (context) {
+        throw new Error('Something went wrong')
+      }
+    }
+  })
+  it('should call the global error handler', () => {
+    return broker.start()
+      .then(() => {
+        return broker.call('test.callAndThrowError')
+          .catch((error) => {
+            expect(error.message).toBe('Something went wrong')
+          })
+      })
+  })
+})
+

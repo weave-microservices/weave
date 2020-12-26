@@ -7,7 +7,7 @@ exports.loadServices = (broker, param) => {
     const servicePath = path.isAbsolute(servicePathParam) ? servicePathParam : path.resolve(process.cwd(), servicePathParam)
 
     if (!fs.existsSync(servicePath)) {
-      throw new Error(`Path not found: ${servicePath}`)
+      broker.handleError(new Error(`Path not found: ${servicePath}`))
     }
 
     const isDir = fs.lstatSync(servicePath).isDirectory()

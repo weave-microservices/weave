@@ -28,7 +28,7 @@ function handleResult (result, args) {
       fs.createWriteStream(filePath).pipe(result)
     } else {
       const data = isObject(result) ? JSON.stringify(safeCopy(result), null, 2) : result
-      fs.writeFileSync(filePath, data, 'utf8')
+      fs.writeFileSync(filePath, data, { encoding: 'utf8', flag: 'w' })
     }
   }
 
@@ -54,18 +54,23 @@ function handleError (error) {
 }
 
 function prepareOptions (args) {
-  return {
+  const options = {
     meta: {
       $repl: true
-    },
-    nodeId: args.nodeId
+    }
   }
+
+  if (args.nodeId) {
+    options.nodeId = args.nodeId
+  }
+
+  return options
 }
 
 function preparePayloadArguments (args, payload, done) {
-  if (typeof (args.jsonParams) === 'string') {
+  if (typeof args.jsonParams === 'string') {
     try {
-      payload = JSON.parse(args.jsonParams)
+      return JSON.parse(args.jsonParams)
     } catch (error) {
       console.log(error.message)
       done()
@@ -81,67 +86,66 @@ function preparePayloadArguments (args, payload, done) {
     Object.keys(options).map(key => {
       payload[key] = options[key]
     })
+
+    return payload
   }
 }
 
-function preparePayloadFile (args, payload) {
-  if (args.options.f) {
-    let filePath
+function preparePayloadFromFile (args) {
+  let filePath
 
-    if (typeof args.options.f === 'string') {
-      filePath = path.resolve(args.options.f)
-    } else {
-      filePath = path.resolve(`${args.actionName}.params.json`)
-    }
+  if (typeof args.options.f === 'string') {
+    filePath = path.resolve(args.options.f)
+  } else {
+    filePath = path.resolve(`${args.actionName}.data.json`)
+  }
 
-    if (fs.existsSync(filePath)) {
-      try {
-        payload = JSON.parse(fs.readFileSync(filePath, 'utf8'))
-      } catch (error) {
-        console.log(cliUI.errorText('Can\'t parse parameter file'), error)
-      }
-    } else {
-      console.log(cliUI.errorText(`File not found: ${filePath}`))
+  if (fs.existsSync(filePath)) {
+    try {
+      console.log(cliUI.infoText(`Read payload from ${filePath}`))
+      return JSON.parse(fs.readFileSync(filePath, 'utf8'))
+    } catch (error) {
+      console.log(cliUI.errorText('Can\'t parse parameter file'), error)
     }
+  } else {
+    console.log(cliUI.errorText(`File not found: ${filePath}`))
   }
 }
 
-function preparePayloadStream (args, payload) {
-  if (args.options.stream) {
-    let filePath
+function preparePayloadStream (args) {
+  let filePath
 
-    if (typeof args.options.stream === 'string') {
-      filePath = path.resolve(args.options.stream)
-    } else {
-      filePath = path.resolve(`${args.actionName}.file`)
-    }
+  if (typeof args.options.stream === 'string') {
+    filePath = path.resolve(args.options.stream)
+  } else {
+    filePath = path.resolve(`${args.actionName}.file`)
+  }
 
-    if (fs.existsSync(filePath)) {
-      console.log(cliUI.infoText(`Send stream from ${filePath}`))
-      payload = fs.createReadStream(filePath)
-    } else {
-      console.log(cliUI.errorText(`File not found: ${filePath}`))
-    }
+  if (fs.existsSync(filePath)) {
+    console.log(cliUI.infoText(`Send stream from ${filePath}`))
+    return fs.createReadStream(filePath)
+  } else {
+    console.log(cliUI.errorText(`File not found: ${filePath}`))
   }
 }
 
 module.exports = (broker) =>
   (args, done) => {
     const callOptions = prepareOptions(args)
-
-    // eslint-disable-next-line prefer-const
-    let payload = {}
-
     // try to get data from arguments
-    preparePayloadArguments(args, payload, done)
+    let payload = preparePayloadArguments(args, {}, done)
 
     // Send parameters from file
-    preparePayloadFile(args, payload)
+    if (args.options.f) {
+      payload = preparePayloadFromFile(args) || payload
+    }
 
     // Prepare send file stream
-    preparePayloadStream(args, payload)
+    if (args.options.stream) {
+      payload = preparePayloadStream(args, payload) || payload
+    }
 
-    console.log(cliUI.infoText(`>> Call "${args.actionName}" with params:`), payload)
+    console.log(cliUI.infoText(`>> Call "${args.actionName}" with data:`), payload)
 
     broker.call(args.actionName, payload, callOptions)
       .then(result => handleResult(result, args))

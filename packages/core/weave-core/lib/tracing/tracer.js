@@ -19,7 +19,7 @@ module.exports = () => {
         if (options.collectors) {
           collectors = options.collectors
             .map(entry => {
-              const collector = resolveCollector(entry, this)
+              const collector = resolveCollector(broker, entry, this)
               collector.init(this)
               return collector
             })

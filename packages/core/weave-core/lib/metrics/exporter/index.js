@@ -18,7 +18,7 @@ const getByName = name => {
 }
 
 module.exports = {
-  resolve (options) {
+  resolve (broker, options) {
     let cacheFactory
 
     if (options === true) {

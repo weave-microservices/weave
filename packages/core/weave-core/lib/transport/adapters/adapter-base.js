@@ -57,7 +57,7 @@ const createTransportBase = () => {
       return this.send(packet)
     },
     send (/* message*/) {
-      throw new Error('Method "send" not implemented.')
+      this.broker.handleError(new Error('Method "send" not implemented.'))
     },
     incommingMessage (messageType, message) {
       const data = this.deserialize(message)
@@ -70,14 +70,14 @@ const createTransportBase = () => {
         packet.payload.sender = this.broker.nodeId
         return Buffer.from(JSON.stringify(packet))
       } catch (error) {
-        throw Error(error)
+        this.broker.handleError(error)
       }
     },
     deserialize (packet) {
       try {
         return JSON.parse(packet)
       } catch (error) {
-        throw Error(error)
+        this.broker.handleError(error)
       }
     },
     updateStatisticReceived (length) {

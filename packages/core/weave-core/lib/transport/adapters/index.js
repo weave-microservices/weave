@@ -9,7 +9,7 @@ const fromURI = require('./fromURI')
 const getAdapterByName = require('./getAdapterByName')
 const adapters = require('./adapters')
 
-const resolve = options => {
+const resolve = (broker, options) => {
   if (typeof options === 'object') {
     if (typeof options.adapter === 'string') {
       const Adapter = getAdapterByName(options.adapter)
@@ -17,7 +17,7 @@ const resolve = options => {
       if (Adapter) {
         return Adapter(options.options)
       } else {
-        throw new WeaveBrokerOptionsError(`Invalid transport settings: ${options.adapter}`)
+        broker.handleError(new WeaveBrokerOptionsError(`Invalid transport settings: ${options.adapter}`))
       }
     }
     return options.adapter

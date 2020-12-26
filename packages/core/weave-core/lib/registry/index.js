@@ -280,14 +280,14 @@ exports.createRegistry = () => {
 
       if (!endpointList) {
         this.log.warn(`Service "${actionName}" is not registered localy.`)
-        throw new WeaveServiceNotFoundError({ actionName })
+        this.broker.handleError(new WeaveServiceNotFoundError({ actionName }))
       }
 
       const endpoint = endpointList.getNextLocalEndpoint()
 
       if (!endpoint) {
         this.log.warn(`Service "${actionName}" is not available localy.`)
-        throw new WeaveServiceNotAvailableError({ actionName })
+        this.broker.handleError(new WeaveServiceNotAvailableError({ actionName }))
       }
 
       return endpoint

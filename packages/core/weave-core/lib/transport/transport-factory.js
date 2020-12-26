@@ -70,6 +70,7 @@ exports.createTransport = (broker, adapter) => {
     }
 
     const message = transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload)
+
     return transport.send(message)
       .then(() => {
         if (isStream) {

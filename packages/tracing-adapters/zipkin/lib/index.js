@@ -12,14 +12,14 @@ const mergeDefaultOptions = (options) => {
   }, options)
 }
 
-exports.createZipkinExporter = (options) => 
+exports.createZipkinExporter = (options) =>
   (broker, tracer) => {
     const exporter = new BaseTracingCollector(options, broker, tracer)
     const queue = []
-    
+
     options = mergeDefaultOptions(options)
 
-    const timer = setInterval(() => flushQueue(), options.interval)
+    let timer = setInterval(() => flushQueue(), options.interval)
 
     const flushQueue = () => {
       if (queue.length) {
@@ -32,7 +32,7 @@ exports.createZipkinExporter = (options) =>
     const generatePayload = () => {
       return queue.map(span => {
         const serviceName = span.service ? span.service.fullyQualifiedName : null
-  
+
         const payload = {
           id: convertId(span.id),
           traceId: convertId(span.traceId),
@@ -57,7 +57,7 @@ exports.createZipkinExporter = (options) =>
             'span.type': span.type
           }
         }
-  
+
         if (span.error) {
           payload.tags.error = span.error.message
           payload.annotations.push({
@@ -70,7 +70,7 @@ exports.createZipkinExporter = (options) =>
             timestamp: convertTime(span.finishTime)
           })
         }
-  
+
         Object.assign(
           payload.tags,
           exporter.flattenTags(span.tags, true)
@@ -82,7 +82,7 @@ exports.createZipkinExporter = (options) =>
 
     const sendData = (data) => {
       data = JSON.stringify(data)
-  
+
       fetch(`${options.host}${options.endpoint}`, {
         method: 'post',
         body: data,

@@ -1,7 +1,7 @@
 const { Weave, Errors } = require('../../../lib/index')
 const LocalService = require('../../services/local.service')
 
-describe.only('Connected services', () => {
+describe('Connected services', () => {
   it('should return results of all connected nodes.', done => {
     const broker1 = Weave({
       nodeId: 'node1',

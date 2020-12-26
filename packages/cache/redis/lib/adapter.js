@@ -28,7 +28,7 @@ const makeRedisCache = (broker, options = {}) => {
         Redis = require('ioredis')
       } catch (error) {
         this.log.error('The package \'ioredis\' is not installed. Please install the package with \'npm install nats\'.')
-        throw error
+        broker.errorHandler(error)
       }
       client = new Redis(options)
 
