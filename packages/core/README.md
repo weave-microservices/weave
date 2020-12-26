@@ -3,12 +3,13 @@
 Core libraries:
 
 - [core](core)  
-   Provides weave core functionality for service brokers and service creation.
+   Weave core functionality for service brokers and service creation.
 - [cli](cli)  
-   Provides a function for querying Read and View Models.
+   Function for querying Read and View Models.
 - [errors](errors)  
-   Provides a Redux storage helper.
+   Weave error helper library
 - [repl](repl)
-   Provides a local Event Broker
+   REPL module
 - [validator](validator)
-   Provides a local Event Broker
+   
+   Weave validation library
