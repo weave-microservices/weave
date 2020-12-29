@@ -39,6 +39,6 @@
   },
   "dependencies": {
     "@weave-js/utils": "^0.8.0-alpha.4",
-    "ioredis": "^4.17.3"
+    "redis": "^3.0.2"
   }
 }

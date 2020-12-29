@@ -4,7 +4,7 @@
  * Copyright 2020 Fachwerk
  */
 
-const Redis = require('ioredis')
+const redis = require('redis')
 const { defaultsDeep } = require('@weave-js/utils')
 const { TransportAdapters } = require('@weave-js/core')
 const utils = require('@weave-js/utils')
@@ -25,10 +25,10 @@ const RedisTransportAdapter = adapterOptions => {
     name: 'REDIS',
     connect () {
       return new Promise((resolve, reject) => {
-        clientSub = new Redis(adapterOptions)
+        clientSub = redis.createClient(adapterOptions)
 
         clientSub.on('connect', () => {
-          clientPub = new Redis(adapterOptions)
+          clientPub = redis.createClient(adapterOptions)
 
           this.log.info('Redis SUB client connected.')
 
@@ -77,7 +77,8 @@ const RedisTransportAdapter = adapterOptions => {
     },
     subscribe (type, nodeId) {
       return new Promise(resolve => {
-        clientSub.subscribe(this.getTopic(type, nodeId), () => {
+        const topic = this.getTopic(type, nodeId)
+        clientSub.subscribe(topic, () => {
           return resolve()
         })
       })
@@ -86,14 +87,16 @@ const RedisTransportAdapter = adapterOptions => {
       const data = this.serialize(message)
       if (this.isConnected) {
         this.updateStatisticSent(data.length)
-        clientPub.publish(this.getTopic(message.type, message.targetNodeId), data)
+        const topic = this.getTopic(message.type, message.targetNodeId)
+        const result = clientPub.publish(topic, data)
+        console.log(result)
       }
       return Promise.resolve()
     },
     close () {
       if (clientPub && clientSub) {
-        clientPub.disconnect()
-        clientSub.disconnect()
+        clientPub.quit()
+        clientSub.quit()
       }
       return utils.promiseDelay(Promise.resolve(), 500)
     }
