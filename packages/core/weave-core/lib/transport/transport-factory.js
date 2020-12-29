@@ -52,10 +52,7 @@ exports.createTransport = (broker, adapter) => {
       id: context.id,
       action: context.action.name,
       data: isStream ? null : context.data,
-      options: {
-        timeout: context.options.timeout,
-        retries: context.options.retries
-      },
+      timeout: context.options.timeout,
       meta: context.meta,
       level: context.level,
       metrics: context.metrics,
@@ -81,25 +78,45 @@ exports.createTransport = (broker, adapter) => {
             payload.meta.$isObjectModeStream = true
           }
 
-          stream.on('data', chunk => {
-            const payloadCopy = Object.assign({}, payload)
-
-            payloadCopy.data = chunk
+          stream.on('data', data => {
             stream.pause()
+            const chunks = []
 
-            return transport.send(transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy))
-              .then(() => stream.resume())
+            // chunk is larger than maxBufferSize
+            if (data instanceof Buffer && broker.options.transport.maxChunkSize > 0 && data.length > broker.options.transport.maxChunkSize) {
+              const length = data.length
+              let i = 0
+              while (i < length) {
+                chunks.push(data.slice(i, i += broker.options.transport.maxChunkSize))
+              }
+            } else {
+              chunks.push(data)
+            }
+
+            // Send chunks from chunk buffer
+            for (const chunk of chunks) {
+              const payloadCopy = Object.assign({}, payload)
+              payloadCopy.data = chunk
+              const message = transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy)
+              transport.send(message)
+            }
+
+            // resume stream
+            stream.resume()
+            return
           })
 
           stream.on('end', () => {
             const payloadCopy = Object.assign({}, payload)
             payloadCopy.data = null
             payloadCopy.isStream = false
-            return transport.send(transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy))
+            const message = transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy)
+            return transport.send(message)
           })
 
           stream.on('error', (bhunk) => {
-            return transport.send(transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload))
+            const message = transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload)
+            return transport.send(message)
           })
         }
       })
@@ -317,17 +334,36 @@ exports.createTransport = (broker, adapter) => {
       stream.pause()
       transport.log.debug('Send new stream chunk to ', target)
 
-      stream.on('data', chunk => {
-        const payloadCopy = Object.assign({}, payload)
-        payloadCopy.sequence = ++payload.sequence
-        payloadCopy.data = chunk
-        transport.log.debug('Send Stream chunk to ', target)
+      stream.on('data', data => {
         stream.pause()
+        const chunks = []
 
-        const message = transport.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy)
+        // chunk is larger than maxBufferSize
+        if (data instanceof Buffer && broker.options.transport.maxChunkSize > 0 && data.length > broker.options.transport.maxChunkSize) {
+          const length = data.length
+          let i = 0
+          while (i < length) {
+            chunks.push(data.slice(i, i += broker.options.transport.maxChunkSize))
+          }
+        } else {
+          chunks.push(data)
+        }
 
-        return transport.send(message)
-          .then(() => stream.resume())
+        // Send chunks from chunk buffer
+        for (const chunk of chunks) {
+          const payloadCopy = Object.assign({}, payload)
+          payloadCopy.sequence = ++payload.sequence
+
+          payloadCopy.data = chunk
+          transport.log.debug('Send Stream chunk to ', target)
+
+          const message = transport.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy)
+          transport.send(message)
+        }
+
+        // resume stream
+        stream.resume()
+        return
       })
 
       stream.on('end', () => {
@@ -338,6 +374,7 @@ exports.createTransport = (broker, adapter) => {
         payloadCopy.isStream = false
 
         transport.log.debug('Send end stream chunk to ', target)
+
         const message = transport.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy)
         transport.send(message)
       })
@@ -377,7 +414,6 @@ exports.createTransport = (broker, adapter) => {
       .then(() => {
         transport.isConnected = true
         broker.broadcastLocal('$transporter.connected', { wasReconnect })
-
         if (transport.resolveConnect) {
           transport.resolveConnect()
           transport.resolveConnect = null

@@ -37,12 +37,13 @@ module.exports = (broker, transport, pending) => {
     return endpoint.action.handler(context)
   }
 
-  const onDiscovery = message => {
-    return transport.sendNodeInfo(message.sender)
-  }
+  // Handle discovery request
+  const onDiscovery = message => transport.sendNodeInfo(message.sender)
 
+  // Handle node informations
   const onNodeInfos = payload => registry.processNodeInfo(payload)
 
+  // Handle request
   const onRequest = payload => {
     const id = payload.id
     const sender = payload.sender
@@ -75,6 +76,7 @@ module.exports = (broker, transport, pending) => {
           pending.requestStreams.set(id, stream)
         }
       }
+
       const endpoint = registry.getLocalActionEndpoint(payload.action)
       const context = createContext(broker)
 
@@ -87,7 +89,7 @@ module.exports = (broker, transport, pending) => {
       context.metrics = payload.metrics
       context.level = payload.level
       context.callerNodeId = payload.sender
-      context.options.timeout = payload.options.timeout || broker.options.requestTimeout || 0
+      context.options.timeout = payload.timeout || broker.options.requestTimeout || 0
 
       return localRequestProxy(context)
         .then(data => transport.response(sender, payload.id, data, context.meta, null))
@@ -97,6 +99,7 @@ module.exports = (broker, transport, pending) => {
     }
   }
 
+  // Handle response
   const onResponse = payload => {
     const id = payload.id
     const request = pending.requests.get(id)
@@ -108,6 +111,7 @@ module.exports = (broker, transport, pending) => {
     // Merge meta data from response
     Object.assign(request.context.meta, payload.meta)
 
+    // Handle streams
     if (payload.isStream != null) {
       let stream = pending.responseStreams.get(id)
 
@@ -142,7 +146,7 @@ module.exports = (broker, transport, pending) => {
     pending.requests.delete(payload.id)
 
     if (!payload.success) {
-      let error = restoreError(payload.error) // new WeaveError(`${payload.error ? payload.error.message : 'Unknown error'} on node: '${payload.sender}'`)
+      let error = restoreError(payload.error)
 
       if (!error) {
         error = new Error(payload.error.message)
@@ -164,11 +168,13 @@ module.exports = (broker, transport, pending) => {
     request.resolve(payload.data)
   }
 
+  // Pong handler
   const onPing = payload => {
-    return transport.send(transport.createMessage(MessageTypes.MESSAGE_PONG, payload.sender, {
+    const message = transport.createMessage(MessageTypes.MESSAGE_PONG, payload.sender, {
       dispatchTime: payload.dispatchTime,
       arrivalTime: Date.now()
-    }))
+    })
+    return transport.send(message)
   }
 
   // Pong received.
@@ -246,45 +252,50 @@ module.exports = (broker, transport, pending) => {
         broker.handleError(new WeaveError('Message payload missing!'))
       }
 
-      // skip own packages
-      // if (payload.sender === broker.nodeId) {
-      //   // todo: Add ID conflict detection.
-      //   return
-      // }
+      // todo: check protocol version
+      // todo: check node ID conflict
+
+      if (payload.sender === broker.nodeId) {
+        // if (type === MessageTypes.MESSAGE_INFO) {
+        //   return broker.fatalError('Broker has detected a node ID conflict. "nodeId" of broker needs to be unique. Broker will be stopped.')
+        // }
+      }
 
       // stats.packets.received = stats.packets.received + 1
 
       switch (type) {
-      case 'discovery':
+      case MessageTypes.MESSAGE_DISCOVERY:
         onDiscovery(payload)
         break
-      case 'info':
+      case MessageTypes.MESSAGE_INFO:
         onNodeInfos(payload)
         break
-      case 'request':
+      case MessageTypes.MESSAGE_REQUEST:
         onRequest(payload)
         break
-      case 'response':
+      case MessageTypes.MESSAGE_RESPONSE:
         onResponse(payload)
         break
-      case 'ping':
+      case MessageTypes.MESSAGE_PING:
         onPing(payload)
         break
-      case 'pong':
+      case MessageTypes.MESSAGE_PONG:
         onPong(payload)
         break
-      case 'disconnect':
+      case MessageTypes.MESSAGE_DISCONNECT:
         onDisconnect(payload)
         break
-      case 'heartbeat':
+      case MessageTypes.MESSAGE_HEARTBEAT:
         onHeartbeat(payload)
         break
-      case 'event':
+      case MessageTypes.MESSAGE_EVENT:
         onEvent(payload)
         break
       }
+      return true
     } catch (error) {
       transport.log.error(error, data)
     }
+    return false
   }
 }

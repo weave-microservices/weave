@@ -71,6 +71,7 @@ const { loadBalancingStrategy } = require('../constants')
  * @property {Number} heartbeatTimeout Number of milliseconds without response before the node is set to the Not Available status. (default = 10000)
  * @property {Number} offlineNodeCheckInterval Interval in milliseconds to check and remove not offline nodes. (default = 30000ms)
  * @property {Number} maxOfflineTime Maximum time a node can be offline before it is removed from the registry. (default = 600000ms)
+ * @property {Number} maxChunkSize Maximum chunk size for streams. (default = 256 * 1024 Bits)
  * @property {String|Object} serializer Serializer settings
  */
 
@@ -166,7 +167,8 @@ exports.getDefaultOptions = () => ({
     offlineNodeCheckInterval: 30 * 1000,
     // Maximum time a node can be offline before it is removed from the registry.
     maxOfflineTime: 1000 * 60 * 10,
-    maxPacketSize: -1
+    // Maximum chunk size for stream chunks
+    maxChunkSize: 256 * 1024
   },
   errorHandler: null,
   // load $node service
