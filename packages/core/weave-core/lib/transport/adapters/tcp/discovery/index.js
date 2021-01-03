@@ -19,7 +19,7 @@ const createDiscoveryService = (adapter, options) => {
   const startServer = (host, port, multicastAddress) => {
     return new Promise((resolve, reject) => {
       try {
-        const socket = dgram.createSocket({ type: options.discovery.type, reuseAddr: true })
+        const socket = dgram.createSocket({ type: options.discovery.type, reuseAddr: options.discovery.udpReuseAddress })
 
         socket.on('message', (message, info) => {
           const messageType = Buffer.prototype.readUInt8.call(message, 0)

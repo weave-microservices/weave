@@ -88,8 +88,7 @@ const RedisTransportAdapter = adapterOptions => {
       if (this.isConnected) {
         this.updateStatisticSent(data.length)
         const topic = this.getTopic(message.type, message.targetNodeId)
-        const result = clientPub.publish(topic, data)
-        console.log(result)
+        clientPub.publish(topic, data)
       }
       return Promise.resolve()
     },

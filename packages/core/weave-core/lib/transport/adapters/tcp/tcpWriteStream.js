@@ -2,15 +2,14 @@
 const { Writable } = require('stream')
 const MessageTypes = require('../../message-types')
 const TCPMessageTypeHelper = require('./tcp-messagetypes')
-const maxPacketSize = 1 * 1024 * 1024 * 50
-
 module.exports = class TCPWriteStream extends Writable {
-  constructor (adapter, socket) {
+  constructor (adapter, socket, maxPacketSize) {
     super()
     this.buffer = null
     this.adapter = adapter
     this.socket = socket
     this.messageTypeHelper = TCPMessageTypeHelper(MessageTypes)
+    this.maxPacketSize = maxPacketSize
   }
 
   _write (chunk, encoding, callback) {
@@ -27,8 +26,8 @@ module.exports = class TCPWriteStream extends Writable {
         return callback()
       }
 
-      if (packet.length > maxPacketSize) {
-        return callback(new Error(`Incoming packet is larger than the 'maxPacketSize' limit (${packet.length} > ${maxPacketSize})!`))
+      if (packet.length > this.maxPacketSize) {
+        return callback(new Error(`Incoming packet is larger than the 'maxPacketSize' limit (${packet.length} > ${this.maxPacketSize})!`))
       }
 
       const crc = packet[1] ^ packet[2] ^ packet[3] ^ packet[4] ^ packet[5]

@@ -61,7 +61,7 @@ function NATSTransportAdapter (adapterOptions) {
             this.interruptionCount
             this.log.info('NATS client reconnected.')
             // self.emit('adapter.connected', false)
-            this.connected()
+            this.connected({ wasReconnect: true })
           }
         })
 

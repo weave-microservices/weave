@@ -39,12 +39,12 @@ const createTransportBase = () => {
      *
      * Connection handler
      * @instance
-     * @param {*} wasReconnect Was it a reconnection atemp?
+     * @param {*} connectionEventParams Connection event
      * @param {boolean} [startHeartbeatTimers=true] Start timers for this adapter
      * @returns {void}
     */
-    connected (wasReconnect, startHeartbeatTimers = true) {
-      this.bus.emit('$adapter.connected', wasReconnect, startHeartbeatTimers)
+    connected (connectionEventParams = {}) {
+      this.bus.emit('$adapter.connected', connectionEventParams)
     },
     disconnected () {
       this.bus.emit('$adapter.disconnected')

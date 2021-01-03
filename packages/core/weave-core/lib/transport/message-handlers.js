@@ -261,8 +261,6 @@ module.exports = (broker, transport, pending) => {
         // }
       }
 
-      // stats.packets.received = stats.packets.received + 1
-
       switch (type) {
       case MessageTypes.MESSAGE_DISCOVERY:
         onDiscovery(payload)

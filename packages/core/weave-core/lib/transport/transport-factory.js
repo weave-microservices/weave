@@ -16,7 +16,7 @@ const createMessageHandler = require('./message-handlers')
  * @param {Object} adapter Adapter wrapper
  * @returns {Transport} transport
  */
-exports.createTransport = (broker, adapter) => {
+exports.createTransport = ({ broker, adapter, middlewareHandler }) => {
   const transport = Object.create(null)
   let heartbeatTimer
   let checkNodesTimer
@@ -402,7 +402,7 @@ exports.createTransport = (broker, adapter) => {
     return transport.send(message)
   }
 
-  const onConnect = (wasReconnect, useHeartbeatTimer = true, useRemoteNodeCheckTimer = true, useOfflineCheckTimer = true) =>
+  const onConnect = ({ wasReconnect = false, useHeartbeatTimer = true, useRemoteNodeCheckTimer = true, useOfflineCheckTimer = true }) =>
     Promise.resolve()
       .then(() => {
         if (!wasReconnect) {

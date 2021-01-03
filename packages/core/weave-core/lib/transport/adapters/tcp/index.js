@@ -13,8 +13,11 @@ const defaultOptions = {
     enabled: true,
     type: 'udp4',
     multicastAddress: '239.0.0.0',
-    port: 54355
-  }
+    port: 54355,
+    udpReuseAddress: true
+  },
+  gossipTimerInterval: 2000,
+  maxPacketSize: 1024 * 1024 * 50
 }
 
 module.exports = function SwimTransport (adapterOptions) {
@@ -40,10 +43,10 @@ module.exports = function SwimTransport (adapterOptions) {
 
     self.log.info('TCP transport adapter started.')
 
-    self.broker.registry.generateLocalNodeInfo()
     self.broker.registry.nodes.localNode.port = port
+    self.broker.registry.generateLocalNodeInfo()
 
-    self.bus.emit('$adapter.connected', false, false, false)
+    self.connected({ wasReconnect: false, useHeartbeatTimer: false, useRemoteNodeCheckTimer: false, useOfflineCheckTimer: true })
 
     return Promise.resolve()
   }
@@ -59,6 +62,10 @@ module.exports = function SwimTransport (adapterOptions) {
       MessageTypes.MESSAGE_GOSSIP_REQUEST,
       MessageTypes.MESSAGE_GOSSIP_RESPONSE
     ].includes(message.type)) {
+      if (message.type === MessageTypes.MESSAGE_DISCONNECT) {
+        // send a disconnect message to all connected nodes
+        return publishNodeDisconnect(message)
+      }
       return Promise.resolve()
     }
 
@@ -100,6 +107,19 @@ module.exports = function SwimTransport (adapterOptions) {
     self.swim.close()
 
     return Promise.resolve()
+  }
+
+  // Send a disconnect message to all connected nodes.
+  function publishNodeDisconnect (message) {
+    const nodes = self.broker.registry.nodes.toArray()
+    return Promise.all(
+      nodes
+        .filter(node => node.isAvailable && !node.isLocal)
+        .map(node => {
+          const data = self.serialize(message)
+          return tcpWriter.send(node.id, message.type, data)
+        })
+    )
   }
 
   function addDiscoveredNode (nodeId, host, port) {
@@ -174,7 +194,7 @@ module.exports = function SwimTransport (adapterOptions) {
   }
 
   function startTimers () {
-    gossipTimer = setInterval(() => sendGossipRequest(), 2000)
+    gossipTimer = setInterval(() => sendGossipRequest(), adapterOptions.gossipTimerInterval)
     gossipTimer.unref()
   }
 
@@ -254,18 +274,20 @@ module.exports = function SwimTransport (adapterOptions) {
     }
   }
 
-  function onGossipRequestMessage (data, socket) {
+  // Handle incoming gossip request
+  function onGossipRequestMessage (data) {
     try {
       const message = self.deserialize(data)
       const payload = message.payload
       const list = self.broker.registry.nodes.toArray()
 
+      // Init gossip response
       const response = {
         online: {},
         offline: {}
       }
 
-      list.map(node => {
+      list.forEach(node => {
         const online = payload.online ? payload.online[node.id] : null
         const offline = payload.offline ? payload.offline[node.id] : null
 
@@ -278,11 +300,12 @@ module.exports = function SwimTransport (adapterOptions) {
           [sequence, cpuSequence, cpu] = online
         }
 
+        // Local node informations are newer
         if (!sequence || sequence < node.sequence) {
           // our node info is newer than the
           if (node.isAvailable) {
-            const info = self.broker.registry.getNodeInfo(node.id)
-            response.online[node.id] = [info, node.cpuSequence || 0, node.cpu || 0]
+            const nodeInfo = self.broker.registry.getNodeInfo(node.id)
+            response.online[node.id] = [nodeInfo, node.cpuSequence || 0, node.cpu || 0]
           } else {
             response.offline[node.id] = node.sequence
           }
@@ -303,11 +326,13 @@ module.exports = function SwimTransport (adapterOptions) {
             self.broker.registry.nodes.disconnected(node.id, false)
             node.sequence = sequence
           } else if (node.isLocal) {
+            // Remote node said we are offline, but we are online and send back our node informations.
             node.sequence = sequence + 1
             const nodeInfo = self.broker.registry.getLocalNodeInfo(true)
             response.online[node.id] = [nodeInfo, node.cpuSequence || 0, node.cpu || 0]
           }
         } else if (online) {
+          // Remote node said we are online
           if (node.isAvailable) {
             if (cpuSequence > node.cpuSequence) {
               node.heartbeat({
@@ -341,12 +366,13 @@ module.exports = function SwimTransport (adapterOptions) {
     }
   }
 
+  // Handle incoming gossip response
   function onGossipResponseMessage (data, socket) {
     try {
       const message = self.deserialize(data)
       const payload = message.payload
-      // const list = self.registry.nodes.toArray()
 
+      // Process online nodes
       if (payload.online) {
         Object.keys(payload.online).forEach(nodeId => {
           if (nodeId === self.broker.nodeId) {
@@ -372,13 +398,14 @@ module.exports = function SwimTransport (adapterOptions) {
           }
 
           const node = self.broker.registry.nodes.get(nodeId)
+
           if (info && (!node || node.sequence < info.sequence)) {
             // if node is a new node or has a higher sequence update local info.
             info.sender = nodeId
             self.broker.registry.processNodeInfo(info)
           }
 
-          if (node && cpuSequence && cpuSequence > node.cpuSequence) {
+          if (node && node.isAvailable && cpuSequence && cpuSequence > node.cpuSequence) {
             node.heartbeat({
               cpu,
               cpuSequence
@@ -415,8 +442,6 @@ module.exports = function SwimTransport (adapterOptions) {
 
   function onMessage (type, data, socket) {
     try {
-      // const payload = message.payload
-
       self.onIncomingMessage(type, data, socket)
     } catch (error) {
       console.log(error)

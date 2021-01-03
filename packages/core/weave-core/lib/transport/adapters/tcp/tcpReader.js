@@ -37,7 +37,7 @@ module.exports = (adapter, options) => {
   function onTCPClientConnected (socket) {
     sockets.push(socket)
 
-    const parser = new TCPWriteStream(adapter, socket)
+    const parser = new TCPWriteStream(adapter, socket, options.maxPacketSize)
     socket.pipe(parser)
 
     parser.on('error', error => {
