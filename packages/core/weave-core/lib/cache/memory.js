@@ -19,7 +19,10 @@ const makeMemoryCache = (broker, options = {}) => {
   timer.unref()
 
   // if a new broker gets connected, we need to clear the cache
-  broker.bus.on('$transport.connected', () => cache.clear())
+  broker.bus.on('$transport.connected', () => {
+    this.log.trace(`Transpot adapter connected. Cache is cleared.`)
+    cache.clear()
+  })
 
   const checkTtl = () => {
     const now = Date.now()

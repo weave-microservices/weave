@@ -101,7 +101,8 @@ exports.createCacheBase = (broker, options) => {
   }
 
   cache.middleware = (handler, action) => {
-    if (action.cache) {
+    const cacheOptions = Object.assign({ enabled: true }, isObject(action.cache) ? action.cache : { enabled: !!action.cache })
+    if (cacheOptions.enabled) {
       return function cacheMiddleware (context) {
         const cacheHashKey = cache.getCachingHash(action.name, context.data, context.meta, action.cache.keys)
         context.isCachedResult = false
