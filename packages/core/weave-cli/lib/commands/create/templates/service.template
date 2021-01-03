@@ -1,0 +1,22 @@
+module.exports = {
+  name: '{{serviceName}}',
+  settings: {},
+  meta: {},
+  actions: {
+    hello: {
+      handler (context) {
+        context.emit('hello.triggered')
+        return 'Hello from {{serviceName}}'
+      }
+    }
+  },
+  events: {
+    'hello.triggered' () {
+      this.log.info('hello triggered')
+    }
+  },
+  methods: {},
+  created () {},
+  async started () {},
+  async stopped () {}
+}

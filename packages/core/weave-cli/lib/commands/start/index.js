@@ -21,7 +21,7 @@ exports.handler = async (args) => {
     // init broker
     const broker = Weave(config)
 
-    // load services
+    // handle service loadig
     if (args.services) {
       loadServices(broker, args.services)
     }
