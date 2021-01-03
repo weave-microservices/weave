@@ -329,7 +329,7 @@ exports.createRegistry = () => {
       }
 
       this.nodes.localNode.info = safeCopy(nodeInfo)
-      return nodeInfo
+      return this.nodes.localNode.info
     },
     processNodeInfo (payload) {
       const nodeId = payload.sender
@@ -373,7 +373,7 @@ exports.createRegistry = () => {
         this.deregisterServiceByNodeId(node.id)
         node.disconnected(isUnexpected)
         this.broker.broadcastLocal('$node.disconnected', { nodeId, isUnexpected })
-        this.log.warn(`Node "${node.id}"${isUnexpected ? ' unexpectedly' : ''} disconnected.`)
+        this.log.warn(`Nodes "${node.id}"${isUnexpected ? ' unexpectedly' : ''} disconnected.`)
       }
     },
     removeNode (nodeId) {

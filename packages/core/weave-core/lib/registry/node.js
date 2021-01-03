@@ -31,6 +31,7 @@ exports.createNode = (nodeId) => {
       this.events = payload.events
       this.client = payload.client || {}
       this.IPList = payload.IPList || []
+      this.info = payload
 
       if ((newSequence > this.sequence) || isReconnected === true) {
         this.sequence = newSequence
@@ -56,9 +57,12 @@ exports.createNode = (nodeId) => {
         this.offlineTime = null
       }
 
+      if (payload.cpu !== null) {
+        this.cpu = payload.cpu
+        this.cpuSequence = payload.cpuSequence || 1
+      }
+
       this.lastHeartbeatTime = Date.now()
-      this.cpu = payload.cpu
-      this.cpuSequence = payload.cpuSequence || 1
     },
     disconnected () {
       if (this.isAvailable) {

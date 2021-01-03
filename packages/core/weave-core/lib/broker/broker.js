@@ -495,6 +495,7 @@ const createBroker = (options = {}) => {
         .then(() => {
           this.isStarted = true
           this.broadcastLocal('$broker.started')
+          this.registry.generateLocalNodeInfo(true)
         })
         .then(() => {
           if (this.transport) {
@@ -666,7 +667,7 @@ const createBroker = (options = {}) => {
   if (options.transport.adapter) {
     const adapter = TransportAdapters.resolve(broker, options.transport)
     if (adapter) {
-      broker.transport = createTransport(broker, adapter)
+      broker.transport = createTransport({ broker, adapter, middlewareHandler })
     }
   }
 
