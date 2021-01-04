@@ -8,10 +8,10 @@
 
 // npm modules
 const path = require('path')
+const util = require('util')
 
 // 3rd party modules
 const kleur = require('kleur')
-const util = require('util')
 const figures = require('figures')
 
 // own modules

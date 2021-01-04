@@ -4,18 +4,22 @@
  * Copyright 2020 Fachwerk
  */
 
+const buildTags = (context) => {
+  return {
+    requestLevel: context.level,
+    action: context.action ? { name: context.action.name, shortName: context.action.shortName } : null,
+    isRemoteCall: !!context.callerNodeId,
+    nodeId: context.nodeId
+  }
+}
+
 const wrapTracingLocalActionMiddleware = function (handler) {
   const broker = this
   const options = broker.options.tracing || {}
 
   if (options.enabled) {
     return function metricsLocalMiddleware (context) {
-      const tags = {
-        requestLevel: context.level,
-        action: context.action ? { name: context.action.name, shortName: context.action.shortName } : null,
-        remoteCall: !!context.callerNodeId,
-        nodeId: context.nodeId
-      }
+      const tags = buildTags(context)
 
       const spanName = `action '${context.action.name}'`
 
@@ -54,12 +58,7 @@ const wrapTracingLocalEventMiddleware = function (handler, event) {
 
   if (options.enabled) {
     return function metricsLocalMiddleware (context) {
-      const tags = {
-        requestLevel: context.level,
-        action: context.action ? { name: context.action.name, shortName: context.action.shortName } : null,
-        remoteCall: !!context.callerNodeId,
-        nodeId: context.nodeId
-      }
+      const tags = buildTags(context)
 
       const span = context.startSpan(`event '${context.eventName}'`, {
         id: context.id,

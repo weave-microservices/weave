@@ -2,11 +2,12 @@ const path = require('path')
 const fs = require('fs')
 const cliUI = require('../utils/cli-ui')
 const convertArgs = require('../utils/convert-args')
-const { safeCopy, isStream, isObject } = require('@weave-js/utils')
+const { safeCopy, isStream, isObject, timespanFromUnixTimes } = require('@weave-js/utils')
 
 const util = require('util')
 
-function handleResult (result, args) {
+function handleResult (result, args, startTime) {
+  const endTime = process.hrtime(startTime)
   // Save response
   if (args.options.s) {
     const resultIsStream = isStream(result)
@@ -31,8 +32,9 @@ function handleResult (result, args) {
       fs.writeFileSync(filePath, data, { encoding: 'utf8', flag: 'w' })
     }
   }
+  const duration = (endTime[0] + endTime[1] / 1e9) * 1000
 
-  console.log(cliUI.warningText('>> Response:'))
+  console.log(cliUI.warningText(`>> Response (${timespanFromUnixTimes(duration)}):`))
   console.log(util.inspect(result, {
     showHidden: false,
     depth: 4,
@@ -147,8 +149,10 @@ module.exports = (broker) =>
 
     console.log(cliUI.infoText(`>> Call "${args.actionName}" with data:`), payload)
 
+    const startTime = process.hrtime()
+
     broker.call(args.actionName, payload, callOptions)
-      .then(result => handleResult(result, args))
+      .then(result => handleResult(result, args, startTime))
       .catch(error => handleError(error))
       .finally(done)
   }

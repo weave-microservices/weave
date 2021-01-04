@@ -10,7 +10,7 @@ const os = require('os')
 const glob = require('glob')
 const { isFunction, debounce, defaultsDeep, uuid } = require('@weave-js/utils')
 const { getDefaultOptions } = require('./default-options')
-const { createDefaultLogger } = require('../log/logger')
+const { createDefaultLogger } = require('../logger')
 const { createServiceFromSchema } = require('../registry/service')
 const { createDeprecatedWarning } = require('../utils/deprecated-warning')
 const { createMiddlewareHandler } = require('./middleware-manager')
@@ -60,7 +60,7 @@ const createBroker = (options = {}) => {
    * Create a new Logger.
    * @param {string} moduleName - Name of the module
    * @param {*} service - Service properties
-   * @returns {import('../log/logger.js/index.js').Logger} Logger
+   * @returns {import('../logger/index.js/index.js.js.js').Logger} Logger
    */
   /* eslint-enable no-use-before-define */
   const createLogger = (moduleName, service) => {

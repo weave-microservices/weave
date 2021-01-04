@@ -20,7 +20,7 @@ const makeMemoryCache = (broker, options = {}) => {
 
   // if a new broker gets connected, we need to clear the cache
   broker.bus.on('$transport.connected', () => {
-    this.log.trace(`Transpot adapter connected. Cache is cleared.`)
+    base.log.trace('Transpot adapter connected. Cache is cleared.')
     cache.clear()
   })
 
