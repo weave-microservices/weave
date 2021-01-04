@@ -8,6 +8,7 @@ const messageTypes = {
 }
 
 const createDiscoveryService = (adapter, options) => {
+  const namespace = adapter.broker.options.namespace
   const codec = Codec(options)
   const bus = new EventEmitter()
   const ips = getIpList(false)
@@ -54,7 +55,10 @@ const createDiscoveryService = (adapter, options) => {
   const onMessage = (buffer, info) => {
     const message = codec.decode(buffer)
     message.host = info.address
-    bus.emit('message', message)
+
+    if (message.namespace === namespace) {
+      bus.emit('message', message)
+    }
   }
 
   const onUnknown = (message, info) => {
