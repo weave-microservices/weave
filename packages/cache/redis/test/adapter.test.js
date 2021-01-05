@@ -48,7 +48,7 @@ describe('Test IN-Memory cache initialization', () => {
   })
 })
 
-describe('Test IN-Memory message flow', () => {
+describe('Test message flow', () => {
   it('should call "clear" after a new node is connected.', () => {
     const broker = Weave({
       logger: {
@@ -94,6 +94,8 @@ describe('Test usage (without TTL)', () => {
       expect(res).toBeDefined()
       expect(res).toEqual(result)
       done()
+    }).catch(error => {
+      done.fail(error)
     })
   })
 
@@ -103,6 +105,8 @@ describe('Test usage (without TTL)', () => {
       expect(res).toBeDefined()
       expect(res).toEqual(result)
       done()
+    }).catch(error => {
+      done.fail(error)
     })
   })
 
@@ -112,6 +116,8 @@ describe('Test usage (without TTL)', () => {
       expect(res).toBeDefined()
       expect(res).toBeNull()
       done()
+    }).catch(error => {
+      done.fail(error)
     })
   })
 
@@ -124,6 +130,8 @@ describe('Test usage (without TTL)', () => {
         expect(res).toBeDefined()
         expect(res).toBeNull()
         done()
-      }))
+      })).catch(error => {
+        done.fail(error)
+      })
   })
 })
