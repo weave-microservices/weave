@@ -39,9 +39,6 @@ describe('Test tracing', () => {
     name: 'tracing-collector',
     events: {
       '$tracing.trace.spans' (ctx) {
-        ctx.data.forEach(element => {
-          element.eIndex = eIndex++
-        })
         flow.push(...ctx.data)
       }
     }

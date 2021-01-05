@@ -32,7 +32,6 @@ Array [
 exports[`Test tracing Started and finished event should be triggered. 2`] = `
 Array [
   Object {
-    "eIndex": 33,
     "id": "node2-55",
     "name": "action 'post.list'",
     "sampled": true,
@@ -53,7 +52,6 @@ Array [
     "type": "action",
   },
   Object {
-    "eIndex": 0,
     "id": "node2-56",
     "name": "action 'user.get'",
     "sampled": true,
@@ -74,7 +72,6 @@ Array [
     "type": "action",
   },
   Object {
-    "eIndex": 1,
     "id": "node2-58",
     "name": "action 'user.get'",
     "sampled": true,
@@ -95,7 +92,6 @@ Array [
     "type": "action",
   },
   Object {
-    "eIndex": 2,
     "id": "node2-60",
     "name": "action 'user.get'",
     "sampled": true,
@@ -116,7 +112,6 @@ Array [
     "type": "action",
   },
   Object {
-    "eIndex": 3,
     "id": "node1-65",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -134,7 +129,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 4,
     "id": "node1-69",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -152,7 +146,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 5,
     "id": "node1-73",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -170,7 +163,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 6,
     "id": "node1-77",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -188,7 +180,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 7,
     "id": "node1-81",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -206,7 +197,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 8,
     "id": "node1-85",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -224,7 +214,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 9,
     "id": "node1-89",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -242,7 +231,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 10,
     "id": "node1-93",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -260,7 +248,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 11,
     "id": "node1-97",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -278,7 +265,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 12,
     "id": "node1-101",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -296,7 +282,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 13,
     "id": "node1-105",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -314,7 +299,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 14,
     "id": "node1-109",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -332,7 +316,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 15,
     "id": "node1-113",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -350,7 +333,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 16,
     "id": "node1-117",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -368,7 +350,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 17,
     "id": "node1-121",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -386,7 +367,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 18,
     "id": "node1-125",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -404,7 +384,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 19,
     "id": "node1-129",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -422,7 +401,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 20,
     "id": "node1-133",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -440,7 +418,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 21,
     "id": "node1-137",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -458,7 +435,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 22,
     "id": "node1-141",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -476,7 +452,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 23,
     "id": "node1-145",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -494,7 +469,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 24,
     "id": "node1-149",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -512,7 +486,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 25,
     "id": "node1-153",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -530,7 +503,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 26,
     "id": "node1-157",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -548,7 +520,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 27,
     "id": "node1-161",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -566,7 +537,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 28,
     "id": "node1-165",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -584,7 +554,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 29,
     "id": "node1-169",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -602,7 +571,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 30,
     "id": "node1-173",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -620,7 +588,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 31,
     "id": "node1-177",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -638,7 +605,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 32,
     "id": "node1-181",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -656,7 +622,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 34,
     "id": "node1-185",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -674,7 +639,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 35,
     "id": "node1-189",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -692,7 +656,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 36,
     "id": "node1-193",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -710,7 +673,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 37,
     "id": "node1-197",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -728,7 +690,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 38,
     "id": "node1-201",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -746,7 +707,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 39,
     "id": "node1-205",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -764,7 +724,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 40,
     "id": "node1-209",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -782,7 +741,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 41,
     "id": "node1-213",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -800,7 +758,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 42,
     "id": "node1-217",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -818,7 +775,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 43,
     "id": "node1-221",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -836,7 +792,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 44,
     "id": "node1-225",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -854,7 +809,6 @@ Array [
     "type": "event",
   },
   Object {
-    "eIndex": 45,
     "id": "node1-229",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
