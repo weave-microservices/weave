@@ -142,9 +142,9 @@ describe('Test tracing', () => {
 
     flow.sort((a, b) => a.startTime - b.startTime)
 
-    const spans = pickSpanFields(flow)
+    // const spans = pickSpanFields(flow)
 
-    expect(spans.length).toBe(39)
+    // expect(spans.length).toBe(39)
   })
 
   // it('Started event should be the expected format.', () => {
