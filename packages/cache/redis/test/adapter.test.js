@@ -1,5 +1,5 @@
 const { Weave } = require('@weave-js/core')
-const CacheRedis = require('../../../lib/cache/redis')
+const REDISCache = require('../lib/index.js')
 // const SlowService = require('../../services/slow.service')
 
 describe('Test IN-Memory cache initialization', () => {
@@ -10,7 +10,7 @@ describe('Test IN-Memory cache initialization', () => {
       }
     })
 
-    const cache = CacheRedis(broker)
+    const cache = REDISCache(broker)
     expect(cache.options).toBeDefined()
     expect(cache.options.ttl).toBeNull()
   })
@@ -21,7 +21,7 @@ describe('Test IN-Memory cache initialization', () => {
         enabled: false
       }
     })
-    const cache = CacheRedis(broker)
+    const cache = REDISCache(broker)
     const expectedObject = {
       host: '127.0.0.1',
       port: 6379,
@@ -38,7 +38,7 @@ describe('Test IN-Memory cache initialization', () => {
         enabled: false
       }
     })
-    const cache = CacheRedis(broker, options)
+    const cache = REDISCache(broker, options)
     const expectedObject = Object.assign(options, {
       host: '127.0.0.1',
       port: 6379
@@ -55,7 +55,7 @@ describe('Test IN-Memory message flow', () => {
         enabled: false
       }
     })
-    const cache = CacheRedis(broker)
+    const cache = REDISCache(broker)
     cache.init()
     cache.clear = jest.fn()
     broker.bus.emit('$transport.connected')
@@ -70,7 +70,7 @@ describe('Test usage (without TTL)', () => {
       enabled: false
     }
   })
-  const cache = CacheRedis(broker)
+  const cache = REDISCache(broker)
   cache.init()
 
   const key1 = 'test1234:sadasda'
