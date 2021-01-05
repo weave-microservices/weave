@@ -20,7 +20,7 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@weave-js/core": "^0.8.0-alpha.7"
+    "@weave-js/core": ">=0.8.0"
   },
   "dependencies": {
     "@weave-js/utils": "^0.8.0-alpha.4",
@@ -28,11 +28,11 @@
   },
   "devDependencies": {
     "@weave-js/core": "^0.8.0-alpha.7",
-    "eslint": "^7.7.0",
+    "eslint": "^7.17.0",
     "eslint-config-fw": "^1.0.3",
     "eslint-loader": "^4.0.2",
     "istanbul": "^0.4.5",
-    "jest": "^26.4.2"
+    "jest": "^26.6.3"
   },
   "jest": {
     "testEnvironment": "node",

@@ -640,7 +640,7 @@ const createBroker = (options = {}) => {
     },
     fatalError (message, error, killProcess = true) {
       if (options.logger.enabled) {
-        log.fatal(message)
+        log.fatal(message, error)
       } else {
         console.log(message, error)
       }

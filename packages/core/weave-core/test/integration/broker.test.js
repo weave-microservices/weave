@@ -1,4 +1,5 @@
 const { Weave } = require('../../lib/index')
+const { errorMonitor } = require('../../lib/transport/adapters/tcp/tcpWriteStream')
 
 describe('Test broker lifecycle', () => {
   it('should create a broker and call the started/stopped hook.', (done) => {
@@ -363,7 +364,7 @@ describe('Test broker error handling', () => {
     const exitMock = jest.fn()
 
     global.process = { ...realProcess, exit: exitMock }
-    broker.fatalError('Throw some fatal error')
+    broker.fatalError('Throw some fatal error', new Error('Absolutly fatal'))
     expect(exitMock).toHaveBeenCalledWith(ERROR_CODE)
   })
 })
