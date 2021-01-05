@@ -100,13 +100,16 @@ exports.createContext = (broker) => {
     }
   }
 
-  // generate a context Id
+  // generate context Id
   if (!context.id) {
+    // Use custom UUID factory
     if (broker.options.uuidFactory && isFunction(broker.options.uuidFactory)) {
       context.id = broker.options.uuidFactory.call(context, broker)
     } else {
       context.id = uuid()
     }
+
+    // Pass existing request ID
     if (!context.requestId) {
       context.requestId = context.id
     }
