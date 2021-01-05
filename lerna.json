@@ -1,6 +1,7 @@
 {
     "ci": true,
     "packages": [
+      "packages/cache/*",
       "packages/core/*",
       "packages/transports/*",
       "packages/tracing-adapters/*"
