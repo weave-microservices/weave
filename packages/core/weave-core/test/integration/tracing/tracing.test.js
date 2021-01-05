@@ -13,7 +13,6 @@ const pickSpanFields = (spans, fieldsToOmit = []) => {
 describe('Test tracing', () => {
   let flow = []
   let id = 0
-  let eIndex = 0
   const defaultSettings = {
     logger: {
       enabled: false
