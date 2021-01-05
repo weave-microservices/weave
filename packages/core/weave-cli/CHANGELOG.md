@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.8.0](https://github.com/weave-microservices/weave/compare/@weave-js/cli@0.8.0-alpha.4...@weave-js/cli@0.8.0) (2021-01-05)
+
+
+### Features
+
+* add create command for services ([9f1e2c9](https://github.com/weave-microservices/weave/commit/9f1e2c9b5cd5a1078a88161a51c5166801732558))
+
+
+
+
+
 # [0.8.0-alpha.4](https://github.com/weave-microservices/weave/compare/@weave-js/cli@0.8.0-alpha.3...@weave-js/cli@0.8.0-alpha.4) (2020-11-09)
 
 **Note:** Version bump only for package @weave-js/cli
