@@ -140,7 +140,7 @@ describe('Test tracing', () => {
     const result = await node2.call('post.list')
     expect(result).toMatchSnapshot()
 
-    flow.sort((a, b) => a.startTime - b.startTime)
+    // flow.sort((a, b) => a.startTime - b.startTime)
 
     const spans = pickSpanFields(flow)
 

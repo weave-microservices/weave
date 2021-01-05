@@ -32,26 +32,6 @@ Array [
 exports[`Test tracing Started and finished event should be triggered. 2`] = `
 Array [
   Object {
-    "id": "node2-55",
-    "name": "action 'post.list'",
-    "sampled": true,
-    "service": Object {
-      "fullyQualifiedName": "post",
-      "name": "post",
-    },
-    "tags": Object {
-      "action": Object {
-        "name": "post.list",
-        "shortName": "list",
-      },
-      "isRemoteCall": false,
-      "nodeId": "node2",
-      "requestLevel": 1,
-    },
-    "traceId": "node2-55",
-    "type": "action",
-  },
-  Object {
     "id": "node2-56",
     "name": "action 'user.get'",
     "sampled": true,
@@ -622,6 +602,26 @@ Array [
     "type": "event",
   },
   Object {
+    "id": "node2-55",
+    "name": "action 'post.list'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "post",
+      "name": "post",
+    },
+    "tags": Object {
+      "action": Object {
+        "name": "post.list",
+        "shortName": "list",
+      },
+      "isRemoteCall": false,
+      "nodeId": "node2",
+      "requestLevel": 1,
+    },
+    "traceId": "node2-55",
+    "type": "action",
+  },
+  Object {
     "id": "node1-185",
     "name": "event '$tracing.trace.spans'",
     "sampled": true,
@@ -704,6 +704,125 @@ Array [
       "requestLevel": 1,
     },
     "traceId": "node4-199",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-205",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "isRemoteCall": true,
+      "nodeId": "node1",
+      "requestLevel": 1,
+    },
+    "traceId": "node4-203",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-209",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "isRemoteCall": true,
+      "nodeId": "node1",
+      "requestLevel": 1,
+    },
+    "traceId": "node4-207",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-213",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "isRemoteCall": true,
+      "nodeId": "node1",
+      "requestLevel": 1,
+    },
+    "traceId": "node4-211",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-217",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "isRemoteCall": true,
+      "nodeId": "node1",
+      "requestLevel": 1,
+    },
+    "traceId": "node4-215",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-221",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "isRemoteCall": true,
+      "nodeId": "node1",
+      "requestLevel": 1,
+    },
+    "traceId": "node4-219",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-225",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "isRemoteCall": true,
+      "nodeId": "node1",
+      "requestLevel": 1,
+    },
+    "traceId": "node4-223",
+    "type": "event",
+  },
+  Object {
+    "id": "node1-229",
+    "name": "event '$tracing.trace.spans'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "tracing-collector",
+      "name": "tracing-collector",
+    },
+    "tags": Object {
+      "action": null,
+      "isRemoteCall": true,
+      "nodeId": "node1",
+      "requestLevel": 1,
+    },
+    "traceId": "node4-227",
     "type": "event",
   },
 ]
