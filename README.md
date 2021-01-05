@@ -2,7 +2,7 @@
 # [Weave](https://github.com/weave-microservices/weave)
 
 [![NPM Version](https://img.shields.io/npm/v/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/core)
-[![Build Status](https://travis-ci.com/weave-microservices/weave.svg?branch=master)](https://travis-ci.com/weave-microservices/weave)
+[![Build Status](https://github.com/weave-microservices/weave/workflows/Weave%20CI/badge.svg?branch=dev)](https://travis-ci.com/weave-microservices/weave)
 [![CodeFactor](https://www.codefactor.io/repository/github/weave-microservices/weave/badge)](https://www.codefactor.io/repository/github/weave-microservices/weave/overview/dev)
 [![Downloads](https://img.shields.io/npm/dt/@weave-js/core.svg)](https://www.npmjs.com/package/@weave-js/core)
 
