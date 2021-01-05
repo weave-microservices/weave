@@ -13,6 +13,7 @@ const pickSpanFields = (spans, fieldsToOmit = []) => {
 describe('Test tracing', () => {
   let flow = []
   let id = 0
+  let eIndex = 0
   const defaultSettings = {
     logger: {
       enabled: false
@@ -38,6 +39,9 @@ describe('Test tracing', () => {
     name: 'tracing-collector',
     events: {
       '$tracing.trace.spans' (ctx) {
+        ctx.data.forEach(element => {
+          element.eIndex = eIndex++
+        })
         flow.push(...ctx.data)
       }
     }
@@ -140,7 +144,7 @@ describe('Test tracing', () => {
     const result = await node2.call('post.list')
     expect(result).toMatchSnapshot()
 
-    // flow.sort((a, b) => a.startTime - b.startTime)
+    flow.sort((a, b) => a.eIndex - b.eIndex)
 
     const spans = pickSpanFields(flow)
 

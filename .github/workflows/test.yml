@@ -16,15 +16,19 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x]
+        node-version: [14.x]
         redis-version: [5]
 
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Setup Node.js
       uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
-
-    - run: npm install
+        node-version: 12
+    - name: Install lerna
+      run: npm install lerna -g
+    - name: Install
+      run: npm install
+    - name: Lerna bootstrap
+      run: lerna bootstrap
     - run: npm run test
