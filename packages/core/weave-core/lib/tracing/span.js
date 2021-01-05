@@ -5,6 +5,7 @@ exports.createSpan = (tracer, name, options) => {
     name,
     id: options.id || tracer.broker.getUUID(),
     traceId: options.traceId || tracer.broker.getUUID(),
+    parentId: options.parentId,
     type: options.type,
     sampled: options.sampled || tracer.shouldSample(),
     service: options.service,
