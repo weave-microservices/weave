@@ -32,6 +32,27 @@ Array [
 exports[`Test tracing Started and finished event should be triggered. 2`] = `
 Array [
   Object {
+    "eIndex": 33,
+    "id": "node2-55",
+    "name": "action 'post.list'",
+    "sampled": true,
+    "service": Object {
+      "fullyQualifiedName": "post",
+      "name": "post",
+    },
+    "tags": Object {
+      "action": Object {
+        "name": "post.list",
+        "shortName": "list",
+      },
+      "isRemoteCall": false,
+      "nodeId": "node2",
+      "requestLevel": 1,
+    },
+    "traceId": "node2-55",
+    "type": "action",
+  },
+  Object {
     "eIndex": 0,
     "id": "node2-56",
     "name": "action 'user.get'",
@@ -633,27 +654,6 @@ Array [
     },
     "traceId": "node4-179",
     "type": "event",
-  },
-  Object {
-    "eIndex": 33,
-    "id": "node2-55",
-    "name": "action 'post.list'",
-    "sampled": true,
-    "service": Object {
-      "fullyQualifiedName": "post",
-      "name": "post",
-    },
-    "tags": Object {
-      "action": Object {
-        "name": "post.list",
-        "shortName": "list",
-      },
-      "isRemoteCall": false,
-      "nodeId": "node2",
-      "requestLevel": 1,
-    },
-    "traceId": "node2-55",
-    "type": "action",
   },
   Object {
     "eIndex": 34,
