@@ -30,10 +30,9 @@ module.exports = function SwimTransport (adapterOptions) {
 
   self.afterInit = function () {
     self.nodes = this.broker.registry.nodes
-    self.registry = self.broker.registry,
+    self.registry = self.broker.registry
     self.swim = Swim(self, adapterOptions)
   }
-
 
   self.connect = async () => {
     const port = await startTCPServer()
