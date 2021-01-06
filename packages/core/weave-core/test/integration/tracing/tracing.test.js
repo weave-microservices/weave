@@ -1,14 +1,14 @@
-const { omit } = require('@weave-js/utils')
+// const { omit } = require('@weave-js/utils')
 const { TracingAdapters } = require('../../../lib/index')
 const { createNode } = require('../../helper')
 const { posts, users } = require('../../helper/data')
 
-const pickSpanFields = (spans, fieldsToOmit = []) => {
-  return spans.map(span => {
-    span = omit(span, ['startTime', 'duration', 'finishTime'])
-    return span
-  })
-}
+// const pickSpanFields = (spans, fieldsToOmit = []) => {
+//   return spans.map(span => {
+//     span = omit(span, ['startTime', 'duration', 'finishTime'])
+//     return span
+//   })
+// }
 
 describe('Test tracing', () => {
   let flow = []
