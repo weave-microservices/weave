@@ -12,6 +12,7 @@ describe('Email validator', () => {
     const result = validate(parameters)
 
     expect(result).toBe(true)
+    expect(parameters.email).toBe('hello@weave-js.com')
   })
 
   it('email validator - invalid, not an email', () => {

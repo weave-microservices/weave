@@ -20,6 +20,10 @@ module.exports = function checkEmail ({ schema, messages }) {
         }
     `)
 
+  code.push(`
+    return value
+  `)
+
   return {
     code: code.join('\n')
   }
