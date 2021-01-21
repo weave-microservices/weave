@@ -4,6 +4,7 @@
  * Copyright 2020 Fachwerk
  */
 export class WeaveError extends Error {
+    nodeId: string;
     code: number;
     data: any;
     retryable: Boolean;
@@ -33,10 +34,11 @@ export class WeaveRetrieableError extends WeaveError {
 }
 
 export class WeaveServiceNotFoundError extends WeaveRetrieableError {
-    constructor(data = {}) {
+    data: any;
+    constructor(data) {
         let message;
-        if ((data as any).actionName && (data as any).nodeId) {
-            message = `Service "${(data as any).actionName}" not found on node "${(data as any).nodeId}".`;
+        if (data.actionName && (data as any).nodeId) {
+            message = `Service "${(data as any).actionName}" not found on node "${data.nodeId}".`;
         }
         else if ((data as any).actionName) {
             message = `Service "${(data as any).actionName}" not found.`;

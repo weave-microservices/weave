@@ -49,7 +49,7 @@ export type Transport = {
     removePendingRequestsByNodeId(nodeId: string): void,
     createMessage(type: string, targetNodeId?: string, payload?: any): TransportMessage,
     request(context: Context): void,
-    response(target: string, contextId: string, data: Object|ReadableStream, meta: Object, error?: Error): Promise<any>,
+    response(target: string, contextId: string, data: Object|ReadableStream, meta: Object, error?: WeaveError): Promise<any>,
     statistics: any
 }
 /**
