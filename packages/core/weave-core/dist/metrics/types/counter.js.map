@@ -1,0 +1,1 @@
+{"version":3,"file":"counter.js","sourceRoot":"","sources":["../../../lib/metrics/types/counter.ts"],"names":[],"mappings":"AAAA,MAAM,KAAK,GAAG,OAAO,CAAC,SAAS,CAAC,CAAA;AAEhC,MAAM,CAAC,OAAO,GAAG,MAAM,OAAQ,SAAQ,KAAK;IAC1C,6BAA6B;IAC7B,sBAAsB;IACtB,IAAI;IAEJ,SAAS;QACP,MAAM,IAAI,KAAK,CAAC,oCAAoC,CAAC,CAAA;IACvD,CAAC;CACF,CAAA"}

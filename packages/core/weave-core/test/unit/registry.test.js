@@ -213,6 +213,6 @@ describe('Test "getNextAvailableActionEndpoint"', () => {
   })
 
   it('should try to return an endpoint by specific node id', () => {
-    expect(registry.getNextAvailableActionEndpoint('test-action', { nodeId: 'test-node' })).toEqual(new Errors.WeaveServiceNotFoundError({ actionName: 'test-action', nodeId: 'test-node' }))
+    expect(registry.getNextAvailableActionEndpoint('test-action', 'test-node')).toEqual(new Errors.WeaveServiceNotFoundError({ actionName: 'test-action', nodeId: 'test-node' }))
   })
 })

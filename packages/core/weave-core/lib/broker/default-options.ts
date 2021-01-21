@@ -1,0 +1,316 @@
+/*
+ * Author: Kevin Ries (kevin@fachw3rk.de)
+ * -----
+ * Copyright 2020 Fachwerk
+ */
+
+/** @module weave */
+import { LoadBalancingStrategy } from '../constants'
+import { LogLevel, LoggerOptions, CustomLoggerFunction } from '../logger/index'
+import { Middleware } from './middleware'
+
+/**
+ * Configuration object for weave service broker.
+ * @typedef {Object} BulkheadSettings
+ * @property {Boolean} enabled Enable bulkhead middleware. (default = false)
+ * @property {number} concurrentCalls Maximum concurrent calls. (default = 15)
+ * @property {number} maxQueueSize Maximum queue size. (default = 150)
+ */
+
+/**
+ * Configuration object for weave service broker.
+ * @typedef {Object} MetricsSettings
+ * @property {Boolean} enabled Enable metric middleware. (default = false)
+ * @property {Array<String|Object>} adapters Array of metric adapters.
+ */
+
+/**
+ * Configuration object for weave service broker.
+ * @typedef {Object} TracingSettings
+ * @property {Boolean} enabled Enable tracing middleware. (default = false)
+ * @property {number} tracingRate Rate of traced actions. (default = 1.0)
+ * @property {Array<String|Object>} collectors Array of tracing collectors.
+ */
+
+/**
+ * Configuration object for weave service broker.
+ * @typedef {Object} CacheSettings
+ * @property {Boolean} enabled Enable cache middleware. (default = false)
+ * @property {String]Object} adaper Cacha adapter. (default = memory (In Memory))
+ */
+
+/**
+ * Configuration object for weave service broker.
+ * @typedef {Object} RegistrySettings
+ * @property {Boolean} preferLocalActions Prefer local actions over remote actions. (default = true)
+ * @property {number} requestTimeout Time in milliseconds before a action call is rejected. (default = 0)
+ * @property {number} maxCallLevel Maximum request depth level.
+ * @property {String|Object} loadBalancingStrategy - Stratagy for the internal load balancer. (default = 'round_robin')
+ */
+
+/**
+ * Configuration object for weave service broker.
+ * @typedef {Object} CircuitBreakerSettings
+ * @property {Boolean} enabled Enable circuit breaker middleware. (default = false)
+ * @property {Boolean} failureOnError Prefer local actions over remote actions.
+ */
+
+/**
+ * Configuration object for weave service broker.
+ * @typedef {Object} RetryPolicySettings
+ * @property {Boolean} enabled Enable circuit breaker middleware. (default = false)
+ * @property {number} delay Delay in milliseconds before the next call is attempted. (default = 3000)
+ * @property {number} retries number of attempts before the action call gets rejected. (default = 5)
+ */
+
+/**
+ * Configuration object for weave service broker.
+ * @typedef {Object} TransportSettings
+ * @property {String|Object} adapter Transport adapter.
+ * @property {number} maxQueueSize Maximum queue size (default = 80000).
+ * @property {number} heartbeatInterval number of milliseconds in which the heartbeat packet is sent to other nodes. (default = 5000 ms)
+ * @property {number} heartbeatTimeout number of milliseconds without response before the node is set to the Not Available status. (default = 10000)
+ * @property {number} offlineNodeCheckInterval Interval in milliseconds to check and remove not offline nodes. (default = 30000ms)
+ * @property {number} maxOfflineTime Maximum time a node can be offline before it is removed from the registry. (default = 600000ms)
+ * @property {number} maxChunkSize Maximum chunk size for streams. (default = 256 * 1024 Bits)
+ * @property {String|Object} serializer Serializer settings
+ */
+
+/**
+ * Configuration object for logger.
+ * @typedef {Object} LoggerSettings
+ * @property {Boolean} enabled Enable logger.
+ * @property {'fatal'|'error'|'warn'|'info'|'debug'|'trace'} logLevel Log level of the messages to be displayed.
+ * @property {Stream.Writable|Array} stream Destination to which the data is written, can be a single valid Writable stream or an array holding multiple valid Writable streams. (default = process.stdout).
+ * @property {Boolean} displayTimestamp Show the current timestamp. (default = true)
+ * @property {Boolean} displayBadge Show log type badge. (default = true)
+ * @property {Boolean} displayLabel Show log type label. (default = true)
+ * @property {Boolean} displayModuleName Show the module name. (default = true)
+ * @property {Boolean} displayFilename Show the filename.
+ * @property {Object} types Custom log types.
+ */
+
+/**
+ * Middleware object.
+ * @typedef {Object} Middleware
+ * @property {Function(BrokerInstance)} created Broker created hook.
+ * @property {Function(BrokerInstance)} started Broker started hook.
+ * @property {Function(BrokerInstance)} stopped Broker stopped hook.
+ * @property {Function(BrokerInstance)} serviceCreated Service created hook.
+ * @property {Function(BrokerInstance)} serviceStarting Service starting hook.
+ * @property {Function(BrokerInstance)} serviceStarted Service started hook.
+ * @property {Function(BrokerInstance)} serviceStopping Service stopping hook.
+ * @property {Function(BrokerInstance)} serviceStopped Service stopped hook.
+ * @property {Function(BrokerInstance)} localAction Local action hook.
+ * @property {Function(BrokerInstance)} remoteAction Rremote action hook.
+ * @property {Function(BrokerInstance)} createService Create service hook.
+ * @property {Function(BrokerInstance)} call Call action hook.
+ * @property {Function(BrokerInstance)} emit Emit event hook.
+ * @property {Function(BrokerInstance)} broadcast Broadcast event hook.
+ */
+
+/**
+ * Configuration object for weave service broker.
+ * @typedef {Object} BrokerOptions
+ * @property {String} nodeId Name of the Service broker node.
+ * @property {CacheSettings} cache Cache settings.
+ * @property {Boolean} loadNodeService Load the $node service. (default = true)
+ * @property {Boolean} publishNodeService Publish the $node service about the transport and make it accessible. (default = false)
+ * @property {Boolean} loadInternalMiddlewares - Load the default middlewares on startup. (default = true)
+ * @property {LoggerSettings} logger Logger settings.
+ * @property {MetricsSettings} metrics Metrics settings
+ * @property {TracingSettings} tracing Tracing settings
+ * @property {Array<Middleware>} middlewares Custom middlewares (default = null).
+ * @property {RegistrySettings} registry - Registry settings.
+ * @property {RetryPolicySettings} retryPolicy - Retry policy
+ * @property {CircuitBreakerSettings} circuitBreaker Circuit breaker settings.
+ * @property {BulkheadSettings} bulkhead Bulkhead settings.
+ * @property {TransportSettings} transport Transport settings.
+ * @property {Boolean} watchServices Monitor services and automatically reload them when changes are made.
+ */
+
+
+export enum LoadbalancingStrategy {
+  RoundRobin = 'ROUND_ROBIN',
+  Random = 'RANDOM'
+}
+
+export type BulkheadOptions = {
+  enabled: Boolean,
+  concurrentCalls: number,
+  maxQueueSize: number
+}
+
+export type CacheOptions = {
+  enabled: Boolean,
+  adapter: String | CacheAdapter,
+  ttl: number
+}
+
+export type CircuitBreakerOptions = {
+  enabled: Boolean,
+  halfOpenTimeout: number,
+  maxFailures: number,
+  windowTime: number
+}
+
+export type TransportOptions = {
+  adapter: null,
+  serializer?: Function,
+  maxQueueSize: number,
+  heartbeatInterval: number,
+  nodeUpdateInterval: number,
+  heartbeatTimeout: number,
+  offlineNodeCheckInterval: number,
+  maxOfflineTime: number,
+  maxChunkSize: number
+}
+
+export type MetricsOptions = {
+  enabled: Boolean,
+  adapters: Array<MetricAdapter>,
+  defaultBuckets: Array<number>
+}
+
+export type RegistryOptions = {
+   preferLocalActions: Boolean,
+   requestTimeout: number,
+   maxCallLevel: number,
+   loadBalancingStrategy: LoadBalancingStrategy
+}
+
+export type RetryPolicyOptions = {
+  enabled: Boolean,
+  delay: number,
+  retries: number
+}
+
+export type TracingOptions = {
+  enabled: Boolean,
+  samplingRate: number,
+  collectors: Array<TracingCollector>
+}
+
+export type BrokerOptions = {
+  nodeId: string,
+  bulkhead: BulkheadOptions,
+  cache: CacheOptions,
+  circuitBreaker: CircuitBreakerOptions,
+  transport: TransportOptions,
+  errorHandler?: Function,
+  loadNodeService: Boolean,
+  publishNodeService: Boolean,
+  loadInternalMiddlewares: Boolean,
+  metrics: MetricsOptions,
+  middlewares?: Array<Middleware>,
+  logger?: LoggerOptions,
+  tracing: TracingOptions,
+  namespace: String,
+  registry: RegistryOptions,
+  retryPolicy: RetryPolicyOptions,
+  validateActionParams: Boolean,
+  watchServices: Boolean,
+  beforeRegisterMiddlewares?: Function,
+  uuidFactory(): string
+}
+
+/**
+ * Return the default options
+ * @returns {BrokerOptions} Broker options
+ */
+export function getDefaultOptions (): BrokerOptions {
+  return {
+    bulkhead: {
+      enabled: false,
+      concurrentCalls: 15,
+      maxQueueSize: 150
+    },
+    // cache settings
+    cache: {
+      enabled: false,
+      adapter: 'memory',
+      ttl: 3000
+    },
+    circuitBreaker: {
+      enabled: false,
+      // Time after which an open circuit breaker is set to half-open.
+      halfOpenTimeout: 10000,
+      maxFailures: 3,
+      windowTime: 60000
+    },
+    transport: {
+      adapter: null,
+      // serializer for transport serialization/deserialization
+      serializer: null,
+      // maximum queue size
+      maxQueueSize: 80000,
+      // heartbeat interval
+      heartbeatInterval: 5 * 1000,
+      // local node update interval
+      nodeUpdateInterval: 5 * 1000,
+      // heartbeat timeout
+      heartbeatTimeout: 10 * 1000,
+      // interval to check and remove not offline nodes.
+      offlineNodeCheckInterval: 30 * 1000,
+      // Maximum time a node can be offline before it is removed from the registry.
+      maxOfflineTime: 1000 * 60 * 10,
+      // Maximum chunk size for stream chunks
+      maxChunkSize: 256 * 1024
+    },
+    errorHandler: null,
+    // load $node service
+    loadNodeService: true,
+    // load Internal service actions
+    publishNodeService: false,
+    // log level
+    loadInternalMiddlewares: true,
+    metrics: {
+      enabled: false,
+      adapters: [],
+      defaultBuckets: [1, 5, 10, 20, 25, 30, 50, 100, 250, 500, 1000, 2500, 5000, 10000]
+    },
+    // broker middelwares
+    middlewares: null,
+    // activate action statistics
+    logger: {
+      enabled: true,
+      logLevel: LogLevel.Info,
+      stream: process.stdout,
+      displayTimestamp: true,
+      displayBadge: true,
+      displayLabel: true,
+      displayModuleName: true,
+      displayFilename: false
+    },
+    // metrics settings
+    tracing: {
+      enabled: false,
+      samplingRate: 1.0,
+      collectors: []
+    },
+    // namespace
+    namespace: '',
+    // Registry settings
+    registry: {
+      // prefer local services
+      preferLocalActions: true,
+      // request timeout in ms
+      requestTimeout: 0,
+      // maximum request level
+      maxCallLevel: 0,
+      // loadbalancing stategy
+      loadBalancingStrategy: loadBalancingStrategy.ROUND_ROBIN
+    },
+    // retry settings
+    retryPolicy: {
+      enabled: false,
+      delay: 3000,
+      retries: 5
+    },
+    // load validation middleware
+    validateActionParams: true,
+    // reload service on code change
+    watchServices: false,
+    beforeRegisterMiddlewares: null
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "target": "es6",
+    "moduleResolution": "node",
+    "rootDir": "./lib",
+    "outDir": "dist",
+    "resolveJsonModule": true,
+    "paths": {
+      "@lib/*": ["/lib/*"]
+    }
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "lib": ["es6"]
+}
