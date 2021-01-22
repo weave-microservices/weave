@@ -2,6 +2,7 @@ import { Registry } from "..";
 import { Endpoint } from "../action-endpoint";
 import { Node } from "../node";
 import { Service, ServiceAction, ServiceSettings } from "../service";
+import { ServiceActionCollection } from "./action-collection";
 
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
@@ -28,7 +29,7 @@ export interface ServiceCollection {
     remove(nodeId: string, serviceName: string, version: number): void,
     removeAllByNodeId(nodeId: string): void,
     registerAction(nodeId: string, action: ServiceAction),
-    tryFindActionsByActionName(actionName: string): ActionCollection,
+    tryFindActionsByActionName(actionName: string): ServiceActionCollection,
     getLocalActions(): Array<Object>,
     getActionsList(): Array<Object>,
     list(filterParams: ServiceCollectionListFilterParams),

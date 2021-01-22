@@ -1,1 +1,0 @@
-{"version":3,"file":"broadcaster.js","sourceRoot":"","sources":["../../../lib/broker/context/broadcaster.ts"],"names":[],"mappings":"AAAA,OAAO,CAAC,WAAW,GAAG,CAAC,MAAM,EAAE,EAAE,CAAC,CAAC;IACjC,WAAW,CAAE,SAAS,EAAE,OAAO,EAAE,MAAM;QACrC,OAAO,MAAM,CAAC,SAAS,CAAC,SAAS,EAAE,OAAO,EAAE,MAAM,CAAC,CAAA;IACrD,CAAC;CACF,CAAC,CAAA"}

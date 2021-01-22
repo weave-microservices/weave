@@ -402,12 +402,13 @@ export function createTransport(broker: Broker, adapter: TransportAdapter, middl
         const message = transport.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payload);
         return transport.send(message);
     };
+    
     const onConnect = ({ wasReconnect = false, useHeartbeatTimer = true, useRemoteNodeCheckTimer = true, useOfflineCheckTimer = true }) => Promise.resolve()
         .then(() => {
-        if (!wasReconnect) {
-            return makeSubscriptions();
-        }
-    })
+            if (!wasReconnect) {
+                return makeSubscriptions();
+            }
+        })
         .then(() => transport.discoverNodes())
         .then(() => utils.promiseDelay(Promise.resolve(), 500))
         .then(() => {

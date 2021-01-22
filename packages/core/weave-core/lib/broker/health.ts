@@ -92,5 +92,3 @@ export function createHealth (): HealthHandler {
     }
   }
 }
-
-module.exports = createHealth

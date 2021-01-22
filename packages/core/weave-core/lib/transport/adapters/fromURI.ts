@@ -3,12 +3,10 @@
  * -----
  * Copyright 2019 Fachwerk
  */
-const { parse } = require('url')
-// @ts-expect-error ts-migrate(2451) FIXME: Cannot redeclare block-scoped variable 'getAdapter... Remove this comment to see the full error message
-const getAdapterByName = require('./getAdapterByName')
+import { parse } from 'url'
+import getAdapterByName from './getAdapterByName'
 
-// @ts-expect-error ts-migrate(2451) FIXME: Cannot redeclare block-scoped variable 'fromURI'.
-function fromURI (uri) {
+export default function fromURI (uri) {
   if (typeof uri !== 'string') {
     throw new Error('URI needs to be a string.')
   }
@@ -34,4 +32,3 @@ function fromURI (uri) {
   return AdapterFactory(config)
 }
 
-module.exports = fromURI

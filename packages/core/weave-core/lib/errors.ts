@@ -97,7 +97,7 @@ export class WeaveMaxCallLevelError extends WeaveError {
 }
 
 export function restoreError (error) {
-    const ErrorClass = module.exports[error.name];
+    const ErrorClass = global[error.name];
     if (ErrorClass) {
         switch (error.name) {
             case 'WeaveError':

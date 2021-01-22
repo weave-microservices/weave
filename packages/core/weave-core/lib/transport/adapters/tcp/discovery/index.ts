@@ -10,7 +10,7 @@ const messageTypes = {
 
 export interface TCPDiscoveryService {
   bus: EventEmitter,
-  init(): Promise<any>,
+  init(port: number): Promise<any>,
   close(): void
 }
 
@@ -130,5 +130,3 @@ export function createDiscoveryService(adapter: TransportAdapter, options): TCPD
     }
   }
 }
-
-module.exports = createDiscoveryService

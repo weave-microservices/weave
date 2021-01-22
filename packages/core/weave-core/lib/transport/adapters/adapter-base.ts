@@ -11,6 +11,7 @@ import { MessageHandlerResult } from "../message-handlers"
 import { Transport, TransportMessage } from "../transport-factory"
 
 export type ConnectionEventParams = {}
+export type ErrorHandlerDelegate = (error) => void
 
 export interface TransportAdapter {
   name: string,
@@ -24,6 +25,7 @@ export interface TransportAdapter {
   interruptCounter: number,
   repeatAttemptCounter: number,
   init(broker: Broker, transport: Transport, messageHandler: MessageHandlerResult),
+  connect(isReconnected: boolean, handleError: ErrorHandlerDelegate): void,
   subscribe(type: string, nodeId?: string): Promise<any>,
   connected(): void,
   disconnected(): void,
@@ -36,10 +38,10 @@ export interface TransportAdapter {
   deserialize(packet: string): Object,
   updateStatisticSent(length: number): void,
   updateStatisticReceived(length: number): void,
-  sendHello?: (nodeId: string) => Promise<any>
+  sendHello?: (nodeId: string) => Promise<any> // Need to be 
 }
 
-export function createTransportBase(): TransportAdapter{
+export default function TransportAdapterBase(): TransportAdapter{
   let prefix = 'weave'
   let broker: Broker
   let transport: Transport
@@ -74,6 +76,9 @@ export function createTransportBase(): TransportAdapter{
       return Promise.resolve()
     },
     subscribe(type: string, nodeId?: string) {
+      return Promise.resolve()
+    },
+    connect() {
       return Promise.resolve()
     },
     close() {

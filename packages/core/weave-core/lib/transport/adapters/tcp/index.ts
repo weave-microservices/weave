@@ -1,10 +1,10 @@
 
 import { defaultsDeep } from '@weave-js/utils'
-import TransportBase from '../adapter-base'
-import Swim from './discovery/index'
+import TransportBase, { TransportAdapter } from '../adapter-base'
+import { createDiscoveryService } from './discovery/index'
 import MessageTypes from '../../message-types'
-import TCPReader, { TCPReader } from './tcpReader'
-import TCPWriter from './tcpWriter'
+import { createTCPReader } from './tcpReader'
+import { createTCPWriter } from './tcpWriter'
 // const TCPMessageTypeHelper from './tcp-messagetypes')
 
 const defaultOptions = {
@@ -20,18 +20,19 @@ const defaultOptions = {
   maxPacketSize: 1024 * 1024 * 50
 }
 
-module.exports = function SwimTransport (adapterOptions) {
+
+export default function TCPGossip(adapterOptions): TransportAdapter {
   adapterOptions = defaultsDeep(adapterOptions, defaultOptions)
 
-  const self = TransportBase(adapterOptions)
+  const self: TransportAdapter = TransportBase(adapterOptions)
   let tcpReader: TCPReader
-  let tcpWriter
+  let tcpWriter: any
   let gossipTimer
 
   self.afterInit = function () {
     self.nodes = this.broker.registry.nodes
     self.registry = self.broker.registry
-    self.swim = Swim(self, adapterOptions)
+    self.swim = createDiscoveryService(self, adapterOptions)
   }
 
   self.connect = async () => {
@@ -169,8 +170,8 @@ module.exports = function SwimTransport (adapterOptions) {
   }
 
   function startTCPServer () {
-    tcpReader = TCPReader(self, adapterOptions)
-    tcpWriter = TCPWriter(self, adapterOptions)
+    tcpReader = createTCPReader(self, adapterOptions)
+    tcpWriter =  createTCPWriter(self, adapterOptions)
 
     tcpReader.bus.on('message', onMessage)
 

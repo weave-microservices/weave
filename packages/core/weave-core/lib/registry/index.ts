@@ -45,7 +45,7 @@ export interface Registry {
     getLocalActionEndpoint(actionName: string): Endpoint,
     getNodeInfo(nodeId: string): NodeInfo,
     getLocalNodeInfo(forceGenerateInfo?: boolean): NodeInfo,
-    generateLocalNodeInfo(incrementSequence: boolean): NodeInfo,
+    generateLocalNodeInfo(incrementSequence?: boolean): NodeInfo,
     processNodeInfo(payload: any),
     nodeDisconnected(nodeId: string, isUnexpected?: boolean): void,
     removeNode(nodeId: string): void,

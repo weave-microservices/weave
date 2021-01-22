@@ -1,1 +1,0 @@
-{"version":3,"file":"emitter.js","sourceRoot":"","sources":["../../../lib/broker/context/emitter.ts"],"names":[],"mappings":"AAAA,OAAO,CAAC,OAAO,GAAG,CAAC,CAAC,EAAE,MAAM,EAAE,EAAE,CAAC,CAAC;IAChC,IAAI,CAAE,SAAS,EAAE,OAAO,EAAE,MAAM;QAC9B,OAAO,MAAM,CAAC,IAAI,CAAC,SAAS,EAAE,OAAO,EAAE,MAAM,CAAC,CAAA;IAChD,CAAC;CACF,CAAC,CAAA"}

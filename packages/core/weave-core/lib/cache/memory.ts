@@ -3,22 +3,24 @@
  * -----
  * Copyright 2020 Fachwerk
  */
-// @ts-expect-error ts-migrate(2451) FIXME: Cannot redeclare block-scoped variable 'match'.
+
 const { match } = require('@weave-js/utils');
 const { createCacheBase } = require('./base');
-const makeMemoryCache = (broker, options = {}) => {
+
+export default function createMemoryCache(broker, options = {}) {
     const base = createCacheBase(broker, options);
     const storage = new Map();
     const name = 'Memory';
-    const timer = setInterval(() => {
-        checkTtl();
-    }, 3000);
+
+    const timer = setInterval(() => checkTtl(), 3000);
     timer.unref();
+
     // if a new broker gets connected, we need to clear the cache
     broker.bus.on('$transport.connected', () => {
         base.log.trace('Transpot adapter connected. Cache is cleared.');
         cache.clear();
     });
+
     const checkTtl = () => {
         const now = Date.now();
         storage.forEach((item, hashKey) => {
@@ -28,6 +30,7 @@ const makeMemoryCache = (broker, options = {}) => {
             }
         });
     };
+    
     const cache = Object.assign(base, {
         name,
         get(cacheKey) {
@@ -69,4 +72,3 @@ const makeMemoryCache = (broker, options = {}) => {
     });
     return cache;
 };
-module.exports = makeMemoryCache;

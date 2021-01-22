@@ -3,9 +3,7 @@
  * -----
  * Copyright 2020 Fachwerk
  */
-// @ts-expect-error ts-migrate(2451) FIXME: Cannot redeclare block-scoped variable 'crypto'.
 const crypto = require('crypto');
-// @ts-expect-error ts-migrate(2451) FIXME: Cannot redeclare block-scoped variable 'isObject'.
 const { isObject } = require('@weave-js/utils');
 function getCacheKeyByObject(val) {
     if (Array.isArray(val)) {
