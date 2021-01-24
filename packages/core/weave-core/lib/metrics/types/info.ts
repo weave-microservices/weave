@@ -1,7 +1,7 @@
-// @ts-expect-error ts-migrate(2451) FIXME: Cannot redeclare block-scoped variable 'BaseMetric... Remove this comment to see the full error message
-const BaseMetricType = require('./base')
-
-module.exports = class Gauge extends BaseMetricType {
+import BaseMetricType from './base'
+export default class Gauge extends BaseMetricType {
+  value: number;
+  
   constructor (store, obj) {
     super(store, obj)
     this.values = new Map()
@@ -13,7 +13,8 @@ module.exports = class Gauge extends BaseMetricType {
       .map(([labelString, item]) => {
         return {
           value: item.value,
-          labels: item.labels
+          labels: item.labels,
+          labelString
         }
       })
   }

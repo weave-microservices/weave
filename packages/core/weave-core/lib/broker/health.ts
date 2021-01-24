@@ -21,7 +21,7 @@ export interface HealthHandler {
   getNodeHealthInfo(): any
 }
 
-export function createHealth (): HealthHandler {
+export default function createHealth (): HealthHandler {
   let brokerInstance: Broker
   let transportReference: Transport
 

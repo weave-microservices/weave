@@ -6,16 +6,11 @@ import { wrapInArray, isFunction, clone, wrapHandler, isObject, promisify } from
 import { WeaveError } from '../errors';
 import { Logger } from '../logger';
 
-export type ServiceActionDefinition = {
-    params?: Object,
-    handler(context: Context): Promise<any>
-}
 
-export type ServiceAction = {
-    name: string,
-    params?: Object,
-    handler(context: Context): Promise<any>
-}
+
+
+
+
 
 export type ServiceEvent = {
     params?: Object,
@@ -26,9 +21,19 @@ export type ServiceSettings = {
     $dependencyTimeout?: number
 }
 
-export type ServiceSchema = {
+export type ServiceRegistrationObject = {
     name: string,
-    version?: Number,
+    fullyQualifiedName: string,
+    settings: ServiceSettings,
+    meta: any
+    version: number,
+    actions: any,
+    events: any
+}
+
+export interface ServiceSchema {
+    name: string,
+    version?: number,
     mixins: Array<ServiceSchema> | ServiceSchema,
     settings: ServiceSettings,
     meta?: Object,
@@ -41,22 +46,7 @@ export type ServiceSchema = {
     stopped()
 }
 
-export type Service = {
-    filename: string,
-    broker: Broker,
-    log: Logger,
-    version?: number,
-    name: string,
-    meta?: Object,
-    fullyQualifiedName: string,
-    schema: Object, // todo: schema
-    settings: ServiceSettings,
-    actions?: { [key: string]: (data: Object, options: ActionOptions) => {} },
-    events?: { [key: string]: (context: Context) => {} },
-    methods?: { [key: string]: Function } ,
-    start(): Promise<any>,
-    stop(): Promise<any>
-}
+
 
 /**
  * The complete Triforce, or one or more components of the Triforce.
@@ -229,7 +219,7 @@ export function createServiceFromSchema(broker: Broker, middlewareHandler: Middl
     service.events = {};
 
     // Create the service registry item
-    const registryItem = {
+    const registryItem: ServiceRegistrationObject = {
         name: service.name,
         fullyQualifiedName: service.fullyQualifiedName,
         settings: service.settings,

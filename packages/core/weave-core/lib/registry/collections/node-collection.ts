@@ -14,6 +14,7 @@ export type NodeCollectionListFilterParams = {
 
 export interface NodeCollection {
   localNode?: Node,
+  hostname?: string,
   createNode(nodeId: string): Node,
   add(nodeId: string, node: Node): void,
   has(nodeId: string): boolean,

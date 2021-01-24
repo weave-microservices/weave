@@ -4,6 +4,6 @@
  * Copyright 2019 Fachwerk
  */
 
-export * as BaseAdapter from './adapter-base'
+export * from './adapter-base'
 export * from './dummy'
 export * from './tcp'

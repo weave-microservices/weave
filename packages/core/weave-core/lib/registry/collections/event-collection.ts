@@ -6,7 +6,7 @@
 
 import { omit, match } from '@weave-js/utils';
 import { Registry } from '..';
-import { createEndpointList } from './endpoint-collection';
+import { createEndpointCollection } from './endpoint-collection';
 
 export interface EventCollection {
     add,
@@ -30,7 +30,7 @@ export function createEventCollection(registry: Registry): EventCollection{
         const groupName = event.group || service.name;
         let endpointList = eventCollection.get(event.name, groupName);
         if (!endpointList) {
-            endpointList = createEndpointList(broker, event.name, groupName);
+            endpointList = createEndpointCollection(broker, event.name, groupName);
             events.push(endpointList);
         }
         return endpointList.add(node, service, event);

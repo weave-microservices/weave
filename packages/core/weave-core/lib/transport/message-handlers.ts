@@ -93,7 +93,7 @@ export function createMessageHandler(broker: Broker, transport: Transport, pendi
       context.metrics = payload.metrics
       context.level = payload.level
       context.callerNodeId = payload.sender
-      context.options.timeout = payload.timeout || broker.options.requestTimeout || 0
+      context.options.timeout = payload.timeout || broker.options.registry.requestTimeout || 0
 
       return localRequestProxy(context)
         .then(data => transport.response(sender, payload.id, data, context.meta, null))

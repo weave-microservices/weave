@@ -9,63 +9,35 @@ import os from 'os';
 import glob from 'glob';
 import { isFunction, debounce, defaultsDeep, uuid } from '@weave-js/utils';
 import { getDefaultOptions, BrokerOptions } from './default-options';
-import { createDefaultLogger, LogLevel } from '../logger';
+import { createDefaultLogger, Logger } from '../logger';
 import { createServiceFromSchema, Service, ServiceSchema } from '../registry/service';
 import { createMiddlewareHandler } from './middleware';
 import { createRegistry, Registry } from '../registry';
 import { ContextFactory, createContextFactory } from './context-factory';
 import * as Middlewares from '../middlewares';
 import { createValidator } from './validator';
-import Cache from '../cache';
+import * as CacheModule from '../cache';
 import createHealthcheck from './health';
 import TransportAdapters from '../transport/adapters';
 import { createTransport, Transport } from '../transport/transport-factory';
 import { EventEmitter2 as EventEmitter } from 'eventemitter2';
 import { WeaveError } from '../errors';
-import { Tracer } from '../tracing';
-import { MetricsStorage } from '../metrics';
+import { createTracer, Tracer } from '../tracing';
+import { MetricRegistry, createMetricRegistry } from '../metrics';
 import { registerMetrics } from './broker-metrics';
-import { version } from '../../package.json';
-import { Context } from './context';
-
+// import { version } from '../../package.json';
+import { ActionOptions, Context, ContextPromise } from './context';
+import { Endpoint } from '../registry/action-endpoint';
+import { Cache } from '../cache/base';
+import { LogLevel } from '../logger/log-types';
+const version = 'sdasd'
 export type ServiceChangedDelegate = (isLocalService: boolean) => void
 
 export type PingResult = {
     [key: string]: Object
 }
 
-export interface Broker {
-    nodeId: string,
-    namespace: string,
-    bus: EventEmitter,
-    version: string,
-    options: BrokerOptions,
-    metrics?: Metrics,
-    start(): Promise<any>,
-    stop(): Promise<any>,
-    createService(serviceSchema: ServiceSchema): Service,
-    loadService(path: string): void,
-    loadServices(folderPath: string, fileMask?: string): void,
-    contextFactory: ContextFactory,
-    isStarted: Boolean,
-    log: Logger,
-    createLogger(moduleName: String, service?: Service): Logger,
-    getUUID(): string,
-    health: NodeHealth,
-    registry: Registry,
-    tracer: Tracer,
-    transport: Transport,
-    getNextActionEndpoint(actionName: string, options: EndpointOptions): ActionEndpoint,
-    call(actionName: string, data: Object, options: ActionOptions): Promise<any>,
-    multiCall(actions: Array<Object>): Promise<Array<any>>,
-    emit(eventName: string, data: Object, options?: EventOptions): Promise<any>,
-    broadcast(eventName: string, data: Object, options?: EventOptions): Promise<any>,
-    broadcastLocal(eventName: string, data: Object, options?: EventOptions): Promise<any>, 
-    waitForServices(serviceNames: Array<string>, timeout?: number, interval?: number): Promise<any>,
-    ping(nodeId: string, timeout?: number): Promise<PingResult>,
-    handleError(error: Error): void,
-    fatalError(message: string, error: Error, killProcess: Boolean): void
-}
+
 
 export type EventOptions = {
     parentContext?: Context,
@@ -268,7 +240,7 @@ export function createBroker (options: BrokerOptions): Broker {
             else {
                 log.debug('Call action on remote node.', { action: actionName, nodeId, requestId: context.requestId });
             }
-            const p = action.handler(context, endpoint.service, broker);
+            const p = action.handler(context, endpoint.service, broker) as ContextPromise<any>
             p.context = context;
             return p;
         },
@@ -282,7 +254,6 @@ export function createBroker (options: BrokerOptions): Broker {
                 return Promise.all(actions.map(item => this.call(item.actionName, item.data, item.options)));
             }
             else {
-                // @ts-expect-error ts-migrate(2554) FIXME: Expected 4 arguments, but got 1.
                 return Promise.reject(new WeaveError('Actions need to be an Array'));
             }
         },
@@ -664,13 +635,6 @@ export function createBroker (options: BrokerOptions): Broker {
         servicesChanged(false);
     });
 
-    // Resolve the transport adapter
-    if (typeof options.transport === 'string') {
-        options.transport = {
-            adapter: options.transport
-        };
-    }
-
     if (options.transport.adapter) {
         const adapter = TransportAdapters.resolve(broker, options.transport);
         if (adapter) {
@@ -680,7 +644,7 @@ export function createBroker (options: BrokerOptions): Broker {
 
     // const loadBalancingStrategy = LoadBalancing.resolve(options.registry.loadBalancingStrategy)
     // Metrics module
-    broker.metrics = MetricsStorage(broker, options.metrics);
+    broker.metrics = createMetricRegistry(broker, options.metrics);
     broker.metrics.init();
 
     registerMetrics(broker);
@@ -693,7 +657,7 @@ export function createBroker (options: BrokerOptions): Broker {
 
     // Initialize caching module
     if (options.cache.enabled) {
-        const createCache = Cache.resolve(options.cache.adapter);
+        const createCache = CacheModule.resolve(options.cache.adapter);
         broker.cache = createCache(broker, options.cache);
         broker.cache.init();
         log.info(`Cache module: ${broker.cache.name}`);
@@ -701,7 +665,7 @@ export function createBroker (options: BrokerOptions): Broker {
 
     // Initialize tracing module
     if (options.tracing.enabled) {
-        broker.tracer = Tracer();
+        broker.tracer = createTracer();
         broker.tracer.init(broker, options.tracing);
     }
 
@@ -728,7 +692,7 @@ export function createBroker (options: BrokerOptions): Broker {
             middlewareHandler.add(Middlewares.createBulkheadMiddleware());
 
             if (broker.cache) {
-                middlewareHandler.add(broker.cache.middleware);
+                middlewareHandler.add(broker.cache.createMiddleware());
             }
 
             middlewareHandler.add(Middlewares.createCircuitBreakerMiddleware());
@@ -756,19 +720,20 @@ export function createBroker (options: BrokerOptions): Broker {
         options.beforeRegisterMiddlewares.call(broker);
     }
 
+    // Register middlewares
     registerMiddlewares(options.middlewares);
+
     // Stop the broker greaceful
     const onClose = () => broker.stop()
         .catch(error => broker.log.error(error))
         .then(() => process.exit(0));
-    // if (!process.setMaxListeners) {
-    //   console.log(typeof process)
-    // }
+
     process.setMaxListeners(0);
     process.on('beforeExit', onClose);
     process.on('exit', onClose);
     process.on('SIGINT', onClose);
     process.on('SIGTERM', onClose);
+
     // Create internal services
     if (options.loadNodeService) {
         broker.createService(require('../services/node.service'));

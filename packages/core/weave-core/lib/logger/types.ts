@@ -1,13 +1,6 @@
 import figures from 'figures'
-import { LogLevel } from './index'
+import { LogLevel } from './log-types'
 
-export type LogType = {
-  badge: string,
-  color: string,
-  label: string,
-  logLevel: LogLevel,
-  stream?: Stream
-}
 
 export function createLogLevel(badge: string, color: string, label: string, logLevel: LogLevel) {
   return {

@@ -11,34 +11,15 @@ import kleur from 'kleur';
 import figures from 'figures';
 import { gray, underline, grey, dim } from 'kleur';
 import { defaultTypes, LogType } from './types';
+import { LogLevel } from './log-types';
 
 export interface Logger {
     [key: string]: (...messageObject: any[]) => {}
 }
 
-// log levels
-export enum LogLevel{
-    Trace = 'trace',
-    Debug = 'debug',
-    Info = 'info',
-    Warn = 'warn',
-    Error = 'error',
-    Fatal = 'fatal'
-}  
-
 export type CustomLoggerFunction = (bindings, logLevel) => {}
 
-export type LoggerOptions = {
-    enabled: Boolean,
-    logLevel?: LogLevel,
-    stream?: Stream,
-    displayTimestamp?: boolean,
-    displayBadge?: boolean,
-    displayLabel?: boolean,
-    displayModuleName?: boolean,
-    displayFilename?: boolean,
-    types?: { [key: string]: LogType }
-}
+
 
 const LOG_LEVELS = [
     'trace',
@@ -127,13 +108,21 @@ export function createDefaultLogger (options: LoggerOptions, bindings): Logger {
         }
         return meta;
     };
-    const formatMessage = args => util.formatWithOptions({ colors: true, compact: 1, breakLength: Infinity }, ...arrayify(args));
+
+
+    const formatMessage = args => {
+        args = arrayify(args)
+        return util.formatWithOptions({ colors: true, compact: 1, breakLength: Infinity }, args[0], ...args.splice(0, 1));   
+    }
+
     const formatAdditional = ({ prefix, suffix }: any, args) => {
         return (suffix || prefix) ? '' : formatMessage(args);
     };
+
     const write = (stream, message) => {
         stream.write(message + '\n');
     };
+
     const buildMessage = (type, ...args) => {
         let [msg, additional] = [{}, {}];
         if (args.length === 1 && typeof args[0] === 'object' && args[0] !== null) {

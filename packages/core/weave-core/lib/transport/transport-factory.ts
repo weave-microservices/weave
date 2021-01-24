@@ -8,23 +8,32 @@ import { Context } from '../broker/context'
 import { WeaveError, WeaveQueueSizeExceededError } from '../errors';
 import MessageTypes from './message-types';
 import utils from '@weave-js/utils';
-import { Readable as ReadableStream } from 'stream'
+import { Readable as ReadableStream, Transform } from 'stream'
 import { Broker } from '../broker/broker';
 import { MiddlewareHandler } from '../broker/middleware';
 import { TransportAdapter } from './adapters/adapter-base';
 import { createMessageHandler } from './message-handlers';
 import { Logger } from '../logger';
 
+export type TransportRequest = {
+    targetNodeId: string,
+    action: string,
+    context: Context,
+    resolve(result?: any): any,
+    reject(error?: WeaveError): any,
+    isStream: boolean
+}
+
 export type TransportMessage = {
     type: string,
     targetNodeId: string,
-    payload: Object
+    payload: any
 }
 
 export type PendingStore = {
-    requests: Map<string, Object>,
-    requestStreams: Map<string, Object>,
-    responseStreams: Map<string, Object>
+    requests: Map<string, TransportRequest>,
+    requestStreams: Map<string, Transform>,
+    responseStreams: Map<string, Transform>
 }
 
 export type Transport = {
@@ -75,7 +84,8 @@ export function createTransport(broker: Broker, adapter: TransportAdapter, middl
     };
     const doRequest = (context, resolve, reject) => {
         const isStream = utils.isStream(context.data);
-        const request = {
+        
+        const request: TransportRequest = {
             targetNodeId: context.nodeId,
             action: context.action.name,
             context,
@@ -83,6 +93,7 @@ export function createTransport(broker: Broker, adapter: TransportAdapter, middl
             reject,
             isStream
         };
+
         log.debug(`Send request for ${request.action} to node ${request.targetNodeId}.`);
         pending.requests.set(context.id, request);
         const payload = {
@@ -313,13 +324,13 @@ export function createTransport(broker: Broker, adapter: TransportAdapter, middl
                 size: pending.requests.size
             }));
         }
-        return new Promise((resolve, reject) => doRequest(context, resolve, reject));
+        return new Promise<any>((resolve, reject) => doRequest(context, resolve, reject));
     };
 
     transport.response = (target, contextId, data, meta, error) => {
         // Check if data is a stream
         const isStream = utils.isStream(data);
-        const payload = {
+        const payload: any = {
             id: contextId,
             meta,
             data,

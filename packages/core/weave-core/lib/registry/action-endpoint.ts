@@ -8,17 +8,6 @@ import { Broker } from "../broker/broker";
 import { Node } from "./node";
 import { Service, ServiceAction } from "./service";
 
-export interface Endpoint {
-    node: Node,
-    service: Service,
-    action: ServiceAction,
-    isLocal: boolean,
-    state: boolean,
-    name: string,
-    updateAction(newAction: ServiceAction): void,
-    isAvailable(): boolean,
-}
-
 export function createActionEndpoint(broker: Broker, node: Node, service: Service, action: ServiceAction): Endpoint {
     const endpoint: Endpoint = Object.create(null)
     endpoint.node = node

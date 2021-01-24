@@ -4,11 +4,11 @@
  * Copyright 2020 Fachwerk
  */
 
-import { Broker } from "@lib/lib/broker/broker"
+import { Broker } from "../../broker/broker"
 import { createActionEndpoint, Endpoint } from '../action-endpoint'
-import { LoadBalancingStrategy } from '../../constants'
 import { Service, ServiceAction } from "../service"
 import { Node } from "../node"
+import { LoadbalancingStrategy } from "../../broker/default-options"
 
 export interface EndpointCollection {
   name: string,
@@ -16,7 +16,7 @@ export interface EndpointCollection {
   isInternal: boolean,
   endpoints: Array<Endpoint>,
   localEndpoints: Array<Endpoint>,
-  add(node: Node, service: Service, action: ServiceAction): boolean,
+  add(node: Node, service: Service, action?: ServiceAction): boolean,
   hasAvailable(): boolean,
   hasLocal(): boolean,
   getNextAvailableEndpoint(): Endpoint,
@@ -27,7 +27,7 @@ export interface EndpointCollection {
   removeByService(service: Service): void
 }
 
-export function createEndpointList (broker: Broker, name: string, groupName?: string): EndpointCollection {
+export function createEndpointCollection (broker: Broker, name: string, groupName?: string): EndpointCollection {
   const endpointList: EndpointCollection = Object.create(null)
   const options = broker.options
   let counter = 0
@@ -49,12 +49,11 @@ export function createEndpointList (broker: Broker, name: string, groupName?: st
    */
   const select = (endpointList) => {
     // round robin
-    if (options.registry.loadBalancingStrategy === LoadBalancingStrategy.Random) {
+    if (options.registry.loadBalancingStrategy === LoadbalancingStrategy.Random) {
       if (counter >= endpointList.length) {
         counter = 0
       }
-      const res = endpointList[counter++]
-      return res
+      return endpointList[counter++]
     } else {
       const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1) + min)
       return endpointList[randomInt(0, endpointList.length - 1)]

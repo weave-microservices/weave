@@ -5,7 +5,6 @@
  * Copyright 2020 Fachwerk
 */
 
-// @ts-expect-error ts-migrate(2451) FIXME: Cannot redeclare block-scoped variable 'omit'.
 const { omit } = require('@weave-js/utils')
 
 module.exports = {

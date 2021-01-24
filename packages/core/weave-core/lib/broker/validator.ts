@@ -5,10 +5,9 @@
  */
 
 const ObjectValidator = require('@weave-js/validator')
-// @ts-expect-error ts-migrate(2451) FIXME: Cannot redeclare block-scoped variable 'WeaveParam... Remove this comment to see the full error message
 const { WeaveParameterValidationError } = require('../errors')
 
-exports.createValidator = () => {
+export function createValidator() {
   const validator = ObjectValidator()
 
   // attach the middleware to object validator

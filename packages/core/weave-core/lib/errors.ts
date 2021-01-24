@@ -35,7 +35,7 @@ export class WeaveRetrieableError extends WeaveError {
 
 export class WeaveServiceNotFoundError extends WeaveRetrieableError {
     data: any;
-    constructor(data) {
+    constructor(data: any) {
         let message;
         if (data.actionName && (data as any).nodeId) {
             message = `Service "${(data as any).actionName}" not found on node "${data.nodeId}".`;
@@ -63,7 +63,7 @@ export class WeaveServiceNotAvailableError extends WeaveRetrieableError {
 export class WeaveRequestTimeoutError extends WeaveRetrieableError {
     retryable: any;
     constructor(actionName, nodeId, timeout) {
-        const message = `Action ${actionName} timed out node ${nodeId || '<local>'}.`;
+        const message = `Action ${actionName} timed out node ${nodeId || '<local>'} after ${timeout} milliseconds.`;
         super(message, 504, 'WEAVE_REQUEST_TIMEOUT_ERROR', {
             actionName,
             nodeId
@@ -79,7 +79,7 @@ export class WeaveParameterValidationError extends WeaveError {
 }
 
 export class WeaveBrokerOptionsError extends WeaveError {
-    constructor(message, data) {
+    constructor(message, data?: any) {
         super(message, 500, 'WEAVE_BROKER_OPTIONS_ERROR', data);
     }
 }

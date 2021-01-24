@@ -4,14 +4,21 @@
  * Copyright 2020 Fachwerk
  */
 
-import { Broker } from "@lib/lib/broker/broker"
-import { Logger } from "@lib/lib/logger"
+import { Broker } from "../../broker/broker"
+import { Logger } from "../../logger"
 import { EventEmitter } from "events"
 import { MessageHandlerResult } from "../message-handlers"
 import { Transport, TransportMessage } from "../transport-factory"
 
 export type ConnectionEventParams = {}
 export type ErrorHandlerDelegate = (error) => void
+
+export type TransportAdapterConnectionFeatures = {
+  wasReconnect: boolean,
+  useHeartbeatTimer: boolean,
+  useRemoteNodeCheckTimer: boolean,
+  useOfflineCheckTimer: true
+}
 
 export interface TransportAdapter {
   name: string,
@@ -25,20 +32,19 @@ export interface TransportAdapter {
   interruptCounter: number,
   repeatAttemptCounter: number,
   init(broker: Broker, transport: Transport, messageHandler: MessageHandlerResult),
-  connect(isReconnected: boolean, handleError: ErrorHandlerDelegate): void,
+  connect(isReconnected: boolean, handleError: ErrorHandlerDelegate): Promise<void>,
   subscribe(type: string, nodeId?: string): Promise<any>,
-  connected(): void,
+  connected(features: TransportAdapterConnectionFeatures): void,
   disconnected(): void,
   close(): Promise<any>,
   getTopic(cmd: string, nodeId: string): string,
   preSend (message: TransportMessage): Promise<any>,
   send(message: TransportMessage): Promise<any>,
-  incommingMessage(messageType: string, message: TransportMessage): void,
+  incommingMessage(messageType: string, buffer: Buffer): void,
   serialize(message: TransportMessage): Buffer,
-  deserialize(packet: string): Object,
+  deserialize(packet: string): any,
   updateStatisticSent(length: number): void,
   updateStatisticReceived(length: number): void,
-  sendHello?: (nodeId: string) => Promise<any> // Need to be 
 }
 
 export default function TransportAdapterBase(): TransportAdapter{
@@ -92,15 +98,14 @@ export default function TransportAdapterBase(): TransportAdapter{
      * @param {boolean} [startHeartbeatTimers=true] Start timers for this adapter
      * @returns {void}
     */
-    connected (connectionEventParams: ConnectionEventParams = {}) {
-      this.bus.emit('$adapter.connected', connectionEventParams)
+    connected (features: TransportAdapterConnectionFeatures) {
+      this.bus.emit('$adapter.connected', features)
     },
     disconnected () {
       this.bus.emit('$adapter.disconnected')
     },
     getTopic (cmd: string, nodeId: string) {
-      const topic = prefix + '.' + cmd + (nodeId ? '.' + nodeId : '')
-      return topic
+      return prefix + '.' + cmd + (nodeId ? '.' + nodeId : '')
     },
     preSend (message: TransportMessage) {
       return this.send(message)
@@ -108,7 +113,7 @@ export default function TransportAdapterBase(): TransportAdapter{
     send (message: TransportMessage) {
       return this.broker.handleError(new Error('Method "send" not implemented.'))
     },
-    incommingMessage (messageType, message) {
+    incommingMessage (messageType: string, message: Buffer) {
       const data = this.deserialize(message)
       this.updateStatisticReceived(message.length)
       this.bus.emit('$adapter.message', messageType, data)
@@ -122,7 +127,7 @@ export default function TransportAdapterBase(): TransportAdapter{
         this.broker.handleError(error)
       }
     },
-    deserialize (packet: string) {
+    deserialize(packet: string) {
       try {
         return JSON.parse(packet)
       } catch (error) {

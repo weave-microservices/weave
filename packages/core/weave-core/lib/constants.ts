@@ -3,12 +3,6 @@
  * -----
  * Copyright 2020 Fachwerk
  */
-
-export enum LoadBalancingStrategy {
-  RoundRobin = 'round_robin',
-  Random = 'random'
-}
-
 // exports.PROTOCOL_VERSION = 1
 
 // exports.loadBalancingStrategy = {

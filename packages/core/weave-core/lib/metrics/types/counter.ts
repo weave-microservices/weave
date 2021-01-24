@@ -1,6 +1,6 @@
 const Gauge = require('./gauge')
 
-module.exports = class Counter extends Gauge {
+export default class Counter extends Gauge {
   // constructor (store, obj) {
   //   super(store, obj)
   // }

@@ -6,7 +6,7 @@
 
 import { WeaveBrokerOptionsError } from '../../errors'
 import fromURI from './fromURI'
-import getAdapterByName from './getAdapterByName'
+import { getAdapterByName } from './getAdapterByName'
 import * as adapters from './adapters'
 
 const resolve = (broker, options) => {

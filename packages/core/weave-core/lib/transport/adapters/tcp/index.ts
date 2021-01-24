@@ -3,8 +3,9 @@ import { defaultsDeep } from '@weave-js/utils'
 import TransportBase, { TransportAdapter } from '../adapter-base'
 import { createDiscoveryService } from './discovery/index'
 import MessageTypes from '../../message-types'
-import { createTCPReader } from './tcpReader'
+import { createTCPReader, TCPReader } from './tcpReader'
 import { createTCPWriter } from './tcpWriter'
+import { Node } from '../../../registry/node'
 // const TCPMessageTypeHelper from './tcp-messagetypes')
 
 const defaultOptions = {
@@ -20,19 +21,26 @@ const defaultOptions = {
   maxPacketSize: 1024 * 1024 * 50
 }
 
+export interface TCPTransportAdapter extends TransportAdapter {
+  sendHello?: (nodeId: string) => Promise<any>
+}
 
-export default function TCPGossip(adapterOptions): TransportAdapter {
+export interface TCPNode extends Node {
+  hostname?: string,
+  port?: number
+}
+
+export default function TCPGossip(adapterOptions): TCPTransportAdapter {
   adapterOptions = defaultsDeep(adapterOptions, defaultOptions)
 
-  const self: TransportAdapter = TransportBase(adapterOptions)
+  const self: TCPTransportAdapter = TransportBase()
   let tcpReader: TCPReader
   let tcpWriter: any
   let gossipTimer
+  let swim: any
 
   self.afterInit = function () {
-    self.nodes = this.broker.registry.nodes
-    self.registry = self.broker.registry
-    self.swim = createDiscoveryService(self, adapterOptions)
+    swim = createDiscoveryService(self, adapterOptions)
   }
 
   self.connect = async () => {
@@ -41,11 +49,10 @@ export default function TCPGossip(adapterOptions): TransportAdapter {
     await startDiscoveryServer(port)
     await startTimers()
 
-    self.log.info('TCP transport adapter started.')
+    self.log.info('TCP transport adapter started.');
 
-    self.broker.registry.nodes.localNode.port = port
+    (self.broker.registry.nodes.localNode as TCPNode).port = port
     self.broker.registry.generateLocalNodeInfo()
-
     self.connected({ wasReconnect: false, useHeartbeatTimer: false, useRemoteNodeCheckTimer: false, useOfflineCheckTimer: true })
 
     return Promise.resolve()
@@ -73,14 +80,14 @@ export default function TCPGossip(adapterOptions): TransportAdapter {
     return tcpWriter.send(message.targetNodeId, message.type, data)
   }
 
-  self.sendHello = nodeId => {
+  self.sendHello = (nodeId) => {
     const node = self.broker.registry.nodes.get(nodeId)
 
     if (!node) {
       return Promise.reject(new Error('Node not found.'))
     }
 
-    const localNode = self.broker.registry.nodes.localNode
+    const localNode = self.broker.registry.nodes.localNode as TCPNode
 
     const message = self.transport.createMessage(MessageTypes.MESSAGE_GOSSIP_HELLO, nodeId, {
       host: localNode.IPList[0],
@@ -97,14 +104,16 @@ export default function TCPGossip(adapterOptions): TransportAdapter {
     if (tcpReader) {
       tcpReader.close()
     }
+
     if (tcpWriter) {
       tcpWriter.close()
     }
+
     if (tcpReader) {
       tcpReader.close()
     }
 
-    self.swim.close()
+    swim.close()
 
     return Promise.resolve()
   }
@@ -123,7 +132,7 @@ export default function TCPGossip(adapterOptions): TransportAdapter {
   }
 
   function addDiscoveredNode (nodeId, host, port) {
-    const node = self.broker.registry.nodes.createNode(nodeId)
+    const node: TCPNode = self.broker.registry.nodes.createNode(nodeId)
 
     node.isLocal = false
     node.isAvailable = false
@@ -137,7 +146,7 @@ export default function TCPGossip(adapterOptions): TransportAdapter {
     return node
   }
 
-  self.onIncomingMessage = (type, data, socket) => {
+  const onIncomingMessage = (type, data, socket) => {
     switch (type) {
     case MessageTypes.MESSAGE_GOSSIP_HELLO:
       return onGossipHelloMessage(data, socket)
@@ -151,9 +160,9 @@ export default function TCPGossip(adapterOptions): TransportAdapter {
   }
 
   function startDiscoveryServer (port) {
-    self.swim.bus.on('message', ({ nodeId, host, port }) => {
+    swim.bus.on('message', ({ nodeId, host, port }) => {
       if (nodeId && nodeId !== self.broker.nodeId) {
-        let node = self.broker.registry.nodes.get(nodeId)
+        let node: TCPNode = self.broker.registry.nodes.get(nodeId)
         if (!node) {
           self.log.debug(`Discoverd a new node ${nodeId}`)
 
@@ -166,7 +175,7 @@ export default function TCPGossip(adapterOptions): TransportAdapter {
       }
     })
 
-    self.swim.init(port)
+    swim.init(port)
   }
 
   function startTCPServer () {
@@ -184,11 +193,6 @@ export default function TCPGossip(adapterOptions): TransportAdapter {
       self.log.debug('TCP connection ended with')
       self.broker.registry.nodeDisconnected(nodeID, false)
     })
-
-    // tcpWriter.on('error', (_, nodeID) => {
-    //   self.log.debug('TCP server error on ')
-    //   // this.nodes.disconnected(nodeID, false)
-    // })
 
     return tcpReader.listen()
   }
@@ -442,7 +446,7 @@ export default function TCPGossip(adapterOptions): TransportAdapter {
 
   function onMessage (type, data, socket) {
     try {
-      self.onIncomingMessage(type, data, socket)
+      onIncomingMessage(type, data, socket)
     } catch (error) {
       console.log(error)
     }

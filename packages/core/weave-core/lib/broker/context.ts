@@ -7,45 +7,10 @@ import { Broker, EventOptions } from './broker'
 import { uuid, isFunction } from '@weave-js/utils';
 import { WeaveMaxCallLevelError } from '../errors';
 import { Service, ServiceAction } from '../registry/service';
+import { Endpoint } from '../registry/action-endpoint';
+import { ContextPromise, Context } from '../shared/interfaces/context.interface';
 
-export interface Context {
-    id?: string,
-    requestId?: string,
-    nodeId: string,
-    callerNodeId?: string,
-    parentContext?: Context,
-    parentId?: string,
-    endpoint?: Endpoint,
-    data: Object,
-    meta: Object,
-    level: Number,
-    tracing: Object,
-    span: Object,
-    service: Service,
-    action: ServiceAction,
-    eventType: string,
-    eventName: string,
-    eventGroups: Array<string>,
-    startHighResolutionTime: Number,
-    options: ActionOptions,
-    duration: Number,
-    stopTime: Number,
-    metrics: Metrics,
-    setData(newParams: Object): void,
-    setEndpoint(endpoint: Endpoint): void,
-    call(actionName: string, data: Object, options: ActionOptions),
-    emit(eventName: string, payload: Object, options?: EventOptions),
-    broadcast(eventName: string, payload: Object, options: EventOptions),
-    startSpan(name: string, options: SpanOptions),
-    finishSpan(),
-    copy(): Context
-}
 
-export type ActionOptions = {
-    context?: Context,
-    retries?: Number,
-    timeout?: Number
-}
 
 export function createContext (broker: Broker): Context {
     const context: Context = {
@@ -56,14 +21,13 @@ export function createContext (broker: Broker): Context {
         endpoint: null,
         data: {},
         meta: {},
+        info: {},
         level: 1,
         tracing: null,
         span: null,
         service: null,
-        startHighResolutionTime: null,
         options: {
-            timeout: null,
-            retries: null
+            
         },
         duration: 0,
         stopTime: 0,
@@ -103,7 +67,7 @@ export function createContext (broker: Broker): Context {
             if (broker.options.registry.maxCallLevel > 0 && this.level >= broker.options.registry.maxCallLevel) {
                 return Promise.reject(new WeaveMaxCallLevelError({ nodeId: broker.nodeId, maxCallLevel: broker.options.registry.maxCallLevel }));
             }
-            const p = broker.call(actionName, params, options);
+            const p = broker.call(actionName, params, options) as ContextPromise<any>;
             return p.then(result => {
                 if (p.context) {
                     this.meta = Object.assign(this.meta, p.context.meta);

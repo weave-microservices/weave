@@ -1,10 +1,12 @@
-import net from 'net'
+import net, { Socket } from 'net'
 import { EventEmitter } from 'events'
 import MessageTypes from '../../message-types'
 import { createTCPMessageTypeHelper } from './tcp-messagetypes'
 import { TransportAdapter } from '../adapter-base'
+import { CustomSocket } from './custom-socket'
+import { TCPNode, TCPTransportAdapter } from '.'
 
-export function createTCPWriter(adapter: TransportAdapter, options) {
+export function createTCPWriter(adapter: TCPTransportAdapter, options) {
   const self = Object.create(null)
   const sockets = new Map()
   const messageTypeHelper = createTCPMessageTypeHelper(MessageTypes)
@@ -13,7 +15,7 @@ export function createTCPWriter(adapter: TransportAdapter, options) {
   self.bus = new EventEmitter()
 
   const connect = nodeId => {
-    const node = adapter.broker.registry.nodes.get(nodeId)
+    const node: TCPNode = adapter.broker.registry.nodes.get(nodeId)
 
     if (!node) {
       return Promise.reject()
@@ -24,11 +26,11 @@ export function createTCPWriter(adapter: TransportAdapter, options) {
 
     return new Promise((resolve, reject) => {
       try {
-        const socket = net.connect({ host, port }, () => {
+        const socket = new CustomSocket().connect({ host, port }, () => {
           // send hello
           socket.setNoDelay(true)
-          socket['nodeId'] = nodeId
-          socket['lastUsage'] = Date.now()
+          socket.nodeId = nodeId
+          socket.lastUsage = Date.now()
 
           addSocket(nodeId, socket, true)
 

@@ -5,9 +5,7 @@
  */
 
 import { Middleware } from "../broker/middleware"
-
-// @ts-expect-error ts-migrate(2451) FIXME: Cannot redeclare block-scoped variable 'WeaveQueue... Remove this comment to see the full error message
-const { WeaveQueueSizeExceededError } = require('../errors')
+import { WeaveQueueSizeExceededError } from '../errors'
 
 const wrapBulkheadMiddleware = function (handler, action) {
   const self = this
@@ -69,6 +67,7 @@ const wrapBulkheadMiddleware = function (handler, action) {
   }
   return handler
 }
+
 export function createBulkheadMiddleware (): Middleware { 
   return {
     localAction: wrapBulkheadMiddleware

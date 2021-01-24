@@ -1,8 +1,9 @@
-// @ts-expect-error ts-migrate(2451) FIXME: Cannot redeclare block-scoped variable 'isObject'.
-const { isObject } = require('@weave-js/utils')
+import { isObject } from '@weave-js/utils'
+import { Tracer } from '..';
+import { Span } from '../span';
 
-// @ts-expect-error ts-migrate(2451) FIXME: Cannot redeclare block-scoped variable 'BaseCollec... Remove this comment to see the full error message
-class BaseCollector {
+
+export default class BaseCollector {
   broker: any;
   log: any;
   options: any;
@@ -11,6 +12,8 @@ class BaseCollector {
   constructor (options) {
     this.options = options || {}
   }
+
+  init(tracer) {}
 
   initBase (tracer) {
     this.tracer = tracer
@@ -47,5 +50,3 @@ class BaseCollector {
     return error.stack
   }
 }
-
-module.exports = BaseCollector

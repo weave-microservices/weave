@@ -6,6 +6,7 @@
 
 import { cpuUsage } from '@weave-js/utils';
 import { Service } from './service';
+import { ServiceItem } from './service-item';
 
 export type NodeClient = {
   type?: string,
@@ -28,8 +29,7 @@ export interface Node {
   lastHeartbeatTime: number,
   offlineTime: number,
   isAvailable: Boolean,
-  services: Array<Service>,
-  port?: number,
+  services: Array<ServiceItem>,
   sequence: number,
   events?: Array<string>,
   IPList: Array<string>,

@@ -4,8 +4,18 @@
     "esModuleInterop": true,
     "target": "es6",
     "moduleResolution": "node",
-    "sourceMap": true,
-    "outDir": "dist"
+    "rootDir": "./lib",
+    "outDir": "dist",
+    "resolveJsonModule": true,
+    "paths": {
+      "@lib/*": ["/lib/*"]
+    }
   },
-  "lib": ["es6"]
+  "exclude": [
+    "node_modules"
+  ],
+  "lib": ["es6"],
+  "files": [
+    "lib/global.d.ts"
+  ]
 }

@@ -1,4 +1,4 @@
-import adapters from './adapters'
+import * as adapters from './adapters'
 
 export function getAdapterByName(name) {
   if (!name) {

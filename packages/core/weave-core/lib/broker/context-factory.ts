@@ -5,13 +5,11 @@
  */
 'use strict'
 
+import { Endpoint } from '../registry/action-endpoint';
 import { Broker } from './broker';
 import { createContext, Context } from './context';
 
-export type ContextFactory = {
-  init(broker: Broker): void,
-  create(endpoint: Endpoint, data: Object, options: Object): Context
-}
+
 
 export function createContextFactory () {
   return {
@@ -23,7 +21,6 @@ export function createContextFactory () {
   
       opts = opts || {}
       context.setData(data)
-      context.timeout = opts.timeout || 0
       context.retryCount = opts.retryCount
       context.options = opts
   
@@ -72,7 +69,7 @@ export function createContextFactory () {
 
       opts = opts || {}
       context.setData(data)
-      context.timeout = opts.timeout || 0
+      // context.timeout = opts.timeout || 0
       context.retryCount = opts.retryCount
       context.options = opts
   

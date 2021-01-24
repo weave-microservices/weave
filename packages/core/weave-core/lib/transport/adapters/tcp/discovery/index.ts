@@ -3,6 +3,7 @@ import { getIpList } from '@weave-js/utils'
 import { EventEmitter} from 'events'
 import { createCodec } from './codec'
 import { TransportAdapter } from '../../adapter-base'
+import { TCPTransportAdapter } from '..'
 
 const messageTypes = {
   HELLO: 4
@@ -14,7 +15,7 @@ export interface TCPDiscoveryService {
   close(): void
 }
 
-export function createDiscoveryService(adapter: TransportAdapter, options): TCPDiscoveryService {
+export function createDiscoveryService(adapter: TCPTransportAdapter, options): TCPDiscoveryService {
   const namespace = adapter.broker.options.namespace
   const codec = createCodec()
   const bus = new EventEmitter()

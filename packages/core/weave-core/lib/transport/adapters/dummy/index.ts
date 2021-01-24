@@ -4,16 +4,17 @@
  * Copyright 2020 Fachwerk
 */
 
-import { createTransportBase, TransportAdapter } from '../adapter-base'
+import  createTransportBase, { TransportAdapter } from '../adapter-base'
 import { EventEmitter2 as EventEmitter } from 'eventemitter2'
 
-global['bus'] = new EventEmitter({
+global.bus = new EventEmitter({
     wildcard: true,
     maxListeners: 100
 });
 
 export default function Dummy(adapterOptions): TransportAdapter {
-    const messageBus = global['bus'];
+    const messageBus = global.bus;
+    
     return Object.assign(createTransportBase(), {
         name: 'Dummy',
         connect() {

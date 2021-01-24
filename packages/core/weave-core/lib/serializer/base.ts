@@ -1,4 +1,4 @@
-const makeBaseSerializer = (options) => {
+export function createBaseSerializer(options) {
   return {
     init () {
 
@@ -11,5 +11,3 @@ const makeBaseSerializer = (options) => {
     }
   }
 }
-
-module.exports = makeBaseSerializer

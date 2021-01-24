@@ -1,5 +1,5 @@
 import { Broker } from './broker'
-import { Constants } from '../metrics';
+import * as Constants from '../metrics';
 
 export function registerMetrics(broker: Broker): void {
   if (broker.metrics) {

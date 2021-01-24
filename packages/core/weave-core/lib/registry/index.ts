@@ -5,17 +5,18 @@
  */
 import { Broker, ServiceChangedDelegate } from '../broker/broker'
 import { safeCopy } from '@weave-js/utils';
-// own packages
 import { createNodeCollection, NodeCollection, NodeCollectionListFilterParams } from './collections/node-collection';
 import { createServiceCollection, ServiceCollection, ServiceCollectionListFilterParams } from './collections/service-collection';
 import { createActionCollection, ServiceActionCollection, ServiceActionListFilterParameters } from './collections/action-collection';
 import { createEventCollection, EventCollection } from './collections/event-collection';
 import { createActionEndpoint, Endpoint } from './action-endpoint';
 import { createNode, Node, NodeInfo } from './node';
-import { WeaveServiceNotFoundError, WeaveServiceNotAvailableError } from '../errors';
+import { WeaveServiceNotFoundError, WeaveServiceNotAvailableError, WeaveError } from '../errors';
 import { MiddlewareHandler } from '../broker/middleware';
-import { Service, ServiceAction, ServiceSchema } from './service';
+import { Service, ServiceAction, ServiceRegistrationObject, ServiceSchema } from './service';
 import { Logger } from '../logger';
+import { EndpointCollection } from './collections/endpoint-collection';
+import { ServiceItem } from './service-item';
 const noop = () => { };
 
 export interface Registry {
@@ -31,16 +32,16 @@ export interface Registry {
     checkActionVisibility(action: any, node: any),
     middlewareHandler: MiddlewareHandler,
     deregisterService(serviceName: string, version?: number, nodeId?: string): void,
-    registerLocalService(registryItem: any, notify?: boolean): void,
+    registerLocalService(serviceRegistrationObject: ServiceRegistrationObject): void,
     registerRemoteServices(node: Node, services: Array<ServiceSchema>): void,
-    registerActions(node: Node, service: Service, actions: any): void,
-    registerEvents(node: Node, service: Service, events: any): void,
-    getNextAvailableActionEndpoint(actionName: string, nodeId?: string): Endpoint,
+    registerActions(node: Node, service: ServiceItem, actions: any): void,
+    registerEvents(node: Node, service: ServiceItem, events: any): void,
+    getNextAvailableActionEndpoint(actionName: string, nodeId?: string): Endpoint | WeaveError,
     getActionList(options: ServiceActionListFilterParameters): Array<any>,
     deregisterServiceByNodeId(nodeId: string): void,
     hasService(serviceName: string, version?: number, nodeId?: string): boolean,
     getActionEndpointByNodeId(actionName: string, nodeId: string): Endpoint,
-    getActionEndpoints(actionName: string): Endpoint,
+    getActionEndpoints(actionName: string): EndpointCollection,
     createPrivateActionEndpoint(action: ServiceAction): Endpoint,
     getLocalActionEndpoint(actionName: string): Endpoint,
     getNodeInfo(nodeId: string): NodeInfo,
@@ -116,23 +117,23 @@ export function createRegistry(): Registry {
          * @param {*} svc Service definition
          * @returns {void}
         */
-        registerLocalService(svc) { // todo was kommt hier an?
-            if (!this.services.has(svc.name, svc.version, this.broker.nodeId)) {
-                const service = this.services.add(this.nodes.localNode, svc.name, svc.version, svc.settings);
+        registerLocalService(serviceRegistrationObject: ServiceRegistrationObject) { // todo was kommt hier an?
+            if (!services.has(serviceRegistrationObject.name, serviceRegistrationObject.version, this.broker.nodeId)) {
+                const service = services.add(this.nodes.localNode, serviceRegistrationObject.name, serviceRegistrationObject.version, serviceRegistrationObject.settings);
 
-                if (svc.actions) {
-                    this.registerActions(this.nodes.localNode, service, svc.actions);
+                if (serviceRegistrationObject.actions) {
+                    this.registerActions(nodes.localNode, service, serviceRegistrationObject.actions);
                 }
 
-                if (svc.events) {
-                    this.registerEvents(this.nodes.localNode, service, svc.events);
+                if (serviceRegistrationObject.events) {
+                    this.registerEvents(nodes.localNode, service, serviceRegistrationObject.events);
                 }
 
-                this.nodes.localNode.services.push(service);
-                this.generateLocalNodeInfo(this.broker.isStarted);
+                nodes.localNode.services.push(service);
+                this.generateLocalNodeInfo(broker.isStarted);
 
-                if (svc.version) {
-                    this.log.info(`Service '${service.name}' (v${svc.version}) registered.`);
+                if (serviceRegistrationObject.version) {
+                    this.log.info(`Service '${service.name}' (v${serviceRegistrationObject.version}) registered.`);
                 } else {
                     this.log.info(`Service '${service.name}' registered.`);
                 }
@@ -147,34 +148,34 @@ export function createRegistry(): Registry {
          * @param {*} services Service definition
          * @returns {void}
         */
-        registerRemoteServices(node: Node, services: Array<ServiceSchema>) {
-            services.forEach((service) => {
+        registerRemoteServices(node: Node, serviceSchemas: Array<ServiceSchema>) {
+            serviceSchemas.forEach((serviceSchema) => {
                 // todo: handle events
                 let oldActions;
                 let oldEvents;
-                let svc = this.services.get(node.id, service.name, service.version);
+                let svc = services.get(node.id, serviceSchema.name, serviceSchema.version);
 
                 if (!svc) {
-                    svc = this.services.add(node, service.name, service.version, service.settings);
+                    svc = services.add(node, serviceSchema.name, serviceSchema.version, serviceSchema.settings);
                 } else {
                     // Update existing service with new actions
                     oldActions = Object.assign({}, svc.actions);
                     oldEvents = Object.assign({}, svc.events);
-                    svc.update(service);
+                    svc.update(serviceSchema);
                 }
 
-                if (service.actions) {
-                    this.registerActions(node, svc, service.actions);
+                if (serviceSchema.actions) {
+                    this.registerActions(node, svc, serviceSchema.actions);
                 }
 
-                if (service.events) {
-                    this.registerEvents(node, svc, service.events);
+                if (serviceSchema.events) {
+                    this.registerEvents(node, svc, serviceSchema.events);
                 }
 
                 if (oldActions) {
                     // this.deregisterAction()
                     Object.keys(oldActions).forEach(actionName => {
-                        if (!service.actions[actionName]) {
+                        if (!serviceSchema.actions[actionName]) {
                             this.actions.remove(actionName, node);
                         }
                     });
@@ -182,7 +183,7 @@ export function createRegistry(): Registry {
 
                 if (oldEvents) {
                     Object.keys(oldEvents).forEach(eventName => {
-                        if (!service.actions[eventName]) {
+                        if (!serviceSchema.actions[eventName]) {
                             this.events.remove(eventName, node);
                         }
                     });
@@ -190,7 +191,7 @@ export function createRegistry(): Registry {
             });
 
             // remove old services
-            const oldServices = Array.from(this.services.services);
+            const oldServices = Array.from(services.services);
 
             oldServices.forEach((service) => {
                 if (service.node.id !== node.id) {
@@ -198,7 +199,7 @@ export function createRegistry(): Registry {
                 }
                 let isExisting = false;
                 
-                services.forEach((svc) => {
+                serviceSchemas.forEach((svc) => {
                     if ((service as any).equals(svc.name, svc.version)) {
                         isExisting = true;
                     }
@@ -217,7 +218,7 @@ export function createRegistry(): Registry {
          * @param {*} events Service events
          * @returns {void}
         */
-        registerEvents(node: Node, service: Service, events: any) {
+        registerEvents(node: Node, service: ServiceItem, events: any) {
             Object.keys(events).forEach((key) => {
                 const event = events[key];
                 if (node.isLocal) {
@@ -234,7 +235,7 @@ export function createRegistry(): Registry {
          * @param {*} actions Service actions
          * @returns {void}
         */
-        registerActions(node: Node, service: Service, actions: any) {
+        registerActions (node: Node, service: ServiceItem, actions: any) {
             Object.keys(actions).forEach((key) => {
                 const action = actions[key];
                 if (!this.checkActionVisibility(action, node)) {
@@ -271,7 +272,7 @@ export function createRegistry(): Registry {
         hasService(serviceName: string, version: number, nodeId: string): boolean {
             return this.services.has(serviceName, version, nodeId);
         },
-        getNextAvailableActionEndpoint(actionName: string, nodeId?: string): Endpoint {
+        getNextAvailableActionEndpoint(actionName: string, nodeId?: string): Endpoint | WeaveError {
             if (typeof actionName !== 'string') {
                 return actionName;
             } else {
@@ -309,7 +310,7 @@ export function createRegistry(): Registry {
 
             return null;
         },
-        getActionEndpoints(actionName: string): Endpoint {
+        getActionEndpoints(actionName: string): EndpointCollection {
             return this.actions.get(actionName);
         },
         createPrivateActionEndpoint(action: ServiceAction): Endpoint {
@@ -346,9 +347,11 @@ export function createRegistry(): Registry {
         generateLocalNodeInfo(incrementSequence: boolean = false): NodeInfo {
             const { client, IPList, sequence } = this.nodes.localNode;
             const nodeInfo = { client, IPList, sequence };
+
             if (incrementSequence) {
                 this.nodes.localNode.sequence++;
             }
+
             if (this.broker.isStarted) {
                 (nodeInfo as any).services = this.services.list({
                     localOnly: true,

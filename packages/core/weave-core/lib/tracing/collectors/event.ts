@@ -1,5 +1,5 @@
-// @ts-expect-error ts-migrate(2451) FIXME: Cannot redeclare block-scoped variable 'BaseCollec... Remove this comment to see the full error message
-const BaseCollector = require('./base');
+import BaseCollector from './base'
+
 const mergeDefaultOptions = (options) => {
     return Object.assign({
         interval: 5000,
@@ -9,11 +9,13 @@ const mergeDefaultOptions = (options) => {
         broadcast: false
     }, options);
 };
-module.exports = (options) => {
+
+export default function(options) {
     options = mergeDefaultOptions(options);
-    const exporter = new BaseCollector(options);
+    const exporter: BaseCollector = new BaseCollector(options);
     const queue = [];
     let timer;
+
     const generateTracingData = () => {
         return Array
             .from(queue)
@@ -25,6 +27,7 @@ module.exports = (options) => {
             return newSpan;
         });
     };
+
     const flushQueue = () => {
         if (queue.length === 0)
             return;
@@ -37,13 +40,15 @@ module.exports = (options) => {
             exporter.broker.emit(options.eventName, data);
         }
     };
-    (exporter as any).init = (tracer) => {
+
+    exporter.init = (tracer) => {
         exporter.initBase(tracer);
         if (options.interval > 0) {
             timer = setInterval(() => flushQueue(), options.interval);
             timer.unref();
         }
     };
+
     exporter.startedSpan = (span) => {
         if (options.sendStartSpan) {
             queue.push(span);

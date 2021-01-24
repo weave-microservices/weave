@@ -5,7 +5,7 @@
  */
 
 import { Middleware } from "../broker/middleware"
-import { Constants } from '../metrics'
+import * as Constants from '../metrics/constants'
 
 export function createMetricsMiddleware(): Middleware {
   function wrapMetricMiddleware (type, action, handler) {
@@ -37,7 +37,7 @@ export function createMetricsMiddleware(): Middleware {
     return handler
   }
 
-  return {
+  const metricMiddleware: Middleware = {
     created () {
       const options = this.options.metrics || {}
 
@@ -97,4 +97,6 @@ export function createMetricsMiddleware(): Middleware {
       }
     }
   }
+
+  return metricMiddleware
 }

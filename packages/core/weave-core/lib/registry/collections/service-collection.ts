@@ -1,17 +1,18 @@
-import { Registry } from "..";
-import { Endpoint } from "../action-endpoint";
-import { Node } from "../node";
-import { Service, ServiceAction, ServiceSettings } from "../service";
-import { ServiceActionCollection } from "./action-collection";
 
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
  * Copyright 2020 Fachwerk
  */
-const { createEndpointCollection } = require('./endpoint-collection');
-const { omit, remove } = require('@weave-js/utils');
-const { createServiceItem } = require('../service-item');
+import { createEndpointCollection } from './endpoint-collection';
+import { omit, remove } from '@weave-js/utils';
+import { createServiceItem, ServiceItem } from '../service-item';
+import { Registry } from "..";
+import { Endpoint } from "../action-endpoint";
+import { Node } from "../node";
+import { Service, ServiceAction, ServiceSettings } from "../service";
+import { ServiceActionCollection } from "./action-collection";
+import { EndpointCollection } from "./endpoint-collection";
 
 export type ServiceCollectionListFilterParams = {
     localOnly?: boolean,
@@ -22,25 +23,25 @@ export type ServiceCollectionListFilterParams = {
 }
 
 export interface ServiceCollection {
-    services: Array<Service>,
+    services: Array<ServiceItem>,
     add(node: Node, name: string, version: number, settings: ServiceSettings): ServiceItem,
     get(nodeId: string, serviceName: string, version: number),
     has(serviceName: string, version?: number, nodeId?: string): boolean,
     remove(nodeId: string, serviceName: string, version: number): void,
     removeAllByNodeId(nodeId: string): void,
     registerAction(nodeId: string, action: ServiceAction),
-    tryFindActionsByActionName(actionName: string): ServiceActionCollection,
+    tryFindActionsByActionName(actionName: string): EndpointCollection, // todo: rename
     getLocalActions(): Array<Object>,
     getActionsList(): Array<Object>,
     list(filterParams: ServiceCollectionListFilterParams),
-    findEndpointByNodeId(actionName: string, nodeId: string): Endpoint
+    // findEndpointByNodeId(actionName: string, nodeId: string): Endpoint
 }
 
 export function createServiceCollection(registry: Registry): ServiceCollection {
     const serviceCollection: ServiceCollection = Object.create(null);
     const broker = registry.broker;
     const services = serviceCollection.services = [];
-    const actions = new Map();
+    const actions = new Map<string, EndpointCollection>();
     const options = broker.options;
 
     const findServiceByNode = (nodeId, name) => {
@@ -48,7 +49,7 @@ export function createServiceCollection(registry: Registry): ServiceCollection {
     };
 
     serviceCollection.add = (node: Node, name: string, version: number, settings) => {
-        const item = createServiceItem(node, name, version, settings, node.id === broker.nodeId);
+        const item: ServiceItem = createServiceItem(node, name, version, settings, node.id === broker.nodeId);
         services.push(item);
         return item;
     };
@@ -77,37 +78,37 @@ export function createServiceCollection(registry: Registry): ServiceCollection {
         });
     };
 
-    serviceCollection.registerAction = (nodeId: string, action: ServiceAction) => {
-        let endPointList: EndpointC = actions.get(action.name);
+    // serviceCollection.registerAction = (nodeId: string, action: ServiceAction) => {
+    //     let endPointList: EndpointCollection = actions.get(action.name);
 
-        if (!endPointList) {
-            endPointList = createEndpointCollection(broker, options);
-            endPointList.isInternal = action.name.substring(0, 1) === '$';
-            actions.set(action.name, endPointList);
-        }
+    //     if (!endPointList) {
+    //         endPointList = createEndpointCollection(broker, options);
+    //         endPointList.isInternal = action.name.substring(0, 1) === '$';
+    //         actions.set(action.name, endPointList);
+    //     }
 
-        const service = findServiceByNode(nodeId, action.service.name);
+    //     const service = findServiceByNode(nodeId, action.service.name);
 
-        if (service) {
-            service.addAction(action);
-        }
+    //     if (service) {
+    //         service.addAction(action);
+    //     }
 
-        return endPointList.add(nodeId, action);
-    };
+    //     return endPointList.add(nodeId, action);
+    // };
 
     serviceCollection.tryFindActionsByActionName = (actionName) => actions.get(actionName);
 
-    serviceCollection.getLocalActions = () => {
-        const result = [];
-        // todo: refactoring to array.map()
-        actions.forEach(entry => {
-            const endpoint = entry.getLocalEndpoint();
-            if (endpoint) {
-                result.push(omit(endpoint.action, ['service', 'handler']));
-            }
-        });
-        return result;
-    };
+    // serviceCollection.getLocalActions = () => {
+    //     const result = [];
+    //     // todo: refactoring to array.map()
+    //     actions.forEach(endpointCollection => {
+    //         const endpoint = endpointCollection.getLocalEndpoint();
+    //         if (endpoint) {
+    //             result.push(omit(endpoint.action, ['service', 'handler']));
+    //         }
+    //     });
+    //     return result;
+    // };
     
     serviceCollection.getActionsList = () => {
         const result = [];
@@ -161,12 +162,12 @@ export function createServiceCollection(registry: Registry): ServiceCollection {
         return result;
     };
 
-    serviceCollection.findEndpointByNodeId = (actionName, nodeId) => {
-        const endpointListItem = serviceCollection.tryFindActionsByActionName(actionName);
-        if (endpointListItem) {
-            return endpointListItem.endpointByNodeId(nodeId);
-        }
-    };
+    // serviceCollection.findEndpointByNodeId = (actionName, nodeId) => {
+    //     const endpointListItem = serviceCollection.tryFindActionsByActionName(actionName);
+    //     if (endpointListItem) {
+    //         return endpointListItem.endpointByNodeId(nodeId);
+    //     }
+    // };
 
     return serviceCollection;
 };

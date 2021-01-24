@@ -1,11 +1,11 @@
-module.exports = class BaseMetricType {
+export default class BaseMetricType {
   description: any;
-  generateSnapshot: any;
   labels: any;
   name: any;
   registry: any;
   type: any;
   values: any;
+
   constructor (registry, obj) {
     this.registry = registry
     this.name = obj.name
@@ -42,6 +42,8 @@ module.exports = class BaseMetricType {
     const labelString = this.stringifyLabels(labels)
     return this.values.get(labelString)
   }
+  
+  generateSnapshot () {}
 
   snapshot () {
     return this.generateSnapshot()

@@ -1,18 +1,23 @@
 {
   "compilerOptions": {
+    "target": "es2015",
     "module": "commonjs",
     "esModuleInterop": true,
-    "target": "es6",
     "moduleResolution": "node",
     "rootDir": "./lib",
     "outDir": "dist",
     "resolveJsonModule": true,
     "paths": {
-      "@lib/*": ["/lib/*"]
-    }
+    },
+    "allowJs": true
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "lib/registry/load-balancer"
   ],
-  "lib": ["es6"]
+  "lib": ["es6"],
+  "include": ["lib/**/*"],
+  "files": [
+    "./lib/global.d.ts"
+  ],
 }

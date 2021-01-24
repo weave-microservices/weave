@@ -1,13 +1,44 @@
+import { Broker } from "../broker/broker"
+import { MetricsOptions } from "../broker/default-options"
+import { Logger } from "../logger"
+
 const { isPlainObject } = require('@weave-js/utils')
 const MetricTypes = require('./types')
 
-module.exports = (broker, options) => {
+export type MetricLabel = {
+  [key:string]: any
+}
+
+export type MetricRegistrationObject = {
+  type: string,
+  name: string,
+  description?: string,
+  labels?: Array<MetricLabel>
+}
+export interface MetricRegistry {
+  broker: Broker,
+  options: any,
+  log: Logger,
+  init(): void,
+  register(metricObject: MetricRegistrationObject): Metric,
+  increment(name: string, labels: any, value: number, timestamp: number): void,
+  decrement(name: string, labels: any, value: number, timestamp: number): void
+  timer(name: string, labels, timestamp): void,
+  getMetric(name: string): Metric,
+  list(): any,
+}
+
+export interface Metric {
+  set(...args): any
+}
+
+export function createMetricRegistry(broker: Broker, options: MetricsOptions): MetricRegistry {
   return {
     broker,
     options,
     log: broker.createLogger('Metrics'),
     init () {
-      this.storage = new Map()
+      this.storage = new Map<string, Metric>()
 
       if (options.adapters) {
         if (!Array.isArray(options.adapters)) {
@@ -22,7 +53,7 @@ module.exports = (broker, options) => {
 
       this.log.debug('Metrics initialized.')
     },
-    register (obj) {
+    register (obj: MetricRegistrationObject) {
       if (!isPlainObject(obj)) {
         broker.handleError(new Error('Param needs to be an object.'))
       }
@@ -81,7 +112,7 @@ module.exports = (broker, options) => {
 
       return item
     },
-    list (options = {}) {
+    list () {
       const results = []
 
       this.storage.forEach(metric => {

@@ -1,7 +1,8 @@
-// @ts-expect-error ts-migrate(2451) FIXME: Cannot redeclare block-scoped variable 'BaseMetric... Remove this comment to see the full error message
-const BaseMetricType = require('./base')
-
+import BaseMetricType from './base'
 module.exports = class Histogram extends BaseMetricType {
+  value: number;
+  buckets: Array<number>
+
   constructor (registry, obj) {
     super(registry, obj)
     this.value = 0
@@ -23,28 +24,27 @@ module.exports = class Histogram extends BaseMetricType {
 
     }
 
-    // @ts-expect-error ts-migrate(2554) FIXME: Expected 3 arguments, but got 2.
     this.set(labels, (item ? item.value : 0) + value)
   }
 
   decrement (labels, value, timestamp) {
     const item = this.get(labels)
 
-    // @ts-expect-error ts-migrate(2554) FIXME: Expected 3 arguments, but got 2.
     this.set(labels, (item ? item.value : 0) - value)
   }
 
   generateSnapshot () {
-    return Array.from(this.values)
-      .map(([labelString, item]) => {
-        return {
-          value: item.value,
-          labels: item.labels
-        }
-      })
+    return Array.from(this.values.keys()).map((key) => {
+      const item = this.values.get(key);
+      return {
+        key,
+        value: item.value,
+        labels: item.labels
+      }
+    })
   }
 
-  set (labels, value, timestamp) {
+  set (labels, value, timestamp?: number) {
     const labelString = this.stringifyLabels(labels)
     const item = this.values.get(labelString)
 
@@ -54,11 +54,14 @@ module.exports = class Histogram extends BaseMetricType {
       if (item.value !== value) {
         item.labels = labels
         item.value = value
+        item.timestamp = timestamp == null ? Date.now() : timestamp
       }
     } else {
       const item = {
         labels: labels,
-        value: value
+        value: value,
+        timestamp: timestamp == null ? Date.now() : timestamp
+
       }
 
       this.values.set(labelString, item)

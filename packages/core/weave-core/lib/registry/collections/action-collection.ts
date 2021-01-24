@@ -4,11 +4,11 @@
  * Copyright 2020 Fachwerk
  */
 
-import { Broker } from "@lib/lib/broker/broker";
+import { Broker } from "../../broker/broker";
 import { Registry } from "..";
 import { Service, ServiceAction } from "../service";
 import { omit } from '@weave-js/utils';
-import { createEndpointList, EndpointCollection } from './endpoint-collection';
+import { createEndpointCollection, EndpointCollection } from './endpoint-collection';
 import { Node } from "../node";
 
 export type ServiceActionListFilterParameters = {
@@ -52,7 +52,7 @@ export function createActionCollection (registry: Registry) {
         let endPointList = actions.get(action.name);
         
         if (!endPointList) {
-            endPointList = createEndpointList(broker, action.name);
+            endPointList = createEndpointCollection(broker, action.name);
             actions.set(action.name, endPointList);
         }
         

@@ -4,7 +4,7 @@
  * Copyright 2019 Fachwerk
  */
 import { parse } from 'url'
-import getAdapterByName from './getAdapterByName'
+import { getAdapterByName } from './getAdapterByName'
 
 export default function fromURI (uri) {
   if (typeof uri !== 'string') {

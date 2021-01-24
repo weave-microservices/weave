@@ -5,9 +5,8 @@
  */
 
 /** @module weave */
-import { LoadBalancingStrategy } from '../constants'
-import { LogLevel, LoggerOptions, CustomLoggerFunction } from '../logger/index'
-import { Middleware } from './middleware'
+import { LoadbalancingStrategy } from '../shared/enums/load-balancing-strategies.enum'
+import { BrokerOptions } from '../shared/interfaces/broker-options.interface'
 
 /**
  * Configuration object for weave service broker.
@@ -130,90 +129,6 @@ import { Middleware } from './middleware'
  */
 
 
-export enum LoadbalancingStrategy {
-  RoundRobin = 'ROUND_ROBIN',
-  Random = 'RANDOM'
-}
-
-export type BulkheadOptions = {
-  enabled: Boolean,
-  concurrentCalls: number,
-  maxQueueSize: number
-}
-
-export type CacheOptions = {
-  enabled: Boolean,
-  adapter: String | CacheAdapter,
-  ttl: number
-}
-
-export type CircuitBreakerOptions = {
-  enabled: Boolean,
-  halfOpenTimeout: number,
-  maxFailures: number,
-  windowTime: number
-}
-
-export type TransportOptions = {
-  adapter: null,
-  serializer?: Function,
-  maxQueueSize: number,
-  heartbeatInterval: number,
-  nodeUpdateInterval: number,
-  heartbeatTimeout: number,
-  offlineNodeCheckInterval: number,
-  maxOfflineTime: number,
-  maxChunkSize: number
-}
-
-export type MetricsOptions = {
-  enabled: Boolean,
-  adapters: Array<MetricAdapter>,
-  defaultBuckets: Array<number>
-}
-
-export type RegistryOptions = {
-   preferLocalActions: Boolean,
-   requestTimeout: number,
-   maxCallLevel: number,
-   loadBalancingStrategy: LoadBalancingStrategy
-}
-
-export type RetryPolicyOptions = {
-  enabled: Boolean,
-  delay: number,
-  retries: number
-}
-
-export type TracingOptions = {
-  enabled: Boolean,
-  samplingRate: number,
-  collectors: Array<TracingCollector>
-}
-
-export type BrokerOptions = {
-  nodeId: string,
-  bulkhead: BulkheadOptions,
-  cache: CacheOptions,
-  circuitBreaker: CircuitBreakerOptions,
-  transport: TransportOptions,
-  errorHandler?: Function,
-  loadNodeService: Boolean,
-  publishNodeService: Boolean,
-  loadInternalMiddlewares: Boolean,
-  metrics: MetricsOptions,
-  middlewares?: Array<Middleware>,
-  logger?: LoggerOptions,
-  tracing: TracingOptions,
-  namespace: String,
-  registry: RegistryOptions,
-  retryPolicy: RetryPolicyOptions,
-  validateActionParams: Boolean,
-  watchServices: Boolean,
-  beforeRegisterMiddlewares?: Function,
-  uuidFactory(): string
-}
-
 /**
  * Return the default options
  * @returns {BrokerOptions} Broker options
@@ -299,7 +214,7 @@ export function getDefaultOptions (): BrokerOptions {
       // maximum request level
       maxCallLevel: 0,
       // loadbalancing stategy
-      loadBalancingStrategy: loadBalancingStrategy.ROUND_ROBIN
+      loadBalancingStrategy: LoadbalancingStrategy.Random
     },
     // retry settings
     retryPolicy: {

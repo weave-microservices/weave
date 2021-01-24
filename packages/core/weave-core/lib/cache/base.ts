@@ -3,8 +3,27 @@
  * -----
  * Copyright 2020 Fachwerk
  */
-const crypto = require('crypto');
-const { isObject } = require('@weave-js/utils');
+import crypto from 'crypto'
+import { isObject } from '@weave-js/utils'
+import { Logger } from '../logger';
+import { ServiceAction } from '../registry/service';
+import { Broker } from '../broker/broker';
+import { Middleware } from '../broker/middleware';
+
+export interface Cache {
+    name?: string,
+    options: any, //todo: define options
+    init(): void,
+    log: Logger,
+    set(hashKey: string, result: any, ttl?: number): Promise<any>,
+    get(hashKey: string): Promise<any>,
+    remove(hashKey: string): Promise<any>
+    clear(patter: string): Promise<any>,
+    getCachingHash(actionName: string, params: any, meta: any, keys: Array<string>): string,
+    createMiddleware(): Middleware,
+    stop(): Promise<any>
+}
+
 function getCacheKeyByObject(val) {
     if (Array.isArray(val)) {
         return val.map(object => getCacheKeyByObject(object)).join('/');
@@ -29,8 +48,9 @@ function generateHash(key) {
 function registerCacheMetrics(metrics) {
     // todo: register metric stores
 }
-exports.createCacheBase = (broker, options) => {
-    const cache = {
+
+export function createCacheBase(broker: Broker, options): Cache {
+    const cache: Cache = {
         options: Object.assign({
             ttl: null
         }, options),
@@ -42,27 +62,31 @@ exports.createCacheBase = (broker, options) => {
             }
         },
         log: broker.createLogger('CACHER'),
-        set( /* hashKey, result, ttl */) {
+        set(hashKey: string, result: any, ttl: number) {
             /* istanbul ignore next */
             broker.handleError(new Error('Method not implemented.'));
+            return Promise.resolve()
         },
-        get( /* hashKey */) {
+        get(hashKey: string) {
             /* istanbul ignore next */
             broker.handleError(new Error('Method not implemented.'));
+            return Promise.resolve()
         },
-        remove() {
+        remove(hashKey: string) {
             /* istanbul ignore next */
             broker.handleError(new Error('Method not implemented.'));
+            return Promise.resolve()
         },
-        clear() {
+        clear(patter: string) {
             /* istanbul ignore next */
             broker.handleError(new Error('Method not implemented.'));
+            return Promise.resolve()
         },
         stop() {
             /* istanbul ignore next */
             return Promise.resolve();
         },
-        getCachingHash(actionName, params, meta, keys) {
+        getCachingHash(actionName: string, params: any, meta: any, keys: Array<string>) {
             if (params || meta) {
                 const prefix = `${actionName}:`;
                 if (keys) {
@@ -92,29 +116,32 @@ exports.createCacheBase = (broker, options) => {
                 }
             }
             return actionName;
-        }
-    };
-    (cache as any).middleware = (handler, action) => {
-        const cacheOptions = Object.assign({ enabled: true }, isObject(action.cache) ? action.cache : { enabled: !!action.cache });
-        if (cacheOptions.enabled) {
-            return function cacheMiddleware(context) {
-                const cacheHashKey = cache.getCachingHash(action.name, context.data, context.meta, action.cache.keys);
-                context.isCachedResult = false;
-                // @ts-expect-error ts-migrate(2554) FIXME: Expected 0 arguments, but got 1.
-                return (cache.get(cacheHashKey) as any).then((content) => {
-                    if (content !== null) {
-                        context.isCachedResult = true;
-                        return content;
+        },
+        createMiddleware(): Middleware {
+            return {
+                localAction (handler, action) {
+                    const cacheOptions = Object.assign({ enabled: true }, isObject(action.cache) ? action.cache : { enabled: !!action.cache });
+                    if (cacheOptions.enabled) {
+                        return function cacheMiddleware(context) {
+                            const cacheHashKey = cache.getCachingHash(action.name, context.data, context.meta, action.cache.keys);
+                            context.isCachedResult = false;
+                            return (cache.get(cacheHashKey) as any).then((content) => {
+                                if (content !== null) {
+                                    context.isCachedResult = true;
+                                    return content;
+                                }
+                                return handler(context).then((result) => {
+                                    cache.set(cacheHashKey, result, action.cache.ttl);
+                                    return result;
+                                });
+                            });
+                        };
                     }
-                    return handler(context).then((result) => {
-                        // @ts-expect-error ts-migrate(2554) FIXME: Expected 0 arguments, but got 3.
-                        cache.set(cacheHashKey, result, action.cache.ttl);
-                        return result;
-                    });
-                });
-            };
+                    return handler;
+                }
+            }
         }
-        return handler;
     };
+
     return cache;
 };

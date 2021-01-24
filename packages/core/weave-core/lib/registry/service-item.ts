@@ -8,8 +8,22 @@
 import { Node } from "./node"
 import { ServiceSettings } from "./service"
 
+export interface ServiceItem {
+  name: string,
+  node: Node,
+  settings: any,
+  version: number,
+  actions: any,
+  events: any,
+  isLocal: boolean,
+  addAction(action: any): void,
+  addEvent(event: any): void,
+  equals(name: string, version: number, nodeId: string): boolean,
+  update(service: any): void
+}
+
 // todo: find a better name
-export function createServiceItem (node: Node, name: string, version: number, settings: ServiceSettings, isLocal: boolean) {
+export function createServiceItem (node: Node, name: string, version: number, settings: ServiceSettings, isLocal: boolean): ServiceItem {
   const serviceItem = Object.create(null)
 
   serviceItem.name = name
