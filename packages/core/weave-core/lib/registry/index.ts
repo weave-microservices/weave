@@ -3,56 +3,20 @@
  * -----
  * Copyright 2020 Fachwerk
  */
-import { Broker, ServiceChangedDelegate } from '../broker/broker'
 import { safeCopy } from '@weave-js/utils';
-import { createNodeCollection, NodeCollection, NodeCollectionListFilterParams } from './collections/node-collection';
-import { createServiceCollection, ServiceCollection, ServiceCollectionListFilterParams } from './collections/service-collection';
-import { createActionCollection, ServiceActionCollection, ServiceActionListFilterParameters } from './collections/action-collection';
-import { createEventCollection, EventCollection } from './collections/event-collection';
-import { createActionEndpoint, Endpoint } from './action-endpoint';
-import { createNode, Node, NodeInfo } from './node';
+import { createNodeCollection } from './collections/node-collection';
+import { createServiceCollection } from './collections/service-collection';
+import { createActionCollection } from './collections/action-collection';
+import { createEventCollection } from './collections/event-collection';
+import { createActionEndpoint } from './action-endpoint';
+import { createNode } from './node';
 import { WeaveServiceNotFoundError, WeaveServiceNotAvailableError, WeaveError } from '../errors';
-import { MiddlewareHandler } from '../broker/middleware';
-import { Service, ServiceAction, ServiceRegistrationObject, ServiceSchema } from './service';
-import { Logger } from '../logger';
-import { EndpointCollection } from './collections/endpoint-collection';
-import { ServiceItem } from './service-item';
+import { Registry } from '../shared/interfaces/registry.interface';
+import { Logger } from '../shared/interfaces/logger.interface';
+import { MiddlewareHandler } from '../shared/interfaces/middleware-handler.interface';
+import { Broker } from '../shared/interfaces/broker.interface';
+import { ServiceChangedDelegate } from '../shared/types/service-changed-delegate.type';
 const noop = () => { };
-
-export interface Registry {
-    broker: Broker
-    log: Logger,
-    nodes: NodeCollection,
-    services: ServiceCollection,
-    actions: ServiceActionCollection,
-    events: EventCollection,
-    init(broker: Broker, middlewareHandler: MiddlewareHandler, serviceChanged: ServiceChangedDelegate),
-    onRegisterLocalAction(): void,
-    onRegisterRemoteAction(): void,
-    checkActionVisibility(action: any, node: any),
-    middlewareHandler: MiddlewareHandler,
-    deregisterService(serviceName: string, version?: number, nodeId?: string): void,
-    registerLocalService(serviceRegistrationObject: ServiceRegistrationObject): void,
-    registerRemoteServices(node: Node, services: Array<ServiceSchema>): void,
-    registerActions(node: Node, service: ServiceItem, actions: any): void,
-    registerEvents(node: Node, service: ServiceItem, events: any): void,
-    getNextAvailableActionEndpoint(actionName: string, nodeId?: string): Endpoint | WeaveError,
-    getActionList(options: ServiceActionListFilterParameters): Array<any>,
-    deregisterServiceByNodeId(nodeId: string): void,
-    hasService(serviceName: string, version?: number, nodeId?: string): boolean,
-    getActionEndpointByNodeId(actionName: string, nodeId: string): Endpoint,
-    getActionEndpoints(actionName: string): EndpointCollection,
-    createPrivateActionEndpoint(action: ServiceAction): Endpoint,
-    getLocalActionEndpoint(actionName: string): Endpoint,
-    getNodeInfo(nodeId: string): NodeInfo,
-    getLocalNodeInfo(forceGenerateInfo?: boolean): NodeInfo,
-    generateLocalNodeInfo(incrementSequence?: boolean): NodeInfo,
-    processNodeInfo(payload: any),
-    nodeDisconnected(nodeId: string, isUnexpected?: boolean): void,
-    removeNode(nodeId: string): void,
-    getNodeList(filterParams: NodeCollectionListFilterParams): Array<any>,
-    getServiceList(filterParams: ServiceCollectionListFilterParams): Array<any>
-}
 
 export function createRegistry(): Registry {
     let broker: Broker

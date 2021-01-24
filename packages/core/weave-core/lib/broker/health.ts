@@ -6,27 +6,16 @@
 
 import os from 'os'
 import { bytesToSize } from '@weave-js/utils'
-import { Broker } from './broker'
-import { Transport } from '../transport/transport-factory'
-import { NodeClient } from '../registry/node'
-
-export interface HealthHandler {
-  init (broker: Broker, transport: Transport): void,
-  getClientInfo(): NodeClient,
-  getOsInfos(): any,
-  getProcessInfos(): any,
-  getMemoryInfos(): any,
-  getCPUInfos(): any,
-  getTransportInfos(): any,
-  getNodeHealthInfo(): any
-}
+import { HealthHandler } from '../shared/interfaces/healt-handler.interface'
+import { Broker } from '../shared/interfaces/broker.interface'
+import { Transport } from '../shared/interfaces/transport.interface'
 
 export default function createHealth (): HealthHandler {
   let brokerInstance: Broker
   let transportReference: Transport
 
   return {
-    init (broker: Broker, transport) {
+    init (broker: Broker, transport: Transport) {
       brokerInstance = broker
       transportReference = transport
     },

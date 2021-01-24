@@ -4,28 +4,12 @@
  * Copyright 2020 Fachwerk
  */
 
-import { Broker } from "../../broker/broker"
-import { createActionEndpoint, Endpoint } from '../action-endpoint'
-import { Service, ServiceAction } from "../service"
-import { Node } from "../node"
-import { LoadbalancingStrategy } from "../../broker/default-options"
-
-export interface EndpointCollection {
-  name: string,
-  groupName: string,
-  isInternal: boolean,
-  endpoints: Array<Endpoint>,
-  localEndpoints: Array<Endpoint>,
-  add(node: Node, service: Service, action?: ServiceAction): boolean,
-  hasAvailable(): boolean,
-  hasLocal(): boolean,
-  getNextAvailableEndpoint(): Endpoint,
-  getNextLocalEndpoint(): Endpoint,
-  count(): number,
-  getByNodeId(nodeId: string): Endpoint,
-  removeByNodeId(nodeId: string): void,
-  removeByService(service: Service): void
-}
+import { LoadbalancingStrategy } from '../../shared/enums/load-balancing-strategies.enum'
+import { Broker } from '../../shared/interfaces/broker.interface'
+import { EndpointCollection } from '../../shared/interfaces/endpoint-collection.interface'
+import { ServiceAction } from '../../shared/interfaces/service-action.interface'
+import { Service } from '../../shared/interfaces/service.interface'
+import { createActionEndpoint } from '../action-endpoint'
 
 export function createEndpointCollection (broker: Broker, name: string, groupName?: string): EndpointCollection {
   const endpointList: EndpointCollection = Object.create(null)

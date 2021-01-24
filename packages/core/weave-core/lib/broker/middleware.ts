@@ -3,31 +3,8 @@
  * -----
  * Copyright 2020 Fachwerk
  */
-import { ServiceAction } from '../registry/service'
-import { Broker } from './broker'
-
-export type MiddlewareEventDelegate = (event: any, payload: any) => any
-
-export interface Middleware {
-  created?: () => any
-  started?: (broker: Broker) => any,
-  localAction?: (handler: any, action: ServiceAction) => any, // todo: define a type for handler
-  remoteAction?: (handler: any, action: ServiceAction) => any,
-  localEvent?: (broker: Broker, handler: any, action: ServiceAction) => any,
-  emit?: (next: Function) => MiddlewareEventDelegate,
-  broadcast?: (next: Function) => MiddlewareEventDelegate,
-  broadcastLocal?: (next: Function) => MiddlewareEventDelegate,
-  brokerStopped?: () => any
-}
-
-export type MiddlewareHandler = {
-  init(broker: Broker): void, 
-  add(middleware: Middleware): void,
-  wrapMethod(methodName: string, handler: Function, bindTo?: any): any,
-  wrapHandler(methodName: string, handler: Function, definition: any): any,
-  callHandlersAsync(methodName: string, args: any, reverse?: Boolean): any,
-  callHandlersSync(methodName: string, args: any, reverse?: Boolean): any
-}
+import { MiddlewareHandler } from '../shared/interfaces/middleware-handler.interface'
+import { Middleware } from '../shared/interfaces/middleware.interface'
 
 export function createMiddlewareHandler (): MiddlewareHandler {
   const list = []

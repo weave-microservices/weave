@@ -29,20 +29,13 @@ import { registerMetrics } from './broker-metrics';
 import { ActionOptions, Context, ContextPromise } from './context';
 import { Endpoint } from '../registry/action-endpoint';
 import { Cache } from '../cache/base';
-import { LogLevel } from '../logger/log-types';
+import { Broker } from '../shared/interfaces/broker.interface';
+import { LogLevel } from '../shared/enums/log-level.enum';
+import { ServiceChangedDelegate } from '../shared/types/service-changed-delegate.type';
+import { EventOptions } from '../shared/types/event-options.type';
 const version = 'sdasd'
-export type ServiceChangedDelegate = (isLocalService: boolean) => void
-
-export type PingResult = {
-    [key: string]: Object
-}
 
 
-
-export type EventOptions = {
-    parentContext?: Context,
-    groups?: Array<string>
-}
 
 /**
  * Creates a new Weave instance

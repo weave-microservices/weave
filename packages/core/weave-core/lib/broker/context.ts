@@ -3,14 +3,10 @@
  * -----
  * Copyright 2020 Fachwerk
  */
-import { Broker, EventOptions } from './broker'
 import { uuid, isFunction } from '@weave-js/utils';
 import { WeaveMaxCallLevelError } from '../errors';
-import { Service, ServiceAction } from '../registry/service';
-import { Endpoint } from '../registry/action-endpoint';
+import { Broker } from '../shared/interfaces/broker.interface';
 import { ContextPromise, Context } from '../shared/interfaces/context.interface';
-
-
 
 export function createContext (broker: Broker): Context {
     const context: Context = {

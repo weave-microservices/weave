@@ -1,4 +1,8 @@
+import { ActionOptions } from "../types/action.type";
+import { ServiceSettings } from "../types/service-settings.type";
 import { Broker } from "./broker.interface";
+import { Context } from "./context.interface";
+import { Logger } from "./logger.interface";
 
 export interface Service {
   filename: string,

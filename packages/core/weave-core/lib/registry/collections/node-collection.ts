@@ -5,8 +5,7 @@
  */
 
 import { getIpList, omit } from '@weave-js/utils'
-import { Registry } from '..'
-import { createNode, Node } from '../node'
+import { createNode } from '../node'
 
 export type NodeCollectionListFilterParams = {
   withServices?: boolean

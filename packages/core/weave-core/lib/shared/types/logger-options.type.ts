@@ -1,4 +1,5 @@
 import { LogLevel } from "../enums/log-level.enum";
+import { LogType } from "./log-type.type";
 
 export type LoggerOptions = {
   enabled: Boolean,

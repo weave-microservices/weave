@@ -1,3 +1,5 @@
+import { ServiceEvent } from "../types/service-event.type";
+import { ServiceSettings } from "../types/service-settings.type";
 import { ServiceActionDefinition } from "./service-action-definition.interface";
 
 export interface ServiceSchema {

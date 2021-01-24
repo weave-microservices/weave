@@ -5,20 +5,9 @@
  */
 
 import { omit, match } from '@weave-js/utils';
-import { Registry } from '..';
+import { EventCollection } from '../../shared/interfaces/event-collection.inteface';
+import { Registry } from '../../shared/interfaces/registry.interface';
 import { createEndpointCollection } from './endpoint-collection';
-
-export interface EventCollection {
-    add,
-    get,
-    remove,
-    removeByService,
-    getBalancedEndpoints,
-    getAllEndpoints,
-    getAllEndpointsUniqueNodes,
-    emitLocal,
-    list
-}
 
 export function createEventCollection(registry: Registry): EventCollection{
     const eventCollection: EventCollection = Object.create(null);

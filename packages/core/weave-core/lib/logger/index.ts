@@ -10,16 +10,10 @@ import { Stream } from 'stream'
 import kleur from 'kleur';
 import figures from 'figures';
 import { gray, underline, grey, dim } from 'kleur';
-import { defaultTypes, LogType } from './types';
-import { LogLevel } from './log-types';
-
-export interface Logger {
-    [key: string]: (...messageObject: any[]) => {}
-}
-
-export type CustomLoggerFunction = (bindings, logLevel) => {}
-
-
+import { defaultTypes } from './types';
+import { LogType } from '../shared/types/log-type.type';
+import { LoggerOptions } from '../shared/types/logger-options.type';
+import { Logger } from '../shared/interfaces/logger.interface';
 
 const LOG_LEVELS = [
     'trace',

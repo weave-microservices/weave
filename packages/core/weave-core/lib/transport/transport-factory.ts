@@ -4,63 +4,17 @@
  * Copyright 2020 Fachwerk
  */
 // Own packages
-import { Context } from '../broker/context'
 import { WeaveError, WeaveQueueSizeExceededError } from '../errors';
 import MessageTypes from './message-types';
 import utils from '@weave-js/utils';
-import { Readable as ReadableStream, Transform } from 'stream'
-import { Broker } from '../broker/broker';
-import { MiddlewareHandler } from '../broker/middleware';
-import { TransportAdapter } from './adapters/adapter-base';
+import { Readable as ReadableStream } from 'stream'
 import { createMessageHandler } from './message-handlers';
-import { Logger } from '../logger';
+import { Broker } from '../shared/interfaces/broker.interface';
+import { TransportRequest } from '../shared/interfaces/transport-request.interace';
 
-export type TransportRequest = {
-    targetNodeId: string,
-    action: string,
-    context: Context,
-    resolve(result?: any): any,
-    reject(error?: WeaveError): any,
-    isStream: boolean
-}
 
-export type TransportMessage = {
-    type: string,
-    targetNodeId: string,
-    payload: any
-}
 
-export type PendingStore = {
-    requests: Map<string, TransportRequest>,
-    requestStreams: Map<string, Transform>,
-    responseStreams: Map<string, Transform>
-}
 
-export type Transport = {
-    broker: Broker,
-    log: Logger,
-    isConnected: Boolean,
-    isReady: Boolean,
-    pending: PendingStore,
-    resolveConnect: Function,
-    adapterName: string,
-    connect(): Promise<any>,
-    disconnect(): Promise<any>,
-    setReady(): void,
-    send(message: TransportMessage): Promise<any>,
-    sendNodeInfo(sender?: string): any,
-    sendPing(nodeId: string): Promise<any>,
-    discoverNode(target: string): Promise<any>,
-    discoverNodes(): Promise<any>,
-    sendEvent(context: Context): Promise<any>
-    sendBroadcastEvent(nodeId: string, eventName: string, data: Object, groups: Array<string>): Promise<any>,
-    removePendingRequestsById(requestId: string): void,
-    removePendingRequestsByNodeId(nodeId: string): void,
-    createMessage(type: string, targetNodeId?: string, payload?: any): TransportMessage,
-    request(context: Context): void,
-    response(target: string, contextId: string, data: Object|ReadableStream, meta: Object, error?: WeaveError): Promise<any>,
-    statistics: any
-}
 /**
  * Create a Transport adapter
  * @param {BrokerInstance} broker Borker instance

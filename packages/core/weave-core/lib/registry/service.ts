@@ -1,52 +1,15 @@
-import { Broker } from '../broker/broker'
 import { MiddlewareHandler } from '../broker/middleware'
-import { ActionOptions, Context } from '../broker/context'
 import { mergeSchemas } from '../utils/options';
 import { wrapInArray, isFunction, clone, wrapHandler, isObject, promisify } from '@weave-js/utils';
 import { WeaveError } from '../errors';
 import { Logger } from '../logger';
-
-
-
-
-
-
-
-export type ServiceEvent = {
-    params?: Object,
-    handler(context: Context): Promise<any>
-}
-
-export type ServiceSettings = {
-    $dependencyTimeout?: number
-}
-
-export type ServiceRegistrationObject = {
-    name: string,
-    fullyQualifiedName: string,
-    settings: ServiceSettings,
-    meta: any
-    version: number,
-    actions: any,
-    events: any
-}
-
-export interface ServiceSchema {
-    name: string,
-    version?: number,
-    mixins: Array<ServiceSchema> | ServiceSchema,
-    settings: ServiceSettings,
-    meta?: Object,
-    hooks: { [key: string]: Function }
-    actions?: { [key: string]: ServiceActionDefinition },
-    events?: { [key: string]: ServiceEvent },
-    methods?: { [key: string]: Function },
-    created(),
-    started(),
-    stopped()
-}
-
-
+import { Broker } from '../shared/interfaces/broker.interface';
+import { Service } from '../shared/interfaces/service.interface';
+import { ServiceSchema } from '../shared/interfaces/service-schema.interface';
+import { ServiceRegistrationObject } from '../shared/types/service-registration-object.type';
+import { Context } from '../shared/interfaces/context.interface';
+import { ActionOptions } from '../shared/types/action.type';
+import { ServiceAction } from '../shared/interfaces/service-action.interface';
 
 /**
  * The complete Triforce, or one or more components of the Triforce.

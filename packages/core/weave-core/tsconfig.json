@@ -7,8 +7,6 @@
     "rootDir": "./lib",
     "outDir": "dist",
     "resolveJsonModule": true,
-    "paths": {
-    },
     "allowJs": true
   },
   "exclude": [

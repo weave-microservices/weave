@@ -4,26 +4,14 @@
  * Copyright 2020 Fachwerk
  */
 
-import { Broker } from "../../broker/broker";
-import { Registry } from "..";
-import { Service, ServiceAction } from "../service";
 import { omit } from '@weave-js/utils';
 import { createEndpointCollection, EndpointCollection } from './endpoint-collection';
 import { Node } from "../node";
-
-export type ServiceActionListFilterParameters = {
-    onlyLocals?: Boolean,
-    skipInternals?: Boolean,
-    withEndpoints?: Boolean
-}
-
-export interface ServiceActionCollection {
-    add(node: Node, service: Service, action: ServiceAction),
-    get(actionName: string): ServiceAction,
-    removeByService(service: Service): void,
-    remove(actionName: string, node: Node): void,
-    list(filterParams: ServiceActionListFilterParameters): void
-}
+import { Registry } from '../../shared/interfaces/registry.interface';
+import { Broker } from '../../shared/interfaces/broker.interface';
+import { ServiceAction } from '../../shared/interfaces/service-action.interface';
+import { Service } from '../../shared/interfaces/service.interface';
+import { ServiceActionListFilterParameters } from '../../shared/types/service-actions-list-filter-parameters.type';
 
 /**
  * Configuration object for weave service broker.
@@ -37,7 +25,9 @@ export interface ServiceActionCollection {
  * @param {any} registry Reference to the registry.
  * @returns {ActionCollection} Action collection
 */
-export function createActionCollection (registry: Registry) {
+
+// todo: define type for action collection
+export function createActionCollection (registry: Registry) { 
     const actionCollection = Object.create(null);
     const broker: Broker = registry.broker;
     const actions: Map<string, EndpointCollection> = new Map();
