@@ -1,23 +1,17 @@
 {
+  "extends": "../../../tsconfig",
+  "include": [
+    "src/**/*.ts"
+  ],
   "compilerOptions": {
+    "outDir": "lib",
     "target": "es2015",
     "module": "commonjs",
     "esModuleInterop": true,
     "moduleResolution": "node",
-    "rootDir": "./src",
-    "outDir": "lib",
     "resolveJsonModule": true,
     "allowJs": true,
     "declaration": true,                   /* Generates corresponding '.d.ts' file. */
     "sourceMap": true
-  },
-  "exclude": [
-    "node_modules",
-    "src/registry/load-balancer"
-  ],
-  "lib": ["es6"],
-  "include": ["src/**/*"],
-  "files": [
-    "./src/global.d.ts"
-  ],
+  }
 }

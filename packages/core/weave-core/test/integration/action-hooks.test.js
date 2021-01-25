@@ -1,4 +1,4 @@
-const { Weave } = require('../../lib/index')
+const { createBroker } = require('../../lib/index')
 
 describe('Action hooks', () => {
   const fetchName = jest.fn()
@@ -10,7 +10,7 @@ describe('Action hooks', () => {
   const errorHook = jest.fn((_, error) => Promise.reject(error))
   const wildcardErrorHook = jest.fn((_, error) => Promise.reject(error))
 
-  const broker = Weave({
+  const broker = createBroker({
     nodeId: 'test-node',
     logger: {
       enableD: false,

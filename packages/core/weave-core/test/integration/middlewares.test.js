@@ -1,4 +1,4 @@
-const { Weave, TransportAdapters } = require('../../lib/index')
+const { createBroker, TransportAdapter } = require('../../lib/index')
 
 describe('Middleware hooks', () => {
   it('should call hooks in the right order', (done) => {
@@ -19,7 +19,7 @@ describe('Middleware hooks', () => {
       }
     }
 
-    const broker = Weave({
+    const broker = createBroker({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -92,7 +92,7 @@ describe('Middleware hooks', () => {
       }
     }
 
-    const broker = Weave({
+    const broker = createBroker({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -132,7 +132,7 @@ describe('Middleware hooks', () => {
       }
     }
 
-    const broker = Weave({
+    const broker = createBroker({
       nodeId: 'node1',
       logger: {
         enabled: false,
@@ -171,10 +171,10 @@ describe('Middleware hooks', () => {
       }
     }
 
-    const broker1 = Weave({
+    const broker1 = createBroker({
       nodeId: 'node1',
       transport: {
-        adapter: TransportAdapters.Dummy()
+        adapter: TransportAdapter.Dummy()
       },
       logger: {
         enabled: false
@@ -183,10 +183,10 @@ describe('Middleware hooks', () => {
       middlewares: [middleware]
     })
 
-    const broker2 = Weave({
+    const broker2 = createBroker({
       nodeId: 'node2',
       transport: {
-        adapter: TransportAdapters.Dummy()
+        adapter: TransportAdapter.Dummy()
       },
       logger: {
         enabled: false
@@ -225,10 +225,10 @@ describe('Middleware hooks', () => {
       }
     }
 
-    const broker1 = Weave({
+    const broker1 = createBroker({
       nodeId: 'node1',
       transport: {
-        adapter: TransportAdapters.Dummy()
+        adapter: TransportAdapter.Dummy()
       },
       logger: {
         enabled: false
@@ -255,7 +255,7 @@ describe('Service creating hook', () => {
       }
     }
 
-    const broker = Weave({
+    const broker = createBroker({
       nodeId: 'node1',
       logger: {
         enabled: false

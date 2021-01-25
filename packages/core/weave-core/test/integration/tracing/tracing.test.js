@@ -1,5 +1,5 @@
 // const { omit } = require('@weave-js/utils')
-const { TracingAdapters } = require('../../../lib/index')
+const { TracingExporter } = require('../../../lib/index')
 const { createNode } = require('../../helper')
 const { posts, users } = require('../../helper/data')
 
@@ -24,7 +24,7 @@ describe('Test tracing', () => {
     tracing: {
       enabled: true,
       collectors: [
-        TracingAdapters.Event({
+        TracingExporter.Event({
           interval: 0
         })
       ]
@@ -69,7 +69,8 @@ describe('Test tracing', () => {
   const node4 = createNode(Object.assign({ nodeId: 'node4' }, defaultSettings), [{
     name: 'friends'
   }])
-  // const node1 = Weave({
+
+  // const node1 = createBroker({
   //   nodeId: 'node1',
   //   logger: {
   //     enabled: false,
@@ -88,7 +89,7 @@ describe('Test tracing', () => {
   //   }
   // })
 
-  // const node2 = Weave({
+  // const node2 = createBroker({
   //   nodeId: 'node2',
   //   logger: {
   //     enabled: false,

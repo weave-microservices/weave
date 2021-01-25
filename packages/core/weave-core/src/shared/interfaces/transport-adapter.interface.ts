@@ -9,10 +9,10 @@ import { Transport } from "./transport.interface";
 
 export interface TransportAdapter {
   name: string,
-  broker: Broker,
-  transport: Transport,
-  messageHandler: MessageHandlerResult,
-  log: Logger,
+  broker?: Broker,
+  transport?: Transport,
+  messageHandler?: MessageHandlerResult,
+  log?: Logger,
   bus: EventEmitter,
   afterInit: Function,
   isConnected: boolean,

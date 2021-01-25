@@ -13,7 +13,7 @@ global.bus = new EventEmitter({
     maxListeners: 100
 });
 
-export default function Dummy(adapterOptions): TransportAdapter {
+export function Dummy(adapterOptions): TransportAdapter {
     const messageBus = global.bus;
     
     return Object.assign(createTransportBase(), {

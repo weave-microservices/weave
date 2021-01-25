@@ -26,6 +26,7 @@ export default function fromURI (uri) {
   }
 
   let config = null
+  
   if (AdapterFactory.uriToConfig) {
     config = AdapterFactory.uriToConfig(urlObject)
   }

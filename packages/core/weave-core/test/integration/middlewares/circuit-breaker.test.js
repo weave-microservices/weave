@@ -1,17 +1,17 @@
-const { Weave, TransportAdapters } = require('../../../lib/index')
+const { createBroker, TransportAdapter } = require('../../../lib/index')
 const { WeaveError } = require('../../../lib/errors')
 const FakeTimers = require('@sinonjs/fake-timers')
 
 describe('Test circuit breaker', () => {
   let clock
-  const node1 = Weave({
+  const node1 = createBroker({
     nodeId: 'node1',
     logger: {
       enabled: false,
       logLevel: 'fatal'
     },
     transport: {
-      adapter: TransportAdapters.Dummy()
+      adapter: TransportAdapter.Dummy()
     },
     circuitBreaker: {
       enabled: true,
@@ -21,14 +21,14 @@ describe('Test circuit breaker', () => {
     }
   })
 
-  const node2 = Weave({
+  const node2 = createBroker({
     nodeId: 'node2',
     logger: {
       enabled: false,
       logLevel: 'fatal'
     },
     transport: {
-      adapter: TransportAdapters.Dummy()
+      adapter: TransportAdapter.Dummy()
     }
   })
 

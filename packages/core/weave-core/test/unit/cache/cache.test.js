@@ -1,10 +1,10 @@
-const { Weave } = require('../../../lib/index')
+const { createBroker } = require('../../../lib/index')
 const { createCacheBase } = require('../../../lib/cache/base')
 
 // const SlowService = require('../../services/slow.service')
 
 describe('Test cache hash creation', () => {
-  const broker = Weave({
+  const broker = createBroker({
     logger: {
       enabled: false
     }
@@ -24,7 +24,7 @@ describe('Test cache hash creation', () => {
 })
 
 describe('Test cache middleware', () => {
-  const broker = Weave({
+  const broker = createBroker({
     logger: {
       enabled: false
     }
@@ -39,7 +39,7 @@ describe('Test cache middleware', () => {
       handler,
       service
     }
-    const middleware = cacheBase.middleware(handler, action)
+    const middleware = cacheBase.createMiddleware(handler, action)
     expect(middleware).toBeDefined()
   })
 
@@ -49,8 +49,8 @@ describe('Test cache middleware', () => {
       handler,
       service
     }
-    const newHandler = cacheBase.middleware(handler, action)
-    expect(newHandler).toBe(handler)
+    const newHandler = cacheBase.createMiddleware(handler, action)
+    expect(newHandler.localAction).toBeDefined()
   })
 
   it('should wrap handler if cache settings are set', () => {
@@ -62,7 +62,7 @@ describe('Test cache middleware', () => {
       handler,
       service
     }
-    const newHandler = cacheBase.middleware(handler, action)
-    expect(newHandler).not.toBe(handler)
+    const newHandler = cacheBase.createMiddleware(handler, action)
+    expect(newHandler.localAction).not.toBe(handler)
   })
 })

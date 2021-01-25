@@ -7,7 +7,7 @@ import path from 'path';
 import fs from 'fs';
 import os from 'os';
 import glob from 'glob';
-import { isFunction, debounce, defaultsDeep, uuid } from '@weave-js/utils';
+import { isFunction, debounce, defaultsDeep, generateUUID } from '@weave-js/utils';
 import { getDefaultOptions } from './default-options';
 import { createDefaultLogger } from '../logger';
 import { createServiceFromSchema } from '../registry/service';
@@ -35,8 +35,8 @@ import { Service } from '../shared/interfaces/service.interface';
 import { Registry } from '../shared/interfaces/registry.interface';
 import { ContextPromise } from '../shared/interfaces/context.interface';
 import { ServiceSchema } from '../shared/interfaces/service-schema.interface';
-
-const version = 'sdasd'
+import { Middleware } from '../shared/interfaces/middleware.interface';
+const { version } = require('../../package.json')
 
 
 
@@ -57,7 +57,7 @@ export function createBroker (options: BrokerOptions): Broker {
     const defaultOptions = getDefaultOptions();
 
     // merge options with default options
-    options = defaultsDeep(options, defaultOptions);
+    options = defaultsDeep(options, defaultOptions) as BrokerOptions;
     // If no node id is set - create one.
     const nodeId = options.nodeId || `${os.hostname()}-${process.pid}`;
     // internal service collection.
@@ -200,7 +200,7 @@ export function createBroker (options: BrokerOptions): Broker {
             if ((broker.options as any).uuidFactory && isFunction((broker.options as any).uuidFactory)) {
                 return (broker.options as any).uuidFactory(broker);
             }
-            return uuid();
+            return generateUUID();
         },
         health,
         registry,
@@ -248,8 +248,7 @@ export function createBroker (options: BrokerOptions): Broker {
         multiCall(actions) {
             if (Array.isArray(actions)) {
                 return Promise.all(actions.map(item => this.call(item.actionName, item.data, item.options)));
-            }
-            else {
+            } else {
                 return Promise.reject(new WeaveError('Actions need to be an Array'));
             }
         },
@@ -671,7 +670,7 @@ export function createBroker (options: BrokerOptions): Broker {
      * @param {Array<Object>} customMiddlewares Array of user defined middlewares
      * @returns {void}
      */
-    const registerMiddlewares = (customMiddlewares) => {
+    const registerMiddlewares = (customMiddlewares?: Array<Middleware>) => {
         // Register custom middlewares
         if (Array.isArray(customMiddlewares) && customMiddlewares.length > 0) {
             customMiddlewares.forEach(middleware => middlewareHandler.add(middleware));

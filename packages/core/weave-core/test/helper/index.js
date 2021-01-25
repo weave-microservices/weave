@@ -1,7 +1,7 @@
-const { Weave } = require('../../lib/index')
+const { createBroker } = require('../../lib/index')
 
 exports.createNode = (options, services = []) => {
-  const broker = Weave(options, services)
+  const broker = createBroker(options, services)
   if (services) {
     services.map(schema => broker.createService(Object.assign({}, schema)))
   }

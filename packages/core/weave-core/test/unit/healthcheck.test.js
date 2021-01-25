@@ -1,11 +1,11 @@
-const { Weave } = require('../../lib/index')
-const HealthCheck = require('../../lib/broker/health')
+const { createBroker } = require('../../lib/index')
+const createHealth = require('../../lib/broker/health').default
 // const os = require('os')
 const pkg = require('../../package.json')
 
 describe('Test utils lib', () => {
   it('Is Object', (done) => {
-    const broker = Weave({
+    const broker = createBroker({
       logger: {
         enabled: false,
         logLevel: 'fatal'
@@ -16,7 +16,7 @@ describe('Test utils lib', () => {
     })
     broker.start()
       .then(() => {
-        const healthCheck = HealthCheck()
+        const healthCheck = createHealth()
         healthCheck.init(broker, broker.transport)
 
         // CPU Info

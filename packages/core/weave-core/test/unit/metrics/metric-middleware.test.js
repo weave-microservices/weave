@@ -1,4 +1,4 @@
-const MetricMiddleware = require('../../../lib/middlewares/metrics')
+const { createMetricsMiddleware } = require('../../../lib/middlewares/metrics')
 
 const validMiddlewareHooks = [
   'serviceCreating',
@@ -18,7 +18,7 @@ const validMiddlewareHooks = [
 
 describe('Test metric middleware', () => {
   it('should create a middleware', () => {
-    const middleware = MetricMiddleware()
+    const middleware = createMetricsMiddleware()
     const valid = Object.keys(middleware).every(p => validMiddlewareHooks.includes(p))
     expect(valid).toBe(true)
   })

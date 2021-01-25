@@ -22,7 +22,7 @@ const defaultOptions = {
   maxPacketSize: 1024 * 1024 * 50
 }
 
-export default function TCPGossip(adapterOptions): TCPTransportAdapter {
+export function TCPGossip(adapterOptions): TCPTransportAdapter {
   adapterOptions = defaultsDeep(adapterOptions, defaultOptions)
 
   const self: TCPTransportAdapter = TransportBase()

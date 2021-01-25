@@ -1,39 +1,39 @@
-const { Weave } = require('../../../lib/index')
-const CacheMemory = require('../../../lib/cache/memory')
+const { createBroker } = require('../../../lib/index')
+const createMemoryCache = require('../../../lib/cache/memory').default
 // const SlowService = require('../../services/slow.service')
 
 describe('Test IN-Memory cache initialization', () => {
   it('should create with default options.', () => {
-    const broker = Weave({
+    const broker = createBroker({
       logger: {
         enabled: false
       }
     })
-    const cache = CacheMemory(broker)
+    const cache = createMemoryCache(broker)
     expect(cache.options).toBeDefined()
     expect(cache.options.ttl).toBeNull()
   })
 
   it('should create with options.', () => {
     const options = { ttl: 4000 }
-    const broker = Weave({
+    const broker = createBroker({
       logger: {
         enabled: false
       }
     })
-    const cache = CacheMemory(broker, options)
+    const cache = createMemoryCache(broker, options)
     expect(cache.options).toEqual(options)
     expect(cache.options.ttl).toBe(4000)
   })
 
   it('should create with options.', () => {
     const options = { ttl: 4000 }
-    const broker = Weave({
+    const broker = createBroker({
       logger: {
         enabled: false
       }
     })
-    const cache = CacheMemory(broker, options)
+    const cache = createMemoryCache(broker, options)
     expect(cache.options).toEqual(options)
     expect(cache.options.ttl).toBe(4000)
   })
@@ -41,13 +41,13 @@ describe('Test IN-Memory cache initialization', () => {
 
 describe('Test IN-Memory message flow', () => {
   it('should call "clear" after a new node is connected.', () => {
-    const broker = Weave({
+    const broker = createBroker({
       logger: {
         enabled: false
       }
     })
 
-    const cache = CacheMemory(broker)
+    const cache = createMemoryCache(broker)
     cache.init()
     cache.clear = jest.fn()
     broker.bus.emit('$transport.connected')
@@ -56,12 +56,12 @@ describe('Test IN-Memory message flow', () => {
 })
 
 describe('Test usage (without TTL)', () => {
-  const broker = Weave({
+  const broker = createBroker({
     logger: {
       enabled: false
     }
   })
-  const cache = CacheMemory(broker)
+  const cache = createMemoryCache(broker)
   cache.init()
 
   const key1 = 'test1234:sadasda'
@@ -112,7 +112,7 @@ describe('Test usage (without TTL)', () => {
 })
 
 // describe('Test usage with TTL', () => {
-//     const broker = Weave()
+//     const broker = createBroker()
 //     const options = { ttl: 3000 }
 //     const cache = CacheMemory(broker)
 //     cache.init()

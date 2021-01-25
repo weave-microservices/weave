@@ -1,4 +1,4 @@
-const { Weave } = require('../../lib/index')
+const { createBroker } = require('../../lib/index')
 
 let flow = []
 const MixedService = {
@@ -75,33 +75,33 @@ const createNodes = (ns) => {
     }
   }
 
-  const mainNode = Weave(Object.assign({ namespace: ns, nodeId: 'master' }, settings))
+  const mainNode = createBroker(Object.assign({ namespace: ns, nodeId: 'master' }, settings))
   mainNode.createService(Object.assign({}, OtherService))
   mainNode.createService(Object.assign({}, OtherService, { name: 'other2' }))
 
-  const userNode1 = Weave(Object.assign({ namespace: ns, nodeId: 'user-1' }, settings))
+  const userNode1 = createBroker(Object.assign({ namespace: ns, nodeId: 'user-1' }, settings))
   userNode1.createService(Object.assign({}, UserService))
   userNode1.bus.on('$local.user.event', () => flow.push('userNode1-on-$local.user.event'))
 
-  const userNode2 = Weave(Object.assign({ namespace: ns, nodeId: 'user-2' }, settings))
+  const userNode2 = createBroker(Object.assign({ namespace: ns, nodeId: 'user-2' }, settings))
   userNode2.createService(Object.assign({}, UserService))
 
-  const userNode3 = Weave(Object.assign({ namespace: ns, nodeId: 'user-3' }, settings))
+  const userNode3 = createBroker(Object.assign({ namespace: ns, nodeId: 'user-3' }, settings))
   userNode3.createService(Object.assign({}, UserService))
 
-  const paymentNode1 = Weave(Object.assign({ namespace: ns, nodeId: 'payment-1' }, settings))
+  const paymentNode1 = createBroker(Object.assign({ namespace: ns, nodeId: 'payment-1' }, settings))
   paymentNode1.createService(Object.assign({}, PaymentService))
 
-  const paymentNode2 = Weave(Object.assign({ namespace: ns, nodeId: 'payment-2' }, settings))
+  const paymentNode2 = createBroker(Object.assign({ namespace: ns, nodeId: 'payment-2' }, settings))
   paymentNode2.createService(Object.assign({}, PaymentService))
 
-  const paymentNode3 = Weave(Object.assign({ namespace: ns, nodeId: 'payment-3' }, settings))
+  const paymentNode3 = createBroker(Object.assign({ namespace: ns, nodeId: 'payment-3' }, settings))
   paymentNode3.createService(Object.assign({}, PaymentService))
 
-  const notificationNode1 = Weave(Object.assign({ namespace: ns, nodeId: 'notification-1' }, settings))
+  const notificationNode1 = createBroker(Object.assign({ namespace: ns, nodeId: 'notification-1' }, settings))
   notificationNode1.createService(Object.assign({}, NotificationService))
 
-  const notificationNode2 = Weave(Object.assign({ namespace: ns, nodeId: 'notification-2' }, settings))
+  const notificationNode2 = createBroker(Object.assign({ namespace: ns, nodeId: 'notification-2' }, settings))
   notificationNode2.createService(Object.assign({}, NotificationService))
 
   return [
@@ -253,14 +253,14 @@ describe('Remote events', () => {
   const testEventS2 = jest.fn()
 
   beforeEach(async (done) => {
-    broker1 = Weave({
+    broker1 = createBroker({
       nodeId: 'node1',
       transport: {
         adapter: 'dummy'
       }
     })
 
-    broker2 = Weave({
+    broker2 = createBroker({
       nodeId: 'node2',
       transport: {
         adapter: 'dummy'

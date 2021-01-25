@@ -1,8 +1,8 @@
-const { Weave } = require('../../lib/index')
+const { createBroker } = require('../../lib/index')
 
 describe('Test internal service $node', () => {
   it('Five actions from "$node" should be available.', (done) => {
-    const node1 = Weave({
+    const node1 = createBroker({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -19,7 +19,7 @@ describe('Test internal service $node', () => {
   })
 
   it('shlould get one service from service node.', (done) => {
-    const node1 = Weave({
+    const node1 = createBroker({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -36,7 +36,7 @@ describe('Test internal service $node', () => {
   })
 
   it('shlould get no event node service.', (done) => {
-    const node1 = Weave({
+    const node1 = createBroker({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -53,7 +53,7 @@ describe('Test internal service $node', () => {
   })
 
   it('shlould get a list of all connected nodes', (done) => {
-    const node1 = Weave({
+    const node1 = createBroker({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -70,7 +70,7 @@ describe('Test internal service $node', () => {
   })
 
   it('shlould get a list of all connected nodes', (done) => {
-    const node1 = Weave({
+    const node1 = createBroker({
       nodeId: 'node1',
       logger: {
         enabled: false

@@ -11,18 +11,15 @@ import { Broker } from '../shared/interfaces/broker.interface'
 import { Transport } from '../shared/interfaces/transport.interface'
 
 export default function createHealth (): HealthHandler {
-  let brokerInstance: Broker
-  let transportReference: Transport
-
   return {
     init (broker: Broker, transport: Transport) {
-      brokerInstance = broker
-      transportReference = transport
+      this.broker = broker
+      this.transport = transport
     },
     getClientInfo () {
       return {
         type: 'node',
-        version: brokerInstance.version,
+        version: this.broker.version,
         nodeVersion: process.version
       }
     },
@@ -62,8 +59,8 @@ export default function createHealth (): HealthHandler {
       }
     },
     getTransportInfos () {
-      if (transportReference) {
-        return Object.assign({}, transportReference.statistics)
+      if (this.transport) {
+        return Object.assign({}, this.transport.statistics)
       }
       /* istanbul ignore next */
       return null
@@ -76,7 +73,7 @@ export default function createHealth (): HealthHandler {
         memory: this.getMemoryInfos(),
         process: this.getProcessInfos(),
         client: this.getClientInfo(),
-        transport: this.getTransportInfos(transportReference)
+        transport: this.getTransportInfos(this.transport)
       }
     }
   }

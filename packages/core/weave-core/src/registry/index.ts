@@ -155,7 +155,7 @@ export function createRegistry(): Registry {
             });
 
             // remove old services
-            const oldServices = Array.from((this.ServiceCollection as ServiceCollection).services);
+            const oldServices = Array.from((this.serviceCollection as ServiceCollection).services);
 
             oldServices.forEach((service) => {
                 if (service.node.id !== node.id) {

@@ -49,7 +49,7 @@ describe('Test errors', () => {
     const error = new Error.WeaveRequestTimeoutError('do.something', 'node1', 5000)
     expect(error).toBeDefined()
     expect(error).toBeInstanceOf(Error.WeaveError)
-    expect(error.message).toBe('Action do.something timed out node node1.')
+    expect(error.message).toBe('Action do.something timed out node node1 after 5000 milliseconds.')
     expect(error.code).toBe(504)
     expect(error.type).toBe('WEAVE_REQUEST_TIMEOUT_ERROR')
     expect(error.data).toEqual({ actionName: 'do.something', nodeId: 'node1' })

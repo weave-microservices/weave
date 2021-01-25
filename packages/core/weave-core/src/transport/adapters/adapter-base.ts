@@ -15,30 +15,30 @@ import { TransportMessage } from "../../shared/types/transport-message.type"
 
 export default function TransportAdapterBase(): TransportAdapter{
   let prefix = 'weave'
-  let broker: Broker
-  let transport: Transport
-  let messageHandler: MessageHandlerResult
-  let log: Logger
+  // let broker: Broker
+  // let transport: Transport
+  // let messageHandler: MessageHandlerResult
+  // let log: Logger
   
   const baseTransportAdapter: TransportAdapter = {
     name: null,
-    broker,
-    transport,
-    messageHandler,
-    log,
+    // broker,
+    // transport,
+    // messageHandler,
+    // log,
     bus: new EventEmitter(),
     afterInit: null,
     isConnected: false,
     interruptCounter: 0,
     repeatAttemptCounter: 0,
     init (b: Broker, t: Transport, m: MessageHandlerResult) {
-      broker = b
-      transport = t
-      log = transport.log
-      messageHandler = m
+      this.broker = b
+      this.transport = t
+      this.log = this.transport.log
+      this.messageHandler = m
 
-      if (broker.options.namespace) {
-        prefix = `${prefix}-${broker.options.namespace}`
+      if (this.broker.options.namespace) {
+        prefix = `${prefix}-${this.broker.options.namespace}`
       }
 
       if (this.afterInit) {

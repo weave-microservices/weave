@@ -1,4 +1,4 @@
-const { createBroker } = require('../dist')
+const { createBroker } = require('../lib')
 
 const broker = createBroker({
   nodeId: '1'

@@ -1,4 +1,4 @@
-const createCodec = require('../../../../lib/transport/adapters/tcp/discovery/codec.js')
+const { createCodec } = require('../../../../lib/transport/adapters/tcp/discovery/codec.js')
 
 describe('TCP Discovery codec', () => {
   it('shout return a typed schema.', () => {

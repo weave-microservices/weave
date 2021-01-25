@@ -1,8 +1,8 @@
-const { Weave } = require('../../../lib/index')
+const { createBroker } = require('../../../lib/index')
 
 describe('Cache system', () => {
   it('should call lifecycle hook "created" with correct scope if there are nested hooks from a mixin.', (done) => {
-    const node1 = Weave({
+    const node1 = createBroker({
       nodeId: 'node1',
       loadNodeService: false,
       logger: {

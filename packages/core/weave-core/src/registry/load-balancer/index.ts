@@ -9,7 +9,7 @@ const getByName = name => {
 
   const n = Object.keys(Strategies).find(n => n.toLowerCase() === name.toLowerCase())
   if (n) {
-    return this.Cache[n]
+    return Strategies[n]
   }
 }
 

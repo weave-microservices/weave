@@ -1,4 +1,4 @@
-const { Weave } = require('../../lib/index')
+const { createBroker } = require('../../lib/index')
 const { createContextFactory } = require('../../lib/broker/context-factory')
 // const { createEndpoint } = require('../../lib/registry/endpoint')
 
@@ -9,7 +9,7 @@ const { createContextFactory } = require('../../lib/broker/context-factory')
 
 describe('Test context factxory.', () => {
   it('should create an empty context.', () => {
-    const broker = Weave({ nodeId: 'Testnode' })
+    const broker = createBroker({ nodeId: 'Testnode' })
     const contextFactory = createContextFactory()
     contextFactory.init(broker)
 
@@ -34,7 +34,7 @@ describe('Test context factxory.', () => {
   })
 
   it('should handle passed options.', () => {
-    const broker = Weave({ nodeId: 'Testnode' })
+    const broker = createBroker({ nodeId: 'Testnode' })
     const contextFactory = createContextFactory()
     contextFactory.init(broker)
 

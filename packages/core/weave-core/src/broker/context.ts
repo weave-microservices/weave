@@ -3,7 +3,7 @@
  * -----
  * Copyright 2020 Fachwerk
  */
-import { uuid, isFunction } from '@weave-js/utils';
+import { generateUUID, isFunction } from '@weave-js/utils';
 import { WeaveMaxCallLevelError } from '../errors';
 import { Broker } from '../shared/interfaces/broker.interface';
 import { ContextPromise, Context } from '../shared/interfaces/context.interface';
@@ -111,7 +111,7 @@ export function createContext (broker: Broker): Context {
         if (broker.options.uuidFactory && isFunction(broker.options.uuidFactory)) {
             context.id = broker.options.uuidFactory.call(context, broker);
         } else {
-            context.id = uuid();
+            context.id = generateUUID();
         }
 
         // Pass existing request ID

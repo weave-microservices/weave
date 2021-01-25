@@ -1,10 +1,10 @@
-const { Weave } = require('../../../lib/index')
+const { createBroker } = require('../../../lib/index')
 
 describe('Timeout middleware', () => {
   let broker
 
   beforeEach(() => {
-    broker = Weave({
+    broker = createBroker({
       nodeId: 'node1',
       registry: {
         requestTimeout: 1000
@@ -32,7 +32,7 @@ describe('Timeout middleware', () => {
   it('should throw an timeout after timeout', (done) => {
     return broker.call('test-service.testAction')
       .catch(error => {
-        expect(error.message).toBe('Action test-service.testAction timed out node node1.')
+        expect(error.message).toBe('Action test-service.testAction timed out node node1 after 1000 milliseconds.')
         done()
       })
   })

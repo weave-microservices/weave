@@ -4,7 +4,6 @@
  * Copyright 2020 Fachwerk
  */
 
-// @ts-expect-error ts-migrate(2451) FIXME: Cannot redeclare block-scoped variable 'errors'.
 const errors = require('@weave-js/errors')
 
 class RetrieableError extends Error {

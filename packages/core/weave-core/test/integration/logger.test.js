@@ -1,4 +1,4 @@
-const { Weave } = require('../../lib/index')
+const { createBroker } = require('../../lib/index')
 const lolex = require('@sinonjs/fake-timers')
 // const Stream = require('./helper/TestStream')
 
@@ -13,7 +13,7 @@ describe('Test logger module.', () => {
   })
 
   it('should disable logger if logger is set to null.', () => {
-    const broker = Weave({
+    const broker = createBroker({
       logger: null
     })
 
@@ -21,7 +21,7 @@ describe('Test logger module.', () => {
   })
 
   it('should provide default log methods.', () => {
-    const broker = Weave({
+    const broker = createBroker({
       logger: {
         enabled: false,
         logLevel: 'fatal'
@@ -38,7 +38,7 @@ describe('Test logger module.', () => {
     expect(broker.log.fatal).toBeDefined()
     expect(broker.log.warn).toBeDefined()
     expect(broker.log.wait).toBeDefined()
-    expect(broker.log.complete).toBeDefined()
+    expect(broker.log.completed).toBeDefined()
     expect(broker.log.note).toBeDefined()
     expect(broker.log.star).toBeDefined()
     expect(broker.log.fav).toBeDefined()
@@ -46,7 +46,7 @@ describe('Test logger module.', () => {
 
   it('should call done hook of a custom log type. (4 times "info" on weave startup)', (done) => {
     const doneHookFn = jest.fn()
-    const broker = Weave({
+    const broker = createBroker({
       nodeId: 'node1',
       logger: {
         logLevel: 'info',
@@ -69,7 +69,7 @@ describe('Test logger module.', () => {
 
   it('should log with prefix and suffix', (done) => {
     const doneHookFn = jest.fn()
-    const broker = Weave({
+    const broker = createBroker({
       nodeId: 'node1',
       logger: {
         logLevel: 'fatal',
@@ -93,7 +93,7 @@ describe('Test logger module.', () => {
   // it('should output the log message on stream.', (done) => {
   //     const readStream = new Stream()
 
-  //     const broker = Weave({
+  //     const broker = createBroker({
   //         nodeId: 'node1',
   //         logger: {
   //             logLevel: 'trace',

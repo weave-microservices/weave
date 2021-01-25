@@ -6,7 +6,7 @@
 // Own packages
 import { WeaveError, WeaveQueueSizeExceededError } from '../errors';
 import MessageTypes from './message-types';
-import utils from '@weave-js/utils';
+import * as utils from '@weave-js/utils';
 import { Readable as ReadableStream } from 'stream'
 import { createMessageHandler } from './message-handlers';
 import { Broker } from '../shared/interfaces/broker.interface';

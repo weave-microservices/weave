@@ -20,7 +20,7 @@
   "main": "./lib/index.js",
   "scripts": {
     "ci": "jest --watch",
-    "test": "NODE_ENV=test jest --no-cache",
+    "test": "NODE_ENV=test tsc && jest --no-cache",
     "coverage": "jest --coverage --no-cache",
     "lint": "eslint . --ext .js --fix",
     "ts-migrate": "ts-migrate"

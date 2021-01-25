@@ -1,7 +1,7 @@
-const { Weave } = require('../../../lib/index')
+const { createBroker } = require('../../../lib/index')
 // const utils = require('../../../lib/utils')
 
-const Middleware = require('../../../lib/middlewares/metrics')
+const { createMetricsMiddleware } = require('../../../lib/middlewares/metrics')
 // const Context = require('../../../lib/broker/context')
 
 const config = {
@@ -16,10 +16,10 @@ const config = {
 // const SlowService = require('../../services/slow.service')
 
 describe('Test metrics middleware', () => {
-  const broker = Weave(config)
+  const broker = createBroker(config)
   // const contentFactory = createContextFactory()
   const handler = jest.fn(() => Promise.resolve('hooray!!!'))
-  const middleware = Middleware()
+  const middleware = createMetricsMiddleware()
   const service = {}
   const action = {
     name: 'math.add',

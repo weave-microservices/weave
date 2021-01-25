@@ -1,8 +1,8 @@
-const { Weave } = require('../../lib/index')
+const { createBroker } = require('../../lib/index')
 
 describe('Test param validator', () => {
   it('should fail with error and validation data.', (done) => {
-    const node1 = Weave({
+    const node1 = createBroker({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -34,7 +34,7 @@ describe('Test param validator', () => {
   })
 
   it('should fail with error and validation data.', (done) => {
-    const node1 = Weave({
+    const node1 = createBroker({
       nodeId: 'node1',
       logger: {
         enabled: false
