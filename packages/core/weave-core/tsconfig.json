@@ -4,18 +4,20 @@
     "module": "commonjs",
     "esModuleInterop": true,
     "moduleResolution": "node",
-    "rootDir": "./lib",
-    "outDir": "dist",
+    "rootDir": "./src",
+    "outDir": "lib",
     "resolveJsonModule": true,
-    "allowJs": true
+    "allowJs": true,
+    "declaration": true,                   /* Generates corresponding '.d.ts' file. */
+    "sourceMap": true
   },
   "exclude": [
     "node_modules",
-    "lib/registry/load-balancer"
+    "src/registry/load-balancer"
   ],
   "lib": ["es6"],
-  "include": ["lib/**/*"],
+  "include": ["src/**/*"],
   "files": [
-    "./lib/global.d.ts"
+    "./src/global.d.ts"
   ],
 }
