@@ -66,7 +66,7 @@ describe('Get properties by dot seperated path', () => {
   })
 
   it('should return a property', () => {
-    const source = {
+    const defaults = {
       name: 'test',
       load: true,
       adapter: undefined,
@@ -81,7 +81,9 @@ describe('Get properties by dot seperated path', () => {
         endpoints: {
           http: true,
           tcp: false,
-          ws: [1, 2, 3]
+          debug: true,
+          ws: [1, 2, 3],
+          heartbeat: false
         }
       }
     }
@@ -95,27 +97,33 @@ describe('Get properties by dot seperated path', () => {
           https: true,
           http: false,
           tcp: false,
-          ws: [1, 2, 3]
+          ws: [1, 2, 3],
+          heartbeat: true
         }
       }
     }
 
-    const merged = utils.defaultsDeep(target, source)
+    const merged = utils.defaultsDeep(target, defaults)
+
     expect(merged).toEqual({
       name: 'test2',
       load: false,
+      adapter: undefined,
       settings: {
         a: 200,
         b: 400,
         test: {
           a: '',
-          b: 1
+          b: 1,
+          c: undefined
         },
         endpoints: {
           https: true,
           http: false,
           tcp: false,
-          ws: [1, 2, 3]
+          debug: true,
+          ws: [1, 2, 3],
+          heartbeat: true
         }
       }
     })

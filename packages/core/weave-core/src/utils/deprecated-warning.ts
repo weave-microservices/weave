@@ -3,7 +3,7 @@ const { yellow, bold } = require('kleur')
 
 const deprecatedList = []
 
-exports.createDeprecatedWarning = (prop, msg, colored = true) => {
+export function createDeprecatedWarning (prop, msg, colored = true) {
   if (!msg) {
     msg = prop
   }

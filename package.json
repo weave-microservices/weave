@@ -6,7 +6,9 @@
     "link": "lerna link --force-local",
     "test": "lerna run test",
     "audit": "lerna exec --concurrency 1 npm audit fix",
-    "lint": "concurrently \"lerna run lint --stream\" "
+    "lint": "concurrently \"lerna run lint --stream\" ",
+    "version:prerelease": "lerna run build && lerna version prerelease --preid alpha --conventional-prerelease",
+    "publish": "lerna publish from-package"
   },
   "repository": {
     "type": "git",

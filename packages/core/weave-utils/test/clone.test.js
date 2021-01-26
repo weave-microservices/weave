@@ -19,4 +19,20 @@ describe('Object clone method', () => {
     expect(source).toEqual(newObject)
     expect(typeof source.settings.fire).toBe('function')
   })
+
+  // it('should clone an complex object', () => {
+  //   const source = {
+  //     name: 'test',
+  //     actions: {
+  //       help () {}
+  //     },
+  //     settings: new TestClass(),
+  //     stream: process.stdout,
+  //     arrs: [1, 2, 3, 4, 5]
+  //   }
+
+  //   const newObject = utils.clone(source)
+  //   expect(source).toEqual(newObject)
+  //   expect(typeof source.settings.fire).toBe('function')
+  // })
 })

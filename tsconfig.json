@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "declaration": true,                   /* Generates corresponding '.d.ts' file. */
+    "sourceMap": true
+  },
+  "lib": ["es6"]
+}

@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/core",
-  "version": "0.8.1",
+  "version": "0.8.1-ts",
   "description": "The core package of weave",
   "keywords": [
     "Weave",
@@ -19,6 +19,7 @@
   ],
   "main": "./lib/index.js",
   "scripts": {
+    "build": "tsc --build",
     "ci": "jest --watch",
     "test": "NODE_ENV=test tsc && jest --no-cache",
     "coverage": "jest --coverage --no-cache",
