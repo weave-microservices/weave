@@ -1,9 +1,15 @@
+// @ts-check
+
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
  * Copyright 2020 Fachwerk
- */
+*/
 
+/**
+ * @typedef {import('../../with-type').Registry} Registry
+ * @typedef {import('../../with-type').ServiceActionCollection} ServiceActionCollection
+*/
 const { omit } = require('@weave-js/utils')
 const { createEndpointList } = require('./endpoint-collection')
 
@@ -16,10 +22,13 @@ const { createEndpointList } = require('./endpoint-collection')
 
 /**
  * Create an action collection.
- * @param {any} registry Reference to the registry.
- * @returns {ActionCollection} Action collection
+ * @param {Registry} registry Reference to the registry.
+ * @returns {ServiceActionCollection} Action collection
 */
 exports.createActionCollection = (registry) => {
+  /**
+   * @type {ServiceActionCollection}
+  */
   const actionCollection = Object.create(null)
   const broker = registry.broker
   const actions = new Map()

@@ -1,7 +1,8 @@
 /**
- * Weave service Broker.
- * @module weave
- */
+ * @typedef {import('../with-type.js').BrokerOptions} BrokerOptions
+ * @typedef {import('../with-type.js').Broker} Broker
+ * @typedef {import('../with-type.js').Transport} Transport
+*/
 
 // node packages
 const path = require('path')
@@ -29,13 +30,12 @@ const { MetricsStorage } = require('../metrics')
 const { registerMetrics } = require('./broker-metrics')
 const { version } = require('../../package.json')
 
-/* eslint-disable no-use-before-define */
 /**
  *  Creates a new Weave instance
- * @param {import('./default-options.js').BrokerOptions} options - Service broker options.
- */
-/* eslint-enable no-use-before-define */
-const createBroker = (options = {}) => {
+ * @param {BrokerOptions} options - Service broker options.
+ * @returns {Broker} Broker instance
+*/
+module.exports = (options = {}) => {
   // backwards compatibility for logger
   if (options.logger === null) {
     options.logger = {
@@ -173,6 +173,9 @@ const createBroker = (options = {}) => {
   }
 
   // broker object
+  /**
+   * @type {Broker}
+  */
   const broker = {
     /**
     * Event bus
@@ -667,6 +670,9 @@ const createBroker = (options = {}) => {
   if (options.transport.adapter) {
     const adapter = TransportAdapters.resolve(broker, options.transport)
     if (adapter) {
+      /**
+       * @type {Transport}
+      */
       broker.transport = createTransport({ broker, adapter, middlewareHandler })
     }
   }
@@ -774,8 +780,6 @@ const createBroker = (options = {}) => {
 
   // Call middleware hook for broker created.
   middlewareHandler.callHandlersSync('created', [broker])
-
   return broker
 }
 
-module.exports = createBroker

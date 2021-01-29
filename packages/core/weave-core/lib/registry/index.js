@@ -1,8 +1,21 @@
+// @ts-check
+
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
  * Copyright 2020 Fachwerk
- */
+*/
+
+/**
+ * @typedef {import('../with-type.js').Registry} Registry
+ * @typedef {import('../with-type.js').NodeCollection} NodeCollection
+ * @typedef {import('../with-type.js').ServiceCollection} ServiceCollection
+ * @typedef {import('../with-type.js').ServiceActionCollection} ServiceActionCollection
+ * @typedef {import('../with-type.js').EventCollection} EventCollection
+ * @typedef {import('../with-type.js').Broker} Broker
+ * @typedef {import('../with-type.js').MiddlewareHandler} MiddlewareHandler
+ * @typedef {import('../with-type.js').ServiceChangedDelegate} ServiceChangedDelegate
+*/
 
 const { safeCopy } = require('@weave-js/utils')
 
@@ -17,27 +30,50 @@ const { WeaveServiceNotFoundError, WeaveServiceNotAvailableError } = require('..
 
 const noop = () => {}
 
+/**
+ * Registry factory
+ * @returns {Registry} Registry
+*/
 exports.createRegistry = () => {
-  // registry object
+  /**
+   * @type {Registry}
+  */
   const registry = {
+  /**
+   * Initialize the registry
+   * @param {Broker} broker Broker instance
+   * @param {MiddlewareHandler} middlewareHandler Middleware handler
+   * @param {ServiceChangedDelegate} serviceChanged Service changed delegate
+   * @returns {void}
+   */
     init (broker, middlewareHandler, serviceChanged) {
+      /**
+       * @type {Broker}
+      */
       this.broker = broker
 
+      /**
+       * @type {MiddlewareHandler}
+      */
       this.middlewareHandler = middlewareHandler
+
+      /**
+       * @type {ServiceChangedDelegate}
+      */
       this.serviceChanged = serviceChanged
 
       // init logger
       this.log = broker.createLogger('REGISTRY')
 
       // init collections
-      this.nodes = createNodeCollection(this)
-      this.services = createServiceCollection(this)
-      this.actions = createActionCollection(this)
-      this.events = createEventCollection(this)
+      this.nodeCollection = createNodeCollection(this)
+      this.serviceCollection = createServiceCollection(this)
+      this.actionCollection = createActionCollection(this)
+      this.eventCollection = createEventCollection(this)
 
       // register an event handler for "$broker.started".
       this.broker.bus.on('$broker.started', () => {
-        if (this.nodes.localNode) {
+        if (this.nodeCollection.localNode) {
           this.generateLocalNodeInfo(true)
         }
       })
@@ -68,18 +104,18 @@ exports.createRegistry = () => {
      * @returns {void}
     */
     registerLocalService (svc) {
-      if (!this.services.has(svc.name, svc.version, this.broker.nodeId)) {
-        const service = this.services.add(this.nodes.localNode, svc.name, svc.version, svc.settings)
+      if (!this.serviceCollection.has(svc.name, svc.version, this.broker.nodeId)) {
+        const service = this.serviceCollection.add(this.nodeCollection.localNode, svc.name, svc.version, svc.settings)
 
         if (svc.actions) {
-          this.registerActions(this.nodes.localNode, service, svc.actions)
+          this.registerActions(this.nodeCollection.localNode, service, svc.actions)
         }
 
         if (svc.events) {
-          this.registerEvents(this.nodes.localNode, service, svc.events)
+          this.registerEvents(this.nodeCollection.localNode, service, svc.events)
         }
 
-        this.nodes.localNode.services.push(service)
+        this.nodeCollection.localNode.services.push(service)
 
         this.generateLocalNodeInfo(this.broker.isStarted)
 
@@ -104,10 +140,10 @@ exports.createRegistry = () => {
         // todo: handle events
         let oldActions
         let oldEvents
-        let svc = this.services.get(node.id, service.name, service.version)
+        let svc = this.serviceCollection.get(node.id, service.name, service.version)
 
         if (!svc) {
-          svc = this.services.add(node, service.name, service.version, service.settings)
+          svc = this.serviceCollection.add(node, service.name, service.version, service.settings)
         } else {
           // Update existing service with new actions
           oldActions = Object.assign({}, svc.actions)
@@ -127,7 +163,7 @@ exports.createRegistry = () => {
           // this.deregisterAction()
           Object.keys(oldActions).forEach(actionName => {
             if (!service.actions[actionName]) {
-              this.actions.remove(actionName, node)
+              this.actionCollection.remove(actionName, node)
             }
           })
         }
@@ -135,14 +171,14 @@ exports.createRegistry = () => {
         if (oldEvents) {
           Object.keys(oldEvents).forEach(eventName => {
             if (!service.actions[eventName]) {
-              this.events.remove(eventName, node)
+              this.eventCollection.remove(eventName, node)
             }
           })
         }
       })
 
       // remove old services
-      const oldServices = Array.from(this.services.services)
+      const oldServices = Array.from(this.serviceCollection.services)
       oldServices.forEach((service) => {
         if (service.node.id !== node.id) return
 
@@ -176,7 +212,7 @@ exports.createRegistry = () => {
           event.handler = this.middlewareHandler.wrapHandler('localEvent', event.handler, event) // this.onRegisterLocalEvent(event)
         }
 
-        this.events.add(node, service, event)
+        this.eventCollection.add(node, service, event)
         service.addEvent(event)
       })
     },
@@ -201,21 +237,21 @@ exports.createRegistry = () => {
           action.handler = this.middlewareHandler.wrapHandler('remoteAction', this.broker.transport.request.bind(this.broker.transport), action)// this.onRegisterRemoteAction(action)
         }
 
-        this.actions.add(node, service, action)
+        this.actionCollection.add(node, service, action)
 
         service.addAction(action)
       })
     },
     getActionList (options) {
-      return this.actions.list(options)
+      return this.actionCollection.list(options)
     },
     deregisterService (name, version, nodeId) {
-      this.services.remove(nodeId || this.broker.nodeId, name, version)
+      this.serviceCollection.remove(nodeId || this.broker.nodeId, name, version)
 
       // It must be a local service
       if (!nodeId) {
-        const serviceToRemove = this.nodes.localNode.services.find(service => service.name === name)
-        this.nodes.localNode.services.splice(this.nodes.localNode.services.indexOf(serviceToRemove), 1)
+        const serviceToRemove = this.nodeCollection.localNode.services.find(service => service.name === name)
+        this.nodeCollection.localNode.services.splice(this.nodeCollection.localNode.services.indexOf(serviceToRemove), 1)
       }
 
       if (!nodeId || nodeId === this.broker.nodeId) {
@@ -223,10 +259,10 @@ exports.createRegistry = () => {
       }
     },
     deregisterServiceByNodeId (nodeId) {
-      return this.services.removeAllByNodeId(nodeId)
+      return this.serviceCollection.removeAllByNodeId(nodeId)
     },
     hasService (serviceName, version, nodeId) {
-      return this.services.has(serviceName, version, nodeId)
+      return this.serviceCollection.has(serviceName, version, nodeId)
     },
     getNextAvailableActionEndpoint (actionName, opts = {}) {
       if (typeof actionName !== 'string') {
@@ -270,10 +306,10 @@ exports.createRegistry = () => {
       return null
     },
     getActionEndpoints (actionName) {
-      return this.actions.get(actionName)
+      return this.actionCollection.get(actionName)
     },
     createPrivateActionEndpoint (action) {
-      return createActionEndpoint(this.broker, this.nodes.localNode, action.service, action)
+      return createActionEndpoint(this.broker, this.nodeCollection.localNode, action.service, action)
     },
     getLocalActionEndpoint (actionName) {
       const endpointList = this.getActionEndpoints(actionName)
@@ -293,7 +329,7 @@ exports.createRegistry = () => {
       return endpoint
     },
     getNodeInfo (nodeId) {
-      const node = this.nodes.get(nodeId)
+      const node = this.nodeCollection.get(nodeId)
 
       if (!node) {
         return null
@@ -302,22 +338,22 @@ exports.createRegistry = () => {
       return node.info
     },
     getLocalNodeInfo (forceGenerateInfo) {
-      if (forceGenerateInfo || !this.nodes.localNode.info) {
+      if (forceGenerateInfo || !this.nodeCollection.localNode.info) {
         return this.generateLocalNodeInfo()
       }
 
-      return this.nodes.localNode.info
+      return this.nodeCollection.localNode.info
     },
     generateLocalNodeInfo (incrementSequence = false) {
-      const { client, IPList, sequence } = this.nodes.localNode
+      const { client, IPList, sequence } = this.nodeCollection.localNode
       const nodeInfo = { client, IPList, sequence }
 
       if (incrementSequence) {
-        this.nodes.localNode.sequence++
+        this.nodeCollection.localNode.sequence++
       }
 
       if (this.broker.isStarted) {
-        nodeInfo.services = this.services.list({
+        nodeInfo.services = this.serviceCollection.list({
           localOnly: true,
           withActions: true,
           withEvents: true,
@@ -328,12 +364,12 @@ exports.createRegistry = () => {
         nodeInfo.services = []
       }
 
-      this.nodes.localNode.info = safeCopy(nodeInfo)
-      return this.nodes.localNode.info
+      this.nodeCollection.localNode.info = safeCopy(nodeInfo)
+      return this.nodeCollection.localNode.info
     },
     processNodeInfo (payload) {
       const nodeId = payload.sender
-      let node = this.nodes.get(nodeId)
+      let node = this.nodeCollection.get(nodeId)
       let isNew = false
       let isReconnected = false
 
@@ -341,7 +377,7 @@ exports.createRegistry = () => {
       if (!node) {
         isNew = true
         node = createNode(nodeId)
-        this.nodes.add(nodeId, node)
+        this.nodeCollection.add(nodeId, node)
       } else if (!node.isAvailable) {
         // Node exists, but is marked as unavailable. It must therefore be a reconnected node.
         isReconnected = true
@@ -368,7 +404,7 @@ exports.createRegistry = () => {
       }
     },
     nodeDisconnected (nodeId, isUnexpected) {
-      const node = this.nodes.get(nodeId)
+      const node = this.nodeCollection.get(nodeId)
       if (node && node.isAvailable) {
         this.deregisterServiceByNodeId(node.id)
         node.disconnected(isUnexpected)
@@ -377,15 +413,15 @@ exports.createRegistry = () => {
       }
     },
     removeNode (nodeId) {
-      this.nodes.remove(nodeId)
+      this.nodeCollection.remove(nodeId)
       this.broker.broadcastLocal('$node.removed', { nodeId })
       this.log.warn(`Node "${nodeId}" removed.`)
     },
     getNodeList (options) {
-      return this.nodes.list(options)
+      return this.nodeCollection.list(options)
     },
     getServiceList (options) {
-      return this.services.list(options)
+      return this.serviceCollection.list(options)
     }
   }
 
