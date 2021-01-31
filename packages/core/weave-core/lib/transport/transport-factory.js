@@ -490,7 +490,7 @@ exports.createTransport = ({ broker, adapter, middlewareHandler }) => {
 
   function startUpdateLocalNodeTimer () {
     updateLocalNodeTimer = setInterval(() => {
-      const node = broker.registry.nodes.localNode
+      const node = broker.registry.nodeCollection.localNode
       node.updateLocalInfo(true)
     }, broker.options.transport.nodeUpdateInterval)
 
@@ -505,7 +505,7 @@ exports.createTransport = ({ broker, adapter, middlewareHandler }) => {
   }
 
   function sendHeartbeat () {
-    const node = broker.registry.nodes.localNode
+    const node = broker.registry.nodeCollection.localNode
     node.updateLocalInfo()
 
     log.trace(`Send heartbeat from ${node.id}`)
@@ -522,7 +522,7 @@ exports.createTransport = ({ broker, adapter, middlewareHandler }) => {
 
   function checkRemoteNodes () {
     const now = Date.now()
-    broker.registry.nodes.list({ withServices: true }).forEach(node => {
+    broker.registry.nodeCollection.list({ withServices: true }).forEach(node => {
       if (node.isLocal || !node.isAvailable) {
         return
       }
@@ -536,7 +536,7 @@ exports.createTransport = ({ broker, adapter, middlewareHandler }) => {
   // Removes the node after a given time from the registry.
   function checkOfflineNodes () {
     const now = Date.now()
-    broker.registry.nodes.list({}).forEach(node => {
+    broker.registry.nodeCollection.list({}).forEach(node => {
       if (node.isLocal || node.isAvailable) {
         return
       }

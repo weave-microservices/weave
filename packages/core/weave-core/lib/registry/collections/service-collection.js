@@ -35,8 +35,8 @@ exports.createServiceCollection = (registry) => {
     const service = serviceCollection.get(nodeId, name, version)
 
     if (service) {
-      registry.actions.removeByService(service)
-      registry.events.removeByService(service)
+      registry.actionCollection.removeByService(service)
+      registry.eventCollection.removeByService(service)
       remove(services, svc => svc === service)
     }
   }
@@ -44,8 +44,8 @@ exports.createServiceCollection = (registry) => {
   serviceCollection.removeAllByNodeId = (nodeId) => {
     remove(services, service => {
       if (service.node.id === nodeId) {
-        registry.actions.removeByService(service)
-        registry.events.removeByService(service)
+        registry.actionCollection.removeByService(service)
+        registry.eventCollection.removeByService(service)
         return true
       }
       return false

@@ -283,7 +283,7 @@ module.exports = (options = {}) => {
         this.bus.emit(eventName, payload)
       }
 
-      const endpoints = registry.events.getBalancedEndpoints(eventName, options.groups)
+      const endpoints = registry.eventCollection.getBalancedEndpoints(eventName, options.groups)
       const groupedEndpoints = {}
 
       endpoints.map(([endpoint, groupName]) => {
@@ -345,7 +345,7 @@ module.exports = (options = {}) => {
 
         // Avoid to broadcast internal events.
         if (!/^\$/.test(eventName)) {
-          const endpoints = registry.events.getAllEndpointsUniqueNodes(eventName, options.groups)
+          const endpoints = registry.eventCollection.getAllEndpointsUniqueNodes(eventName, options.groups)
 
           endpoints.map(endpoint => {
             if (endpoint.node.id !== this.nodeId) {
@@ -384,7 +384,7 @@ module.exports = (options = {}) => {
         this.bus.emit(eventName, payload)
       }
 
-      return registry.events.emitLocal(context)
+      return registry.eventCollection.emitLocal(context)
     },
     /* eslint-disable no-use-before-define */
     /**

@@ -1,23 +1,12 @@
+/**
+ * @typedef {import("../with-type").Broker} Broker
+ * @typedef {import("../with-type").ServiceSchema} ServiceSchema
+ * @typedef {import("../with-type").Service} Service
+*/
+
 const { mergeSchemas } = require('../utils/options')
 const { wrapInArray, isFunction, clone, wrapHandler, isObject, promisify } = require('@weave-js/utils')
 const { WeaveError } = require('../errors')
-
-/**
- * The complete Triforce, or one or more components of the Triforce.
- * @typedef {Object} ServiceSchema
- * @property {string} name - Name of the Service.
- * @property {string} version - Version of the service.
- * @property {object} methods - Private methods of the service
- * @property {Array.<ServiceSchema>} mixins The mixins option accepts an array of mixin objects. These mixin objects can contain instance options like normal instance objects, and they will be merged against the eventual options using the same option merging logic in Vue.extend(). e.g. If your mixin contains a created hook and the component itself also has one, both functions will be called.
- * @property {object} settings - Indicates whether the Power component is present.
- * @property {object} actions - Indicates whether the Wisdom component is present.
- * @property {Array.<string>} dependencies Names of the services on which this service depends.
- * @property {object>} settings A storage where settings for this service can be stored. Accessible via "this.settings".
- * @property {function():void} beforeCreate Hook that is called before the service is created.
- * @property {function():void} created Hook that is called after the service is created.
- * @property {function():promise} started Hook that is called before the service is started.
- * @property {function():promise} stopped Hook that is called before the service is stopped.
-*/
 
 const createAction = (broker, service, actionDefinition, name) => {
   let action = actionDefinition
@@ -120,15 +109,18 @@ const applyMixins = (service, schema) => {
 }
 
 /**
- * Create and register a new service
+ * Service factory
  * @param {Broker} broker Broker instance
  * @param {Object} middlewareHandler Middleware handler
  * @param {Function} addLocalService Add Service to the local service map
  * @param {Function} registerLocalService Register service.
  * @param {ServiceSchema} schema Service schema
- * @returns {Object} Service instance
+ * @returns {Service} Service instance
  */
 exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, registerLocalService, schema) => {
+  /**
+   * @type {Service}
+  */
   const service = Object.create(null)
 
   // Set reference to the broker instance.

@@ -5,8 +5,25 @@
  */
 'use strict'
 
+/**
+ * @typedef {import("../with-type").ServiceItem} ServiceItem
+ * @typedef {import("../with-type").Node} Node
+*/
+
 // todo: find a better name
-exports.createServiceItem = (node, name, version, settings, local) => {
+/**
+ * Service item factory
+ * @param {Node} node Node
+ * @param {string} name Service name
+ * @param {number} version Service version
+ * @param {object} settings version
+ * @param {boolean} isLocal Is local node
+ * @returns {ServiceItem} Node instance
+*/
+exports.createServiceItem = (node, name, version, settings, isLocal) => {
+  /**
+   * @type {ServiceItem}
+  */
   const serviceItem = Object.create(null)
 
   serviceItem.name = name
@@ -15,7 +32,7 @@ exports.createServiceItem = (node, name, version, settings, local) => {
   serviceItem.version = version
   serviceItem.actions = {}
   serviceItem.events = {}
-  serviceItem.isLocal = local
+  serviceItem.isLocal = isLocal
 
   serviceItem.addAction = (action) => {
     serviceItem.actions[action.name] = action

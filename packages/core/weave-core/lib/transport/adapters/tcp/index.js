@@ -29,7 +29,7 @@ module.exports = function SwimTransport (adapterOptions) {
   let gossipTimer
 
   self.afterInit = function () {
-    self.nodes = this.broker.registry.nodes
+    self.nodes = this.broker.registry.nodeCollection
     self.registry = self.broker.registry
     self.swim = Swim(self, adapterOptions)
   }
@@ -42,7 +42,7 @@ module.exports = function SwimTransport (adapterOptions) {
 
     self.log.info('TCP transport adapter started.')
 
-    self.broker.registry.nodes.localNode.port = port
+    self.broker.registry.nodeCollection.localNode.port = port
     self.broker.registry.generateLocalNodeInfo()
 
     self.connected({ wasReconnect: false, useHeartbeatTimer: false, useRemoteNodeCheckTimer: false, useOfflineCheckTimer: true })
@@ -73,13 +73,13 @@ module.exports = function SwimTransport (adapterOptions) {
   }
 
   self.sendHello = nodeId => {
-    const node = self.broker.registry.nodes.get(nodeId)
+    const node = self.broker.registry.nodeCollection.get(nodeId)
 
     if (!node) {
       return Promise.reject(new Error('Node not found.'))
     }
 
-    const localNode = self.broker.registry.nodes.localNode
+    const localNode = self.broker.registry.nodeCollection.localNode
 
     const message = self.transport.createMessage(MessageTypes.MESSAGE_GOSSIP_HELLO, nodeId, {
       host: localNode.IPList[0],
@@ -110,7 +110,7 @@ module.exports = function SwimTransport (adapterOptions) {
 
   // Send a disconnect message to all connected nodes.
   function publishNodeDisconnect (message) {
-    const nodes = self.broker.registry.nodes.toArray()
+    const nodes = self.broker.registry.nodeCollection.toArray()
     return Promise.all(
       nodes
         .filter(node => node.isAvailable && !node.isLocal)
@@ -122,7 +122,7 @@ module.exports = function SwimTransport (adapterOptions) {
   }
 
   function addDiscoveredNode (nodeId, host, port) {
-    const node = self.broker.registry.nodes.createNode(nodeId)
+    const node = self.broker.registry.nodeCollection.createNode(nodeId)
 
     node.isLocal = false
     node.isAvailable = false
@@ -131,7 +131,7 @@ module.exports = function SwimTransport (adapterOptions) {
     node.port = port
     node.sequence = 0
     node.offlineTime = Date.now()
-    self.broker.registry.nodes.add(node.id, node)
+    self.broker.registry.nodeCollection.add(node.id, node)
 
     return node
   }
@@ -152,7 +152,7 @@ module.exports = function SwimTransport (adapterOptions) {
   function startDiscoveryServer (port) {
     self.swim.bus.on('message', ({ nodeId, host, port }) => {
       if (nodeId && nodeId !== self.broker.nodeId) {
-        let node = self.broker.registry.nodes.get(nodeId)
+        let node = self.broker.registry.nodeCollection.get(nodeId)
         if (!node) {
           self.log.debug(`Discoverd a new node ${nodeId}`)
 
@@ -198,7 +198,7 @@ module.exports = function SwimTransport (adapterOptions) {
   }
 
   function sendGossipRequest () {
-    const list = self.broker.registry.nodes.toArray()
+    const list = self.broker.registry.nodeCollection.toArray()
     if (!list || list.length === 0) {
       return
     }
@@ -263,7 +263,7 @@ module.exports = function SwimTransport (adapterOptions) {
       const message = self.deserialize(packet)
       const payload = message.payload
       const nodeId = payload.sender
-      const node = self.broker.registry.nodes.get(nodeId)
+      const node = self.broker.registry.nodeCollection.get(nodeId)
 
       if (!node) {
         addDiscoveredNode(nodeId, payload.host, payload.port)
@@ -278,7 +278,7 @@ module.exports = function SwimTransport (adapterOptions) {
     try {
       const message = self.deserialize(data)
       const payload = message.payload
-      const list = self.broker.registry.nodes.toArray()
+      const list = self.broker.registry.nodeCollection.toArray()
 
       // Init gossip response
       const response = {
@@ -322,7 +322,7 @@ module.exports = function SwimTransport (adapterOptions) {
             return
           } else if (!node.isLocal) {
             // we know, the node is offline
-            self.broker.registry.nodes.disconnected(node.id, false)
+            self.broker.registry.nodeCollection.disconnected(node.id, false)
             node.sequence = sequence
           } else if (node.isLocal) {
             // Remote node said we are offline, but we are online and send back our node informations.
@@ -356,7 +356,7 @@ module.exports = function SwimTransport (adapterOptions) {
       }
 
       if (response.online || response.offline) {
-        const destinationNode = self.broker.registry.nodes.get(payload.sender)
+        const destinationNode = self.broker.registry.nodeCollection.get(payload.sender)
         const message = self.transport.createMessage(MessageTypes.MESSAGE_GOSSIP_RESPONSE, destinationNode.id, response)
         self.send(message).catch(() => {})
       }
@@ -396,7 +396,7 @@ module.exports = function SwimTransport (adapterOptions) {
             [info, cpuSequence, cpu] = item
           }
 
-          const node = self.broker.registry.nodes.get(nodeId)
+          const node = self.broker.registry.nodeCollection.get(nodeId)
 
           if (info && (!node || node.sequence < info.sequence)) {
             // if node is a new node or has a higher sequence update local info.
@@ -419,7 +419,7 @@ module.exports = function SwimTransport (adapterOptions) {
           if (nodeId === self.broker.nodeId) return
 
           const sequence = payload.offline[nodeId]
-          const node = self.broker.registry.nodes.get(nodeId)
+          const node = self.broker.registry.nodeCollection.get(nodeId)
 
           if (!node) {
             return
@@ -428,7 +428,7 @@ module.exports = function SwimTransport (adapterOptions) {
           // the remote node is newer
           if (sequence > node.sequence) {
             if (node.isAvailable) {
-              self.broker.registry.nodes.disconnected(node.id, false)
+              self.broker.registry.nodeCollection.disconnected(node.id, false)
             }
             node.sequence = sequence
           }

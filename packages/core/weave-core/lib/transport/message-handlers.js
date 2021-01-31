@@ -212,7 +212,7 @@ module.exports = (broker, transport, pending) => {
     context.eventName = payload.eventName
     context.eventType = payload.isBroadcast ? 'broadcast' : 'emit'
 
-    return registry.events.emitLocal(context)
+    return registry.eventCollection.emitLocal(context)
   }
 
   // Disconnected message handöer
@@ -223,7 +223,7 @@ module.exports = (broker, transport, pending) => {
   const onHeartbeat = payload => {
     // registry.nodes.heartbeat(payload)
     transport.log.trace(`Heartbeat from ${payload.sender}`)
-    const node = registry.nodes.get(payload.sender)
+    const node = registry.nodeCollection.get(payload.sender)
     // if node is unknown then request a node info message.
     if (node) {
       if (!node.isAvailable) {

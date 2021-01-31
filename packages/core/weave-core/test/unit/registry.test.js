@@ -32,9 +32,10 @@ describe('Test Registry instance', () => {
     registry.init(broker, middlewareHandler, serviceChanged)
 
     expect(registry.log).toBeDefined()
-    expect(registry.services).toBeDefined()
-    expect(registry.actions).toBeDefined()
-    expect(registry.events).toBeDefined()
+    expect(registry.nodeCollection).toBeDefined()
+    expect(registry.serviceCollection).toBeDefined()
+    expect(registry.actionCollection).toBeDefined()
+    expect(registry.eventCollection).toBeDefined()
   })
 })
 
@@ -42,8 +43,8 @@ describe('Test "registerLocalService"', () => {
   const broker = Weave(brokerSettings)
   const registry = broker.registry
 
-  registry.services.has = jest.fn()
-  registry.services.add = jest.fn(() => ({ name: 'test-service' }))
+  registry.serviceCollection.has = jest.fn()
+  registry.serviceCollection.add = jest.fn(() => ({ name: 'test-service' }))
   registry.registerActions = jest.fn()
   registry.registerEvents = jest.fn()
   registry.serviceChanged = jest.fn()
@@ -60,13 +61,13 @@ describe('Test "registerLocalService"', () => {
 
     registry.registerLocalService(service)
 
-    expect(registry.services.has).toBeCalledTimes(1)
-    expect(registry.services.add).toBeCalledTimes(1)
+    expect(registry.serviceCollection.has).toBeCalledTimes(1)
+    expect(registry.serviceCollection.add).toBeCalledTimes(1)
     expect(registry.registerActions).toBeCalledTimes(1)
     expect(registry.registerEvents).toBeCalledTimes(1)
     expect(registry.serviceChanged).toBeCalledTimes(1)
     expect(registry.generateLocalNodeInfo).toBeCalledTimes(1)
-    expect(registry.nodes.localNode.services.length).toBe(1)
+    expect(registry.nodeCollection.localNode.services.length).toBe(1)
   })
 })
 
@@ -79,8 +80,8 @@ describe('Test "registerRemoteServices"', () => {
     update: jest.fn()
   }
 
-  registry.services.get = jest.fn(() => null)
-  registry.services.add = jest.fn(() => serviceItem)
+  registry.serviceCollection.get = jest.fn(() => null)
+  registry.serviceCollection.add = jest.fn(() => serviceItem)
   registry.registerActions = jest.fn()
   registry.registerEvents = jest.fn()
   registry.serviceChanged = jest.fn()
@@ -100,8 +101,8 @@ describe('Test "registerRemoteServices"', () => {
 
     registry.registerRemoteServices(node, [service])
 
-    expect(registry.services.get).toBeCalledTimes(1)
-    expect(registry.services.add).toBeCalledTimes(1)
+    expect(registry.serviceCollection.get).toBeCalledTimes(1)
+    expect(registry.serviceCollection.add).toBeCalledTimes(1)
     expect(registry.registerActions).toBeCalledTimes(1)
     expect(registry.registerEvents).toBeCalledTimes(1)
     expect(registry.serviceChanged).toBeCalledTimes(1)
@@ -152,7 +153,7 @@ describe('Test "registerRemoteServices"', () => {
       }
     }
 
-    registry.services.get = jest.fn(() => serviceItem)
+    registry.serviceCollection.get = jest.fn(() => serviceItem)
 
     const node = createNode('test-node')
     const service = {
@@ -176,14 +177,14 @@ describe('Test "registerRemoteServices"', () => {
     // expect(registry.registerEvents).toBeCalledWith(nodes, serviceItem, service.events)
     expect(registry.serviceChanged).toBeCalledTimes(1)
 
-    registry.services.services.push(serviceItem)
+    registry.serviceCollection.services.push(serviceItem)
   })
 
   it('should remove old services', () => {
-    registry.services.get = jest.fn()
-    registry.services.remove = jest.fn()
+    registry.serviceCollection.get = jest.fn()
+    registry.serviceCollection.remove = jest.fn()
 
-    registry.services.add.mockClear()
+    registry.serviceCollection.add.mockClear()
     registry.registerActions.mockClear()
     registry.registerEvents.mockClear()
     registry.serviceChanged.mockClear()

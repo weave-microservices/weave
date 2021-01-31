@@ -84,6 +84,10 @@
  * @property {(this: Broker) => void} [stopped] stopped
 */
 
+/**
+ * @typedef {Object.<'fatal'|'error'|'warn'|'info'|'debug'|'trace', Function} Logger
+ */
+
 // Cache
 
 /**
@@ -319,17 +323,25 @@
 */
 
 /**
- * Node
- *
+ * Node interface
  * @typedef Node
- * @property {Node} node node
- * @property {Service} service service
- * @property {ServiceAction} action action
+ * @property {string} id id
+ * @property {NodeInfo} info info
  * @property {boolean} isLocal isLocal
- * @property {boolean} state state
- * @property {string} name name
- * @property {void} updateAction updateAction
+ * @property {NodeClient} client client
+ * @property {number} [cpu] cpu
+ * @property {number} [cpuSequence] cpuSequence
+ * @property {number} lastHeartbeatTime lastHeartbeatTime
+ * @property {number} offlineTime offlineTime
  * @property {boolean} isAvailable isAvailable
+ * @property {Array<ServiceItem>} services services
+ * @property {number} sequence sequence
+ * @property {Array<string>} [events] events
+ * @property {Array<string>} IPList IPList
+ * @property {boolean} update update
+ * @property {void} updateLocalInfo updateLocalInfo
+ * @property {void} heartbeat heartbeat
+ * @property {void} disconnected disconnected
 */
 
 /**

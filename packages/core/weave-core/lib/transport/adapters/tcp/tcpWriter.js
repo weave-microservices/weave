@@ -10,7 +10,7 @@ module.exports = (adapter, options) => {
   const headerSize = 6
 
   const connect = nodeId => {
-    const node = adapter.broker.registry.nodes.get(nodeId)
+    const node = adapter.broker.registry.nodeCollection.get(nodeId)
     if (!node) {
       return Promise.reject()
     }

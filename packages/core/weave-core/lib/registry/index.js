@@ -1,4 +1,3 @@
-// @ts-check
 
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
@@ -13,6 +12,7 @@
  * @typedef {import('../with-type.js').ServiceActionCollection} ServiceActionCollection
  * @typedef {import('../with-type.js').EventCollection} EventCollection
  * @typedef {import('../with-type.js').Broker} Broker
+ * @typedef {import('../with-type.js').Node} Node
  * @typedef {import('../with-type.js').MiddlewareHandler} MiddlewareHandler
  * @typedef {import('../with-type.js').ServiceChangedDelegate} ServiceChangedDelegate
 */
@@ -368,9 +368,24 @@ exports.createRegistry = () => {
       return this.nodeCollection.localNode.info
     },
     processNodeInfo (payload) {
+      /**
+       * @type {string}
+      */
       const nodeId = payload.sender
+
+      /**
+       * @type {Node}
+      */
       let node = this.nodeCollection.get(nodeId)
+
+      /**
+       * @type {boolean}
+      */
       let isNew = false
+
+      /**
+       * @type {boolean}
+      */
       let isReconnected = false
 
       // There is no node with the specified ID. It must therefore be a new node.

@@ -244,7 +244,7 @@ describe('Versioned Services', () => {
     node1.createService(MathV2)
 
     await node1.start()
-    expect(node1.registry.services.services.find(service => service.name === 'math').version).toBe(2)
+    expect(node1.registry.serviceCollection.services.find(service => service.name === 'math').version).toBe(2)
     await node1.stop()
     done()
   })

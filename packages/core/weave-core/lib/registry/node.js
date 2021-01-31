@@ -4,9 +4,21 @@
  * Copyright 2020 Fachwerk
  */
 
+/**
+ * @typedef {import('../with-type.js').Node} Node
+*/
+
 const { cpuUsage } = require('@weave-js/utils')
 
+/**
+ * Node factory
+ * @param {string} nodeId Node id
+ * @returns {Node} Node instance
+*/
 exports.createNode = (nodeId) => {
+  /**
+   * @type {Node}
+  */
   return {
     id: nodeId,
     info: null,
