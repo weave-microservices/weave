@@ -29,7 +29,7 @@ function NATSTransportAdapter (adapterOptions) {
             this.log.info('NATS client reconnected.')
           }
           this.log.info('NATS client connected.')
-          this.isCOnnected = true
+          this.isConnected = true
           this.connected()
 
           return resolve()
@@ -73,7 +73,7 @@ function NATSTransportAdapter (adapterOptions) {
     subscribe (type, nodeId) {
       return new Promise(resolve => {
         const topic = this.getTopic(type, nodeId)
-        client.subscribe(topic, message => this.incommingMessage(type, message))
+        client.subscribe(topic, message => this.incomingMessage(type, message))
         resolve()
       })
     },

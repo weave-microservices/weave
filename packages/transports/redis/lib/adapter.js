@@ -64,7 +64,7 @@ const RedisTransportAdapter = adapterOptions => {
 
         clientSub.on('message', (topic, message) => {
           const type = topic.split('.')[1]
-          this.incommingMessage(type, message)
+          this.incomingMessage(type, message)
         })
 
         clientSub.on('close', () => {

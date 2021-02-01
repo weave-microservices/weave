@@ -145,7 +145,7 @@ module.exports = function SwimTransport (adapterOptions) {
     case MessageTypes.MESSAGE_GOSSIP_RESPONSE:
       return onGossipResponseMessage(data, socket)
     default:
-      return self.incommingMessage(type, data)
+      return self.incomingMessage(type, data)
     }
   }
 

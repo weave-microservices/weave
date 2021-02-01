@@ -59,7 +59,7 @@ const createTransportBase = () => {
     send (/* message*/) {
       this.broker.handleError(new Error('Method "send" not implemented.'))
     },
-    incommingMessage (messageType, message) {
+    incomingMessage (messageType, message) {
       const data = this.deserialize(message)
       this.updateStatisticReceived(message.length)
       this.bus.emit('$adapter.message', messageType, data)

@@ -220,7 +220,7 @@
  * @property {string} getTopic getTopic
  * @property {Promise<any>} preSend preSend
  * @property {Promise<any>} send send
- * @property {void} incommingMessage incommingMessage
+ * @property {void} incomingMessage incomingMessage
  * @property {Buffer} serialize serialize
  * @property {any} deserialize deserialize
  * @property {void} updateStatisticSent updateStatisticSent

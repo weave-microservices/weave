@@ -34,7 +34,7 @@ const DummyTransportAdapter = (adapterOptions) => {
     },
     subscribe (type, nodeId) {
       const topic = this.getTopic(type, nodeId)
-      messageBus.on(topic, message => this.incommingMessage(type, message))
+      messageBus.on(topic, message => this.incomingMessage(type, message))
     }
   })
 }
