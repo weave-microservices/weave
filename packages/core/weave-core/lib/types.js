@@ -49,14 +49,86 @@
  * @property {Endpoint | WeaveError} getNextActionEndpoint getNextActionEndpoint
  * @property {CallActionFunctionDef} call Call a service action.
  * @property {Promise<Array<any>>} multiCall multiCall
- * @property {Promise<any>} emit emit
- * @property {Promise<any>} broadcast broadcast
- * @property {Promise<any>} broadcastLocal broadcastLocal
+ * @property {function(string, any, any=):Promise<any>} emit emit
+ * @property {function(string, any, any=):Promise<any>} broadcast broadcast
+ * @property {function(string, any, any=):Promise<any>} broadcastLocal broadcastLocal
  * @property {Promise<any>} waitForServices waitForServices
  * @property {Promise<PingResult>} ping ping
- * @property {void} handleError handleError
+ * @property {function(Error)} handleError handleError
  * @property {void} fatalError fatalError
 */
+
+/**
+ * Configuration object for weave service broker.
+ * @typedef {Object} BulkheadOptions
+ * @property {Boolean} enabled Enable bulkhead middleware. (default = false)
+ * @property {Number} concurrentCalls Maximum concurrent calls. (default = 15)
+ * @property {Number} maxQueueSize Maximum queue size. (default = 150)
+*/
+
+/**
+ * Configuration object for weave service broker.
+ * @typedef {Object} MetricsOptions
+ * @property {Boolean} enabled Enable metric middleware. (default = false)
+ * @property {Array<String|Object>} adapters Array of metric adapters.
+*/
+
+/**
+ * Configuration object for weave service broker.
+ * @typedef {Object} TracingOptions
+ * @property {Boolean} enabled Enable tracing middleware. (default = false)
+ * @property {Number} tracingRate Rate of traced actions. (default = 1.0)
+ * @property {Array<String|Object>} collectors Array of tracing collectors.
+*/
+
+/**
+ * Configuration object for weave service broker.
+ * @typedef {Object} CacheOptions
+ * @property {Boolean} enabled Enable cache middleware. (default = false)
+ * @property {String]Object} adaper Cacha adapter. (default = memory (In Memory))
+*/
+
+/**
+ * Configuration object for weave service broker.
+ * @typedef {Object} CircuitBreakerOptions
+ * @property {Boolean} enabled Enable circuit breaker middleware. (default = false)
+ * @property {Boolean} failureOnError Prefer local actions over remote actions.
+*/
+
+/**
+ * Configuration object for weave service broker.
+ * @typedef {Object} RetryPolicyOptions
+ * @property {Boolean} enabled Enable circuit breaker middleware. (default = false)
+ * @property {Number} delay Delay in milliseconds before the next call is attempted. (default = 3000)
+ * @property {Number} retries Number of attempts before the action call gets rejected. (default = 5)
+ */
+
+/**
+ * Configuration object for weave service broker.
+ * @typedef {Object} TransportOptions
+ * @property {String|Object} adapter Transport adapter.
+ * @property {Number} maxQueueSize Maximum queue size (default = 80000).
+ * @property {Number} heartbeatInterval Number of milliseconds in which the heartbeat packet is sent to other nodes. (default = 5000 ms)
+ * @property {Number} heartbeatTimeout Number of milliseconds without response before the node is set to the Not Available status. (default = 10000)
+ * @property {Number} offlineNodeCheckInterval Interval in milliseconds to check and remove not offline nodes. (default = 30000ms)
+ * @property {Number} maxOfflineTime Maximum time a node can be offline before it is removed from the registry. (default = 600000ms)
+ * @property {Number} maxChunkSize Maximum chunk size for streams. (default = 256 * 1024 Bits)
+ * @property {String|Object} serializer Serializer settings
+ */
+
+/**
+ * Configuration object for logger.
+ * @typedef {Object} LoggerOptions
+ * @property {Boolean} enabled Enable logger.
+ * @property {'fatal'|'error'|'warn'|'info'|'debug'|'trace'} logLevel Log level of the messages to be displayed.
+ * @property {Stream.Writable|Array} stream Destination to which the data is written, can be a single valid Writable stream or an array holding multiple valid Writable streams. (default = process.stdout).
+ * @property {Boolean} displayTimestamp Show the current timestamp. (default = true)
+ * @property {Boolean} displayBadge Show log type badge. (default = true)
+ * @property {Boolean} displayLabel Show log type label. (default = true)
+ * @property {Boolean} displayModuleName Show the module name. (default = true)
+ * @property {Boolean} displayFilename Show the filename.
+ * @property {Object} types Custom log types.
+ */
 
 /**
  * @typedef BrokerOptions
@@ -86,6 +158,16 @@
 */
 
 /**
+ * Configuration object for weave service broker.
+ * @typedef {Object} RegistryOptions
+ * @property {Boolean} preferLocalActions Prefer local actions over remote actions. (default = true)
+ * @property {boolean} publishNodeService Publish the node service actions.
+ * @property {Number} requestTimeout Time in milliseconds before a action call is rejected. (default = 0)
+ * @property {Number} maxCallLevel Maximum request depth level.
+ * @property {String|Object} loadBalancingStrategy - Stratagy for the internal load balancer. (default = 'round_robin')
+*/
+
+/**
  * @typedef {Object.<'fatal'|'error'|'warn'|'info'|'debug'|'trace', Function} Logger
  */
 
@@ -95,7 +177,7 @@
  * Cache interface
  * @typedef Cache
  * @property {string} [name] name
- * @property {any} options options
+ * @property {LoggerOptions} options options
  * @property {void} init init
  * @property {Logger} log log
  * @property {Promise<any>} set set
@@ -198,7 +280,7 @@
  * @property {void} removePendingRequestsById removePendingRequestsById
  * @property {void} removePendingRequestsByNodeId removePendingRequestsByNodeId
  * @property {TransportMessage} createMessage createMessage
- * @property {void} request request
+ * @property {function(Context):Promise<any>} request request
  * @property {Promise<any>} response response
  * @property {any} statistics statistics
 */
@@ -281,30 +363,30 @@
  * @property {EventCollection} [eventCollection] eventCollection
  * @property {MiddlewareHandler} [middlewareHandler] middlewareHandler
  * @property {RegistryInitFunctionDef=} init init
- * @property {void} onRegisterLocalAction onRegisterLocalAction
- * @property {void} onRegisterRemoteAction onRegisterRemoteAction
+ * @property {function} onRegisterLocalAction onRegisterLocalAction
+ * @property {function} onRegisterRemoteAction onRegisterRemoteAction
  * @property {*} checkActionVisibility checkActionVisibility
- * @property {void} deregisterService deregisterService
- * @property {void} registerLocalService registerLocalService
- * @property {void} registerRemoteServices registerRemoteServices
- * @property {void} registerActions registerActions
- * @property {void} registerEvents registerEvents
+ * @property {function(string, number, string=):void} deregisterService deregisterService
+ * @property {function(ServiceItem): void} registerLocalService registerLocalService
+ * @property {function(Node, Array<any>): void} registerRemoteServices registerRemoteServices
+ * @property {function(Node, ServiceItem, Array<any>)} registerActions registerActions
+ * @property {function(Node, ServiceItem, Array<any>)} registerEvents registerEvents
  * @property {Endpoint | WeaveError} getNextAvailableActionEndpoint getNextAvailableActionEndpoint
- * @property {Array<any>} getActionList getActionList
- * @property {void} deregisterServiceByNodeId deregisterServiceByNodeId
- * @property {boolean} hasService hasService
- * @property {Endpoint} getActionEndpointByNodeId getActionEndpointByNodeId
- * @property {EndpointCollection} getActionEndpoints getActionEndpoints
- * @property {Endpoint} createPrivateActionEndpoint createPrivateActionEndpoint
- * @property {Endpoint} getLocalActionEndpoint getLocalActionEndpoint
+ * @property {function(ServiceActionCollectionListFilterParams=):Array<any>} getActionList getActionList
+ * @property {function(string): void} deregisterServiceByNodeId deregisterServiceByNodeId
+ * @property {function(string, number, nodeId):boolean} hasService hasService
+ * @property {function(string, string):Endpoint} getActionEndpointByNodeId getActionEndpointByNodeId
+ * @property {function(string):EndpointCollection} getActionEndpoints getActionEndpoints
+ * @property {function(ServiceAction):Endpoint} createPrivateActionEndpoint createPrivateActionEndpoint
+ * @property {function(string):Endpoint} getLocalActionEndpoint getLocalActionEndpoint
  * @property {NodeInfo} getNodeInfo getNodeInfo
  * @property {NodeInfo} getLocalNodeInfo getLocalNodeInfo
  * @property {NodeInfo} generateLocalNodeInfo generateLocalNodeInfo
  * @property {*} processNodeInfo processNodeInfo
- * @property {void} nodeDisconnected nodeDisconnected
- * @property {void} removeNode removeNode
- * @property {Array<any>} getNodeList getNodeList
- * @property {Array<any>} getServiceList getServiceList
+ * @property {function(string, boolean):void} nodeDisconnected nodeDisconnected
+ * @property {function():void} removeNode removeNode
+ * @property {function(NodeCollectionListFilterOptions):Array<any>} getNodeList getNodeList
+ * @property {function(ServiceCollectionListFilterParams):Array<any>} getServiceList getServiceList
 */
 
 /**
@@ -319,10 +401,10 @@
  * @property {boolean} add add
  * @property {boolean} hasAvailable hasAvailable
  * @property {boolean} hasLocal hasLocal
- * @property {Endpoint} getNextAvailableEndpoint getNextAvailableEndpoint
- * @property {Endpoint} getNextLocalEndpoint getNextLocalEndpoint
- * @property {number} count count
- * @property {Endpoint} getByNodeId getByNodeId
+ * @property {function():Endpoint} getNextAvailableEndpoint getNextAvailableEndpoint
+ * @property {function():Endpoint} getNextLocalEndpoint getNextLocalEndpoint
+ * @property {function():number} count count
+ * @property {function(string):Endpoint} getByNodeId getByNodeId
  * @property {void} removeByNodeId removeByNodeId
  * @property {void} removeByService removeByService
 */
@@ -343,10 +425,10 @@
  * @property {number} sequence sequence
  * @property {Array<string>} [events] events
  * @property {Array<string>} IPList IPList
- * @property {boolean} update update
+ * @property {function(any, boolean):boolean} update update
  * @property {void} updateLocalInfo updateLocalInfo
  * @property {void} heartbeat heartbeat
- * @property {void} disconnected disconnected
+ * @property {function(boolean=):void} disconnected disconnected
 */
 
 /**
@@ -368,13 +450,18 @@
  * @typedef EventCollection
  * @property {Endpoint} add add
  * @property {Endpoint} get get
- * @property {void} remove remove
+ * @property {function(string, Node)} remove remove
  * @property {void} removeByService removeByService
  * @property {Array<Endpoint>} getBalancedEndpoints getBalancedEndpoints
  * @property {Array<Endpoint>} getAllEndpoints getAllEndpoints
  * @property {*} getAllEndpointsUniqueNodes getAllEndpointsUniqueNodes
  * @property {Promise<any>} emitLocal emitLocal
- * @property {Array<any>} list list
+ * @property {function():Array<any>} list list
+*/
+
+/**
+ * @typedef {object} NodeCollectionListFilterOptions
+ * @property {boolean} [withServices=true] Output all services on an node.
 */
 
 /**
@@ -384,14 +471,21 @@
  * @property {Node} [localNode] localNode
  * @property {string} [hostname] hostname
  * @property {Node} createNode createNode
- * @property {void} add add
+ * @property {function(string, Node):void} add add
  * @property {boolean} has has
- * @property {Node} get get
- * @property {boolean} remove remove
- * @property {Array<Node>} list list
+ * @property {function(string):Node} get get
+ * @property {function(string):boolean} remove remove
+ * @property {function(NodeCollectionListFilterOptions):Array<Node>} list list
  * @property {void} disconnected disconnected
  * @property {Array<Node>} toArray toArray
 */
+
+/**
+ * @typedef {Object} ServiceActionCollectionListFilterParams
+ * @property {boolean} [onlyLocals] Shows only local service actions
+ * @property {boolean} [skipInternals] Shows only local service actions
+ * @property {boolean} [withEndpoints] Shows only local service actions
+ */
 
 /**
  * Service action collection
@@ -399,8 +493,8 @@
  * @property {*} add add
  * @property {function(string):EndpointCollection} get get
  * @property {function(service)} removeByService removeByService
- * @property {function(event)} remove remove
- * @property {Array<any>} list list
+ * @property {function(string, Node)} remove remove
+ * @property {function(ServiceActionCollectionListFilterParams):Array<any>} list list
 */
 
 /**
@@ -421,19 +515,28 @@
 */
 
 /**
+ * @typedef {Object} ServiceCollectionListFilterParams
+ * @property {boolean} [localOnly=false] Show only local services.
+ * @property {boolean} [withActions=false] Include actions in result.
+ * @property {boolean} [withEvents=false] Include events in result.
+ * @property {boolean} [withNodeService=false] Include node service.
+ * @property {boolean} [withSettings=false] Include service settings.
+ */
+
+/**
  * Service collection
  * @typedef ServiceCollection
  * @property {Array<ServiceItem>} services services
  * @property {function(Node,string, number, any):ServiceItem} add Add a new service to service collection.
  * @property {*} get get
- * @property {boolean} has has
- * @property {void} remove remove
- * @property {void} removeAllByNodeId removeAllByNodeId
+ * @property {function(string, number, string):boolean} has has
+ * @property {function(string, string, number):void} remove remove
+ * @property {function(string):void} removeAllByNodeId removeAllByNodeId
  * @property {*} registerAction registerAction
- * @property {EndpointCollection} tryFindActionsByActionName tryFindActionsByActionName
- * @property {Array<Object>} getLocalActions getLocalActions
- * @property {Array<Object>} getActionsList getActionsList
- * @property {*} list list
+ * @property {function(string):EndpointCollection} tryFindActionsByActionName tryFindActionsByActionName
+ * @property {function():Array<any>} getActionsList getActionsList
+ * @property {function(ServiceCollectionListFilterParams)} list list
+ * @property {function(string, string): Endpoint} findEndpointByNodeId findEndpointByNodeId
 */
 
 /**
@@ -446,10 +549,10 @@
  * @property {any} actions actions
  * @property {any} events events
  * @property {boolean} isLocal isLocal
- * @property {void} addAction addAction
- * @property {void} addEvent addEvent
- * @property {boolean} equals equals
- * @property {void} update update
+ * @property {function(any)} addAction addAction
+ * @property {function(Node, SericeItem, any)} addEvent addEvent
+ * @property {function(string, number, string=): boolean} equals equals
+ * @property {function(any)} update update
 */
 
 /**

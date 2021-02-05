@@ -1,8 +1,10 @@
+// @ts-check
+
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
  * Copyright 2020 Fachwerk
- */
+*/
 
 /**
  * @typedef {import('../../types').Registry} Registry

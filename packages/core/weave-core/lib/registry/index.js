@@ -1,4 +1,4 @@
-
+// @ts-check
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
@@ -97,30 +97,24 @@ exports.createRegistry = () => {
 
       return false
     },
-    /**
-     *
-     * Register a local service
-     * @param {*} svc Service definition
-     * @returns {void}
-    */
-    registerLocalService (svc) {
-      if (!this.serviceCollection.has(svc.name, svc.version, this.broker.nodeId)) {
-        const service = this.serviceCollection.add(this.nodeCollection.localNode, svc.name, svc.version, svc.settings)
+    registerLocalService (serviceSpecification) {
+      if (!this.serviceCollection.has(serviceSpecification.name, serviceSpecification.version, this.broker.nodeId)) {
+        const service = this.serviceCollection.add(this.nodeCollection.localNode, serviceSpecification.name, serviceSpecification.version, serviceSpecification.settings)
 
-        if (svc.actions) {
-          this.registerActions(this.nodeCollection.localNode, service, svc.actions)
+        if (serviceSpecification.actions) {
+          this.registerActions(this.nodeCollection.localNode, service, serviceSpecification.actions)
         }
 
-        if (svc.events) {
-          this.registerEvents(this.nodeCollection.localNode, service, svc.events)
+        if (serviceSpecification.events) {
+          this.registerEvents(this.nodeCollection.localNode, service, serviceSpecification.events)
         }
 
         this.nodeCollection.localNode.services.push(service)
 
         this.generateLocalNodeInfo(this.broker.isStarted)
 
-        if (svc.version) {
-          this.log.info(`Service '${service.name}' (v${svc.version}) registered.`)
+        if (serviceSpecification.version) {
+          this.log.info(`Service '${service.name}' (v${serviceSpecification.version}) registered.`)
         } else {
           this.log.info(`Service '${service.name}' registered.`)
         }
@@ -128,13 +122,6 @@ exports.createRegistry = () => {
         this.serviceChanged(true)
       }
     },
-    /**
-     *
-     * Register a remote service.
-     * @param {*} node Node instance
-     * @param {*} services Service definition
-     * @returns {void}
-    */
     registerRemoteServices (node, services) {
       services.forEach((service) => {
         // todo: handle events
@@ -197,13 +184,6 @@ exports.createRegistry = () => {
 
       this.serviceChanged(false)
     },
-    /**
-     * Register events for a service
-     * @param {*} node Node
-     * @param {*} service Service object
-     * @param {*} events Service events
-     * @returns {void}
-    */
     registerEvents (node, service, events) {
       Object.keys(events).forEach((key) => {
         const event = events[key]
@@ -216,13 +196,6 @@ exports.createRegistry = () => {
         service.addEvent(event)
       })
     },
-    /**
-     * Register actions for a service
-     * @param {*} node Node
-     * @param {*} service Service object
-     * @param {*} actions Service actions
-     * @returns {void}
-    */
     registerActions (node, service, actions) {
       Object.keys(actions).forEach((key) => {
         const action = actions[key]
@@ -287,7 +260,7 @@ exports.createRegistry = () => {
             return new WeaveServiceNotFoundError({ actionName })
           }
 
-          const endpoint = endpointList.getNextAvailable()
+          const endpoint = endpointList.getNextAvailableEndpoint()
 
           if (!endpoint) {
             this.log.warn(`Service "${actionName}" is not available.`)
@@ -357,7 +330,7 @@ exports.createRegistry = () => {
           localOnly: true,
           withActions: true,
           withEvents: true,
-          withNodeService: this.broker.options.publishNodeService,
+          withNodeService: this.broker.options.registry.publishNodeService,
           withSettings: true
         })
       } else {

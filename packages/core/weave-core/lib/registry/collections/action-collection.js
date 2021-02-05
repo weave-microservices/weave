@@ -77,8 +77,7 @@ exports.createActionCollection = (registry) => {
         name: action.name,
         hasAvailable: action.hasAvailable(),
         hasLocal: action.hasLocal(),
-        count: action.count(),
-        params: action.params
+        count: action.count()
       }
 
       if (item.count > 0) {

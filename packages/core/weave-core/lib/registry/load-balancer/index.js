@@ -16,8 +16,7 @@ const getByName = name => {
 module.exports = {
   resolve (option) {
     if (typeof option === 'string') {
-      const strategie = getByName(option)
-      return strategie
+      return getByName(option)
     }
   }
 }

@@ -118,8 +118,8 @@ module.exports = (options = {}) => {
     }
   }
 
-  const registerLocalService = (registryItem, notify = false) => {
-    registry.registerLocalService(registryItem)
+  const registerLocalService = (serviceSpecification, notify = false) => {
+    registry.registerLocalService(serviceSpecification)
     servicesChanged(notify)
   }
 

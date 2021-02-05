@@ -170,7 +170,7 @@ exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, r
   service.events = {}
 
   // Create the service registry item
-  const registryItem = {
+  const serviceSpecification = {
     name: service.name,
     fullyQualifiedName: service.fullyQualifiedName,
     settings: service.settings,
@@ -213,7 +213,7 @@ exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, r
       if (actionDefinition === false) return
 
       const innerAction = createAction(broker, service, clone(actionDefinition), name)
-      registryItem.actions[innerAction.name] = innerAction
+      serviceSpecification.actions[innerAction.name] = innerAction
 
       const wrappedAction = middlewareHandler.wrapHandler('localAction', innerAction.handler, innerAction)
       const endpoint = broker.registry.createPrivateActionEndpoint(innerAction)
@@ -241,7 +241,7 @@ exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, r
       const event = createEvent(broker, service, eventDefinition, name)
       // wrap event
 
-      registryItem.events[name] = event
+      serviceSpecification.events[name] = event
 
       service.events[name] = () => {
         return event.handler({})
@@ -284,13 +284,13 @@ exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, r
             .reduce((p, hook) => p.then(hook), Promise.resolve())
         }
       })
-      .then(() => registerLocalService(registryItem))
+      .then(() => registerLocalService(serviceSpecification))
       .then(() => middlewareHandler.callHandlersAsync('serviceStarted', [service]))
   }
 
   // stop method for service
   service.stop = () => {
-    service.log.info(`Stopping service "${service.name}"...`)
+    service.log.info(`Stopping service "${service.fullyQualifiedName}"...`)
     return Promise.resolve()
       .then(() => {
         return middlewareHandler.callHandlersAsync('serviceStopping', [service])

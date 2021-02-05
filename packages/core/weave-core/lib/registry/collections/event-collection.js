@@ -1,8 +1,10 @@
+// @ts-check
+
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
  * Copyright 2020 Fachwerk
- */
+*/
 const { omit, match } = require('@weave-js/utils')
 const { createEndpointList } = require('./endpoint-collection')
 
@@ -43,7 +45,7 @@ exports.createEventCollection = (registry) => {
   eventCollection.getBalancedEndpoints = (eventName, groups) => {
     return getAllEventsByEventName(eventName)
       .filter(endpointList => (groups == null || groups.length === 0 || groups.includes(endpointList.groupName)))
-      .map(endpointList => ({ endpoint: endpointList.getNextAvailable(), endpointList }))
+      .map(endpointList => ({ endpoint: endpointList.getNextAvailableEndpoint(), endpointList }))
       .filter(({ endpoint }) => endpoint && endpoint.isAvailable())
       .map(({ endpoint, endpointList }) => [endpoint, endpointList.groupName])
   }

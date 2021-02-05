@@ -1,3 +1,5 @@
+// @ts-check
+
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
@@ -64,7 +66,7 @@ exports.createEndpointList = (broker, name, groupName) => {
 
   endpointList.hasLocal = () => endpointList.localEndpoints.length > 0
 
-  endpointList.getNextAvailable = () => {
+  endpointList.getNextAvailableEndpoint = () => {
     if (list.length === 0) {
       return null
     }

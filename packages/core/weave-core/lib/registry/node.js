@@ -32,6 +32,7 @@ exports.createNode = (nodeId) => {
     lastHeartbeatTime: Date.now(),
     offlineTime: null,
     isAvailable: true,
+    isUnexpectedDisconnected: false,
     services: [],
     sequence: 0,
     events: null,
@@ -76,10 +77,11 @@ exports.createNode = (nodeId) => {
 
       this.lastHeartbeatTime = Date.now()
     },
-    disconnected () {
+    disconnected (isUnexpected = false) {
       if (this.isAvailable) {
         this.offlineTime = Date.now()
         this.sequence++
+        this.isUnexpectedDisconnected = isUnexpected
       }
 
       this.isAvailable = false

@@ -1,8 +1,5 @@
 
-const { createDeprecatedWarning } = require('./utils/deprecated-warning')
-
 // Broker
-
 exports.createBroker = require('./broker/broker')
 exports.defaultOptions = require('./broker/default-options')
 

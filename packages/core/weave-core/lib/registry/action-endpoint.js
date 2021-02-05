@@ -18,7 +18,7 @@
  * @param {Service} service service
  * @param {ServiceAction} action action
  * @returns {Endpoint} Endpoint
- */
+*/
 exports.createActionEndpoint = (broker, node, service, action) => {
   /**
    * @type {Endpoint}
