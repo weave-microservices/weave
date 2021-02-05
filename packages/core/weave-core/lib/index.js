@@ -9,11 +9,10 @@ exports.defaultOptions = require('./broker/default-options')
 // eslint-disable-next-line valid-jsdoc
 /**
  * @deprecated since version 0.9.0
- * @param {import('./with-type.js').BrokerOptions} options Broker options.
- * @returns {import('./with-type.js').Broker} Broker instance
+ * @param {import('./types.js').BrokerOptions} options Broker options.
+ * @returns {import('./types.js').Broker} Broker instance
 */
 exports.Weave = (options) => {
-  createDeprecatedWarning('The "Weave" method is deprecated. Please use "createBroker" instead.')
   return this.createBroker(options)
 }
 

@@ -30,6 +30,7 @@
  * @property {string} version version
  * @property {BrokerOptions} options options
  * @property {MetricRegistry} [metrics] metrics
+ * @property {Validator} validator validator
  * @property {Promise<any>} start start
  * @property {Promise<any>} stop stop
  * @property {function(ServiceSchema):Service} createService createService
@@ -109,6 +110,7 @@
 // Context
 
 /**
+ * @export
  * @typedef ContextFactory
  * @property {void} init init
  * @property {Context} create create
@@ -116,7 +118,6 @@
 
 /**
  * @typedef {Object} ContextMetaObject
- * @property {string} $request Test
 */
 
 /**
@@ -408,6 +409,11 @@
 */
 
 /**
+ * Service method
+ * @typedef {function(this: Service): Promise} ServiceMethodDefinition
+*/
+
+/**
  * Service action definition
  * @typedef ServiceActionDefinition
  * @property {Object} [params] params
@@ -418,7 +424,7 @@
  * Service collection
  * @typedef ServiceCollection
  * @property {Array<ServiceItem>} services services
- * @property {ServiceItem} add add
+ * @property {function(Node,string, number, any):ServiceItem} add Add a new service to service collection.
  * @property {*} get get
  * @property {boolean} has has
  * @property {void} remove remove
@@ -457,7 +463,7 @@
  * @property {{[key: string]: Function }} hooks hooks
  * @property {Object.<string, ServiceActionDefinition | ServiceActionHandler>} [actions] actions
  * @property {{[key: string]: ServiceEvent }} [events] events
- * @property {{ [key: string]: Function }} [methods] methods
+ * @property {Object.<string, ServiceMethodDefinition>} [methods] methods
  * @property {*} created created
  * @property {*} started started
  * @property {*} stopped stopped
@@ -540,6 +546,13 @@
  * @property {(next: Function) => MiddlewareEventDelegate} [broadcast] broadcast
  * @property {(next: Function) => MiddlewareEventDelegate} [broadcastLocal] broadcastLocal
  * @property {() => any} [brokerStopped] brokerStopped
+*/
+
+// Validator
+
+/**
+ * Validator
+ * @typedef {Object} Validator
 */
 
 // Tracer

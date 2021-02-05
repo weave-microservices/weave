@@ -4,20 +4,31 @@
  * Copyright 2020 Fachwerk
  */
 
-const { createEndpointCollection } = require('./endpoint-collection')
+/**
+ * @typedef {import('../../types').Registry} Registry
+ * @typedef {import('../../types').ServiceCollection} ServiceCollection
+*/
+
+// const { createEndpointCollection } = require('./endpoint-collection')
 const { omit, remove } = require('@weave-js/utils')
 const { createServiceItem } = require('../service-item')
 
+/**
+ * Service collection factory
+ * @param {Registry} registry Registry instance
+ * @returns {ServiceCollection} Service collection
+*/
 exports.createServiceCollection = (registry) => {
+  /** @type {ServiceCollection} */
   const serviceCollection = Object.create(null)
   const broker = registry.broker
   const services = serviceCollection.services = []
   const actions = new Map()
-  const options = broker.options
+  // const options = broker.options
 
-  const findServiceByNode = (nodeId, name) => {
-    return services.find(service => service.name === name && service.nodeId === nodeId)
-  }
+  // const findServiceByNode = (nodeId, name) => {
+  //   return services.find(service => service.name === name && service.nodeId === nodeId)
+  // }
 
   serviceCollection.add = (node, name, version, settings) => {
     const item = createServiceItem(node, name, version, settings, node.id === broker.nodeId)
@@ -52,37 +63,37 @@ exports.createServiceCollection = (registry) => {
     })
   }
 
-  serviceCollection.registerAction = (nodeId, action) => {
-    let endPointList = actions.get(action.name)
+  // serviceCollection.registerAction = (nodeId, action) => {
+  //   let endPointList = actions.get(action.name)
 
-    if (!endPointList) {
-      endPointList = createEndpointCollection(broker, options)
-      endPointList.isInternal = action.name.substring(0, 1) === '$'
-      actions.set(action.name, endPointList)
-    }
+  //   if (!endPointList) {
+  //     endPointList = createEndpointCollection(broker, options)
+  //     endPointList.isInternal = action.name.substring(0, 1) === '$'
+  //     actions.set(action.name, endPointList)
+  //   }
 
-    const service = findServiceByNode(nodeId, action.service.name)
+  //   const service = findServiceByNode(nodeId, action.service.name)
 
-    if (service) {
-      service.addAction(action)
-    }
+  //   if (service) {
+  //     service.addAction(action)
+  //   }
 
-    return endPointList.add(nodeId, action)
-  }
+  //   return endPointList.add(nodeId, action)
+  // }
 
   serviceCollection.tryFindActionsByActionName = (actionName) => actions.get(actionName)
 
-  serviceCollection.getLocalActions = () => {
-    const result = []
-    // todo: refactoring to array.map()
-    actions.forEach(entry => {
-      const endpoint = entry.getLocalEndpoint()
-      if (endpoint) {
-        result.push(omit(endpoint.action, ['service', 'handler']))
-      }
-    })
-    return result
-  }
+  // serviceCollection.getLocalActions = () => {
+  //   const result = []
+  //   // todo: refactoring to array.map()
+  //   actions.forEach(entry => {
+  //     const endpoint = entry.getLocalEndpoint()
+  //     if (endpoint) {
+  //       result.push(omit(endpoint.action, ['service', 'handler']))
+  //     }
+  //   })
+  //   return result
+  // }
 
   serviceCollection.getActionsList = () => {
     const result = []

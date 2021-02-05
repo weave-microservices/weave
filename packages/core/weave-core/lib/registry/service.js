@@ -1,7 +1,7 @@
 /**
- * @typedef {import("../with-type").Broker} Broker
- * @typedef {import("../with-type").ServiceSchema} ServiceSchema
- * @typedef {import("../with-type").Service} Service
+ * @typedef {import("../types").Broker} Broker
+ * @typedef {import("../types").ServiceSchema} ServiceSchema
+ * @typedef {import("../types").Service} Service
 */
 
 const { mergeSchemas } = require('../utils/options')

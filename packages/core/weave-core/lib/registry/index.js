@@ -6,15 +6,15 @@
 */
 
 /**
- * @typedef {import('../with-type.js').Registry} Registry
- * @typedef {import('../with-type.js').NodeCollection} NodeCollection
- * @typedef {import('../with-type.js').ServiceCollection} ServiceCollection
- * @typedef {import('../with-type.js').ServiceActionCollection} ServiceActionCollection
- * @typedef {import('../with-type.js').EventCollection} EventCollection
- * @typedef {import('../with-type.js').Broker} Broker
- * @typedef {import('../with-type.js').Node} Node
- * @typedef {import('../with-type.js').MiddlewareHandler} MiddlewareHandler
- * @typedef {import('../with-type.js').ServiceChangedDelegate} ServiceChangedDelegate
+ * @typedef {import('../types.js').Registry} Registry
+ * @typedef {import('../types.js').NodeCollection} NodeCollection
+ * @typedef {import('../types.js').ServiceCollection} ServiceCollection
+ * @typedef {import('../types.js').ServiceActionCollection} ServiceActionCollection
+ * @typedef {import('../types.js').EventCollection} EventCollection
+ * @typedef {import('../types.js').Broker} Broker
+ * @typedef {import('../types.js').Node} Node
+ * @typedef {import('../types.js').MiddlewareHandler} MiddlewareHandler
+ * @typedef {import('../types.js').ServiceChangedDelegate} ServiceChangedDelegate
 */
 
 const { safeCopy } = require('@weave-js/utils')

@@ -1,7 +1,7 @@
 /**
- * @typedef {import('../with-type.js').BrokerOptions} BrokerOptions
- * @typedef {import('../with-type.js').Broker} Broker
- * @typedef {import('../with-type.js').Transport} Transport
+ * @typedef {import('../types.js').BrokerOptions} BrokerOptions
+ * @typedef {import('../types.js').Broker} Broker
+ * @typedef {import('../types.js').Transport} Transport
 */
 
 // node packages
@@ -188,6 +188,7 @@ module.exports = (options = {}) => {
     version,
     options,
     nodeId,
+    validator,
     contextFactory,
     isStarted: false,
     log,

@@ -6,8 +6,8 @@
 'use strict'
 
 /**
- * @typedef {import("../with-type").ServiceItem} ServiceItem
- * @typedef {import("../with-type").Node} Node
+ * @typedef {import("../types").ServiceItem} ServiceItem
+ * @typedef {import("../types").Node} Node
 */
 
 // todo: find a better name

@@ -1,8 +1,8 @@
 /**
- * @typedef {import("../with-type").Endpoint} Endpoint
- * @typedef {import("../with-type").Node} Node
- * @typedef {import("../with-type").Service} Service
- * @typedef {import("../with-type").ServiceAction} ServiceAction
+ * @typedef {import("../types.js").Endpoint} Endpoint
+ * @typedef {import("../types.js").Node} Node
+ * @typedef {import("../types.js").Service} Service
+ * @typedef {import("../types.js").ServiceAction} ServiceAction
 */
 
 /*
