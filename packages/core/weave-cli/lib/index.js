@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-const { cleanArgs } = require('./utils/args')
 const updateNotifier = require('update-notifier')
 const pkg = require('../package.json')
 const { program } = require('commander')
@@ -21,7 +20,7 @@ program
   .option('-w, --watch', 'Start broker with service watcher.')
   .option('-sl, --silent', 'Start broker without console outputs.')
   .action((command) => {
-    require('./commands/start').handler(cleanArgs(command))
+    require('./commands/start').handler(command)
   })
 
 // create command
