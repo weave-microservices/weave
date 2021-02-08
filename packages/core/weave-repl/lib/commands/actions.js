@@ -17,7 +17,7 @@ module.exports = (vorpal, broker) => {
 
       const list = []
 
-      const actions = broker.registry.actions.list({
+      const actions = broker.registry.actionCollection.list({
         withEndpoints: true
       })
 

@@ -9,7 +9,7 @@ module.exports = (vorpal, broker) => {
     .option('--s [filename]', 'Save response to file')
     .autocomplete({
       data () {
-        return [...new Set(broker.registry.actions.list({}).map(item => item.name))]
+        return [...new Set(broker.registry.actionCollection.list({}).map(item => item.name))]
       }
     })
     .allowUnknownOptions()

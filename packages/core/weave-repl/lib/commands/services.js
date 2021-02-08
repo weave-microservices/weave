@@ -17,7 +17,7 @@ module.exports = (vorpal, broker) => {
       ])
 
       const list = []
-      const services = broker.registry.services.list({
+      const services = broker.registry.serviceCollection.list({
         withActions: true,
         withEvents: true
       })

@@ -17,7 +17,7 @@ module.exports = (vorpal, broker) => {
         cliUI.tableHeaderText('CPU')
       ])
 
-      const nodes = broker.registry.nodes.list({})
+      const nodes = broker.registry.nodeCollection.list({})
 
       nodes.map(node => {
         let cpuLoad = '?'

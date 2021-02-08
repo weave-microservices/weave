@@ -6,7 +6,7 @@ module.exports = (vorpal, broker) => {
     .command('emit <eventName>', 'Emit a event.')
     .autocomplete({
       data () {
-        return [...new Set(broker.registry.events.list({}).map(item => item.name))]
+        return [...new Set(broker.registry.eventCollection.list({}).map(item => item.name))]
       }
     })
     .allowUnknownOptions()
