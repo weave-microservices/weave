@@ -1,13 +1,16 @@
+/**
+ * @typedef {import('../types.js').BrokerOptions} BrokerOptions
+ * @typedef {import('../types.js').Broker} Broker
+*/
 
 // Broker
 exports.createBroker = require('./broker/broker')
 exports.defaultOptions = require('./broker/default-options')
 
-// eslint-disable-next-line valid-jsdoc
 /**
- * @deprecated since version 0.9.0
- * @param {import('./types.js').BrokerOptions} options Broker options.
- * @returns {import('./types.js').Broker} Broker instance
+ * @deprecated Weave factory method is deprecated since version 0.9.0.
+ * @param {BrokerOptions} options Broker options.
+ * @returns {Broker} Broker instance.
 */
 exports.Weave = (options) => {
   return this.createBroker(options)

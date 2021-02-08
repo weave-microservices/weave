@@ -2,6 +2,8 @@
  * @typedef {import('../types.js').BrokerOptions} BrokerOptions
  * @typedef {import('../types.js').Broker} Broker
  * @typedef {import('../types.js').Transport} Transport
+ * @typedef {import('../types.js').Logger} Logger
+ * @typedef {import('../types.js').Service} Service
 */
 
 // node packages
@@ -55,12 +57,11 @@ module.exports = (options = {}) => {
   // internal service collection.
   const services = []
 
-  /* eslint-disable no-use-before-define */
   /**
    * Create a new Logger.
    * @param {string} moduleName - Name of the module
-   * @param {*} service - Service properties
-   * @returns {import('../logger/index.js/index.js.js.js').Logger} Logger
+   * @param {Service} service - Service properties
+   * @returns {Logger} Logger
    */
   /* eslint-enable no-use-before-define */
   const createLogger = (moduleName, service) => {
