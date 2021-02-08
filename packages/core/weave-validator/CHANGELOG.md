@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.8.1](https://github.com/weave-microservices/weave/compare/@weave-js/validator@0.8.0...@weave-js/validator@0.8.1) (2021-02-08)
+
+
+### Bug Fixes
+
+* Error on email validation rule returned "undefined" on email values ([1b9e34c](https://github.com/weave-microservices/weave/commit/1b9e34c8b33b3e4677297638d68bb4443d3d23a5))
+
+
+
+
+
 # [0.8.0](https://github.com/weave-microservices/weave/compare/@weave-js/validator@0.8.0-alpha.2...@weave-js/validator@0.8.0) (2021-01-05)
 
 **Note:** Version bump only for package @weave-js/validator

@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/redis-transport",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "weave redis transport adapter module",
   "main": "lib/index.js",
   "scripts": {
@@ -23,7 +23,7 @@
     "@weave-js/core": ">=0.8.0"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.8.1",
+    "@weave-js/core": "^0.8.2",
     "eslint": "^7.17.0",
     "eslint-config-fw": "^1.0.3",
     "eslint-loader": "^4.0.2",
@@ -38,7 +38,7 @@
     ]
   },
   "dependencies": {
-    "@weave-js/utils": "^0.8.1",
+    "@weave-js/utils": "^0.8.2",
     "redis": "^3.0.2"
   }
 }
