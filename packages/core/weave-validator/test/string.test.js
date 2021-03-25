@@ -91,4 +91,17 @@ describe('String validator', () => {
 
     expect(result[0].message).toBe('The parameter "name" must be less than or equal to 5 characters long.')
   })
+
+  it('should pass if string is to long', () => {
+    const schema = {
+      name: { type: 'string', base64: true }
+    }
+
+    const parameters = { name: 'aaaaaa' } // 6
+    const validator = ModelValidator()
+    const validate = validator.compile(schema)
+    const result = validate(parameters)
+
+    expect(result[0].message).toBe('The parameter "name" must be less than or equal to 5 characters long.')
+  })
 })

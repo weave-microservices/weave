@@ -1,4 +1,6 @@
 const { Weave } = require('../../lib/index')
+const { createConsoleLogTransport } = require('../../lib/logger/transports/console')
+
 const lolex = require('@sinonjs/fake-timers')
 // const Stream = require('./helper/TestStream')
 
@@ -89,28 +91,18 @@ describe('Test logger module.', () => {
       .then(() => clock.uninstall())
       .then(() => broker.stop())
   })
+})
 
-  // it('should output the log message on stream.', (done) => {
-  //     const readStream = new Stream()
+describe.only('Test logger transporter streams.', () => {
+  const consoleSpy = jest.spyOn(console, 'log')
+  it.only('should log through console trans', () => {
+    const broker = Weave({
+      logger: {
+        streams: createConsoleLogTransport({ level: 'error' })
+      }
+    })
 
-  //     const broker = Weave({
-  //         nodeId: 'node1',
-  //         logger: {
-  //             logLevel: 'trace',
-  //             stream: [readStream]
-  //         }
-  //     })
-
-  //     readStream.on('data', data => {
-
-  //     })
-
-  //     broker.start()
-  //         .then(() => {
-  //             const snap = readStream.getSnapshot()
-  //             expect(true)
-  //             broker.stop()
-  //             done()
-  //         })
-  // })
+    expect(consoleSpy).toHaveBeenCalledWith('[2021-03-25T11:17:18.762Z] › ℹ   info      [Kevins-iMac-Pro.fritz.box-48649/WEAVE] Initializing #weave node version 0.8.2')
+    expect(consoleSpy).toHaveBeenCalledWith('')
+  })
 })

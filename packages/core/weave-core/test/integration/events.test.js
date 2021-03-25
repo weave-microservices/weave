@@ -1,5 +1,9 @@
 const { Weave } = require('../../lib/index')
 
+const isContext = () => {
+  return true
+}
+
 let flow = []
 const MixedService = {
   events: {
@@ -302,7 +306,36 @@ describe('Remote events', () => {
 })
 
 describe('Event context', () => {
-  it('should call an action from an event', () => {
+  const fakeEvent = jest.fn(context => context)
 
+  const node1 = Weave({
+    nodeId: 'test',
+    transport: {
+      adapter: 'dummy'
+    }
+  })
+
+  const node2 = Weave({
+    nodeId: 'test2',
+    transport: {
+      adapter: 'dummy'
+    }
+  })
+
+  node2.createService({
+    name: 'test',
+    events: {
+      'test.event': fakeEvent
+    }
+  })
+
+  beforeAll(() => Promise.all([node1, node2].map(node => node.start())))
+  afterAll(() => Promise.all([node1, node2].map(node => node.stop())))
+
+  it('should call an action from an event', () => {
+    node1.emit('test.event', { name: 'hallo' })
+    const result = fakeEvent.mock.results[0]
+    expect(fakeEvent).toHaveBeenCalledTimes(1)
+    expect(isContext(result)).toBe(true)
   })
 })

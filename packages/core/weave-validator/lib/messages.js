@@ -5,6 +5,7 @@ module.exports = {
   stringMaxLength: 'The parameter "{param}" must be less than or equal to {expected} characters long.',
   stringEqual: 'The parameter "{param}" must not be equal to {expected}.',
   stringContain: 'The parameter "{param}" have to contain {expected}.',
+  stringBase64: 'The parameter "{param}" must be a base64 string.',
   boolean: 'The parameter "{param}" have to be a boolean value.',
   array: 'The parameter "{param}" have to be an array.',
   date: 'The parameter "{param}" is not a valid date.',

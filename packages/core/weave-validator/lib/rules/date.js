@@ -1,13 +1,13 @@
 module.exports = function checkDate ({ schema, messages }) {
   const code = []
-  let sanitized = false
+  let isSanitized = false
 
   code.push(`
     const initialValue = value
   `)
 
   if (schema.convert) {
-    sanitized = true
+    isSanitized = true
     code.push(`
         if (!(value instanceof Date)) {
             value = new Date(value)
@@ -27,7 +27,7 @@ module.exports = function checkDate ({ schema, messages }) {
   `)
 
   return {
-    sanitized,
+    isSanitized,
     code: code.join('\n')
   }
 }

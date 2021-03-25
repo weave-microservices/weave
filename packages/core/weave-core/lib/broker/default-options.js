@@ -72,7 +72,7 @@ exports.getDefaultOptions = () => ({
   logger: {
     enabled: true,
     logLevel: 'info',
-    stream: process.stdout,
+    streams: [process.stdout],
     displayTimestamp: true,
     displayBadge: true,
     displayLabel: true,

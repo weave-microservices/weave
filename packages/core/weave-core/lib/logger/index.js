@@ -29,6 +29,8 @@ const LOG_LEVELS = [
   'fatal'
 ]
 
+const arrayify = i => Array.isArray(i) ? i : [i]
+
 const dummyLogMethod = () => {}
 
 const mergeTypes = (standard, custom) => {
@@ -58,18 +60,26 @@ const getDate = () => {
 
 exports.createDefaultLogger = (options, bindings) => {
   const logMethods = {}
+  const loggerOptions = Object.assign({}, options)
 
-  options.customTypes = Object.assign({}, options.types)
-  options.types = mergeTypes(defaultTypes, options.customTypes)
+  loggerOptions.customTypes = Object.assign({}, loggerOptions.types)
+  loggerOptions.types = mergeTypes(defaultTypes, loggerOptions.customTypes)
 
   // process log types
-  Object.keys(options.types).forEach(type => {
-    const isActive = options.enabled && (LOG_LEVELS.indexOf(options.types[type].logLevel) >= LOG_LEVELS.indexOf(options.logLevel))
+  Object.keys(loggerOptions.types).forEach(type => {
+    const isActive = loggerOptions.enabled && (LOG_LEVELS.indexOf(loggerOptions.types[type].logLevel) >= LOG_LEVELS.indexOf(loggerOptions.logLevel))
     logMethods[type] = isActive ? logger.bind(this, type) : dummyLogMethod
   })
 
-  const longestBadge = getLongestBadge(options)
-  const longestLabel = getLongestLabel(options)
+  // init transport streams
+  loggerOptions.streams = arrayify(loggerOptions.streams)
+  loggerOptions.streams = loggerOptions.streams.map(stream => {
+    // todo: validate stream
+    return stream({ loggerOptions })
+  })
+
+  const longestBadge = getLongestBadge(loggerOptions)
+  const longestLabel = getLongestLabel(loggerOptions)
 
   const getModuleName = () => {
     let module
@@ -101,14 +111,10 @@ exports.createDefaultLogger = (options, bindings) => {
 
   const formatFilename = () => gray(`[${getFilename()}]`)
 
-  const arrayify = i => Array.isArray(i) ? i : [i]
-
-  const formatStream = stream => arrayify(stream)
-
   const buildMeta = (rawMessages) => {
     const meta = []
 
-    if (options.displayTimestamp) {
+    if (loggerOptions.displayTimestamp) {
       const timestamp = formatDate()
       rawMessages.timestamp = timestamp
       meta.push(timestamp)
@@ -129,11 +135,12 @@ exports.createDefaultLogger = (options, bindings) => {
   }
 
   const write = (stream, message) => {
-    stream.write(message + '\n')
+    stream.write(message)
   }
 
-  const buildMessage = (type, ...args) => {
+  const buildMessageObject = (type, ...args) => {
     let [msg, additional] = [{}, {}]
+    const logMessageObject = {}
 
     if (args.length === 1 && typeof args[0] === 'object' && args[0] !== null) {
       if (args[0] instanceof Error) {
@@ -144,7 +151,7 @@ exports.createDefaultLogger = (options, bindings) => {
         msg = message ? formatMessage(message) : formatAdditional(additional, args)
       }
     } else {
-      msg = formatMessage(args)
+      logMessageObject.message = formatMessage(args)
     }
 
     const rawMessages = {}
@@ -155,7 +162,7 @@ exports.createDefaultLogger = (options, bindings) => {
       messages.push(additional.prefix)
     }
 
-    if (options.displayBadge && type.badge) {
+    if (loggerOptions.displayBadge && type.badge) {
       rawMessages.badge = type.badge
       messages.push(kleur[type.color](type.badge.padEnd(longestBadge.length + 1)))
     }
@@ -169,12 +176,12 @@ exports.createDefaultLogger = (options, bindings) => {
       return messages.join(' ')
     }
 
-    if (options.displayLabel && type.label) {
+    if (loggerOptions.displayLabel && type.label) {
       rawMessages.label = type.label
       messages.push(kleur[type.color](underline(type.label).padEnd(underline(longestLabel).length + 1)))
     }
 
-    if (options.displayModuleName) {
+    if (loggerOptions.displayModuleName) {
       const moduleName = getModuleName()
       rawMessages.moduleName = moduleName
       messages.push(gray(`[${moduleName}]`))
@@ -182,7 +189,7 @@ exports.createDefaultLogger = (options, bindings) => {
 
     messages.push(msg)
 
-    if (options.displayFilename) {
+    if (loggerOptions.displayFilename) {
       messages.push(formatFilename())
     }
 
@@ -191,18 +198,19 @@ exports.createDefaultLogger = (options, bindings) => {
     }
 
     return messages.join(' ')
+    return logMessageObject
   }
 
-  const log = (message, streams = options.stream) => {
-    formatStream(streams)
+  const log = (message, streams = loggerOptions.streams) => {
+    arrayify(streams)
       .forEach(stream => write(stream, message))
   }
 
-  function logger (type, ...messageObject) {
-    const { stream, logLevel } = options.types[type]
-    const message = buildMessage(options.types[type], ...messageObject)
+  function logger (typeName, ...messageObject) {
+    const { stream, logLevel } = loggerOptions.types[typeName]
+    const messageObject = buildMessageObject(loggerOptions.types[typeName], ...messageObject)
 
-    return log(message, stream, logLevel)
+    return log(messageObject, stream, logLevel)
   }
 
   return logMethods
