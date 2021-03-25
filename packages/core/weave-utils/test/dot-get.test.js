@@ -10,7 +10,15 @@ describe('Get properties by dot seperated path', () => {
           http: true,
           tcp: false,
           ws: [1, 2, 3]
-        }
+        },
+        connections: [{
+          host: 'test.de',
+          ip: '127.0.0.1'
+        },
+        {
+          host: 'google.com',
+          ip: '127.0.0.1'
+        }]
       }
     }
 
@@ -22,5 +30,6 @@ describe('Get properties by dot seperated path', () => {
       ws: [1, 2, 3]
     })
     expect(utils.dotGet(source, 'settings.endpoints.http')).toBe(true)
+    expect(utils.dotGet(source, 'settings.connections')).toEqual(source.settings.connections)
   })
 })
