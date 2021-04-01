@@ -8,7 +8,7 @@ describe('Test utils lib', () => {
     const broker = Weave({
       logger: {
         enabled: false,
-        logLevel: 'fatal'
+        level: 'fatal'
       },
       transport: {
         adapter: 'Dummy'

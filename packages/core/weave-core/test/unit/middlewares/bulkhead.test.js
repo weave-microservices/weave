@@ -7,16 +7,17 @@ const { createContextFactory } = require('../../../lib/broker/context-factory')
 const config = {
   logger: {
     enabled: false,
-    logLevel: 'fatal'
+    level: 'fatal'
   }
 }
+
 // const SlowService = require('../../services/slow.service')
 
 describe('Test bulkhead middleware', () => {
   const broker = Weave(config)
-  const contentFactory = createContextFactory()
+  const contentFactory = createContextFactory(broker.runtime)
   const handler = jest.fn(() => Promise.resolve('hooray!!!'))
-  const middleware = Middleware()
+  const middleware = Middleware(broker.runtime)
   const service = {}
   const action = {
     name: 'math.add',
@@ -57,7 +58,6 @@ describe('Test bulkhead middleware', () => {
     broker.options.bulkhead.concurrentCalls = 2
     broker.options.bulkhead.maxQueueSize = 10
 
-    contentFactory.init(broker)
     let flow = []
 
     const handler = jest.fn((context) => {
@@ -102,8 +102,8 @@ describe('Test bulkhead middleware', () => {
     broker.options.bulkhead.concurrentCalls = 2
     broker.options.bulkhead.maxQueueSize = 10
 
-    contentFactory.init(broker)
     let flow = []
+
     const handler = jest.fn((context) => {
       flow.push('handler-' + context.data.p)
       return new Promise(resolve => {
@@ -136,7 +136,5 @@ describe('Test bulkhead middleware', () => {
         ]))
         done()
       })
-
-    // expect(flow).toBe(handler)
   })
 })

@@ -40,14 +40,14 @@ module.exports = (options) => {
     queue.length = 0
 
     if (options.broadcast) {
-      exporter.broker.broadcast(options.eventName, data)
+      exporter.runtime.eventBus.broadcast(options.eventName, data)
     } else {
-      exporter.broker.emit(options.eventName, data)
+      exporter.runtime.eventBus.emit(options.eventName, data)
     }
   }
 
-  exporter.init = (tracer) => {
-    exporter.initBase(tracer)
+  exporter.init = (runtime) => {
+    exporter.initBase(runtime)
 
     if (options.interval > 0) {
       timer = setInterval(() => flushQueue(), options.interval)

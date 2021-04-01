@@ -8,7 +8,7 @@ const { mergeSchemas } = require('../utils/options')
 const { wrapInArray, isFunction, clone, wrapHandler, isObject, promisify } = require('@weave-js/utils')
 const { WeaveError } = require('../errors')
 
-const createAction = (broker, service, actionDefinition, name) => {
+const createAction = (runtime, service, actionDefinition, name) => {
   let action = actionDefinition
 
   // if the handler is a method (short form), we wrap the method in our handler object.
@@ -17,14 +17,14 @@ const createAction = (broker, service, actionDefinition, name) => {
   } else if (isObject(actionDefinition)) {
     action = clone(actionDefinition)
   } else {
-    broker.handleError(new WeaveError(`Invalid action definition in "${name}" on service "${service.name}".`))
+    runtime.handleError(new WeaveError(`Invalid action definition in "${name}" on service "${service.name}".`))
   }
 
   const handler = action.handler
 
   // Action handler has to be a function
   if (!isFunction(handler)) {
-    broker.handleError(new WeaveError(`Missing action handler in "${name}" on service "${service.name}".`))
+    runtime.handleError(new WeaveError(`Missing action handler in "${name}" on service "${service.name}".`))
   }
 
   action.name = service.name + '.' + (action.name || name)
@@ -42,7 +42,7 @@ const createAction = (broker, service, actionDefinition, name) => {
   return action
 }
 
-const createEvent = (broker, service, eventDefinition, name) => {
+const createEvent = (runtime, service, eventDefinition, name) => {
   let event
 
   // if the handler is a method (short form), we wrap the method in our handler object.
@@ -51,12 +51,12 @@ const createEvent = (broker, service, eventDefinition, name) => {
   } else if (isObject(eventDefinition)) {
     event = clone(eventDefinition)
   } else {
-    broker.handleError(new WeaveError(`Invalid event definition "${name}" on service "${service.name}".`))
+    runtime.handleError(new WeaveError(`Invalid event definition "${name}" on service "${service.name}".`))
   }
 
   // Event handler has to be a function
   if (!isFunction(event.handler) && !Array.isArray(event.handler)) {
-    broker.handleError(new WeaveError(`Missing event handler for "${name}" on service "${service.name}".`))
+    runtime.handleError(new WeaveError(`Missing event handler for "${name}" on service "${service.name}".`))
   }
 
   event.service = service
@@ -110,28 +110,28 @@ const applyMixins = (service, schema) => {
 
 /**
  * Service factory
- * @param {Broker} broker Broker instance
+ * @param {Broker} runtime Broker instance
  * @param {Object} middlewareHandler Middleware handler
- * @param {Function} addLocalService Add Service to the local service map
  * @param {Function} registerLocalService Register service.
  * @param {ServiceSchema} schema Service schema
  * @returns {Service} Service instance
  */
-exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, registerLocalService, schema) => {
+exports.createServiceFromSchema = (runtime, middlewareHandler, registerLocalService, schema) => {
   /**
    * @type {Service}
   */
   const service = Object.create(null)
 
   // Set reference to the broker instance.
-  service.broker = broker
+  service.runtime = runtime
+  service.broker = runtime
 
   // Create a separate protocol instance for the service.
-  service.log = broker.createLogger(`${service.name}-service`, service)
+  service.log = runtime.createLogger(`${service.name}-service`, service)
 
   // Check if a schema is given
   if (!schema) {
-    broker.handleError(new WeaveError('Schema is missing!'))
+    runtime.handleError(new WeaveError('Schema is missing!'))
   }
 
   // Apply all mixins (including childs)
@@ -144,7 +144,7 @@ exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, r
 
   // validate name
   if (!schema.name) {
-    broker.handleError(new WeaveError('Service name is missing!'))
+    runtime.handleError(new WeaveError('Service name is missing!'))
   }
 
   // Set service version
@@ -196,8 +196,8 @@ exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, r
     Object.keys(schema.methods).map(name => {
       const method = schema.methods[name]
 
-      if (['log', 'actions', 'meta', 'events', 'settings', 'methods', 'dependencies', 'version', 'dependencies', 'broker', 'created', 'started', 'stopped'].includes(name)) {
-        broker.handleError(new WeaveError(`Invalid method name ${name} in service ${service.name}.`))
+      if (['log', 'actions', 'meta', 'events', 'settings', 'methods', 'dependencies', 'version', 'dependencies', 'broker', 'runtime', 'created', 'started', 'stopped'].includes(name)) {
+        runtime.handleError(new WeaveError(`Invalid method name ${name} in service ${service.name}.`))
       }
 
       service[name] = method.bind(service)
@@ -212,11 +212,11 @@ exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, r
       // skip actions that are set to false
       if (actionDefinition === false) return
 
-      const innerAction = createAction(broker, service, clone(actionDefinition), name)
+      const innerAction = createAction(runtime, service, clone(actionDefinition), name)
       serviceSpecification.actions[innerAction.name] = innerAction
 
       const wrappedAction = middlewareHandler.wrapHandler('localAction', innerAction.handler, innerAction)
-      const endpoint = broker.registry.createPrivateActionEndpoint(innerAction)
+      const endpoint = runtime.registry.createPrivateActionEndpoint(innerAction)
 
       // Make the action accessable via this.actions["actionName"]
       service.actions[name] = (data, options) => {
@@ -226,7 +226,7 @@ exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, r
           context = options.context
         } else {
           // create a new context
-          context = broker.contextFactory.create(endpoint, data, options || {})
+          context = runtime.contextFactory.create(endpoint, data, options || {})
         }
 
         return wrappedAction(context)
@@ -238,7 +238,7 @@ exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, r
   if (isObject(schema.events)) {
     Object.keys(schema.events).map(name => {
       const eventDefinition = schema.events[name]
-      const event = createEvent(broker, service, eventDefinition, name)
+      const event = createEvent(runtime, service, eventDefinition, name)
       // wrap event
 
       serviceSpecification.events[name] = event
@@ -271,7 +271,7 @@ exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, r
       .then(() => middlewareHandler.callHandlersAsync('serviceStarting', [service]))
       .then(() => {
         if (schema.dependencies) {
-          return broker.waitForServices(schema.dependencies, service.settings.$dependencyTimeout || 0)
+          return runtime.services.waitForServices(schema.dependencies, service.settings.$dependencyTimeout || 0)
         }
       }).then(() => {
         if (isFunction(schema.started)) {
@@ -313,7 +313,7 @@ exports.createServiceFromSchema = (broker, middlewareHandler, addLocalService, r
   middlewareHandler.callHandlersSync('serviceCreated', [service, schema])
 
   // Add service to brokers local map
-  addLocalService(service)
+  runtime.services.serviceList.push(service)
 
   return service
 }

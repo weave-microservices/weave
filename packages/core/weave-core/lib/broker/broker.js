@@ -7,114 +7,56 @@
 // node packages
 const path = require('path')
 const fs = require('fs')
-const os = require('os')
 const glob = require('glob')
-const { isFunction, debounce, defaultsDeep, uuid } = require('@weave-js/utils')
-const { getDefaultOptions } = require('./default-options')
-const { createDefaultLogger } = require('../logger')
+const { isFunction, debounce } = require('@weave-js/utils')
 const { createServiceFromSchema } = require('../registry/service')
-const { createDeprecatedWarning } = require('../utils/deprecated-warning')
-const { createMiddlewareHandler } = require('./middleware-manager')
-const { createRegistry } = require('../registry')
-const { createContextFactory } = require('./context-factory')
 const Middlewares = require('../middlewares')
-const { createValidator } = require('./validator')
-const Cache = require('../cache')
 const createHealthcheck = require('./health')
-const TransportAdapters = require('../transport/adapters')
-const { createTransport } = require('../transport/transport-factory')
-const EventEmitter = require('eventemitter2')
-const { WeaveError } = require('../errors')
 const { Tracer } = require('../tracing')
 const { MetricsStorage } = require('../metrics')
 const { registerMetrics } = require('./broker-metrics')
-const { version } = require('../../package.json')
-
+const { generateUUID } = require('./uuid-factory')
 /**
  *  Creates a new Weave instance
  * @param {BrokerOptions} options - Service broker options.
  * @returns {Broker} Broker instance
 */
-module.exports = (options = {}) => {
-  // backwards compatibility for logger
-  if (options.logger === null) {
-    options.logger = {
-      enabled: false
-    }
+module.exports = () => (runtime) => {
+  const {
+    version,
+    options,
+    bus,
+    eventBus,
+    middlewareHandler,
+    registry,
+    contextFactory,
+    validator,
+    log,
+    cache,
+    services,
+    transport,
+    handleError
+  } = runtime
+
+  const { nodeId } = options
+
+  // Log Messages
+  log.info(`Initializing #weave node version ${version}`)
+  log.info(`Node Id: ${options.nodeId}`)
+
+  if (options.namespace) {
+    log.info(`Namespace: ${options.namespace}`)
   }
 
-  // get default options
-  const defaultOptions = getDefaultOptions()
-
-  // merge options with default options
-  options = defaultsDeep(options, defaultOptions)
-
-  // If no node id is set - create one.
-  const nodeId = options.nodeId || `${os.hostname()}-${process.pid}`
-
-  // internal service collection.
-  const services = []
-
-  /* eslint-disable no-use-before-define */
-  /**
-   * Create a new Logger.
-   * @param {string} moduleName - Name of the module
-   * @param {*} service - Service properties
-   * @returns {import('../logger/index.js/index.js.js.js').Logger} Logger
-   */
-  /* eslint-enable no-use-before-define */
-  const createLogger = (moduleName, service) => {
-    const bindings = {
-      nodeId: nodeId
-    }
-
-    if (service) {
-      bindings.service = service
-      if (service.version) {
-        bindings.version = service.version
-      }
-    } else {
-      bindings.moduleName = moduleName
-    }
-
-    if (typeof options.logger === 'function') {
-      return options.logger(bindings, options.logLevel)
-    }
-
-    // Only show info in production mode
-    if (process.env.NODE_ENV === 'production') {
-      options.logger.logLevel = options.logger.logLevel || 'info'
-    } else if (process.env.NODE_ENV === 'test') {
-      options.logger.logLevel = options.logger.logLevel || 'error'
-    } else {
-      options.logger.logLevel = options.logger.logLevel || 'debug'
-    }
-
-    return createDefaultLogger(options.logger, bindings)
-  }
-
-  // Create the default logger for the broker.
-  const log = createLogger('WEAVE')
-
-  // Internal modules
-  const middlewareHandler = createMiddlewareHandler()
-  const registry = createRegistry(middlewareHandler, nodeId, options, createLogger)
-  const contextFactory = createContextFactory()
   const health = createHealthcheck()
-  const validator = createValidator()
 
-  // Internal Methods
-  const addLocalServices = service => {
-    services.push(service)
-  }
-
-  const servicesChanged = isLocalService => {
+  const servicesChanged = (isLocalService) => {
     // Send local notification.
-    broker.broadcastLocal('$services.changed', { isLocalService })
+    eventBus.broadcastLocal('$services.changed', { isLocalService })
 
     // If the service is a local service - send current node informations to other nodes
-    if (broker.isStarted && isLocalService && broker.transport) {
-      broker.transport.sendNodeInfo()
+    if (broker.isStarted && isLocalService && transport) {
+      transport.sendNodeInfo()
     }
   }
 
@@ -135,7 +77,7 @@ module.exports = (options = {}) => {
     }
   }
 
-  const destroyService = service => Promise.resolve()
+  const destroyService = (service) => Promise.resolve()
     .then(() => service.stop())
     .then(() => log.info(`Service "${service.name}" was stopped.`))
     .then(() => {
@@ -164,50 +106,33 @@ module.exports = (options = {}) => {
       .then(() => broker.loadService(filename))
   }
 
-  // Log Messages
-  log.info(`Initializing #weave node version ${version}`)
-  log.info(`Node Id: ${nodeId}`)
-
-  if (options.namespace) {
-    log.info(`Namespace: ${options.namespace}`)
-  }
-
   // broker object
   /**
    * @type {Broker}
   */
   const broker = {
-    /**
-    * Event bus
-    * @returns {EventEmitter} Service object.
-    */
-    bus: new EventEmitter({
-      wildcard: true,
-      maxListeners: 1000
-    }),
+    nodeId,
     version,
     options,
-    nodeId,
+    runtime,
+    bus,
     validator,
     contextFactory,
     isStarted: false,
     log,
-    createLogger,
-    getLogger: function () {
-      createDeprecatedWarning('The method "broker.getLogger()" is deprecated since weave version 0.7.0. Please use "broker.createLogger()" instead.')
-      return createLogger(...arguments)
-    },
-    getUUID () {
-      if (broker.options.uuidFactory && isFunction(broker.options.uuidFactory)) {
-        return broker.options.uuidFactory(broker)
-      }
-      return uuid()
-    },
+    createLogger: runtime.createLogger,
+    getUUID: () => generateUUID(runtime),
     health,
     registry,
     getNextActionEndpoint (actionName, options = {}) {
       return registry.getNextAvailableActionEndpoint(actionName, options)
     },
+    emit: eventBus.emit.bind(this),
+    broadcast: eventBus.broadcast.bind(this),
+    broadcastLocal: eventBus.broadcastLocal.bind(this),
+    call: runtime.actionInvoker.call.bind(this),
+    multiCall: runtime.actionInvoker.multiCall.bind(this),
+    waitForServices: services.waitForServices.bind(this),
     /**
      * Call a action.
      * @param {*} actionName Name of the action.
@@ -215,188 +140,9 @@ module.exports = (options = {}) => {
      * @param {*} [opts={}] Options
      * @returns {Promise} Promise
     */
-    call (actionName, data, opts = {}) {
-      const endpoint = registry.getNextAvailableActionEndpoint(actionName, opts)
-
-      if (endpoint instanceof Error) {
-        return Promise.reject(endpoint)
-          .catch(error => this.handleError(error))
-      }
-
-      const action = endpoint.action
-      const nodeId = endpoint.node.id
-      let context
-
-      if (opts.context !== undefined) {
-        context = opts.context
-        context.nodeId = nodeId
-      } else {
-        context = contextFactory.create(endpoint, data, opts)
-      }
-
-      if (endpoint.isLocal) {
-        log.debug('Call action local.', { action: actionName, requestId: context.requestId })
-      } else {
-        log.debug('Call action on remote node.', { action: actionName, nodeId, requestId: context.requestId })
-      }
-
-      const p = action.handler(context, endpoint.service, broker)
-
-      p.context = context
-
-      return p
-    },
-    /**
-     * Call multiple actions.
-     * @param {Array<Action>} actions Array of actions.
-     * @returns {Promise} Promise
-    */
-    multiCall (actions) {
-      if (Array.isArray(actions)) {
-        return Promise.all(actions.map(item => this.call(item.actionName, item.params, item.options)))
-      } else {
-        return Promise.reject(new WeaveError('Actions need to be an Array'))
-      }
-    },
-    /**
-     * Emit a event on all services (grouped and load balanced).
-     * @param {String} eventName Name of the event
-     * @param {any} payload Payload
-     * @param {*} [options=null] Groups
-     * @returns {void}
-     */
-    emit (eventName, payload, options) {
-      if (Array.isArray(options)) {
-        options = { groups: options }
-      } else if (options == null) {
-        options = {}
-      }
-
-      const promises = []
-      const context = contextFactory.create(null, payload, options)
-
-      context.eventType = 'emit'
-      context.eventName = eventName
-      context.eventGroups = options.groups
-
-      // Emit system events
-      if (/^\$/.test(eventName)) {
-        this.bus.emit(eventName, payload)
-      }
-
-      const endpoints = registry.eventCollection.getBalancedEndpoints(eventName, options.groups)
-      const groupedEndpoints = {}
-
-      endpoints.map(([endpoint, groupName]) => {
-        if (endpoint) {
-          if (endpoint.node.id === this.nodeId) {
-            // Local event. Call handler
-            promises.push(endpoint.action.handler(context))
-          } else {
-            const e = groupedEndpoints[endpoint.node.id]
-            if (e) {
-              e.push(groupName)
-            } else {
-              groupedEndpoints[endpoint.node.id] = {
-                endpoint,
-                groups: [groupName]
-              }
-            }
-          }
-        }
-      })
-
-      // send remote events
-      if (this.transport) {
-        Object.values(groupedEndpoints)
-          .forEach(groupedEndpoint => {
-            const newContext = context.copy()
-            newContext.setEndpoint(groupedEndpoint.endpoint)
-            newContext.eventGroups = groupedEndpoint.groups
-            promises.push(this.transport.sendEvent(newContext))
-          })
-        // this.transport.sendBalancedEvent(eventName, payload, groupedEndpoints)
-      }
-
-      return Promise.all(promises)
-    },
-    /**
-     * Send a broadcasted event to all services.
-     * @param {String} eventName Name of the event
-     * @param {any} payload Payload
-     * @param {*} [options=null] Groups
-     * @returns {void}
-    */
-    broadcast (eventName, payload, options) {
-      if (Array.isArray(options)) {
-        options = { groups: options }
-      } else if (options == null) {
-        options = {}
-      }
-
-      const promises = []
-
-      if (this.transport) {
-        // create context
-        // todo: create an event context object
-        const context = contextFactory.create(null, payload, options)
-        context.eventType = 'broadcast'
-        context.eventName = eventName
-        context.eventGroups = options.groups
-
-        // Avoid to broadcast internal events.
-        if (!/^\$/.test(eventName)) {
-          const endpoints = registry.eventCollection.getAllEndpointsUniqueNodes(eventName, options.groups)
-
-          endpoints.map(endpoint => {
-            if (endpoint.node.id !== this.nodeId) {
-              const newContext = context.copy()
-              newContext.setEndpoint(endpoint)
-              promises.push(this.transport.sendEvent(newContext))
-            }
-          })
-        }
-      }
-
-      promises.push(this.broadcastLocal(eventName, payload, options))
-      return Promise.all(promises)
-    },
-    /**
-    *Send a broadcasted event to all local services.
-    * @param {String} eventName Name of the event
-    * @param {any} payload Payload
-    * @param {*} [options=null] Options
-    * @returns {void}
-    */
-    broadcastLocal (eventName, payload, options) {
-      // If the given group is no array - wrap it.
-      if (Array.isArray(options)) {
-        options = { groups: options }
-      } else if (options == null) {
-        options = {}
-      }
-
-      const context = contextFactory.create(null, payload, options)
-      context.eventType = 'broadcastLocal'
-      context.eventName = eventName
-
-      // Emit the event on the internal event bus
-      if (/^\$/.test(eventName)) {
-        this.bus.emit(eventName, payload)
-      }
-
-      return registry.eventCollection.emitLocal(context)
-    },
-    /* eslint-disable no-use-before-define */
-    /**
-     * Create a new Service and add it to the registry
-     * @param {import('../registry/service.js').ServiceSchema} schema - Schema of the Service
-     * @returns {Service} Service object.
-    */
-    /* eslint-enable2 no-use-before-define */
     createService (schema) {
       try {
-        const newService = createServiceFromSchema(this, middlewareHandler, addLocalServices, registerLocalService, schema)
+        const newService = createServiceFromSchema(runtime, middlewareHandler, registerLocalService, schema)
 
         // if the broker is already startet - start the service.
         if (this.isStarted) {
@@ -435,8 +181,10 @@ module.exports = (options = {}) => {
     */
     loadServices (folder = './services', fileMask = '*.service.js') {
       const serviceFiles = glob.sync(path.join(folder, fileMask))
-      this.log.info(`Searching services in folder '${folder}' with name pattern '${fileMask}'.`)
-      this.log.info(`${serviceFiles.length} services found.`)
+
+      log.info(`Searching services in folder '${folder}' with name pattern '${fileMask}'.`)
+      log.info(`${serviceFiles.length} services found.`)
+
       serviceFiles.forEach(fileName => this.loadService(fileName))
       return serviceFiles.length
     },
@@ -447,127 +195,89 @@ module.exports = (options = {}) => {
      * @param {Number} interval Time in Miliseconds to check for services.
      * @returns {Promise} Promise
     */
-    waitForServices (serviceNames, timeout, interval = 500) {
-      if (!Array.isArray(serviceNames)) {
-        serviceNames = [serviceNames]
-      }
 
-      const startTimestamp = Date.now()
-      return new Promise((resolve, reject) => {
-        // todo: add timout for service waiter
-        this.log.warn(`Waiting for services '${serviceNames.join(',')}'`)
-
-        const serviceCheck = () => {
-          const count = serviceNames.filter(serviceName => registry.hasService(serviceName))
-
-          this.log.wait(`${count.length} services of ${serviceNames.length} available. Waiting...`)
-
-          if (count.length === serviceNames.length) {
-            return resolve()
-          }
-
-          if (timeout && (Date.now() - startTimestamp) > timeout) {
-            return reject(new WeaveError('The waiting of the services is interrupted due to a timeout.', 500, 'WAIT_FOR_SERVICE', { services: serviceNames }))
-          }
-
-          this.options.waitForServiceInterval = setTimeout(serviceCheck, interval)
-        }
-        serviceCheck()
-      })
-    },
     /**
      * Starts the broker.
      * @returns {Promise} Promise
     */
-    start () {
+    async start () {
       const startTime = Date.now()
-      return Promise.resolve()
-        .then(() => middlewareHandler.callHandlersAsync('starting', [this], true))
-        .then(() => {
-          if (this.transport) {
-            return this.transport.connect()
-          }
-        })
-        .then(() => {
-          return Promise.all(services.map(service => service.start()))
-            .catch(error => {
-              this.log.error('Unable to start all services', error)
-              clearInterval(options.waitForServiceInterval)
-              this.handleError(error)
-            })
-        })
-        .then(() => {
-          this.isStarted = true
-          this.broadcastLocal('$broker.started')
-          this.registry.generateLocalNodeInfo(true)
-        })
-        .then(() => {
-          if (this.transport) {
-            return this.transport.setReady()
-          }
-        })
-        .then(() => middlewareHandler.callHandlersAsync('started', [this], true))
-        .then(() => {
-          if (this.isStarted && isFunction(options.started)) {
-            options.started.call(this)
-          }
-        })
-        .then(() => {
-          const duration = Date.now() - startTime
-          log.success(`Node "${nodeId}" with ${services.length} services successfully started in ${duration}ms.`)
-        })
+      await middlewareHandler.callHandlersAsync('starting', [runtime], true)
+
+      if (transport) {
+        await transport.connect()
+      }
+
+      try {
+        await Promise.all(services.serviceList.map(service => service.start()))
+      } catch (error) {
+        log.error('Unable to start all services', error)
+        clearInterval(options.waitForServiceInterval)
+        handleError(error)
+      }
+
+      runtime.state.isStarted = true
+      eventBus.broadcastLocal('$broker.started')
+      registry.generateLocalNodeInfo(true)
+
+      if (transport) {
+        await transport.setReady()
+      }
+
+      await middlewareHandler.callHandlersAsync('started', [runtime], true)
+
+      if (runtime.state.isStarted && isFunction(options.started)) {
+        options.started.call(this)
+      }
+
+      const duration = Date.now() - startTime
+      log.info(`Node "${nodeId}" with ${services.length} services successfully started in ${duration}ms.`)
     },
     /**
      * Stops the broker.
      * @returns {Promise} Promise
     */
-    stop () {
-      this.isStarted = false
-      return Promise.resolve()
-        .then(() => {
-          log.info('Shutting down the node...')
-        })
-        .then(() => middlewareHandler.callHandlersAsync('stopping', [this], true))
-        .then(() => {
-          return Promise.all(services.map(service => service.stop()))
-            .catch(error => {
-              this.log.error('Unable to stop all services.', error)
-              return Promise.reject(error)
-            })
-        })
-        .then(() => {
-          if (this.transport) {
-            return this.transport.disconnect()
-          }
-        })
-        .then(() => {
-          if (this.cache) {
-            log.debug('Stopping caching adapters.')
-            return this.cache.stop()
-          }
-        })
-        .then(() => {
-          if (this.tracer) {
-            log.debug('Stopping tracing adapters.')
-            return this.tracer.stop()
-          }
-        })
-        .then(() => middlewareHandler.callHandlersAsync('stopped', [this], true))
-        .then(() => {
-          if (!this.isStarted && isFunction(options.stopped)) {
-            options.stopped.call(this)
-          }
-        })
-        .then(() => {
-          log.success('The node was successfully shut down. Bye bye! 👋')
+    async stop () {
+      runtime.state.isStarted = false
+      log.info('Shutting down the node...')
 
-          this.broadcastLocal('$broker.closed')
+      await middlewareHandler.callHandlersAsync('stopping', [runtime], true)
 
-          process.removeListener('beforeExit', onClose)
-          process.removeListener('exit', onClose)
-          process.removeListener('SIGINT', onClose)
-          process.removeListener('SIGTERM', onClose)
-        })
+      try {
+        await Promise.all(services.serviceList.map(service => service.stop()))
+      } catch (error) {
+        log.error('Unable to stop all services.', error)
+        throw error
+      }
+
+      if (transport) {
+        await transport.disconnect()
+      }
+
+      if (runtime.cache) {
+        log.debug('Stopping caching adapters.')
+        await cache.stop()
+      }
+
+      if (runtime.tracer) {
+        log.debug('Stopping tracing adapters.')
+        await runtime.tracer.stop()
+      }
+
+      await middlewareHandler.callHandlersAsync('stopped', [runtime], true)
+
+      if (!runtime.state.isStarted && isFunction(options.stopped)) {
+        options.stopped.call(runtime)
+      }
+
+      log.info('The node was successfully shut down. Bye bye! 👋')
+
+      eventBus.broadcastLocal('$broker.closed')
+
+      process.removeListener('beforeExit', onClose)
+      process.removeListener('exit', onClose)
+      process.removeListener('SIGINT', onClose)
+      process.removeListener('SIGTERM', onClose)
     },
     /**
      * Send a ping to connected nodes.
@@ -576,28 +286,28 @@ module.exports = (options = {}) => {
      * @returns {Array} Ping result
     */
     ping (nodeId, timeout = 3000) {
-      if (broker.transport && broker.transport.isConnected) {
+      if (transport && transport.isConnected) {
         if (nodeId) {
           return new Promise((resolve) => {
             const timeoutTimer = setTimeout(() => {
-              broker.bus.off('$node.pong', pongHandler)
+              bus.off('$node.pong', pongHandler)
               return resolve(null)
             }, timeout)
 
             const pongHandler = pong => {
               clearTimeout(timeoutTimer)
-              broker.bus.off('$node.pong', pongHandler)
+              bus.off('$node.pong', pongHandler)
               resolve(pong)
             }
 
-            broker.bus.on('$node.pong', pongHandler)
-            this.transport.sendPing(nodeId)
+            bus.on('$node.pong', pongHandler)
+            transport.sendPing(nodeId)
           })
         } else {
           // handle arrays
           const pongs = {}
 
-          const nodes = this.registry.getNodeList({})
+          const nodes = registry.getNodeList({})
             .filter(node => !node.isLocal)
             .map(node => node.id)
 
@@ -610,7 +320,7 @@ module.exports = (options = {}) => {
           return new Promise((resolve) => {
             // todo: handle timeout
             const timeoutTimer = setTimeout(() => {
-              broker.bus.off('$node.pong', pongHandler)
+              bus.off('$node.pong', pongHandler)
               resolve(pongs)
             }, timeout)
 
@@ -619,91 +329,58 @@ module.exports = (options = {}) => {
               onFlight.delete(pong.nodeId)
               if (onFlight.size === 0) {
                 clearTimeout(timeoutTimer)
-                broker.bus.off('$node.pong', pongHandler)
+                bus.off('$node.pong', pongHandler)
                 resolve(pongs)
               }
             }
 
-            broker.bus.on('$node.pong', pongHandler)
-            nodes.map(nodeId => this.transport.sendPing(nodeId))
+            bus.on('$node.pong', pongHandler)
+            nodes.map(nodeId => transport.sendPing(nodeId))
           })
         }
       }
-      return Promise.resolve(nodeId ? null : [])
+
+      return Promise.resolve(nodeId ? null : {})
     },
     /**
      * Global error handler of the broker.
      * @param {*} error Error
      * @returns {void}
      */
-    handleError (error) {
-      if (options.errorHandler) {
-        return options.errorHandler.call(broker, error)
-      }
-      throw error
-    },
-    fatalError (message, error, killProcess = true) {
-      if (options.logger.enabled) {
-        log.fatal(message, error)
-      } else {
-        console.log(message, error)
-      }
-
-      if (killProcess) {
-        process.exit(1)
-      }
-    }
+    handleError: runtime.handleError,
+    fatalError: runtime.fatalError
   }
 
   // Register internal broker events
   broker.bus.on('$node.disconnected', ({ nodeId }) => {
-    broker.transport.removePendingRequestsByNodeId(nodeId)
+    runtime.transport.removePendingRequestsByNodeId(nodeId)
     servicesChanged(false)
   })
 
-  // Resolve the transport adapter
-  if (typeof options.transport === 'string') {
-    options.transport = {
-      adapter: options.transport
-    }
-  }
-
-  if (options.transport.adapter) {
-    const adapter = TransportAdapters.resolve(broker, options.transport)
-    if (adapter) {
-      /**
-       * @type {Transport}
-      */
-      broker.transport = createTransport({ broker, adapter, middlewareHandler })
-    }
-  }
-
-  // const loadBalancingStrategy = LoadBalancing.resolve(options.registry.loadBalancingStrategy)
-
   // Metrics module
-  broker.metrics = MetricsStorage(broker, options.metrics)
-  broker.metrics.init()
-  registerMetrics(broker)
+  // broker.metrics = MetricsStorage(broker, options.metrics)
+  // broker.metrics.init()
+  // registerMetrics(broker)
 
   // Module initialisation
-  registry.init(broker, middlewareHandler, servicesChanged)
-  middlewareHandler.init(broker)
-  contextFactory.init(broker)
-  health.init(broker, broker.transport)
+  // registry.init(broker, middlewareHandler, servicesChanged)
+  // middlewareHandler.init(broker)
+  // contextFactory.init(broker)
+  // health.init(broker, broker.transport)
 
   // Initialize caching module
-  if (options.cache.enabled) {
-    const createCache = Cache.resolve(options.cache.adapter)
-    broker.cache = createCache(broker, options.cache)
-    broker.cache.init()
-    log.info(`Cache module: ${broker.cache.name}`)
-  }
+  // if (options.cache.enabled) {
+  //   const createCache = Cache.resolve(options.cache.adapter)
+  //   broker.cache = createCache(broker, options.cache)
+  //   broker.cache.init()
+  //   log.info(`Cache module: ${broker.cache.name}`)
+  // }
 
-  // Initialize tracing module
-  if (options.tracing.enabled) {
-    broker.tracer = Tracer()
-    broker.tracer.init(broker, options.tracing)
-  }
+  // // Initialize tracing module
+  // if (options.tracing.enabled) {
+  //   broker.tracer = Tracer()
+  //   broker.tracer.init(broker, options.tracing)
+  // }
 
   /**
    * Register middlewares
@@ -718,36 +395,54 @@ module.exports = (options = {}) => {
 
     // Add the built-in middlewares. (The order is important)
     if (options.loadInternalMiddlewares) {
-      middlewareHandler.add(Middlewares.ActionHooks())
+      middlewareHandler.add(Middlewares.ActionHooks)
 
       // Validator middleware
       if (options.validateActionParams && validator) {
         middlewareHandler.add(validator.middleware)
       }
 
-      middlewareHandler.add(Middlewares.Bulkhead())
+      // Bulkhead
+      if (options.bulkhead.enabled) {
+        middlewareHandler.add(Middlewares.Bulkhead)
+      }
 
+      // Cache
       if (broker.cache) {
         middlewareHandler.add(broker.cache.middleware)
       }
 
-      middlewareHandler.add(Middlewares.CircuitBreaker())
-      middlewareHandler.add(Middlewares.Timeout())
-      middlewareHandler.add(Middlewares.Retry())
-      middlewareHandler.add(Middlewares.ErrorHandler())
-      middlewareHandler.add(Middlewares.Tracing())
+      if (options.contextTracking.enabled) {
+        middlewareHandler.add(Middlewares.PendingContextTracker)
+      }
+
+      if (options.circuitBreaker.enabled) {
+        middlewareHandler.add(Middlewares.CircuitBreaker)
+      }
+
+      middlewareHandler.add(Middlewares.Timeout)
+
+      if (options.retryPolicy.enabled) {
+        middlewareHandler.add(Middlewares.Retry)
+      }
+
+      middlewareHandler.add(Middlewares.ErrorHandler)
+
+      if (options.tracing.enabled) {
+        middlewareHandler.add(Middlewares.Tracing)
+      }
 
       if (options.metrics.enabled) {
-        middlewareHandler.add(Middlewares.Metrics())
+        middlewareHandler.add(Middlewares.Metrics)
       }
     }
 
-    // Wrap broker methods for middlewares
-    broker.call = middlewareHandler.wrapMethod('call', broker.call)
-    broker.multiCall = middlewareHandler.wrapMethod('multiCall', broker.multiCall)
-    broker.emit = middlewareHandler.wrapMethod('emit', broker.emit)
-    broker.broadcast = middlewareHandler.wrapMethod('broadcast', broker.broadcast)
-    broker.broadcastLocal = middlewareHandler.wrapMethod('broadcastLocal', broker.broadcastLocal)
+    // Wrap runtime and broker methods for middlewares
+    runtime.actionInvoker.call = middlewareHandler.wrapMethod('call', runtime.actionInvoker.call)
+    runtime.actionInvoker.multiCall = middlewareHandler.wrapMethod('multiCall', broker.multiCall)
+    runtime.eventBus.emit = middlewareHandler.wrapMethod('emit', runtime.eventBus.emit)
+    runtime.eventBus.broadcast = middlewareHandler.wrapMethod('broadcast', runtime.eventBus.broadcast)
+    runtime.eventBus.broadcastLocal = middlewareHandler.wrapMethod('broadcastLocal', runtime.eventBus.broadcastLocal)
     broker.createService = middlewareHandler.wrapMethod('createService', broker.createService)
     broker.loadService = middlewareHandler.wrapMethod('loadService', broker.loadService)
     broker.loadServices = middlewareHandler.wrapMethod('loadServices', broker.loadServices)
@@ -765,9 +460,7 @@ module.exports = (options = {}) => {
     .catch(error => broker.log.error(error))
     .then(() => process.exit(0))
 
-  // if (!process.setMaxListeners) {
-  //   console.log(typeof process)
-  // }
+  // SIGTERM listener
   process.setMaxListeners(0)
   process.on('beforeExit', onClose)
   process.on('exit', onClose)
@@ -779,8 +472,13 @@ module.exports = (options = {}) => {
     broker.createService(require('../services/node.service'))
   }
 
+  Object.assign(runtime, { broker })
+
   // Call middleware hook for broker created.
-  middlewareHandler.callHandlersSync('created', [broker])
+  middlewareHandler.callHandlersSync('created', [runtime])
+
+  // Attach the broker to the runtime object.
+
   return broker
 }
 

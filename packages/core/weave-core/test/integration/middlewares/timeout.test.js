@@ -6,6 +6,9 @@ describe('Timeout middleware', () => {
   beforeEach(() => {
     broker = Weave({
       nodeId: 'node1',
+      logger: {
+        enabled: false
+      },
       registry: {
         requestTimeout: 1000
       }

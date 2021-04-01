@@ -16,7 +16,7 @@ describe('Test tracing', () => {
   const defaultSettings = {
     logger: {
       enabled: false
-      // logLevel: 'fatal'
+      // level: 'fatal'
     },
     transport: {
       adapter: 'dummy'
@@ -73,7 +73,7 @@ describe('Test tracing', () => {
   //   nodeId: 'node1',
   //   logger: {
   //     enabled: false,
-  //     logLevel: 'fatal'
+  //     level: 'fatal'
   //   },
   //   transport: {
   //     adapter: TransportAdapters.Dummy()
@@ -92,7 +92,7 @@ describe('Test tracing', () => {
   //   nodeId: 'node2',
   //   logger: {
   //     enabled: false,
-  //     logLevel: 'fatal'
+  //     level: 'fatal'
   //   },
   //   transport: {
   //     adapter: TransportAdapters.Dummy()

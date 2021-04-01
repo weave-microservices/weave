@@ -3,8 +3,7 @@ const { createCacheBase } = require('../../../lib/cache/base')
 
 const config = {
   logger: {
-    enabled: false,
-    logLevel: 'fatal'
+    enabled: false
   }
 }
 

@@ -30,13 +30,13 @@ exports.createActionCollection = (registry) => {
    * @type {ServiceActionCollection}
   */
   const actionCollection = Object.create(null)
-  const broker = registry.broker
+  const { runtime } = registry
   const actions = new Map()
 
   actionCollection.add = (node, service, action) => {
     let endPointList = actions.get(action.name)
     if (!endPointList) {
-      endPointList = createEndpointList(broker, action.name)
+      endPointList = createEndpointList(runtime, action.name)
       actions.set(action.name, endPointList)
     }
     return endPointList.add(node, service, action)

@@ -136,7 +136,7 @@ describe('Middleware hooks', () => {
       nodeId: 'node1',
       logger: {
         enabled: false,
-        logLevel: 'fatal'
+        level: 'fatal'
       },
       loadNodeService: false,
       middlewares: [middleware]
@@ -220,8 +220,8 @@ describe('Middleware hooks', () => {
 
   it('should decorate core module', () => {
     const middleware = {
-      created (broker) {
-        broker.fancyTestmethod = () => {}
+      created (runtime) {
+        runtime.broker.fancyTestmethod = () => {}
       }
     }
 

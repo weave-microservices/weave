@@ -14,7 +14,7 @@ describe('Action hooks', () => {
     nodeId: 'test-node',
     logger: {
       enableD: false,
-      logLevel: 'fatal'
+      level: 'fatal'
     }
   })
 

@@ -11,11 +11,15 @@ exports.loadBalancingStrategy = {
   RANDOM: 'random'
 }
 
-exports.logLevel = {
+exports.level = {
   trace: 'trace',
   debug: 'debug',
   info: 'info',
   warn: 'warn',
   error: 'error',
   fatal: 'fatal'
+}
+
+exports.SYNC_MIDDLEWARE_HOOKS = {
+  STARTING: 'starting'
 }

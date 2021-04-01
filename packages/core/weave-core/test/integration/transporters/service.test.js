@@ -7,18 +7,22 @@ describe('Connected services', () => {
       nodeId: 'node1',
       logger: {
         enabled: false,
-        logLevel: 'fatal'
+        level: 'fatal'
       },
-      transport: 'dummy'
+      transport: {
+        adapter: 'dummy'
+      }
     })
 
     const broker2 = Weave({
       nodeId: 'node2',
       logger: {
         enabled: false,
-        logLevel: 'fatal'
+        level: 'fatal'
       },
-      transport: 'dummy'
+      transport: {
+        adapter: 'dummy'
+      }
     })
 
     broker1.createService(LocalService)

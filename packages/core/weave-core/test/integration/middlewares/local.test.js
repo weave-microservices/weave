@@ -94,6 +94,9 @@ describe('Test middlewares', () => {
   it('should decorate broker instance', async () => {
     const broker = Weave({
       nodeId: 'node1',
+      logger: {
+        enabled: false
+      },
       middlewares: [{
         created (broker) {
           broker.getNodeId = () => {

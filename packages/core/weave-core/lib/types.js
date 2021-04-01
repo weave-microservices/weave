@@ -120,8 +120,9 @@
  * Configuration object for logger.
  * @typedef {Object} LoggerOptions
  * @property {Boolean} enabled Enable logger.
- * @property {'fatal'|'error'|'warn'|'info'|'debug'|'trace'} logLevel Log level of the messages to be displayed.
- * @property {Stream.Writable|Array} stream Destination to which the data is written, can be a single valid Writable stream or an array holding multiple valid Writable streams. (default = process.stdout).
+ * @property {'fatal'|'error'|'warn'|'info'|'debug'|'trace'} level Log level of the messages to be displayed.
+ * @property {Object<any>} defaultMeta Default meta data attached to every log message.
+ * @property {Stream.Writable|Array} streams Destination to which the data is written, can be a single valid Writable stream or an array holding multiple valid Writable streams. (default = process.stdout).
  * @property {Boolean} displayTimestamp Show the current timestamp. (default = true)
  * @property {Boolean} displayBadge Show log type badge. (default = true)
  * @property {Boolean} displayLabel Show log type label. (default = true)
@@ -132,22 +133,22 @@
 
 /**
  * @typedef BrokerOptions
- * @property {string} [nodeId] nodeId
- * @property {BulkheadOptions} bulkheadbulkhead
- * @property {CacheOptions} cachecache
- * @property {CircuitBreakerOptions} circuitBreakercircuitBreaker
- * @property {TransportOptions} transporttransport
+ * @property {string} [nodeId] Node ID. Needs to be unique in your environment.
+ * @property {BulkheadOptions} bulkhead Bulkhead options
+ * @property {CacheOptions} cache Cache options
+ * @property {CircuitBreakerOptions} circuitBreaker Circuit breaker options
+ * @property {TransportOptions} transport Transport options
  * @property {Function} [errorHandler] errorHandler
- * @property {boolean} loadNodeServiceloadNodeService
- * @property {boolean} publishNodeServicepublishNodeService
- * @property {boolean} loadInternalMiddlewaresloadInternalMiddlewares
- * @property {MetricsOptions} metricsmetrics
+ * @property {boolean} loadNodeService Enable or disable $node service
+ * @property {boolean} publishNodeService
+ * @property {boolean} loadInternalMiddlewares Enable or disable internal middlewares
+ * @property {MetricsOptions} metrics Metrics options
  * @property {Array<Middleware>} [middlewares] middlewares
  * @property {LoggerOptions} [logger] logger
- * @property {TracingOptions} tracingtracing
+ * @property {TracingOptions} tracing Tracing options
  * @property {String} [namespace] namespace
  * @property {RegistryOptions} [registry] registry
- * @property {RetryPolicyOptions} retryPolicyretryPolicy
+ * @property {RetryPolicyOptions} retryPolicy
  * @property {boolean} [validateActionParams] validateActionParams
  * @property {boolean} [watchServices] watchServices
  * @property {number} [waitForServiceInterval] waitForServiceInterval

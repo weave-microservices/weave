@@ -366,7 +366,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 * Changed order of mixin merge ([40ac322](https://github.com/fachw3rk/weave/commit/40ac322))
 * Improved logger performance. ([0be7543](https://github.com/fachw3rk/weave/commit/0be7543))
-* Loglevel of trace ([84713da](https://github.com/fachw3rk/weave/commit/84713da))
+* level of trace ([84713da](https://github.com/fachw3rk/weave/commit/84713da))
 * Service settings for remote services are now stored correctly ([c230f03](https://github.com/fachw3rk/weave/commit/c230f03))
 
 
@@ -1082,7 +1082,7 @@ Example weave.config.js file with a REDIS transport, placed in the root of your 
 const Weave = require('@weave-js/core')
 
 module.exports = {
-    logLevel: 'debug',
+    level: 'debug',
     cacher: true,
     metrics: false,
     requestTimeout: 2000,

@@ -7,7 +7,7 @@ const Middleware = require('../../../lib/middlewares/metrics')
 const config = {
   logger: {
     enabled: false,
-    logLevel: 'fatal'
+    level: 'fatal'
   },
   metrics: {
     enabled: true
@@ -19,7 +19,7 @@ describe('Test metrics middleware', () => {
   const broker = Weave(config)
   // const contentFactory = createContextFactory()
   const handler = jest.fn(() => Promise.resolve('hooray!!!'))
-  const middleware = Middleware()
+  const middleware = Middleware(broker.runtime)
   const service = {}
   const action = {
     name: 'math.add',

@@ -9,9 +9,13 @@ const { createContextFactory } = require('../../lib/broker/context-factory')
 
 describe('Test context factxory.', () => {
   it('should create an empty context.', () => {
-    const broker = Weave({ nodeId: 'Testnode' })
-    const contextFactory = createContextFactory()
-    contextFactory.init(broker)
+    const broker = Weave({
+      nodeId: 'Testnode',
+      logger: {
+        enabled: false
+      }
+    })
+    const contextFactory = createContextFactory(broker.runtime)
 
     expect(contextFactory.create).toBeDefined()
 
@@ -34,9 +38,13 @@ describe('Test context factxory.', () => {
   })
 
   it('should handle passed options.', () => {
-    const broker = Weave({ nodeId: 'Testnode' })
-    const contextFactory = createContextFactory()
-    contextFactory.init(broker)
+    const broker = Weave({
+      nodeId: 'Testnode',
+      logger: {
+        enabled: false
+      }
+    })
+    const contextFactory = createContextFactory(broker.runtime)
 
     expect(contextFactory.create).toBeDefined()
 

@@ -12,19 +12,19 @@ const createMessageHandler = require('./message-handlers')
 
 /**
  * Create a Transport adapter
- * @param {BrokerInstance} broker Borker instance
+ * @param {BrokerInstance} runtime Borker instance
  * @param {Object} adapter Adapter wrapper
  * @returns {Transport} transport
  */
-exports.createTransport = ({ broker, adapter, middlewareHandler }) => {
+exports.createTransport = (runtime, adapter) => {
   const transport = Object.create(null)
   let heartbeatTimer
   let checkNodesTimer
   let checkOfflineNodesTimer
   let updateLocalNodeTimer
 
-  const nodeId = broker.nodeId
-  const log = broker.createLogger('TRANSPORT')
+  const nodeId = runtime.nodeId
+  const log = runtime.createLogger('TRANSPORT')
 
   const pending = {
     requests: new Map(),
@@ -83,11 +83,11 @@ exports.createTransport = ({ broker, adapter, middlewareHandler }) => {
             const chunks = []
 
             // chunk is larger than maxBufferSize
-            if (data instanceof Buffer && broker.options.transport.maxChunkSize > 0 && data.length > broker.options.transport.maxChunkSize) {
+            if (data instanceof Buffer && runtime.options.transport.maxChunkSize > 0 && data.length > runtime.options.transport.maxChunkSize) {
               const length = data.length
               let i = 0
               while (i < length) {
-                chunks.push(data.slice(i, i += broker.options.transport.maxChunkSize))
+                chunks.push(data.slice(i, i += runtime.options.transport.maxChunkSize))
               }
             } else {
               chunks.push(data)
@@ -122,7 +122,7 @@ exports.createTransport = ({ broker, adapter, middlewareHandler }) => {
       })
   }
 
-  transport.log = broker.createLogger('TRANSPORT')
+  transport.log = runtime.createLogger('TRANSPORT')
   transport.isConnected = false
   transport.isReady = false
   transport.pending = pending
@@ -165,7 +165,7 @@ exports.createTransport = ({ broker, adapter, middlewareHandler }) => {
   }
 
   transport.disconnect = () => {
-    broker.broadcastLocal('$transporter.disconnected', { isGracefull: true })
+    runtime.eventBus.broadcastLocal('$transporter.disconnected', { isGracefull: true })
 
     transport.isConnected = false
     transport.isReady = false
@@ -194,7 +194,7 @@ exports.createTransport = ({ broker, adapter, middlewareHandler }) => {
       return Promise.resolve()
     }
 
-    const info = broker.registry.getLocalNodeInfo()
+    const info = runtime.registry.getLocalNodeInfo()
     const message = transport.createMessage(MessageTypes.MESSAGE_INFO, sender, info)
     return transport.send(message)
   }
@@ -206,7 +206,7 @@ exports.createTransport = ({ broker, adapter, middlewareHandler }) => {
   */
   transport.send = (message) => {
     transport.statistics.sent.packages = transport.statistics.sent.packages + 1
-    log.trace(`Send ${message.type.toUpperCase()} packet to ${message.targetNodeId || 'all nodes'}`)
+    log.verbose(`Send ${message.type.toUpperCase()} packet to ${message.targetNodeId || 'all nodes'}`)
     return adapter.preSend(message)
   }
 
@@ -245,7 +245,7 @@ exports.createTransport = ({ broker, adapter, middlewareHandler }) => {
   }
 
   transport.sendBroadcastEvent = (nodeId, eventName, data, groups) => {
-    log.trace(`Send ${eventName} to ${nodeId}`)
+    log.verbose(`Send ${eventName} to ${nodeId}`)
 
     const payload = {
       data,
@@ -287,10 +287,10 @@ exports.createTransport = ({ broker, adapter, middlewareHandler }) => {
 
   transport.request = (context) => {
     // If the queue size is set, check the queue size and reject the job when the limit is reached.
-    if (broker.options.transport.maxQueueSize && broker.options.transport.maxQueueSize < pending.requests.size) {
+    if (runtime.options.transport.maxQueueSize && runtime.options.transport.maxQueueSize < pending.requests.size) {
       return Promise.reject(new WeaveQueueSizeExceededError({
         action: context.action.name,
-        limit: broker.options.transport.maxQueueSize,
+        limit: runtime.options.transport.maxQueueSize,
         nodeId: context.nodeId,
         size: pending.requests.size
       }))
@@ -339,11 +339,11 @@ exports.createTransport = ({ broker, adapter, middlewareHandler }) => {
         const chunks = []
 
         // chunk is larger than maxBufferSize
-        if (data instanceof Buffer && broker.options.transport.maxChunkSize > 0 && data.length > broker.options.transport.maxChunkSize) {
+        if (data instanceof Buffer && runtime.options.transport.maxChunkSize > 0 && data.length > runtime.options.transport.maxChunkSize) {
           const length = data.length
           let i = 0
           while (i < length) {
-            chunks.push(data.slice(i, i += broker.options.transport.maxChunkSize))
+            chunks.push(data.slice(i, i += runtime.options.transport.maxChunkSize))
           }
         } else {
           chunks.push(data)
@@ -413,7 +413,7 @@ exports.createTransport = ({ broker, adapter, middlewareHandler }) => {
       .then(() => utils.promiseDelay(Promise.resolve(), 500))
       .then(() => {
         transport.isConnected = true
-        broker.broadcastLocal('$transporter.connected', { wasReconnect })
+        runtime.eventBus.broadcastLocal('$transporter.connected', { wasReconnect })
         if (transport.resolveConnect) {
           transport.resolveConnect()
           transport.resolveConnect = null
@@ -439,16 +439,16 @@ exports.createTransport = ({ broker, adapter, middlewareHandler }) => {
     Promise.resolve()
       .then(() => {
         transport.isConnected = false
-        broker.bus.emit('$transporter.disconnected')
+        runtime.bus.emit('$transporter.disconnected')
       })
       .then(() => {
         stopTimers()
       })
   }
 
-  const messageHandler = createMessageHandler(broker, transport, pending)
+  const messageHandler = createMessageHandler(runtime, transport, pending)
 
-  adapter.init(broker, transport)
+  adapter.init(runtime, transport)
     .then(() => {
       adapter.bus.on('$adapter.connected', onConnect)
       adapter.bus.on('$adapter.disconnected', onDisconnect)
@@ -474,25 +474,25 @@ exports.createTransport = ({ broker, adapter, middlewareHandler }) => {
   }
 
   function startHeartbeatTimer () {
-    heartbeatTimer = setInterval(() => sendHeartbeat(), broker.options.transport.heartbeatInterval)
+    heartbeatTimer = setInterval(() => sendHeartbeat(), runtime.options.transport.heartbeatInterval)
     heartbeatTimer.unref()
   }
 
   function startRemoteNodeCheckTimer () {
-    checkNodesTimer = setInterval(() => checkRemoteNodes(), broker.options.transport.heartbeatTimeout)
+    checkNodesTimer = setInterval(() => checkRemoteNodes(), runtime.options.transport.heartbeatTimeout)
     checkNodesTimer.unref()
   }
 
   function startOfflineNodeCheckTimer () {
-    checkOfflineNodesTimer = setInterval(() => checkOfflineNodes(), broker.options.transport.offlineNodeCheckInterval)
+    checkOfflineNodesTimer = setInterval(() => checkOfflineNodes(), runtime.options.transport.offlineNodeCheckInterval)
     checkOfflineNodesTimer.unref()
   }
 
   function startUpdateLocalNodeTimer () {
     updateLocalNodeTimer = setInterval(() => {
-      const node = broker.registry.nodeCollection.localNode
+      const node = runtime.registry.nodeCollection.localNode
       node.updateLocalInfo(true)
-    }, broker.options.transport.nodeUpdateInterval)
+    }, runtime.options.transport.nodeUpdateInterval)
 
     updateLocalNodeTimer.unref()
   }
@@ -505,10 +505,10 @@ exports.createTransport = ({ broker, adapter, middlewareHandler }) => {
   }
 
   function sendHeartbeat () {
-    const node = broker.registry.nodeCollection.localNode
+    const node = runtime.registry.nodeCollection.localNode
     node.updateLocalInfo()
 
-    log.trace(`Send heartbeat from ${node.id}`)
+    log.verbose(`Send heartbeat from ${node.id}`)
 
     const payload = {
       cpu: node.cpu,
@@ -522,13 +522,13 @@ exports.createTransport = ({ broker, adapter, middlewareHandler }) => {
 
   function checkRemoteNodes () {
     const now = Date.now()
-    broker.registry.nodeCollection.list({ withServices: true }).forEach(node => {
+    runtime.registry.nodeCollection.list({ withServices: true }).forEach(node => {
       if (node.isLocal || !node.isAvailable) {
         return
       }
 
-      if (now - (node.lastHeartbeatTime || 0) > broker.options.transport.heartbeatTimeout) {
-        broker.registry.nodeDisconnected(node.id, true)
+      if (now - (node.lastHeartbeatTime || 0) > runtime.options.transport.heartbeatTimeout) {
+        runtime.registry.nodeDisconnected(node.id, true)
       }
     })
   }
@@ -536,13 +536,13 @@ exports.createTransport = ({ broker, adapter, middlewareHandler }) => {
   // Removes the node after a given time from the registry.
   function checkOfflineNodes () {
     const now = Date.now()
-    broker.registry.nodeCollection.list({}).forEach(node => {
+    runtime.registry.nodeCollection.list({}).forEach(node => {
       if (node.isLocal || node.isAvailable) {
         return
       }
 
-      if ((now - node.offlineTime) > broker.options.transport.maxOfflineTime) {
-        broker.registry.removeNode(node.id)
+      if ((now - node.offlineTime) > runtime.options.transport.maxOfflineTime) {
+        runtime.registry.removeNode(node.id)
       }
     })
   }

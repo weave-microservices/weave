@@ -4,6 +4,8 @@ exports.WEAVE_VERSION = 'weave.version'
 exports.WEAVE_NODE_ID = 'weave.node-id'
 exports.WEAVE_NAMESPACE = 'weave.namespace'
 
+// Host
+
 // Services
 exports.REQUESTS_TOTAL = 'weave.requests.total'
 exports.REQUESTS_IN_FLIGHT = 'weave.requests.in-flight'

@@ -5,10 +5,10 @@ class BaseCollector {
     this.options = options || {}
   }
 
-  initBase (tracer) {
-    this.tracer = tracer
-    this.broker = tracer.broker
-    this.log = tracer.log
+  initBase (runtime) {
+    this.runtime = runtime
+    // this.broker = tracer.broker
+    // this.log = tracer.log
   }
 
   startedSpan () {}

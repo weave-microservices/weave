@@ -4,7 +4,7 @@
  * Copyright 2020 Fachwerk
  */
 
-module.exports = () => {
+module.exports = (runtime) => {
   const storage = new Map()
   let log = null
   let circuitBreakerTimer = null
@@ -96,8 +96,7 @@ module.exports = () => {
   }
 
   function wrapCircuitBreakerMiddleware (handler, action) {
-    const self = this
-    const options = Object.assign({}, self.options.circuitBreaker, action.circuitBreaker || {})
+    const options = Object.assign({}, runtime.options.circuitBreaker, action.circuitBreaker || {})
 
     if (options.enabled) {
       return function curcuitBreakerMiddleware (context) {
@@ -123,7 +122,7 @@ module.exports = () => {
 
   return {
     created () {
-      log = this.createLogger('circuit-breaker')
+      log = runtime.createLogger('circuit-breaker')
     },
     started () {
       const { enabled, windowTime } = this.options.circuitBreaker

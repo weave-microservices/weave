@@ -15,7 +15,7 @@ const { Weave } = require('@weave-js/core')
 
 const broker = Weave({
     logger: {
-        logLevel: 'debug'
+        level: 'debug'
     }
 })
 

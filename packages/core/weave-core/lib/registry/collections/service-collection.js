@@ -23,7 +23,7 @@ const { createServiceItem } = require('../service-item')
 exports.createServiceCollection = (registry) => {
   /** @type {ServiceCollection} */
   const serviceCollection = Object.create(null)
-  const broker = registry.broker
+  const { runtime } = registry
   const services = serviceCollection.services = []
   const actions = new Map()
   // const options = broker.options
@@ -33,7 +33,7 @@ exports.createServiceCollection = (registry) => {
   // }
 
   serviceCollection.add = (node, name, version, settings) => {
-    const item = createServiceItem(node, name, version, settings, node.id === broker.nodeId)
+    const item = createServiceItem(node, name, version, settings, node.id === runtime.nodeId)
     services.push(item)
     return item
   }

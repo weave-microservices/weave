@@ -8,7 +8,7 @@ const { WeaveError } = require('../errors')
 
 const wrapErrorHandlerMiddleware = function (handler) {
   const broker = this
-  return function errorHandlerMiddlware (context) {
+  return function errorHandlerMiddleware (context) {
     return handler(context)
       .catch(error => {
         if (!(error instanceof Error)) {

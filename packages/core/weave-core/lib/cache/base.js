@@ -100,27 +100,31 @@ exports.createCacheBase = (broker, options) => {
     }
   }
 
-  cache.middleware = (handler, action) => {
-    const cacheOptions = Object.assign({ enabled: true }, isObject(action.cache) ? action.cache : { enabled: !!action.cache })
-    if (cacheOptions.enabled) {
-      return function cacheMiddleware (context) {
-        const cacheHashKey = cache.getCachingHash(action.name, context.data, context.meta, action.cache.keys)
-        context.isCachedResult = false
+  cache.middleware = () => {
+    return {
+      localAction: (handler, action) => {
+        const cacheOptions = Object.assign({ enabled: true }, isObject(action.cache) ? action.cache : { enabled: !!action.cache })
+        if (cacheOptions.enabled) {
+          return function cacheMiddleware (context) {
+            const cacheHashKey = cache.getCachingHash(action.name, context.data, context.meta, action.cache.keys)
+            context.isCachedResult = false
 
-        return cache.get(cacheHashKey).then((content) => {
-          if (content !== null) {
-            context.isCachedResult = true
-            return content
+            return cache.get(cacheHashKey).then((content) => {
+              if (content !== null) {
+                context.isCachedResult = true
+                return content
+              }
+
+              return handler(context).then((result) => {
+                cache.set(cacheHashKey, result, action.cache.ttl)
+                return result
+              })
+            })
           }
-
-          return handler(context).then((result) => {
-            cache.set(cacheHashKey, result, action.cache.ttl)
-            return result
-          })
-        })
+        }
+        return handler
       }
     }
-    return handler
   }
 
   return cache

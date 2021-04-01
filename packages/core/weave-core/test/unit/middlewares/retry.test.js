@@ -5,15 +5,14 @@ const { WeaveRetrieableError } = require('../../../lib/errors')
 
 const config = {
   logger: {
-    enabled: false,
-    logLevel: 'fatal'
+    enabled: false
   }
 }
 // const SlowService = require('../../services/slow.service')
 
 describe('Test retry middleware', () => {
   const broker = Weave(config)
-  const contentFactory = createContextFactory()
+  const contentFactory = createContextFactory(broker.runtime)
   const handler = jest.fn(() => Promise.resolve('hooray!!!'))
   const middleware = Middleware()
   const service = {}
@@ -57,7 +56,6 @@ describe('Test retry middleware', () => {
     broker.options.retryPolicy.delay = 200
     broker.options.retryPolicy.retries = 3
 
-    contentFactory.init(broker)
     const error = new WeaveRetrieableError('not this time')
     const handler = jest.fn(() => Promise.reject(error))
     const newHandler = middleware.localAction.call(broker, handler, action)
@@ -82,7 +80,6 @@ describe('Test retry middleware', () => {
     broker.options.retryPolicy.delay = 200
     broker.options.retryPolicy.retries = 0
 
-    contentFactory.init(broker)
     const error = new WeaveRetrieableError('not this time')
     const handler = jest.fn(() => Promise.reject(error))
     const newHandler = middleware.localAction.call(broker, handler, action)

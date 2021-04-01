@@ -183,7 +183,7 @@ module.exports = (broker, transport, pending) => {
     const elapsedTime = now - payload.dispatchTime
     const timeDiff = Math.round(now - payload.arrivalTime - elapsedTime / 2)
 
-    broker.broadcastLocal('$node.pong', {
+    broker.eventBus.broadcastLocal('$node.pong', {
       nodeId: payload.sender,
       elapsedTime,
       timeDiff
@@ -222,7 +222,7 @@ module.exports = (broker, transport, pending) => {
 
   const onHeartbeat = payload => {
     // registry.nodes.heartbeat(payload)
-    transport.log.trace(`Heartbeat from ${payload.sender}`)
+    transport.log.verbose(`Heartbeat from ${payload.sender}`)
     const node = registry.nodeCollection.get(payload.sender)
     // if node is unknown then request a node info message.
     if (node) {

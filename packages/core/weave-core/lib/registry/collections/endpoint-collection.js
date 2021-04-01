@@ -9,14 +9,14 @@
 const { createActionEndpoint } = require('../action-endpoint')
 const { loadBalancingStrategy } = require('../../constants')
 
-exports.createEndpointList = (broker, name, groupName) => {
+exports.createEndpointList = (runtime, name, groupName) => {
   const endpointList = Object.create(null)
-  const options = broker.options
+  const options = runtime.options
   const list = endpointList.endpoints = []
 
   let counter = 0
 
-  endpointList.state = broker
+  endpointList.state = runtime // ????
   endpointList.name = name
   endpointList.groupName = groupName
   endpointList.isInternal = name.startsWith('$')
@@ -55,7 +55,7 @@ exports.createEndpointList = (broker, name, groupName) => {
       return false
     }
 
-    const newEndpoint = createActionEndpoint(broker, node, service, action)
+    const newEndpoint = createActionEndpoint(runtime, node, service, action)
 
     list.push(newEndpoint)
     setLocalEndpoints()

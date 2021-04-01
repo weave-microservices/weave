@@ -8,10 +8,10 @@
 const { uuid, isFunction } = require('@weave-js/utils')
 const { WeaveMaxCallLevelError } = require('../errors')
 
-exports.createContext = (broker) => {
+exports.createContext = (runtime) => {
   const context = {
     id: null,
-    nodeId: broker.nodeId || null,
+    nodeId: runtime.nodeId || null,
     callerNodeId: null,
     parentContext: null,
     endpoint: null,
@@ -39,11 +39,11 @@ exports.createContext = (broker) => {
     },
     emit (eventName, payload, options = {}) {
       options.parentContext = this
-      return broker.emit(eventName, payload, options)
+      return runtime.eventBus.emit(eventName, payload, options)
     },
     broadcast (eventName, payload, options = {}) {
       options.parentContext = this
-      return broker.broadcast(eventName, payload, options)
+      return runtime.eventBus.broadcast(eventName, payload, options)
     },
     /**
      * Call a action.
@@ -54,11 +54,11 @@ exports.createContext = (broker) => {
     */
     call (actionName, params, options = {}) {
       options.parentContext = this
-      if (broker.options.registry.maxCallLevel > 0 && this.level >= broker.options.registry.maxCallLevel) {
-        return Promise.reject(new WeaveMaxCallLevelError({ nodeId: broker.nodeId, maxCallLevel: broker.options.registry.maxCallLevel }))
+      if (runtime.options.registry.maxCallLevel > 0 && this.level >= runtime.options.registry.maxCallLevel) {
+        return Promise.reject(new WeaveMaxCallLevelError({ nodeId: runtime.nodeId, maxCallLevel: runtime.options.registry.maxCallLevel }))
       }
 
-      const p = broker.call(actionName, params, options)
+      const p = runtime.actionInvoker.call(actionName, params, options)
 
       return p.then(result => {
         if (p.context) {
@@ -71,7 +71,7 @@ exports.createContext = (broker) => {
       if (this.span) {
         this.span = this.span.startChildSpan(name, options)
       } else {
-        this.span = broker.tracer.startSpan(name, options)
+        this.span = runtime.tracer.startSpan(name, options)
       }
       return this.span
     },
@@ -82,7 +82,7 @@ exports.createContext = (broker) => {
       }
     },
     copy () {
-      const newContext = exports.createContext(broker)
+      const newContext = exports.createContext(runtime)
 
       newContext.nodeId = this.nodeId
       newContext.options = this.options
@@ -103,8 +103,8 @@ exports.createContext = (broker) => {
   // generate context Id
   if (!context.id) {
     // Use custom UUID factory
-    if (broker.options.uuidFactory && isFunction(broker.options.uuidFactory)) {
-      context.id = broker.options.uuidFactory.call(context, broker)
+    if (runtime.options.uuidFactory && isFunction(runtime.options.uuidFactory)) {
+      context.id = runtime.options.uuidFactory.call(context, runtime)
     } else {
       context.id = uuid()
     }

@@ -4,7 +4,11 @@ const { Weave } = require('../../../../lib')
 
 describe('Test Histogram', () => {
   it('should generate a histogram', () => {
-    const broker = Weave({})
+    const broker = Weave({
+      logger: {
+        enabled: false
+      }
+    })
     const storage = MetricStorage(broker, broker.options.metrics)
     storage.init()
     const histogram = new Histogram(storage, { name: 'requests', description: 'description', labels: ['service'], buckets: true })

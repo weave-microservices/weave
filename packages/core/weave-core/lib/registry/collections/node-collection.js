@@ -11,7 +11,7 @@ const { createNode } = require('../node')
 
 exports.createNodeCollection = (registry) => {
   const nodeCollection = Object.create(null)
-  const broker = registry.broker
+  const { runtime } = registry
   const nodes = new Map()
 
   nodeCollection.localNode = null
@@ -53,7 +53,7 @@ exports.createNodeCollection = (registry) => {
     if (node && node.isAvailable) {
       registry.deregisterServiceByNodeId(node.id)
       node.disconnected(isUnexpected)
-      broker.broadcastLocal('$node.disconnected', nodeId, isUnexpected)
+      runtime.eventBus.broadcastLocal('$node.disconnected', nodeId, isUnexpected)
       registry.log.warn(`Node '${node.id}'${isUnexpected ? ' unexpectedly' : ''} disconnected.`)
     }
   }
@@ -66,13 +66,13 @@ exports.createNodeCollection = (registry) => {
 
   // get Local node informations and add it to the collection by
   const addLocalNode = () => {
-    const node = createNode(broker.nodeId)
+    const node = createNode(runtime.options.nodeId)
 
     node.isLocal = true
     node.IPList = getIpList()
     node.client = {
       type: 'nodejs',
-      version: broker.version,
+      version: runtime.version,
       langVersion: process.version
     }
 

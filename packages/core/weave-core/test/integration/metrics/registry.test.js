@@ -21,7 +21,7 @@ describe('Test metric middleware', () => {
   ]))
 
   it('should create a middleware', () => {
-    const metric = node1.metrics.getMetric('weave.requests.total')
+    const metric = node1.runtime.metrics.getMetric('weave.requests.total')
     expect(metric.description).toBe('Number of total requests.')
     expect(metric.value).toBe(0)
   })

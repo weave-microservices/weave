@@ -72,7 +72,7 @@ const createNodes = (ns) => {
   const settings = {
     logger: {
       enabled: false,
-      logLevel: 'fatal'
+      level: 'fatal'
     },
     transport: {
       adapter: 'dummy'
@@ -321,7 +321,7 @@ describe('Event context', () => {
       adapter: 'dummy'
     }
   })
-
+5
   node2.createService({
     name: 'test',
     events: {

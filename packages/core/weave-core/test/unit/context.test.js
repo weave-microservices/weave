@@ -10,9 +10,7 @@ const { createContextFactory } = require('../../lib/broker/context-factory')
 describe('Test context factory.', () => {
   it('should create an empty context.', () => {
     const broker = Weave({ nodeId: 'Testnode' })
-    const contextFactory = createContextFactory()
-    // const endpoint = createEndpoint(broker, {}, {}, fakeAction)
-    contextFactory.init(broker)
+    const contextFactory = createContextFactory(broker.runtime)
 
     expect(contextFactory.create).toBeDefined()
 

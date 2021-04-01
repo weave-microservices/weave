@@ -8,7 +8,7 @@ describe('Test circuit breaker', () => {
     nodeId: 'node1',
     logger: {
       enabled: false,
-      logLevel: 'fatal'
+      level: 'fatal'
     },
     transport: {
       adapter: TransportAdapters.Dummy()
@@ -24,8 +24,7 @@ describe('Test circuit breaker', () => {
   const node2 = Weave({
     nodeId: 'node2',
     logger: {
-      enabled: false,
-      logLevel: 'fatal'
+      enabled: false
     },
     transport: {
       adapter: TransportAdapters.Dummy()

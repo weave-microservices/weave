@@ -10,7 +10,7 @@ const { createEndpointList } = require('./endpoint-collection')
 
 exports.createEventCollection = (registry) => {
   const eventCollection = Object.create(null)
-  const broker = registry.broker
+  const { runtime } = registry
   const events = [] // todo: refactor to js Map
   const getAllEventsByEventName = (eventName) => events.filter(list => match(eventName, list.name))
 
@@ -18,7 +18,7 @@ exports.createEventCollection = (registry) => {
     const groupName = event.group || service.name
     let endpointList = eventCollection.get(event.name, groupName)
     if (!endpointList) {
-      endpointList = createEndpointList(broker, event.name, groupName)
+      endpointList = createEndpointList(runtime, event.name, groupName)
       events.push(endpointList)
     }
     return endpointList.add(node, service, event)

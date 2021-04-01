@@ -102,6 +102,6 @@ describe('String validator', () => {
     const validate = validator.compile(schema)
     const result = validate(parameters)
 
-    expect(result[0].message).toBe('The parameter "name" must be less than or equal to 5 characters long.')
+    expect(result[0].message).toBe('The parameter "name" must be a base64 string.')
   })
 })

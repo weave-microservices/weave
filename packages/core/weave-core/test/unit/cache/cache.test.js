@@ -49,7 +49,7 @@ describe('Test cache middleware', () => {
       handler,
       service
     }
-    const newHandler = cacheBase.middleware(handler, action)
+    const newHandler = cacheBase.middleware().localAction(handler, action)
     expect(newHandler).toBe(handler)
   })
 
