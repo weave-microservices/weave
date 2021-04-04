@@ -1,13 +1,12 @@
+/**
+ * @typedef {import('../types.js').Runtime} Runtime
+ * @typedef {import('../types.js').Broker} Broker
+ * @typedef {import('../types.js').Transport} Transport
+*/
+
 const { createDefaultLogger } = require('./index')
 
 exports.initLogger = (runtime) => {
-  /**
-   * Create a new Logger.
-   * @param {Runtime} runtime - Runtime object
-   * @param {string} moduleName - Name of the module
-   * @param {*} service - Service properties
-   * @returns {import('../types').Logger} Logger
-  */
   const loggerFactory = (runtime, moduleName, service) => {
     const bindings = {
       nodeId: runtime.options.nodeId

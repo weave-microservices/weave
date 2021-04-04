@@ -1,5 +1,4 @@
 const { Weave } = require('../../lib/index')
-const HealthCheck = require('../../lib/broker/health')
 // const os = require('os')
 const pkg = require('../../package.json')
 
@@ -16,8 +15,7 @@ describe('Test utils lib', () => {
     })
     broker.start()
       .then(() => {
-        const healthCheck = HealthCheck()
-        healthCheck.init(broker, broker.transport)
+        const healthCheck = broker.health
 
         // CPU Info
         const cpuInfo = healthCheck.getCPUInfos()

@@ -15,17 +15,17 @@ exports.levelFormats = {
   info: {
     badge: figures.info,
     color: 'blue',
-    label: 'info',
+    label: 'info'
   },
   debug: {
     badge: figures('⬤'),
     color: 'red',
-    label: 'debug',
+    label: 'debug'
   },
   verbose: {
     badge: figures('⬤'),
     color: 'gray',
-    label: 'trace',
+    label: 'trace'
   },
   error: {
     badge: figures.cross,
@@ -35,11 +35,11 @@ exports.levelFormats = {
   silly: {
     badge: '!!',
     color: 'red',
-    label: 'fatal',
+    label: 'fatal'
   },
   warn: {
     badge: figures.warning,
     color: 'yellow',
-    label: 'warning',
+    label: 'warning'
   }
 }

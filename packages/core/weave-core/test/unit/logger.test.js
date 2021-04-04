@@ -20,7 +20,7 @@ describe('Test logger module.', () => {
     const logger = createDefaultLogger()
     logger.info('test')
     expect(consoleErrorSpy).toBeCalledTimes(1)
-    expect(consoleErrorSpy.mock.calls[0]).toEqual(['Attempt to write logs with no transports %j', { message: '{"message":"test"}'}])
+    expect(consoleErrorSpy.mock.calls[0]).toEqual(['Attempt to write logs with no transports %j', { message: 'test', level: 'info', meta: {}}])
 
     consoleErrorSpy.mockReset()
   })
@@ -40,10 +40,10 @@ describe('Test logger module.', () => {
 
     if (console._stdout) {
       expect(consoleStdOutSpy).toBeCalledTimes(1)
-      expect(consoleStdOutSpy.mock.calls[0]).toEqual(['{"message":"test"}' + os.EOL])
+      expect(consoleStdOutSpy.mock.calls[0]).toEqual(['{"message":"test","level":"info","meta":{}}' + os.EOL])
     } else {
       expect(consoleLogSpy).toBeCalledTimes(1)
-      expect(consoleLogSpy.mock.calls[0]).toEqual(['{"message":"test"}'])
+      expect(consoleLogSpy.mock.calls[0]).toEqual(['{"message":"test","level":"info","meta":{}}'])
     }
 
     consoleStdOutSpy.mockReset()
@@ -79,11 +79,11 @@ describe('Test logger module.', () => {
 
     if (console._stdout) {
       expect(consoleStdOutSpy).toBeCalledTimes(2)
-      expect(consoleStdOutSpy.mock.calls[0]).toEqual(['{"message":["item1","item2"]}' + os.EOL])
-      expect(consoleStdOutSpy.mock.calls[1]).toEqual(['{\"message\":{\"user\":\"hans\",\"rooms\":[1,2,3,4],\"lastLogin\":\"2021-03-31T13:41:01.210Z\",\"settings\":{\"app\":{\"darkMode\":true,\"lang\":\"de\"}}}}' + os.EOL])
+      expect(consoleStdOutSpy.mock.calls[0]).toEqual(['{"message":["item1","item2"],"level":"info","meta":{}}' + os.EOL])
+      expect(consoleStdOutSpy.mock.calls[1]).toEqual(['{"message":{"user":"hans","rooms":[1,2,3,4],"lastLogin":"2021-03-31T13:41:01.210Z","settings":{"app":{"darkMode":true,"lang":"de"}}},"level":"info","meta":{}}' + os.EOL])
     } else {
       expect(consoleLogSpy).toBeCalledTimes(1)
-      expect(consoleLogSpy.mock.calls[0]).toEqual(['{"message":["item1","item2"]}'])
+      expect(consoleLogSpy.mock.calls[0]).toEqual(['{"message":["item1","item2"],"level":"info","meta":{}}'])
     }
     consoleStdOutSpy.mockReset()
     consoleLogSpy.mockReset()

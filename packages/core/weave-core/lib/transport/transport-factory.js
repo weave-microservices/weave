@@ -4,6 +4,11 @@
  * Copyright 2020 Fachwerk
  */
 
+/**
+ * @typedef {import('./types.js').Runtime} Runtime
+ * @typedef {import('./types.js').Adapter} Adapter
+*/
+
 // Own packages
 const { WeaveError, WeaveQueueSizeExceededError } = require('../errors')
 const MessageTypes = require('./message-types')
@@ -12,18 +17,18 @@ const createMessageHandler = require('./message-handlers')
 
 /**
  * Create a Transport adapter
- * @param {BrokerInstance} runtime Borker instance
- * @param {Object} adapter Adapter wrapper
+ * @param {Runtime} runtime Borker instance
+ * @param {Adapter} adapter Adapter wrapper
  * @returns {Transport} transport
  */
 exports.createTransport = (runtime, adapter) => {
   const transport = Object.create(null)
+  const { nodeId, middlewareHandler } = runtime
   let heartbeatTimer
   let checkNodesTimer
   let checkOfflineNodesTimer
   let updateLocalNodeTimer
 
-  const nodeId = runtime.nodeId
   const log = runtime.createLogger('TRANSPORT')
 
   const pending = {
@@ -119,6 +124,9 @@ exports.createTransport = (runtime, adapter) => {
             return transport.send(message)
           })
         }
+      })
+      .catch((error) => {
+        reject(error)
       })
   }
 
@@ -413,7 +421,9 @@ exports.createTransport = (runtime, adapter) => {
       .then(() => utils.promiseDelay(Promise.resolve(), 500))
       .then(() => {
         transport.isConnected = true
+
         runtime.eventBus.broadcastLocal('$transporter.connected', { wasReconnect })
+
         if (transport.resolveConnect) {
           transport.resolveConnect()
           transport.resolveConnect = null
@@ -446,7 +456,10 @@ exports.createTransport = (runtime, adapter) => {
       })
   }
 
-  const messageHandler = createMessageHandler(runtime, transport, pending)
+  let messageHandler = createMessageHandler(runtime, transport, pending)
+
+  // Wrap message handler for middlewares
+  messageHandler = middlewareHandler.wrapMethod('transportMessageHandler', messageHandler, transport)
 
   adapter.init(runtime, transport)
     .then(() => {
@@ -454,6 +467,8 @@ exports.createTransport = (runtime, adapter) => {
       adapter.bus.on('$adapter.disconnected', onDisconnect)
       adapter.bus.on('$adapter.message', messageHandler)
     })
+
+  transport.send = middlewareHandler.wrapMethod('transportSend', transport.send, transport)
 
   return transport
 

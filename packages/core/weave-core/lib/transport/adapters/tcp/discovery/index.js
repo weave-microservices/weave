@@ -2,7 +2,7 @@ const dgram = require('dgram')
 const { getIpList } = require('@weave-js/utils')
 const EventEmitter = require('events').EventEmitter
 const Codec = require('./codec')
-
+const { getBroadcastAddresses } = require('../utils')
 const messageTypes = {
   HELLO: 4
 }
@@ -36,11 +36,20 @@ const createDiscoveryService = (adapter, options) => {
         })
 
         socket.bind({ port, host, exclusive: true }, () => {
-          socket.setMulticastInterface(host)
-          socket.addMembership(multicastAddress, host)
-          socket.setMulticastTTL(1)
-          socket.destinations = [multicastAddress]
-          adapter.log.info(`listening to ${host}:${port}`)
+          try {
+            if (multicastAddress) {
+              socket.setMulticastInterface(host)
+              socket.addMembership(multicastAddress, host)
+              socket.setMulticastTTL(1)
+              socket.destinations = [multicastAddress]
+              adapter.log.info(`UDP Server is listening on ${host}:${port}. Membership: ${multicastAddress}`)
+            } else {
+              socket.setBroadcast(true)
+              socket.destinations = getBroadcastAddresses()
+            }
+          } catch (error) {
+            adapter.log.info(`UDP Multicast membership error: ${error.message}`)
+          }
         })
 
         servers.push(socket)

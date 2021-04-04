@@ -10,7 +10,7 @@ const replacer = (_, value) => {
   return value
 }
 
-exports.json = (options = {}) =>format(({ info }) => {
-  info.message = JSON.stringify(info, options.replacer || replacer)
+exports.json = (options = {}) => format(({ info }) => {
+  info.message = JSON.stringify(info, options.replacer || replacer)
   return info
 })

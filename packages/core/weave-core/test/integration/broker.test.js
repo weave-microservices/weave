@@ -164,7 +164,7 @@ describe('Ping', () => {
     return broker.start()
       .then(() => broker.ping())
       .then(res => {
-        expect(res).toEqual([])
+        expect(res).toEqual({})
         done()
         return broker.stop()
       })

@@ -6,16 +6,12 @@
 
 // node packages
 const path = require('path')
-const fs = require('fs')
 const glob = require('glob')
-const { isFunction, debounce } = require('@weave-js/utils')
+const { isFunction } = require('@weave-js/utils')
 const { createServiceFromSchema } = require('../registry/service')
 const Middlewares = require('../middlewares')
-const createHealthcheck = require('./health')
-const { Tracer } = require('../tracing')
-const { MetricsStorage } = require('../metrics')
-const { registerMetrics } = require('./broker-metrics')
 const { generateUUID } = require('./uuid-factory')
+
 /**
  *  Creates a new Weave instance
  * @param {BrokerOptions} options - Service broker options.
@@ -48,8 +44,6 @@ module.exports = () => (runtime) => {
     log.info(`Namespace: ${options.namespace}`)
   }
 
-  const health = createHealthcheck()
-
   const servicesChanged = (isLocalService) => {
     // Send local notification.
     eventBus.broadcastLocal('$services.changed', { isLocalService })
@@ -57,23 +51,6 @@ module.exports = () => (runtime) => {
     // If the service is a local service - send current node informations to other nodes
     if (broker.isStarted && isLocalService && transport) {
       transport.sendNodeInfo()
-    }
-  }
-
-  const registerLocalService = (serviceSpecification, notify = false) => {
-    registry.registerLocalService(serviceSpecification)
-    servicesChanged(notify)
-  }
-
-  const serviceWatcher = function (service, onServiceChanged) {
-    if (service.filename && onServiceChanged) {
-      const debouncedOnServiceChange = debounce(onServiceChanged, 500)
-
-      const watcher = fs.watch(service.filename, (eventType, filename) => {
-        log.info(`The Service ${service.name} has been changed. (${eventType}, ${filename}) `)
-        watcher.close()
-        debouncedOnServiceChange(this, service)
-      })
     }
   }
 
@@ -91,7 +68,7 @@ module.exports = () => (runtime) => {
     })
     .catch(error => log.error(`Unable to stop service "${service.name}"`, error))
 
-  const onServiceChanged = (broker, service) => {
+  const onServiceFileChanged = (broker, service) => {
     const filename = service.filename
 
     // Clear the require cache
@@ -118,11 +95,10 @@ module.exports = () => (runtime) => {
     bus,
     validator,
     contextFactory,
-    isStarted: false,
     log,
     createLogger: runtime.createLogger,
     getUUID: () => generateUUID(runtime),
-    health,
+    health: runtime.health,
     registry,
     getNextActionEndpoint (actionName, options = {}) {
       return registry.getNextAvailableActionEndpoint(actionName, options)
@@ -133,16 +109,9 @@ module.exports = () => (runtime) => {
     call: runtime.actionInvoker.call.bind(this),
     multiCall: runtime.actionInvoker.multiCall.bind(this),
     waitForServices: services.waitForServices.bind(this),
-    /**
-     * Call a action.
-     * @param {*} actionName Name of the action.
-     * @param {*} data Action parameters
-     * @param {*} [opts={}] Options
-     * @returns {Promise} Promise
-    */
     createService (schema) {
       try {
-        const newService = createServiceFromSchema(runtime, middlewareHandler, registerLocalService, schema)
+        const newService = createServiceFromSchema(runtime, schema)
 
         // if the broker is already startet - start the service.
         if (this.isStarted) {
@@ -168,7 +137,7 @@ module.exports = () => (runtime) => {
       // If the "watchSevrices" option is set - add service to service watcher.
       if (options.watchServices) {
         service.filename = fileName
-        serviceWatcher.call(this, service, onServiceChanged)
+        services.serviceWatcher.call(this, service, onServiceFileChanged)
       }
 
       return service
@@ -231,7 +200,7 @@ module.exports = () => (runtime) => {
       }
 
       const duration = Date.now() - startTime
-      log.info(`Node "${nodeId}" with ${services.length} services successfully started in ${duration}ms.`)
+      log.info(`Node "${nodeId}" with ${services.serviceList.length} services successfully started in ${duration}ms.`)
     },
     /**
      * Stops the broker.
@@ -357,31 +326,6 @@ module.exports = () => (runtime) => {
     servicesChanged(false)
   })
 
-  // Metrics module
-  // broker.metrics = MetricsStorage(broker, options.metrics)
-  // broker.metrics.init()
-  // registerMetrics(broker)
-
-  // Module initialisation
-  // registry.init(broker, middlewareHandler, servicesChanged)
-  // middlewareHandler.init(broker)
-  // contextFactory.init(broker)
-  // health.init(broker, broker.transport)
-
-  // Initialize caching module
-  // if (options.cache.enabled) {
-  //   const createCache = Cache.resolve(options.cache.adapter)
-  //   broker.cache = createCache(broker, options.cache)
-  //   broker.cache.init()
-  //   log.info(`Cache module: ${broker.cache.name}`)
-  // }
-
-  // // Initialize tracing module
-  // if (options.tracing.enabled) {
-  //   broker.tracer = Tracer()
-  //   broker.tracer.init(broker, options.tracing)
-  // }
-
   /**
    * Register middlewares
    * @param {Array<Object>} customMiddlewares Array of user defined middlewares
@@ -412,26 +356,33 @@ module.exports = () => (runtime) => {
         middlewareHandler.add(broker.cache.middleware)
       }
 
+      // Context tracking
       if (options.contextTracking.enabled) {
         middlewareHandler.add(Middlewares.PendingContextTracker)
       }
 
+      // Circuit breaker
       if (options.circuitBreaker.enabled) {
         middlewareHandler.add(Middlewares.CircuitBreaker)
       }
 
+      // timeout middleware
       middlewareHandler.add(Middlewares.Timeout)
 
+      // Retry policy
       if (options.retryPolicy.enabled) {
         middlewareHandler.add(Middlewares.Retry)
       }
 
+      // Error handler
       middlewareHandler.add(Middlewares.ErrorHandler)
 
+      // Tracing
       if (options.tracing.enabled) {
         middlewareHandler.add(Middlewares.Tracing)
       }
 
+      // Metrics
       if (options.metrics.enabled) {
         middlewareHandler.add(Middlewares.Metrics)
       }
@@ -448,10 +399,12 @@ module.exports = () => (runtime) => {
     broker.loadServices = middlewareHandler.wrapMethod('loadServices', broker.loadServices)
   }
 
+  // Run "beforeRegisterMiddlewares" hook
   if (isFunction(options.beforeRegisterMiddlewares)) {
     options.beforeRegisterMiddlewares.call(broker)
   }
 
+  // Register middlewares
   registerMiddlewares(options.middlewares)
 
   // Stop the broker greaceful
@@ -472,12 +425,11 @@ module.exports = () => (runtime) => {
     broker.createService(require('../services/node.service'))
   }
 
+  // Assign broker to runtime
   Object.assign(runtime, { broker })
 
   // Call middleware hook for broker created.
   middlewareHandler.callHandlersSync('created', [runtime])
-
-  // Attach the broker to the runtime object.
 
   return broker
 }

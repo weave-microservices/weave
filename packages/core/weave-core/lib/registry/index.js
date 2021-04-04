@@ -7,8 +7,6 @@
 
 const { createRegistry } = require('./registry.js')
 
-const noop = () => {}
-
 /**
  * Registry factory
  * @param {Runtime} runtime Runtime

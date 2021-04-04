@@ -25,9 +25,8 @@ module.exports = (runtime) => {
   }
 
   function wrapContextTrackerMiddleware (actionHandler) {
-    const broker = this
     return function ContextTrackerMiddleware (context) {
-      const isTracked = context.options.track === true ? context.options.track : broker.options.contextTracking.enabled
+      const isTracked = context.options.track === true ? context.options.track : runtime.options.contextTracking.enabled
 
       if (!isTracked) {
         return actionHandler(context)
@@ -80,7 +79,7 @@ module.exports = (runtime) => {
   }
 
   return {
-    created (broker) {
+    created () {
       // init context-store
       runtime.state.trackedContexts = []
     },
@@ -94,7 +93,7 @@ module.exports = (runtime) => {
     },
 
     // Before broker stopping
-    stopping (runtime) {
+    stopping () {
       return waitingForActiveContexts(runtime.state.trackedContexts, runtime.log, runtime.options.contextTracking.shutdownTimeout)
     },
     localAction: wrapContextTrackerMiddleware,

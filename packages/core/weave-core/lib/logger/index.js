@@ -48,7 +48,7 @@ exports.createDefaultLogger = (options) => {
     }
 
     const createLogMethod = ({ level, options }) => {
-      const isActive = options.enabled //!!loggerOptions.enabled && (LOG_LEVELS.indexOf(loggerOptions.types[typeName].level) >= LOG_LEVELS.indexOf(loggerOptions.level))
+      const isActive = options.enabled //! !loggerOptions.enabled && (LOG_LEVELS.indexOf(loggerOptions.types[typeName].level) >= LOG_LEVELS.indexOf(loggerOptions.level))
       if (isActive) {
         return function (...args) {
           const self = this || logger

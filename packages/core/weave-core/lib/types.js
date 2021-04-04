@@ -23,9 +23,20 @@
 
 /**
  * Broker interface
+ * @typedef Runtime
+ * @property {string} nodeId nodeId
+ * @property {string} version Weave version
+ * @property {string} [namespace] namespace
+ * @property {function(Error)} handleError handleError
+ * @property {void} fatalError fatalError
+*/
+
+/**
+ * Broker interface
  * @typedef Broker
  * @property {string} nodeId nodeId
  * @property {string} [namespace] namespace
+ * @property {Runtime} runtime Runtime reference
  * @property {EventEmitter} bus bus
  * @property {string} version version
  * @property {BrokerOptions} options options

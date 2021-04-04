@@ -1,11 +1,15 @@
 const { WeaveError } = require('../errors')
+const { debounce } = require('@weave-js/utils')
+const fs = require('fs')
 
 exports.initServiceManager = (runtime) => {
-  const { options, log, eventBus, transport, state, registry } = runtime
+  const { options, log, eventBus, transport, state, registry } = runtime
+
+  const serviceList = []
 
   Object.defineProperty(runtime, 'services', {
     value: {
-      serviceList: [],
+      serviceList,
       serviceChanged (isLocalService) {
         // Send local notification.
         eventBus.broadcastLocal('$services.changed', { isLocalService })
@@ -42,6 +46,19 @@ exports.initServiceManager = (runtime) => {
           }
           serviceCheck()
         })
+      },
+      serviceWatcher: (service, onServiceFileChanged) => {
+        if (service.filename && onServiceFileChanged) {
+          // Create debounced service changed reference
+          const debouncedOnServiceChange = debounce(onServiceFileChanged, 500)
+
+          // Watch file changes
+          const watcher = fs.watch(service.filename, (eventType, filename) => {
+            log.info(`The Service ${service.name} has been changed. (${eventType}, ${filename}) `)
+            watcher.close()
+            debouncedOnServiceChange(this, service)
+          })
+        }
       }
     }
   })

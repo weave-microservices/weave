@@ -1,5 +1,5 @@
 const { Transform } = require('stream')
-const formatRegExp = /%[scdjifoO%]/g;
+const formatRegExp = /%[scdjifoO%]/g
 
 module.exports = class Logger extends Transform {
   constructor (loggerOptions) {
@@ -20,7 +20,7 @@ module.exports = class Logger extends Transform {
     this.defaultMeta = defaultMeta
     this.levels = levels
     this.level = level
-    
+
     if (streams) {
       streams.forEach(stream => this.add(stream))
     }
@@ -61,14 +61,13 @@ module.exports = class Logger extends Transform {
 
     if (arguments.length === 2) {
       if (message && typeof message === 'object') {
-        message.level = type.level
+        message.level = level
         this.attachDefaultMetaData(message)
-        message.meta = { type }
         this.write(message)
         return this
       }
 
-      message = { level, message, meta: { type }}
+      message = { level, message, meta: {}}
       this.attachDefaultMetaData(message)
       this.write(message)
       return this
@@ -76,7 +75,7 @@ module.exports = class Logger extends Transform {
 
     const [meta] = args
     if (meta && typeof meta === 'object') {
-      const tokens = message && message.match && message.match(formatRegExp);
+      const tokens = message && message.match && message.match(formatRegExp)
       if (!tokens) {
         const logObj = Object.assign({}, {
           level,
@@ -86,7 +85,6 @@ module.exports = class Logger extends Transform {
           }
         })
         this.attachDefaultMetaData(logObj)
-
 
         this.write(logObj)
         return this

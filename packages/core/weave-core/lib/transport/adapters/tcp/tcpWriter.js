@@ -12,7 +12,7 @@ module.exports = (adapter, options) => {
   const connect = nodeId => {
     const node = adapter.broker.registry.nodeCollection.get(nodeId)
     if (!node) {
-      return Promise.reject()
+      return Promise.reject(new Error(`Missing node info for '${nodeId}'!`))
     }
 
     const host = node.IPList[0]

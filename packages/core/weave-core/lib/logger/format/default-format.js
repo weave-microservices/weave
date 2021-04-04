@@ -8,6 +8,16 @@ const getLongestValue = (items, field) => {
   return labels.reduce((x, y) => x.length > y.length ? x : y)
 }
 
+/**
+ * @typedef {Object} FormatOptions
+ * @property {Boolean} displayTimestamp
+ * @property {Boolean} displayBadge
+ * @property {Boolean} displayLabel
+ * @property {Boolean} displayModuleName
+ * @property {Boolean} displayFilename
+*/
+
+/** @type {FormatOptions} */
 const defaultOptions = {
   displayTimestamp: true,
   displayLabel: true,
@@ -17,14 +27,6 @@ const defaultOptions = {
   levelFormats
 }
 
-/**
- * @typedef {Object} FormatOptions
- * @property {Boolean} displayTimestamp
- * @property {Boolean} displayBadge
- * @property {Boolean} displayLabel
- * @property {Boolean} displayModuleName
- * @property {Boolean} displayFilename
-*/
 module.exports = (options) => {
   options = defaultsDeep(options, defaultOptions)
 
@@ -35,6 +37,7 @@ module.exports = (options) => {
     const parts = []
     const levelFormat = levelFormats[info.level]
     const { kleur } = utils
+    // eslint-disable-next-line prefer-const
     let { nodeId, moduleName, service, ...meta } = info.meta
 
     if (options.displayTimestamp) {

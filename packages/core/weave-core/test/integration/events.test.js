@@ -321,7 +321,7 @@ describe('Event context', () => {
       adapter: 'dummy'
     }
   })
-5
+  5
   node2.createService({
     name: 'test',
     events: {

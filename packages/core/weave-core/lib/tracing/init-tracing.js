@@ -34,16 +34,16 @@ exports.initTracer = (runtime) => {
         if (options.samplingRate === 0) {
           return false
         }
-  
+
         if (options.samplingRate === 1) {
           return true
         }
-  
+
         if (++samplingCounter * this.options.samplingRate >= 1) {
           samplingCounter = 0
           return true
         }
-  
+
         return false
       },
       invokeCollectorMethod (method, args) {
@@ -53,9 +53,9 @@ exports.initTracer = (runtime) => {
         const span = createSpan(this, name, Object.assign({
           type: 'custom'
         }, options))
-  
+
         span.start()
-  
+
         return span
       }
     }

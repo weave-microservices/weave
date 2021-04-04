@@ -111,12 +111,10 @@ const applyMixins = (service, schema) => {
 /**
  * Service factory
  * @param {Broker} runtime Broker instance
- * @param {Object} middlewareHandler Middleware handler
- * @param {Function} registerLocalService Register service.
  * @param {ServiceSchema} schema Service schema
  * @returns {Service} Service instance
  */
-exports.createServiceFromSchema = (runtime, middlewareHandler, registerLocalService, schema) => {
+exports.createServiceFromSchema = (runtime, schema) => {
   /**
    * @type {Service}
   */
@@ -140,7 +138,7 @@ exports.createServiceFromSchema = (runtime, middlewareHandler, registerLocalServ
   }
 
   // Call "serviceCreating" middleware hook
-  middlewareHandler.callHandlersSync('serviceCreating', [service, schema])
+  runtime.middlewareHandler.callHandlersSync('serviceCreating', [service, schema])
 
   // validate name
   if (!schema.name) {
@@ -215,7 +213,7 @@ exports.createServiceFromSchema = (runtime, middlewareHandler, registerLocalServ
       const innerAction = createAction(runtime, service, clone(actionDefinition), name)
       serviceSpecification.actions[innerAction.name] = innerAction
 
-      const wrappedAction = middlewareHandler.wrapHandler('localAction', innerAction.handler, innerAction)
+      const wrappedAction = runtime.middlewareHandler.wrapHandler('localAction', innerAction.handler, innerAction)
       const endpoint = runtime.registry.createPrivateActionEndpoint(innerAction)
 
       // Make the action accessable via this.actions["actionName"]
@@ -268,7 +266,7 @@ exports.createServiceFromSchema = (runtime, middlewareHandler, registerLocalServ
   // 5. call "serviceStarted" middleware hook
   service.start = () => {
     return Promise.resolve()
-      .then(() => middlewareHandler.callHandlersAsync('serviceStarting', [service]))
+      .then(() => runtime.middlewareHandler.callHandlersAsync('serviceStarting', [service]))
       .then(() => {
         if (schema.dependencies) {
           return runtime.services.waitForServices(schema.dependencies, service.settings.$dependencyTimeout || 0)
@@ -284,8 +282,8 @@ exports.createServiceFromSchema = (runtime, middlewareHandler, registerLocalServ
             .reduce((p, hook) => p.then(hook), Promise.resolve())
         }
       })
-      .then(() => registerLocalService(serviceSpecification))
-      .then(() => middlewareHandler.callHandlersAsync('serviceStarted', [service]))
+      .then(() => runtime.registry.registerLocalService(serviceSpecification, false))
+      .then(() => runtime.middlewareHandler.callHandlersAsync('serviceStarted', [service]))
   }
 
   // stop method for service
@@ -293,7 +291,7 @@ exports.createServiceFromSchema = (runtime, middlewareHandler, registerLocalServ
     service.log.info(`Stopping service "${service.fullyQualifiedName}"...`)
     return Promise.resolve()
       .then(() => {
-        return middlewareHandler.callHandlersAsync('serviceStopping', [service])
+        return runtime.middlewareHandler.callHandlersAsync('serviceStopping', [service])
       })
       .then(() => {
         if (isFunction(schema.stopped)) {
@@ -306,11 +304,11 @@ exports.createServiceFromSchema = (runtime, middlewareHandler, registerLocalServ
             .reduce((p, hook) => p.then(hook), Promise.resolve())
         }
       })
-      .then(() => middlewareHandler.callHandlersAsync('serviceStopped', [service], { reverse: true }))
+      .then(() => runtime.middlewareHandler.callHandlersAsync('serviceStopped', [service], { reverse: true }))
       .then(() => service.log.info(`Service "${service.name}" stopped`))
   }
 
-  middlewareHandler.callHandlersSync('serviceCreated', [service, schema])
+  runtime.middlewareHandler.callHandlersSync('serviceCreated', [service, schema])
 
   // Add service to brokers local map
   runtime.services.serviceList.push(service)

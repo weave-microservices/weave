@@ -1,6 +1,7 @@
 const os = require('os')
 const TransportStream = require('../transport-stream')
 const { defaultsDeep } = require('@weave-js/utils')
+const { json } = require('../format/json')
 
 const adapterDefaultOptions = {
   stdErrorLevels: [],
@@ -17,6 +18,7 @@ class ConsoleStream extends TransportStream {
    */
   constructor (options, loggerOptions) {
     options = defaultsDeep(adapterDefaultOptions, options)
+    options.format = options.format || json()
     super(options, loggerOptions)
   }
 

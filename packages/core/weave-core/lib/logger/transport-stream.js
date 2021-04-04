@@ -22,7 +22,7 @@ module.exports = class TransportStream extends Writable {
       // a fully realized set of options with pre-constructed TransportStreams.
       this.levels = logger.levels
       this.parent = logger
-    });
+    })
 
     // If and/or when the transport is removed from this instance
     this.once('unpipe', src => {
@@ -40,8 +40,8 @@ module.exports = class TransportStream extends Writable {
   }
 
   _write (logMessage, enc, callback) {
-    const level = this.level || this.parent.level
-    if (this.levels[level] >= this.levels[logMessage.level]) {
+    const level = this.level || this.parent.level
+    if (!level || this.levels[level] >= this.levels[logMessage.level]) {
       if (logMessage && !this.format) {
         return this.log(logMessage, callback)
       }

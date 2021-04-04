@@ -18,7 +18,7 @@ module.exports = {
       handler (context) {
         const { withActions, withNodeService } = context.data
         const results = []
-        const services = this.broker.registry.serviceCollection.list({ withActions, withNodeService })
+        const services = this.runtime.registry.serviceCollection.list({ withActions, withNodeService })
         services.forEach(service => {
           let item = results.find(result => result.name === service.name && result.version === service.version)
 
@@ -54,22 +54,22 @@ module.exports = {
     },
     actions: {
       handler (context) {
-        return this.broker.registry.getActionList(context.data)
+        return this.runtime.registry.getActionList(context.data)
       }
     },
     events: {
       handler (context) {
-        return this.broker.registry.eventCollection.list(context.data)
+        return this.runtime.registry.eventCollection.list(context.data)
       }
     },
     health: {
       handler () {
-        return this.broker.health.getNodeHealthInfo()
+        return this.runtime.health.getNodeHealthInfo()
       }
     },
     list: {
       handler (context) {
-        return this.broker.registry.getNodeList(context.data)
+        return this.runtime.registry.getNodeList(context.data)
       }
     }
   }

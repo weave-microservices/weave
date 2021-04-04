@@ -1,3 +1,9 @@
+/**
+ * @typedef {import('./types.js').BrokerOptions} BrokerOptions
+ * @typedef {import('./types.js').Runtime} Runtime
+ * @typedef {import('./types.js').Broker} Broker
+*/
+
 const EventEmitter = require('eventemitter2')
 const { getDefaultOptions } = require('./broker/default-options')
 const { defaultsDeep } = require('@weave-js/utils')
@@ -13,11 +19,10 @@ const { initActionInvoker } = require('./broker/init-action-invoker')
 const { initServiceManager } = require('./broker/init-service-manager')
 const { initMetrics } = require('./metrics/init-metrics')
 const { initTracer } = require('./tracing/init-tracing')
-
+const { initHealth } = require('./broker/init-health')
+const { initBroker } = require('./broker')
 const { version } = require('../package.json')
 
-// Broker
-const { initBroker } = require('./broker')
 exports.defaultOptions = require('./broker/default-options')
 
 const errorHandler = ({ options }, error) => {
@@ -39,6 +44,11 @@ const fatalErrorHandler = ({ options, log }, message, error, killProcess = true)
   }
 }
 
+/**
+ * Build runtime object
+ * @param {BrokerOptions} options Broker options
+ * @return {Runtime} Runtime
+ */
 const buildRuntime = (options) => {
   /**
    * Event bus
@@ -49,6 +59,7 @@ const buildRuntime = (options) => {
     maxListeners: 1000
   })
 
+  // Create base runtime object
   const runtime = {
     nodeId: options.nodeId,
     version,
@@ -73,10 +84,16 @@ const buildRuntime = (options) => {
   initServiceManager(runtime)
   initMetrics(runtime)
   initTracer(runtime)
+  initHealth(runtime)
 
   return runtime
 }
 
+/**
+ * Build runtime object
+ * @param {BrokerOptions} options Broker options
+ * @return {Broker} Broker instance
+*/
 exports.createBroker = (options) => {
   // get default options
   const defaultOptions = getDefaultOptions()
@@ -93,14 +110,13 @@ exports.createBroker = (options) => {
 
 // eslint-disable-next-line valid-jsdoc
 /**
- * @deprecated since version 0.9.0
+ * @deprecated since version 0.10.0
  * @param {import('./types.js').BrokerOptions} options Broker options.
  * @returns {import('./types.js').Broker} Broker instance
 */
 exports.Weave = exports.createBroker
 
 // Errors
-
 exports.Errors = require('./errors')
 
 // Transport
