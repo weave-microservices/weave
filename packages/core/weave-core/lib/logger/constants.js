@@ -11,3 +11,5 @@ exports.levels = {
   debug: 5,
   silly: 6
 }
+
+exports.MESSAGE = Symbol('message')

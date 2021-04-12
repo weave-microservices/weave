@@ -23,6 +23,7 @@ exports.createContext = (runtime) => {
     service: null,
     startHighResolutionTime: null,
     options: {
+      stream: undefined,
       timeout: null,
       retries: null
     },

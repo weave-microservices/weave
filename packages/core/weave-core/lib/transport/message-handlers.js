@@ -9,7 +9,7 @@ const { WeaveError, restoreError } = require('../errors')
 const { createContext } = require('../broker/context')
 const MessageTypes = require('./message-types')
 
-module.exports = (broker, transport, pending) => {
+module.exports = (broker, transport) => {
   const registry = broker.registry
 
   const localRequestProxy = context => {
@@ -27,7 +27,7 @@ module.exports = (broker, transport, pending) => {
     // From all available local endpoints - get one.
     const endpoint = endpointList.getNextLocalEndpoint()
 
-    // if ther is no endpoint, reject
+    // if there is no endpoint, reject
     if (!endpoint) {
       transport.log.warn(`Service ${actionName} is not available localy.`)
       return Promise.reject('Service not found')
@@ -37,43 +37,146 @@ module.exports = (broker, transport, pending) => {
     return endpoint.action.handler(context)
   }
 
+  const handleIncommingRequestStream = (payload) => {
+    // check for open stream.
+    let stream = transport.pending.requestStreams.get(payload.id)
+    let isNew = false
+
+    if (!payload.isStream && !stream) {
+      return false
+    }
+
+    if (!stream) {
+      isNew = true
+      stream = new Transform({
+        objectMode: payload.meta && payload.meta.$isObjectModeStream,
+        transform: function (chunk, encoding, done) {
+          this.push(chunk)
+          return done()
+        }
+      })
+
+      stream.$prevSeq = -1
+      stream.$pool = new Map()
+
+      transport.pending.requestStreams.set(payload.id, stream)
+    }
+
+    if (payload.sequence > (stream.$prevSeq + 1)) {
+      stream.$pool.set(payload.sequence, payload)
+      return isNew ? stream : null
+    }
+
+    stream.$prevSeq = payload.sequence
+
+    if (stream.$prevSeq > 0) {
+      if (!payload.isStream) {
+        transport.log.debug('Stream ended', payload.sender)
+
+        // Todo: Handle errors
+
+        // end of stream
+        stream.end()
+        transport.pending.requestStreams.delete(payload.id)
+        return null
+      } else {
+        transport.log.debug('Stream chunk received from ', payload.sender)
+        stream.write(payload.chunk.type === 'Buffer' ? Buffer.from(payload.chunk.data) : payload.chunk)
+      }
+    }
+
+    if (stream.$pool.size > 0) {
+      transport.log.debug(`Stream has stored packages. Size: ${stream.$pool.size}`, payload.sender)
+      const nextSequence = stream.$prevSeq + 1
+      const nextChunk = stream.$pool.get(nextSequence)
+      if (nextChunk) {
+        stream.$pool.delete(nextSequence)
+        setImmediate(() => onRequest(nextChunk))
+      }
+    }
+
+    return isNew ? stream : null
+  }
+
+  const handleIncomingResponseStream = (payload, request) => {
+    let stream = transport.pending.responseStreams.get(payload.id)
+
+    if (!stream && !payload.isStream) {
+      return false
+    }
+
+    if (!stream) {
+      transport.log.debug(`New stream from node ${payload.sender} received. Seq: ${payload.sequence}`, )
+
+      stream = new Transform({
+        objectMode: payload.meta && payload.meta.$isObjectModeStream,
+        transform: function (chunk, encoding, done) {
+          this.push(chunk)
+          return done()
+        }
+      })
+
+      stream.$prevSeq = -1
+      stream.$pool = new Map()
+
+      transport.pending.responseStreams.set(payload.id, stream)
+      request.resolve(stream)
+    }
+
+    if (payload.sequence > (stream.$prevSeq + 1)) {
+      transport.log.debug(`Put the chunk into pool (size: ${stream.$pool.size}). Seq: ${payload.sequence}`)
+
+      stream.$pool.set(payload.sequence, payload)
+      return true
+    }
+
+    stream.$prevSeq = payload.sequence
+
+    if (stream.$prevSeq > 0) {
+      if (!payload.isStream) {
+        transport.log.debug('Stream ended', payload.sender)
+
+        // Todo: Handle errors
+
+        // end of stream
+        stream.end()
+        transport.pending.responseStreams.delete(payload.id)
+        return null
+      } else {
+        transport.log.debug('Stream chunk received from ', payload.sender)
+        stream.write(payload.chunk.type === 'Buffer' ? Buffer.from(payload.chunk.data) : payload.chunk)
+      }
+    }
+
+    if (stream.$pool.size > 0) {
+      transport.log.debug(`Stream has stored packages. Size: ${stream.$pool.size}`, payload.sender)
+      const nextSequence = stream.$prevSeq + 1
+      const nextChunk = stream.$pool.get(nextSequence)
+      if (nextChunk) {
+        stream.$pool.delete(nextSequence)
+        setImmediate(() => onResponse(nextChunk))
+      }
+    }
+
+    return true
+  }
+
   // Handle discovery request
   const onDiscovery = message => transport.sendNodeInfo(message.sender)
 
   // Handle node informations
   const onNodeInfos = payload => registry.processNodeInfo(payload)
 
-  // Handle request
+  // Handle incomming request
   const onRequest = payload => {
-    const id = payload.id
     const sender = payload.sender
     try {
       let stream
       if (payload.isStream !== undefined) {
         // check for open stream.
-        stream = pending.requestStreams.get(id)
-        if (stream) {
-          // stream found
-          if (!payload.isStream) {
-            stream.end()
-            pending.requests.delete(payload.id)
-            pending.requestStreams.delete(payload.id)
-            transport.log.debug('Stream closing received from ', payload.sender)
-            return
-          } else {
-            transport.log.debug('Stream chunk received from ', payload.sender)
-            stream.write(payload.data.type === 'Buffer' ? Buffer.from(payload.data.data) : payload.data)
-            return
-          }
-        } else if (payload.isStream) {
-          stream = new Transform({
-            objectMode: payload.meta && payload.meta.$isObjectModeStream,
-            transform: function (chunk, encoding, done) {
-              this.push(chunk)
-              return done()
-            }
-          })
-          pending.requestStreams.set(id, stream)
+        stream = handleIncommingRequestStream(payload)
+        if (!stream) {
+          return Promise.resolve()
         }
       }
 
@@ -82,7 +185,7 @@ module.exports = (broker, transport, pending) => {
 
       context.setEndpoint(endpoint)
       context.id = payload.id
-      context.setParams(stream || payload.data)
+      context.setParams(payload.data)
       context.parentId = payload.parentId
       context.requestId = payload.requestId
       context.meta = payload.meta || {}
@@ -90,6 +193,11 @@ module.exports = (broker, transport, pending) => {
       context.level = payload.level
       context.callerNodeId = payload.sender
       context.options.timeout = payload.timeout || broker.options.requestTimeout || 0
+
+      // If ther is a stream, pass it through the context
+      if (stream) {
+        context.stream = stream
+      }
 
       return localRequestProxy(context)
         .then(data => transport.response(sender, payload.id, data, context.meta, null))
@@ -102,7 +210,7 @@ module.exports = (broker, transport, pending) => {
   // Handle response
   const onResponse = payload => {
     const id = payload.id
-    const request = pending.requests.get(id)
+    const request = transport.pending.requests.get(id)
 
     if (!request) {
       return Promise.resolve()
@@ -113,37 +221,12 @@ module.exports = (broker, transport, pending) => {
 
     // Handle streams
     if (payload.isStream != null) {
-      let stream = pending.responseStreams.get(id)
-
-      if (stream) {
-        if (!payload.isStream) {
-          transport.log.debug('Stream closing received from ', payload.sender)
-          stream.end()
-          pending.requests.delete(payload.id)
-          pending.responseStreams.delete(payload.id)
-        } else {
-          transport.log.debug('Stream chunk received from ', payload.sender)
-          stream.write(payload.data.type === 'Buffer' ? Buffer.from(payload.data) : payload.data)
-        }
-
-        return request.resolve(payload.data)
-      } else {
-        stream = new Transform({
-          objectMode: payload.meta && payload.meta.$isObjectModeStream,
-          transform: function (chunk, encoding, done) {
-            this.push(chunk)
-            return done()
-          }
-        })
-
-        transport.log.debug('New stream received from ', payload.sender)
-
-        pending.responseStreams.set(id, stream)
-        return request.resolve(stream)
+      if (handleIncomingResponseStream(payload, request)) {
+        return
       }
     }
 
-    pending.requests.delete(payload.id)
+    transport.pending.requests.delete(payload.id)
 
     if (!payload.success) {
       let error = restoreError(payload.error)
@@ -221,7 +304,6 @@ module.exports = (broker, transport, pending) => {
   }
 
   const onHeartbeat = payload => {
-    // registry.nodes.heartbeat(payload)
     transport.log.verbose(`Heartbeat from ${payload.sender}`)
     const node = registry.nodeCollection.get(payload.sender)
     // if node is unknown then request a node info message.

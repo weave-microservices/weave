@@ -2,6 +2,12 @@ const { defaultsDeep } = require('@weave-js/utils')
 const { format } = require('./format')
 const { levelFormats } = require('./level-formats')
 const util = require('util')
+const { MESSAGE } = require('../constants')
+const { combine } = require('./combine')
+const { json } = require('./json')
+
+const arrayify = (obj) => Array.isArray(obj) ? obj : [obj]
+const formatMessage = args => util.formatWithOptions({ colors: true, compact: 1, breakLength: Infinity }, ...arrayify(args))
 
 const getLongestValue = (items, field) => {
   const labels = Object.keys(items).map(x => items[x][field])
@@ -33,7 +39,7 @@ module.exports = (options) => {
   const longestBadge = getLongestValue(options.levelFormats, 'badge')
   const longestLabel = getLongestValue(options.levelFormats, 'label')
 
-  return format(({ info, utils }) => {
+  const defaultFormat = format(({ info, utils }) => {
     const parts = []
     const levelFormat = levelFormats[info.level]
     const { kleur } = utils
@@ -73,7 +79,7 @@ module.exports = (options) => {
       parts.push(kleur.gray(`[${module}]`))
     }
 
-    parts.push(info.message)
+    parts.push(formatMessage(info.message))
 
     if (options.displayMeta && meta && Object.keys(meta).length > 0) {
       const inspectOptions = {
@@ -90,9 +96,14 @@ module.exports = (options) => {
       parts.push(utils.getFilename())
     }
 
-    info.message = parts.join(' ')
+    info[MESSAGE] = parts.join(' ')
 
     return info
   })
+
+  return combine(
+    json(options),
+    defaultFormat(options)
+  )
 }
 

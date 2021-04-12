@@ -2,15 +2,16 @@ const camelize = (str) => {
   return str.replace(/-(\w)/g, (_, c) => c ? c.toUpperCase() : '')
 }
 
-exports.cleanArgs = (command) => {
+exports.cleanArgs = (options) => {
   const args = {}
-  command.options.forEach(o => {
-    const key = camelize(o.long.replace(/^--/, ''))
+  Object.keys(options).forEach(o => {
+    const key = camelize(o.replace(/^--/, ''))
     // if an option is not present and Command has a method with the same name
     // it should not be copied
-    if (typeof command[key] !== 'function' && typeof command[key] !== 'undefined') {
-      args[key] = command[key]
+    if (typeof options[key] !== 'function' && typeof options[key] !== 'undefined') {
+      args[key] = options[key]
     }
   })
+
   return args
 }

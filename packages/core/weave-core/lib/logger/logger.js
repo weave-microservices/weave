@@ -80,6 +80,7 @@ module.exports = class Logger extends Transform {
         const logObj = Object.assign({}, {
           level,
           message,
+          splat: args,
           meta: {
             ...meta
           }
@@ -94,6 +95,7 @@ module.exports = class Logger extends Transform {
     this.write(Object.assign({}, {
       level,
       message,
+      splat: args,
       meta: {
         ...this.defaultMeta
       }

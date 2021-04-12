@@ -24,7 +24,9 @@ class BaseCollector {
       const o = obj[k]
       const pp = (path ? path + '.' : '') + k
 
-      if (isObject(o)) { Object.assign(res, this.flattenTags(o, convertToString, pp)) } else if (o !== undefined) {
+      if (isObject(o)) {
+        Object.assign(res, this.flattenTags(o, convertToString, pp))
+      } else if (o !== undefined) {
         res[pp] = convertToString ? String(o) : o
       }
 
@@ -32,12 +34,18 @@ class BaseCollector {
     }, {})
   }
 
-  getErrorFields (error) {
+  getErrorFields (error, ...fields) {
     if (!error) {
       return null
     }
 
-    return error.stack
+    const picked = {}
+
+    for (const field of fields) {
+      picked[field] = error[field]
+    }
+
+    return picked
   }
 }
 

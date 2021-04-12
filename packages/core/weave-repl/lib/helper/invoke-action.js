@@ -26,7 +26,8 @@ function handleResult (result, args, startTime) {
     }
 
     if (resultIsStream) {
-      fs.createWriteStream(filePath).pipe(result)
+      const ws = fs.createWriteStream(filePath)
+      result.pipe(ws)
     } else {
       const data = isObject(result) ? JSON.stringify(safeCopy(result), null, 2) : result
       fs.writeFileSync(filePath, data, { encoding: 'utf8', flag: 'w' })
@@ -144,7 +145,7 @@ module.exports = (broker) =>
 
     // Prepare send file stream
     if (args.options.stream) {
-      payload = preparePayloadStream(args, payload) || payload
+      callOptions.stream = preparePayloadStream(args, payload) || payload
     }
 
     console.log(cliUI.infoText(`>> Call "${args.actionName}" with data:`), payload)

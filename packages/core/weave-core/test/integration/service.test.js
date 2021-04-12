@@ -249,3 +249,43 @@ describe('Versioned Services', () => {
     done()
   })
 })
+
+describe('Errors on service creation', () => {
+  it('should fail, if there is no name', async () => {
+    const node1 = Weave({
+      nodeId: 'node1',
+      logger: {
+        enabled: false
+      }
+    })
+
+    const createService = () => node1.createService({
+      actions: {
+        a1 () {},
+        a2 () {},
+        a3 () {}
+      }
+    })
+
+    expect(createService).toThrow('Service name is missing!')
+  })
+
+  it('should fail, if there is no name', async () => {
+    const node1 = Weave({
+      nodeId: 'node1',
+      logger: {
+        enabled: false
+      }
+    })
+
+    const createService = () => node1.createService({
+      actions: {
+        a1 () {},
+        a2 () {},
+        a3 () {}
+      }
+    })
+
+    expect(createService).toThrow('Service name is missing!')
+  })
+})

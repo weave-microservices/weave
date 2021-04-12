@@ -119,9 +119,11 @@ exports.Weave = exports.createBroker
 // Errors
 exports.Errors = require('./errors')
 
+exports.Constants = require('./constants')
 // Transport
 exports.TransportAdapters = require('./transport/adapters')
-exports.Constants = require('./constants')
+
+// Caching
 exports.Cache = require('./cache')
 exports.BaseTracingCollector = require('./tracing/collectors/base')
 exports.TracingAdapters = require('./tracing/collectors')

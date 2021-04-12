@@ -20,8 +20,8 @@ program
   .option('-r, --repl', 'Start broker with REPL.')
   .option('-w, --watch', 'Start broker with service watcher.')
   .option('-sl, --silent', 'Start broker without console outputs.')
-  .action((command) => {
-    require('./commands/start').handler(cleanArgs(command))
+  .action((options) => {
+    require('./commands/start').handler(cleanArgs(options))
   })
 
 // create command

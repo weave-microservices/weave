@@ -5,7 +5,7 @@ module.exports = (vorpal, broker) => {
   vorpal
     .command('metrics', 'Show node metrics.')
     .action((args, done) => {
-      if (!broker.options.metrics) {
+      if (!broker.runtime.options.metrics) {
         console.log('Metrics are not enabled on this node')
       } else {
         const data = []
@@ -19,7 +19,7 @@ module.exports = (vorpal, broker) => {
         ])
 
         const tableConf = {}
-        const metrics = broker.metrics.list()
+        const metrics = broker.runtime.metrics.list()
 
         metrics.forEach(metric => {
           if (metric.value.length === 0) {

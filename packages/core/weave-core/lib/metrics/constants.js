@@ -1,5 +1,6 @@
 // Service broker
 exports.WEAVE_ENVIRONMENT = 'weave.environment'
+exports.WEAVE_ENVIRONMENT_VERSION = 'weave.environment-version'
 exports.WEAVE_VERSION = 'weave.version'
 exports.WEAVE_NODE_ID = 'weave.node-id'
 exports.WEAVE_NAMESPACE = 'weave.namespace'

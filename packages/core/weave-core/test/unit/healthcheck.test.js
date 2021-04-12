@@ -32,7 +32,7 @@ describe('Test utils lib', () => {
         // OS info
         const osInfo = healthCheck.getOsInfos()
         expect(osInfo.hostname).toBeDefined()
-        expect(osInfo.plattform).toBeDefined()
+        expect(osInfo.platform).toBeDefined()
         expect(osInfo.release).toBeDefined()
         expect(osInfo.type).toBeDefined()
 

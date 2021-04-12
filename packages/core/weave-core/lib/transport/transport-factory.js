@@ -37,8 +37,9 @@ exports.createTransport = (runtime, adapter) => {
     responseStreams: new Map()
   }
 
+  // Outgoing request
   const doRequest = (context, resolve, reject) => {
-    const isStream = utils.isStream(context.data)
+    const isStream = utils.isStream(context.options.stream)
 
     const request = {
       targetNodeId: context.nodeId,
@@ -56,7 +57,7 @@ exports.createTransport = (runtime, adapter) => {
     const payload = {
       id: context.id,
       action: context.action.name,
-      data: isStream ? null : context.data,
+      data: context.data,
       timeout: context.options.timeout,
       meta: context.meta,
       level: context.level,
@@ -66,20 +67,25 @@ exports.createTransport = (runtime, adapter) => {
       isStream
     }
 
-    if (isStream && utils.isStreamObjectMode(context.data)) {
-      payload.meta = payload.meta || {}
-      payload.meta.$isObjectModeStream = true
+    // Handle object mode streams
+    if (isStream) {
+      if (utils.isStreamObjectMode(context.options.stream)) {
+        payload.meta = payload.meta || {}
+        payload.meta.$isObjectModeStream = true
+      }
+      payload.sequence = 0
     }
 
     const message = transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload)
-
+5
     return transport.send(message)
       .then(() => {
+        // send stream
         if (isStream) {
-          const stream = context.data
+          const stream = context.options.stream
           payload.meta = {}
 
-          if (utils.isStreamObjectMode(context.data)) {
+          if (utils.isStreamObjectMode(context.options.stream)) {
             payload.meta.$isObjectModeStream = true
           }
 
@@ -87,7 +93,7 @@ exports.createTransport = (runtime, adapter) => {
             stream.pause()
             const chunks = []
 
-            // chunk is larger than maxBufferSize
+            // The chunk is larger than maxBufferSize
             if (data instanceof Buffer && runtime.options.transport.maxChunkSize > 0 && data.length > runtime.options.transport.maxChunkSize) {
               const length = data.length
               let i = 0
@@ -101,7 +107,11 @@ exports.createTransport = (runtime, adapter) => {
             // Send chunks from chunk buffer
             for (const chunk of chunks) {
               const payloadCopy = Object.assign({}, payload)
-              payloadCopy.data = chunk
+              payloadCopy.sequence = ++payload.sequence
+              payloadCopy.chunk = chunk
+              payloadCopy.isStream = true
+              payload.data = null
+
               const message = transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy)
               transport.send(message)
             }
@@ -113,14 +123,22 @@ exports.createTransport = (runtime, adapter) => {
 
           stream.on('end', () => {
             const payloadCopy = Object.assign({}, payload)
-            payloadCopy.data = null
+            payloadCopy.sequence = ++payload.sequence
+            payloadCopy.chunk = null
             payloadCopy.isStream = false
             const message = transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy)
             return transport.send(message)
           })
 
-          stream.on('error', (bhunk) => {
-            const message = transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload)
+          stream.on('error', (_) => {
+            const payloadCopy = Object.assign({}, payload)
+            payloadCopy.sequence = ++payload.sequence
+            payloadCopy.chunk = null
+            payloadCopy.isStream = false
+
+            // todo: Attach error on payload
+
+            const message = transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy)
             return transport.send(message)
           })
         }
@@ -331,6 +349,7 @@ exports.createTransport = (runtime, adapter) => {
 
     if (isStream) {
       const stream = data
+      payload.data = null
       payload.sequence = 0
       payload.isStream = true
 
@@ -362,7 +381,7 @@ exports.createTransport = (runtime, adapter) => {
           const payloadCopy = Object.assign({}, payload)
           payloadCopy.sequence = ++payload.sequence
 
-          payloadCopy.data = chunk
+          payloadCopy.chunk = chunk
           transport.log.debug('Send Stream chunk to ', target)
 
           const message = transport.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy)
@@ -378,7 +397,7 @@ exports.createTransport = (runtime, adapter) => {
         const payloadCopy = Object.assign({}, payload)
 
         payloadCopy.sequence = ++payload.sequence
-        payloadCopy.data = null
+        payloadCopy.chunk = null
         payloadCopy.isStream = false
 
         transport.log.debug('Send end stream chunk to ', target)
@@ -392,7 +411,8 @@ exports.createTransport = (runtime, adapter) => {
 
         payloadCopy.sequence = ++payload.sequence
         payloadCopy.isStream = false
-
+        payloadCopy.chunk = null
+        
         if (error) {
           payloadCopy.success = false
         }
@@ -456,7 +476,7 @@ exports.createTransport = (runtime, adapter) => {
       })
   }
 
-  let messageHandler = createMessageHandler(runtime, transport, pending)
+  let messageHandler = createMessageHandler(runtime, transport)
 
   // Wrap message handler for middlewares
   messageHandler = middlewareHandler.wrapMethod('transportMessageHandler', messageHandler, transport)

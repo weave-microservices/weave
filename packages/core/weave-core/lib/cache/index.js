@@ -8,8 +8,7 @@ const { isString, isFunction } = require('@weave-js/utils')
 const { WeaveBrokerOptionsError } = require('../errors')
 
 const adapters = {
-  Memory: require('./memory'),
-  MemoryLRU: require('./memory-lru')
+  Memory: require('./memory')
 }
 
 exports.adapters = adapters

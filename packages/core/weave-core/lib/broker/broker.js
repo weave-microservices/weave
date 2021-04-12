@@ -11,13 +11,14 @@ const { isFunction } = require('@weave-js/utils')
 const { createServiceFromSchema } = require('../registry/service')
 const Middlewares = require('../middlewares')
 const { generateUUID } = require('./uuid-factory')
+const { registerMetrics } = require('./broker-metrics.js')
 
 /**
  *  Creates a new Weave instance
  * @param {BrokerOptions} options - Service broker options.
  * @returns {Broker} Broker instance
 */
-module.exports = () => (runtime) => {
+exports.createBroker = () => (runtime) => {
   const {
     version,
     options,
@@ -44,44 +45,8 @@ module.exports = () => (runtime) => {
     log.info(`Namespace: ${options.namespace}`)
   }
 
-  const servicesChanged = (isLocalService) => {
-    // Send local notification.
-    eventBus.broadcastLocal('$services.changed', { isLocalService })
-
-    // If the service is a local service - send current node informations to other nodes
-    if (broker.isStarted && isLocalService && transport) {
-      transport.sendNodeInfo()
-    }
-  }
-
-  const destroyService = (service) => Promise.resolve()
-    .then(() => service.stop())
-    .then(() => log.info(`Service "${service.name}" was stopped.`))
-    .then(() => {
-      registry.deregisterService(service.name, service.version)
-      log.info(`Service "${service.name}" was deregistered.`)
-      // Remove service from service store.
-      services.splice(services.indexOf(service), 1)
-      // Fire services changed event
-      servicesChanged(true)
-      return Promise.resolve()
-    })
-    .catch(error => log.error(`Unable to stop service "${service.name}"`, error))
-
-  const onServiceFileChanged = (broker, service) => {
-    const filename = service.filename
-
-    // Clear the require cache
-    Object.keys(require.cache).forEach(key => {
-      if (key === filename) {
-        delete require.cache[key]
-      }
-    })
-
-    // Service has changed - 1. destroy the service, then reload it
-    destroyService(service)
-      .then(() => broker.loadService(filename))
-  }
+  // Register broker metrics
+  registerMetrics(runtime)
 
   // broker object
   /**
@@ -118,6 +83,7 @@ module.exports = () => (runtime) => {
           newService.start()
             .catch(error => log.error(`Unable to start service ${newService.name}: ${error}`))
         }
+
         return newService
       } catch (error) {
         log.error(error)
@@ -137,7 +103,7 @@ module.exports = () => (runtime) => {
       // If the "watchSevrices" option is set - add service to service watcher.
       if (options.watchServices) {
         service.filename = fileName
-        services.serviceWatcher.call(this, service, onServiceFileChanged)
+        services.watchService.call(this, service)
       }
 
       return service
@@ -323,7 +289,7 @@ module.exports = () => (runtime) => {
   // Register internal broker events
   broker.bus.on('$node.disconnected', ({ nodeId }) => {
     runtime.transport.removePendingRequestsByNodeId(nodeId)
-    servicesChanged(false)
+    services.serviceChanged(false)
   })
 
   /**
@@ -401,7 +367,7 @@ module.exports = () => (runtime) => {
 
   // Run "beforeRegisterMiddlewares" hook
   if (isFunction(options.beforeRegisterMiddlewares)) {
-    options.beforeRegisterMiddlewares.call(broker)
+    options.beforeRegisterMiddlewares.call(broker, { broker, runtime })
   }
 
   // Register middlewares

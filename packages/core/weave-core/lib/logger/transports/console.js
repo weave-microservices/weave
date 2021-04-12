@@ -2,6 +2,7 @@ const os = require('os')
 const TransportStream = require('../transport-stream')
 const { defaultsDeep } = require('@weave-js/utils')
 const { json } = require('../format/json')
+const { MESSAGE } = require('../constants')
 
 const adapterDefaultOptions = {
   stdErrorLevels: [],
@@ -50,10 +51,10 @@ class ConsoleStream extends TransportStream {
 
     if (console._stdout) {
       // Node.js maps `process.stdout` to `console._stdout`.
-      console._stdout.write(`${logMessage.message}${this.options.eol}`)
+      console._stdout.write(`${logMessage[MESSAGE]}${this.options.eol}`)
     } else {
       // console.log adds a newline.
-      console.log(logMessage.message)
+      console.log(logMessage[MESSAGE])
     }
 
     if (callback) {

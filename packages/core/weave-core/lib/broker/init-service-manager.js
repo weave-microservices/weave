@@ -5,20 +5,52 @@ const fs = require('fs')
 exports.initServiceManager = (runtime) => {
   const { options, log, eventBus, transport, state, registry } = runtime
 
+  // Internal service list
   const serviceList = []
+
+  const serviceChanged = (isLocalService = false) => {
+    // Send local notification.
+    eventBus.broadcastLocal('$services.changed', { isLocalService })
+
+    // If the service is a local service - send current node informations to other nodes
+    if (state.isStarted && isLocalService && transport) {
+      transport.sendNodeInfo()
+    }
+  }
+
+  const destroyService = (service) => Promise.resolve()
+    .then(() => service.stop())
+    .then(() => log.info(`Service "${service.name}" was stopped.`))
+    .then(() => {
+      registry.deregisterService(service.name, service.version)
+      log.info(`Service "${service.name}" was deregistered.`)
+      // Remove service from service store.
+      serviceList.splice(serviceList.indexOf(service), 1)
+      // Fire services changed event
+      serviceChanged(true)
+      return Promise.resolve()
+    })
+    .catch(error => log.error(`Unable to stop service "${service.name}"`, error))
+
+  const onServiceFileChanged = async (broker, service) => {
+    const filename = service.filename
+
+    // Clear the require cache
+    Object.keys(require.cache).forEach(key => {
+      if (key === filename) {
+        delete require.cache[key]
+      }
+    })
+
+    // Service has changed - 1. destroy the service, then reload it
+    await destroyService(service)
+    await runtime.broker.loadService(filename)
+  }
 
   Object.defineProperty(runtime, 'services', {
     value: {
       serviceList,
-      serviceChanged (isLocalService) {
-        // Send local notification.
-        eventBus.broadcastLocal('$services.changed', { isLocalService })
-
-        // If the service is a local service - send current node informations to other nodes
-        if (state.isStarted && isLocalService && transport) {
-          transport.sendNodeInfo()
-        }
-      },
+      serviceChanged,
       waitForServices (serviceNames, timeout, interval = 500) {
         if (!Array.isArray(serviceNames)) {
           serviceNames = [serviceNames]
@@ -47,7 +79,7 @@ exports.initServiceManager = (runtime) => {
           serviceCheck()
         })
       },
-      serviceWatcher: (service, onServiceFileChanged) => {
+      watchService: (service) => {
         if (service.filename && onServiceFileChanged) {
           // Create debounced service changed reference
           const debouncedOnServiceChange = debounce(onServiceFileChanged, 500)
@@ -59,7 +91,8 @@ exports.initServiceManager = (runtime) => {
             debouncedOnServiceChange(this, service)
           })
         }
-      }
+      },
+      destroyService
     }
   })
 }

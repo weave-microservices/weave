@@ -1,8 +1,8 @@
 const { createDefaultLogger } = require('../../lib/logger/index')
+const { format } = require('../../lib/logger/format/format')
 const os = require('os')
 const lolex = require('@sinonjs/fake-timers')
 const { createConsoleLogTransport } = require('../../lib/logger/transports/console')
-// const Stream = require('./helper/TestStream')
 
 describe('Test logger module.', () => {
   let clock
@@ -89,28 +89,70 @@ describe('Test logger module.', () => {
     consoleLogSpy.mockReset()
     consoleErrorSpy.mockReset()
   })
+
+  it('Should log multiple messages', () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
+    const consoleStdOutSpy = jest.spyOn(console._stdout, 'write').mockImplementation(() => {})
+
+    const logger = createDefaultLogger({
+      streams: createConsoleLogTransport()
+    })
+
+    logger.info('message1', 'message2')
+
+    expect(consoleErrorSpy).toBeCalledTimes(0)
+
+    if (console._stdout) {
+      expect(consoleStdOutSpy).toBeCalledTimes(1)
+      expect(consoleStdOutSpy.mock.calls[0]).toEqual(['{"level":"info","message":"message1","splat":["message2"],"meta":{}}' + os.EOL])
+    } else {
+      expect(consoleLogSpy).toBeCalledTimes(1)
+      expect(consoleStdOutSpy.mock.calls[0]).toEqual(['{"level":"info","message":"message1","splat":["message2"],"meta":{}}' + os.EOL])
+    }
+    consoleStdOutSpy.mockReset()
+    consoleLogSpy.mockReset()
+    consoleErrorSpy.mockReset()
+  })
+
+  it('Should log multiple messages', () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
+    const consoleStdOutSpy = jest.spyOn(console._stdout, 'write').mockImplementation(() => {})
+
+    const logger = createDefaultLogger({
+      streams: createConsoleLogTransport()
+    })
+
+    logger.info({ part1: 'message1', part2: 'message2' })
+
+    expect(consoleErrorSpy).toBeCalledTimes(0)
+
+    if (console._stdout) {
+      expect(consoleStdOutSpy).toBeCalledTimes(1)
+      expect(consoleStdOutSpy.mock.calls[0]).toEqual(['{"message":{"part1":"message1","part2":"message2"},"level":"info","meta":{}}' + os.EOL])
+    } else {
+      expect(consoleLogSpy).toBeCalledTimes(1)
+      expect(consoleStdOutSpy.mock.calls[0]).toEqual(['{"message":{"part1":"message1","part2":"message2"},"level":"info","meta":{}}' + os.EOL])
+    }
+    consoleStdOutSpy.mockReset()
+    consoleLogSpy.mockReset()
+    consoleErrorSpy.mockReset()
+  })
+
+  // it('Should log error messages', (done) => {
+  //   const logError = new Error('This is a test error')
+
+  //   const customFormat = format(({ info }) => {
+  //     expect(info.level).toBe('info')
+  //     expect(info.message).toBe(logError.message)
+  //     done()
+  //   })
+
+  //   const logger = createDefaultLogger({
+  //     streams: createConsoleLogTransport({ format: customFormat })
+  //   })
+
+  //   logger.info(logError)
+  // })
 })
-
-// describe('Test logger transporter streams.', () => {
-//   it('should log through console trans', () => {
-//     const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
-
-//     Weave({
-//       nodeId: 'loggerNode'
-//     })
-
-//     expect(consoleSpy).toBeCalledTimes(3)
-
-//     const calls = [
-//       ['Initializing #weave node version 0.8.1'],
-//       ['Node Id: loggerNode'],
-//       ['Metrics initialized.']
-//     ]
-
-//     consoleSpy.mock.calls.forEach((arg, i) => {
-//       expect(arg).toEqual(calls[i])
-//     })
-
-//     consoleSpy.mockReset()
-//   })
-// })

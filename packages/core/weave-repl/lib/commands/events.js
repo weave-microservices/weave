@@ -14,7 +14,7 @@ module.exports = (vorpal, broker) => {
         cliUI.tableHeaderText('Nodes')
       ])
 
-      const events = broker.registry.events.list({
+      const events = broker.runtime.registry.eventCollection.list({
         withEndpoints: true
       })
 

@@ -19,7 +19,7 @@ exports.initValidator = (runtime) => {
             if (action.params && typeof action.params === 'object') {
               const validate = validator.compile(action.params)
 
-              return context => {
+              return (context) => {
                 let result = validate(context.data)
 
                 if (result === true) {

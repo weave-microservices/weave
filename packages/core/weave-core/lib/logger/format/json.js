@@ -1,6 +1,18 @@
 const { format } = require('./format')
+const { MESSAGE } = require('../constants')
+const { safeCopy } = require('@weave-js/utils')
 
 const replacer = (_, value) => {
+  if (value instanceof Error) {
+    return {
+      // Pull all enumerable properties, supporting properties on custom Errors
+      ...value,
+      // Explicitly pull Error's non-enumerable properties
+      name: value.name,
+      message: value.message,
+      stack: value.stack
+    }
+  }
   if (value instanceof Buffer) {
     return value.toString('base64')
   }
@@ -10,7 +22,7 @@ const replacer = (_, value) => {
   return value
 }
 
-exports.json = (options = {}) => format(({ info }) => {
-  info.message = JSON.stringify(info, options.replacer || replacer)
+exports.json = format(({ info, options }) => {
+  info[MESSAGE] = JSON.stringify(safeCopy(info), options.replacer || replacer)
   return info
 })

@@ -17,7 +17,7 @@ module.exports = (vorpal, broker) => {
         cliUI.tableHeaderText('CPU')
       ])
 
-      const nodes = broker.registry.nodes.list({})
+      const nodes = broker.runtime.registry.nodeCollection.list({})
 
       nodes.map(node => {
         let cpuLoad = '?'
@@ -28,7 +28,7 @@ module.exports = (vorpal, broker) => {
         }
 
         data.push([
-          node.id === broker.nodeId ? `${node.id}(*)` : node.id,
+          node.id === broker.runtime.nodeId ? `${node.id}(*)` : node.id,
           node.services ? Object.keys(node.services).length : 0,
           node.client.version,
           node.client.type,

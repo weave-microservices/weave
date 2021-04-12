@@ -11,7 +11,7 @@ module.exports = (vorpal, broker) => {
     .option('--nodeID <nodeID>', 'NodeID (direct call)')
     .autocomplete({
       data () {
-        return [...new Set(broker.registry.actions.list({}).map(item => item.name))]
+        return [...new Set(broker.runtime.registry.actionCollection.list({}).map(item => item.name))]
       }
     })
     .action((args, done) => {

@@ -1,4 +1,4 @@
-const createBroker = require('./broker')
+const { createBroker } = require('./broker')
 
 exports.initBroker = (options) => {
   return {
