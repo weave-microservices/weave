@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0-beta.0](https://github.com/weave-microservices/weave/compare/@weave-js/utils@0.8.1...@weave-js/utils@0.9.0-beta.0) (2021-04-12)
+
+
+### Bug Fixes
+
+* No return of undefined on undefined values. ([d152a38](https://github.com/weave-microservices/weave/commit/d152a38164df7e7c95ca27adc8287b23ceaff9e3))
+
+
+### Features
+
+* Added dot set function ([22f7ea1](https://github.com/weave-microservices/weave/commit/22f7ea146c6a487a252a6830c8f205f17f32874e))
+
+
+
+
+
 ## [0.8.1](https://github.com/weave-microservices/weave/compare/@weave-js/utils@0.8.0...@weave-js/utils@0.8.1) (2021-01-18)
 
 **Note:** Version bump only for package @weave-js/utils
