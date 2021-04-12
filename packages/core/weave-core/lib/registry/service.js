@@ -120,9 +120,11 @@ exports.createServiceFromSchema = (runtime, schema) => {
   */
   const service = Object.create(null)
 
-  // Set reference to the broker instance.
+  // Set reference to the runtime.
   service.runtime = runtime
-  service.broker = runtime
+
+  // Set reference to the broker instance.
+  service.broker = runtime.broker
 
   // Create a separate protocol instance for the service.
   service.log = runtime.createLogger(`${service.name}-service`, service)
