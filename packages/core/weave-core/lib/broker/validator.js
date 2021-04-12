@@ -12,7 +12,7 @@ exports.initValidator = (runtime) => {
 
   Object.defineProperty(runtime, 'validator', {
     value: {
-      validator,
+      ...validator,
       middleware: () => {
         return {
           localAction (handler, action) {

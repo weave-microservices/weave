@@ -77,7 +77,7 @@ exports.createTransport = (runtime, adapter) => {
     }
 
     const message = transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload)
-5
+
     return transport.send(message)
       .then(() => {
         // send stream
