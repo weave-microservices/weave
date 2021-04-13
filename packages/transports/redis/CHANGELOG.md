@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0-beta.4](https://github.com/weave-microservices/weave/compare/@weave-js/redis-transport@0.9.0-beta.3...@weave-js/redis-transport@0.9.0-beta.4) (2021-04-13)
+
+**Note:** Version bump only for package @weave-js/redis-transport
+
+
+
+
+
 # [0.9.0-beta.3](https://github.com/weave-microservices/weave/compare/@weave-js/redis-transport@0.9.0-beta.2...@weave-js/redis-transport@0.9.0-beta.3) (2021-04-13)
 
 **Note:** Version bump only for package @weave-js/redis-transport
