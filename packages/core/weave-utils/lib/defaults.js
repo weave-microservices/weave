@@ -1,6 +1,6 @@
 const { isObject } = require('./is-object')
 
-module.exports.defaultsDeep = function defaultsDeep (object) {
+exports.defaultsDeep = function defaultsDeep (object) {
   const length = arguments.length
   object = Object(object)
 

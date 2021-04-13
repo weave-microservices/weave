@@ -1,4 +1,4 @@
-module.exports.promisify = function promisify (callback) {
+exports.promisify = function promisify (callback) {
   return function makePromisedFunction () {
     const args = arguments
     return new Promise((resolve, reject) => {

@@ -1,6 +1,6 @@
 const { isObject } = require('./is-object')
 
-module.exports.dotSet = function dotSet (object, key, value) {
+exports.dotSet = function dotSet (object, key, value) {
   if (key.includes('.')) {
     const pathArray = key.split('.')
     return pathArray.reduce((obj, i, index) => {

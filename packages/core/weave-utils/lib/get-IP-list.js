@@ -1,6 +1,6 @@
 const os = require('os')
 
-module.exports.getIpList = function getIpList (skipInternal = true) {
+exports.getIpList = function getIpList (skipInternal = true) {
   const interfaces = os.networkInterfaces()
   return Object.keys(interfaces)
     .map(name => {

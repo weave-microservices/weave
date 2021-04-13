@@ -1,1 +1,1 @@
-module.exports.isObject = obj => obj ? typeof obj === 'object' : false
+exports.isObject = obj => obj ? typeof obj === 'object' : false

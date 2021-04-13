@@ -1,4 +1,4 @@
-module.exports.isStreamObjectMode = obj => {
+exports.isStreamObjectMode = obj => {
   if (obj.readableObjectMode || obj._readableState) {
     return obj.readableObjectMode === true || (obj._readableState && obj._readableState.objectMode === true)
   } else if (obj.writableObjectMode || obj._writableState) {

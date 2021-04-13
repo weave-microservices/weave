@@ -1,4 +1,4 @@
-module.exports.debounce = function debounce (func, wait, immediate = false) {
+exports.debounce = function debounce (func, wait, immediate = false) {
   let timeout
 
   return function () {

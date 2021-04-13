@@ -1,6 +1,6 @@
 const { isObject } = require('./is-object')
 
-module.exports.merge = function merge (target, source) {
+exports.merge = function merge (target, source) {
   if (!isObject(target) || !isObject(source)) {
     return source
   }
@@ -23,7 +23,7 @@ module.exports.merge = function merge (target, source) {
   return tempTarget
 }
 
-module.exports.deepMerge = function deepMerge (...args) {
+exports.deepMerge = function deepMerge (...args) {
   // Setup target object
   const newObj = {}
 

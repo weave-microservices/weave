@@ -1,4 +1,4 @@
-module.exports.omit = function omit (obj, fields) {
+exports.omit = function omit (obj, fields) {
   if (obj === null) {
     return null
   }

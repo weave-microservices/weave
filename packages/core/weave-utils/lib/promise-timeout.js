@@ -1,6 +1,6 @@
 const defaultError = new Error('Promise timed out.')
 
-module.exports.promiseTimeout = function promiseTimeout (ms, promise, error = defaultError) {
+exports.promiseTimeout = function promiseTimeout (ms, promise, error = defaultError) {
   let id
 
   const timeout = new Promise((resolve, reject) => {

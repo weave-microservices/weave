@@ -1,4 +1,4 @@
-module.exports.isPlainObject = function isPlainObject (o, strict = true) {
+exports.isPlainObject = function isPlainObject (o, strict = true) {
   if (o === null || o === undefined) {
     return false
   }

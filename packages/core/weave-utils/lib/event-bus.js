@@ -1,2 +1,2 @@
 const EventEmitter = require('events').EventEmitter
-module.exports.createEventEmitter = () => EventEmitter.prototype
+exports.createEventEmitter = () => EventEmitter.prototype

@@ -3,7 +3,7 @@ const funcTag = '[object Function]'
 const genTag = '[object GeneratorFunction]'
 const proxyTag = '[object Proxy]'
 
-module.exports.isFunction = obj => {
+exports.isFunction = obj => {
   const tag = Object.prototype.toString.call(obj)
   return tag === asyncTag || tag === funcTag || tag === genTag || tag === proxyTag
 }

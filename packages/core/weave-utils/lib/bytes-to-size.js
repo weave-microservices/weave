@@ -1,4 +1,4 @@
-module.exports.bytesToSize = (bytes) => {
+exports.bytesToSize = (bytes) => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB']
 
   if (bytes === 0) {

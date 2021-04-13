@@ -1,4 +1,4 @@
-module.exports.remove = function remove (array, callback) {
+exports.remove = function remove (array, callback) {
   const removedItems = []
   let i = array.length
 

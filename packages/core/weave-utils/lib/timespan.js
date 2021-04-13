@@ -52,5 +52,5 @@ function timespan (fromTime, toTime, unit) {
   return format(Math.floor(milliseconds / 52), units[unit][9], unit)
 }
 
-module.exports.timespanFromUnixTimes = timespan
-module.exports.timespanFromUnixTimesShort = (fromTime, toTime) => timespan(fromTime, toTime, 'short')
+exports.timespanFromUnixTimes = timespan
+exports.timespanFromUnixTimesShort = (fromTime, toTime) => timespan(fromTime, toTime, 'short')

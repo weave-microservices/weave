@@ -1,6 +1,6 @@
 const os = require('os')
 
-module.exports.cpuUsage = function cpuUsage (sampleTime = 100) {
+exports.cpuUsage = function cpuUsage (sampleTime = 100) {
   return new Promise(resolve => {
     const first = os.cpus().map(cpu => cpu.times)
     setTimeout(() => {

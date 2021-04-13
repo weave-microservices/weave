@@ -1,6 +1,6 @@
 const RegexCache = new Map()
 
-module.exports.match = function match (text, pattern) {
+exports.match = function match (text, pattern) {
   if (pattern.indexOf('?') === -1) {
     const firstStarPosition = pattern.indexOf('*')
 
