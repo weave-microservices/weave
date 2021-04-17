@@ -17,8 +17,29 @@
 /**
  * This callback is displayed as a global member.
  * @callback ServiceChangedDelegate
- * @param {number} responseCode
- * @param {string} responseMessage
+ * @param {boolean} isLocalService
+ * @returns {Promise<any>}
+*/
+
+/**
+ * Event bus
+ * @typedef {object} EventOptions
+ * @property {Array<string>} [groups] Event groups // todo: add description
+ * @property {string} [nodeId] Node ID
+*/
+
+/**
+ * Event bus
+ * @typedef EventBus
+ * @property {function(string, object=, EventOptions=):Promise<any>} emit emit
+ * @property {function(string, any, EventOptions=):Promise<any>} broadcast broadcast
+ * @property {function(string, any, EventOptions=):Promise<any>} broadcastLocal broadcastLocal
+*/
+
+/**
+ * Services
+ * @typedef Services
+ * @property {ServiceChangedDelegate} serviceChanged Service changed delegate
 */
 
 /**
@@ -27,6 +48,12 @@
  * @property {string} nodeId nodeId
  * @property {string} version Weave version
  * @property {string} [namespace] namespace
+ * @property {BrokerOptions} [options] Broker options
+ * @property {EventBus} eventBus Event bus
+ * @property {Logger} [createLogger] Logger factory
+ * @property {Services} services Service manager
+ * @property {Transport} transport Transport
+ * @property {MiddlewareHandler} middlewareHandler Middleware handler
  * @property {function(Error)} handleError handleError
  * @property {void} fatalError fatalError
 */
@@ -366,8 +393,8 @@
 /**
  * Registry interface
  * @typedef Registry
- * @property {Broker} [broker] broker
- * @property {Logger} [log] log
+ * @property {Runtime} [runtime] Runtime reference
+ * @property {Logger} log Logger
  * @property {ServiceChangedCallback} [serviceChanged]
  * @property {NodeCollection} [nodeCollection] nodeCollection
  * @property {ServiceCollection} [serviceCollection] serviceCollection

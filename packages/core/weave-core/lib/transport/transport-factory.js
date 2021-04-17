@@ -5,8 +5,8 @@
  */
 
 /**
- * @typedef {import('./types.js').Runtime} Runtime
- * @typedef {import('./types.js').Adapter} Adapter
+ * @typedef {import('../types').Runtime} Runtime
+ * @typedef {import('../types.js').TransportAdapter} TransportAdapter
 */
 
 // Own packages
@@ -17,13 +17,14 @@ const createMessageHandler = require('./message-handlers')
 
 /**
  * Create a Transport adapter
- * @param {Runtime} runtime Borker instance
- * @param {Adapter} adapter Adapter wrapper
+ * @param {Runtime} runtime Broker instance
+ * @param {TransportAdapter} adapter Adapter wrapper
  * @returns {Transport} transport
  */
 exports.createTransport = (runtime, adapter) => {
   const transport = Object.create(null)
   const { nodeId, middlewareHandler } = runtime
+
   let heartbeatTimer
   let checkNodesTimer
   let checkOfflineNodesTimer
@@ -412,7 +413,7 @@ exports.createTransport = (runtime, adapter) => {
         payloadCopy.sequence = ++payload.sequence
         payloadCopy.isStream = false
         payloadCopy.chunk = null
-        
+
         if (error) {
           payloadCopy.success = false
         }

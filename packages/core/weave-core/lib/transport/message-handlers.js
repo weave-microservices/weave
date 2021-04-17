@@ -106,7 +106,7 @@ module.exports = (broker, transport) => {
     }
 
     if (!stream) {
-      transport.log.debug(`New stream from node ${payload.sender} received. Seq: ${payload.sequence}`, )
+      transport.log.debug(`New stream from node ${payload.sender} received. Seq: ${payload.sequence}`)
 
       stream = new Transform({
         objectMode: payload.meta && payload.meta.$isObjectModeStream,

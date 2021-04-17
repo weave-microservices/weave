@@ -1,5 +1,4 @@
 const { createDefaultLogger } = require('../../lib/logger/index')
-const { format } = require('../../lib/logger/format/format')
 const os = require('os')
 const lolex = require('@sinonjs/fake-timers')
 const { createConsoleLogTransport } = require('../../lib/logger/transports/console')

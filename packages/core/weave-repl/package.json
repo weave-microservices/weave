@@ -12,14 +12,14 @@
   "author": "Kevin Ries",
   "license": "MIT",
   "peerDependencies": {
-    "@weave-js/core": ">=0.8.0"
+    "@weave-js/core": ">=0.9.0-beta.3"
   },
   "dependencies": {
     "@weave-js/utils": "^0.9.0-beta.1",
     "clui": "^0.3.6",
-    "kleur": "^4.1.3",
-    "ora": "^5.2.0",
-    "table": "^6.0.7",
+    "kleur": "^4.1.4",
+    "ora": "^5.4.0",
+    "table": "^6.0.9",
     "vorpal": "^1.12.0"
   },
   "devDependencies": {

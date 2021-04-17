@@ -11,6 +11,7 @@
  * @typedef {import('../types.js').ServiceCollection} ServiceCollection
  * @typedef {import('../types.js').ServiceActionCollection} ServiceActionCollection
  * @typedef {import('../types.js').EventCollection} EventCollection
+ * @typedef {import('../types.js').Runtime} Runtime
  * @typedef {import('../types.js').Broker} Broker
  * @typedef {import('../types.js').Node} Node
  * @typedef {import('../types.js').MiddlewareHandler} MiddlewareHandler
@@ -64,8 +65,6 @@ exports.createRegistry = (runtime) => {
        * @type {ServiceChangedDelegate}
       */
 
-      // init logger
-
       // init collections
       this.nodeCollection = createNodeCollection(this)
       this.serviceCollection = createServiceCollection(this)
@@ -112,7 +111,7 @@ exports.createRegistry = (runtime) => {
 
         this.nodeCollection.localNode.services.push(service)
 
-        this.generateLocalNodeInfo(runtime.isStarted)
+        this.generateLocalNodeInfo(runtime.state.isStarted)
 
         if (serviceSpecification.version) {
           this.log.info(`Service '${service.name}' (v${serviceSpecification.version}) registered.`)
@@ -239,6 +238,7 @@ exports.createRegistry = (runtime) => {
       return this.serviceCollection.has(serviceName, version, nodeId)
     },
     getNextAvailableActionEndpoint (actionName, opts = {}) {
+      // Handle direct endpoint call.
       if (typeof actionName !== 'string') {
         return actionName
       } else {
