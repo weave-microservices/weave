@@ -4,8 +4,8 @@ module.exports = {
   coveragePathIgnorePatterns: [
     '/node_modules/'
   ],
-  rootDir: './lib',
+  rootDir: './',
   roots: [
-    '../test'
+    './test'
   ]
 }

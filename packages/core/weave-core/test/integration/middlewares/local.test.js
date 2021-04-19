@@ -98,9 +98,9 @@ describe('Test middlewares', () => {
         enabled: false
       },
       middlewares: [{
-        created (broker) {
-          broker.getNodeId = () => {
-            return `The node ID is "${broker.nodeId}"`
+        created (runtime) {
+          runtime.getNodeId = () => {
+            return `The node ID is "${runtime.nodeId}"`
           }
         }
       }]
@@ -110,7 +110,7 @@ describe('Test middlewares', () => {
       name: 'testService',
       actions: {
         getId () {
-          return this.broker.getNodeId()
+          return this.runtime.getNodeId()
         }
       }
     })
