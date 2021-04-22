@@ -27,7 +27,7 @@ describe('Service lifetime hooks within mixins', () => {
     const node1 = Weave({
       nodeId: 'node1',
       logger: {
-        enabled: false
+        enabled: true
       }
     })
 

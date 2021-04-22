@@ -115,6 +115,11 @@ const applyMixins = (service, schema) => {
  * @returns {Service} Service instance
  */
 exports.createServiceFromSchema = (runtime, schema) => {
+  // Check if a schema is given
+  if (!schema) {
+    runtime.handleError(new WeaveError('Schema is missing!'))
+  }
+
   /**
    * @type {Service}
   */
@@ -125,19 +130,12 @@ exports.createServiceFromSchema = (runtime, schema) => {
 
   // Set reference to the broker instance.
   service.broker = runtime.broker
-
-  // Create a separate protocol instance for the service.
-  service.log = runtime.createLogger(`${service.name}-service`, service)
-
-  // Check if a schema is given
-  if (!schema) {
-    runtime.handleError(new WeaveError('Schema is missing!'))
-  }
-
+  
   // Apply all mixins (including childs)
   if (schema.mixins) {
     schema = applyMixins(service, schema)
   }
+
 
   // Call "serviceCreating" middleware hook
   runtime.middlewareHandler.callHandlersSync('serviceCreating', [service, schema])
@@ -147,11 +145,12 @@ exports.createServiceFromSchema = (runtime, schema) => {
     runtime.handleError(new WeaveError('Service name is missing!'))
   }
 
+  // Set name
+  service.name = schema.name
+
   // Set service version
   service.version = schema.version
 
-  // Set name
-  service.name = schema.name
 
   // Create a full qualified name, including version if set.
   service.fullyQualifiedName = service.version ? `${service.name}.${service.version}` : service.name
@@ -164,6 +163,12 @@ exports.createServiceFromSchema = (runtime, schema) => {
 
   // Set the service meta data
   service.meta = schema.meta || {}
+
+  // Create a separate protocol instance for the service.
+  service.log = runtime.createLogger(`${service.name}-service`, {
+    svc: service.name,
+    version: service.version
+  })
 
   // Action object
   service.actions = {}

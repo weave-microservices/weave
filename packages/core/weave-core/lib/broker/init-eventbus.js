@@ -32,7 +32,7 @@ exports.initEventbus = (runtime) => {
 
     endpoints.map(([endpoint, groupName]) => {
       if (endpoint) {
-        if (endpoint.node.id === options.nodeId) {
+        if (endpoint.node.id === brokerOptions.nodeId) {
           // Local event. Call handler
           promises.push(endpoint.action.handler(context))
         } else {

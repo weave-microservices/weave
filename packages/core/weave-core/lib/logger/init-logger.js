@@ -4,19 +4,23 @@
  * @typedef {import('../types.js').Transport} Transport
 */
 
-const { createDefaultLogger } = require('./index')
-
+const { createLogger: createDefaultLogger } = require('./index')
+const os = require('os')
 exports.initLogger = (runtime) => {
-  const loggerFactory = (runtime, moduleName, service) => {
+  const loggerFactory = (runtime, moduleName, additional = {}) => {
     const bindings = {
-      nodeId: runtime.options.nodeId
+      nodeId: runtime.options.nodeId,
+      moduleName,
+      pid: process.pid,
+      hostname: os.hostname,
+      ...additional
     }
 
-    if (service) {
-      bindings.service = service
-    } else {
-      bindings.moduleName = moduleName
-    }
+    // if (service) {
+    //   bindings.service = service
+    // } else {
+    //   bindings.moduleName = moduleName
+    // }
 
     if (typeof runtime.options.logger === 'function') {
       return runtime.options.logger(bindings, runtime.options.level)
@@ -31,13 +35,13 @@ exports.initLogger = (runtime) => {
       runtime.options.logger.level = runtime.options.logger.level || 'debug'
     }
 
-    const loggerOptons = Object.assign({}, runtime.options.logger, {
-      defaultMeta: {
+    const loggerOptions = Object.assign({}, runtime.options.logger, {
+      base: {
         ...bindings
       }
     })
 
-    return createDefaultLogger(loggerOptons)
+    return createDefaultLogger(loggerOptions)
   }
 
   const createLogger = (moduleName, service) => loggerFactory(runtime, moduleName, service)

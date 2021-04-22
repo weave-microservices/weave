@@ -193,6 +193,8 @@ describe('Event flow(remote)', () => {
       'notification-2-notification-user.created'
     ])
   })
+
+  it('should not emitted to lokal broker over transport', () => {})
 })
 
 describe('Broadcast events', () => {
@@ -339,3 +341,5 @@ describe('Event context', () => {
     expect(isContext(result)).toBe(true)
   })
 })
+
+

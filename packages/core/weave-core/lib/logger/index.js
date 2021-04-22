@@ -5,77 +5,67 @@
  */
 
 /** @module weave */
-const { defaultsDeep } = require('@weave-js/utils')
-const Logger = require('./logger')
-const { levels } = require('./constants')
+const os = require('os')
+const { initBase } = require('./base')
+const { mappings } = require('./levels')
+const { coreFixtures } = require('./tools')
 
-const isLevelEnabledFunctionName = (type) => {
-  return 'is' + type.charAt(0).toUpperCase() + type.slice(1) + 'Enabled'
-}
-
-const arrayify = i => Array.isArray(i) ? i : [i]
+const { pid } = process
+const hostname = os.hostname()
 
 const defaultOptions = {
   enabled: true,
-  streams: [],
-  defaultMeta: {},
-  levels
+  level: 'info',
+  messageKey: 'msg',
+  customLevels: null,
+  base: { pid, hostname },
+  hooks: {
+    logMethod: undefined
+  }
 }
 
-exports.createDefaultLogger = (options) => {
-  options = defaultsDeep(options, defaultOptions)
+exports.createLogger = (options) => {
+  options = Object.assign(defaultOptions, options)
 
-  // init transport streams
-  options.streams = options.streams ? arrayify(options.streams) : []
-  options.streams = options.streams.map(stream => {
-    // todo: validate stream
-    return stream(options)
-  })
+  const instance = {}
+  const runtime = {
+    options,
+    logMethods: {},
+    stream: options.stream || process.stdout
+  }
 
-  class DerivedLogger extends Logger {
-    // eslint-disable-next-line no-useless-constructor
-    constructor (options) {
-      super(options)
+  if (options.enabled === false) {
+    options.level = 'silent'
+  }
+
+  if (options.base !== null) {
+    if (options.name === undefined) {
+      runtime.fixtures = coreFixtures(options.base)
+    } else {
+      runtime.fixtures = coreFixtures(Object.assign({}, options.base, { name: options.name }))
     }
   }
 
-  const logger = new DerivedLogger(options)
+  if (options.mixin && typeof options.mixin !== 'function') {
+    throw Error(`Unknown mixin type "${typeof options.mixin}" - expected "function"`)
+  } else if (options.mixin) {
+    runtime.mixin = options.mixin
+  }
 
-  Object.entries(options.levels).forEach(([level, index]) => {
-    if (level === 'log') {
-      console.warn('Type "log" not defined: conflicts with the method "log". Use a different type name.')
-      return
-    }
+  const levels = mappings(options.customLevels)
 
-    const createLogMethod = ({ level, options }) => {
-      const isActive = options.enabled //! !loggerOptions.enabled && (LOG_LEVELS.indexOf(loggerOptions.types[typeName].level) >= LOG_LEVELS.indexOf(loggerOptions.level))
-      if (isActive) {
-        return function (...args) {
-          const self = this || logger
-          const [msg] = args
-
-          if (args.length === 1) {
-            const info = msg && msg.message && msg || { message: msg }
-            info.level = level
-            this.attachDefaultMetaData(info)
-
-            self.write(info)
-            return
-          }
-
-          return self.log(level, ...args)
-        }
-      } else {
-        return () => logger
-      }
-    }
-
-    DerivedLogger.prototype[level] = createLogMethod({ level, options })
-
-    DerivedLogger.prototype[isLevelEnabledFunctionName(level)] = function () {
-      return (this || logger).isLevelEnabled(level)
-    }
+  Object.assign(runtime, {
+    levels
   })
 
-  return logger
+  initBase(runtime)
+
+  runtime.setLevel(options.level)
+
+  Object.assign(instance, {
+    levels,
+    ...runtime.logMethods
+  })
+
+  return instance
 }

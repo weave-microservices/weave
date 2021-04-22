@@ -2,7 +2,7 @@ const { defaultsDeep } = require('@weave-js/utils')
 const { format } = require('./format')
 const { levelFormats } = require('./level-formats')
 const util = require('util')
-const { MESSAGE } = require('../constants')
+const { MESSAGE } = require('../base')
 const { combine } = require('./combine')
 const { json } = require('./json')
 

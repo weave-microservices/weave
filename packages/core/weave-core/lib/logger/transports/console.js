@@ -2,7 +2,7 @@ const os = require('os')
 const TransportStream = require('../transport-stream')
 const { defaultsDeep } = require('@weave-js/utils')
 const { json } = require('../format/json')
-const { MESSAGE } = require('../constants')
+const { MESSAGE } = require('../base')
 
 const adapterDefaultOptions = {
   stdErrorLevels: [],

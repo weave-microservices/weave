@@ -1,4 +1,5 @@
 /**
+ * @typedef {import("../types.js").Runtime} Runtime
  * @typedef {import("../types.js").Endpoint} Endpoint
  * @typedef {import("../types.js").Node} Node
  * @typedef {import("../types.js").Service} Service
@@ -8,18 +9,18 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2020 Fachwerk
+ * Copyright 2021 Fachwerk
  */
 
 /**
  * Action endpoind factory
- * @param {Broker} broker broker
+ * @param {Runtime} runtime broker
  * @param {Node} node node
  * @param {Service} service service
  * @param {ServiceAction} action action
  * @returns {Endpoint} Endpoint
 */
-exports.createActionEndpoint = (broker, node, service, action) => {
+exports.createActionEndpoint = (runtime, node, service, action) => {
   /**
    * @type {Endpoint}
   */
@@ -27,7 +28,7 @@ exports.createActionEndpoint = (broker, node, service, action) => {
     node,
     service,
     action,
-    isLocal: node.id === broker.nodeId,
+    isLocal: node.id === runtime.nodeId,
     state: true,
     name: `${node.id}:${action.name}`
   }

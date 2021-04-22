@@ -1,0 +1,79 @@
+const { generateLogMethod } = require('./tools')
+
+const levels = {
+  verbose: 10,
+  debug: 20,
+  info: 30,
+  warn: 40,
+  error: 50,
+  fatal: 60
+}
+
+const levelMethods = {
+  fatal: (runtime, hook) => {
+    const logFatal = generateLogMethod(runtime, levels.fatal, hook)
+    return function (...args) {
+      const stream = this[streamSym]
+      logFatal.call(this, ...args)
+      if (typeof stream.flushSync === 'function') {
+        try {
+          stream.flushSync()
+        } catch (e) {
+          // https://github.com/pinojs/pino/pull/740#discussion_r346788313
+        }
+      }
+    }
+  },
+  error: (runtime, hook) => generateLogMethod(runtime, levels.error, hook),
+  warn: (runtime, hook) => generateLogMethod(runtime, levels.warn, hook),
+  info: (runtime, hook) => generateLogMethod(runtime, levels.info, hook),
+  debug: (runtime, hook) => generateLogMethod(runtime, levels.debug, hook),
+  verbose: (runtime, hook) => generateLogMethod(runtime, levels.verbose, hook)
+}
+
+exports.levelMethods = levelMethods
+
+const numbers = Object.keys(levels).reduce((o, k) => {
+  o[levels[k]] = k
+  return o
+}, {})
+
+exports.mappings = (customLevels = null, useOnlyCustomLevels = false) => {
+  const customNums = customLevels ? Object.keys(customLevels).reduce((o, k) => {
+    o[customLevels[k]] = k
+    return o
+  }, {})
+    : null
+
+  const labels = Object.assign(
+    Object.create(Object.prototype, { Infinity: { value: 'silent' }}),
+    useOnlyCustomLevels ? null : numbers,
+    customNums
+  )
+  const values = Object.assign(
+    Object.create(Object.prototype, { silent: { value: Infinity }}),
+    useOnlyCustomLevels ? null : levels,
+    customLevels
+  )
+
+  return { labels, values }
+}
+
+exports.isStandardLevel = (level, useOnlyCustomLevels) => {
+  if (useOnlyCustomLevels) {
+    return false
+  }
+
+  switch (level) {
+  case 'fatal':
+  case 'error':
+  case 'warn':
+  case 'info':
+  case 'debug':
+  case 'verbose':
+    return true
+  default:
+    return false
+  }
+}
+

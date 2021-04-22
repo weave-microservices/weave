@@ -1,5 +1,5 @@
 const { format } = require('./format')
-const { MESSAGE } = require('../constants')
+const { MESSAGE } = require('../base')
 const { safeCopy } = require('@weave-js/utils')
 
 const replacer = (_, value) => {
