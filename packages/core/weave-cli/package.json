@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/cli",
-  "version": "0.9.0-beta.6",
+  "version": "0.9.0-beta.7",
   "description": "Weave CLI tool",
   "main": "index.js",
   "scripts": {
@@ -20,8 +20,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@weave-js/core": "^0.9.0-beta.5",
-    "@weave-js/repl": "^0.9.0-beta.6",
+    "@weave-js/core": "^0.9.0-beta.6",
+    "@weave-js/repl": "^0.9.0-beta.7",
     "@weave-js/utils": "^0.9.0-beta.2",
     "commander": "^7.2.0",
     "consolidate": "^0.16.0",
