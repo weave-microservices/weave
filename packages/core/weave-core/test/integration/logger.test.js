@@ -1,8 +1,6 @@
+const os = require('os')
 const { Weave } = require('../../lib/index')
-const { createConsoleLogTransport } = require('../../lib/logger/transports/console')
-
 const lolex = require('@sinonjs/fake-timers')
-// const Stream = require('./helper/TestStream')
 
 describe('Test weave logger integration.', () => {
   let clock
@@ -54,20 +52,30 @@ describe('Test weave logger integration.', () => {
 })
 
 describe('Test logger transporter streams.', () => {
+  let clock
+  beforeAll(() => {
+    clock = lolex.install()
+  })
+
+  afterAll(() => {
+    clock.uninstall()
+  })
+
   it('should log through console trans', () => {
-    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
+    const consoleSpy = jest.spyOn(process.stdout, 'write').mockImplementation(() => {})
 
     Weave({
       nodeId: 'loggerNode',
       logger: {
-        streams: [createConsoleLogTransport()]
+        base: {
+          pid: 0
+        }
       }
     })
 
     const calls = [
-      ['Initializing #weave node version 0.8.1'],
-      ['Node Id: loggerNode'],
-      ['Metrics initialized.']
+      ['{"level":30,"time":0,"pid":0,"nodeId":"loggerNode","moduleName":"WEAVE","msg":"Initializing #weave node version 0.9.0-beta.5"}' + os.EOL],
+      ['{"level":30,"time":0,"pid":0,"nodeId":"loggerNode","moduleName":"WEAVE","msg":"Node Id: loggerNode"}' + os.EOL]
     ]
 
     consoleSpy.mock.calls.forEach((arg, i) => {

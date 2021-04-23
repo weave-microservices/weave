@@ -57,7 +57,7 @@ const makeActionHookMiddleware = function (handler, action) {
         // Call action handler
         promise = promise.then(() => handler(context))
 
-        // Aafter hook
+        // After hook
         if (afterHook) {
           promise = promise.then(result => callHook(afterHook, action.service, context, result))
         }

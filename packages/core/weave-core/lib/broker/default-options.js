@@ -11,18 +11,12 @@
 /** @module weave */
 const os = require('os')
 const { loadBalancingStrategy } = require('../constants')
-const { createConsoleLogTransport } = require('../../lib/logger/transports/console')
-const defaultFormat = require('../logger/format/default-format')
-
-const isTestEnv = process.env.NODE_ENV === 'test'
 
 /**
  * Returns the default options
  * @returns {BrokerOptions} Broker options
 */
 exports.getDefaultOptions = () => {
-  // init default formatter for console
-  const format = defaultFormat({ displayTimestamp: true, displayBadge: true })
   // default options
   return {
     // If no node id is set - create one.
@@ -69,10 +63,12 @@ exports.getDefaultOptions = () => {
     },
     middlewares: null,
     logger: {
-      enabled: !isTestEnv,
+      enabled: true,
       level: 'info',
-      streams: [createConsoleLogTransport({ format })],
-      defaultMeta: {}
+      base: {
+        pid: process.pid,
+        hostname: os.hostname
+      }
     },
     tracing: {
       enabled: false,

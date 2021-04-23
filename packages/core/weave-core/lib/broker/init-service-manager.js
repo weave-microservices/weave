@@ -30,9 +30,10 @@ exports.initServiceManager = (runtime) => {
       serviceChanged(true)
       return Promise.resolve()
     })
-    .catch(error => log.error(`Unable to stop service "${service.name}"`, error))
+    .catch(error => log.error(error, `Unable to stop service "${service.name}"`))
 
-  const onServiceFileChanged = async (broker, service) => {
+  // `onServiceFileChanged` only triggered by the file watcher
+  const onServiceFileChanged = async (service) => {
     const filename = service.filename
 
     // Clear the require cache
@@ -51,6 +52,13 @@ exports.initServiceManager = (runtime) => {
     value: {
       serviceList,
       serviceChanged,
+      /**
+       * Wait for services before continuing startup.
+       * @param {Array.<string>} serviceNames Names of the services
+       * @param {Number} timeout Time in Miliseconds before the broker stops.
+       * @param {Number} interval Time in Miliseconds to check for services.
+       * @returns {Promise} Promise
+      */
       waitForServices (serviceNames, timeout, interval = 500) {
         if (!Array.isArray(serviceNames)) {
           serviceNames = [serviceNames]
@@ -86,9 +94,9 @@ exports.initServiceManager = (runtime) => {
 
           // Watch file changes
           const watcher = fs.watch(service.filename, (eventType, filename) => {
-            log.info(`The Service ${service.name} has been changed. (${eventType}, ${filename}) `)
+            log.info(`The Service ${service.name} has been changed. (${eventType}, ${filename})`)
             watcher.close()
-            debouncedOnServiceChange(this, service)
+            debouncedOnServiceChange(service)
           })
         }
       },

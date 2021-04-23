@@ -1,7 +1,6 @@
 const { createLogger } = require('../../lib/logger/index')
 const os = require('os')
 const lolex = require('@sinonjs/fake-timers')
-const { createConsoleLogTransport } = require('../../lib/logger/transports/console')
 
 describe('Test logger module.', () => {
   let clock

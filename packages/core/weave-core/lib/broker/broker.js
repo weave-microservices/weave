@@ -78,8 +78,8 @@ exports.createBroker = () => (runtime) => {
       try {
         const newService = createServiceFromSchema(runtime, schema)
 
-        // if the broker is already startet - start the service.
-        if (this.isStarted) {
+        // if the broker is already startet, we need to start the service.
+        if (runtime.state.isStarted) {
           newService.start()
             .catch(error => log.error(`Unable to start service ${newService.name}: ${error}`))
         }
@@ -87,7 +87,7 @@ exports.createBroker = () => (runtime) => {
         return newService
       } catch (error) {
         log.error(error)
-        this.handleError(error)
+        handleError(error)
       }
     },
     /**
@@ -124,14 +124,6 @@ exports.createBroker = () => (runtime) => {
       return serviceFiles.length
     },
     /**
-     * Wait for services before continuing startup.
-     * @param {Array.<string>} serviceNames Names of the services
-     * @param {Number} timeout Time in Miliseconds before the broker stops.
-     * @param {Number} interval Time in Miliseconds to check for services.
-     * @returns {Promise} Promise
-    */
-
-    /**
      * Starts the broker.
      * @returns {Promise} Promise
     */
@@ -146,7 +138,7 @@ exports.createBroker = () => (runtime) => {
       try {
         await Promise.all(services.serviceList.map(service => service.start()))
       } catch (error) {
-        log.error('Unable to start all services', error)
+        log.error(error, 'Unable to start all services')
         clearInterval(options.waitForServiceInterval)
         handleError(error)
       }
@@ -181,7 +173,7 @@ exports.createBroker = () => (runtime) => {
       try {
         await Promise.all(services.serviceList.map(service => service.stop()))
       } catch (error) {
-        log.error('Unable to stop all services.', error)
+        log.error(error, 'Unable to stop all services.')
         throw error
       }
 
