@@ -354,7 +354,7 @@ describe('Test broker error handling', () => {
     broker = Weave({
       nodeId: 'node1',
       logger: {
-        enabled: false,
+        enabled: true,
         level: 'fatal'
       }
     })

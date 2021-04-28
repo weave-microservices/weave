@@ -31,35 +31,35 @@ function registerCacheMetrics (metrics) {
   // todo: register metric stores
 }
 
-exports.createCacheBase = (broker, options) => {
+exports.createCacheBase = (runtime, options) => {
   const cache = {
     options: Object.assign({
       ttl: null
     }, options),
     init () {
-      this.broker = broker
-      this.metrics = broker.metrics
+      this.runtime = runtime
+      this.metrics = runtime.metrics
 
-      if (this.broker) {
+      if (this.runtime) {
         registerCacheMetrics(this.metrics)
       }
     },
-    log: broker.createLogger('CACHER'),
+    log: runtime.createLogger('CACHER'),
     set (/* hashKey, result, ttl */) {
       /* istanbul ignore next */
-      broker.handleError(new Error('Method not implemented.'))
+      runtime.handleError(new Error('Method not implemented.'))
     },
     get (/* hashKey */) {
       /* istanbul ignore next */
-      broker.handleError(new Error('Method not implemented.'))
+      runtime.handleError(new Error('Method not implemented.'))
     },
     remove () {
       /* istanbul ignore next */
-      broker.handleError(new Error('Method not implemented.'))
+      runtime.handleError(new Error('Method not implemented.'))
     },
     clear () {
       /* istanbul ignore next */
-      broker.handleError(new Error('Method not implemented.'))
+      runtime.handleError(new Error('Method not implemented.'))
     },
     stop () {
       /* istanbul ignore next */

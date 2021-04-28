@@ -34,7 +34,7 @@ const errorHandler = ({ options }, error) => {
 
 const fatalErrorHandler = ({ options, log }, message, error, killProcess = true) => {
   if (options.logger.enabled) {
-    log.fatal(message, error)
+    log.fatal(error, message)
   } else {
     console.error(message, error)
   }

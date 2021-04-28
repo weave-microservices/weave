@@ -7,8 +7,8 @@
 const { match } = require('@weave-js/utils')
 const { createCacheBase } = require('./base')
 
-const makeMemoryCache = (broker, options = {}) => {
-  const base = createCacheBase(broker, options)
+const makeMemoryCache = (runtime, options = {}) => {
+  const base = createCacheBase(runtime, options)
   const storage = new Map()
   const name = 'Memory'
 
@@ -19,7 +19,7 @@ const makeMemoryCache = (broker, options = {}) => {
   timer.unref()
 
   // if a new broker gets connected, we need to clear the cache
-  broker.bus.on('$transport.connected', () => {
+  runtime.bus.on('$transport.connected', () => {
     base.log.verbose('Transpot adapter connected. Cache is cleared.')
     cache.clear()
   })

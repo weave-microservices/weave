@@ -1,7 +1,7 @@
 const os = require('os')
 const { Weave } = require('../../lib/index')
 const lolex = require('@sinonjs/fake-timers')
-
+const pkg = require('../../package.json')
 describe('Test weave logger integration.', () => {
   let clock
   beforeAll(() => {
@@ -26,6 +26,19 @@ describe('Test weave logger integration.', () => {
     expect(broker.log.error).toBeDefined()
     expect(broker.log.warn).toBeDefined()
   })
+
+  // it('should log fatal errors', () => {
+  //   const consoleSpy = jest.spyOn(process.stdout, 'write').mockImplementation(() => {})
+
+  //   const broker = Weave({
+  //     logger: {
+  //       enabled: true,
+  //       level: 'fatal'
+  //     }
+  //   })
+  //   consoleSpy
+  //   broker.log.fatal(new Error('Wrong'))
+  // })
 
   it('should log with prefix and suffix', (done) => {
     const doneHookFn = jest.fn()
@@ -73,8 +86,10 @@ describe('Test logger transporter streams.', () => {
       }
     })
 
+    const version = pkg.version
+
     const calls = [
-      ['{"level":30,"time":0,"pid":0,"nodeId":"loggerNode","moduleName":"WEAVE","msg":"Initializing #weave node version 0.9.0-beta.5"}' + os.EOL],
+      [`{"level":30,"time":0,"pid":0,"nodeId":"loggerNode","moduleName":"WEAVE","msg":"Initializing #weave node version ${version}"}` + os.EOL],
       ['{"level":30,"time":0,"pid":0,"nodeId":"loggerNode","moduleName":"WEAVE","msg":"Node Id: loggerNode"}' + os.EOL]
     ]
 

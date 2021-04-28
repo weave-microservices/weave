@@ -310,8 +310,8 @@ exports.createBroker = () => (runtime) => {
       }
 
       // Cache
-      if (broker.cache) {
-        middlewareHandler.add(broker.cache.middleware)
+      if (runtime.cache) {
+        middlewareHandler.add(runtime.cache.middleware)
       }
 
       // Context tracking

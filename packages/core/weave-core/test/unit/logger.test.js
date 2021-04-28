@@ -104,4 +104,43 @@ describe('Test logger module.', () => {
     expect(consoleStdOutSpy.mock.calls[0]).toEqual(['{"level":30,"time":0,"service":"test","version":1,"msg":"message1 message2"}' + os.EOL])
     consoleStdOutSpy.mockReset()
   })
+
+  it('Should log fatal messages', () => {
+    const consoleStdOutSpy = jest.spyOn(process.stdout, 'write').mockImplementation(() => {})
+
+    const logger = createLogger({
+      base: {
+        service: 'test',
+        version: 1
+      }
+    })
+
+    logger.fatal('Fatal error')
+
+    expect(consoleStdOutSpy).toBeCalledTimes(1)
+    expect(consoleStdOutSpy.mock.calls[0]).toEqual(['{"level":60,"time":0,"service":"test","version":1,"msg":"Fatal error"}' + os.EOL])
+    consoleStdOutSpy.mockReset()
+  })
+
+  it('Should log fatal errors', () => {
+    const consoleStdOutSpy = jest.spyOn(process.stdout, 'write').mockImplementation(() => {})
+
+    const logger = createLogger({
+      base: {
+        service: 'test',
+        version: 1
+      }
+    })
+
+    logger.fatal(new Error('Fatal error'), 'override message')
+    const logObj = JSON.parse(consoleStdOutSpy.mock.calls[0])
+    expect(consoleStdOutSpy).toBeCalledTimes(1)
+    expect(logObj.level).toBe(60)
+    expect(logObj.msg).toBe('override message')
+    expect(logObj.stack).toBeDefined()
+    expect(logObj.type).toBe('Error')
+    expect(logObj.time).toBe(0)
+
+    consoleStdOutSpy.mockReset()
+  })
 })

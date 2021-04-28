@@ -13,15 +13,14 @@ const levelMethods = {
   fatal: (runtime, hook) => {
     const logFatal = generateLogMethod(runtime, levels.fatal, hook)
     return function (...args) {
-      const stream = this[streamSym]
-      logFatal.call(this, ...args)
-      if (typeof stream.flushSync === 'function') {
-        try {
-          stream.flushSync()
-        } catch (e) {
-          // https://github.com/pinojs/pino/pull/740#discussion_r346788313
-        }
-      }
+      logFatal.call(runtime, ...args)
+      // if (typeof stream.flushSync === 'function') {
+      //   try {
+      //     stream.flushSync()
+      //   } catch (e) {
+      //     // https://github.com/pinojs/pino/pull/740#discussion_r346788313
+      //   }
+      // }
     }
   },
   error: (runtime, hook) => generateLogMethod(runtime, levels.error, hook),
@@ -50,6 +49,7 @@ exports.mappings = (customLevels = null, useOnlyCustomLevels = false) => {
     useOnlyCustomLevels ? null : numbers,
     customNums
   )
+
   const values = Object.assign(
     Object.create(Object.prototype, { silent: { value: Infinity }}),
     useOnlyCustomLevels ? null : levels,
