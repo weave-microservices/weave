@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0-beta.7](https://github.com/weave-microservices/weave/compare/@weave-js/tracing-zipkin@0.9.0-beta.6...@weave-js/tracing-zipkin@0.9.0-beta.7) (2021-04-28)
+
+**Note:** Version bump only for package @weave-js/tracing-zipkin
+
+
+
+
+
 # [0.9.0-beta.6](https://github.com/weave-microservices/weave/compare/@weave-js/tracing-zipkin@0.9.0-beta.5...@weave-js/tracing-zipkin@0.9.0-beta.6) (2021-04-23)
 
 **Note:** Version bump only for package @weave-js/tracing-zipkin
