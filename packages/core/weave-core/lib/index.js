@@ -20,7 +20,7 @@ const { initServiceManager } = require('./broker/init-service-manager')
 const { initMetrics } = require('./metrics/init-metrics')
 const { initTracer } = require('./tracing/init-tracing')
 const { initHealth } = require('./broker/init-health')
-const { initBroker } = require('./broker')
+const { createBrokerInstance } = require('./broker')
 const { version } = require('../package.json')
 
 exports.defaultOptions = require('./broker/default-options')
@@ -101,7 +101,7 @@ exports.createBroker = (options) => {
   // merge options with default options
   options = defaultsDeep(options, defaultOptions)
 
-  const { createBrokerInstance } = initBroker(options)
+  // const { createBrokerInstance } = initBroker(options)
 
   const runtime = buildRuntime(options)
 

@@ -4,13 +4,15 @@
  * -----
  * Copyright 2020 Fachwerk
 */
-
+/**
+ * @typedef {import('../types').Runtime} Runtime
+*/
 const { createRegistry } = require('./registry.js')
 
 /**
- * Registry factory
+ * Injects registy in runtime
  * @param {Runtime} runtime Runtime
- * @returns {void} Registry
+ * @returns {void}
 */
 exports.initRegistry = (runtime) => {
   const registry = createRegistry(runtime)

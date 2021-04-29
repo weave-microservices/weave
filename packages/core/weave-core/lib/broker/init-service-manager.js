@@ -52,6 +52,21 @@ exports.initServiceManager = (runtime) => {
     value: {
       serviceList,
       serviceChanged,
+      createService (schema) {
+        try {
+          const newService = createServiceFromSchema(runtime, schema)
+  
+          // if the broker is already startet, we need to start the service.
+          if (runtime.state.isStarted) {
+            newService.start().catch(error => log.error(`Unable to start service ${newService.name}: ${error}`))
+          }
+  
+          return newService
+        } catch (error) {
+          log.error(error)
+          handleError(error)
+        }
+      },
       /**
        * Wait for services before continuing startup.
        * @param {Array.<string>} serviceNames Names of the services
