@@ -289,7 +289,7 @@ exports.createServiceFromSchema = (runtime, schema) => {
             .reduce((p, hook) => p.then(hook), Promise.resolve())
         }
       })
-      .then(() => runtime.registry.registerLocalService(serviceSpecification, false))
+      .then(() => runtime.registry.registerLocalService(serviceSpecification))
       .then(() => runtime.middlewareHandler.callHandlersAsync('serviceStarted', [service]))
   }
 

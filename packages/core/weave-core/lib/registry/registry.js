@@ -97,7 +97,7 @@ exports.createRegistry = (runtime) => {
 
       return false
     },
-    registerLocalService (serviceSpecification, notifyAboutChanges = true) {
+    registerLocalService (serviceSpecification) {
       if (!this.serviceCollection.has(serviceSpecification.name, serviceSpecification.version, runtime.nodeId)) {
         const service = this.serviceCollection.add(this.nodeCollection.localNode, serviceSpecification.name, serviceSpecification.version, serviceSpecification.settings)
 
@@ -119,7 +119,7 @@ exports.createRegistry = (runtime) => {
           this.log.info(`Service '${service.name}' registered.`)
         }
 
-        runtime.services.serviceChanged(notifyAboutChanges)
+        runtime.services.serviceChanged(true)
       }
     },
     registerRemoteServices (node, services) {
