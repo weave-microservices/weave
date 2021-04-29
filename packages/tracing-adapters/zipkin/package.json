@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/tracing-zipkin",
-  "version": "0.9.0-beta.7",
+  "version": "0.9.0-beta.8",
   "description": "weave zipkin tracing adapter",
   "main": "lib/index.js",
   "scripts": {
@@ -22,7 +22,7 @@
     "@weave-js/core": ">=0.9.0-beta.3"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.9.0-beta.7",
+    "@weave-js/core": "^0.9.0-beta.8",
     "eslint": "^7.24.0",
     "eslint-config-fw": "^1.0.3",
     "eslint-loader": "^4.0.2",
