@@ -1,5 +1,6 @@
-module.exports = options => {
+module.exports = (options) => {
   const lastChanges = new Set()
+
   return {
     init (registry) {
       this.options = Object.assign(options, {
@@ -19,6 +20,8 @@ module.exports = options => {
       const list = this.registry.list()
 
       broker.emit(this.options.eventName, list)
+
+      lastChanges.clear()
     },
     metricChanged (metric) {
       lastChanges.add(metric)

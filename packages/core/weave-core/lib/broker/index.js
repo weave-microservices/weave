@@ -9,7 +9,6 @@
 const path = require('path')
 const glob = require('glob')
 const { isFunction } = require('@weave-js/utils')
-const { createServiceFromSchema } = require('../registry/service')
 const Middlewares = require('../middlewares')
 const { generateUUID } = require('./uuid-factory')
 const { registerMetrics } = require('./broker-metrics.js')
@@ -33,7 +32,8 @@ exports.createBrokerInstance = (runtime) => {
     cache,
     services,
     transport,
-    handleError
+    handleError,
+    metrics
   } = runtime
 
   // Log Messages
@@ -46,6 +46,10 @@ exports.createBrokerInstance = (runtime) => {
   // Register broker metrics
   if (options.metrics.enabled) {
     registerMetrics(runtime)
+  }
+
+  if (metrics) {
+    metrics.init()
   }
 
   // broker object

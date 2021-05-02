@@ -1,11 +1,11 @@
-const Gauge = require('./gauge')
+const { createGauge } = require('./gauge')
 
-module.exports = class Counter extends Gauge {
-  // constructor (store, obj) {
-  //   super(store, obj)
-  // }
+exports.createCounter = (metricRegistry, obj) => {
+  const base = createGauge(metricRegistry, obj)
 
-  decrement () {
+  base.decrement = () => {
     throw new Error('Not allowed to decrement a counter')
   }
+
+  return base
 }

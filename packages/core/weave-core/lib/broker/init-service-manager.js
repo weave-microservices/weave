@@ -1,9 +1,10 @@
+const { createServiceFromSchema } = require('../registry/service')
 const { WeaveError } = require('../errors')
 const { debounce } = require('@weave-js/utils')
 const fs = require('fs')
 
 exports.initServiceManager = (runtime) => {
-  const { options, log, eventBus, transport, state, registry } = runtime
+  const { options, log, eventBus, transport, state, registry, handleError } = runtime
 
   // Internal service list
   const serviceList = []

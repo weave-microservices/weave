@@ -14,6 +14,19 @@ exports.initMetrics = (runtime) => {
       options,
       storage,
       log,
+      init () {
+        // Load adapters
+        if (options.adapters) {
+          if (!Array.isArray(options.adapters)) {
+            runtime.handleError(new Error('Metic adapter needs to be an Array'))
+          }
+
+          this.adapters = options.adapters.map(adapter => {
+            adapter.init(this)
+            return adapter
+          })
+        }
+      },
       register (obj) {
         if (!isPlainObject(obj)) {
           runtime.handleError(new Error('Param needs to be an object.'))
@@ -27,13 +40,13 @@ exports.initMetrics = (runtime) => {
           runtime.handleError(new Error('Name is missing.'))
         }
 
-        const MetricType = MetricTypes.resolve(obj.type)
+        const createMetricType = MetricTypes.resolve(obj.type)
 
-        if (!MetricType) {
+        if (!createMetricType) {
           runtime.handleError(new Error('Unknown metric type.'))
         }
 
-        const type = new MetricType(this, obj)
+        const type = createMetricType(this, obj)
 
         this.storage.set(obj.name, type)
 
@@ -84,18 +97,6 @@ exports.initMetrics = (runtime) => {
       }
     }
   })
-
-  // Load adapters
-  if (options.adapters) {
-    if (!Array.isArray(options.adapters)) {
-      runtime.handleError(new Error('Metic adapter needs to be an Array'))
-    }
-
-    runtime.metrics.adapters = options.adapters.map(adapter => {
-      adapter.init(this)
-      return adapter
-    })
-  }
 
   return
 }

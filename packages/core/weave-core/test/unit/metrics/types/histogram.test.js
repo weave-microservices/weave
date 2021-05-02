@@ -1,4 +1,4 @@
-const Histogram = require('../../../../lib/metrics/types/histogram')
+const { createHistogram } = require('../../../../lib/metrics/types/histogram')
 const { Weave } = require('../../../../lib')
 
 describe('Test Histogram', () => {
@@ -11,7 +11,7 @@ describe('Test Histogram', () => {
 
     const storage = broker.runtime.metrics
 
-    const histogram = new Histogram(storage, { name: 'requests', description: 'description', labels: ['service'], buckets: true })
+    const histogram = createHistogram(storage, { name: 'requests', description: 'description', labels: ['service'], buckets: true })
     histogram.observe(1, { service: 'test-service' })
     histogram.observe(2, { service: 'test-service1' }, new Date())
     histogram.observe(1, { service: 'test-service' })

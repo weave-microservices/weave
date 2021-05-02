@@ -1,26 +1,22 @@
-const BaseMetricType = require('./base')
+const { createBaseMetricType } = require('./base')
 
-module.exports = class Gauge extends BaseMetricType {
-  constructor (store, obj) {
-    super(store, obj)
-    this.values = new Map()
-    this.value = 0
+exports.createGauge = (registry, obj) => {
+  const base = createBaseMetricType(registry, obj)
+
+  base.value = 0
+
+  base.increment = (labels, value, timestamp) => {
+    const item = base.get(labels)
+    base.set(labels, (item ? item.value : 0) + value, timestamp)
   }
 
-  increment (labels, value, timestamp) {
-    const item = this.get(labels)
-
-    this.set(labels, (item ? item.value : 0) + value)
+  base.decrement = (labels, value, timestamp) => {
+    const item = base.get(labels)
+    base.set(labels, (item ? item.value : 0) - value, timestamp)
   }
 
-  decrement (labels, value, timestamp) {
-    const item = this.get(labels)
-
-    this.set(labels, (item ? item.value : 0) - value)
-  }
-
-  generateSnapshot () {
-    return Array.from(this.values)
+  base.generateSnapshot = () => {
+    return Array.from(base.values)
       .map(([labelString, item]) => {
         return {
           value: item.value,
@@ -29,25 +25,31 @@ module.exports = class Gauge extends BaseMetricType {
       })
   }
 
-  set (labels, value, timestamp) {
-    const labelString = this.stringifyLabels(labels)
-    const item = this.values.get(labelString)
+  base.set = (labels, value, timestamp = Date.now()) => {
+    const labelString = base.stringifyLabels(labels)
+    let item = base.values.get(labelString)
 
-    this.value = value
+    base.value = value
+    
 
     if (item) {
       if (item.value !== value) {
         item.labels = labels
         item.value = value
+        item.timestamp = timestamp
+
       }
     } else {
-      const item = {
-        labels: labels,
-        value: value
+      item = {
+        labels,
+        value,
+        timestamp
       }
 
-      this.values.set(labelString, item)
+      base.values.set(labelString, item)
     }
     return item
   }
+
+  return base
 }

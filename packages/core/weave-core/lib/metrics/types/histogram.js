@@ -1,38 +1,38 @@
-const BaseMetricType = require('./base')
+const { createBaseMetricType } = require('./base')
 
-module.exports = class Histogram extends BaseMetricType {
-  constructor (registry, obj) {
-    super(registry, obj)
-    this.value = 0
+exports.createHistogram = (registry, obj) => {
+  const base = createBaseMetricType(registry, obj)
 
-    // create default buckets
-    if (obj.buckets) {
-      this.buckets = registry.options.defaultBuckets
-    }
+  base.value = 0
 
-    this.buckets = this.buckets.sort((a, b) => a - b)
+  // create default buckets
+  if (obj.buckets) {
+    base.buckets = registry.options.defaultBuckets
   }
 
-  observe (value, labels, timestamp) {
-    const labelString = this.stringifyLabels(labels)
+  base.buckets = base.buckets.sort((a, b) => a - b)
 
-    const item = this.values.get(labelString)
+
+  base.observe = (value, labels, timestamp) => {
+    const labelString = base.stringifyLabels(labels)
+
+    const item = base.values.get(labelString)
 
     if (!value) {
 
     }
 
-    this.set(labels, (item ? item.value : 0) + value)
+    base.set(labels, (item ? item.value : 0) + value)
   }
 
-  decrement (labels, value, timestamp) {
-    const item = this.get(labels)
+  base.decrement = (labels, value, timestamp) => {
+    const item = base.get(labels)
 
-    this.set(labels, (item ? item.value : 0) - value)
+    base.set(labels, (item ? item.value : 0) - value)
   }
 
-  generateSnapshot () {
-    return Array.from(this.values)
+  base.generateSnapshot = () => {
+    return Array.from(base.values)
       .map(([labelString, item]) => {
         return {
           value: item.value,
@@ -41,11 +41,11 @@ module.exports = class Histogram extends BaseMetricType {
       })
   }
 
-  set (labels, value, timestamp) {
-    const labelString = this.stringifyLabels(labels)
-    const item = this.values.get(labelString)
+  base.set = (labels, value, timestamp) => {
+    const labelString = base.stringifyLabels(labels)
+    const item = base.values.get(labelString)
 
-    this.value = value
+    base.value = value
 
     if (item) {
       if (item.value !== value) {
@@ -58,8 +58,12 @@ module.exports = class Histogram extends BaseMetricType {
         value: value
       }
 
-      this.values.set(labelString, item)
+      base.values.set(labelString, item)
     }
     return item
   }
+
+
+  return base
 }
+

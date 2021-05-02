@@ -1,14 +1,10 @@
-const BaseMetricType = require('./base')
+const { createBaseMetricType } = require('./base')
 
-module.exports = class Gauge extends BaseMetricType {
-  constructor (store, obj) {
-    super(store, obj)
-    this.values = new Map()
-    this.value = 0
-  }
+exports.createInfo = (metricRegistry, obj) => {
+  const base = createBaseMetricType(metricRegistry, obj)
 
-  generateSnapshot () {
-    return Array.from(this.values)
+  base.generateSnapshot = () => {
+    return Array.from(base.values)
       .map(([labelString, item]) => {
         return {
           value: item.value,
@@ -17,11 +13,11 @@ module.exports = class Gauge extends BaseMetricType {
       })
   }
 
-  set (value, labels, timestamp) {
-    const labelString = this.stringifyLabels(labels)
-    const item = this.values.get(labelString)
+  base.set = (value, labels, timestamp) => {
+    const labelString = base.stringifyLabels(labels)
+    const item = base.values.get(labelString)
 
-    this.value = value
+    base.value = value
 
     if (item) {
       if (item.value !== value) {
@@ -36,8 +32,10 @@ module.exports = class Gauge extends BaseMetricType {
         timestamp: timestamp || Date.now()
       }
 
-      this.values.set(labelString, item)
+      base.values.set(labelString, item)
     }
     return item
   }
+
+  return base
 }
