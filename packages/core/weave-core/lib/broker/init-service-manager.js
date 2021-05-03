@@ -56,12 +56,12 @@ exports.initServiceManager = (runtime) => {
       createService (schema) {
         try {
           const newService = createServiceFromSchema(runtime, schema)
-  
+
           // if the broker is already startet, we need to start the service.
           if (runtime.state.isStarted) {
             newService.start().catch(error => log.error(`Unable to start service ${newService.name}: ${error}`))
           }
-  
+
           return newService
         } catch (error) {
           log.error(error)

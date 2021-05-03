@@ -19,6 +19,7 @@ module.exports = {
         const { withActions, withNodeService } = context.data
         const results = []
         const services = this.runtime.registry.serviceCollection.list({ withActions, withNodeService })
+
         services.forEach(service => {
           let item = results.find(result => result.name === service.name && result.version === service.version)
 

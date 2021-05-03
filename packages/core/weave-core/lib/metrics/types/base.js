@@ -50,8 +50,6 @@
 //   }
 // }
 
-
-
 exports.createBaseMetricType = (metricRegistry, obj) => {
   const base = Object.assign({}, {
     name: obj.name,

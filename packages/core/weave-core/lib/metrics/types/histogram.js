@@ -12,7 +12,6 @@ exports.createHistogram = (registry, obj) => {
 
   base.buckets = base.buckets.sort((a, b) => a - b)
 
-
   base.observe = (value, labels, timestamp) => {
     const labelString = base.stringifyLabels(labels)
 
@@ -62,7 +61,6 @@ exports.createHistogram = (registry, obj) => {
     }
     return item
   }
-
 
   return base
 }

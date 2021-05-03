@@ -39,6 +39,7 @@ exports.createBrokerInstance = (runtime) => {
   // Log Messages
   log.info(`Initializing #weave node version ${version}`)
   log.info(`Node Id: ${options.nodeId}`)
+
   if (options.namespace) {
     log.info(`Namespace: ${options.namespace}`)
   }
@@ -195,8 +196,7 @@ exports.createBrokerInstance = (runtime) => {
       process.removeListener('SIGINT', onClose)
       process.removeListener('SIGTERM', onClose)
 
-      // todo: handle errors 
-
+      // todo: handle errors
     },
     /**
      * Send a ping to connected nodes.

@@ -30,14 +30,12 @@ exports.createGauge = (registry, obj) => {
     let item = base.values.get(labelString)
 
     base.value = value
-    
 
     if (item) {
       if (item.value !== value) {
         item.labels = labels
         item.value = value
         item.timestamp = timestamp
-
       }
     } else {
       item = {

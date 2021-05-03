@@ -130,12 +130,20 @@ exports.createServiceFromSchema = (runtime, schema) => {
 
   // Set reference to the broker instance.
   service.broker = runtime.broker
-  
+
   // Apply all mixins (including childs)
   if (schema.mixins) {
     schema = applyMixins(service, schema)
   }
 
+  // Call "afterSchemasMerged" service lifecylce hook(s)
+  if (schema.afterSchemasMerged) {
+    if (isFunction(schema.afterSchemasMerged)) {
+      schema.afterSchemasMerged.call(service, schema)
+    } else if (Array.isArray(schema.afterSchemasMerged)) {
+      Promise.all(schema.afterSchemasMerged.map(afterSchemasMerged => afterSchemasMerged.call(service, schema)))
+    }
+  }
 
   // Call "serviceCreating" middleware hook
   runtime.middlewareHandler.callHandlersSync('serviceCreating', [service, schema])
@@ -150,7 +158,6 @@ exports.createServiceFromSchema = (runtime, schema) => {
 
   // Set service version
   service.version = schema.version
-
 
   // Create a full qualified name, including version if set.
   service.fullyQualifiedName = service.version ? `${service.name}.${service.version}` : service.name
@@ -185,23 +192,12 @@ exports.createServiceFromSchema = (runtime, schema) => {
     events: {}
   }
 
-  // Call "beforeCreate" service lifecylce hook(s)
-  if (schema.beforeCreate) {
-    if (isFunction(schema.beforeCreate)) {
-      schema.beforeCreate.call(service)
-    }
-
-    if (Array.isArray(schema.beforeCreate)) {
-      Promise.all(schema.beforeCreate.map(beforeCreate => beforeCreate.call(service)))
-    }
-  }
-
   // Bind service methods to context
   if (isObject(schema.methods)) {
     Object.keys(schema.methods).map(name => {
       const method = schema.methods[name]
 
-      if (['log', 'actions', 'meta', 'events', 'settings', 'methods', 'dependencies', 'version', 'dependencies', 'broker', 'runtime', 'created', 'started', 'stopped'].includes(name)) {
+      if (['log', 'actions', 'meta', 'events', 'settings', 'methods', 'dependencies', 'version', 'dependencies', 'broker', 'runtime', 'afterSchemasMerged', 'created', 'started', 'stopped'].includes(name)) {
         runtime.handleError(new WeaveError(`Invalid method name ${name} in service ${service.name}.`))
       }
 

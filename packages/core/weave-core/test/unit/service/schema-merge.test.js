@@ -65,6 +65,7 @@ const service1 = {
   methods: {
     privateMethod1 () {}
   },
+  afterSchemasMerged: jest.fn(),
   created: jest.fn(),
   started: jest.fn(),
   stopped: jest.fn()
@@ -105,6 +106,7 @@ const service2 = {
     e1 () {},
     e2 () {}
   },
+  afterSchemasMerged: jest.fn(),
   created: jest.fn(),
   started: jest.fn()
 }
@@ -120,6 +122,7 @@ describe('Service schema merging', () => {
     expect(Array.isArray(mergedService.created)).toBe(true)
     expect(Array.isArray(mergedService.started)).toBe(true)
     expect(Array.isArray(mergedService.stopped)).toBe(true)
+    expect(mergedService.afterSchemasMerged.length).toBe(2)
     expect(mergedService.created.length).toBe(2)
     expect(mergedService.started.length).toBe(2)
     expect(mergedService.stopped.length).toBe(1)

@@ -6,6 +6,7 @@
 'use strict'
 
 const { createContextFactory } = require('./context-factory')
+
 exports.initContextFactory = (runtime) => {
   Object.defineProperty(runtime, 'contextFactory', {
     value: createContextFactory(runtime)

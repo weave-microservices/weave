@@ -102,7 +102,7 @@ exports.mergeSchemas = (mixin, targetSchema) => {
       mixinSchema[key] = mergeEvents(resultSchema[key], mixinSchema[key] || {})
     } else if (key === 'methods') {
       mixinSchema[key] = mergeMethods(resultSchema[key], mixinSchema[key] || {})
-    } else if (['beforeCreate', 'created', 'started', 'stopped'].includes(key)) {
+    } else if (['afterSchemasMerged', 'created', 'started', 'stopped'].includes(key)) {
       mixinSchema[key] = mergeLifecicleHooks(resultSchema[key], mixinSchema[key])
     } else {
       // default action for properties
