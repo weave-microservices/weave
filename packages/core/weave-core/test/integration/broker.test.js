@@ -368,13 +368,14 @@ describe('Test broker error handling', () => {
       .catch(_ => {})
   })
 
-  // it('"fatalError" should kill the node process', () => {
-  //   const exitMock = jest.fn()
+  it('"fatalError" should kill the node process', () => {
+    const realProcess = process
+    const exitMock = jest.fn()
 
-  //   global.process.exit = exitMock
-  //   broker.fatalError('Throw some fatal error', new Error('Absolutly fatal'))
-  //   expect(exitMock).toHaveBeenCalledWith(ERROR_CODE)
-  // })
+    global.process = { ...realProcess, exit: exitMock }
+    broker.fatalError('Throw some fatal error', new Error('Absolutly fatal'))
+    expect(exitMock).toHaveBeenCalledWith(ERROR_CODE)
+  })
 })
 
 describe('Test broker context chaining', () => {
