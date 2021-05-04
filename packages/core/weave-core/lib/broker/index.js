@@ -169,6 +169,11 @@ exports.createBrokerInstance = (runtime) => {
         await runtime.cache.stop()
       }
 
+      if (runtime.metrics) {
+        log.debug('Stopping metrics.')
+        await runtime.metrics.stop()
+      }
+
       if (runtime.tracer) {
         log.debug('Stopping tracing adapters.')
         await runtime.tracer.stop()
