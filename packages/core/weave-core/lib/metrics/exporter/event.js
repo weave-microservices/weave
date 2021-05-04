@@ -15,6 +15,10 @@ module.exports = (options) => {
         this.timer.unref()
       }
     },
+    stop () {
+      clearInterval(this.timer)
+      return Promise.resolve()
+    },
     sendEvent () {
       const broker = this.registry.broker
       const list = this.registry.list()

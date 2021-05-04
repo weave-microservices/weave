@@ -6,6 +6,9 @@ describe('Test Histogram', () => {
     const broker = Weave({
       logger: {
         enabled: false
+      },
+      metrics: {
+        enabled: true
       }
     })
 
