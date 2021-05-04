@@ -53,11 +53,13 @@ exports.initMiddlewareHandler = (runtime) => {
         if (momentousHandlers.length) {
           return momentousHandlers.reduce((p, func) => p.then(() => func.apply(runtime, args)), Promise.resolve())
         }
+
         return Promise.resolve()
       },
       callHandlersSync (methodName, args, reverse = false) {
         if (list.length) {
           const middlewareList = reverse ? Array.from(list).reverse() : list
+
           middlewareList
             .filter(middleware => typeof middleware[methodName] === 'function')
             .map(middleware => middleware[methodName])

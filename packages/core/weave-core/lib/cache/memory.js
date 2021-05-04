@@ -79,6 +79,9 @@ const makeMemoryCache = (runtime, options = {}) => {
         }
       })
       return Promise.resolve()
+    },
+    stop () {
+      clearInterval(timer)
     }
   })
 

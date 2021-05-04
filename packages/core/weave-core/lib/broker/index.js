@@ -11,7 +11,6 @@ const glob = require('glob')
 const { isFunction } = require('@weave-js/utils')
 const Middlewares = require('../middlewares')
 const { generateUUID } = require('./uuid-factory')
-const { registerMetrics } = require('./broker-metrics.js')
 
 /**
  *  Creates a new Weave Broker instance
@@ -29,7 +28,6 @@ exports.createBrokerInstance = (runtime) => {
     contextFactory,
     validator,
     log,
-    cache,
     services,
     transport,
     handleError,
@@ -42,11 +40,6 @@ exports.createBrokerInstance = (runtime) => {
 
   if (options.namespace) {
     log.info(`Namespace: ${options.namespace}`)
-  }
-
-  // Register broker metrics
-  if (options.metrics.enabled) {
-    registerMetrics(runtime)
   }
 
   if (metrics) {
@@ -173,7 +166,7 @@ exports.createBrokerInstance = (runtime) => {
 
       if (runtime.cache) {
         log.debug('Stopping caching adapters.')
-        await cache.stop()
+        await runtime.cache.stop()
       }
 
       if (runtime.tracer) {

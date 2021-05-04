@@ -1,11 +1,14 @@
+// Process
+exports.PROCESS_PID = 'process.pid'
+exports.PROCESS_PPID = 'process.ppid'
+exports.PROCESS_UPTIME = 'process.uptime'
+
 // Service broker
 exports.WEAVE_ENVIRONMENT = 'weave.environment'
 exports.WEAVE_ENVIRONMENT_VERSION = 'weave.environment-version'
 exports.WEAVE_VERSION = 'weave.version'
 exports.WEAVE_NODE_ID = 'weave.node-id'
 exports.WEAVE_NAMESPACE = 'weave.namespace'
-
-// Host
 
 // Services
 exports.REQUESTS_TOTAL = 'weave.requests.total'

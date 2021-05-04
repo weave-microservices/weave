@@ -1,8 +1,10 @@
-const { isPlainObject } = require('@weave-js/utils')
+const { isPlainObject, isFunction } = require('@weave-js/utils')
+const { run } = require('jest-cli')
+const { registerCommonMetrics, updateCommonMetrics } = require('./common')
 const MetricTypes = require('./types')
 
 exports.initMetrics = (runtime) => {
-  const options = runtime.options.metrics
+  const metricOptions = runtime.options.metrics
 
   const storage = new Map()
 
@@ -11,17 +13,17 @@ exports.initMetrics = (runtime) => {
   Object.defineProperty(runtime, 'metrics', {
     value: {
       runtime,
-      options,
+      options: metricOptions,
       storage,
       log,
       init () {
         // Load adapters
-        if (options.adapters) {
-          if (!Array.isArray(options.adapters)) {
+        if (metricOptions.adapters) {
+          if (!Array.isArray(metricOptions.adapters)) {
             runtime.handleError(new Error('Metic adapter needs to be an Array'))
           }
 
-          this.adapters = options.adapters.map(adapter => {
+          this.adapters = metricOptions.adapters.map(adapter => {
             adapter.init(this)
             return adapter
           })
@@ -53,6 +55,10 @@ exports.initMetrics = (runtime) => {
         return type
       },
       increment (name, labels, value = 1, timestamp) {
+        if (!metricOptions.enabled) {
+          return null
+        }
+
         const item = this.storage.get(name)
 
         if (!item) {
@@ -62,6 +68,10 @@ exports.initMetrics = (runtime) => {
         item.increment(labels, value, timestamp)
       },
       decrement (name, labels, value = 1, timestamp) {
+        if (!metricOptions.enabled) {
+          return null
+        }
+
         const item = this.storage.get(name)
 
         if (!item) {
@@ -69,6 +79,19 @@ exports.initMetrics = (runtime) => {
         }
 
         item.decrement(labels, value, timestamp)
+      },
+      set (name, value, labels, timestamp) {
+        if (!metricOptions.enabled) {
+          return null
+        }
+
+        const item = this.storage.get(name)
+
+        if (!isFunction(item.set)) {
+          runtime.handleError(new Error('Invalid metric type'))
+        }
+
+        item.set(value, labels, timestamp)
       },
       timer (name, labels, timestamp) {
         // const item = this.storage.get(name)
@@ -97,6 +120,12 @@ exports.initMetrics = (runtime) => {
       }
     }
   })
+
+  if (metricOptions.enabled && metricOptions.collectCommonMetrics) {
+    registerCommonMetrics(runtime)
+
+    setInterval(() => updateCommonMetrics(runtime), metricOptions.collectInterval)
+  }
 
   return
 }

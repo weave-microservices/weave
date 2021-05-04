@@ -9,9 +9,10 @@ describe('Test IN-Memory cache initialization', () => {
         enabled: false
       }
     })
-    const cache = CacheMemory(broker)
+    const cache = CacheMemory(broker.runtime)
     expect(cache.options).toBeDefined()
     expect(cache.options.ttl).toBeNull()
+    cache.stop()
   })
 
   it('should create with options.', () => {
@@ -21,9 +22,10 @@ describe('Test IN-Memory cache initialization', () => {
         enabled: false
       }
     })
-    const cache = CacheMemory(broker, options)
+    const cache = CacheMemory(broker.runtime, options)
     expect(cache.options).toEqual(options)
     expect(cache.options.ttl).toBe(4000)
+    cache.stop()
   })
 
   it('should create with options.', () => {
@@ -33,9 +35,10 @@ describe('Test IN-Memory cache initialization', () => {
         enabled: false
       }
     })
-    const cache = CacheMemory(broker, options)
+    const cache = CacheMemory(broker.runtime, options)
     expect(cache.options).toEqual(options)
     expect(cache.options.ttl).toBe(4000)
+    cache.stop()
   })
 })
 
@@ -52,6 +55,7 @@ describe('Test IN-Memory message flow', () => {
     cache.clear = jest.fn()
     broker.bus.emit('$transport.connected')
     expect(cache.clear).toBeCalledTimes(1)
+    cache.stop()
   })
 })
 
@@ -61,7 +65,7 @@ describe('Test usage (without TTL)', () => {
       enabled: false
     }
   })
-  const cache = CacheMemory(broker)
+  const cache = CacheMemory(broker.runtime)
   cache.init()
 
   const key1 = 'test1234:sadasda'

@@ -109,6 +109,9 @@
  * @typedef {Object} MetricsOptions
  * @property {Boolean} enabled Enable metric middleware. (default = false)
  * @property {Array<String|Object>} adapters Array of metric adapters.
+ * @property {Boolean} collectCommonMetrics Enable the collection of common process and environment specific metrics.
+ * @property {Number} collectInterval Refresh interval of the common metrics.
+ * @property {Array<Number>} defaultBuckets Default buckets for histograms.
 */
 
 /**
