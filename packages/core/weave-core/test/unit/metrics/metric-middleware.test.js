@@ -1,25 +1,19 @@
 const MetricMiddleware = require('../../../lib/middlewares/metrics')
-
-const validMiddlewareHooks = [
-  'serviceCreating',
-  'serviceStarting',
-  'serviceStarted',
-  'serviceStopping',
-  'serviceStopped',
-  'serviceCreated',
-  'created',
-  'localAction',
-  'remoteAction',
-  'localEvent',
-  'broadcast',
-  'broadcastLocal',
-  'emit'
-]
+const { middlewareHooks } = require('../../helper/constants')
 
 describe('Test metric middleware', () => {
   it('should create a middleware', () => {
-    const middleware = MetricMiddleware()
-    const valid = Object.keys(middleware).every(p => validMiddlewareHooks.includes(p))
+    const fakeRuntime = {
+      metrics: {},
+      options: {
+        metrics: {
+          enabled: true
+        }
+      }
+    }
+
+    const middleware = MetricMiddleware(fakeRuntime)
+    const valid = Object.keys(middleware).every(p => middlewareHooks.includes(p))
     expect(valid).toBe(true)
   })
 })

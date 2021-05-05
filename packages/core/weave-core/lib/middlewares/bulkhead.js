@@ -68,6 +68,11 @@ module.exports = (runtime) => {
   }
 
   return {
+    created () {
+      if (runtime.options.metrics.enabled) {
+        // todo: add bulkhead metrics
+      }
+    },
     localAction: wrapBulkheadMiddleware
   }
 }

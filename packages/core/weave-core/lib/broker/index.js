@@ -306,7 +306,7 @@ exports.createBrokerInstance = (runtime) => {
 
       // Context tracking
       if (options.contextTracking.enabled) {
-        middlewareHandler.add(Middlewares.PendingContextTracker)
+        middlewareHandler.add(Middlewares.ContextTracker)
       }
 
       // Circuit breaker

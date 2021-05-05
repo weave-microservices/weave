@@ -75,7 +75,6 @@
  * @property {void} loadService loadService
  * @property {void} loadServices loadServices
  * @property {ContextFactory} contextFactory contextFactory
- * @property {Boolean} isStarted isStarted
  * @property {Logger} log log
  * @property {Logger} createLogger createLogger
  * @property {Cache} [cache] cache
@@ -173,30 +172,38 @@
  */
 
 /**
+ * Context tracking options.
+ * @typedef {Object} ContextTracking
+ * @property {Boolean} enabled Enable context tracker.
+ * @property {Number} shutdownTimeout Timeout for service shutdown.
+ */
+
+/**
  * @typedef BrokerOptions
  * @property {string} [nodeId] Node ID. Needs to be unique in your environment.
- * @property {BulkheadOptions} bulkhead Bulkhead options
- * @property {CacheOptions} cache Cache options
- * @property {CircuitBreakerOptions} circuitBreaker Circuit breaker options
- * @property {TransportOptions} transport Transport options
- * @property {Function} [errorHandler] errorHandler
- * @property {boolean} loadNodeService Enable or disable $node service
+ * @property {BulkheadOptions} bulkhead Bulkhead options.
+ * @property {CacheOptions} cache Cache options.
+ * @property {ContextTracking} contextTracking Context tracking options.
+ * @property {CircuitBreakerOptions} circuitBreaker Circuit breaker options.
+ * @property {TransportOptions} transport Transport options.
+ * @property {Function} [errorHandler] errorHandler.
+ * @property {boolean} loadNodeService Enable or disable $node service.
  * @property {boolean} publishNodeService
- * @property {boolean} loadInternalMiddlewares Enable or disable internal middlewares
- * @property {MetricsOptions} metrics Metrics options
- * @property {Array<Middleware>} [middlewares] middlewares
- * @property {LoggerOptions} [logger] logger
- * @property {TracingOptions} tracing Tracing options
- * @property {String} [namespace] namespace
- * @property {RegistryOptions} [registry] registry
+ * @property {boolean} loadInternalMiddlewares Enable or disable internal middlewares.
+ * @property {MetricsOptions} metrics Metrics options.
+ * @property {Array<Middleware>} [middlewares] middlewares.
+ * @property {LoggerOptions} [logger] logger.
+ * @property {TracingOptions} tracing Tracing options.
+ * @property {String} [namespace] namespace.
+ * @property {RegistryOptions} [registry] registry.
  * @property {RetryPolicyOptions} retryPolicy
- * @property {boolean} [validateActionParams] validateActionParams
- * @property {boolean} [watchServices] watchServices
- * @property {number} [waitForServiceInterval] waitForServiceInterval
- * @property {() => string} [beforeRegisterMiddlewares] beforeRegisterMiddlewares
- * @property {() => string} [uuidFactory] uuidFactory
- * @property {(this: Broker) => void} [started] started
- * @property {(this: Broker) => void} [stopped] stopped
+ * @property {boolean} [validateActionParams] validateActionParams.
+ * @property {boolean} [watchServices] watchServices.
+ * @property {number} [waitForServiceInterval] waitForServiceInterval.
+ * @property {() => string} [beforeRegisterMiddlewares] beforeRegisterMiddlewares.
+ * @property {() => string} [uuidFactory] uuidFactory.
+ * @property {(this: Broker) => void} [started] started.
+ * @property {(this: Broker) => void} [stopped] stopped.
 */
 
 /**

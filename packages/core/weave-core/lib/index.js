@@ -131,3 +131,4 @@ exports.TracingAdapters = require('./tracing/collectors')
 // Helper
 exports.defineBrokerOptions = require('./helper/define-broker-options')
 exports.defineService = require('./helper/define-service')
+exports.defineAction = require('./helper/define-action')

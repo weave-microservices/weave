@@ -21,6 +21,7 @@ const wrapRetryMiddleware = function (handler, action) {
       }
 
       const attempts = typeof context.options.retries === 'number' ? context.options.retries : options.retries
+
       return handler(context).catch(error => {
         if (context.retryCount++ < attempts && error.retryable === true) {
           self.log.warn(`Retry to recall action '${context.action.name}' after ${options.delay}.`)

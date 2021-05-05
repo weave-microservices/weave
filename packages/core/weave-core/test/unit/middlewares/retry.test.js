@@ -29,7 +29,8 @@ describe('Test retry middleware', () => {
     action,
     node: {
       id: broker.nodeID
-    }
+    },
+    isLocal: true
   }
 
   it('should register middleware hooks', () => {

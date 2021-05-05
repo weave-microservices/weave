@@ -13,10 +13,10 @@ const { posts, users } = require('../../helper/data')
 describe('Test tracing', () => {
   let flow = []
   let id = 0
+
   const defaultSettings = {
     logger: {
       enabled: false
-      // level: 'fatal'
     },
     transport: {
       adapter: 'dummy'
@@ -69,43 +69,6 @@ describe('Test tracing', () => {
   const node4 = createNode(Object.assign({ nodeId: 'node4' }, defaultSettings), [{
     name: 'friends'
   }])
-  // const node1 = Weave({
-  //   nodeId: 'node1',
-  //   logger: {
-  //     enabled: false,
-  //     level: 'fatal'
-  //   },
-  //   transport: {
-  //     adapter: TransportAdapters.Dummy()
-  //   },
-  //   tracing: {
-  //     enabled: true,
-  //     collectors: [
-  //       TracingAdapters.Event({
-  //         interval: 0
-  //       })
-  //     ]
-  //   }
-  // })
-
-  // const node2 = Weave({
-  //   nodeId: 'node2',
-  //   logger: {
-  //     enabled: false,
-  //     level: 'fatal'
-  //   },
-  //   transport: {
-  //     adapter: TransportAdapters.Dummy()
-  //   },
-  //   tracing: {
-  //     enabled: true,
-  //     collectors: [
-  //       TracingAdapters.Event({
-  //         interval: 0
-  //       })
-  //     ]
-  //   }
-  // })
 
   node2.createService({
     name: 'test',
@@ -141,10 +104,6 @@ describe('Test tracing', () => {
     expect(result).toMatchSnapshot()
 
     flow.sort((a, b) => a.startTime - b.startTime)
-
-    // const spans = pickSpanFields(flow)
-
-    // expect(spans.length).toBe(39)
   })
 
   // it('Started event should be the expected format.', () => {

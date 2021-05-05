@@ -123,6 +123,10 @@ module.exports = (runtime) => {
   return {
     created () {
       log = runtime.createLogger('circuit-breaker')
+
+      if (runtime.options.metrics.enabled) {
+        // todo: add circuit breaker metrics
+      }
     },
     started () {
       const { enabled, windowTime } = this.options.circuitBreaker

@@ -18,14 +18,8 @@ const config = {
 describe('Test metrics middleware', () => {
   const broker = Weave(config)
   // const contentFactory = createContextFactory()
-  const handler = jest.fn(() => Promise.resolve('hooray!!!'))
+  // const handler = jest.fn(() => Promise.resolve('hooray!!!'))
   const middleware = Middleware(broker.runtime)
-  const service = {}
-  const action = {
-    name: 'math.add',
-    handler,
-    service
-  }
 
   // const endpoint = {
   //   action,
@@ -36,12 +30,5 @@ describe('Test metrics middleware', () => {
 
   it('should register hooks', () => {
     expect(middleware.localAction).toBeDefined()
-  })
-
-  it('should not wrap handler if bulkhead is disabled', () => {
-    broker.options.metrics.enabled = false
-
-    const newHandler = middleware.localAction.call(broker, handler, action)
-    expect(newHandler).toBe(handler)
   })
 })
