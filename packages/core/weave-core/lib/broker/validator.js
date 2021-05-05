@@ -32,6 +32,23 @@ exports.initValidator = (runtime) => {
             }
 
             return handler
+          },
+          localEvent (handler, event) {
+            if (event.params && typeof event.params === 'object') {
+              const validate = validator.compile(event.params)
+
+              return (context) => {
+                let result = validate(context.data)
+
+                if (result === true) {
+                  return handler(context)
+                } else {
+                  result = result.map(data => Object.assign(data, { nodeId: context.nodeId, action: context.action.name }))
+                  return Promise.reject(new WeaveParameterValidationError('Parameter validation error', result))
+                }
+              }
+            }
+            return handler
           }
         }
       }
