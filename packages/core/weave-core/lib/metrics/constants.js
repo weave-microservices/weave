@@ -14,6 +14,7 @@ exports.WEAVE_NAMESPACE = 'weave.namespace'
 exports.REQUESTS_TOTAL = 'weave.requests.total'
 exports.REQUESTS_IN_FLIGHT = 'weave.requests.in-flight'
 exports.REQUESTS_ERRORS_TOTAL = 'weave.requests.errors.total'
+exports.REQUESTS_TIME = 'weave.requests.time'
 
 // Events
 exports.EVENT_TOTAL_EMITS = 'weave.events.total-emits'
@@ -29,3 +30,28 @@ exports.TRANSPORT_IN_FLIGHT_STREAMS = 'weave.transport.streams.in-flight'
 
 // Bulkhead
 exports.REQUESTS_BULKHEAD_IN_FLIGHT = 'weave.requests.bulkhead.in-flight'
+
+// OS Metrics
+exports.OS_HOSTNAME = 'os.hostname'
+exports.OS_TYPE = 'os.type'
+exports.OS_RELEASE = 'os.release'
+exports.OS_ARCH = 'os.architecture'
+exports.OS_PLATTFORM = 'os.plattform'
+exports.OS_MEMORY_FREE = 'os.memory.free'
+exports.OS_MEMORY_USED = 'os.memory.used'
+exports.OS_MEMORY_TOTAL = 'os.memory.total'
+exports.OS_UPTIME = 'os.uptime'
+exports.OS_USER_UID = 'os.user.uid'
+exports.OS_USER_GID = 'os.user.gid'
+exports.OS_USER_USERNAME = 'os.user.username'
+exports.OS_USER_HOMEDIR = 'os.user.homedir'
+
+exports.OS_CPU_LOAD_1 = 'os.cpu-load.1'
+exports.OS_CPU_LOAD_5 = 'os.cpu-load.5'
+exports.OS_CPU_LOAD_15 = 'os.cpu-load.15'
+
+// Metric types
+exports.TYPE_INFO = 'info'
+exports.TYPE_GAUGE = 'gauge'
+exports.TYPE_COUNTER = 'counter'
+exports.TYPE_HISTOGRAM = 'counter'

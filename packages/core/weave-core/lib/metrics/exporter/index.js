@@ -2,6 +2,7 @@ const { isString, isFunction } = require('@weave-js/utils')
 const { WeaveBrokerOptionsError } = require('../../errors')
 
 const adapters = {
+  Base: require('./base'),
   Event: require('./event')
 }
 
@@ -18,7 +19,8 @@ const getByName = name => {
 }
 
 module.exports = {
-  resolve (broker, options) {
+  ...adapters,
+  resolve (options) {
     let cacheFactory
 
     if (options === true) {

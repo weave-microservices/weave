@@ -103,6 +103,20 @@ exports.initMetrics = (runtime) => {
           item.set(value, labels, timestamp)
         },
         timer (name, labels, timestamp) {
+          let item
+          if (name) {
+            item = this.storage.get(name)
+          }
+          const start = process.hrtime()
+
+          return () => {
+            const delta = process.hrtime(start)
+            const duration = (delta[0] + delta[1] / 1e9) * 1000
+            if (item) {
+              item.set(duration, labels, timestamp)
+            }
+            return duration
+          }
           // const item = this.storage.get(name)
           // if (item) {
 

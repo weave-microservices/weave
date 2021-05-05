@@ -6,13 +6,13 @@ exports.createGauge = (registry, obj) => {
   base.value = 0
 
   base.increment = (labels, value, timestamp) => {
-    const item = base.get(labels)
-    base.set(labels, (item ? item.value : 0) + value, timestamp)
+    const item = base.values.get(labels)
+    base.set((item ? item.value : 0) + value, labels, timestamp)
   }
 
   base.decrement = (labels, value, timestamp) => {
     const item = base.get(labels)
-    base.set(labels, (item ? item.value : 0) - value, timestamp)
+    base.set((item ? item.value : 0) - value, labels, timestamp)
   }
 
   base.generateSnapshot = () => {
@@ -25,7 +25,7 @@ exports.createGauge = (registry, obj) => {
       })
   }
 
-  base.set = (labels, value, timestamp = Date.now()) => {
+  base.set = (value, labels, timestamp = Date.now()) => {
     const labelString = base.stringifyLabels(labels)
     let item = base.values.get(labelString)
 

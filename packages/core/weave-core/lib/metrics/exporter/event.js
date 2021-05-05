@@ -1,34 +1,41 @@
+const { createBaseMetricAdapter } = require('./base')
+
 module.exports = (options) => {
   const lastChanges = new Set()
 
-  return {
-    init (registry) {
-      this.options = Object.assign(options, {
-        eventName: '$metrics.changed',
-        interval: 5000
-      })
+  const adapter = createBaseMetricAdapter(options)
 
-      this.registry = registry
+  const sendEvent = (registry, options) => {
+    const broker = registry.broker
+    const list = this.registry.list()
 
-      if (this.options.interval > 0) {
-        this.timer = setInterval(() => this.sendEvent(), this.options.interval)
-        this.timer.unref()
-      }
-    },
-    stop () {
-      clearInterval(this.timer)
-      return Promise.resolve()
-    },
-    sendEvent () {
-      const broker = this.registry.broker
-      const list = this.registry.list()
+    broker.emit(this.options.eventName, list)
 
-      broker.emit(this.options.eventName, list)
+    lastChanges.clear()
+  }
 
-      lastChanges.clear()
-    },
-    metricChanged (metric) {
-      lastChanges.add(metric)
+  adapter.init = (registry) => {
+    this.options = Object.assign(options, {
+      eventName: '$metrics.changed',
+      interval: 5000
+    })
+
+    this.registry = registry
+
+    if (this.options.interval > 0) {
+      this.timer = setInterval(() => sendEvent(), this.options.interval)
+      this.timer.unref()
     }
   }
+
+  adapter.stop = () => {
+    clearInterval(this.timer)
+    return Promise.resolve()
+  }
+
+  adapter.metricChanged = (metric) => {
+    lastChanges.add(metric)
+  }
+
+  return adapter
 }
