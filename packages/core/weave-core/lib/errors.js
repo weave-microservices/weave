@@ -87,6 +87,15 @@ class WeaveMaxCallLevelError extends WeaveError {
   }
 }
 
+class WeaveGracefulStopTimeoutError extends WeaveError {
+  constructor (service) {
+    super(`Unable to stop service "${service.name}"`, 500, 'GRACEFUL_STOP_TIMEOUT', {
+      name: service.name,
+      version: service.version
+    })
+  }
+}
+
 const restoreError = error => {
   const ErrorClass = module.exports[error.name]
 
@@ -110,5 +119,6 @@ module.exports = {
   WeaveRetrieableError,
   WeaveServiceNotAvailableError,
   WeaveServiceNotFoundError,
+  WeaveGracefulStopTimeoutError,
   restoreError
 }
