@@ -7,19 +7,6 @@ exports.initTracer = (runtime) => {
   let collectors = []
   let samplingCounter = 0
 
-  // Init collectors
-  if (options.enabled) {
-    log.info('Tracer initialized.')
-
-    if (options.collectors) {
-      collectors = options.collectors
-        .map(entry => {
-          const collector = resolveCollector(runtime, entry, this)
-          collector.init(runtime)
-          return collector
-        })
-    }
-  }
 
   Object.defineProperty(runtime, 'tracer', {
     value: {
@@ -60,4 +47,19 @@ exports.initTracer = (runtime) => {
       }
     }
   })
+
+  // Init collectors
+  if (options.enabled) {
+    log.info('Tracer initialized.')
+
+    if (options.collectors) {
+      collectors = options.collectors
+        .map(entry => {
+          const initCollector = resolveCollector(runtime, entry, this)
+          // collector.init(this)
+          initCollector.init(runtime)
+          return initCollector
+        })
+    }
+  }
 }

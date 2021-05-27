@@ -21,8 +21,8 @@ function NATSTransportAdapter (adapterOptions) {
   return Object.assign(TransportAdapters.BaseAdapter(adapterOptions), {
     name: 'NATS',
     connect () {
-      return new Promise((resolve, reject) => {
-        client = NATS.connect(adapterOptions)
+      return new Promise(async (resolve, reject) => {
+        client = await NATS.connect(adapterOptions)
 
         client.on('connect', () => {
           if (this.interruptionCount > 0 && !this.isConnected) {

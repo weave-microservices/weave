@@ -1,4 +1,4 @@
-const BaseCollector = require('./base')
+const { createBaseTracingCollector } = require('./base')
 
 const mergeDefaultOptions = (options) => {
   return Object.assign({
@@ -10,10 +10,12 @@ const mergeDefaultOptions = (options) => {
   }, options)
 }
 
-module.exports = (options) => {
+module.exports = (options) => (runtime, tracer) => {
   options = mergeDefaultOptions(options)
 
-  const exporter = new BaseCollector(options)
+  const exporter = createBaseTracingCollector(options)
+
+  exporter.init(runtime, tracer)
 
   const queue = []
 
@@ -46,13 +48,14 @@ module.exports = (options) => {
     }
   }
 
-  exporter.init = (runtime) => {
-    exporter.initBase(runtime)
+  if (options.interval > 0) {
+    timer = setInterval(() => flushQueue(), options.interval)
+    timer.unref()
+  }
 
-    if (options.interval > 0) {
-      timer = setInterval(() => flushQueue(), options.interval)
-      timer.unref()
-    }
+  exporter.init = (runtime) => {
+
+
   }
 
   exporter.startedSpan = (span) => {

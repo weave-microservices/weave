@@ -12,7 +12,7 @@ const MessageTypes = require('./message-types')
 module.exports = (broker, transport) => {
   const registry = broker.registry
 
-  const localRequestProxy = context => {
+  const localRequestProxy = (context) => {
     const actionName = context.action.name
 
     // Get available endpoints
@@ -34,7 +34,9 @@ module.exports = (broker, transport) => {
     }
 
     // Call the local action handler with context
-    return endpoint.action.handler(context)
+    const promise = endpoint.action.handler(context)
+    promise.context = context
+    return promise
   }
 
   const handleIncommingRequestStream = (payload) => {
@@ -162,13 +164,13 @@ module.exports = (broker, transport) => {
   }
 
   // Handle discovery request
-  const onDiscovery = message => transport.sendNodeInfo(message.sender)
+  const onDiscovery = (message) => transport.sendNodeInfo(message.sender)
 
   // Handle node informations
-  const onNodeInfos = payload => registry.processNodeInfo(payload)
+  const onNodeInfos = (payload) => registry.processNodeInfo(payload)
 
   // Handle incomming request
-  const onRequest = payload => {
+  const onRequest = (payload) => {
     const sender = payload.sender
     try {
       let stream
@@ -195,7 +197,7 @@ module.exports = (broker, transport) => {
       context.options.timeout = payload.timeout || broker.options.requestTimeout || 0
 
       // If ther is a stream, pass it through the context
-      if (stream) {
+      if (payload.isStream) {
         context.stream = stream
       }
 

@@ -36,7 +36,6 @@ exports.initActionInvoker = (runtime) => {
     }
 
     const p = action.handler(context, endpoint.service, runtime)
-
     p.context = context
 
     return p

@@ -155,8 +155,8 @@ function ModelValidator () {
       const defaultValue = rule.schema.default != null ? JSON.stringify(rule.schema.default) : null
 
       code.push(`
-                if (value === undefined || value === null) {
-            `)
+        if (value === undefined || value === null) {
+      `)
       if (rule.schema.optional === true) {
         if (defaultValue && resolveVar) {
           code.push(`${resolveVar} = ${defaultValue}`)

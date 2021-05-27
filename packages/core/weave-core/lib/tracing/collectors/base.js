@@ -1,31 +1,39 @@
 const { isObject } = require('@weave-js/utils')
+const { WeaveError } = require('../../errors')
 
-class BaseCollector {
-  constructor (options) {
-    this.options = options || {}
+exports.createBaseTracingCollector = (options) => {
+  const baseTracingCollector = Object.create(null)
+
+  baseTracingCollector.options = options
+
+  baseTracingCollector.init = (runtime, tracer) => {
+    baseTracingCollector.runtime = runtime
+    baseTracingCollector.tracer = tracer
   }
 
-  initBase (runtime) {
-    this.runtime = runtime
-    // this.broker = tracer.broker
-    // this.log = tracer.log
+  baseTracingCollector.startedSpan = () => {
+    throw new WeaveError('not implemented.')
   }
 
-  startedSpan () {}
+  baseTracingCollector.finishedSpan = () => {
+    throw new WeaveError('not implemented.')
+  }
 
-  finishedSpan (span) {}
+  baseTracingCollector.stop = () => {
+    throw new WeaveError('not implemented.')
+  }
 
-  stop () {}
-
-  flattenTags (obj, convertToString = false, path = '') {
-    if (!obj) return null
+  baseTracingCollector.flattenTags = (obj, convertToString = false, path = '') => {
+    if (!obj) {
+      return null
+    }
 
     return Object.keys(obj).reduce((res, k) => {
       const o = obj[k]
       const pp = (path ? path + '.' : '') + k
 
       if (isObject(o)) {
-        Object.assign(res, this.flattenTags(o, convertToString, pp))
+        Object.assign(res, baseTracingCollector.flattenTags(o, convertToString, pp))
       } else if (o !== undefined) {
         res[pp] = convertToString ? String(o) : o
       }
@@ -34,7 +42,7 @@ class BaseCollector {
     }, {})
   }
 
-  getErrorFields (error, ...fields) {
+  baseTracingCollector.getErrorFields = (error, ...fields) => {
     if (!error) {
       return null
     }
@@ -47,6 +55,6 @@ class BaseCollector {
 
     return picked
   }
-}
 
-module.exports = BaseCollector
+  return baseTracingCollector
+}

@@ -32,11 +32,13 @@ module.exports = (vorpal, broker) => {
             ])
           } else {
             metric.value.forEach(value => {
+              const labels = value.labels || ''
+
               data.push([
                 metric.description,
                 metric.name,
                 metric.type,
-                value.labels,
+                labels,
                 value.value
               ])
             })

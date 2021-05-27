@@ -5,8 +5,8 @@
  */
 'use strict'
 
-const { uuid, isFunction } = require('@weave-js/utils')
-const { WeaveMaxCallLevelError } = require('../errors')
+const { uuid, isFunction, isStream, isStreamObjectMode } = require('@weave-js/utils')
+const { WeaveMaxCallLevelError, WeaveError } = require('../errors')
 
 exports.createContext = (runtime) => {
   const context = {
@@ -31,6 +31,16 @@ exports.createContext = (runtime) => {
     stopTime: 0,
     setParams (newParams) {
       this.data = newParams || {}
+    },
+    setStream (stream) {
+      if (isStream(stream)) {
+        if (isStreamObjectMode(context.options.stream)) {
+          this.meta.$isObjectModeStream = true
+        }
+        this.stream = stream
+      } else {
+        throw new WeaveError('No valid stream.')
+      }
     },
     setEndpoint (endpoint) {
       this.nodeId = endpoint.node.id

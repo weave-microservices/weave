@@ -1,7 +1,7 @@
 const { Weave } = require('@weave-js/core')
 const NATSTransport = require('../lib/index')
 
-describe('REDIS transport adapter', () => {
+describe('NATS transport adapter', () => {
   let broker1
   let broker2
   const startedHook1 = jest.fn()

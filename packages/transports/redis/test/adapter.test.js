@@ -13,7 +13,7 @@ describe('REDIS transport adapter', () => {
       logger: {
         enabled: false
       },
-      namespace: 'redis',
+      namespace: 'redis-test',
       transport: {
         adapter: REDISTransport()
       },
@@ -34,7 +34,7 @@ describe('REDIS transport adapter', () => {
       logger: {
         enabled: false
       },
-      namespace: 'redis',
+      namespace: 'redis-test',
       transport: {
         adapter: REDISTransport()
       },
@@ -64,7 +64,7 @@ describe('REDIS transport adapter', () => {
     expect(startedHook2).toBeCalledTimes(1)
   })
 
-  it('should get node info', () => {
+  it('should get node info', (done) => {
     return broker1
       .waitForServices(['testService2'])
       .then(() => {
@@ -72,6 +72,7 @@ describe('REDIS transport adapter', () => {
       })
       .then(result => {
         expect(result).toBe('Hello from node2')
+        done()
       })
   })
 })

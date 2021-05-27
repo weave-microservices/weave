@@ -1,4 +1,4 @@
-const { BaseTracingCollector } = require('@weave-js/core')
+const { createBaseTracingCollector } = require('@weave-js/core')
 const fetch = require('node-fetch')
 
 const convertTime = timestamp => timestamp != null ? Math.round(timestamp * 1000) : null
@@ -13,8 +13,8 @@ const mergeDefaultOptions = (options) => {
 }
 
 exports.createZipkinExporter = (options) =>
-  (broker, tracer) => {
-    const exporter = new BaseTracingCollector(options, broker, tracer)
+  (runtime, tracer) => {
+    const exporter = createBaseTracingCollector(runtime, tracer)
     const queue = []
 
     options = mergeDefaultOptions(options)

@@ -1,8 +1,6 @@
 const { Weave } = require('../../../lib/index')
 const utils = require('@weave-js/utils')
-
 const Middleware = require('../../../lib/middlewares/bulkhead')
-const { createContextFactory } = require('../../../lib/broker/context-factory')
 
 const config = {
   logger: {
@@ -15,7 +13,7 @@ const config = {
 
 describe('Test bulkhead middleware', () => {
   const broker = Weave(config)
-  const contentFactory = createContextFactory(broker.runtime)
+  const contentFactory = broker.runtime.contextFactory
   const handler = jest.fn(() => Promise.resolve('hooray!!!'))
   const middleware = Middleware(broker.runtime)
   const service = {}

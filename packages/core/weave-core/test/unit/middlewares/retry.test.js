@@ -1,6 +1,5 @@
 const { Weave } = require('../../../lib/index')
 const Middleware = require('../../../lib/middlewares/retry')
-const { createContextFactory } = require('../../../lib/broker/context-factory')
 const { WeaveRetrieableError } = require('../../../lib/errors')
 
 const config = {
@@ -12,7 +11,7 @@ const config = {
 
 describe('Test retry middleware', () => {
   const broker = Weave(config)
-  const contentFactory = createContextFactory(broker.runtime)
+  const contextFactory = broker.runtime.contextFactory
   const handler = jest.fn(() => Promise.resolve('hooray!!!'))
   const middleware = Middleware()
   const service = {}
@@ -61,7 +60,7 @@ describe('Test retry middleware', () => {
     const handler = jest.fn(() => Promise.reject(error))
     const newHandler = middleware.localAction.call(broker, handler, action)
 
-    const context = contentFactory.create(endpoint)
+    const context = contextFactory.create(endpoint)
     context.setParams({ name: 'Kevin' })
 
     broker.call = jest.fn(() => Promise.resolve('next call'))
@@ -85,7 +84,7 @@ describe('Test retry middleware', () => {
     const handler = jest.fn(() => Promise.reject(error))
     const newHandler = middleware.localAction.call(broker, handler, action)
 
-    const context = contentFactory.create(endpoint)
+    const context = contextFactory.create(endpoint)
     context.setParams({ name: 'Kevin' })
 
     broker.call = jest.fn(() => Promise.resolve('next call'))

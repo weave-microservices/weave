@@ -125,7 +125,7 @@ exports.TransportAdapters = require('./transport/adapters')
 
 // Caching
 exports.Cache = require('./cache')
-exports.BaseTracingCollector = require('./tracing/collectors/base')
+exports.createBaseTracingCollector = require('./tracing/collectors/base')
 exports.TracingAdapters = require('./tracing/collectors')
 
 // Helper
