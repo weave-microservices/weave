@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0-beta.10](https://github.com/weave-microservices/weave/compare/@weave-js/cli@0.9.0-beta.9...@weave-js/cli@0.9.0-beta.10) (2021-05-27)
+
+
+### Features
+
+* **weave-cli:** Added posibility to override config from ENV vars. ([e117b61](https://github.com/weave-microservices/weave/commit/e117b610cff441fbc5cb1aef7c1987808262b3fe))
+
+
+
+
+
 # [0.9.0-beta.9](https://github.com/weave-microservices/weave/compare/@weave-js/cli@0.9.0-beta.8...@weave-js/cli@0.9.0-beta.9) (2021-04-29)
 
 **Note:** Version bump only for package @weave-js/cli

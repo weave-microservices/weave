@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/nats-transport",
-  "version": "0.9.0-beta.9",
+  "version": "0.9.0-beta.10",
   "description": "Weave NATS transport adapter",
   "main": "lib/index.js",
   "scripts": {
@@ -27,7 +27,7 @@
     "nats": "^1.4.12"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.9.0-beta.8",
+    "@weave-js/core": "^0.9.0-beta.9",
     "eslint": "^7.24.0",
     "eslint-config-fw": "^1.0.3",
     "eslint-loader": "^4.0.2",

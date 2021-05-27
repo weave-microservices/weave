@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0-beta.9](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.0-beta.8...@weave-js/core@0.9.0-beta.9) (2021-05-27)
+
+
+### Bug Fixes
+
+* Fixed context tracker ([ab2869e](https://github.com/fachw3rk/weave/commit/ab2869e98f5459256faafa7955e5b817a611639e))
+* fixed unrefed timers ([04fe50b](https://github.com/fachw3rk/weave/commit/04fe50b2e88e863f6783b4804ce4cfb74f910e3c))
+
+
+### Features
+
+* **metrics:** Added time measurement tool ([245d272](https://github.com/fachw3rk/weave/commit/245d272aa300f926df44088233ea10379008e055))
+* Added validator for events ([da5044e](https://github.com/fachw3rk/weave/commit/da5044ef5acbe3bd4a9984e98e0d2caa00cb0f26))
+* **core:** Added afterSchemasMerged service lifetime hook ([0f8a19a](https://github.com/fachw3rk/weave/commit/0f8a19ac592786b54621eb52486405efbcb6c126))
+* **core:** Added stoping sequence to metric adapters ([cf7b657](https://github.com/fachw3rk/weave/commit/cf7b6573f93c8d3cdaa128fbc3eaf9962d529725))
+* **core:** Refactoring metrics ([edf2a62](https://github.com/fachw3rk/weave/commit/edf2a62a46417a3221949519fb46c28b070f327b))
+* Refactoring ([b79ca4f](https://github.com/fachw3rk/weave/commit/b79ca4fe4a07bd4c1cdf433f514d89f028fd8d9d))
+
+
+
+
+
 # [0.9.0-beta.8](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.0-beta.7...@weave-js/core@0.9.0-beta.8) (2021-04-29)
 
 **Note:** Version bump only for package @weave-js/core
