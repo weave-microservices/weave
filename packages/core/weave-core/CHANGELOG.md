@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0-beta.10](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.0-beta.9...@weave-js/core@0.9.0-beta.10) (2021-05-30)
+
+
+### Bug Fixes
+
+* Fixed log action names if the actionName param refers to an endpoint. ([3100b42](https://github.com/fachw3rk/weave/commit/3100b427b126cd826b6f7fd0a25208bc4ceba255))
+
+
+
+
+
 # [0.9.0-beta.9](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.0-beta.8...@weave-js/core@0.9.0-beta.9) (2021-05-27)
 
 
