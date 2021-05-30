@@ -30,9 +30,9 @@ exports.initActionInvoker = (runtime) => {
     }
 
     if (endpoint.isLocal) {
-      log.debug({ action: actionName, requestId: context.requestId }, 'Call action local.')
+      log.debug({ action: context.action.name, requestId: context.requestId }, 'Call action local.')
     } else {
-      log.debug({ action: actionName, nodeId, requestId: context.requestId }, 'Call action on remote node.')
+      log.debug({ action: context.action.name, nodeId, requestId: context.requestId }, 'Call action on remote node.')
     }
 
     const p = action.handler(context, endpoint.service, runtime)

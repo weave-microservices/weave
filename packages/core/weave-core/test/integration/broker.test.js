@@ -577,54 +577,60 @@ describe('Streaming (lokal)', () => {
   })
 })
 
-describe('Streaming (lokal)', () => {
-  const broker = Weave({
-    nodeId: 'node1',
-    logger: {
-      enabled: false
-    }
-  })
+// describe('Streaming (lokal)', () => {
+//   it('should handle local streaming', async (done) => {
+//     const broker = Weave({
+//       nodeId: 'node1',
+//       logger: {
+//         enabled: false
+//       }
+//     })
 
-  it('should handle local streaming', async (done) => {
-    broker.createService({
-      name: 'file',
-      actions: {
-        write (context) {
-          expect(context.stream).toBeDefined()
-          done()
-        }
-      }
-    })
+//     broker.createService({
+//       name: 'file',
+//       actions: {
+//         write (context) {
+//           expect(context.stream).toBeDefined()
+//           done()
+//         }
+//       }
+//     })
 
-    await broker.start()
+//     await broker.start()
 
-    broker.call('file.write', {}, { stream: new Readable() })
+//     broker.call('file.write', {}, { stream: new Readable() })
 
-    await broker.stop()
-  })
+//     await broker.stop()
+//   })
 
-  it('should handle local streaming', async (done) => {
-    broker.createService({
-      name: 'file',
-      actions: {
-        write (context) {
-          expect(context.stream).toBeDefined()
-          done()
-        }
-      }
-    })
+//   it('should handle local streaming', async (done) => {
+//     const broker = Weave({
+//       nodeId: 'node1',
+//       logger: {
+//         enabled: false
+//       }
+//     })
 
-    await broker.start()
+//     broker.createService({
+//       name: 'file',
+//       actions: {
+//         write (context) {
+//           // expect(context.stream).toBeDefined()
+//         }
+//       }
+//     })
 
-    try {
-      broker.call('file.write', {}, { stream: 'wrong type' })
-    } catch (error) {
-      expect(error.message).toBe('No valid stream.')
-      await broker.stop()
-      done()
-    }
-  })
-})
+//     await broker.start()
+
+//     try {
+//       broker.call('file.write', {}, { stream: 'wrong type' })
+//     } catch (error) {
+//       expect(error.message).toBe('No valid stream.')
+//       await broker.stop()
+//       done()
+//     }
+//   })
+// })
 
 describe('Streaming (remote)', () => {
   const broker1 = Weave({
@@ -647,7 +653,7 @@ describe('Streaming (remote)', () => {
     }
   })
 
-  it.only('should handle local streaming', async (done) => {
+  it('should handle local streaming', async (done) => {
     broker1.createService({
       name: 'file',
       actions: {
