@@ -94,12 +94,12 @@ const applyMixins = (service, schema) => {
           mixin = applyMixins(service, mixin)
         }
 
-        for (var key in mixin) {
-          // bind scope for life cycle hooks
-          if (['created', 'started', 'stopped'].includes(key)) {
-            mixin[key] = mixin[key].bind(service)
-          }
-        }
+        // for (var key in mixin) {
+        //   // bind scope for life cycle hooks
+        //   if (['created', 'started', 'stopped'].includes(key)) {
+        //     mixin[key] = mixin[key].bind(service)
+        //   }
+        // }
 
         return s ? mergeSchemas(s, mixin) : mixin
       }, null)
