@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0-beta.11](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.0-beta.10...@weave-js/core@0.9.0-beta.11) (2021-05-31)
+
+
+### Bug Fixes
+
+* Removed buggy context assignment for lifecycle hooks ([b471408](https://github.com/fachw3rk/weave/commit/b471408c481752b02da26d225119f8e18e89880d))
+
+
+
+
+
 # [0.9.0-beta.10](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.0-beta.9...@weave-js/core@0.9.0-beta.10) (2021-05-30)
 
 
