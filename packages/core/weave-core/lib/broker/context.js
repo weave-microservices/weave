@@ -5,6 +5,10 @@
  */
 'use strict'
 
+/**
+ * @typedef {import('../types').Context} Context
+ */
+
 const { uuid, isFunction, isStream, isStreamObjectMode } = require('@weave-js/utils')
 const { WeaveMaxCallLevelError, WeaveError } = require('../errors')
 
@@ -92,6 +96,10 @@ exports.createContext = (runtime) => {
         return this.span
       }
     },
+    /**
+     * Copy the current context.
+     * @returns {Context} New copied context
+    */
     copy () {
       const newContext = exports.createContext(runtime)
 
@@ -111,9 +119,9 @@ exports.createContext = (runtime) => {
     }
   }
 
-  // generate context Id
+  // Generate context Id
   if (!context.id) {
-    // Use custom UUID factory
+    // Use UUID factory from broker options
     if (runtime.options.uuidFactory && isFunction(runtime.options.uuidFactory)) {
       context.id = runtime.options.uuidFactory.call(context, runtime)
     } else {
