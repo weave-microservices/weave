@@ -24,5 +24,6 @@ module.exports = {
   arrayMinLength: 'The parameter "{param}" must contain at least {expected} elements.',
   arrayMaxLength: 'The parameter "{param}" may contain a maximum of {expected} elements.',
   arrayContains: 'The parameter "{param}"  must contain the item "{expected}".',
-  enumValues: 'The  value of the parameter "{param}" with the value "{passed}" does not match with any of the allowed values.'
+  enumValues: 'The  value of the parameter "{param}" with the value "{passed}" does not match with any of the allowed values.',
+  objectStrict: 'The object "{param}" contains forbidden keys: "{passed}".'
 }

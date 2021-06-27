@@ -40,9 +40,9 @@ module.exports = function checkObject ({ schema, messages }, path, context) {
     }
   `)
 
-  const subSchema = schema.props
+  const subSchema = schema.properties || schema.props
 
-  // handle sube schemas
+  // handle sub schemas
   if (subSchema) {
     code.push('let parentObject = value')
     code.push('let parentField = field')
@@ -61,6 +61,42 @@ module.exports = function checkObject ({ schema, messages }, path, context) {
 
       const rule = this.getRuleFromSchema(subSchema[property])
       code.push(this.compileRule(rule, context, newPath, `${safePropName} = context.func[##INDEX##](value, field, parentObject, errors, context)`, safePropName))
+    }
+
+    if (schema.strict) {
+      const allowedProperties = Object.keys(subSchema)
+
+      code.push(`
+        field = parentField || '$root'
+        const invalidProperties = [];
+        const props = Object.keys(parentObject);
+        for (let i = 0; i < props.length; i++) {
+          if (!${JSON.stringify(allowedProperties)}.includes(props[i])) {
+            invalidProperties.push(props[i]);
+          }
+        }
+
+        if (invalidProperties.length > 0) {
+      `)
+
+      if (context.options.strictMode === 'remove') {
+        code.push(`
+          invalidProperties.forEach((propertyName) => {
+            delete parentObject[propertyName]
+          })
+        `)
+      } else {
+        code.push(`
+          ${this.makeErrorCode({
+            type: 'objectStrict',
+            expected: `"${allowedProperties.join(', ')}"`,
+            passed: 'invalidProperties.join(", ")', messages
+          })}
+        `)
+      }
+      
+      code.push('}')
+
     }
 
     code.push(`

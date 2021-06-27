@@ -70,6 +70,10 @@ function ModelValidator () {
     compileRule (rule, context, path, innerSrc, sourceVar) {
       const sourceCode = []
 
+      if (rule.schema.type === 'object') {
+        rule.schema.strict = !!context.options.strict
+      }
+
       const item = cache.get(rule.schema)
 
       if (item) {
@@ -92,6 +96,11 @@ function ModelValidator () {
       return sourceCode.join('\n')
     },
     compile (schema, options = {}) {
+      options = Object.assign({
+        strict: true,
+        strictMode: 'remove'
+      }, options)
+
       if (typeof schema !== 'object') {
         throw new Error('Invalid Schema.')
       }
@@ -101,7 +110,10 @@ function ModelValidator () {
       const context = {
         index: 0,
         rules: [],
-        func: []
+        func: [],
+        options: {
+          ...options
+        }
       }
 
       cache.clear()
@@ -119,6 +131,7 @@ function ModelValidator () {
         const tempSchema = Object.assign({}, schema)
         schema = {
           type: 'object',
+          strict: context.options.strict || false,
           props: tempSchema
         }
       }
@@ -155,8 +168,8 @@ function ModelValidator () {
       const defaultValue = rule.schema.default != null ? JSON.stringify(rule.schema.default) : null
 
       code.push(`
-        if (value === undefined || value === null) {
-      `)
+                if (value === undefined || value === null) {
+            `)
       if (rule.schema.optional === true) {
         if (defaultValue && resolveVar) {
           code.push(`${resolveVar} = ${defaultValue}`)

@@ -59,4 +59,36 @@ describe('Object validator', () => {
 
     expect(result).toBe(true)
   })
+
+  it('should remove illegal properties in strict mode', () => {
+    const schema = {
+      user: {
+        type: 'object',
+        props: {
+          'first-name': { type: 'string' },
+          lastname: { type: 'string' }
+        }
+      }
+    }
+
+    const parameters = {
+      user: {
+        'first-name': 'Kevin',
+        lastname: 'Ries',
+        shouldBeRemoved: false
+      },
+      password: { type: 'string' }
+    }
+
+    const validator = ModelValidator()
+    const validate = validator.compile(schema, {
+      strict: true,
+      strictMode: 'error'
+    })
+
+    const result = validate(parameters)
+
+    expect(result.length).toBe(2)
+    // todo: validate errors
+  })
 })
