@@ -1,5 +1,5 @@
 const { Weave } = require('../../lib/index')
-const { Readable } = require('stream')
+const { Readable } = require('stream')
 
 describe('Test broker lifecycle', () => {
   it('should create a broker and call the started/stopped hook.', (done) => {
@@ -533,7 +533,7 @@ describe('Error handler', () => {
 
 describe('Streaming (lokal)', () => {
   const broker = Weave({
-    nodeId: 'node1',
+    nodeId: 'node-local-streaming',
     logger: {
       enabled: false
     }
@@ -634,7 +634,7 @@ describe('Streaming (lokal)', () => {
 
 describe('Streaming (remote)', () => {
   const broker1 = Weave({
-    nodeId: 'node1',
+    nodeId: 'node1-remote-streaming',
     transport: {
       adapter: 'dummy'
     },
@@ -644,7 +644,7 @@ describe('Streaming (remote)', () => {
   })
 
   const broker2 = Weave({
-    nodeId: 'node2',
+    nodeId: 'node2-remote-streaming',
     transport: {
       adapter: 'dummy'
     },
