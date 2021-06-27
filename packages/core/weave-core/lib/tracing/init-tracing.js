@@ -7,7 +7,6 @@ exports.initTracer = (runtime) => {
   let collectors = []
   let samplingCounter = 0
 
-
   Object.defineProperty(runtime, 'tracer', {
     value: {
       log,

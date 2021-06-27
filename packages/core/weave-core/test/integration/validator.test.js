@@ -128,8 +128,8 @@ describe('Validator strict mode', () => {
 
     node1.start().then(() => {
       node1.call('testService.sayHello', { name: 'Hans', lastname: 'hans' })
-      .catch((error) => {
-        expect(error.data.length).toBe(1)
+        .catch((error) => {
+          expect(error.data.length).toBe(1)
           const [validationError] = error.data
 
           expect(validationError.action).toBe('testService.sayHello')
@@ -140,7 +140,7 @@ describe('Validator strict mode', () => {
           expect(validationError.passed).toBe('lastname')
           expect(validationError.type).toBe('objectStrict')
           done()
-      })
+        })
     })
   })
 })

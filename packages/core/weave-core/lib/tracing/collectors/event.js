@@ -55,7 +55,6 @@ module.exports = (options) => (runtime, tracer) => {
 
   exporter.init = (runtime) => {
 
-
   }
 
   exporter.startedSpan = (span) => {

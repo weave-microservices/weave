@@ -674,6 +674,6 @@ describe('Streaming (remote)', () => {
 
 describe('Multiple action calls', () => {
   it('should call multiple actions', () => {
-    
+
   })
 })

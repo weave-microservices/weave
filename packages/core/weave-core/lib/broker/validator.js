@@ -4,15 +4,18 @@
  * Copyright 2020 Fachwerk
  */
 
-const { defaultsDeep, isObject } = require('@weave-js/utils')
+/**
+ * @typedef {import('../types.js').Runtime} Runtime
+*/
+
 const ObjectValidator = require('@weave-js/validator')
 const { WeaveParameterValidationError } = require('../errors')
 
 /**
  * Init validator and attach it to our runtime object.
- * @param {import('../types').Runtime} runtime 
- * @returns 
- */
+ * @param {Runtime} runtime Runtime object.
+ * @returns {void}
+*/
 exports.initValidator = (runtime) => {
   const validator = ObjectValidator()
 
