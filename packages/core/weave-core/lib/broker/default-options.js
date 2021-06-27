@@ -90,6 +90,10 @@ exports.getDefaultOptions = () => {
       retries: 5
     },
     validateActionParams: true,
+    validatorOptions: {
+      strict: true,
+      strictMode: 'remove' // 'error'
+    },
     watchServices: false
   }
 }

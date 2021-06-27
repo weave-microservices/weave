@@ -66,3 +66,81 @@ describe('Test param validator', () => {
   })
 })
 
+describe('Validator strict mode', () => {
+  it('should remove invalid params on strict mode "remove" (global)', (done) => {
+    const node1 = Weave({
+      nodeId: 'node_strict',
+      logger: {
+        enabled: false
+      },
+      validatorOptions: {
+        strict: true,
+        strictMode: 'remove'
+      }
+    })
+
+    node1.createService({
+      name: 'testService',
+      actions: {
+        sayHello: {
+          params: {
+            name: { type: 'string' }
+          },
+          handler (context) {
+            expect(context.data.name).toBe('Hans')
+            expect(context.data.lastname).toBeUndefined()
+            done()
+          }
+        }
+      }
+    })
+
+    node1.start().then(() => {
+      node1.call('testService.sayHello', { name: 'Hans', lastname: 'hans' })
+    })
+  })
+
+  it('should throw an error if ther are invalid params on strict mode "error" (global)', (done) => {
+    const node1 = Weave({
+      nodeId: 'node_strict',
+      logger: {
+        enabled: false
+      },
+      validatorOptions: {
+        strict: true,
+        strictMode: 'error'
+      }
+    })
+
+    node1.createService({
+      name: 'testService',
+      actions: {
+        sayHello: {
+          params: {
+            name: { type: 'string' }
+          },
+          handler (context) {
+            // nothing to do
+          }
+        }
+      }
+    })
+
+    node1.start().then(() => {
+      node1.call('testService.sayHello', { name: 'Hans', lastname: 'hans' })
+      .catch((error) => {
+        expect(error.data.length).toBe(1)
+          const [validationError] = error.data
+
+          expect(validationError.action).toBe('testService.sayHello')
+          expect(validationError.expected).toBe('name')
+          expect(validationError.field).toBe('$root')
+          expect(validationError.message).toBe('The object "$root" contains forbidden keys: "lastname".')
+          expect(validationError.nodeId).toBe('node_strict')
+          expect(validationError.passed).toBe('lastname')
+          expect(validationError.type).toBe('objectStrict')
+          done()
+      })
+    })
+  })
+})

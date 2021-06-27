@@ -4,9 +4,15 @@
  * Copyright 2020 Fachwerk
  */
 
+const { defaultsDeep, isObject } = require('@weave-js/utils')
 const ObjectValidator = require('@weave-js/validator')
 const { WeaveParameterValidationError } = require('../errors')
 
+/**
+ * Init validator and attach it to our runtime object.
+ * @param {import('../types').Runtime} runtime 
+ * @returns 
+ */
 exports.initValidator = (runtime) => {
   const validator = ObjectValidator()
 
@@ -17,7 +23,11 @@ exports.initValidator = (runtime) => {
         return {
           localAction (handler, action) {
             if (action.params && typeof action.params === 'object') {
-              const validate = validator.compile(action.params)
+              const parameterOptions = Object.assign(
+                runtime.options.validatorOptions,
+                action.validatorOptions
+              )
+              const validate = validator.compile(action.params, parameterOptions)
 
               return (context) => {
                 let result = validate(context.data)
@@ -25,6 +35,7 @@ exports.initValidator = (runtime) => {
                 if (result === true) {
                   return handler(context)
                 } else {
+                  // Enriching the validator errors with some usefull information
                   result = result.map(data => Object.assign(data, { nodeId: context.nodeId, action: context.action.name }))
                   return Promise.reject(new WeaveParameterValidationError('Parameter validation error', result))
                 }
@@ -35,7 +46,12 @@ exports.initValidator = (runtime) => {
           },
           localEvent (handler, event) {
             if (event.params && typeof event.params === 'object') {
-              const validate = validator.compile(event.params)
+              const parameterOptions = Object.assign(
+                runtime.options.validatorOptions,
+                event.validatorOptions
+              )
+
+              const validate = validator.compile(event.params, parameterOptions)
 
               return (context) => {
                 let result = validate(context.data)

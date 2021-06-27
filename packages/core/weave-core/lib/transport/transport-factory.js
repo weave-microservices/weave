@@ -212,7 +212,7 @@ exports.createTransport = (runtime, adapter) => {
   }
 
   /**
-   * Send node informations.
+   * Send node information.
    * @param {*} sender sender node ID.
    * @returns {Promise} Promise
   */

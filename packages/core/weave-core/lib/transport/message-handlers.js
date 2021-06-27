@@ -166,7 +166,7 @@ module.exports = (broker, transport) => {
   // Handle discovery request
   const onDiscovery = (message) => transport.sendNodeInfo(message.sender)
 
-  // Handle node informations
+  // Handle node information
   const onNodeInfos = (payload) => registry.processNodeInfo(payload)
 
   // Handle incomming request

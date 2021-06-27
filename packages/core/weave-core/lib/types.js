@@ -179,6 +179,13 @@
  */
 
 /**
+ * Validator options.
+ * @typedef {Object} ValidatorOptions
+ * @property {Boolean} strict Enable the strict mode of the validator.
+ * @property {'remove'|'error'} strictMode How to deal with parameters that are not allowed.How to handle parameters that are not allowed. `remove`: remove all undefined parameters. `error`: throw a validation error
+ */
+
+/**
  * @typedef BrokerOptions
  * @property {string} [nodeId] Node ID. Needs to be unique in your environment.
  * @property {BulkheadOptions} bulkhead Bulkhead options.
@@ -197,6 +204,7 @@
  * @property {String} [namespace] namespace.
  * @property {RegistryOptions} [registry] registry.
  * @property {RetryPolicyOptions} retryPolicy
+ * @property {ValidatorOptions} validatorOptions Validator options.
  * @property {boolean} [validateActionParams] validateActionParams.
  * @property {boolean} [watchServices] watchServices.
  * @property {number} [waitForServiceInterval] waitForServiceInterval.
@@ -218,7 +226,7 @@
 
 /**
  * @typedef {Object.<'fatal'|'error'|'warn'|'info'|'debug'|'trace', Function} Logger
- */
+*/
 
 // Cache
 

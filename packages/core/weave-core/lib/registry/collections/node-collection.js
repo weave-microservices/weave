@@ -64,7 +64,7 @@ exports.createNodeCollection = (registry) => {
     return result
   }
 
-  // get Local node informations and add it to the collection by
+  // get Local node information and add it to the collection by
   const addLocalNode = () => {
     const node = createNode(runtime.options.nodeId)
 

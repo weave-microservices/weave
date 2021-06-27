@@ -372,7 +372,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ### Bug Fixes
 
 * Node list ([7169b20](https://github.com/fachw3rk/weave/commit/7169b202ae502ea0de8037ae16ffdceca02896ce))
-* Removed raw informations from node list ([fd9bad1](https://github.com/fachw3rk/weave/commit/fd9bad1a6758560d13ac2053fcc832424737eaa2))
+* Removed raw information from node list ([fd9bad1](https://github.com/fachw3rk/weave/commit/fd9bad1a6758560d13ac2053fcc832424737eaa2))
 
 
 ### Features
@@ -956,7 +956,7 @@ module.exports = {
     beforeCreate () {
         this.actions.newAction = {
             params: {...},
-            handler (context) {...}
+            handler (context) {...}
         }
     }
 }
@@ -988,7 +988,7 @@ module.exports = {
     beforeCreate () {
         this.actions.newAction = {
             params: {...},
-            handler (context) {...}
+            handler (context) {...}
         }
     }
 }
@@ -1015,7 +1015,7 @@ module.exports = {
     beforeCreate () {
         this.actions.newAction = {
             params: {...},
-            handler (context) {...}
+            handler (context) {...}
         }
     }
 }
@@ -1090,7 +1090,7 @@ module.exports = {
                 a: { type: 'number' },
                 b: { type: 'number' }
             },
-            handler({ params }) {
+            handler({ params }) {
                 return params.a + params.b;
             }
         }

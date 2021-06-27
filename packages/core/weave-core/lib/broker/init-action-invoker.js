@@ -22,6 +22,7 @@ exports.initActionInvoker = (runtime) => {
     const nodeId = endpoint.node.id
     let context
 
+    // If a context is passed, we use this
     if (opts.context !== undefined) {
       context = opts.context
       context.nodeId = nodeId

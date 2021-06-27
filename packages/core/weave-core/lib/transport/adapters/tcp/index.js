@@ -299,7 +299,7 @@ module.exports = function SwimTransport (adapterOptions) {
           [sequence, cpuSequence, cpu] = online
         }
 
-        // Local node informations are newer
+        // Local node information are newer
         if (!sequence || sequence < node.sequence) {
           // our node info is newer than the
           if (node.isAvailable) {
@@ -325,7 +325,7 @@ module.exports = function SwimTransport (adapterOptions) {
             self.broker.registry.nodeCollection.disconnected(node.id, false)
             node.sequence = sequence
           } else if (node.isLocal) {
-            // Remote node said we are offline, but we are online and send back our node informations.
+            // Remote node said we are offline, but we are online and send back our node information.
             node.sequence = sequence + 1
             const nodeInfo = self.broker.registry.getLocalNodeInfo(true)
             response.online[node.id] = [nodeInfo, node.cpuSequence || 0, node.cpu || 0]

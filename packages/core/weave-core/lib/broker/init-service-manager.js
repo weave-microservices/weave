@@ -13,7 +13,7 @@ exports.initServiceManager = (runtime) => {
     // Send local notification.
     eventBus.broadcastLocal('$services.changed', { isLocalService })
 
-    // If the service is a local service - send current node informations to other nodes
+    // If the service is a local service - send current node information to other nodes
     if (state.isStarted && isLocalService && transport) {
       transport.sendNodeInfo()
     }
