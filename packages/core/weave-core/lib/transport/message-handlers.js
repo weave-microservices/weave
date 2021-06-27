@@ -275,7 +275,7 @@ module.exports = (broker, transport) => {
     })
   }
 
-  const onEvent = payload => {
+  const onEvent = (payload) => {
     // todo: reconstruct event context
     const context = createContext(broker)
 

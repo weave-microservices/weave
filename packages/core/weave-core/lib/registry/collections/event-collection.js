@@ -8,6 +8,8 @@
 const { omit, match } = require('@weave-js/utils')
 const { createEndpointList } = require('./endpoint-collection')
 
+const broadcastEvents = ['broadcast', 'localBroadcast']
+
 exports.createEventCollection = (registry) => {
   const eventCollection = Object.create(null)
   const { runtime } = registry
@@ -82,7 +84,7 @@ exports.createEventCollection = (registry) => {
   eventCollection.emitLocal = (context) => {
     const promises = []
     const groups = context.eventGroups
-    const isBroadcast = ['broadcast', 'localBroadcast'].includes(context.eventType)
+    const isBroadcast = broadcastEvents.includes(context.eventType)
 
     getAllEventsByEventName(context.eventName)
       .filter(endpointList => (groups == null || groups.length === 0 || groups.includes(endpointList.groupName)))
