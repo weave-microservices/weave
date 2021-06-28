@@ -227,9 +227,7 @@ describe('Middleware hooks', () => {
 
     const broker1 = Weave({
       nodeId: 'node1',
-      transport: {
-        adapter: TransportAdapters.Dummy()
-      },
+
       logger: {
         enabled: false
       },

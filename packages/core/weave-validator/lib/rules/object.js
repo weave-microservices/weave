@@ -94,9 +94,7 @@ module.exports = function checkObject ({ schema, messages }, path, context) {
           })}
         `)
       }
-      
       code.push('}')
-
     }
 
     code.push(`

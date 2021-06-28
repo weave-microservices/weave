@@ -6,13 +6,13 @@
 
 const EventEmitter = require('eventemitter2')
 const { getDefaultOptions } = require('./broker/default-options')
-const { defaultsDeep } = require('@weave-js/utils')
+const { defaultsDeep, uuid } = require('@weave-js/utils')
 const { initLogger } = require('./logger/init-logger')
 const { initMiddlewareHandler } = require('./broker/init-middleware-manager')
 const { initRegistry } = require('./registry')
 const { initContextFactory } = require('./broker/init-context-factory')
 const { initEventbus } = require('./broker/init-eventbus')
-const { initValidator } = require('./broker/validator')
+const { initValidator } = require('./broker/init-validator')
 const { initTransport } = require('./transport/init-transport')
 const { initCache } = require('./cache/init-cache')
 const { initActionInvoker } = require('./broker/init-action-invoker')
@@ -66,6 +66,7 @@ const buildRuntime = (options) => {
     options,
     bus,
     state: {
+      instanceId: uuid(),
       isStarted: false
     },
     handleError: (error) => errorHandler(runtime, error),

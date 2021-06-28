@@ -91,4 +91,28 @@ describe('Object validator', () => {
     expect(result.length).toBe(2)
     // todo: validate errors
   })
+
+  it('should remove no properties in strict mode if there is no schema definition', () => {
+    const schema = {}
+
+    const parameters = {
+      user: {
+        'first-name': 'Kevin',
+        lastname: 'Ries',
+        shouldBeRemoved: false
+      },
+      password: { type: 'string' }
+    }
+
+    const validator = ModelValidator()
+    const validate = validator.compile(schema, {
+      strict: true,
+      strictMode: 'error'
+    })
+
+    const result = validate(parameters)
+
+    expect(result.length).toBe(2)
+    // todo: validate errors
+  })
 })

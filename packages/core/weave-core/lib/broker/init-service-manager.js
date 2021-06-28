@@ -100,9 +100,15 @@ exports.initServiceManager = (runtime) => {
 
             options.waitForServiceInterval = setTimeout(serviceCheck, interval)
           }
+
           serviceCheck()
         })
       },
+      /**
+       * Watch a Service object for changes.
+       * @param {Service} service Service object
+       * @return {void}
+      */
       watchService: (service) => {
         if (service.filename && onServiceFileChanged) {
           // Create debounced service changed reference

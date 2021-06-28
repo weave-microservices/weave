@@ -30,6 +30,7 @@ exports.initValidator = (runtime) => {
                 runtime.options.validatorOptions,
                 action.validatorOptions
               )
+
               const validate = validator.compile(action.params, parameterOptions)
 
               return (context) => {

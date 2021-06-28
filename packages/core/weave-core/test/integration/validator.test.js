@@ -25,7 +25,7 @@ describe('Test param validator', () => {
 
     node1.start().then(() => {
       node1.call('testService.sayHello', { name: 'Hans' })
-        .catch(error => {
+        .catch((error) => {
           expect(error.name).toBe('WeaveParameterValidationError')
           expect(error.message).toBe('Parameter validation error')
           done()

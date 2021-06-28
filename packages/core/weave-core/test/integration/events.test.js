@@ -311,14 +311,14 @@ describe('Event context', () => {
   const fakeEvent = jest.fn(context => context)
 
   const node1 = Weave({
-    nodeId: 'test',
+    nodeId: 'test-event-context1',
     transport: {
       adapter: 'dummy'
     }
   })
 
   const node2 = Weave({
-    nodeId: 'test2',
+    nodeId: 'test-event-context2',
     transport: {
       adapter: 'dummy'
     }
@@ -342,23 +342,23 @@ describe('Event context', () => {
   })
 })
 
-describe('Event extensive notation', () => {
+describe('Event parameter validation', () => {
   const fakeEvent = jest.fn(context => context)
 
   const node1 = Weave({
-    nodeId: 'test',
+    nodeId: 'test-event-validation',
     transport: {
       adapter: 'dummy'
     }
   })
 
   const node2 = Weave({
-    nodeId: 'test2',
+    nodeId: 'test-event-validation2',
     transport: {
       adapter: 'dummy'
     }
   })
-  5
+
   node2.createService({
     name: 'test',
     events: {

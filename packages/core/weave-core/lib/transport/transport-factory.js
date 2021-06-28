@@ -222,7 +222,10 @@ exports.createTransport = (runtime, adapter) => {
     }
 
     const info = runtime.registry.getLocalNodeInfo()
-    const message = transport.createMessage(MessageTypes.MESSAGE_INFO, sender, info)
+    const message = transport.createMessage(MessageTypes.MESSAGE_INFO, sender, {
+      ...info,
+      instanceId: runtime.state.instanceId
+    })
     return transport.send(message)
   }
 

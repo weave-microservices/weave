@@ -29,33 +29,6 @@ class ConsoleCollector extends BaseCollector {
     // const data = this.generateTracePayload(span)
     this.broker.emit(this.options.events.finished, span)
   }
-
-  // generateTracePayload (span) {
-  //     const payload = {
-  //         id: context.id,
-  //         nodeId: context.nodeId,
-  //         level: context.level,
-  //         isRemoteCall: !!context.callerNodeId,
-  //         requestId: context.requestId,
-  //         startTime: span.startTime
-  //     }
-
-  //     if (context.action) {
-  //         payload.action = {
-  //             name: context.action.name
-  //         }
-  //     }
-
-  //     if (context.parentId) {
-  //         payload.parentId = context.parentId
-  //     }
-
-  //     if (payload.isRemoteCall) {
-  //         payload.callerNodeId = context.callerNodeId
-  //     }
-
-  //     return payload
-  // }
 }
 
 module.exports = ConsoleCollector
