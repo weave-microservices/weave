@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0-beta.2](https://github.com/weave-microservices/weave/compare/@weave-js/validator@0.9.0-beta.1...@weave-js/validator@0.9.0-beta.2) (2021-06-28)
+
+
+### Features
+
+* **weave-validator:** Added strict mode ([31bcfd3](https://github.com/weave-microservices/weave/commit/31bcfd3a46e66d66e0359680d332c9847d7eff5e))
+
+
+
+
+
 # [0.9.0-beta.1](https://github.com/weave-microservices/weave/compare/@weave-js/validator@0.9.0-beta.0...@weave-js/validator@0.9.0-beta.1) (2021-05-27)
 
 **Note:** Version bump only for package @weave-js/validator

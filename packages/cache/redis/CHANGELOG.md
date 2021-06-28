@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0-beta.13](https://github.com/weave-microservices/weave/compare/@weave-js/redis-cache@0.9.0-beta.12...@weave-js/redis-cache@0.9.0-beta.13) (2021-06-28)
+
+**Note:** Version bump only for package @weave-js/redis-cache
+
+
+
+
+
 # [0.9.0-beta.12](https://github.com/weave-microservices/weave/compare/@weave-js/redis-cache@0.9.0-beta.11...@weave-js/redis-cache@0.9.0-beta.12) (2021-05-31)
 
 **Note:** Version bump only for package @weave-js/redis-cache

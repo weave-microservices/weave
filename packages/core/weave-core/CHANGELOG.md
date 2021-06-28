@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0-beta.12](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.0-beta.11...@weave-js/core@0.9.0-beta.12) (2021-06-28)
+
+
+### Bug Fixes
+
+* **core:** Fixes streaming unit test ([c39672b](https://github.com/fachw3rk/weave/commit/c39672be24e89d9af4df5c0c0cc59ea6a51fe2e6))
+
+
+### Features
+
+* **weave-core:** Added support for validator strict mode. ([8412c07](https://github.com/fachw3rk/weave/commit/8412c07df90014b15663c1effdbdcf2bd1a9fb49))
+
+
+
+
+
 # [0.9.0-beta.11](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.0-beta.10...@weave-js/core@0.9.0-beta.11) (2021-05-31)
 
 
