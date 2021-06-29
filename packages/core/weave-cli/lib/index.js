@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-const { cleanArgs } = require('./utils/args')
 const updateNotifier = require('update-notifier')
 const pkg = require('../package.json')
 const { program } = require('commander')
