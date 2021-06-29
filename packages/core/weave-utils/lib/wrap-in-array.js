@@ -1,1 +1,1 @@
-exports.wrapInArray = object => Array.isArray(object) ? object : [object]
+exports.wrapInArray = (object) => Array.isArray(object) ? object : [object]
