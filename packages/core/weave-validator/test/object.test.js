@@ -112,7 +112,7 @@ describe('Object validator', () => {
 
     const result = validate(parameters)
 
-    expect(result.length).toBe(2)
+    expect(result.length).toBe(1)
     // todo: validate errors
   })
 })
