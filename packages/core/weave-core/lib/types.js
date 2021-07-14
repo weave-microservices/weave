@@ -508,7 +508,7 @@
  * @property {Endpoint} add add
  * @property {Endpoint} get get
  * @property {function(string, Node)} remove remove
- * @property {void} removeByService removeByService
+ * @property {function(service)} removeByService removeByService
  * @property {Array<Endpoint>} getBalancedEndpoints getBalancedEndpoints
  * @property {Array<Endpoint>} getAllEndpoints getAllEndpoints
  * @property {*} getAllEndpointsUniqueNodes getAllEndpointsUniqueNodes

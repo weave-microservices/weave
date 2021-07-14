@@ -42,7 +42,6 @@ exports.createEndpointList = (runtime, name, groupName) => {
     } else {
       const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1) + min)
       return endpointList[randomInt(0, endpointList.length - 1)]
-
       // todo: implement random load balancer
     }
   }

@@ -5,7 +5,7 @@
  */
 'use strict'
 
-const { createContext } = require('./context')
+const { createContext } = require('../broker/context')
 
 exports.initContextFactory = (runtime) => {
   Object.defineProperty(runtime, 'contextFactory', {

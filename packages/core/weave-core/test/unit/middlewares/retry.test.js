@@ -65,7 +65,7 @@ describe('Test retry middleware', () => {
 
     broker.call = jest.fn(() => Promise.resolve('next call'))
 
-    return newHandler(context).then(result => {
+    newHandler(context).then(result => {
       expect(context.retryCount).toBe(1)
 
       expect(handler).toHaveBeenCalledTimes(1)
@@ -89,11 +89,12 @@ describe('Test retry middleware', () => {
 
     broker.call = jest.fn(() => Promise.resolve('next call'))
 
-    return newHandler(context).catch(error => {
-      expect(context.retryCount).toBe(1)
-      expect(error.message).toBe('not this time')
-      done()
-    })
+    newHandler(context)
+      .catch(error => {
+        expect(context.retryCount).toBe(1)
+        expect(error.message).toBe('not this time')
+        done()
+      })
   })
 
   it('should get rejected on remote actions', () => {})

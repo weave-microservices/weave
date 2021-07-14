@@ -1,4 +1,4 @@
-const { initContextFactory } = require('../../lib/broker/init-context-factory')
+const { initContextFactory } = require('../../lib/runtime/init-context-factory')
 const { createFakeRuntime } = require('../helper/runtime')
 
 describe('Test context factxory.', () => {

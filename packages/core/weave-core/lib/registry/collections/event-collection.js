@@ -5,18 +5,38 @@
  * -----
  * Copyright 2020 Fachwerk
 */
+
+/**
+ * @typedef {import('../../types.js').Registry} Registry
+ * @typedef {import('../../types.js').EventCollection} EventCollection
+ * @typedef {import('../../types.js').Service} Service
+ * @typedef {import('../../types.js').Node} Node
+ * @typedef {import('../../types.js').EndpointCollection} EndpointCollection
+*/
+
 const { omit, match } = require('@weave-js/utils')
 const { createEndpointList } = require('./endpoint-collection')
 
 const broadcastEvents = ['broadcast', 'localBroadcast']
-
+/**
+ * Create event collection
+ * @param {Registry} registry Registy reference
+ * @return {EventCollection} Event collection
+ */
 exports.createEventCollection = (registry) => {
   const eventCollection = Object.create(null)
   const { runtime } = registry
   const events = [] // todo: refactor to js Map
   const getAllEventsByEventName = (eventName) => events.filter(list => match(eventName, list.name))
 
-  eventCollection.add = (node, service, event) => {
+/**
+ * Add node to collection
+ * @param {Node} node Node
+ * @param {Service} service Service
+ * @param {any} event Event
+ * @return {EndpointCollection} Endpoint collection
+*/
+eventCollection.add = (node, service, event) => {
     const groupName = event.group || service.name
     let endpointList = eventCollection.get(event.name, groupName)
     if (!endpointList) {

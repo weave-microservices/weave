@@ -8,18 +8,20 @@ const EventEmitter = require('eventemitter2')
 const { getDefaultOptions } = require('./broker/default-options')
 const { defaultsDeep, uuid } = require('@weave-js/utils')
 const { initLogger } = require('./logger/init-logger')
-const { initMiddlewareHandler } = require('./broker/init-middleware-manager')
+const { initMiddlewareHandler } = require('./runtime/init-middleware-manager')
 const { initRegistry } = require('./registry')
-const { initContextFactory } = require('./broker/init-context-factory')
-const { initEventbus } = require('./broker/init-eventbus')
-const { initValidator } = require('./broker/init-validator')
+const { initContextFactory } = require('./runtime/init-context-factory')
+const { initEventbus } = require('./runtime/init-eventbus')
+const { initValidator } = require('./runtime/init-validator')
 const { initTransport } = require('./transport/init-transport')
 const { initCache } = require('./cache/init-cache')
-const { initActionInvoker } = require('./broker/init-action-invoker')
-const { initServiceManager } = require('./broker/init-service-manager')
+const { initActionInvoker } = require('./runtime/init-action-invoker')
+const { initServiceManager } = require('./runtime/init-service-manager')
 const { initMetrics } = require('./metrics/init-metrics')
 const { initTracer } = require('./tracing/init-tracing')
-const { initHealth } = require('./broker/init-health')
+const { initHealth } = require('./runtime/init-health')
+const { initUUIDFactory } = require('./runtime/init-uuid-factory')
+
 const { createBrokerInstance } = require('./broker')
 const { version } = require('../package.json')
 
@@ -32,7 +34,8 @@ const errorHandler = ({ options }, error) => {
   throw error
 }
 
-const fatalErrorHandler = ({ options, log }, message, error, killProcess = true) => {
+const fatalErrorHandler = (runtime, message, error, killProcess = true) => {
+  const { options, log } = runtime
   if (options.logger.enabled) {
     log.fatal(error, message)
   } else {
@@ -48,7 +51,7 @@ const fatalErrorHandler = ({ options, log }, message, error, killProcess = true)
  * Build runtime object
  * @param {BrokerOptions} options Broker options
  * @return {Runtime} Runtime
- */
+*/
 const buildRuntime = (options) => {
   /**
    * Event bus
@@ -74,6 +77,7 @@ const buildRuntime = (options) => {
   }
 
   initLogger(runtime)
+  initUUIDFactory(runtime)
   initMiddlewareHandler(runtime)
   initRegistry(runtime)
   initContextFactory(runtime)
@@ -86,7 +90,7 @@ const buildRuntime = (options) => {
   initMetrics(runtime)
   initTracer(runtime)
   initHealth(runtime)
-
+  
   return runtime
 }
 

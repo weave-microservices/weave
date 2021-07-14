@@ -1,4 +1,14 @@
-module.exports = errorDefinitions => {
+/**
+ * @typedef {Object} ErrorDefinition
+ * @property {}
+*/
+
+/**
+ * 
+ * @param {*} errorDefinitions 
+ * @returns 
+ */
+module.exports = (errorDefinitions) => {
   const errors = {}
 
   for (const errorName in errorDefinitions) {

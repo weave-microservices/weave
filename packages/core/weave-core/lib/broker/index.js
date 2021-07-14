@@ -10,7 +10,6 @@ const path = require('path')
 const glob = require('glob')
 const { isFunction } = require('@weave-js/utils')
 const Middlewares = require('../middlewares')
-const { generateUUID } = require('./uuid-factory')
 
 /**
  *  Creates a new Weave Broker instance
@@ -30,7 +29,6 @@ exports.createBrokerInstance = (runtime) => {
     log,
     services,
     transport,
-    handleError,
     metrics
   } = runtime
 
@@ -60,7 +58,7 @@ exports.createBrokerInstance = (runtime) => {
     contextFactory,
     log,
     createLogger: runtime.createLogger,
-    getUUID: () => generateUUID(runtime),
+    getUUID: () => runtime.generateUUID(),
     health: runtime.health,
     registry,
     getNextActionEndpoint (actionName, options = {}) {
@@ -123,7 +121,7 @@ exports.createBrokerInstance = (runtime) => {
       } catch (error) {
         log.error(error, 'Unable to start all services')
         clearInterval(options.waitForServiceInterval)
-        handleError(error)
+        throw error
       }
 
       runtime.state.isStarted = true

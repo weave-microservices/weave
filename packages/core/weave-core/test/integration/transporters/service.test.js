@@ -27,7 +27,7 @@ describe('Connected services', () => {
 
     broker1.createService(LocalService)
 
-    return Promise.all([
+    Promise.all([
       broker1.start(),
       broker2.start()
     ])

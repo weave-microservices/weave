@@ -258,7 +258,7 @@ describe('Remote events', () => {
   const testEventS1 = jest.fn()
   const testEventS2 = jest.fn()
 
-  beforeEach(async (done) => {
+  beforeEach(async () => {
     broker1 = Weave({
       nodeId: 'node1',
       transport: {
@@ -288,12 +288,10 @@ describe('Remote events', () => {
     })
 
     await Promise.all([broker1.start(), broker2.start()])
-    done()
   })
 
-  afterEach(async (done) => {
+  afterEach(async () => {
     await Promise.all([broker1.stop(), broker2.stop()])
-    done()
   })
 
   it('should call remote events', () => {

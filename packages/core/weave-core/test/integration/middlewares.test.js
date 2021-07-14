@@ -203,7 +203,7 @@ describe('Middleware hooks', () => {
       }
     })
 
-    return Promise.all([
+    Promise.all([
       broker1.start(),
       broker2.start()
     ])

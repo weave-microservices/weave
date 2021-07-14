@@ -27,7 +27,7 @@ describe('Transport', () => {
 
     broker1.createService(MathService)
 
-    return Promise.all([
+    Promise.all([
       broker1.start(),
       broker2.start()
     ])

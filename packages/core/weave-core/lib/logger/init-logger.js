@@ -15,10 +15,12 @@ exports.initLogger = (runtime) => {
       ...additional
     }
 
+    // custom logger generator function 
     if (typeof runtime.options.logger === 'function') {
       return runtime.options.logger(bindings, runtime.options.level)
     }
 
+    // merge log options
     const loggerOptions = defaultsDeep(runtime.options.logger, {
       base: {
         ...bindings

@@ -10,7 +10,6 @@
  * @typedef {import("../types").Node} Node
 */
 
-// todo: find a better name
 /**
  * Service item factory
  * @param {Node} node Node

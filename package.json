@@ -51,9 +51,9 @@
   },
   "homepage": "https://weave-js.com",
   "devDependencies": {
-    "@sinonjs/fake-timers": "^7.0.5",
-    "concurrently": "^6.1.0",
-    "eslint": "^7.26.0",
+    "@sinonjs/fake-timers": "^7.1.2",
+    "concurrently": "^6.2.0",
+    "eslint": "^7.30.0",
     "eslint-config-fw": "^1.0.3",
     "lerna": "^4.0.0"
   },

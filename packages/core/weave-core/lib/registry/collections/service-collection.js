@@ -65,37 +65,7 @@ exports.createServiceCollection = (registry) => {
     })
   }
 
-  // serviceCollection.registerAction = (nodeId, action) => {
-  //   let endPointList = actions.get(action.name)
-
-  //   if (!endPointList) {
-  //     endPointList = createEndpointCollection(broker, options)
-  //     endPointList.isInternal = action.name.substring(0, 1) === '$'
-  //     actions.set(action.name, endPointList)
-  //   }
-
-  //   const service = findServiceByNode(nodeId, action.service.name)
-
-  //   if (service) {
-  //     service.addAction(action)
-  //   }
-
-  //   return endPointList.add(nodeId, action)
-  // }
-
   serviceCollection.tryFindActionsByActionName = (actionName) => actions.get(actionName)
-
-  // serviceCollection.getLocalActions = () => {
-  //   const result = []
-  //   // todo: refactoring to array.map()
-  //   actions.forEach(entry => {
-  //     const endpoint = entry.getLocalEndpoint()
-  //     if (endpoint) {
-  //       result.push(omit(endpoint.action, ['service', 'handler']))
-  //     }
-  //   })
-  //   return result
-  // }
 
   serviceCollection.getActionsList = () => {
     const result = []

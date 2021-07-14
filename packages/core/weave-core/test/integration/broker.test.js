@@ -162,7 +162,7 @@ describe('Ping', () => {
         enabled: false
       }
     })
-    return broker.start()
+    broker.start()
       .then(() => broker.ping())
       .then(res => {
         expect(res).toEqual({})
@@ -181,7 +181,7 @@ describe('Ping', () => {
       }
     })
 
-    return broker.start()
+    broker.start()
       .then(() => broker.ping())
       .then(res => {
         expect(res).toEqual({})
@@ -211,7 +211,7 @@ describe('Ping', () => {
       }
     })
 
-    return Promise.all([
+    Promise.all([
       broker1.start(),
       broker2.start()
     ])
@@ -252,7 +252,7 @@ describe('Ping', () => {
       }
     })
 
-    return Promise.all([
+    Promise.all([
       broker1.start(),
       broker2.start()
     ])
@@ -290,7 +290,7 @@ describe('Ping', () => {
       }
     })
 
-    return Promise.all([
+    Promise.all([
       broker1.start(),
       broker2.start()
     ])
@@ -306,7 +306,7 @@ describe('Ping', () => {
         ])
       })
   })
-  it('should return results of all connected nodes.', done => {
+  it('should return results of all connected nodes.', (done) => {
     const broker1 = Weave({
       nodeId: 'node-ping41',
       logger: {
@@ -329,7 +329,7 @@ describe('Ping', () => {
       }
     })
 
-    return Promise.all([
+    Promise.all([
       broker1.start(),
       broker2.start()
     ])
@@ -539,13 +539,12 @@ describe('Streaming (lokal)', () => {
     }
   })
 
-  it('should handle local streaming', async (done) => {
+  it('should handle local streaming', async () => {
     broker.createService({
       name: 'file',
       actions: {
         write (context) {
           expect(context.stream).toBeDefined()
-          done()
         }
       }
     })
@@ -555,13 +554,12 @@ describe('Streaming (lokal)', () => {
     broker.call('file.write', {}, { stream: new Readable() })
   })
 
-  it('should handle local streaming', async (done) => {
+  it('should handle local streaming', async () => {
     broker.createService({
       name: 'file',
       actions: {
         write (context) {
           expect(context.stream).toBeDefined()
-          done()
         }
       }
     })
@@ -572,7 +570,6 @@ describe('Streaming (lokal)', () => {
       broker.call('file.write', {}, { stream: 'wrong type' })
     } catch (error) {
       expect(error.message).toBe('No valid stream.')
-      done()
     }
   })
 })
@@ -653,13 +650,12 @@ describe('Streaming (remote)', () => {
     }
   })
 
-  it('should handle local streaming', async (done) => {
+  it('should handle local streaming', async () => {
     broker1.createService({
       name: 'file',
       actions: {
         write (context) {
           expect(context.stream).toBeDefined()
-          done()
         }
       }
     })

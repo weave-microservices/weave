@@ -233,7 +233,7 @@ describe('Protected service actions', () => {
 })
 
 describe('Versioned Services', () => {
-  it('should create an versioned service', async (done) => {
+  it('should create an versioned service', async () => {
     const node1 = Weave({
       nodeId: 'node1',
       logger: {
@@ -246,7 +246,6 @@ describe('Versioned Services', () => {
     await node1.start()
     expect(node1.registry.serviceCollection.services.find(service => service.name === 'math').version).toBe(2)
     await node1.stop()
-    done()
   })
 })
 

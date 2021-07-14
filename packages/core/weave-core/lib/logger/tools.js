@@ -38,6 +38,7 @@ exports.asJsonString = (runtime, originObj, message, number, time) => {
   }
 
   const notHasOwnProperty = originObj.hasOwnProperty === undefined
+
   let value
   for (const key in originObj) {
     value = originObj[key]
