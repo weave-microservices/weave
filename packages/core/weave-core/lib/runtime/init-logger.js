@@ -5,7 +5,7 @@
 */
 
 const { defaultsDeep } = require('@weave-js/utils')
-const { createLogger: createDefaultLogger } = require('./index')
+const { createLogger: createDefaultLogger } = require('../logger/index')
 
 exports.initLogger = (runtime) => {
   const loggerFactory = (runtime, moduleName, additional = {}) => {

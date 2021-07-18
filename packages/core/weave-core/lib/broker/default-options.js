@@ -43,7 +43,6 @@ exports.getDefaultOptions = () => {
     },
     transport: {
       adapter: null,
-      serializer: null,
       maxQueueSize: 80000,
       heartbeatInterval: 5 * 1000,
       nodeUpdateInterval: 5 * 1000,

@@ -7,7 +7,7 @@
 /**
  * @typedef {import('../types').Runtime} Runtime
 */
-const { createRegistry } = require('./registry.js')
+const { createRegistry } = require('../registry/registry.js')
 
 /**
  * Injects registy in runtime

@@ -1,5 +1,5 @@
-const { resolveCollector } = require('./collectors')
-const { createSpan } = require('./span')
+const { resolveCollector } = require('../tracing/collectors')
+const { createSpan } = require('../tracing/span')
 
 exports.initTracer = (runtime) => {
   const options = runtime.options.tracing

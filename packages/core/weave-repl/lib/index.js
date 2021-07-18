@@ -17,9 +17,9 @@ module.exports = (broker, ...customCommands) => {
     throw new Error('You have to pass a weave broker instance.')
   }
 
-  if (!Array.isArray(customCommands)) {
-    throw new Error('You have to pass a weave broker instance.')
-  }
+  // if (!Array.isArray(customCommands)) {
+  //   throw new Error('Custom commands need to be')
+  // }
 
   vorpal.find('exit').remove()
 

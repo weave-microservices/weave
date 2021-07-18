@@ -1,6 +1,6 @@
 const { isPlainObject, isFunction } = require('@weave-js/utils')
-const { registerCommonMetrics, updateCommonMetrics } = require('./common')
-const MetricTypes = require('./types')
+const { registerCommonMetrics, updateCommonMetrics } = require('../metrics/common')
+const MetricTypes = require('../metrics/types')
 
 exports.initMetrics = (runtime) => {
   const metricOptions = runtime.options.metrics

@@ -7,18 +7,18 @@
 const EventEmitter = require('eventemitter2')
 const { getDefaultOptions } = require('./broker/default-options')
 const { defaultsDeep, uuid } = require('@weave-js/utils')
-const { initLogger } = require('./logger/init-logger')
+const { initLogger } = require('./runtime/init-logger')
 const { initMiddlewareHandler } = require('./runtime/init-middleware-manager')
-const { initRegistry } = require('./registry')
+const { initRegistry } = require('./runtime/init-registry')
 const { initContextFactory } = require('./runtime/init-context-factory')
 const { initEventbus } = require('./runtime/init-eventbus')
 const { initValidator } = require('./runtime/init-validator')
-const { initTransport } = require('./transport/init-transport')
-const { initCache } = require('./cache/init-cache')
+const { initTransport } = require('./runtime/init-transport')
+const { initCache } = require('./runtime/init-cache')
 const { initActionInvoker } = require('./runtime/init-action-invoker')
 const { initServiceManager } = require('./runtime/init-service-manager')
-const { initMetrics } = require('./metrics/init-metrics')
-const { initTracer } = require('./tracing/init-tracing')
+const { initMetrics } = require('./runtime/init-metrics')
+const { initTracer } = require('./runtime/init-tracing')
 const { initHealth } = require('./runtime/init-health')
 const { initUUIDFactory } = require('./runtime/init-uuid-factory')
 
@@ -76,6 +76,7 @@ const buildRuntime = (options) => {
     fatalError: (message, error, killProcess) => fatalErrorHandler(runtime, message, error, killProcess)
   }
 
+  // Init modules
   initLogger(runtime)
   initUUIDFactory(runtime)
   initMiddlewareHandler(runtime)
@@ -106,10 +107,10 @@ exports.createBroker = (options) => {
   // merge options with default options
   options = defaultsDeep(options, defaultOptions)
 
-  // const { createBrokerInstance } = initBroker(options)
-
+  // Init runtime
   const runtime = buildRuntime(options)
 
+  // Create broker instance
   return createBrokerInstance(runtime)
 }
 
