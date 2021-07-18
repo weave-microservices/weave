@@ -1,4 +1,4 @@
-const ModelValidator = require('../lib/validator')
+const ModelValidator = require('../../lib/validator')
 
 describe('Object validator', () => {
   it('should pass with object', () => {

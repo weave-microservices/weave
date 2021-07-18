@@ -1,4 +1,4 @@
-const ModelValidator = require('../lib/validator')
+const ModelValidator = require('../../lib/validator')
 
 describe('Date validator', () => {
   it('should validate with shortcut definition', () => {

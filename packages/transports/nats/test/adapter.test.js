@@ -7,7 +7,7 @@ describe('NATS transport adapter', () => {
   const startedHook1 = jest.fn()
   const startedHook2 = jest.fn()
 
-  beforeEach(async (done) => {
+  beforeEach(async () => {
     broker1 = Weave({
       nodeId: 'node1',
       logger: {
@@ -51,12 +51,10 @@ describe('NATS transport adapter', () => {
     })
 
     await Promise.all([broker1.start(), broker2.start()])
-    done()
   })
 
-  afterEach(async (done) => {
+  afterEach(async () => {
     await Promise.all([broker1.stop(), broker2.stop()])
-    done()
   })
 
   it('should connect', () => {

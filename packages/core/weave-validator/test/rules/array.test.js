@@ -1,4 +1,4 @@
-const ModelValidator = require('../lib/validator')
+const ModelValidator = require('../../lib/validator')
 
 describe('Array type', () => {
   it('valid', () => {

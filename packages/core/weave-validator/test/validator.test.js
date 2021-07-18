@@ -35,4 +35,44 @@ describe('Validator test', () => {
       expect(error.message).toBe('Invalid type \'undefined!!\' in validator schema.')
     }
   })
+
+  it('should validate', () => {
+    const schema = {
+      name: { type: 'string' }
+    }
+
+    const parameters = { name: '12345' }
+    const validator = ModelValidator()
+    const validate = validator.compile(schema)
+    const res = validate(parameters)
+    expect(res).toBe(true)
+  })
+
+  it('should define a default value', () => {
+    const defaultValue = 'Ulf'
+    const schema = {
+      name: { type: 'string', default: defaultValue }
+    }
+
+    const parameters = {}
+    const validator = ModelValidator()
+    const validate = validator.compile(schema)
+    const res = validate(parameters)
+    expect(parameters.name).toBe(defaultValue)
+    expect(res).toBe(true)
+  })
+
+  it('should define a default value', () => {
+    const defaultValue = 'Ulf'
+    const schema = {
+      name: { type: 'string', default: defaultValue }
+    }
+
+    const parameters = {}
+    const validator = ModelValidator()
+    const validate = validator.compile(schema)
+    const res = validate(parameters)
+    expect(parameters.name).toBe(defaultValue)
+    expect(res).toBe(true)
+  })
 })

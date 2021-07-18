@@ -370,12 +370,11 @@ describe('Test broker error handling', () => {
   })
 
   it('"fatalError" should kill the node process', () => {
-    const realProcess = process
-    const exitMock = jest.fn()
+    const exitMock = jest.spyOn(process, 'exit').mockImplementation((number) => number)
 
-    global.process = { ...realProcess, exit: exitMock }
     broker.fatalError('Throw some fatal error', new Error('Absolutly fatal'))
     expect(exitMock).toHaveBeenCalledWith(ERROR_CODE)
+    exitMock.mockRestore()
   })
 })
 

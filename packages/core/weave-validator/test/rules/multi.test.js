@@ -1,4 +1,4 @@
-const ModelValidator = require('../lib/validator')
+const ModelValidator = require('../../lib/validator')
 
 describe('Type "multi" test', () => {
   it('should throw an error if ther is passed an empty array', () => {

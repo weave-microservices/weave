@@ -370,7 +370,7 @@ exports.createBrokerInstance = (runtime) => {
 
   // Load internal services
   if (options.loadNodeService) {
-    broker.createService(require('../services/node.service'))
+    broker.createService(require('../internal/node.service'))
   }
 
   // Add broker reference to runtime

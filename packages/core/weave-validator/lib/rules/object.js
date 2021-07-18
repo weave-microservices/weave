@@ -87,11 +87,7 @@ module.exports = function checkObject ({ schema, messages }, path, context) {
         `)
       } else {
         code.push(`
-          ${this.makeErrorCode({
-            type: 'objectStrict',
-            expected: `"${allowedProperties.join(', ')}"`,
-            passed: 'invalidProperties.join(", ")', messages
-          })}
+          ${this.makeErrorCode({ type: 'objectStrict', expected: `"${allowedProperties.join(', ')}"`, passed: 'invalidProperties.join(", ")', messages })}
         `)
       }
       code.push('}')

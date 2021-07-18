@@ -5,7 +5,7 @@ describe('Promisify', () => {
     const func = jest.fn(x => x * 2)
     const pFunc = utils.promisify(func)
     expect(typeof pFunc(2).then).toBe('function')
-    return pFunc(2).then(result => {
+    pFunc(2).then(result => {
       expect(result).toBe(4)
       done()
     })

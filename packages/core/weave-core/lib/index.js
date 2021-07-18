@@ -90,7 +90,7 @@ const buildRuntime = (options) => {
   initMetrics(runtime)
   initTracer(runtime)
   initHealth(runtime)
-  
+
   return runtime
 }
 

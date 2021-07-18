@@ -7,7 +7,7 @@ describe('REDIS transport adapter', () => {
   const startedHook1 = jest.fn()
   const startedHook2 = jest.fn()
 
-  beforeEach(async (done) => {
+  beforeEach(async () => {
     broker1 = Weave({
       nodeId: 'node1',
       logger: {
@@ -44,19 +44,17 @@ describe('REDIS transport adapter', () => {
     broker2.createService({
       name: 'testService2',
       actions: {
-        hello (context) {
+        hello () {
           return 'Hello from ' + this.broker.nodeId
         }
       }
     })
 
     await Promise.all([broker1.start(), broker2.start()])
-    done()
   })
 
-  afterEach(async (done) => {
+  afterEach(async () => {
     await Promise.all([broker1.stop(), broker2.stop()])
-    done()
   })
 
   it('should connect', () => {
@@ -65,7 +63,7 @@ describe('REDIS transport adapter', () => {
   })
 
   it('should get node info', (done) => {
-    return broker1
+    broker1
       .waitForServices(['testService2'])
       .then(() => {
         return broker1.call('testService2.hello')

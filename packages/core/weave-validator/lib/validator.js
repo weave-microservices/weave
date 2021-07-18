@@ -87,9 +87,9 @@ function ModelValidator () {
 
         if (result.code) {
           context.func[rule.index] = new Function('value', 'field', 'parent', 'errors', 'context', result.code)
-          sourceCode.push(this.wrapSourceCode(rule, innerSrc.replace('##INDEX##', rule.index), sourceVar))
+          sourceCode.push(this.wrapSourceCode(rule, context, innerSrc.replace('##INDEX##', rule.index), sourceVar))
         } else {
-          sourceCode.push(this.wrapSourceCode(rule))
+          sourceCode.push(this.wrapSourceCode(rule, context))
         }
       }
 
@@ -163,32 +163,35 @@ function ModelValidator () {
         return checkFn.call(self, data, context)
       }
     },
-    wrapSourceCode (rule, innerSrc, resolveVar) {
+    wrapSourceCode (rule, context, innerSrc, resolveVar) {
       const code = []
-      const defaultValue = rule.schema.default != null ? JSON.stringify(rule.schema.default) : null
+      let handleValue = ''
+      let skipUndefinedValue = rule.schema.optional === true || rule.schema.type === 'forbidden'
+      const skipNullValue = rule.schema.optional === true || rule.schema.nullable === true || rule.schema.type === 'forbidden'
 
-      code.push(`
-                if (value === undefined || value === null) {
-            `)
-      if (rule.schema.optional === true) {
-        if (defaultValue && resolveVar) {
-          code.push(`${resolveVar} = ${defaultValue}`)
-        }
-      } else {
-        if (defaultValue && resolveVar) {
-          code.push(`${resolveVar} = ${defaultValue}`)
+      if (rule.schema.default != null) {
+        let defaultValue
+        skipUndefinedValue = false
+
+        // handle dynamic default value
+        if (typeof rule.schema.default === 'function') {
+
         } else {
-          code.push(this.makeErrorCode({ type: 'required', passed: 'value', messages: rule.messages }))
+          defaultValue = JSON.stringify(rule.schema.default)
         }
+
+        handleValue = `
+          value = ${defaultValue}
+          ${resolveVar} = value
+        `
+      } else {
+        handleValue = this.makeErrorCode({ type: 'required', passed: 'value', messages: rule.messages })
       }
-
-      code.push('} else {')
-
-      if (innerSrc) {
-        code.push(innerSrc)
-      }
-
-      code.push('}') // Required, optional
+      code.push(`
+        ${`if (value === undefined) { ${skipUndefinedValue ? '\n // allow undefined value\n' : handleValue} }`}
+        ${`else if (value === null) {  ${skipNullValue ? '\n // allow null value\n' : handleValue} }`}
+        ${innerSrc ? `else { ${innerSrc} }` : ''}
+      `)
 
       return code.join('\n')
     }

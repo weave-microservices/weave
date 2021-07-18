@@ -1,10 +1,9 @@
 
-const PRECISE_PATTERN = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-const BASIC_PATTERN = /^\S+@\S+\.\S+$/
+const { EMAIL_PRECISE_PATTERN, EMAIL_BASIC_PATTERN } = require('../patterns')
 
 module.exports = function checkEmail ({ schema, messages }) {
   const code = []
-  const pattern = schema.mode === 'precise' ? PRECISE_PATTERN : BASIC_PATTERN
+  const pattern = schema.mode === 'precise' ? EMAIL_PRECISE_PATTERN : EMAIL_BASIC_PATTERN
 
   code.push(`
         if (typeof value !== 'string') {

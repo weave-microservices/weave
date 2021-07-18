@@ -1,4 +1,4 @@
-const ModelValidator = require('../lib/validator')
+const ModelValidator = require('../../lib/validator')
 
 describe('forbidden value test', () => {
   it('should throw an error if a forbidden value is passed', () => {
