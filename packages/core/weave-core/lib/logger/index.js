@@ -21,7 +21,8 @@ const defaultOptions = {
   base: { pid, hostname },
   hooks: {
     logMethod: undefined
-  }
+  },
+  destination: process.stdout
 }
 
 exports.createLogger = (options) => {
@@ -31,7 +32,7 @@ exports.createLogger = (options) => {
   const runtime = {
     options,
     logMethods: {},
-    stream: options.stream || process.stdout
+    destination: options.destination
   }
 
   if (options.enabled === false) {

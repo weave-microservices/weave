@@ -49,6 +49,6 @@ exports.initBase = (runtime) => {
 
     const logString = asJsonString(runtime, object, message, number, time)
 
-    runtime.stream.write(logString)
+    runtime.destination.write(logString)
   }
 }
