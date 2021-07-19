@@ -1,9 +1,8 @@
-const cliUI = require('../utils/cli-ui')
 const createSpinner = require('../utils/create-spinner')
 const formatNumber = require('../utils/format-number')
 const { timespanFromUnixTimes } = require('@weave-js/utils')
 
-module.exports = (vorpal, broker) => {
+module.exports = ({ vorpal, broker, cliUI }) => {
   vorpal
     .command('benchmark <action> [jsonParams]', 'Benchmark a service Endpoint.')
     .option('--iterations <number>', 'Number of iterations')

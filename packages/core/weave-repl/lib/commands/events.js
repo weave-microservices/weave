@@ -1,12 +1,11 @@
-
-const cliUI = require('../utils/cli-ui')
 const { table } = require('table')
 
-module.exports = (vorpal, broker) => {
+module.exports = ({ vorpal, broker, cliUI }) => {
   vorpal
     .command('events', 'List registered events.')
     .action((args, done) => {
       const data = []
+
       data.push([
         cliUI.tableHeaderText('Event'),
         cliUI.tableHeaderText('Group'),

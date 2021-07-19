@@ -1,7 +1,6 @@
 const convertArgs = require('../utils/convert-args')
-const cliUI = require('../utils/cli-ui')
 
-module.exports = (vorpal, broker) => {
+module.exports = ({ vorpal, broker, cliUI }) => {
   vorpal
     .command('broadcast <eventName>', 'Broadcast a event.')
     .autocomplete({

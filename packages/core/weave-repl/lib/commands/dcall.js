@@ -1,6 +1,6 @@
 const invokeAction = require('../helper/invoke-action')
 
-module.exports = (vorpal, broker) => {
+module.exports = ({ vorpal, broker }) => {
   vorpal
     .command('dcall <nodeId> <actionName> [jsonParams]', 'Direct call of an action using its node ID.')
     .option('--l [filename]', 'Load params from file')

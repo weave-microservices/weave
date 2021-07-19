@@ -1,6 +1,6 @@
 const invokeAction = require('../helper/invoke-action')
 
-module.exports = (vorpal, broker) => {
+module.exports = ({ vorpal, broker }) => {
   vorpal
     .command('call <actionName> [jsonParams]', 'Call an action.')
     .alias('c')

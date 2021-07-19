@@ -1,8 +1,7 @@
 
 const { table } = require('table')
-const cliUI = require('../utils/cli-ui')
 
-module.exports = (vorpal, broker) => {
+module.exports = ({ vorpal, broker, cliUI }) => {
   vorpal
     .command('services', 'List services')
     .action((args, done) => {
@@ -25,6 +24,7 @@ module.exports = (vorpal, broker) => {
 
       services.map(service => {
         let item = list.find(item => item.name === service.name && item.version === service.version)
+
         if (item) {
           item.nodes.push({
             nodeId: service.nodeId,

@@ -1,10 +1,9 @@
 const os = require('os')
 const clui = require('clui')
 const v8 = require('v8')
-const cliUI = require('../utils/cli-ui')
 const { getIpList } = require('@weave-js/utils')
 
-module.exports = (vorpal, broker) => {
+module.exports = ({ vorpal, broker, cliUI }) => {
   vorpal
     .command('info', 'Show node informations.')
     .action((_, done) => {

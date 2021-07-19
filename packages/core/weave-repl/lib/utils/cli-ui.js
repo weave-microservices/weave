@@ -1,4 +1,5 @@
 const kleur = require('kleur')
+const createSpinner = require('./create-spinner')
 
 module.exports = {
   tableHeaderText (text) {
@@ -49,5 +50,6 @@ module.exports = {
   },
   printIntended (caption, value) {
     console.log(' ', caption.padEnd(25, ' ') + (value != null ? ': ' + kleur.bold(value) : ''))
-  }
+  },
+  createSpinner
 }

@@ -1,7 +1,6 @@
 const { table } = require('table')
-const cliUI = require('../utils/cli-ui')
 
-module.exports = (vorpal, broker) => {
+module.exports = ({ vorpal, broker, cliUI }) => {
   vorpal
     .command('metrics', 'Show node metrics.')
     .action((args, done) => {
