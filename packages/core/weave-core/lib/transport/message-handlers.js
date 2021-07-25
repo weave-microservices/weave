@@ -9,8 +9,12 @@ const { WeaveError, restoreError } = require('../errors')
 const { createContext } = require('../broker/context')
 const MessageTypes = require('./message-types')
 
-module.exports = (broker, transport) => {
-  const registry = broker.registry
+module.exports = (runtime, transport) => {
+  const registry = runtime.registry
+
+  const getRequestTimeout = (payload) => {
+    return payload.timeout || runtime.options.requestTimeout || 0
+  }
 
   const localRequestProxy = (context) => {
     const actionName = context.action.name
@@ -36,6 +40,7 @@ module.exports = (broker, transport) => {
     // Call the local action handler with context
     const promise = endpoint.action.handler(context)
     promise.context = context
+
     return promise
   }
 
@@ -163,17 +168,31 @@ module.exports = (broker, transport) => {
     return true
   }
 
-  // Handle discovery request
-  const onDiscovery = (message) => transport.sendNodeInfo(message.sender)
+  /**
+   * Discovery handler
+   * @param {any} payload - Payload
+   * @returns {Promise} Promise
+  */
+  const onDiscovery = (payload) => transport.sendNodeInfo(payload.sender)
 
-  // Handle node information
+  /**
+   * Node info handler
+   * @param {any} payload - Payload
+   * @returns {Promise} Promise
+  */
   const onNodeInfos = (payload) => registry.processNodeInfo(payload)
 
-  // Handle incomming request
+  /**
+   * Request handler
+   * @param {any} payload - Payload
+   * @returns {Promise} Promise
+  */
   const onRequest = (payload) => {
     const sender = payload.sender
     try {
       let stream
+
+      // Handle incomming stream
       if (payload.isStream !== undefined) {
         // check for open stream.
         stream = handleIncommingRequestStream(payload)
@@ -183,7 +202,7 @@ module.exports = (broker, transport) => {
       }
 
       const endpoint = registry.getLocalActionEndpoint(payload.action)
-      const context = createContext(broker)
+      const context = createContext(runtime)
 
       context.setEndpoint(endpoint)
       context.id = payload.id
@@ -194,9 +213,9 @@ module.exports = (broker, transport) => {
       context.metrics = payload.metrics
       context.level = payload.level
       context.callerNodeId = payload.sender
-      context.options.timeout = payload.timeout || broker.options.requestTimeout || 0
+      context.options.timeout = getRequestTimeout(payload)
 
-      // If ther is a stream, pass it through the context
+      // If payload is a stream, attach stream to context
       if (payload.isStream) {
         context.stream = stream
       }
@@ -209,7 +228,11 @@ module.exports = (broker, transport) => {
     }
   }
 
-  // Handle response
+  /**
+   * Response handler
+   * @param {any} payload - Payload
+   * @returns {Promise} Promise
+  */
   const onResponse = payload => {
     const id = payload.id
     const request = transport.pending.requests.get(id)
@@ -230,6 +253,7 @@ module.exports = (broker, transport) => {
 
     transport.pending.requests.delete(payload.id)
 
+    // Response is an error
     if (!payload.success) {
       let error = restoreError(payload.error)
 
@@ -250,34 +274,55 @@ module.exports = (broker, transport) => {
 
       request.reject(error)
     }
+
     request.resolve(payload.data)
   }
 
-  // Pong handler
+  /**
+   * Ping handler
+   * @param {any} payload - Payload
+   * @returns {Promise} Promise
+  */
   const onPing = payload => {
     const message = transport.createMessage(MessageTypes.MESSAGE_PONG, payload.sender, {
       dispatchTime: payload.dispatchTime,
       arrivalTime: Date.now()
     })
+
     return transport.send(message)
   }
 
-  // Pong received.
-  const onPong = payload => {
+  /**
+   * Pong handler
+   * @param {any} payload - Payload
+   * @returns {Promise} Promise
+  */
+  const onPong = (payload) => {
     const now = Date.now()
     const elapsedTime = now - payload.dispatchTime
     const timeDiff = Math.round(now - payload.arrivalTime - elapsedTime / 2)
 
-    broker.eventBus.broadcastLocal('$node.pong', {
+    runtime.eventBus.broadcastLocal('$node.pong', {
       nodeId: payload.sender,
       elapsedTime,
       timeDiff
     })
   }
 
+  /**
+   * Event handler
+   * @param {any} payload - Payload
+   * @returns {Promise} Promise
+  */
   const onEvent = (payload) => {
+    runtime.log.debug(`Received event "${payload.eventname}"`)
+
+    if (!runtime.state.isStarted) {
+      return
+    }
+
     // todo: reconstruct event context
-    const context = createContext(broker)
+    const context = createContext(runtime)
 
     // context.setEndpoint(endpoint)
     context.id = payload.id
@@ -300,12 +345,21 @@ module.exports = (broker, transport) => {
     return registry.eventCollection.emitLocal(context)
   }
 
-  // Disconnected message handöer
-  const onDisconnect = payload => {
+  /**
+   * Disconnect handler
+   * @param {any} payload - Payload
+   * @returns {Promise} Promise
+  */
+  const onDisconnect = (payload) => {
     return registry.nodeDisconnected(payload.sender, false)
   }
 
-  const onHeartbeat = payload => {
+  /**
+   * Heartbeat handler
+   * @param {any} payload - Payload
+   * @returns {Promise} Promise
+  */
+  const onHeartbeat = (payload) => {
     transport.log.verbose(`Heartbeat from ${payload.sender}`)
     const node = registry.nodeCollection.get(payload.sender)
     // if node is unknown then request a node info message.
@@ -326,14 +380,14 @@ module.exports = (broker, transport) => {
   return (type, data) => {
     try {
       if (data === null) {
-        broker.handleError(new WeaveError('Packet missing!'))
+        runtime.handleError(new WeaveError('Packet missing!'))
       }
 
       const message = data
       const payload = message.payload
 
       if (!payload) {
-        broker.handleError(new WeaveError('Message payload missing!'))
+        runtime.handleError(new WeaveError('Message payload missing!'))
       }
 
       // todo: check protocol version
@@ -374,6 +428,7 @@ module.exports = (broker, transport) => {
         onEvent(payload)
         break
       }
+
       return true
     } catch (error) {
       transport.log.error(error, data)
