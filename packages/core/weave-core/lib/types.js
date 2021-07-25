@@ -1,89 +1,73 @@
 // Broker
 
 /**
- * @typedef {object} ActionOptions
- * @property {object} meta Meta data
+ * @typedef {object} ActionOptions - Action options
+ * @property {object} meta - Meta data
  * @property {Object<string, *>}
- */
+*/
 
 /**
- * @callback CallActionFunctionDef
- * @param {string} actionName Name of the action
- * @param {object} data
- * @param {ActionOptions} options
- * @return {Promise<any>} Promise
+ * @callback CallActionFunctionDef - Action function definition
+ * @param {string} actionName - Name of the action
+ * @param {object} data - Payload
+ * @param {ActionOptions} [options] - Action options
+ * @return {Promise<any>} Promise - Result
  */
 
 /**
  * This callback is displayed as a global member.
  * @callback ServiceChangedDelegate
- * @param {boolean} isLocalService
+ * @param {boolean} [isLocalService=false] - Local service
  * @returns {Promise<any>}
 */
 
 /**
  * Event bus
  * @typedef {object} EventOptions
- * @property {Array<string>} [groups] Event groups // todo: add description
- * @property {string} [nodeId] Node ID
+ * @property {Array<string>} [groups] - Event groups // todo: add description
+ * @property {string} [nodeId] - Node ID
 */
 
 /**
  * Event bus
  * @typedef EventBus
- * @property {function(string, object=, EventOptions=):Promise<any>} emit emit
- * @property {function(string, any, EventOptions=):Promise<any>} broadcast broadcast
- * @property {function(string, any, EventOptions=):Promise<any>} broadcastLocal broadcastLocal
+ * @property {function(string, object=, EventOptions=):Promise<any>} emit - Emit the event to a balanced endpoint.
+ * @property {function(string, any, EventOptions=):Promise<any>} broadcast - Broadcast the event to all available service endpoints.
+ * @property {function(string, any, EventOptions=):Promise<any>} broadcastLocal - Broadcast the event to all local service endpoints.
 */
 
 /**
  * Services
  * @typedef Services
- * @property {ServiceChangedDelegate} serviceChanged Service changed delegate
-*/
-
-/**
- * Broker interface
- * @typedef Runtime
- * @property {string} nodeId nodeId
- * @property {string} version Weave version
- * @property {string} [namespace] namespace
- * @property {BrokerOptions} [options] Broker options
- * @property {EventBus} eventBus Event bus
- * @property {Logger} [createLogger] Logger factory
- * @property {Services} services Service manager
- * @property {Transport} transport Transport
- * @property {MiddlewareHandler} middlewareHandler Middleware handler
- * @property {function(Error)} handleError handleError
- * @property {void} fatalError fatalError
+ * @property {ServiceChangedDelegate} serviceChanged - Service changed delegate
 */
 
 /**
  * Broker interface
  * @typedef Broker
- * @property {string} nodeId nodeId
- * @property {string} [namespace] namespace
- * @property {Runtime} runtime Runtime reference
- * @property {EventEmitter} bus bus
- * @property {string} version version
- * @property {BrokerOptions} options options
- * @property {MetricRegistry} [metrics] metrics
- * @property {Validator} validator validator
- * @property {Promise<any>} start start
- * @property {Promise<any>} stop stop
- * @property {function(ServiceSchema):Service} createService createService
- * @property {void} loadService loadService
- * @property {void} loadServices loadServices
- * @property {ContextFactory} contextFactory contextFactory
- * @property {Logger} log log
- * @property {Logger} createLogger createLogger
- * @property {Cache} [cache] cache
- * @property {string} getUUID getUUID
- * @property {any} health health
- * @property {Registry} registry registry
- * @property {Tracer} [tracer] tracer
- * @property {Transport} [transport] transport
- * @property {Endpoint | WeaveError} getNextActionEndpoint getNextActionEndpoint
+ * @property {string} nodeId - Node ID of the broker
+ * @property {string} [namespace] - Namespace of the broker
+ * @property {Runtime} runtime - Runtime reference
+ * @property {EventEmitter} bus - Event bus
+ * @property {string} version - version
+ * @property {BrokerOptions} options - options
+ * @property {MetricRegistry} [metrics] - Metrics
+ * @property {Validator} validator - validator
+ * @property {Promise<any>} start - Start the broker.
+ * @property {Promise<any>} stop - Stop the broker
+ * @property {function(ServiceSchema):Service} createService - Create a new service with a service schema object.
+ * @property {void} loadService - Load a service from a given path.
+ * @property {void} loadServices - Load all services from a given directory.
+ * @property {ContextFactory} contextFactory - contextFactory
+ * @property {Logger} log - Logger instance
+ * @property {Logger} createLogger - Create a new logger instace.
+ * @property {Cache} [cache] - Cache
+ * @property {string} getUUID - Create a new from the UUID factory.
+ * @property {any} health - Broker health.
+ * @property {Registry} registry - Service registry reference
+ * @property {Tracer} [tracer] - tracer
+ * @property {Transport} [transport] - Transport
+ * @property {function(string):Endpoint | WeaveError} getNextActionEndpoint - Get the next action endpoint.
  * @property {CallActionFunctionDef} call Call a service action.
  * @property {Promise<Array<any>>} multiCall multiCall
  * @property {function(string, any, any=):Promise<any>} emit emit
@@ -158,17 +142,13 @@
 
 /**
  * Configuration object for logger.
- * @typedef {Object} LoggerOptions
- * @property {Boolean} enabled Enable logger.
- * @property {'fatal'|'error'|'warn'|'info'|'debug'|'trace'} level Log level of the messages to be displayed.
- * @property {Object<any>} defaultMeta Default meta data attached to every log message.
- * @property {Stream.Writable|Array} streams Destination to which the data is written, can be a single valid Writable stream or an array holding multiple valid Writable streams. (default = process.stdout).
- * @property {Boolean} displayTimestamp Show the current timestamp. (default = true)
- * @property {Boolean} displayBadge Show log type badge. (default = true)
- * @property {Boolean} displayLabel Show log type label. (default = true)
- * @property {Boolean} displayModuleName Show the module name. (default = true)
- * @property {Boolean} displayFilename Show the filename.
- * @property {Object} types Custom log types.
+ * @typedef {Object} LoggerOptions - Logger options
+ * @property {Boolean} enabled - Enable logger.
+ * @property {string} [messageKey=msg] - Key of the message property.
+ * @property {'fatal'|'error'|'warn'|'info'|'debug'|'trace'} level - Log level of the messages to be displayed.
+ * @property {Object<any>} base - Default meta data attached to every log message.
+ * @property {Stream.Writable} [destination=process.stdout] - Destination to which the data is written, can be a single valid Writable stream or an array holding multiple valid Writable streams. (default = process.stdout).
+ * @property {Object} customLevels - Custom log levels.
  */
 
 /**
