@@ -57,7 +57,7 @@ module.exports = (runtime) => {
       let isTimedOut = false
       const timeout = setTimeout(() => {
         isTimedOut = true
-        log.error(new WeaveGracefulStopTimeoutError({ service }))
+        log.error(new WeaveGracefulStopTimeoutError(service))
         contextList = []
         resolve()
       }, shutdownTimeout)
