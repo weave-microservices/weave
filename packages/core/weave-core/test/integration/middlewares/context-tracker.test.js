@@ -1,3 +1,4 @@
+
 const { Weave } = require('../../../lib/index')
 
 describe('Test context tracking', () => {
@@ -10,7 +11,7 @@ describe('Test context tracking', () => {
     })
 
     const service = broker.createService({
-      name: 'pusher',
+      name: 'pusher1',
       actions: {
         push () {
           return new Promise(resolve => {
@@ -21,7 +22,7 @@ describe('Test context tracking', () => {
     })
 
     await broker.start()
-    broker.call('pusher.push')
+    broker.call('pusher1.push')
     await broker.stop()
     expect(service._trackedContexts.length).toBe(0)
   })
@@ -36,7 +37,7 @@ describe('Test context tracking', () => {
     })
 
     broker.createService({
-      name: 'pusher',
+      name: 'pusher2',
       actions: {
         push () {
           return new Promise(resolve => {
@@ -47,7 +48,7 @@ describe('Test context tracking', () => {
     })
 
     await broker.start()
-    broker.call('pusher.push')
+    broker.call('pusher2.push')
     await broker.stop()
     expect(broker.runtime.state.trackedContexts.length).toBe(0)
   })
