@@ -41,7 +41,7 @@ describe('Email validator', () => {
     expect(result[0].message).toBe('The parameter "email" have to be a string.')
   })
 
-  it('shöuld use precise mode', () => {
+  it('should use precise mode', () => {
     const schema = {
       email: { type: 'email', mode: 'precise' }
     }
@@ -52,5 +52,19 @@ describe('Email validator', () => {
     const result = validate(parameters)
 
     expect(result[0].message).toBe('The parameter "email" have to be a string.')
+  })
+
+  it('should normalize email', () => {
+    const schema = {
+      email: { type: 'email', normalize: true }
+    }
+
+    const parameters = { email: 'KevIn.RieS@fAcHWerK.Io' }
+    const validator = ModelValidator()
+    const validate = validator.compile(schema)
+    const result = validate(parameters)
+
+    expect(result).toBe(true)
+    expect(parameters.email).toBe('kevin.ries@fachwerk.io')
   })
 })

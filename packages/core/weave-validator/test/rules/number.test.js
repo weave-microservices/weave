@@ -106,4 +106,58 @@ describe('Number validator', () => {
     expect(result.length).toBe(1)
     expect(result[0].message).toBe('The value of the parameter "id" have to be equal 1000.')
   })
+
+  it('number positive (succeed)', () => {
+    const schema = {
+      id: { type: 'number', positive: true }
+    }
+
+    const parameters = { id: 1001 }
+    const validator = ModelValidator()
+    const validate = validator.compile(schema)
+    const result = validate(parameters)
+
+    expect(result).toBe(true)
+  })
+
+  it('number positive (fail)', () => {
+    const schema = {
+      id: { type: 'number', positive: true }
+    }
+
+    const parameters = { id: -1001 }
+    const validator = ModelValidator()
+    const validate = validator.compile(schema)
+    const result = validate(parameters)
+
+    expect(result.length).toBe(1)
+    expect(result[0].message).toBe('The value of the parameter "id" have to be positive.')
+  })
+
+  it('number negative (succeed)', () => {
+    const schema = {
+      id: { type: 'number', negative: true }
+    }
+
+    const parameters = { id: -1001 }
+    const validator = ModelValidator()
+    const validate = validator.compile(schema)
+    const result = validate(parameters)
+
+    expect(result).toBe(true)
+  })
+
+  it('number negative (fail)', () => {
+    const schema = {
+      id: { type: 'number', negative: true }
+    }
+
+    const parameters = { id: 1001 }
+    const validator = ModelValidator()
+    const validate = validator.compile(schema)
+    const result = validate(parameters)
+
+    expect(result.length).toBe(1)
+    expect(result[0].message).toBe('The value of the parameter "id" have to be negative.')
+  })
 })

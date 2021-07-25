@@ -15,7 +15,6 @@ module.exports = function checkNumber ({ schema, messages }, path, context) {
   code.push(`
     if (typeof value !== 'number' || isNaN(value) || !isFinite(value)) {
       ${this.makeErrorCode({ type: 'number', passed: 'value', messages })}
-      return value
     }
   `)
 
@@ -23,7 +22,6 @@ module.exports = function checkNumber ({ schema, messages }, path, context) {
     code.push(`
       if (value < ${schema.min}) {
         ${this.makeErrorCode({ type: 'numberMin', passed: 'value', expected: schema.min, messages })}
-        return value
       }
     `)
   }
@@ -32,7 +30,6 @@ module.exports = function checkNumber ({ schema, messages }, path, context) {
     code.push(`
       if (value > ${schema.max}) {
         ${this.makeErrorCode({ type: 'numberMax', passed: 'value', expected: schema.max, messages })}
-        return value
       }
     `)
   }
@@ -41,7 +38,6 @@ module.exports = function checkNumber ({ schema, messages }, path, context) {
     code.push(`
       if (value !== ${schema.equal}) {
         ${this.makeErrorCode({ type: 'numberEqual', passed: 'value', expected: schema.equal, messages })}
-        return value
       }
     `)
   }
@@ -50,7 +46,30 @@ module.exports = function checkNumber ({ schema, messages }, path, context) {
     code.push(`
       if (value === ${schema.notEqual}) {
         ${this.makeErrorCode({ type: 'numberNotEqual', passed: 'value', expected: schema.notEqual, messages })}
-        return value
+      }
+    `)
+  }
+
+  if (schema.integer) {
+    code.push(`
+      if (value % 1 !== 0) {
+        ${this.makeErrorCode({ type: 'numberInteger', passed: 'value', messages })}
+      }
+    `)
+  }
+
+  if (schema.positive) {
+    code.push(`
+      if (value <= 0) {
+        ${this.makeErrorCode({ type: 'numberPositive', passed: 'value', messages })}
+      }
+    `)
+  }
+
+  if (schema.negative) {
+    code.push(`
+      if (value >= 0) {
+        ${this.makeErrorCode({ type: 'numberNegative', passed: 'value', messages })}
       }
     `)
   }

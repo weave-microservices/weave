@@ -26,6 +26,14 @@ module.exports = function checkArray ({ schema, messages }, path, context) {
     `)
   }
 
+  if (schema.length) {
+    code.push(`
+      if (length !== ${schema.length}) {
+        ${this.makeErrorCode({ type: 'arrayLength', passed: 'value', expected: schema.length, messages })}
+      }
+    `)
+  }
+
   if (schema.contains) {
     code.push(`
       if (value.indexOf(${JSON.stringify(schema.contains)}) === -1) {

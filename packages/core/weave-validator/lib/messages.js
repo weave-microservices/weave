@@ -14,7 +14,7 @@ module.exports = {
   number: 'The parameter "{param}" have to be a number.',
   numberMin: 'The value of parameter "{param}" must be at least {expected}.',
   numberMax: 'The value of parameter "{param}" must not exceed {expected}.',
-  numberInteger: 'The value of the parameter "{param}" have to be boolean.',
+  numberInteger: 'The value of the parameter "{param}" have to be an integer.',
   numberPositive: 'The value of the parameter "{param}" have to be positive.',
   numberNegative: 'The value of the parameter "{param}" have to be negative.',
   numberEqual: 'The value of the parameter "{param}" have to be equal {expected}.',
@@ -23,6 +23,7 @@ module.exports = {
   url: 'The value of parameter "{param}" have to be an url {passed}.',
   arrayMinLength: 'The parameter "{param}" must contain at least {expected} elements.',
   arrayMaxLength: 'The parameter "{param}" may contain a maximum of {expected} elements.',
+  arrayLength: 'The parameter "{param}" must contain {expected} elements.',
   arrayContains: 'The parameter "{param}"  must contain the item "{expected}".',
   enumValues: 'The  value of the parameter "{param}" with the value "{passed}" does not match with any of the allowed values.',
   objectStrict: 'The object "{param}" contains forbidden keys: "{passed}".'

@@ -1,11 +1,24 @@
-const fs = require('fs')
-const path = require('path')
 const defaultMessages = require('./messages')
 
 function ModelValidator () {
-  const rules = {}
   const messages = defaultMessages
   const cache = new Map()
+
+  // Load rules
+  const rules = {
+    any: require('./rules/any'),
+    array: require('./rules/array'),
+    boolean: require('./rules/boolean'),
+    date: require('./rules/date'),
+    email: require('./rules/email'),
+    enum: require('./rules/enum'),
+    forbidden: require('./rules/forbidden'),
+    multi: require('./rules/multi'),
+    number: require('./rules/number'),
+    object: require('./rules/object'),
+    string: require('./rules/string'),
+    url: require('./rules/url')
+  }
 
   const internal = {
     makeErrorCode ({ type, expected, field, passed, messages }) {
@@ -53,6 +66,10 @@ function ModelValidator () {
         schema.optional = schema.rules
           .map(s => internal.getRuleFromSchema(s))
           .every(r => r.schema.optional === true)
+      }
+
+      if (!schema.type) {
+        throw new Error('Property type is missing.')
       }
 
       const ruleGeneratorFunction = rules[schema.type]
@@ -124,15 +141,17 @@ function ModelValidator () {
       ]
 
       // prepare schema
-      if (Array.isArray(schema)) {
-        const rule = internal.getRuleFromSchema(schema)
-        schema = rule.schema
-      } else {
-        const tempSchema = Object.assign({}, schema)
-        schema = {
-          type: 'object',
-          strict: context.options.strict || false,
-          props: tempSchema
+      if (options.root !== true) {
+        if (Array.isArray(schema)) {
+          const rule = internal.getRuleFromSchema(schema)
+          schema = rule.schema
+        } else {
+          const tempSchema = Object.assign({}, schema)
+          schema = {
+            type: 'object',
+            strict: context.options.strict || false,
+            props: tempSchema
+          }
         }
       }
 
@@ -197,10 +216,7 @@ function ModelValidator () {
     }
   }
 
-  fs.readdirSync(path.join(__dirname, 'rules')).forEach(file => {
-    const fileName = path.parse(file).name
-    rules[fileName] = require(path.join(__dirname, 'rules', file))
-  })
+
 
   return {
     compile: internal.compile,

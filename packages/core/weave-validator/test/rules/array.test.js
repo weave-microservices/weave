@@ -99,11 +99,11 @@ describe('Array type', () => {
     expect(result[0].message).toBe('The parameter "coords" may contain a maximum of 2 elements.')
   })
 
-  it('invalid max length', () => {
+  it('invalid length', () => {
     const schema = {
       id: { type: 'number', convert: true },
       name: { type: 'string' },
-      coords: { type: 'array', maxLength: 2 }
+      coords: { type: 'array', length: 2 }
     }
 
     const validator = ModelValidator()
@@ -112,7 +112,7 @@ describe('Array type', () => {
     const result = validate(model)
 
     expect(result.length).toBe(1)
-    expect(result[0].message).toBe('The parameter "coords" may contain a maximum of 2 elements.')
+    expect(result[0].message).toBe('The parameter "coords" must contain 2 elements.')
   })
 
   it('contains (valid)', () => {

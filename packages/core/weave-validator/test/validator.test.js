@@ -75,4 +75,39 @@ describe('Validator test', () => {
     expect(parameters.name).toBe(defaultValue)
     expect(res).toBe(true)
   })
+
+  it('should throw an error if the property type is missing.', () => {
+    try {
+      const schema = {
+        name: { s: 'string' }
+      }
+
+      const validator = ModelValidator()
+      validator.compile(schema)
+    } catch (error) {
+      expect(error.message).toBe('Property type is missing.')
+    }
+  })
+})
+
+describe('Root property validation', () => {
+  it('should validate root string value', () => {
+    const schema = { type: 'string' }
+
+    const parameters = 'kevin'
+    const validator = ModelValidator()
+    const validate = validator.compile(schema, { root: true })
+    const res = validate(parameters)
+    expect(res).toBe(true)
+  })
+
+  it('should validate root string value', () => {
+    const schema = { type: 'number' }
+
+    const parameters = 5
+    const validator = ModelValidator()
+    const validate = validator.compile(schema, { root: true })
+    const res = validate(parameters)
+    expect(res).toBe(true)
+  })
 })
