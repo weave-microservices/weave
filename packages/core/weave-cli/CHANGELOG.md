@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0-beta.14](https://github.com/weave-microservices/weave/compare/@weave-js/cli@0.9.0-beta.13...@weave-js/cli@0.9.0-beta.14) (2021-07-26)
+
+
+### Bug Fixes
+
+* Packability for REPL added ([23e6d2a](https://github.com/weave-microservices/weave/commit/23e6d2aa05ee40bf17726950f95cf26c5d29cf5d))
+
+
+
+
+
 # [0.9.0-beta.13](https://github.com/weave-microservices/weave/compare/@weave-js/cli@0.9.0-beta.12...@weave-js/cli@0.9.0-beta.13) (2021-06-28)
 
 **Note:** Version bump only for package @weave-js/cli

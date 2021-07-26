@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0-beta.13](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.0-beta.12...@weave-js/core@0.9.0-beta.13) (2021-07-26)
+
+
+### Bug Fixes
+
+* Added missing event name in Event parameter validation error message ([33c8365](https://github.com/fachw3rk/weave/commit/33c83659151f0926cdc02cbeb3aaf90dca819622))
+* Fixed context tracking ([cda3a17](https://github.com/fachw3rk/weave/commit/cda3a171029f26fb059cf9eab8fdb95835282750))
+* Fixed service reference for error message ([62daab6](https://github.com/fachw3rk/weave/commit/62daab6bcfa9f8bc053aa87a103c9570a9f67742))
+* Fixed unit tests (new Jest version) ([6db1d40](https://github.com/fachw3rk/weave/commit/6db1d407dc0b39717d9d6cb884b0d6600144326a))
+
+
+### Features
+
+* **logger:** Added destination stream property to options. ([1c7531c](https://github.com/fachw3rk/weave/commit/1c7531c282487a1951b848f04c01495e023bb035))
+
+
+
+
+
 # [0.9.0-beta.12](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.0-beta.11...@weave-js/core@0.9.0-beta.12) (2021-06-28)
 
 

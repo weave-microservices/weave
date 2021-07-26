@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0-beta.3](https://github.com/weave-microservices/weave/compare/@weave-js/validator@0.9.0-beta.2...@weave-js/validator@0.9.0-beta.3) (2021-07-26)
+
+
+### Bug Fixes
+
+* Fixed unit test ([f263f03](https://github.com/weave-microservices/weave/commit/f263f03e45283f0d5def7f4e3b7ff133446ab32a))
+* Fixed unit tests (new Jest version) ([6db1d40](https://github.com/weave-microservices/weave/commit/6db1d407dc0b39717d9d6cb884b0d6600144326a))
+
+
+
+
+
 # [0.9.0-beta.2](https://github.com/weave-microservices/weave/compare/@weave-js/validator@0.9.0-beta.1...@weave-js/validator@0.9.0-beta.2) (2021-06-28)
 
 

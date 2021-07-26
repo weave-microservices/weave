@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0-beta.3](https://github.com/weave-microservices/weave/compare/@weave-js/utils@0.9.0-beta.2...@weave-js/utils@0.9.0-beta.3) (2021-07-26)
+
+
+### Bug Fixes
+
+* Fixed unit tests (new Jest version) ([6db1d40](https://github.com/weave-microservices/weave/commit/6db1d407dc0b39717d9d6cb884b0d6600144326a))
+
+
+
+
+
 # [0.9.0-beta.2](https://github.com/weave-microservices/weave/compare/@weave-js/utils@0.9.0-beta.1...@weave-js/utils@0.9.0-beta.2) (2021-04-17)
 
 **Note:** Version bump only for package @weave-js/utils

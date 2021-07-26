@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0-beta.14](https://github.com/weave-microservices/weave/compare/@weave-js/redis-transport@0.9.0-beta.13...@weave-js/redis-transport@0.9.0-beta.14) (2021-07-26)
+
+
+### Bug Fixes
+
+* Fixed context tracking ([cda3a17](https://github.com/weave-microservices/weave/commit/cda3a171029f26fb059cf9eab8fdb95835282750))
+* Fixed unit tests (new Jest version) ([6db1d40](https://github.com/weave-microservices/weave/commit/6db1d407dc0b39717d9d6cb884b0d6600144326a))
+
+
+
+
+
 # [0.9.0-beta.13](https://github.com/weave-microservices/weave/compare/@weave-js/redis-transport@0.9.0-beta.12...@weave-js/redis-transport@0.9.0-beta.13) (2021-06-28)
 
 **Note:** Version bump only for package @weave-js/redis-transport
