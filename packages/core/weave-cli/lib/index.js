@@ -2,6 +2,7 @@
 const updateNotifier = require('update-notifier')
 const pkg = require('../package.json')
 const { program } = require('commander')
+const { cleanArgs } = require('./utils/args')
 
 // Check for new CLI version
 updateNotifier({ pkg }).notify()
@@ -19,8 +20,8 @@ program
   .option('-r, --repl', 'Start broker with REPL.')
   .option('-w, --watch', 'Start broker with service watcher.')
   .option('-sl, --silent', 'Start broker without console outputs.')
-  .action((options) => {
-    require('./commands/start').handler(cleanArgs(options))
+  .action((args, options, a) => {
+    require('./commands/start').handler(cleanArgs(args))
   })
 
 // create command
@@ -32,4 +33,5 @@ program
   .action((type, name, options) => {
     require('./commands/create').handler(type, name, options)
   })
+
 program.parse(process.argv)

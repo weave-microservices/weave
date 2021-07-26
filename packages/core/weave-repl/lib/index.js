@@ -1,13 +1,24 @@
 const vorpal = require('vorpal')()
 const path = require('path')
-const fs = require('fs')
 const cliUI = require('./utils/cli-ui')
 
 function registerCommands (vorpal, broker) {
   const commandsFolderPath = path.join(__dirname, 'commands')
-  fs.readdirSync(commandsFolderPath).forEach(file => {
-    require(path.join(commandsFolderPath, file))({ vorpal, broker, cliUI })
-  })
+  const dependencies = { vorpal, broker, cliUI }
+
+  // Register REPL commands
+  require(path.join(commandsFolderPath, 'actions'))(dependencies)
+  require(path.join(commandsFolderPath, 'benchmark'))(dependencies)
+  require(path.join(commandsFolderPath, 'broadcast'))(dependencies)
+  require(path.join(commandsFolderPath, 'call'))(dependencies)
+  require(path.join(commandsFolderPath, 'clear'))(dependencies)
+  require(path.join(commandsFolderPath, 'dcall'))(dependencies)
+  require(path.join(commandsFolderPath, 'emit'))(dependencies)
+  require(path.join(commandsFolderPath, 'events'))(dependencies)
+  require(path.join(commandsFolderPath, 'info'))(dependencies)
+  require(path.join(commandsFolderPath, 'metrics'))(dependencies)
+  require(path.join(commandsFolderPath, 'nodes'))(dependencies)
+  require(path.join(commandsFolderPath, 'services'))(dependencies)
 }
 
 const registerCustomCommands = (vorpal, broker, commands) => commands.map(registerCustomCommand => registerCustomCommand({ vorpal, broker, cliUI }))
