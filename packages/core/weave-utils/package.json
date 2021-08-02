@@ -30,7 +30,7 @@
     "url": "https://github.com/weave-microservices/weave/issues"
   },
   "devDependencies": {
-    "eslint": "^7.30.0",
+    "eslint": "^7.31.0",
     "eslint-config-fw": "^1.0.3",
     "jest": "^27.0.6",
     "jest-cli": "^27.0.6"
