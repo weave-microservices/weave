@@ -4,7 +4,7 @@ module.exports = ({ vorpal, broker, cliUI }) => {
   vorpal
     .command('metrics', 'Show node metrics.')
     .action((args, done) => {
-      if (!broker.runtime.options.metrics) {
+      if (!broker.runtime.metrics) {
         console.log('Metrics are not enabled on this node')
       } else {
         const data = []
