@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0](https://github.com/weave-microservices/weave/compare/@weave-js/utils@0.9.0-beta.3...@weave-js/utils@0.9.0) (2021-08-02)
+
+
+### Bug Fixes
+
+* **logger:** Fixed wrong service name in log object ([56bed33](https://github.com/weave-microservices/weave/commit/56bed335d7470d118e878428744a244934fcfd81))
+
+
+
+
+
 # [0.9.0-beta.3](https://github.com/weave-microservices/weave/compare/@weave-js/utils@0.9.0-beta.2...@weave-js/utils@0.9.0-beta.3) (2021-07-26)
 
 

@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.0-beta.13...@weave-js/core@0.9.0) (2021-08-02)
+
+
+### Bug Fixes
+
+* unit test ([d76bad7](https://github.com/fachw3rk/weave/commit/d76bad7b9a723c45c9e92951dd9aa88b976ec56e))
+* **logger:** Fixed wrong service name in log object ([56bed33](https://github.com/fachw3rk/weave/commit/56bed335d7470d118e878428744a244934fcfd81))
+
+
+
+
+
 # [0.9.0-beta.13](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.0-beta.12...@weave-js/core@0.9.0-beta.13) (2021-07-26)
 
 
