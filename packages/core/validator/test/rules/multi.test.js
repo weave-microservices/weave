@@ -32,6 +32,6 @@ describe('Type "multi" test', () => {
 
     expect(result1).toBe(true)
     expect(result2).toBe(true)
-    expect(JSON.stringify(result3)).toBe('[{\"type\":\"string\",\"message\":\"The parameter \\\"id\\\" have to be a string.\",\"field\":\"id\",\"passed\":222},{\"type\":\"array\",\"message\":\"The parameter \\\"id\\\" have to be an array.\",\"field\":\"id\"}]')
+    expect(JSON.stringify(result3)).toBe('[{"type":"string","message":"The parameter \\"id\\" have to be a string.","field":"id","passed":222},{"type":"array","message":"The parameter \\"id\\" have to be an array.","field":"id"}]')
   })
 })
