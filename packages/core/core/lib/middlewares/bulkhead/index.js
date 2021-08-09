@@ -4,11 +4,21 @@
  * Copyright 2020 Fachwerk
  */
 
-const { WeaveQueueSizeExceededError } = require('../errors')
+const { WeaveQueueSizeExceededError } = require('../../errors')
 
+/**
+ * @typedef {import('../../types').Runtime} Runtime
+ * @typedef {import('../../types').Middleware} Middleware
+*/
+
+/**
+ * Bulkhead middleware
+ * @param {Runtime} runtime - Runtime
+ * @returns {Middleware} Middleware
+ */
 module.exports = (runtime) => {
   const wrapBulkheadMiddleware = function (handler, action) {
-    const bulkheadOptions = runtime.options.bulkhead || {}
+    const bulkheadOptions = runtime.options.bulkhead
 
     if (bulkheadOptions.enabled) {
       const queue = []

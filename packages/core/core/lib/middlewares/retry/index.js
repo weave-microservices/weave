@@ -5,7 +5,7 @@
  * Copyright 2020 Fachwerk
  */
 
-const { delay } = require('../../../utils/lib')
+const { delay } = require('../../../../utils/lib')
 
 const wrapRetryMiddleware = function (handler, action) {
   const self = this

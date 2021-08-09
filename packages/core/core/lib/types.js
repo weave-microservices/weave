@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 const { EventEmitter2 } = require('eventemitter2')
 
 /**

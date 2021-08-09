@@ -3,34 +3,11 @@
  * -----
  * Copyright 2020 Fachwerk
  */
-const { Constants } = require('../metrics')
+const { Constants } = require('../../metrics')
+const { getMiddlewareWrapper } = require('./getMiddlewareWrapper')
 
 module.exports = (runtime) => {
-  function wrapMetricMiddleware (type, action, handler) {
-    const serviceName = action.service ? action.service.fullyQualifiedName : null
-    const actionName = action.name
-
-    return function metricMiddleware (context) {
-      const callerNodeId = context.callerNodeId
-
-      runtime.metrics.increment(Constants.REQUESTS_TOTAL, { type, serviceName, actionName, callerNodeId })
-      runtime.metrics.increment(Constants.REQUESTS_IN_FLIGHT, { type, serviceName, actionName, callerNodeId })
-      const requestEnd = runtime.metrics.timer(Constants.REQUESTS_TIME, { type, serviceName, actionName, callerNodeId })
-
-      return handler(context)
-        .then(result => {
-          requestEnd()
-          runtime.metrics.decrement(Constants.REQUESTS_IN_FLIGHT, { type, serviceName, actionName, callerNodeId })
-          return result
-        })
-        .catch(error => {
-          requestEnd()
-          runtime.metrics.decrement(Constants.REQUESTS_IN_FLIGHT, { type, serviceName, actionName, callerNodeId })
-          runtime.metrics.increment(Constants.REQUESTS_ERRORS_TOTAL)
-          runtime.handleError(error)
-        })
-    }
-  }
+  const wrapMetricMiddleware = getMiddlewareWrapper(runtime)
 
   return {
     created () {
@@ -53,10 +30,10 @@ module.exports = (runtime) => {
       runtime.metrics.register({ type: 'gauge', name: Constants.TRANSPORT_IN_FLIGHT_STREAMS, description: 'Number of in flight streams.' })
     },
     localAction (next, action) {
-      return wrapMetricMiddleware.call(runtime, 'local', action, next)
+      return wrapMetricMiddleware('local', action, next)
     },
     remoteAction (next, action) {
-      return wrapMetricMiddleware.call(runtime, 'remote', action, next)
+      return wrapMetricMiddleware.call('remote', action, next)
     },
     emit (next) {
       return (event, payload) => {

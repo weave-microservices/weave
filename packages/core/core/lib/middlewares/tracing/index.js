@@ -4,14 +4,7 @@
  * Copyright 2020 Fachwerk
  */
 
-const buildTags = (context) => {
-  return {
-    requestLevel: context.level,
-    action: context.action ? { name: context.action.name, shortName: context.action.shortName } : null,
-    isRemoteCall: !!context.callerNodeId,
-    nodeId: context.nodeId
-  }
-}
+const { buildTags } = require('./buildTags')
 
 const wrapTracingLocalActionMiddleware = function (handler) {
   const broker = this

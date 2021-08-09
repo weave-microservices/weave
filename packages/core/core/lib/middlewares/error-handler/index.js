@@ -4,7 +4,7 @@
  * Copyright 2020 Fachwerk
  */
 
-const { WeaveError } = require('../errors')
+const { WeaveError } = require('../../errors')
 
 module.exports = (runtime) => {
   const wrapErrorHandlerMiddleware = function (handler) {

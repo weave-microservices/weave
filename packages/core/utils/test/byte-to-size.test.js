@@ -25,6 +25,12 @@ describe('Byte to size converter (short)', () => {
     expect(size).toBe('20 KB')
   })
 
+  it('should output the size for (Kilobytes)', () => {
+    const bytes = 23456
+    const size = utils.bytesToSize(bytes)
+    expect(size).toBe('23 KB')
+  })
+
   it('should output the size for (Megabytes)', () => {
     const bytes = 1048576
     const size = utils.bytesToSize(bytes)

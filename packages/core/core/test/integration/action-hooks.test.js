@@ -85,7 +85,7 @@ describe('Action hooks', () => {
   })
 
   it('should call a  hock by action name.', (done) => {
-     broker.call('greeter.sayHello', { id: 1 })
+    broker.call('greeter.sayHello', { id: 1 })
       .then(res => {
         expect(method1).toBeCalledTimes(3)
         expect(method2).toBeCalledTimes(3)
