@@ -286,7 +286,7 @@ exports.createBrokerInstance = (runtime) => {
 
       // Validator middleware
       if (options.validateActionParams && validator) {
-        middlewareHandler.add(validator.middleware)
+        middlewareHandler.add(Middlewares.Validator)
       }
 
       // Bulkhead

@@ -13,5 +13,6 @@ module.exports = {
   Tracing: require('./tracing'),
   Retry: require('./retry'),
   Timeout: require('./timeout'),
-  ContextTracker: require('./context-tracker')
+  ContextTracker: require('./context-tracker'),
+  Validator: require('./validator')
 }
