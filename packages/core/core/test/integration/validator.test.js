@@ -1,3 +1,4 @@
+const { infoText } = require('../../../cli/node_modules/@weave-js/repl/lib/utils/cli-ui')
 const { Weave } = require('../../lib/index')
 
 describe('Test param validator', () => {
@@ -27,7 +28,7 @@ describe('Test param validator', () => {
       node1.call('testService.sayHello', { name: 'Hans' })
         .catch((error) => {
           expect(error.name).toBe('WeaveParameterValidationError')
-          expect(error.message).toBe('Parameter validation error')
+          expect(error.message).toBe('Request parameter validation error')
           done()
         })
     })
@@ -59,7 +60,7 @@ describe('Test param validator', () => {
       node1.call('testService.sayHello', { name: 1 })
         .catch(error => {
           expect(error.name).toBe('WeaveParameterValidationError')
-          expect(error.message).toBe('Parameter validation error')
+          expect(error.message).toBe('Request parameter validation error')
           done()
         })
     })
@@ -139,6 +140,51 @@ describe('Validator strict mode', () => {
           expect(validationError.nodeId).toBe('node_strict')
           expect(validationError.passed).toBe('lastname')
           expect(validationError.type).toBe('objectStrict')
+          done()
+        })
+    })
+  })
+})
+
+describe('Response validator', () => {
+  it('Should validate responses (fails)', (done) => {
+    const broker1 = Weave({
+      nodeId: 'node_strict',
+      logger: {
+        enabled: false
+      },
+      validatorOptions: {
+        strict: true,
+        strictMode: 'error'
+      }
+    })
+
+    broker1.createService({
+      name: 'testService',
+      actions: {
+        sayHello: {
+          params: {
+            name: { type: 'string' }
+          },
+          responseSchema: {
+            firstname: { type: 'string' },
+            lastname: { type: 'string' }
+          },
+          handler (context) {
+            return { text: 'Hello User!', user: { firstname: context.data, lastname: 'Wick' }}
+          }
+        }
+      }
+    })
+
+    broker1.start().then(() => {
+      broker1.call('testService.sayHello', { name: 'Hans' })
+        .catch((error) => {
+          expect(error.data.length).toBe(3)
+          const [validationError] = error.data
+
+          expect(validationError.action).toBe('testService.sayHello')
+          expect(validationError.field).toBe('firstname')
           done()
         })
     })

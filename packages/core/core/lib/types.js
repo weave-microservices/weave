@@ -73,34 +73,26 @@ const { EventEmitter2 } = require('eventemitter2')
  * Runtime interface
  * @typedef Runtime
  * @property {string} nodeId - Node ID of the broker
+ * @property {string} version - Weave version of the broker.
  * @property {ActionInvoker} actionInvoker - Action invoker
- * @property {EventBus} eventBus - Service event bus
+ * @property {EventBus} [eventBus] - Service event bus
  * @property {EventEmitter2} bus - Instance event bus
- * @property {Broker} broker - Broker reference.
+ * @property {Broker} [broker] - Broker reference.
  * @property {BrokerOptions} options - options
  * @property {RuntimeInstanceState} state - Instance state
  * @property {MetricRegistry} [metrics] - Metrics
- * @property {MiddlewareHandler} middlewareHandler - Middleware handler
- * @property {Validator} validator - validator
- * @property {ServiceManager} services - Service manager
- * @property {ContextFactory} contextFactory - contextFactory
+ * @property {MiddlewareHandler} [middlewareHandler] - Middleware handler
+ * @property {Validator} [validator] - validator
+ * @property {ServiceManager} [services] - Service manager
+ * @property {ContextFactory} [contextFactory] - contextFactory
  * @property {Logger} log - Logger instance
- * @property {function(string, any):Logger} createLogger - Create a new logger instace.
+ * @property {function(string, any):Logger} [createLogger] - Create a new logger instace.
  * @property {Cache} [cache] - Cache
- * @property {string} getUUID - Create a new from the UUID factory.
- * @property {any} health - Broker health.
+ * @property {string} [getUUID] - Create a new from the UUID factory.
  * @property {Registry} registry - Service registry reference
  * @property {Tracer} [tracer] - tracer
  * @property {Transport} [transport] - Transport
- * @property {function(string):Endpoint | WeaveError} getNextActionEndpoint - Get the next action endpoint.
- * @property {CallActionFunctionDef} call Call a service action.
- * @property {Promise<Array<any>>} multiCall multiCall
- * @property {function(string, any, any=):Promise<any>} emit emit
- * @property {function(string, any, any=):Promise<any>} broadcast broadcast
- * @property {function(string, any, any=):Promise<any>} broadcastLocal broadcastLocal
- * @property {Promise<any>} waitForServices waitForServices
- * @property {Promise<PingResult>} ping ping
- * @property {function(Error)} handleError handleError
+ * @property {function(Error):void} handleError handleError
  * @property {void} fatalError fatalError
  * @property {function():string} generateUUID - Generate a UUID.
 */
@@ -608,7 +600,7 @@ const { EventEmitter2 } = require('eventemitter2')
 
 /**
  * Service action handler
- * @typedef {function(this: Service, Context): Promise} ServiceActionHandler
+ * @typedef {function(this: Service, Context): Promise<any>} ServiceActionHandler
 */
 
 /**
@@ -620,7 +612,7 @@ const { EventEmitter2 } = require('eventemitter2')
  * Service action definition
  * @typedef ServiceActionDefinition
  * @property {Object} [params] params
- * @property {ServiceActionHandler} handler handler
+ * @property {function(this: Service, Context):Promise<any>} handler handler
 */
 
 /**
@@ -753,10 +745,10 @@ const { EventEmitter2 } = require('eventemitter2')
  * Middleware
  * @typedef Middleware
  * @property {() => any} [created] created
- * @property {(broker: Broker) => any} [started] started
+ * @property {function(Broker):void} [started] started
  * @property {function(any, ServiceAction): any} [localAction] localAction
  * @property {(handler: any, action: ServiceAction) => any} [remoteAction] remoteAction
- * @property {(broker: Broker, handler: any, action: ServiceAction) => any} [localEvent] localEvent
+ * @property {function(any, ServiceAction): any} [localEvent] localEvent
  * @property {(next: Function) => MiddlewareEventDelegate} [emit] emit
  * @property {(next: Function) => MiddlewareEventDelegate} [broadcast] broadcast
  * @property {(next: Function) => MiddlewareEventDelegate} [broadcastLocal] broadcastLocal
