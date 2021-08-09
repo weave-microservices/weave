@@ -39,7 +39,7 @@ exports.initValidator = (runtime) => {
                 if (result === true) {
                   return handler(context)
                 } else {
-                  // Enriching the validator errors with some usefull information
+                  // Enriching the validator errors with some useful information
                   result = result.map(data => Object.assign(data, { nodeId: context.nodeId, action: context.action.name }))
                   return Promise.reject(new WeaveParameterValidationError('Parameter validation error', result))
                 }
