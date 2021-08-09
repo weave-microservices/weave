@@ -5,7 +5,7 @@
 */
 const NATS = require('nats')
 const { TransportAdapters } = require('@weave-js/core')
-const { defaultsDeep } = require('@weave-js/utils')
+const { defaultsDeep } = require('../../../core/utils/lib')
 
 function NATSTransportAdapter (adapterOptions) {
   let client
