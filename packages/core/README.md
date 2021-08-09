@@ -4,12 +4,18 @@ Core libraries:
 
 - [core](core)  
    Weave core functionality for service brokers and service creation.
+
 - [cli](cli)  
-   Function for querying Read and View Models.
+   Weave CLI tool
+
 - [errors](errors)  
    Weave error helper library
-- [repl](repl)
+
+- [repl](repl)  
    REPL module
-- [validator](validator)
-   
-   Weave validation library
+
+- [validator](validator)  
+  Validator module
+
+- [utils](utils)  
+  Weave core utils
