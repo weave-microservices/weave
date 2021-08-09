@@ -1,5 +1,6 @@
 module.exports = {
   ...require('./bytes-to-size'),
+  ...require('./capitalize'),
   ...require('./clone'),
   ...require('./compact'),
   ...require('./cpu-usage'),
