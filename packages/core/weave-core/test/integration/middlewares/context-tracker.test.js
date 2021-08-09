@@ -6,8 +6,7 @@ describe('Test context tracking', () => {
     const broker = Weave({
       contextTracking: {
         enabled: true
-      },
-      loadNodeService: false
+      }
     })
 
     const service = broker.createService({
@@ -32,8 +31,7 @@ describe('Test context tracking', () => {
       contextTracking: {
         enabled: true,
         shutdownTimeout: 1000
-      },
-      loadNodeService: false
+      }
     })
 
     broker.createService({

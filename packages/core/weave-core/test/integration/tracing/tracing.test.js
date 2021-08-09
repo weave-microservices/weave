@@ -10,7 +10,7 @@ const { posts, users } = require('../../helper/data')
 //   })
 // }
 
-describe('Test tracing', () => {
+describe.only('Test tracing', () => {
   let flow = []
   let id = 0
 
@@ -29,8 +29,8 @@ describe('Test tracing', () => {
         })
       ]
     },
-    uuidFactory (broker) {
-      return `${broker.nodeId}-${++id}`
+    uuidFactory (runtime) {
+      return `${runtime.nodeId}-${++id}`
     }
   }
 

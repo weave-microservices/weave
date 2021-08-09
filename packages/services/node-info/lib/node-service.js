@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
@@ -17,11 +16,11 @@ exports.actions = {
     },
     handler (context) {
       const { withActions, withNodeService } = context.data
-      const results = []
       const services = this.runtime.registry.serviceCollection.list({ withActions, withNodeService })
+      const servicesFound = []
 
       services.forEach(service => {
-        let item = results.find(result => result.name === service.name && result.version === service.version)
+        let item = servicesFound.find(result => result.name === service.name && result.version === service.version)
 
         if (item) {
           item.nodes.push(service.nodeId)
@@ -47,10 +46,10 @@ exports.actions = {
               item.actions[actionName] = omit(action, ['handler', 'service'])
             })
           }
-          results.push(item)
+          servicesFound.push(item)
         }
       })
-      return results
+      return servicesFound
     }
   },
   actions: {
@@ -61,11 +60,6 @@ exports.actions = {
   events: {
     handler (context) {
       return this.runtime.registry.eventCollection.list(context.data)
-    }
-  },
-  health: {
-    handler () {
-      return this.runtime.health.getNodeHealthInfo()
     }
   },
   list: {

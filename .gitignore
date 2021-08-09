@@ -14,3 +14,4 @@ packages/core/core/coverage
 packages/*/coverage
 packages/core/weave-core/coverage
 packages/core/weave-validator/coverage
+packages/services/node-info/coverage

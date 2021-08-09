@@ -8,7 +8,7 @@ const errors = require('@weave-js/errors')
 
 class RetrieableError extends Error {
   constructor () {
-    super(arguments)
+    super(...arguments)
     this.retryable = true
   }
 }

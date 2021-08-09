@@ -81,7 +81,8 @@ describe('Test logger transporter streams.', () => {
       nodeId: 'loggerNode',
       logger: {
         base: {
-          pid: 0
+          pid: 0,
+          hostname: 'my-host.com'
         }
       }
     })
@@ -89,8 +90,8 @@ describe('Test logger transporter streams.', () => {
     const version = pkg.version
 
     const calls = [
-      [`{"level":30,"time":0,"nodeId":"loggerNode","moduleName":"WEAVE","pid":0,"msg":"Initializing #weave node version ${version}"}` + os.EOL],
-      ['{"level":30,"time":0,"nodeId":"loggerNode","moduleName":"WEAVE","pid":0,"msg":"Node Id: loggerNode"}' + os.EOL]
+      [`{"level":30,"time":0,"nodeId":"loggerNode","moduleName":"WEAVE","pid":0,"hostname":"my-host.com","message":"Initializing #weave node version ${version}"}` + os.EOL],
+      ['{"level":30,"time":0,"nodeId":"loggerNode","moduleName":"WEAVE","pid":0,"hostname":"my-host.com","message":"Node Id: loggerNode"}' + os.EOL]
     ]
 
     consoleSpy.mock.calls.forEach((arg, i) => {

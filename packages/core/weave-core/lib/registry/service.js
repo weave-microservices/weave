@@ -1,5 +1,5 @@
 /**
- * @typedef {import("../types").Broker} Broker
+ * @typedef {import("../types").Runtime} Runtime
  * @typedef {import("../types").ServiceSchema} ServiceSchema
  * @typedef {import("../types").Service} Service
 */
@@ -94,13 +94,6 @@ const applyMixins = (service, schema) => {
           mixin = applyMixins(service, mixin)
         }
 
-        // for (var key in mixin) {
-        //   // bind scope for life cycle hooks
-        //   if (['created', 'started', 'stopped'].includes(key)) {
-        //     mixin[key] = mixin[key].bind(service)
-        //   }
-        // }
-
         return s ? mergeSchemas(s, mixin) : mixin
       }, null)
     return mergeSchemas(mixedSchema, schema)
@@ -110,7 +103,7 @@ const applyMixins = (service, schema) => {
 
 /**
  * Service factory
- * @param {Broker} runtime Broker instance
+ * @param {Runtime} runtime Broker instance
  * @param {ServiceSchema} schema Service schema
  * @returns {Service} Service instance
  */

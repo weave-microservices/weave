@@ -12,7 +12,5 @@ const { isFunction, uuid } = require('@weave-js/utils')
 exports.initUUIDFactory = (runtime) => {
   const { options } = runtime
 
-  runtime.generateUUID = (options.uuidFactory && isFunction(options.uuidFactory))
-    ? options.uuidFactory(runtime)
-    : uuid
+  runtime.generateUUID = (options.uuidFactory && isFunction(options.uuidFactory)) ? () => options.uuidFactory(runtime) : uuid
 }

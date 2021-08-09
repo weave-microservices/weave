@@ -9,11 +9,22 @@ const { WeaveError, restoreError } = require('../errors')
 const { createContext } = require('../broker/context')
 const MessageTypes = require('./message-types')
 
+/**
+ * @typedef {import('../types').Transport} Transport
+ * @typedef {import('../types').Runtime} Runtime
+ * @typedef {import('../types').TransportMessageHandler} TransportMessageHandler
+*/
+
+/**
+ * @param {Runtime} runtime - Runtime reference
+ * @param {Transport} transport - Transport refence
+ * @returns {TransportMessageHandler} - Message handler
+ */
 module.exports = (runtime, transport) => {
   const registry = runtime.registry
 
   const getRequestTimeout = (payload) => {
-    return payload.timeout || runtime.options.requestTimeout || 0
+    return payload.timeout || runtime.options.registry.requestTimeout || 0
   }
 
   const localRequestProxy = (context) => {
@@ -44,7 +55,7 @@ module.exports = (runtime, transport) => {
     return promise
   }
 
-  const handleIncommingRequestStream = (payload) => {
+  const handleIncomingRequestStream = (payload) => {
     // check for open stream.
     let stream = transport.pending.requestStreams.get(payload.id)
     let isNew = false
@@ -195,7 +206,7 @@ module.exports = (runtime, transport) => {
       // Handle incomming stream
       if (payload.isStream !== undefined) {
         // check for open stream.
-        stream = handleIncommingRequestStream(payload)
+        stream = handleIncomingRequestStream(payload)
         if (!stream) {
           return Promise.resolve()
         }
@@ -206,7 +217,7 @@ module.exports = (runtime, transport) => {
 
       context.setEndpoint(endpoint)
       context.id = payload.id
-      context.setParams(payload.data)
+      context.setData(payload.data)
       context.parentId = payload.parentId
       context.requestId = payload.requestId
       context.meta = payload.meta || {}
@@ -295,7 +306,7 @@ module.exports = (runtime, transport) => {
   /**
    * Pong handler
    * @param {any} payload - Payload
-   * @returns {Promise} Promise
+   * @returns {void}
   */
   const onPong = (payload) => {
     const now = Date.now()
@@ -326,7 +337,7 @@ module.exports = (runtime, transport) => {
 
     // context.setEndpoint(endpoint)
     context.id = payload.id
-    context.setParams(payload.data)
+    context.setData(payload.data)
     context.parentId = payload.parentId
     context.requestId = payload.requestId
     context.meta = payload.meta || {}
@@ -348,16 +359,16 @@ module.exports = (runtime, transport) => {
   /**
    * Disconnect handler
    * @param {any} payload - Payload
-   * @returns {Promise} Promise
+   * @returns {void}
   */
   const onDisconnect = (payload) => {
-    return registry.nodeDisconnected(payload.sender, false)
+    registry.nodeDisconnected(payload.sender, false)
   }
 
   /**
    * Heartbeat handler
    * @param {any} payload - Payload
-   * @returns {Promise} Promise
+   * @returns {void}
   */
   const onHeartbeat = (payload) => {
     transport.log.verbose(`Heartbeat from ${payload.sender}`)
@@ -383,8 +394,7 @@ module.exports = (runtime, transport) => {
         runtime.handleError(new WeaveError('Packet missing!'))
       }
 
-      const message = data
-      const payload = message.payload
+      const payload = data.payload
 
       if (!payload) {
         runtime.handleError(new WeaveError('Message payload missing!'))

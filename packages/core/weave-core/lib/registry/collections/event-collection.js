@@ -29,14 +29,14 @@ exports.createEventCollection = (registry) => {
   const events = [] // todo: refactor to js Map
   const getAllEventsByEventName = (eventName) => events.filter(list => match(eventName, list.name))
 
-/**
- * Add node to collection
- * @param {Node} node Node
- * @param {Service} service Service
- * @param {any} event Event
- * @return {EndpointCollection} Endpoint collection
-*/
-eventCollection.add = (node, service, event) => {
+  /**
+   * Add node to collection
+   * @param {Node} node Node
+   * @param {Service} service Service
+   * @param {any} event Event
+   * @return {EndpointCollection} Endpoint collection
+  */
+  eventCollection.add = (node, service, event) => {
     const groupName = event.group || service.name
     let endpointList = eventCollection.get(event.name, groupName)
     if (!endpointList) {

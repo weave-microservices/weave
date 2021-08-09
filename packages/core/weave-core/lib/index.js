@@ -19,9 +19,7 @@ const { initActionInvoker } = require('./runtime/init-action-invoker')
 const { initServiceManager } = require('./runtime/init-service-manager')
 const { initMetrics } = require('./runtime/init-metrics')
 const { initTracer } = require('./runtime/init-tracing')
-const { initHealth } = require('./runtime/init-health')
 const { initUUIDFactory } = require('./runtime/init-uuid-factory')
-
 const { createBrokerInstance } = require('./broker')
 const { version } = require('../package.json')
 
@@ -90,7 +88,6 @@ const buildRuntime = (options) => {
   initServiceManager(runtime)
   initMetrics(runtime)
   initTracer(runtime)
-  initHealth(runtime)
 
   return runtime
 }

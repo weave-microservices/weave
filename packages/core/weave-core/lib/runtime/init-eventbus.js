@@ -4,9 +4,9 @@ exports.initEventbus = (runtime) => {
   /**
    * Emit a event on all services (grouped and load balanced).
    * @param {String} eventName Name of the event
-   * @param {any} payload Payload
-   * @param {*} [options=null] Groups
-   * @returns {void}
+   * @param {any} payload - Payload
+   * @param {*} [options=null] - Groups
+   * @returns {Promise<any>} - Result
   */
   const emit = (eventName, payload, options) => {
     if (Array.isArray(options)) {
@@ -16,6 +16,7 @@ exports.initEventbus = (runtime) => {
     }
 
     const promises = []
+    // todo: create an event context object
     const context = contextFactory.create(null, payload, options)
 
     context.eventType = 'emit'

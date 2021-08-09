@@ -1,9 +1,21 @@
+const { EventEmitter2 } = require('eventemitter2')
+
+/**
+ * @typedef {import('stream').Stream} Stream
+ * @typedef {import('stream').Writable} WritableStream
+*/
+
 // Broker
 
 /**
  * @typedef {object} ActionOptions - Action options
- * @property {object} meta - Meta data
- * @property {Object<string, *>}
+ * @property {Context} [context] - Assign a existing context instead of creating a new one.
+ * @property {Context} [parentContext] - Parent context of this action request.
+ * @property {object} [meta] - Meta data.
+ * @property {Stream} [stream] - Read stream.
+ * @property {number} [timeout] - Timeout in milliseconds.
+ * @property {number} [retries] - Retries before this request fails.
+ * @property {Object<string, *>} [custom] - Properties
 */
 
 /**
@@ -43,6 +55,56 @@
 */
 
 /**
+ * ActionInvoker
+ * @typedef {object} ActionInvoker
+ * @property {function(string, object, ActionOptions):Promise<any>} call - Service changed delegate
+ * @property {function(string, object, ActionOptions):Promise<any>} call - Service changed delegate
+*/
+
+/**
+ * Runtime instance state
+ * @typedef {Object} RuntimeInstanceState
+ * @property {Boolean} isStarted - Services started flag.
+ * @property {string} instanceId - Instance UUID.
+*/
+
+/**
+ * Runtime interface
+ * @typedef Runtime
+ * @property {string} nodeId - Node ID of the broker
+ * @property {ActionInvoker} actionInvoker - Action invoker
+ * @property {EventBus} eventBus - Service event bus
+ * @property {EventEmitter2} bus - Instance event bus
+ * @property {Broker} broker - Broker reference.
+ * @property {BrokerOptions} options - options
+ * @property {RuntimeInstanceState} state - Instance state
+ * @property {MetricRegistry} [metrics] - Metrics
+ * @property {MiddlewareHandler} middlewareHandler - Middleware handler
+ * @property {Validator} validator - validator
+ * @property {ServiceManager} services - Service manager
+ * @property {ContextFactory} contextFactory - contextFactory
+ * @property {Logger} log - Logger instance
+ * @property {function(string, any):Logger} createLogger - Create a new logger instace.
+ * @property {Cache} [cache] - Cache
+ * @property {string} getUUID - Create a new from the UUID factory.
+ * @property {any} health - Broker health.
+ * @property {Registry} registry - Service registry reference
+ * @property {Tracer} [tracer] - tracer
+ * @property {Transport} [transport] - Transport
+ * @property {function(string):Endpoint | WeaveError} getNextActionEndpoint - Get the next action endpoint.
+ * @property {CallActionFunctionDef} call Call a service action.
+ * @property {Promise<Array<any>>} multiCall multiCall
+ * @property {function(string, any, any=):Promise<any>} emit emit
+ * @property {function(string, any, any=):Promise<any>} broadcast broadcast
+ * @property {function(string, any, any=):Promise<any>} broadcastLocal broadcastLocal
+ * @property {Promise<any>} waitForServices waitForServices
+ * @property {Promise<PingResult>} ping ping
+ * @property {function(Error)} handleError handleError
+ * @property {void} fatalError fatalError
+ * @property {function():string} generateUUID - Generate a UUID.
+*/
+
+/**
  * Broker interface
  * @typedef Broker
  * @property {string} nodeId - Node ID of the broker
@@ -62,7 +124,7 @@
  * @property {Logger} log - Logger instance
  * @property {Logger} createLogger - Create a new logger instace.
  * @property {Cache} [cache] - Cache
- * @property {string} getUUID - Create a new from the UUID factory.
+ * @property {function():string} getUUID - Create a new from the UUID factory.
  * @property {any} health - Broker health.
  * @property {Registry} registry - Service registry reference
  * @property {Tracer} [tracer] - tracer
@@ -100,23 +162,26 @@
 /**
  * Configuration object for weave service broker.
  * @typedef {Object} TracingOptions
- * @property {Boolean} enabled Enable tracing middleware. (default = false)
- * @property {Number} tracingRate Rate of traced actions. (default = 1.0)
- * @property {Array<String|Object>} collectors Array of tracing collectors.
+ * @property {Boolean} enabled - Enable tracing middleware. (default = false)
+ * @property {Number} samplingRate - Rate of traced actions. (default = 1.0)
+ * @property {Array<String|Object>} collectors - Array of tracing collectors.
 */
 
 /**
  * Configuration object for weave service broker.
  * @typedef {Object} CacheOptions
  * @property {Boolean} enabled Enable cache middleware. (default = false)
- * @property {String]Object} adaper Cacha adapter. (default = memory (In Memory))
+ * @property {String | Object} adapter - Cache adapter. (default = memory (In Memory))
+ * @property {number} [ttl=3000] - Cache item TTL.
 */
 
 /**
  * Configuration object for weave service broker.
  * @typedef {Object} CircuitBreakerOptions
  * @property {Boolean} enabled Enable circuit breaker middleware. (default = false)
- * @property {Boolean} failureOnError Prefer local actions over remote actions.
+ * @property {number} halfOpenTimeout - Time until the circuit breaker is set to half open.
+ * @property {number} maxFailures - Number of failures after which the circuit breaker is opened.
+ * @property {number} windowTime - Time period before the endpoint list is emptied.
 */
 
 /**
@@ -132,23 +197,23 @@
  * @typedef {Object} TransportOptions
  * @property {String|Object} adapter Transport adapter.
  * @property {Number} maxQueueSize Maximum queue size (default = 80000).
- * @property {Number} heartbeatInterval Number of milliseconds in which the heartbeat packet is sent to other nodes. (default = 5000 ms)
- * @property {Number} heartbeatTimeout Number of milliseconds without response before the node is set to the Not Available status. (default = 10000)
- * @property {Number} offlineNodeCheckInterval Interval in milliseconds to check and remove not offline nodes. (default = 30000ms)
- * @property {Number} maxOfflineTime Maximum time a node can be offline before it is removed from the registry. (default = 600000ms)
- * @property {Number} maxChunkSize Maximum chunk size for streams. (default = 256 * 1024 Bits)
- * @property {String|Object} serializer Serializer settings
+ * @property {Number} heartbeatInterval - Number of milliseconds in which the heartbeat packet is sent to other nodes. (default = 5000 ms)
+ * @property {Number} heartbeatTimeout - Number of milliseconds without response before the node is set to the Not Available status. (default = 10000)
+ * @property {number} localNodeUpdateInterval - Interval at which the local node updates its data pool
+ * @property {Number} offlineNodeCheckInterval - Interval in milliseconds to check and remove not offline nodes. (default = 30000ms)
+ * @property {Number} maxOfflineTime - Maximum time a node can be offline before it is removed from the registry. (default = 600000ms)
+ * @property {Number} maxChunkSize - Maximum chunk size for streams. (default = 256 * 1024 Bits)
  */
 
 /**
  * Configuration object for logger.
  * @typedef {Object} LoggerOptions - Logger options
- * @property {Boolean} enabled - Enable logger.
+ * @property {Boolean} [enabled=true] - Enable logger.
+ * @property {'verbose'|'debug'|'info'|'warn'|'error'|'fatal'} [level=info] - Log level.
  * @property {string} [messageKey=msg] - Key of the message property.
- * @property {'fatal'|'error'|'warn'|'info'|'debug'|'trace'} level - Log level of the messages to be displayed.
- * @property {Object<any>} base - Default meta data attached to every log message.
- * @property {Stream.Writable} [destination=process.stdout] - Destination to which the data is written, can be a single valid Writable stream or an array holding multiple valid Writable streams. (default = process.stdout).
- * @property {Object} customLevels - Custom log levels.
+ * @property {Object.<string, number>} [customLevels] - Log level of the messages to be displayed.
+ * @property {Object.<string, number | string>} [base] - Default meta data attached to every log message.
+ * @property {WritableStream} [destination=process.stdout] - Destination to which the data is written, can be a single valid Writable stream or an array holding multiple valid Writable streams. (default = process.stdout).
  */
 
 /**
@@ -174,8 +239,6 @@
  * @property {CircuitBreakerOptions} circuitBreaker Circuit breaker options.
  * @property {TransportOptions} transport Transport options.
  * @property {Function} [errorHandler] errorHandler.
- * @property {boolean} loadNodeService Enable or disable $node service.
- * @property {boolean} publishNodeService
  * @property {boolean} loadInternalMiddlewares Enable or disable internal middlewares.
  * @property {MetricsOptions} metrics Metrics options.
  * @property {Array<Middleware>} [middlewares] middlewares.
@@ -188,8 +251,8 @@
  * @property {boolean} [validateActionParams] validateActionParams.
  * @property {boolean} [watchServices] watchServices.
  * @property {number} [waitForServiceInterval] waitForServiceInterval.
- * @property {() => string} [beforeRegisterMiddlewares] beforeRegisterMiddlewares.
- * @property {() => string} [uuidFactory] uuidFactory.
+ * @property {function():string} [beforeRegisterMiddlewares] beforeRegisterMiddlewares.
+ * @property {function(Runtime):string} [uuidFactory] uuidFactory.
  * @property {(this: Broker) => void} [started] started.
  * @property {(this: Broker) => void} [stopped] stopped.
 */
@@ -205,7 +268,8 @@
 */
 
 /**
- * @typedef {Object.<'fatal'|'error'|'warn'|'info'|'debug'|'trace', Function} Logger
+ * @typedef {Object} Logger
+ * @typedef {Object.<string, *>}
 */
 
 // Cache
@@ -232,12 +296,18 @@
  * @export
  * @typedef ContextFactory
  * @property {void} init init
- * @property {Context} create create
+ * @property {function(Endpoint, object, ActionOptions):Context} create create
 */
 
 /**
  * @typedef {Object} ContextMetaObject
 */
+
+/**
+ * Context result
+ * @typedef {Promise<any>} ContextPromise
+ * @property {Context} context - Context
+ */
 
 /**
  * Context interface.
@@ -251,13 +321,13 @@
  * @property {Endpoint} [endpoint] endpoint
  * @property {Object} data data
  * @property {ContextMetaObject} meta meta
- * @property {any} info info
  * @property {number} level level
  * @property {number} [retryCount] retryCount
  * @property {Object} tracing tracing
  * @property {Object} span span
  * @property {Service} service service
  * @property {ServiceAction} [action] action
+ * @property {number} [startHighResolutionTime] - High resolution start timestamp.
  * @property {string} [eventType] eventType
  * @property {string} [eventName] eventName
  * @property {Array<string>} [eventGroups] eventGroups
@@ -265,14 +335,16 @@
  * @property {number} duration duration
  * @property {number} stopTime stopTime
  * @property {any} [metrics] metrics
- * @property {void} setData setData
- * @property {void} setEndpoint setEndpoint
- * @property {ContextPromise<any>} call call
+ * @property {function(any):void} setData - Set data object.
+ * @property {function(string, any, ActionOptions):ContextPromise} call - Call a service action
  * @property {*} emit emit
+ * @property {Stream} [stream] - Stream
  * @property {*} broadcast broadcast
  * @property {*} startSpan startSpan
  * @property {*} finishSpan finishSpan
- * @property {Context} copy copy
+ * @property {function():Context} copy - Copy the current context.
+ * @property {function(Stream):void} setStream - Set the context data stream.
+ * @property {function(Endpoint):void} setEndpoint - Set data object.
 */
 
 /**
@@ -307,18 +379,18 @@
  * @property {Promise<any>} connect connect
  * @property {Promise<any>} disconnect disconnect
  * @property {void} setReady setReady
- * @property {Promise<any>} send send
+ * @property {function(TransportMessage):Promise<any>} send send
  * @property {any} sendNodeInfo sendNodeInfo
- * @property {Promise<any>} sendPing sendPing
- * @property {Promise<any>} discoverNode discoverNode
- * @property {Promise<any>} discoverNodes discoverNodes
+ * @property {function():Promise<any>} sendPing sendPing
+ * @property {function(string):Promise<any>} discoverNode discoverNode
+ * @property {function():Promise<any>} discoverNodes discoverNodes
  * @property {Promise<any>} sendEvent sendEvent
  * @property {Promise<any>} sendBroadcastEvent sendBroadcastEvent
  * @property {void} removePendingRequestsById removePendingRequestsById
  * @property {void} removePendingRequestsByNodeId removePendingRequestsByNodeId
- * @property {TransportMessage} createMessage createMessage
+ * @property {function(string, string, object):TransportMessage} createMessage createMessage
  * @property {function(Context):Promise<any>} request request
- * @property {Promise<any>} response response
+ * @property {function(string, string, object, object, Error):Promise<any>} response response
  * @property {any} statistics statistics
 */
 
@@ -336,14 +408,14 @@
  * @property {number} interruptCounter interruptCounter
  * @property {number} repeatAttemptCounter repeatAttemptCounter
  * @property {*} init init
- * @property {Promise<void>} connect connect
- * @property {Promise<any>} subscribe subscribe
+ * @property {function(boolean, function():void):Promise<void>} connect connect
+ * @property {function(string, string=):Promise<any>} subscribe Subscribe to message type.
  * @property {void} connected connected
  * @property {void} disconnected disconnected
- * @property {Promise<any>} close close
+ * @property {function():Promise<any>} close close
  * @property {string} getTopic getTopic
- * @property {Promise<any>} preSend preSend
- * @property {Promise<any>} send send
+ * @property {function(Message):Promise<any>} preSend preSend
+ * @property {function(Message):Promise<any>} send send
  * @property {void} incomingMessage incomingMessage
  * @property {Buffer} serialize serialize
  * @property {any} deserialize deserialize
@@ -406,8 +478,8 @@
  * @property {function(string, number, string=):void} deregisterService deregisterService
  * @property {function(ServiceItem): void} registerLocalService registerLocalService
  * @property {function(Node, Array<any>): void} registerRemoteServices registerRemoteServices
- * @property {function(Node, ServiceItem, Array<any>)} registerActions registerActions
- * @property {function(Node, ServiceItem, Array<any>)} registerEvents registerEvents
+ * @property {function(Node, ServiceItem, Array<any>):void} registerActions registerActions
+ * @property {function(Node, ServiceItem, Array<any>):void} registerEvents registerEvents
  * @property {Endpoint | WeaveError} getNextAvailableActionEndpoint getNextAvailableActionEndpoint
  * @property {function(ServiceActionCollectionListFilterParams=):Array<any>} getActionList getActionList
  * @property {function(string): void} deregisterServiceByNodeId deregisterServiceByNodeId
@@ -421,7 +493,7 @@
  * @property {NodeInfo} generateLocalNodeInfo generateLocalNodeInfo
  * @property {*} processNodeInfo processNodeInfo
  * @property {function(string, boolean):void} nodeDisconnected nodeDisconnected
- * @property {function():void} removeNode removeNode
+ * @property {function(string):void} removeNode removeNode
  * @property {function(NodeCollectionListFilterOptions):Array<any>} getNodeList getNodeList
  * @property {function(ServiceCollectionListFilterParams):Array<any>} getServiceList getServiceList
 */
@@ -435,9 +507,9 @@
  * @property {boolean} isInternal isInternal
  * @property {Array<Endpoint>} endpoints endpoints
  * @property {Array<Endpoint>} localEndpoints localEndpoints
- * @property {boolean} add add
- * @property {boolean} hasAvailable hasAvailable
- * @property {boolean} hasLocal hasLocal
+ * @property {function():boolean} add add
+ * @property {function():boolean} hasAvailable hasAvailable
+ * @property {function():boolean} hasLocal hasLocal
  * @property {function():Endpoint} getNextAvailableEndpoint getNextAvailableEndpoint
  * @property {function():Endpoint} getNextLocalEndpoint getNextLocalEndpoint
  * @property {function():number} count count
@@ -463,8 +535,8 @@
  * @property {Array<string>} [events] events
  * @property {Array<string>} IPList IPList
  * @property {function(any, boolean):boolean} update update
- * @property {void} updateLocalInfo updateLocalInfo
- * @property {void} heartbeat heartbeat
+ * @property {function(boolean=):void} updateLocalInfo updateLocalInfo
+ * @property {function(object):void} heartbeat - Process heartbeat package
  * @property {function(boolean=):void} disconnected disconnected
 */
 
@@ -485,14 +557,14 @@
 /**
  * Event colleciton
  * @typedef EventCollection
- * @property {Endpoint} add add
+ * @property {function(Node, Service, eventCollection):Endpoint} add add
  * @property {Endpoint} get get
- * @property {function(string, Node)} remove remove
- * @property {function(service)} removeByService removeByService
+ * @property {function(string, Node):void} remove remove
+ * @property {function(Service):void} removeByService removeByService
  * @property {Array<Endpoint>} getBalancedEndpoints getBalancedEndpoints
  * @property {Array<Endpoint>} getAllEndpoints getAllEndpoints
  * @property {*} getAllEndpointsUniqueNodes getAllEndpointsUniqueNodes
- * @property {Promise<any>} emitLocal emitLocal
+ * @property {function(Context):Promise<any>} emitLocal emitLocal
  * @property {function():Array<any>} list list
 */
 
@@ -572,7 +644,7 @@
  * @property {*} registerAction registerAction
  * @property {function(string):EndpointCollection} tryFindActionsByActionName tryFindActionsByActionName
  * @property {function():Array<any>} getActionsList getActionsList
- * @property {function(ServiceCollectionListFilterParams)} list list
+ * @property {function(ServiceCollectionListFilterParams): Array<object>} list list
  * @property {function(string, string): Endpoint} findEndpointByNodeId findEndpointByNodeId
 */
 
@@ -581,13 +653,13 @@
  * @typedef ServiceItem
  * @property {string} name name
  * @property {Node} node node
- * @property {any} settings settings
+ * @property {Object.<string, any>} settings settings
  * @property {number} version version
  * @property {any} actions actions
  * @property {any} events events
  * @property {boolean} isLocal isLocal
- * @property {function(any)} addAction addAction
- * @property {function(Node, SericeItem, any)} addEvent addEvent
+ * @property {function(Action):void} addAction addAction
+ * @property {function(Event):void} addEvent addEvent
  * @property {function(string, number, string=): boolean} equals equals
  * @property {function(any)} update update
 */
@@ -596,17 +668,19 @@
  * Service schema
  * @typedef ServiceSchema
  * @property {string} name name
+ * @property {Array<string>} dependencies - Service dependencies
  * @property {number} [version] version
  * @property {Array<ServiceSchema> | ServiceSchema} mixins mixins
  * @property {ServiceSettings} settings settings
  * @property {Object} [meta] meta
  * @property {{[key: string]: Function }} hooks hooks
- * @property {Object.<string, ServiceActionDefinition | ServiceActionHandler>} [actions] actions
+ * @property {Object.<string, ServiceActionDefinition | ServiceActionHandler | boolean>} [actions] actions
  * @property {{[key: string]: ServiceEvent }} [events] events
  * @property {Object.<string, ServiceMethodDefinition>} [methods] methods
- * @property {*} created created
- * @property {*} started started
- * @property {*} stopped stopped
+ * @property {*} [created] - Created hook
+ * @property {*} [started] - Started hook
+ * @property {*} [stopped] - Stopped hook
+ * @property {function():void |Array<function():void>} afterSchemasMerged - After schemas merged hook
 */
 
 /**
@@ -614,6 +688,7 @@
  * @export
  * @typedef Service
  * @property {string} filename filename
+ * @property {Runtime} runtime - Runtime reference
  * @property {Broker} broker broker
  * @property {Logger} log log
  * @property {number} [version] version
@@ -625,8 +700,8 @@
  * @property {{[key: string]: (data: Object, options: ActionOptions) => {} }} [actions] actions
  * @property {{[key: string]: (context: Context) => {} }} [events] events
  * @property {{ [key: string]: Function }} [methods] methods
- * @property {Promise<any>} start start
- * @property {Promise<any>} stop stop
+ * @property {function():Promise<any>} start start
+ * @property {function():Promise<any>} stop stop
 */
 
 // Health handler
@@ -679,7 +754,7 @@
  * @typedef Middleware
  * @property {() => any} [created] created
  * @property {(broker: Broker) => any} [started] started
- * @property {(handler: any, action: ServiceAction) => any} [localAction] localAction
+ * @property {function(any, ServiceAction): any} [localAction] localAction
  * @property {(handler: any, action: ServiceAction) => any} [remoteAction] remoteAction
  * @property {(broker: Broker, handler: any, action: ServiceAction) => any} [localEvent] localEvent
  * @property {(next: Function) => MiddlewareEventDelegate} [emit] emit
@@ -703,8 +778,8 @@
  * @property {void} init init
  * @property {Promise<any>} stop stop
  * @property {boolean} shouldSample shouldSample
- * @property {void} invokeCollectorMethod invokeCollectorMethod
- * @property {Span} startSpan startSpan
+ * @property {function():void} invokeCollectorMethod invokeCollectorMethod
+ * @property {function(string, object):Span} startSpan startSpan
 */
 
 /**
@@ -741,5 +816,19 @@
  * @property {boolean} isActive isActive
  * @property {*} setError setError
 */
+
+/**
+ * Transport Message
+ * @typedef {object} TransportMessage
+ * @property {string} type - Message type
+ * @property {string} targetNodeId - Id of the target node
+ * @property {object} payload - Payload to send
+ */
+
+/**
+ * @callback TransportMessageHandler
+ * @param {string} Type - Message type
+ * @param {object} data - Payload
+ */
 
 module.exports = {}

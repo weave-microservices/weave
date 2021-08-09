@@ -7,6 +7,11 @@
 const { defaultsDeep } = require('@weave-js/utils')
 const { createLogger: createDefaultLogger } = require('../logger/index')
 
+/**
+ * Init logger
+ * @param {Runtime} runtime - Runtime reference
+ * @returns {void}
+ */
 exports.initLogger = (runtime) => {
   const loggerFactory = (runtime, moduleName, additional = {}) => {
     const bindings = {
@@ -17,7 +22,7 @@ exports.initLogger = (runtime) => {
 
     // custom logger generator function.
     if (typeof runtime.options.logger === 'function') {
-      return runtime.options.logger(bindings, runtime.options.level)
+      return runtime.options.logger(bindings, runtime.options.logger.level)
     }
 
     // merge log options

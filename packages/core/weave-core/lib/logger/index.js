@@ -4,7 +4,6 @@
  * Copyright 2019 Fachwerk
  */
 
-/** @module weave */
 const os = require('os')
 const { initBase } = require('./base')
 const { mappings } = require('./levels')
@@ -16,7 +15,7 @@ const hostname = os.hostname()
 const defaultOptions = {
   enabled: true,
   level: 'info',
-  messageKey: 'msg',
+  messageKey: 'message',
   customLevels: null,
   base: { pid, hostname },
   hooks: {

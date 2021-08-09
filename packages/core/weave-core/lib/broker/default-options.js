@@ -1,5 +1,5 @@
 /**
- * @typedef {import('../../types.js').BrokerOptions} BrokerOptions
+ * @typedef {import('../types.js').BrokerOptions} BrokerOptions
 */
 
 /*
@@ -45,15 +45,13 @@ exports.getDefaultOptions = () => {
       adapter: null,
       maxQueueSize: 80000,
       heartbeatInterval: 5 * 1000,
-      nodeUpdateInterval: 5 * 1000,
+      localNodeUpdateInterval: 5 * 1000,
       heartbeatTimeout: 10 * 1000,
       offlineNodeCheckInterval: 30 * 1000,
       maxOfflineTime: 1000 * 60 * 10,
       maxChunkSize: 256 * 1024
     },
     errorHandler: null,
-    loadNodeService: true,
-    publishNodeService: false,
     loadInternalMiddlewares: true,
     metrics: {
       enabled: false,
@@ -68,7 +66,7 @@ exports.getDefaultOptions = () => {
       level: 'info',
       base: {
         pid: process.pid,
-        hostname: os.hostname
+        hostname: os.hostname()
       }
     },
     tracing: {
@@ -80,6 +78,7 @@ exports.getDefaultOptions = () => {
     registry: {
       preferLocalActions: true,
       requestTimeout: 0,
+      publishNodeService: false,
       maxCallLevel: 0,
       loadBalancingStrategy: loadBalancingStrategy.ROUND_ROBIN
     },

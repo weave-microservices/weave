@@ -80,12 +80,6 @@ exports.createRegistry = (runtime) => {
     },
     onRegisterLocalAction: noop,
     onRegisterRemoteAction: noop,
-    /**
-     * Check action visibility
-     * @param {*} action Action definition
-     * @param {*} node Node object
-     * @returns {Boolean} Is visible
-    */
     checkActionVisibility (action, node) {
       if (typeof action.visibility === 'undefined' || action.visibility === 'public') {
         return true

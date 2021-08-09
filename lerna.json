@@ -4,7 +4,8 @@
       "packages/cache/*",
       "packages/core/*",
       "packages/transports/*",
-      "packages/tracing-adapters/*"
+      "packages/tracing-adapters/*",
+      "packages/services/*"
     ],
     "version": "independent",
     "command": {

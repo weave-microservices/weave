@@ -12,7 +12,7 @@ const { isFunction } = require('@weave-js/utils')
 const Middlewares = require('../middlewares')
 
 /**
- *  Creates a new Weave Broker instance
+ * Creates a new Weave Broker instance
  * @param {Runtime} runtime - Weave runtime.
  * @returns {Broker} Broker instance
 */
@@ -45,9 +45,7 @@ exports.createBrokerInstance = (runtime) => {
   }
 
   // broker object
-  /**
-   * @type {Broker}
-  */
+  /** @type {Broker} */
   const broker = {
     nodeId: options.nodeId,
     version,
@@ -59,7 +57,6 @@ exports.createBrokerInstance = (runtime) => {
     log,
     createLogger: runtime.createLogger,
     getUUID: () => runtime.generateUUID(),
-    health: runtime.health,
     registry,
     getNextActionEndpoint (actionName, options = {}) {
       return registry.getNextAvailableActionEndpoint(actionName, options)
@@ -367,11 +364,6 @@ exports.createBrokerInstance = (runtime) => {
   process.on('exit', onClose)
   process.on('SIGINT', onClose)
   process.on('SIGTERM', onClose)
-
-  // Load internal services
-  if (options.loadNodeService) {
-    broker.createService(require('../internal/node.service'))
-  }
 
   // Add broker reference to runtime
   Object.assign(runtime, { broker })

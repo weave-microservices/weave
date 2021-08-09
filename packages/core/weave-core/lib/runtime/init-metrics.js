@@ -2,6 +2,15 @@ const { isPlainObject, isFunction } = require('@weave-js/utils')
 const { registerCommonMetrics, updateCommonMetrics } = require('../metrics/common')
 const MetricTypes = require('../metrics/types')
 
+/**
+ * @typedef {import('../types.js').Runtime} Runtime
+*/
+
+/**
+ * Init metrics module
+ * @param {Runtime} runtime - Runtime reference
+ * @returns {void}
+ */
 exports.initMetrics = (runtime) => {
   const metricOptions = runtime.options.metrics
 
@@ -10,6 +19,7 @@ exports.initMetrics = (runtime) => {
 
     const log = runtime.createLogger('METRICS')
 
+    /** @type {NodeJS.Timeout} */
     let commonUpdateTimer
 
     Object.defineProperty(runtime, 'metrics', {

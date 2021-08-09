@@ -88,7 +88,7 @@ describe('Test middlewares', () => {
     })
 
     await broker.start()
-    expect(flow.join('-')).toBe('call-multiCall-emit-broadcast-broadcastLocal-createService-loadService-loadServices-localAction:$node.services-localAction:$node.actions-localAction:$node.events-localAction:$node.health-localAction:$node.list-created-starting-serviceStarting:$node-localAction:$node.services-localAction:$node.actions-localAction:$node.events-localAction:$node.health-localAction:$node.list-serviceStarted:$node-started')
+    expect(flow.join('-')).toBe('call-multiCall-emit-broadcast-broadcastLocal-createService-loadService-loadServices-created-starting-started')
   })
 
   it('should decorate broker instance', async () => {

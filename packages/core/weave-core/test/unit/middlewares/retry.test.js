@@ -61,7 +61,7 @@ describe('Test retry middleware', () => {
     const newHandler = middleware.localAction.call(broker, handler, action)
 
     const context = contextFactory.create(endpoint)
-    context.setParams({ name: 'Kevin' })
+    context.setData({ name: 'Kevin' })
 
     broker.call = jest.fn(() => Promise.resolve('next call'))
 
@@ -85,7 +85,7 @@ describe('Test retry middleware', () => {
     const newHandler = middleware.localAction.call(broker, handler, action)
 
     const context = contextFactory.create(endpoint)
-    context.setParams({ name: 'Kevin' })
+    context.setData({ name: 'Kevin' })
 
     broker.call = jest.fn(() => Promise.resolve('next call'))
 

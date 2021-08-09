@@ -7,15 +7,34 @@
 
 const { createContext } = require('../broker/context')
 
+/**
+ * @typedef {import('../types').Runtime} Runtime
+ * @typedef {import('../types').Context} Context
+ * @typedef {import('../types').Endpoint} Endpoint
+ * @typedef {import('../types').ActionOptions} ActionOptions
+ */
+
+/**
+ * Init context factory.
+ * @param {Runtime} runtime - Runtime reference
+ * @returns {void}
+*/
 exports.initContextFactory = (runtime) => {
   Object.defineProperty(runtime, 'contextFactory', {
     value: {
+      /**
+       * Creates a new context
+       * @param {Endpoint} endpoint - Endpoint
+       * @param {any} data - Data
+       * @param {ActionOptions} opts Options
+       * @returns {Context} Context
+      */
       create (endpoint, data, opts) {
         const context = createContext(runtime)
 
         opts = opts || {}
-        context.setParams(data)
-        context.timeout = opts.timeout || 0
+        context.setData(data)
+        // context.timeout = opts.timeout || 0
         context.retryCount = opts.retryCount
         context.options = opts
 

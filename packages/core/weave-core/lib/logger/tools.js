@@ -10,16 +10,15 @@ exports.generateLogMethod = (runtime, level, hook) => {
 
   function log (origin, ...n) {
     if (typeof origin === 'object') {
-      let msg = origin
-      // if (this[nestedKeySym]) o = { [this[nestedKeySym]]: o }
+      let message = origin
       let formatParams
-      if (msg === null && n.length === 0) {
+      if (message === null && n.length === 0) {
         formatParams = [null]
       } else {
-        msg = n.shift()
+        message = n.shift()
         formatParams = n
       }
-      runtime.write(origin, format(msg, formatParams, runtime.options.formatOptions), level)
+      runtime.write(origin, format(message, formatParams, runtime.options.formatOptions), level)
     } else {
       runtime.write(null, format(origin, n, runtime.options.formatOptions), level)
     }

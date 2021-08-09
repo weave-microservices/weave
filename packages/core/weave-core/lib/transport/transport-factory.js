@@ -7,6 +7,8 @@
 /**
  * @typedef {import('../types').Runtime} Runtime
  * @typedef {import('../types.js').TransportAdapter} TransportAdapter
+ * @typedef {import('../types.js').Transport} Transport
+ * @typedef {import('../types').TransportMessage} TransportMessage
 */
 
 // Own packages
@@ -231,7 +233,7 @@ exports.createTransport = (runtime, adapter) => {
 
   /**
   * Send a message
-  * @param {Message} message Message to send
+  * @param {TransportMessage} message Message to send
   * @returns {Promise} Promise
   */
   transport.send = (message) => {
@@ -531,7 +533,7 @@ exports.createTransport = (runtime, adapter) => {
     updateLocalNodeTimer = setInterval(() => {
       const node = runtime.registry.nodeCollection.localNode
       node.updateLocalInfo(true)
-    }, runtime.options.transport.nodeUpdateInterval)
+    }, runtime.options.transport.localNodeUpdateInterval)
 
     updateLocalNodeTimer.unref()
   }
@@ -539,7 +541,7 @@ exports.createTransport = (runtime, adapter) => {
   function stopTimers () {
     clearInterval(heartbeatTimer)
     clearInterval(checkNodesTimer)
-    clearInterval(checkOfflineNodes)
+    clearInterval(checkOfflineNodesTimer)
     clearInterval(updateLocalNodeTimer)
   }
 

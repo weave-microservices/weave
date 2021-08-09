@@ -97,7 +97,6 @@ describe('Middleware hooks', () => {
       logger: {
         enabled: false
       },
-      loadNodeService: false,
       middlewares: [middleware]
     })
 
@@ -138,7 +137,6 @@ describe('Middleware hooks', () => {
         enabled: false,
         level: 'fatal'
       },
-      loadNodeService: false,
       middlewares: [middleware]
     })
 
@@ -179,7 +177,6 @@ describe('Middleware hooks', () => {
       logger: {
         enabled: false
       },
-      loadNodeService: false,
       middlewares: [middleware]
     })
 
@@ -190,8 +187,7 @@ describe('Middleware hooks', () => {
       },
       logger: {
         enabled: false
-      },
-      loadNodeService: false
+      }
     })
 
     broker2.createService({
@@ -231,7 +227,6 @@ describe('Middleware hooks', () => {
       logger: {
         enabled: false
       },
-      loadNodeService: false,
       middlewares: [middleware]
     })
 

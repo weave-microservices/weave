@@ -1,23 +1,8 @@
 {
-  "name": "@weave-js/core",
+  "name": "@weave-js/node-service",
   "version": "0.9.0",
-  "description": "The core package of weave",
-  "keywords": [
-    "Weave",
-    "Microservice",
-    "Microservices",
-    "Framework",
-    "SAAS",
-    "Backend",
-    "Pubsub",
-    "Scalable",
-    "Messagebus",
-    "RPC",
-    "Distributed",
-    "Services",
-    "Micro"
-  ],
-  "main": "./lib/index.js",
+  "description": "Node info service for weave.js",
+  "main": "./lib/node-service.js",
   "scripts": {
     "ci": "jest --watch",
     "test": "NODE_ENV=test jest --no-cache --runInBand",
@@ -39,14 +24,10 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@weave-js/errors": "^0.9.0",
-    "@weave-js/utils": "^0.9.0",
-    "@weave-js/validator": "^0.9.0",
-    "eventemitter2": "^6.4.4",
-    "glob": "^7.1.7",
-    "node-fetch": "^2.6.1"
+    "@weave-js/utils": "^0.9.0"
   },
   "devDependencies": {
+    "@weave-js/core": "^0.9.0",
     "eslint": "^7.30.0",
     "jest": "^27.0.6",
     "jest-cli": "^27.0.6"
@@ -54,6 +35,5 @@
   "directories": {
     "lib": "lib",
     "test": "test"
-  },
-  "gitHead": "19371c8bca2bf6733ae30b23cd5a316c3bcdb5f4"
+  }
 }

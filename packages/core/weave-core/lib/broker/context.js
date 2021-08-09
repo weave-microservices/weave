@@ -7,12 +7,20 @@
 
 /**
  * @typedef {import('../types').Context} Context
- */
+ * @typedef {import('../types').Runtime} Runtime
+ * @typedef {import('../types').ContextPromise} ContextPromise
+*/
 
 const { uuid, isFunction, isStream, isStreamObjectMode } = require('@weave-js/utils')
 const { WeaveMaxCallLevelError, WeaveError } = require('../errors')
 
+/**
+ * Create a new context object
+ * @param {Runtime} runtime Runtime reference
+ * @returns {Context} Context
+*/
 exports.createContext = (runtime) => {
+  /** @type {Context} */
   const context = {
     id: null,
     nodeId: runtime.nodeId || null,
@@ -33,7 +41,7 @@ exports.createContext = (runtime) => {
     },
     duration: 0,
     stopTime: 0,
-    setParams (newParams) {
+    setData (newParams) {
       this.data = newParams || {}
     },
     setStream (stream) {
@@ -60,19 +68,13 @@ exports.createContext = (runtime) => {
       options.parentContext = this
       return runtime.eventBus.broadcast(eventName, payload, options)
     },
-    /**
-     * Call a action.
-     * @param {string} actionName Name of the action.
-     * @param {object} params Parameter
-     * @param {object} [options={}] Call options
-     * @returns {Promise} Promise
-    */
     call (actionName, params, options = {}) {
       options.parentContext = this
       if (runtime.options.registry.maxCallLevel > 0 && this.level >= runtime.options.registry.maxCallLevel) {
         return Promise.reject(new WeaveMaxCallLevelError({ nodeId: runtime.nodeId, maxCallLevel: runtime.options.registry.maxCallLevel }))
       }
 
+      /** @type {ContextPromise} */
       const p = runtime.actionInvoker.call(actionName, params, options)
 
       return p.then(result => {
@@ -110,7 +112,6 @@ exports.createContext = (runtime) => {
       newContext.parentContext = this.parentContext
       newContext.callerNodeId = this.callerNodeId
       newContext.level = this.level
-      newContext.options = this.options
       newContext.eventName = this.eventName
       newContext.eventType = this.eventType
       newContext.eventGroups = this.eventGroups

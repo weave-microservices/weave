@@ -1,3 +1,4 @@
+// @ts-nocheck
 const { Weave } = require('../../../lib/index')
 
 describe('Timeout middleware', () => {

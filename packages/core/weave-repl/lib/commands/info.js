@@ -8,7 +8,6 @@ module.exports = ({ vorpal, broker, cliUI }) => {
     .command('info', 'Show node informations.')
     .action((_, done) => {
       const gauge = clui.Gauge
-      const brokerHealth = broker.runtime.health.getNodeHealthInfo()
       const heapStatistic = v8.getHeapStatistics()
       const ips = getIpList(false)
 
@@ -26,8 +25,8 @@ module.exports = ({ vorpal, broker, cliUI }) => {
       if (broker.runtime.options.namespace) {
         cliUI.printIntended('Namespace', broker.runtime.options.namespace)
       }
-      cliUI.printIntended('Weave version', 'v' + brokerHealth.client.version)
-      cliUI.printIntended('Node.js version', brokerHealth.client.nodeVersion)
+      // cliUI.printIntended('Weave version', 'v' + brokerHealth.client.version)
+      // cliUI.printIntended('Node.js version', brokerHealth.client.nodeVersion)
 
       // Transport informations
       if (broker.runtime.transport) {
