@@ -127,7 +127,7 @@ const { EventEmitter2 } = require('eventemitter2')
  * @property {function(string, any, any=):Promise<any>} emit - Emit
  * @property {function(string, any, any=):Promise<any>} broadcast broadcast
  * @property {function(string, any, any=):Promise<any>} broadcastLocal broadcastLocal
- * @property {Promise<any>} waitForServices waitForServices
+ * @property {function(string):Promise<any>} waitForServices waitForServices
  * @property {Promise<PingResult>} ping ping
  * @property {function(Error)} handleError handleError
  * @property {void} fatalError fatalError
@@ -225,28 +225,28 @@ const { EventEmitter2 } = require('eventemitter2')
 /**
  * @typedef BrokerOptions
  * @property {string} [nodeId] Node ID. Needs to be unique in your environment.
- * @property {BulkheadOptions} bulkhead Bulkhead options.
- * @property {CacheOptions} cache Cache options.
- * @property {ContextTracking} contextTracking Context tracking options.
- * @property {CircuitBreakerOptions} circuitBreaker Circuit breaker options.
- * @property {TransportOptions} transport Transport options.
+ * @property {BulkheadOptions} [bulkhead] Bulkhead options.
+ * @property {CacheOptions} [cache] Cache options.
+ * @property {ContextTracking} [contextTracking] Context tracking options.
+ * @property {CircuitBreakerOptions} [circuitBreaker] Circuit breaker options.
+ * @property {TransportOptions} [transport] Transport options.
  * @property {Function} [errorHandler] errorHandler.
- * @property {boolean} loadInternalMiddlewares Enable or disable internal middlewares.
- * @property {MetricsOptions} metrics Metrics options.
+ * @property {boolean} [loadInternalMiddlewares=true] Enable or disable internal middlewares.
+ * @property {MetricsOptions} [metrics] Metrics options.
  * @property {Array<Middleware>} [middlewares] middlewares.
  * @property {LoggerOptions} [logger] logger.
- * @property {TracingOptions} tracing Tracing options.
+ * @property {TracingOptions} [tracing] Tracing options.
  * @property {String} [namespace] namespace.
  * @property {RegistryOptions} [registry] registry.
- * @property {RetryPolicyOptions} retryPolicy
- * @property {ValidatorOptions} validatorOptions Validator options.
+ * @property {RetryPolicyOptions} [retryPolicy] - Retry policy
+ * @property {ValidatorOptions} [validatorOptions] Validator options.
  * @property {boolean} [validateActionParams] validateActionParams.
  * @property {boolean} [watchServices] watchServices.
  * @property {number} [waitForServiceInterval] waitForServiceInterval.
  * @property {function():string} [beforeRegisterMiddlewares] beforeRegisterMiddlewares.
  * @property {function(Runtime):string} [uuidFactory] uuidFactory.
- * @property {(this: Broker) => void} [started] started.
- * @property {(this: Broker) => void} [stopped] stopped.
+ * @property {function():void} [started] started.
+ * @property {function():void} [stopped] stopped.
 */
 
 /**

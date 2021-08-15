@@ -1,4 +1,3 @@
-const { infoText } = require('../../../cli/node_modules/@weave-js/repl/lib/utils/cli-ui')
 const { Weave } = require('../../lib/index')
 
 describe('Test param validator', () => {

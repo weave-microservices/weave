@@ -6,7 +6,7 @@
 
 const EventEmitter = require('eventemitter2')
 const { getDefaultOptions } = require('./broker/default-options')
-const { defaultsDeep, uuid } = require('../../utils/lib')
+const { defaultsDeep, uuid, isFunction } = require('../../utils/lib')
 const { initLogger } = require('./runtime/init-logger')
 const { initMiddlewareHandler } = require('./runtime/init-middleware-manager')
 const { initRegistry } = require('./runtime/init-registry')
@@ -113,7 +113,7 @@ exports.createBroker = (options) => {
 
 // eslint-disable-next-line valid-jsdoc
 /**
- * @deprecated since version 0.10.0
+ * @deprecated since version 0.9.0
  * @param {import('./types.js').BrokerOptions} options Broker options.
  * @returns {import('./types.js').Broker} Broker instance
 */
