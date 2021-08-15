@@ -17,10 +17,6 @@ exports.getConfig = (flags) => {
     filePath = path.resolve(process.cwd(), defaultConfigFileName)
   }
 
-  if (!filePath && fs.existsSync(path.resolve(process.cwd(), defaultConfigFileName))) {
-    filePath = path.resolve(process.cwd(), defaultConfigFileName)
-  }
-
   let config
 
   if (filePath) {
@@ -30,7 +26,7 @@ exports.getConfig = (flags) => {
 
     const fileExtension = path.extname(filePath)
 
-    // check file extension
+    // Handle file extensions
     switch (fileExtension) {
     case '.json':
     case '.js': {
