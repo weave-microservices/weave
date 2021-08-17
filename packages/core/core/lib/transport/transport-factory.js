@@ -22,7 +22,7 @@ const createMessageHandler = require('./message-handlers')
  * @param {Runtime} runtime Broker instance
  * @param {TransportAdapter} adapter Adapter wrapper
  * @returns {Transport} transport
- */
+*/
 exports.createTransport = (runtime, adapter) => {
   const transport = Object.create(null)
   const { nodeId, middlewareHandler } = runtime
