@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.1](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.0...@weave-js/core@0.9.1) (2021-08-17)
+
+
+### Bug Fixes
+
+* Fixed wrong gossip message constants. ([ad7ca04](https://github.com/fachw3rk/weave/commit/ad7ca04a131a7facb10cfa5a9473f167087fd894))
+
+
+### Features
+
+* **core:** The possibility to validate responses via a "responseSchema" implemented in validator middleware. ([3387fe1](https://github.com/fachw3rk/weave/commit/3387fe1e9616c4ee882b7c863b53912851fd7a1b))
+
+
+
+
+
 # [0.9.0](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.0-beta.13...@weave-js/core@0.9.0) (2021-08-02)
 
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.1](https://github.com/weave-microservices/weave/compare/@weave-js/utils@0.9.0...@weave-js/utils@0.9.1) (2021-08-17)
+
+
+### Features
+
+* **utils:** Added capitalize method ([f0479de](https://github.com/weave-microservices/weave/commit/f0479de3a4c50328928176ac5126d2143d3da9a7))
+
+
+
+
+
 # [0.9.0](https://github.com/weave-microservices/weave/compare/@weave-js/utils@0.9.0-beta.3...@weave-js/utils@0.9.0) (2021-08-02)
 
 
