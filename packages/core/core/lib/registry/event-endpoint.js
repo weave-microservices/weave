@@ -9,13 +9,13 @@ exports.createEventEndpoint = (broker, node, service, event) => {
 
   eventEndpoint.node = node
   eventEndpoint.service = service
-  eventEndpoint.event = event
+  eventEndpoint.action = event
   eventEndpoint.isLocal = eventEndpoint.node.id === broker.nodeId
   eventEndpoint.state = true
   eventEndpoint.name = `${node.id}:${event.name}`
 
   eventEndpoint.updateEvent = (newEvent) => {
-    eventEndpoint.event = newEvent
+    eventEndpoint.action = newEvent
   }
 
   eventEndpoint.isAvailable = () => {

@@ -18,7 +18,7 @@
  * @typedef {import('../types.js').ServiceChangedDelegate} ServiceChangedDelegate
 */
 
-const { safeCopy } = require('../../../utils/lib')
+const { safeCopy } = require('@weave-js/utils')
 
 // own packages
 const { createNodeCollection } = require('./collections/node-collection')

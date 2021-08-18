@@ -1,106 +1,15 @@
 /**
- * @typedef {import("../types").Runtime} Runtime
- * @typedef {import("../types").ServiceSchema} ServiceSchema
- * @typedef {import("../types").Service} Service
+ * @typedef {import("../../types").Runtime} Runtime
+ * @typedef {import("../../types").ServiceSchema} ServiceSchema
+ * @typedef {import("../../types").Service} Service
 */
 
-const { mergeSchemas } = require('../utils/options')
-const { wrapInArray, isFunction, clone, wrapHandler, isObject, promisify } = require('../../../utils/lib')
-const { WeaveError } = require('../errors')
-
-const createAction = (runtime, service, actionDefinition, name) => {
-  let action = actionDefinition
-
-  // if the handler is a method (short form), we wrap the method in our handler object.
-  if (isFunction(actionDefinition)) {
-    action = wrapHandler(actionDefinition)
-  } else if (isObject(actionDefinition)) {
-    action = clone(actionDefinition)
-  } else {
-    runtime.handleError(new WeaveError(`Invalid action definition in "${name}" on service "${service.name}".`))
-  }
-
-  const handler = action.handler
-
-  // Action handler has to be a function
-  if (!isFunction(handler)) {
-    runtime.handleError(new WeaveError(`Missing action handler in "${name}" on service "${service.name}".`))
-  }
-
-  action.name = service.name + '.' + (action.name || name)
-  action.shortName = name
-
-  // if this is a versioned service. The action name is prefixed with the version number.
-  if (service.version) {
-    action.name = `v${service.version}.${action.name}`
-  }
-
-  action.service = service
-  action.version = service.version
-  action.handler = promisify(handler.bind(service))
-
-  return action
-}
-
-const createEvent = (runtime, service, eventDefinition, name) => {
-  let event
-
-  // if the handler is a method (short form), we wrap the method in our handler object.
-  if (isFunction(eventDefinition)) {
-    event = wrapHandler(eventDefinition)
-  } else if (isObject(eventDefinition)) {
-    event = clone(eventDefinition)
-  } else {
-    runtime.handleError(new WeaveError(`Invalid event definition "${name}" on service "${service.name}".`))
-  }
-
-  // Event handler has to be a function
-  if (!isFunction(event.handler) && !Array.isArray(event.handler)) {
-    runtime.handleError(new WeaveError(`Missing event handler for "${name}" on service "${service.name}".`))
-  }
-
-  event.service = service
-
-  let handler
-  if (isFunction(event.handler)) {
-    handler = promisify(event.handler.bind(service))
-  } else if (Array.isArray(event.handler)) {
-    handler = event.handler.map(h => {
-      return promisify(h.bind(service))
-    })
-  }
-
-  if (!event.name) {
-    event.name = name
-  }
-
-  if (isFunction(handler)) {
-    event.handler = (context) => handler(context)
-  } else if (Array.isArray(handler)) {
-    event.handler = (context) => Promise.all(handler.map(h => h(context)))
-  }
-
-  return event
-}
-
-const applyMixins = (service, schema) => {
-  const mixins = wrapInArray(schema.mixins)
-  if (mixins.length > 0) {
-    const mixedSchema = Array
-      .from(mixins)
-      .reverse()
-      .reduce((s, mixin) => {
-        if (mixin.mixins) {
-          mixin = applyMixins(service, mixin)
-        }
-
-        return s ? mergeSchemas(s, mixin) : mixin
-      }, null)
-    return mergeSchemas(mixedSchema, schema)
-  }
-  return schema
-}
-
+const { isFunction, clone, isObject, promisify } = require('@weave-js/utils')
+const { WeaveError } = require('../../errors')
+const { parseAction } = require('./parseAction')
+const { parseEvent } = require('./parseEvent')
+const { reduceMixins } = require('./reduceMixins')
+const { createEventEndpoint } = require('../event-endpoint')
 /**
  * Service factory
  * @param {Runtime} runtime Broker instance
@@ -126,7 +35,7 @@ exports.createServiceFromSchema = (runtime, schema) => {
 
   // Apply all mixins (including childs)
   if (schema.mixins) {
-    schema = applyMixins(service, schema)
+    schema = reduceMixins(service, schema)
   }
 
   // Call "afterSchemasMerged" service lifecylce hook(s)
@@ -190,6 +99,7 @@ exports.createServiceFromSchema = (runtime, schema) => {
     Object.keys(schema.methods).map(name => {
       const method = schema.methods[name]
 
+      // Reserved property names
       if (['log', 'actions', 'meta', 'events', 'settings', 'methods', 'dependencies', 'version', 'dependencies', 'broker', 'runtime', 'afterSchemasMerged', 'created', 'started', 'stopped'].includes(name)) {
         runtime.handleError(new WeaveError(`Invalid method name ${name} in service ${service.name}.`))
       }
@@ -206,11 +116,10 @@ exports.createServiceFromSchema = (runtime, schema) => {
       // skip actions that are set to false
       if (actionDefinition === false) return
 
-      const innerAction = createAction(runtime, service, clone(actionDefinition), name)
+      const innerAction = parseAction(runtime, service, clone(actionDefinition), name)
       serviceSpecification.actions[innerAction.name] = innerAction
 
       const wrappedAction = runtime.middlewareHandler.wrapHandler('localAction', innerAction.handler, innerAction)
-      const endpoint = runtime.registry.createPrivateActionEndpoint(innerAction)
 
       // Make the action accessable via this.actions["actionName"]
       service.actions[name] = (data, options) => {
@@ -219,6 +128,7 @@ exports.createServiceFromSchema = (runtime, schema) => {
         if (options && options.context) {
           context = options.context
         } else {
+          const endpoint = runtime.registry.createPrivateActionEndpoint(innerAction)
           // create a new context
           context = runtime.contextFactory.create(endpoint, data, options || {})
         }
@@ -232,13 +142,27 @@ exports.createServiceFromSchema = (runtime, schema) => {
   if (isObject(schema.events)) {
     Object.keys(schema.events).map(name => {
       const eventDefinition = schema.events[name]
-      const event = createEvent(runtime, service, eventDefinition, name)
+      const innerEvent = parseEvent(runtime, service, clone(eventDefinition), name)
+
+      serviceSpecification.events[name] = innerEvent
+
       // wrap event
+      const wrappedEvent = runtime.middlewareHandler.wrapHandler('localEvent', innerEvent.handler, innerEvent)
 
-      serviceSpecification.events[name] = event
+      // Add local event handler
+      service.events[name] = (data, options) => {
+        let context
+        if (options && options.context) {
+          context = options.context
+        } else {
+          // create a local endpoint for the event
+          const endpoint = createEventEndpoint(runtime, runtime.registry.nodeCollection.localNode, innerEvent.service, innerEvent)
 
-      service.events[name] = () => {
-        return event.handler({})
+          // create a new context
+          context = runtime.contextFactory.create(endpoint, data, options || {})
+        }
+
+        return wrappedEvent(context)
       }
     })
   }

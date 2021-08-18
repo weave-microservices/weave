@@ -11,7 +11,7 @@
  * @typedef {import('../../types.js').NodeCollection} NodeCollection
 */
 
-const { getIpList, omit } = require('../../../../utils/lib')
+const { getIpList, omit } = require('@weave-js/utils')
 const { createNode } = require('../node')
 /**
  * Create node collection

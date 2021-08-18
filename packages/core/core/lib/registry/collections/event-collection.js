@@ -14,7 +14,7 @@
  * @typedef {import('../../types.js').EndpointCollection} EndpointCollection
 */
 
-const { omit, match } = require('../../../../utils/lib')
+const { omit, match } = require('@weave-js/utils')
 const { createEndpointList } = require('./endpoint-collection')
 
 const broadcastEvents = ['broadcast', 'localBroadcast']

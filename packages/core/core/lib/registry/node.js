@@ -8,7 +8,7 @@
  * @typedef {import('../types.js').Node} Node
 */
 
-const { cpuUsage } = require('../../../utils/lib')
+const { cpuUsage } = require('@weave-js/utils')
 
 /**
  * Node factory

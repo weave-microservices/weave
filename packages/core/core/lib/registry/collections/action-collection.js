@@ -10,7 +10,7 @@
  * @typedef {import('../../types.js').Registry} Registry
  * @typedef {import('../../types.js').ServiceActionCollection} ServiceActionCollection
 */
-const { omit } = require('../../../../utils/lib')
+const { omit } = require('@weave-js/utils')
 const { createEndpointList } = require('./endpoint-collection')
 
 /**
