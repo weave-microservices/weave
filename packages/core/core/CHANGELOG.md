@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.2](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.1...@weave-js/core@0.9.2) (2021-08-18)
+
+
+### Bug Fixes
+
+* Fixed @weave-js/utils references ([69f2d90](https://github.com/fachw3rk/weave/commit/69f2d9010210782e42b0f168f9ac88e3d40c3150))
+
+
+
+
+
 ## [0.9.1](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.0...@weave-js/core@0.9.1) (2021-08-17)
 
 
