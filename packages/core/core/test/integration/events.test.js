@@ -379,3 +379,33 @@ describe('Event parameter validation', () => {
     expect(isContext(result)).toBe(true)
   })
 })
+
+describe('Local service events', () => {
+  const node1 = Weave({
+    nodeId: 'test-event-validation'
+  })
+
+  beforeAll(() => Promise.all([node1].map(node => node.start())))
+  afterAll(() => Promise.all([node1].map(node => node.stop())))
+
+  it('should emit local events', (done) => {
+    const fakeEvent = jest.fn(context => context)
+
+    node1.createService({
+      name: 'test',
+      events: {
+        'test.event': {
+          params: {
+            name: 'string'
+          },
+          handler: fakeEvent
+        }
+      },
+      started () {
+        this.events['test.event']({ name: 'Mike'})
+        expect(fakeEvent).toHaveBeenCalledTimes(1)
+        done()
+      }
+    })
+  })
+})

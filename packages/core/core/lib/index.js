@@ -6,7 +6,7 @@
 
 const EventEmitter = require('eventemitter2')
 const { getDefaultOptions } = require('./broker/default-options')
-const { defaultsDeep, uuid, isFunction } = require('../../utils/lib')
+const { defaultsDeep, uuid, isFunction } = require('@weave-js/utils')
 const { initLogger } = require('./runtime/init-logger')
 const { initMiddlewareHandler } = require('./runtime/init-middleware-manager')
 const { initRegistry } = require('./runtime/init-registry')

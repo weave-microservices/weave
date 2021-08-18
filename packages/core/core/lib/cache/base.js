@@ -4,7 +4,7 @@
  * Copyright 2020 Fachwerk
  */
 const crypto = require('crypto')
-const { isObject } = require('../../../utils/lib')
+const { isObject } = require('@weave-js/utils')
 
 function getCacheKeyByObject (val) {
   if (Array.isArray(val)) {

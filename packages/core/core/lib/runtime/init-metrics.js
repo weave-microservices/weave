@@ -1,4 +1,4 @@
-const { isPlainObject, isFunction } = require('../../../utils/lib')
+const { isPlainObject, isFunction } = require('@weave-js/utils')
 const { registerCommonMetrics, updateCommonMetrics } = require('../metrics/common')
 const MetricTypes = require('../metrics/types')
 

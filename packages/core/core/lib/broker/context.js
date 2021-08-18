@@ -11,7 +11,7 @@
  * @typedef {import('../types').ContextPromise} ContextPromise
 */
 
-const { uuid, isFunction, isStream, isStreamObjectMode } = require('../../../utils/lib')
+const { uuid, isFunction, isStream, isStreamObjectMode } = require('@weave-js/utils')
 const { WeaveMaxCallLevelError, WeaveError } = require('../errors')
 
 /**

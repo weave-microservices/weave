@@ -8,7 +8,7 @@
 // node packages
 const path = require('path')
 const glob = require('glob')
-const { isFunction } = require('../../../utils/lib')
+const { isFunction } = require('@weave-js/utils')
 const Middlewares = require('../middlewares')
 
 /**

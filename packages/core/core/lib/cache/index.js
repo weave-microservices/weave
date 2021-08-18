@@ -4,7 +4,7 @@
  * Copyright 2020 Fachwerk
  */
 
-const { isString, isFunction } = require('../../../utils/lib')
+const { isString, isFunction } = require('@weave-js/utils')
 const { WeaveBrokerOptionsError } = require('../errors')
 
 const adapters = {

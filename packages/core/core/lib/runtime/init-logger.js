@@ -4,7 +4,7 @@
  * @typedef {import('../types.js').Transport} Transport
 */
 
-const { defaultsDeep } = require('../../../utils/lib')
+const { defaultsDeep } = require('@weave-js/utils')
 const { createLogger: createDefaultLogger } = require('../logger/index')
 
 /**

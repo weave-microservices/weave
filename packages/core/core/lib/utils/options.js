@@ -7,7 +7,7 @@ const {
   flatten,
   wrapHandler,
   wrapInArray
-} = require('../../../utils/lib')
+} = require('@weave-js/utils')
 
 function mergeSettings (source, targetSchema) {
   return defaultsDeep(source, targetSchema)

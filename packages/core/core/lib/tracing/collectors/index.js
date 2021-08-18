@@ -1,4 +1,4 @@
-const { isFunction } = require('../../../../utils/lib')
+const { isFunction } = require('@weave-js/utils')
 
 const collectors = {
   // Console: require('./console'),

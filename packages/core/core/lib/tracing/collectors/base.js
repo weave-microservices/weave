@@ -1,4 +1,4 @@
-const { isObject } = require('../../../../utils/lib')
+const { isObject } = require('@weave-js/utils')
 const { WeaveError } = require('../../errors')
 
 exports.createBaseTracingCollector = (options) => {
