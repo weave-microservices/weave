@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.3](https://github.com/weave-microservices/weave/compare/@weave-js/repl@0.9.2...@weave-js/repl@0.9.3) (2021-08-20)
+
+
+### Bug Fixes
+
+* Fixed converting arguments ([11f7d2c](https://github.com/weave-microservices/weave/commit/11f7d2c49bbf9f4cfe7c9a1bbd04de12a20411a7))
+
+
+
+
+
 ## [0.9.2](https://github.com/weave-microservices/weave/compare/@weave-js/repl@0.9.1...@weave-js/repl@0.9.2) (2021-08-18)
 
 
