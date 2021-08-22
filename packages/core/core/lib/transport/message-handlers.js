@@ -326,7 +326,7 @@ module.exports = (runtime, transport) => {
    * @returns {Promise} Promise
   */
   const onEvent = (payload) => {
-    runtime.log.debug(`Received event "${payload.eventname}"`)
+    runtime.log.debug(`Received event "${payload.eventName}"`)
 
     if (!runtime.state.isStarted) {
       return
