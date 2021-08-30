@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.3](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.2...@weave-js/core@0.9.3) (2021-08-30)
+
+
+### Bug Fixes
+
+* Fixed log message for remote events ([32b8666](https://github.com/fachw3rk/weave/commit/32b8666f09936f0c687f95a57b7b20a4c24f544d))
+* removed unnecessary module import ([5febbe7](https://github.com/fachw3rk/weave/commit/5febbe7567f9b8b1f2c2c1d23eaa2e1d93a35cb8))
+
+
+
+
+
 ## [0.9.2](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.1...@weave-js/core@0.9.2) (2021-08-18)
 
 
