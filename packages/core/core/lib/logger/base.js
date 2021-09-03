@@ -1,5 +1,5 @@
 const { isStandardLevel, levelMethods } = require('./levels')
-const { noop, generateLogMethod, asJsonString } = require('./tools')
+const { noop, generateLogMethod } = require('./tools')
 
 exports.initBase = (runtime) => {
   runtime.setLevel = (level) => {
@@ -16,7 +16,7 @@ exports.initBase = (runtime) => {
     const hook = runtime.options.hooks.logMethod
 
     for (const key in values) {
-      if (levelVal > values[key]) {
+      if (levelVal < values[key]) {
         runtime.logMethods[key] = noop
         continue
       }
@@ -47,7 +47,7 @@ exports.initBase = (runtime) => {
       }
     }
 
-    const logString = asJsonString(runtime, object, message, number, time)
+    const logString = runtime.formatter(runtime, object, message, number, time)
 
     runtime.destination.write(logString)
   }

@@ -1,14 +1,15 @@
 const { generateLogMethod } = require('./tools')
 
 const levels = {
-  verbose: 10,
-  debug: 20,
-  info: 30,
-  warn: 40,
-  error: 50,
-  fatal: 60
+  verbose: 6,
+  debug: 5,
+  info: 4,
+  warn: 3,
+  error: 2,
+  fatal: 1
 }
 
+// wrap log methods
 const levelMethods = {
   fatal: (runtime, hook) => {
     const logFatal = generateLogMethod(runtime, levels.fatal, hook)
@@ -76,4 +77,3 @@ exports.isStandardLevel = (level, useOnlyCustomLevels) => {
     return false
   }
 }
-
