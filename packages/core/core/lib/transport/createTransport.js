@@ -153,11 +153,11 @@ exports.createTransport = (runtime, adapter) => {
 
   transport.log = runtime.createLogger('TRANSPORT')
   transport.isConnected = false
+  transport.isDisconnecting = false
   transport.isReady = false
   transport.pending = pending
   transport.resolveConnect = null
   transport.adapterName = adapter.name
-
   transport.statistics = {
     received: {
       packages: 0
@@ -173,9 +173,18 @@ exports.createTransport = (runtime, adapter) => {
       transport.log.info('Connecting to transport adapter...')
 
       const doConnect = (isTryReconnect) => {
-        const errorHandler = error => {
+        let reconnectInProgress = false
+
+        const errorHandler = (error) => {
+          // Skip reconnect, if the adapter is disconnecting or an reconnect is in progress.
+          if (transport.isDisconnecting || reconnectInProgress) {
+            return
+          }
+
           transport.log.warn('Connection failed')
-          transport.log.debug('Error ' + error.message)
+          transport.log.debug(error)
+
+          reconnectInProgress = true
 
           if (!error.skipRetry) {
             setTimeout(() => {
@@ -194,16 +203,22 @@ exports.createTransport = (runtime, adapter) => {
   }
 
   transport.disconnect = () => {
-    runtime.eventBus.broadcastLocal('$transporter.disconnected', { isGracefull: true })
-
+    transport.isDisconnecting = true
     transport.isConnected = false
     transport.isReady = false
+
+    runtime.eventBus.broadcastLocal('$transporter.disconnected', { isGracefull: true })
 
     stopTimers()
 
     const message = transport.createMessage(MessageTypes.MESSAGE_DISCONNECT)
     return transport.send(message)
-      .then(() => adapter.close())
+      .then(() => {
+        adapter.close()
+      })
+      .then(() => {
+        transport.isDisconnecting = false
+      })
   }
 
   transport.setReady = () => {
@@ -334,6 +349,8 @@ exports.createTransport = (runtime, adapter) => {
   transport.response = (target, contextId, data, meta, error) => {
     // Check if data is a stream
     const isStream = utils.isStream(data)
+
+    // Build response payload
     const payload = {
       id: contextId,
       meta,
@@ -341,6 +358,7 @@ exports.createTransport = (runtime, adapter) => {
       success: error == null
     }
 
+    // If an error is occurs, we attach the an error object to the payload.
     if (error) {
       payload.error = {
         name: error.name,

@@ -35,18 +35,6 @@ const PaymentService = {
   }
 }
 
-// const StripeService = {
-//   name: 'stripe',
-//   events: {
-//     'user.created' () {
-//       flow.push(`${this.broker.nodeId}-${this.name}-user.created`)
-//     }
-//     // 'user.created' () {
-//     //     flow.push(`${this.broker.nodeId}-${this.name}-user.created`)
-//     // }
-//   }
-// }
-
 const NotificationService = {
   name: 'notification',
   events: {
