@@ -56,6 +56,11 @@ function handleError (error) {
   }))
 }
 
+/**
+ * Prepare request options
+ * @param {*} args Params
+ * @returns {object} Options
+*/
 function prepareOptions (args) {
   const options = {
     meta: {
@@ -94,6 +99,11 @@ function preparePayloadArguments (args, payload, done) {
   }
 }
 
+/**
+ * Send payload from file as object.
+ * @param {*} args Params
+ * @returns {void}
+ */
 function preparePayloadFromFile (args) {
   let filePath
 
@@ -150,6 +160,7 @@ module.exports = (broker) =>
 
     console.log(cliUI.infoText(`>> Call "${args.actionName}" with data:`), payload)
 
+    // Save the start time.
     const startTime = process.hrtime()
 
     broker.call(args.actionName, payload, callOptions)

@@ -1,7 +1,7 @@
 {
   "name": "@weave-js/redis-cache",
   "version": "0.9.4",
-  "description": "weave redis transport adapter module",
+  "description": "Weave redis transport adapter module",
   "main": "lib/index.js",
   "scripts": {
     "ci": "jest --watch",
