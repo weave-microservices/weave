@@ -2,7 +2,7 @@
  * @typedef {import('../types').TransportAdapter} TransportAdapter
 **/
 
-const { createTransport } = require('../transport/transport-factory')
+const { createTransport } = require('../transport/createTransport')
 const TransportAdapters = require('../transport/adapters')
 
 exports.initTransport = (runtime) => {

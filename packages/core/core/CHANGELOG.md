@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.4](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.3...@weave-js/core@0.9.4) (2021-09-09)
+
+
+### Features
+
+* Added detection for TTY and an human-readable log output. ([9434a7b](https://github.com/fachw3rk/weave/commit/9434a7b9f5722550e20a1de073a5629f204827f9))
+* Implemented better human readable log output ([72d0faa](https://github.com/fachw3rk/weave/commit/72d0faa744b0e407502d90320bfc81af9e0ae866))
+
+
+
+
+
+## [0.9.3](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.2...@weave-js/core@0.9.3) (2021-08-30)
+
+
+### Bug Fixes
+
+* Fixed log message for remote events ([32b8666](https://github.com/fachw3rk/weave/commit/32b8666f09936f0c687f95a57b7b20a4c24f544d))
+* removed unnecessary module import ([5febbe7](https://github.com/fachw3rk/weave/commit/5febbe7567f9b8b1f2c2c1d23eaa2e1d93a35cb8))
+
+
+
+
+
 ## [0.9.2](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.1...@weave-js/core@0.9.2) (2021-08-18)
 
 

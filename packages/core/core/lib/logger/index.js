@@ -6,6 +6,7 @@
 
 const os = require('os')
 const { initBase } = require('./base')
+const { asJson, asHumanReadable } = require('./format')
 const { mappings } = require('./levels')
 const { coreFixtures } = require('./tools')
 
@@ -31,7 +32,8 @@ exports.createLogger = (options) => {
   const runtime = {
     options,
     logMethods: {},
-    destination: options.destination
+    destination: options.destination,
+    formatter: process.stdout.isTTY ? asHumanReadable : asJson
   }
 
   if (options.enabled === false) {
@@ -54,9 +56,8 @@ exports.createLogger = (options) => {
 
   const levels = mappings(options.customLevels)
 
-  Object.assign(runtime, {
-    levels
-  })
+  // merge levels in logger runtime
+  Object.assign(runtime, { levels })
 
   initBase(runtime)
 
