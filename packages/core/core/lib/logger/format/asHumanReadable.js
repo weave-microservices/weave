@@ -1,4 +1,4 @@
-const { green, magenta, red, yellow, white, gray } = require('../utils/colorize')
+const { green, magenta, red, yellow, white, gray, cyan } = require('../utils/colorize')
 const os = require('os')
 
 exports.asHumanReadable = ({ levels, options }, originObj, message, number, time) => {
@@ -9,7 +9,8 @@ exports.asHumanReadable = ({ levels, options }, originObj, message, number, time
     error: red,
     warn: yellow,
     info: green,
-    debug: white
+    debug: cyan,
+    verbose: gray
   }
 
   const currentLabel = levels.labels[number]
