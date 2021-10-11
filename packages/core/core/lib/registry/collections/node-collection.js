@@ -3,7 +3,7 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2020 Fachwerk
+ * Copyright 2021 Fachwerk
  */
 
 /**

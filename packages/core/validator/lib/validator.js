@@ -167,7 +167,7 @@ function ModelValidator () {
                             .replace(/\\{expected\\}/g, error.expected != null ? error.expected : '')
                             .replace(/\\{passed\\}/g, error.passed != null ? error.passed : '')
                     }
-               
+
                     return error
                 })
             `)
@@ -216,8 +216,6 @@ function ModelValidator () {
     }
   }
 
-
-
   return {
     compile: internal.compile,
     validate (obj, schema) {
@@ -228,7 +226,7 @@ function ModelValidator () {
       if (typeof ruleFn !== 'function') {
         throw new Error('Rule must be a function.')
       }
-      rules[type] = ruleFn
+      rules[ie] = ruleFn
     }
   }
 }

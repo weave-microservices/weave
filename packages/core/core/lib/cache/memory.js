@@ -1,7 +1,7 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2020 Fachwerk
+ * Copyright 2021 Fachwerk
  */
 
 const { match } = require('@weave-js/utils')
@@ -20,7 +20,7 @@ const makeMemoryCache = (runtime, options = {}) => {
 
   // if a new broker gets connected, we need to clear the cache
   runtime.bus.on('$transport.connected', () => {
-    base.log.verbose('Transpot adapter connected. Cache is cleared.')
+    base.log.verbose('Transport adapter connected. Cache will be cleared.')
     cache.clear()
   })
 
@@ -45,7 +45,7 @@ const makeMemoryCache = (runtime, options = {}) => {
           item.expire = Date.now()//  + options_.ttl
         }
 
-        this.log.debug(`Get ${cacheKey}`)
+        base.log.debug(`Get ${cacheKey}`)
 
         return Promise.resolve(item.data)
       }
@@ -61,20 +61,20 @@ const makeMemoryCache = (runtime, options = {}) => {
         expire: ttl ? Date.now() + ttl : null
       })
 
-      this.log.debug(`Set ${hashKey}`)
+      base.log.debug(`Set ${hashKey}`)
 
       return Promise.resolve(data)
     },
     remove (hashKey) {
       storage.delete(hashKey)
-      this.log.debug(`Delete ${hashKey}`)
+      base.log.debug(`Delete ${hashKey}`)
 
       return Promise.resolve()
     },
     clear (pattern = '**') {
       storage.forEach((_, key) => {
         if (match(key, pattern)) {
-          this.log.debug(`Delete ${key}`)
+          base.log.debug(`Delete ${key}`)
           this.remove(key)
         }
       })

@@ -29,7 +29,7 @@ exports.TRANSPORTER_PACKETS_RECEIVED = 'weave.transport.packets.received'
 exports.TRANSPORT_IN_FLIGHT_STREAMS = 'weave.transport.streams.in-flight'
 
 // Bulkhead
-exports.REQUESTS_BULKHEAD_IN_FLIGHT = 'weave.requests.bulkhead.in-flight'
+exports.REQUESTS_BULKHEAD_IN_FLIGHT = 'weave.bulkhead.requests.in-flight'
 
 // OS Metrics
 exports.OS_HOSTNAME = 'os.hostname'
