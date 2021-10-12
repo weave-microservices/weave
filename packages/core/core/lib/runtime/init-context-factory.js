@@ -12,7 +12,7 @@ const { createContext } = require('../broker/context')
  * @typedef {import('../types').Context} Context
  * @typedef {import('../types').Endpoint} Endpoint
  * @typedef {import('../types').ActionOptions} ActionOptions
- */
+*/
 
 /**
  * Init context factory.

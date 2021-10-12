@@ -6,6 +6,17 @@ const broker = createBroker({
     }
 })
 
+broker.createService({
+    name: 'test',
+    actions: {
+        hello: {
+            handler (context, { service }) {
+                service
+            }
+        }
+    }
+})
+
 broker.log.info({ name: 'Kevin' })
 broker.log.error(new Error('asdassds'))
 broker.log.debug('debug')
