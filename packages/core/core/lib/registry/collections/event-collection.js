@@ -65,11 +65,21 @@ exports.createEventCollection = (registry) => {
   }
 
   eventCollection.getBalancedEndpoints = (eventName, groups) => {
-    return getAllEventsByEventName(eventName)
-      .filter(endpointList => (groups == null || groups.length === 0 || groups.includes(endpointList.groupName)))
-      .map(endpointList => ({ endpoint: endpointList.getNextAvailableEndpoint(), endpointList }))
-      .filter(({ endpoint }) => endpoint && endpoint.isAvailable())
-      .map(({ endpoint, endpointList }) => [endpoint, endpointList.groupName])
+    const result = []
+    getAllEventsByEventName(eventName)
+      .forEach(endpointList => {
+        if (groups == null || groups.length === 0 || groups.indexOf(endpointList.groupName) !== -1) {
+          const endpoint = endpointList.getNextAvailableEndpoint()
+          if (endpoint && endpoint.isAvailable()) {
+            result.push([endpoint, endpointList.groupName])
+          }
+        }
+      })
+      // .filter(endpointList => (groups == null || groups.length === 0 || groups.includes(endpointList.groupName)))
+      // .map(endpointList => ({ endpoint: endpointList.getNextAvailableEndpoint(), endpointList }))
+      // .filter(({ endpoint }) => endpoint && endpoint.isAvailable())
+      // .map(({ endpoint, endpointList }) => [endpoint, endpointList.groupName])
+    return result
   }
 
   eventCollection.getAllEndpoints = (eventName) => {

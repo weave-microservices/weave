@@ -39,7 +39,7 @@ exports.initEventbus = (runtime) => {
         } else {
           const e = groupedEndpoints[endpoint.node.id]
           if (e) {
-            e.push(groupName)
+            e.groups.push(groupName)
           } else {
             groupedEndpoints[endpoint.node.id] = {
               endpoint,
@@ -69,7 +69,7 @@ exports.initEventbus = (runtime) => {
   * @param {String} eventName Name of the event
   * @param {any} payload Payload
   * @param {*} [options=null] Options
-  * @returns {void}
+  * @returns {Promise<any>} Promise
   */
   const broadcastLocal = (eventName, payload, options) => {
     // If the given group is no array - wrap it.
@@ -96,7 +96,7 @@ exports.initEventbus = (runtime) => {
   * @param {String} eventName Name of the event
   * @param {any} payload Payload
   * @param {*} [options=null] Groups
-  * @returns {void}
+  * @returns {Promise<any>} Promise
   */
   const broadcast = (eventName, payload, options) => {
     if (Array.isArray(options)) {

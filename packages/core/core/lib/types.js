@@ -506,8 +506,8 @@ const { EventEmitter2 } = require('eventemitter2')
  * @property {function():Endpoint} getNextLocalEndpoint getNextLocalEndpoint
  * @property {function():number} count count
  * @property {function(string):Endpoint} getByNodeId getByNodeId
- * @property {void} removeByNodeId removeByNodeId
- * @property {void} removeByService removeByService
+ * @property {function(string):void} removeByNodeId removeByNodeId
+ * @property {function():void} removeByService removeByService
 */
 
 /**
@@ -543,7 +543,7 @@ const { EventEmitter2 } = require('eventemitter2')
  * @property {boolean} state state
  * @property {string} name name
  * @property {void} updateAction updateAction
- * @property {boolean} isAvailable isAvailable
+ * @property {function():boolean} isAvailable isAvailable
 */
 
 /**
@@ -612,7 +612,7 @@ const { EventEmitter2 } = require('eventemitter2')
  * Service action definition
  * @typedef ServiceActionDefinition
  * @property {Object} [params] params
- * @property {function(this: Service, Context):Promise<any>} handler handler
+ * @property {function(this: Service, Context):Promise<any> | any} handler handler
 */
 
 /**
@@ -660,19 +660,19 @@ const { EventEmitter2 } = require('eventemitter2')
  * Service schema
  * @typedef ServiceSchema
  * @property {string} name name
- * @property {Array<string>} dependencies - Service dependencies
- * @property {number} [version] version
- * @property {Array<ServiceSchema> | ServiceSchema} mixins mixins
- * @property {ServiceSettings} settings settings
- * @property {Object} [meta] meta
- * @property {{[key: string]: Function }} hooks hooks
- * @property {Object.<string, ServiceActionDefinition | ServiceActionHandler | boolean>} [actions] actions
- * @property {{[key: string]: ServiceEvent }} [events] events
- * @property {Object.<string, ServiceMethodDefinition>} [methods] methods
- * @property {*} [created] - Created hook
- * @property {*} [started] - Started hook
- * @property {*} [stopped] - Stopped hook
- * @property {function():void |Array<function():void>} afterSchemasMerged - After schemas merged hook
+ * @property {Array<string>=} dependencies - Service dependencies
+ * @property {number=} [version] version
+ * @property {Array<ServiceSchema> | ServiceSchema=} mixins mixins
+ * @property {ServiceSettings=} settings settings
+ * @property {Object=} [meta] meta
+ * @property {{[key: string]: Function }=} hooks hooks
+ * @property {Object.<string, ServiceActionDefinition | ServiceActionHandler | boolean>=} [actions] actions
+ * @property {{[key: string]: ServiceEvent }=} [events] events
+ * @property {Object.<string, ServiceMethodDefinition>=} [methods] methods
+ * @property {*=} [created] - Created hook
+ * @property {*=} [started] - Started hook
+ * @property {*=} [stopped] - Stopped hook
+ * @property {function():void |Array<function():void>=} afterSchemasMerged - After schemas merged hook
 */
 
 /**
