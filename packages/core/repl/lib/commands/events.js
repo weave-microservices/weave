@@ -28,17 +28,6 @@ module.exports = ({ vorpal, broker, cliUI }) => {
         }
       })
 
-      // list.map(service => {
-      //     data.push([
-      //         service.name,
-      //         service.version ? service.version : 1,
-      //         service.isAvailable ? chalk.bgGreen.black('  OK  ') : chalk.bgRed.white.bold(' FAILURE '),
-      //         service.actions,
-      //         service.events,
-      //         service.nodes.length
-      //     ])
-      // })
-
       const tableConf = {}
 
       console.log(table(data, tableConf))
