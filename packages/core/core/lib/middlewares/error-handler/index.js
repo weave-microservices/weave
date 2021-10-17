@@ -8,8 +8,8 @@ const { WeaveError } = require('../../errors')
 
 module.exports = (runtime) => {
   const wrapErrorHandlerMiddleware = function (handler) {
-    return function errorHandlerMiddleware (context) {
-      return handler(context)
+    return function errorHandlerMiddleware (context, serviceInjections) {
+      return handler(context, serviceInjections)
         .catch(error => {
           if (!(error instanceof Error)) {
             error = new WeaveError(error, 500)

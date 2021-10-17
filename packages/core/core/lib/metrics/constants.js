@@ -50,8 +50,10 @@ exports.OS_CPU_LOAD_1 = 'os.cpu-load.1'
 exports.OS_CPU_LOAD_5 = 'os.cpu-load.5'
 exports.OS_CPU_LOAD_15 = 'os.cpu-load.15'
 
-// Metric types
-exports.TYPE_INFO = 'info'
-exports.TYPE_GAUGE = 'gauge'
-exports.TYPE_COUNTER = 'counter'
-exports.TYPE_HISTOGRAM = 'counter'
+// Cache
+exports.CACHE_GET_TOTAL = 'weave.cache.items.get'
+exports.CACHE_SET_TOTAL = 'weave.cache.items.set'
+exports.CACHE_DELETED_TOTAL = 'weave.cache.items.deleted'
+exports.CACHE_FOUND_TOTAL = 'weave.cache.items.found'
+exports.CACHE_CLEANED_TOTAL = 'weave.cache.items.cleaned'
+exports.CACHE_EXPIRED_TOTAL = 'weave.cache.items.expired'

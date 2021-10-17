@@ -11,7 +11,7 @@ const wrapTimeoutMiddleware = function (handler, action) {
   const self = this
   const registryOptions = self.options.registry || {}
 
-  return function timeoutMiddleware (context) {
+  return function timeoutMiddleware (context, serviceInjections) {
     if (typeof context.options.timeout === 'undefined' || registryOptions.requestTimeout) {
       context.options.timeout = registryOptions.requestTimeout || 0
     }
@@ -20,7 +20,7 @@ const wrapTimeoutMiddleware = function (handler, action) {
       context.startHighResolutionTime = process.hrtime()
     }
 
-    let promise = handler(context)
+    let promise = handler(context, serviceInjections)
 
     if (context.options.timeout > 0) {
       promise = promiseTimeout(context.options.timeout, promise, new WeaveRequestTimeoutError(context.action.name, context.nodeId))

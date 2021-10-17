@@ -47,11 +47,11 @@ module.exports = (runtime) => {
         return handler
       }
 
-      return (context) => {
+      return (context, serviceInjections) => {
         const requestSchemaResult = validateRequestSchema ? validateRequestSchema(context.data) : true
 
         if (requestSchemaResult === true) {
-          return handler(context)
+          return handler(context, serviceInjections)
             .then((result) => {
               if (validateResponseSchema) {
                 const responseSchemaResult = validateResponseSchema(result)
@@ -77,11 +77,11 @@ module.exports = (runtime) => {
 
         const validate = validator.compile(event.params, parameterOptions)
 
-        return (context) => {
+        return (context, serviceInjections) => {
           let result = validate(context.data)
 
           if (result === true) {
-            return handler(context)
+            return handler(context, serviceInjections)
           } else {
             result = result.map(data => Object.assign(data, { nodeId: context.nodeId, event: context.eventName }))
             return Promise.reject(new WeaveParameterValidationError('Parameter validation error', result))

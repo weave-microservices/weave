@@ -22,6 +22,9 @@ const defaultOptions = {
   hooks: {
     logMethod: undefined
   },
+  formatter: {
+    messageFormat: false
+  },
   destination: process.stdout
 }
 

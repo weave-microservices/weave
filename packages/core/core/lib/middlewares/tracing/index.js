@@ -11,7 +11,7 @@ const wrapTracingLocalActionMiddleware = function (handler) {
   const options = broker.options.tracing || {}
 
   if (options.enabled) {
-    return function metricsLocalMiddleware (context) {
+    return function metricsLocalMiddleware (context, serviceInjections) {
       const tags = buildTags(context)
 
       const spanName = `action '${context.action.name}'`
@@ -28,7 +28,7 @@ const wrapTracingLocalActionMiddleware = function (handler) {
 
       context.span = span
 
-      return handler(context)
+      return handler(context, serviceInjections)
         .then(result => {
           span.finish()
           return result

@@ -6,6 +6,7 @@
 
 const { match } = require('@weave-js/utils')
 const { createCacheBase } = require('./base')
+const Constants = require('../metrics/constants')
 
 const makeMemoryCache = (runtime, options = {}) => {
   const base = createCacheBase(runtime, options)
@@ -38,20 +39,43 @@ const makeMemoryCache = (runtime, options = {}) => {
   const cache = Object.assign(base, {
     name,
     get (cacheKey) {
+      base.log.debug(`Get ${cacheKey}`)
+
+      if (this.metrics) {
+        this.metrics.increment(Constants.CACHE_GET_TOTAL)
+      }
+
       const item = storage.get(cacheKey)
 
       if (item) {
-        if (options.ttl) {
-          item.expire = Date.now()//  + options_.ttl
+        cache.log.debug(`Found ${cacheKey}`)
+
+        if (this.metrics) {
+          this.metrics.increment(Constants.CACHE_FOUND_TOTAL)
         }
 
-        base.log.debug(`Get ${cacheKey}`)
+        // if (options.ttl) {
+        //   item.expire = Date.now()//  + options_.ttl
+        // }
+
+        if (item.expire && item.expire < Date.now()) {
+          cache.log.debug(`Delete ${cacheKey}`)
+          storage.delete(cacheKey)
+          if (this.metrics) {
+            this.metrics.increment(Constants.CACHE_EXPIRED_TOTAL)
+          }
+          return Promise.resolve(null)
+        }
 
         return Promise.resolve(item.data)
       }
       return Promise.resolve(null)
     },
     set (hashKey, data, ttl) {
+      if (this.metrics) {
+        this.metrics.increment(Constants.CACHE_SET_TOTAL)
+      }
+
       if (ttl == null) {
         ttl = options.ttl
       }
@@ -66,12 +90,18 @@ const makeMemoryCache = (runtime, options = {}) => {
       return Promise.resolve(data)
     },
     remove (hashKey) {
+      if (this.metrics) {
+        this.metrics.increment(Constants.CACHE_DELETED_TOTAL)
+      }
       storage.delete(hashKey)
       base.log.debug(`Delete ${hashKey}`)
 
       return Promise.resolve()
     },
     clear (pattern = '**') {
+      if (this.metrics) {
+        this.metrics.increment(Constants.CACHE_DELETED_TOTAL)
+      }
       storage.forEach((_, key) => {
         if (match(key, pattern)) {
           base.log.debug(`Delete ${key}`)

@@ -99,11 +99,11 @@ module.exports = (runtime) => {
     const options = Object.assign({}, runtime.options.circuitBreaker, action.circuitBreaker || {})
 
     if (options.enabled) {
-      return function curcuitBreakerMiddleware (context) {
+      return function curcuitBreakerMiddleware (context, serviceInjections) {
         const endpoint = context.endpoint
         const item = getEndpointState(endpoint, options)
 
-        return handler(context)
+        return handler(context, serviceInjections)
           .then(result => {
             const item = getEndpointState(endpoint, options)
             success(item, options)

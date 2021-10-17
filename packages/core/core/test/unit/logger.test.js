@@ -1,7 +1,6 @@
 const { createLogger } = require('../../lib/logger/index')
 const os = require('os')
 const lolex = require('@sinonjs/fake-timers')
-const { Writable } = require('stream')
 const tty = require('tty')
 const { stripAnsi } = require('../helper/strip-ansi')
 

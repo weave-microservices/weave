@@ -10,7 +10,7 @@ const { posts, users } = require('../../helper/data')
 //   })
 // }
 
-describe.only('Test tracing', () => {
+describe('Test tracing', () => {
   let flow = []
   let id = 0
 
