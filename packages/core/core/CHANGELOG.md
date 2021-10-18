@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.10.0](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.4...@weave-js/core@0.10.0) (2021-10-18)
+
+
+### Bug Fixes
+
+* Event balancing ([6fa2b58](https://github.com/fachw3rk/weave/commit/6fa2b58e50a8fd471c63e5a5678831e7986b92d0))
+* Fixed valdiator ([777e4e8](https://github.com/fachw3rk/weave/commit/777e4e83ae6dea34f2b32adf3b29b6eeb2cae0ed))
+
+
+### Features
+
+* Added metrics to cache module ([b4c3173](https://github.com/fachw3rk/weave/commit/b4c31737f631e300cabd3f8e55913341cdc9bd41))
+
+
+
+
+
 ## [0.9.4](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.3...@weave-js/core@0.9.4) (2021-09-09)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/node-service",
-  "version": "0.9.4",
+  "version": "0.10.0",
   "description": "Node info service for weave.js",
   "main": "./lib/node-service.js",
   "scripts": {
@@ -27,7 +27,7 @@
     "@weave-js/utils": "^0.9.1"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.9.4",
+    "@weave-js/core": "^0.10.0",
     "eslint": "^7.30.0",
     "jest": "^27.0.6",
     "jest-cli": "^27.0.6"
