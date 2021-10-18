@@ -226,7 +226,7 @@ function ModelValidator () {
       if (typeof ruleFn !== 'function') {
         throw new Error('Rule must be a function.')
       }
-      rules[ie] = ruleFn
+      rules[type] = ruleFn
     }
   }
 }
