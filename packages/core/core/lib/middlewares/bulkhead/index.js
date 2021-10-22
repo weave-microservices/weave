@@ -1,7 +1,7 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2020 Fachwerk
+ * Copyright 2021 Fachwerk
  */
 
 const { WeaveQueueSizeExceededError } = require('../../errors')
@@ -44,11 +44,11 @@ module.exports = (runtime) => {
           })
       }
 
-      return function bulkheadMiddlware (context) {
+      return function bulkheadMiddlware (context, serviceInjections) {
         // Execute action immediately
         if (currentlyInFlight < bulkheadOptions.concurrentCalls) {
           currentlyInFlight++
-          return handler(context)
+          return handler(context, serviceInjections)
             .then(result => {
               currentlyInFlight--
               callNext()

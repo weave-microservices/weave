@@ -1,11 +1,12 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2020 Fachwerk
+ * Copyright 2021 Fachwerk
  */
 
 const { match } = require('@weave-js/utils')
 const { createCacheBase } = require('./base')
+const Constants = require('../metrics/constants')
 
 const makeMemoryCache = (runtime, options = {}) => {
   const base = createCacheBase(runtime, options)
@@ -20,7 +21,7 @@ const makeMemoryCache = (runtime, options = {}) => {
 
   // if a new broker gets connected, we need to clear the cache
   runtime.bus.on('$transport.connected', () => {
-    base.log.verbose('Transpot adapter connected. Cache is cleared.')
+    base.log.verbose('Transport adapter connected. Cache will be cleared.')
     cache.clear()
   })
 
@@ -38,20 +39,43 @@ const makeMemoryCache = (runtime, options = {}) => {
   const cache = Object.assign(base, {
     name,
     get (cacheKey) {
+      base.log.debug(`Get ${cacheKey}`)
+
+      if (this.metrics) {
+        this.metrics.increment(Constants.CACHE_GET_TOTAL)
+      }
+
       const item = storage.get(cacheKey)
 
       if (item) {
-        if (options.ttl) {
-          item.expire = Date.now()//  + options_.ttl
+        cache.log.debug(`Found ${cacheKey}`)
+
+        if (this.metrics) {
+          this.metrics.increment(Constants.CACHE_FOUND_TOTAL)
         }
 
-        this.log.debug(`Get ${cacheKey}`)
+        // if (options.ttl) {
+        //   item.expire = Date.now()//  + options_.ttl
+        // }
+
+        if (item.expire && item.expire < Date.now()) {
+          cache.log.debug(`Delete ${cacheKey}`)
+          storage.delete(cacheKey)
+          if (this.metrics) {
+            this.metrics.increment(Constants.CACHE_EXPIRED_TOTAL)
+          }
+          return Promise.resolve(null)
+        }
 
         return Promise.resolve(item.data)
       }
       return Promise.resolve(null)
     },
     set (hashKey, data, ttl) {
+      if (this.metrics) {
+        this.metrics.increment(Constants.CACHE_SET_TOTAL)
+      }
+
       if (ttl == null) {
         ttl = options.ttl
       }
@@ -61,20 +85,26 @@ const makeMemoryCache = (runtime, options = {}) => {
         expire: ttl ? Date.now() + ttl : null
       })
 
-      this.log.debug(`Set ${hashKey}`)
+      base.log.debug(`Set ${hashKey}`)
 
       return Promise.resolve(data)
     },
     remove (hashKey) {
+      if (this.metrics) {
+        this.metrics.increment(Constants.CACHE_DELETED_TOTAL)
+      }
       storage.delete(hashKey)
-      this.log.debug(`Delete ${hashKey}`)
+      base.log.debug(`Delete ${hashKey}`)
 
       return Promise.resolve()
     },
     clear (pattern = '**') {
+      if (this.metrics) {
+        this.metrics.increment(Constants.CACHE_DELETED_TOTAL)
+      }
       storage.forEach((_, key) => {
         if (match(key, pattern)) {
-          this.log.debug(`Delete ${key}`)
+          base.log.debug(`Delete ${key}`)
           this.remove(key)
         }
       })

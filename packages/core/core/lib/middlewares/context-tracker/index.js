@@ -27,16 +27,16 @@ module.exports = (runtime) => {
   }
 
   function wrapContextTrackerMiddleware (actionHandler) {
-    return function ContextTrackerMiddleware (context) {
+    return function ContextTrackerMiddleware (context, serviceInjections) {
       const isTracked = context.options.track === true ? context.options.track : runtime.options.contextTracking.enabled
 
       if (!isTracked) {
-        return actionHandler(context)
+        return actionHandler(context, serviceInjections)
       }
 
       addContext(context)
 
-      return actionHandler(context)
+      return actionHandler(context, serviceInjections)
         .then(result => {
           removeContext(context)
           return result

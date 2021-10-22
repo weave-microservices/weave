@@ -1,7 +1,7 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2020 Fachwerk
+ * Copyright 2021 Fachwerk
  */
 const { Constants } = require('../../metrics')
 const { getMiddlewareWrapper } = require('./getMiddlewareWrapper')

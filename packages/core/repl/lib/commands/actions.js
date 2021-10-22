@@ -4,6 +4,7 @@ const { table } = require('table')
 module.exports = ({ vorpal, broker, cliUI }) => {
   vorpal
     .command('actions', 'List actions')
+    .option('-l, --local', 'Show only local actions.')
     .action((args, done) => {
       const data = []
       data.push([
@@ -16,9 +17,12 @@ module.exports = ({ vorpal, broker, cliUI }) => {
 
       const list = []
 
-      const actions = broker.runtime.registry.actionCollection.list({
-        withEndpoints: true
-      })
+      const listOptions = {
+        withEndpoints: true,
+        onlyLocals: !!args.options.local
+      }
+
+      const actions = broker.runtime.registry.actionCollection.list(listOptions)
 
       actions.map(item => {
         const action = item.action

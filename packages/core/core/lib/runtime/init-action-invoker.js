@@ -1,4 +1,4 @@
-const { WeaveError } = require('../errors')
+const errors = require('../errors')
 
 exports.initActionInvoker = (runtime) => {
   const { registry, contextFactory, log, handleError } = runtime
@@ -36,7 +36,7 @@ exports.initActionInvoker = (runtime) => {
       log.debug({ action: context.action.name, nodeId, requestId: context.requestId }, 'Call action on remote node.')
     }
 
-    const p = action.handler(context, endpoint.service, runtime)
+    const p = action.handler(context, { service: endpoint.service, runtime, errors })
     p.context = context
 
     return p
@@ -51,7 +51,7 @@ exports.initActionInvoker = (runtime) => {
     if (Array.isArray(actions)) {
       return Promise.all(actions.map(item => call(item.actionName, item.params, item.options)))
     } else {
-      return Promise.reject(new WeaveError('Actions need to be an Array'))
+      return Promise.reject(new errors.WeaveError('Actions need to be an Array'))
     }
   }
 

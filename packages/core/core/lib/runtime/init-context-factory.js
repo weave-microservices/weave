@@ -1,7 +1,7 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2020 Fachwerk
+ * Copyright 2021 Fachwerk
  */
 'use strict'
 
@@ -12,7 +12,7 @@ const { createContext } = require('../broker/context')
  * @typedef {import('../types').Context} Context
  * @typedef {import('../types').Endpoint} Endpoint
  * @typedef {import('../types').ActionOptions} ActionOptions
- */
+*/
 
 /**
  * Init context factory.

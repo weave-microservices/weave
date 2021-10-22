@@ -1,7 +1,7 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2020 Fachwerk
+ * Copyright 2021 Fachwerk
  */
 'use strict'
 
@@ -103,20 +103,20 @@ exports.createContext = (runtime) => {
      * @returns {Context} New copied context
     */
     copy () {
-      const newContext = exports.createContext(runtime)
+      const contextCopy = exports.createContext(runtime)
 
-      newContext.nodeId = this.nodeId
-      newContext.options = this.options
-      newContext.data = this.data
-      newContext.meta = this.meta
-      newContext.parentContext = this.parentContext
-      newContext.callerNodeId = this.callerNodeId
-      newContext.level = this.level
-      newContext.eventName = this.eventName
-      newContext.eventType = this.eventType
-      newContext.eventGroups = this.eventGroups
+      contextCopy.nodeId = this.nodeId
+      contextCopy.options = this.options
+      contextCopy.data = this.data
+      contextCopy.meta = this.meta
+      contextCopy.parentContext = this.parentContext
+      contextCopy.callerNodeId = this.callerNodeId
+      contextCopy.level = this.level
+      contextCopy.eventName = this.eventName
+      contextCopy.eventType = this.eventType
+      contextCopy.eventGroups = this.eventGroups
 
-      return newContext
+      return contextCopy
     }
   }
 

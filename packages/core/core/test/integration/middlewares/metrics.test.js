@@ -1,5 +1,6 @@
 const { Weave } = require('../../../lib/index')
 const Constants = require('../../../lib/metrics/constants')
+const contextTracker = require('../../../lib/middlewares/context-tracker')
 describe('Metric middleware', () => {
   let broker
 
@@ -68,4 +69,62 @@ describe('Metric middleware', () => {
   //       expect(result).toBe('hello')
   //     })
   // })
+})
+
+describe('Metric middleware [cache]', () => {
+  let broker
+
+  beforeEach(() => {
+    broker = Weave({
+      nodeId: 'node-metrics',
+      logger: {
+        enabled: false
+      },
+      metrics: {
+        enabled: true
+      },
+      cache: {
+        enabled: true
+      }
+    })
+
+    broker.createService({
+      name: 'test-service',
+      actions: {
+        testAction: {
+          params: {
+            name: 'string'
+          },
+          cache: {
+            keys: ['name']
+          },
+          handler (context) {
+            return context.data.name
+          }
+        }
+      }
+    })
+
+    return broker.start()
+  })
+
+  afterEach(() => broker.stop())
+
+  it('should register metrics', async () => {
+    const metrics = broker.runtime.metrics
+
+    expect(metrics.getMetric(Constants.CACHE_GET_TOTAL).value).toBe(0)
+    expect(metrics.getMetric(Constants.CACHE_SET_TOTAL).value).toBe(0)
+    expect(metrics.getMetric(Constants.CACHE_FOUND_TOTAL).value).toBe(0)
+    expect(metrics.getMetric(Constants.CACHE_EXPIRED_TOTAL).value).toBe(0)
+    expect(metrics.getMetric(Constants.CACHE_DELETED_TOTAL).value).toBe(0)
+    expect(metrics.getMetric(Constants.CACHE_CLEANED_TOTAL).value).toBe(0)
+
+    await broker.call('test-service.testAction', { name: 'Kevin' })
+    await broker.call('test-service.testAction', { name: 'Kevin' })
+
+    expect(metrics.getMetric(Constants.CACHE_GET_TOTAL).value).toBe(1)
+    expect(metrics.getMetric(Constants.CACHE_FOUND_TOTAL).value).toBe(1)
+
+  })
 })

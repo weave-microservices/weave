@@ -167,7 +167,7 @@ function ModelValidator () {
                             .replace(/\\{expected\\}/g, error.expected != null ? error.expected : '')
                             .replace(/\\{passed\\}/g, error.passed != null ? error.passed : '')
                     }
-               
+
                     return error
                 })
             `)
@@ -215,8 +215,6 @@ function ModelValidator () {
       return code.join('\n')
     }
   }
-
-
 
   return {
     compile: internal.compile,

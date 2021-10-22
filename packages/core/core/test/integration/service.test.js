@@ -288,3 +288,31 @@ describe('Errors on service creation', () => {
     expect(createService).toThrow('Service name is missing!')
   })
 })
+
+describe('Service action handler signature',() => {
+  it('interface should equal', (done) => {
+    const node1 = Weave({
+      nodeId: 'node1',
+      logger: {
+        enabled: false
+      }
+    })
+
+    node1.createService({
+      name: 'service1',
+      actions: {
+        action1:{
+          handler (context, service) {
+            expect(service.errors).toBeDefined()
+            expect(service.runtime).toBeDefined()
+            expect(service.service).toBeDefined()
+
+            done()
+          }
+        }
+      }
+    })
+
+    node1.start().then(() => node1.call('service1.action1'))
+  })
+})

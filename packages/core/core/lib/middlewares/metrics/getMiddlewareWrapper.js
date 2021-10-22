@@ -4,14 +4,14 @@ module.exports.getMiddlewareWrapper = (runtime) => function (type, action, handl
   const serviceName = action.service ? action.service.fullyQualifiedName : null
   const actionName = action.name
 
-  return function metricMiddleware (context) {
+  return function metricMiddleware (context, serviceInjections) {
     const callerNodeId = context.callerNodeId
 
     runtime.metrics.increment(Constants.REQUESTS_TOTAL, { type, serviceName, actionName, callerNodeId })
     runtime.metrics.increment(Constants.REQUESTS_IN_FLIGHT, { type, serviceName, actionName, callerNodeId })
     const requestEnd = runtime.metrics.timer(Constants.REQUESTS_TIME, { type, serviceName, actionName, callerNodeId })
 
-    return handler(context)
+    return handler(context, serviceInjections)
       .then(result => {
         requestEnd()
         runtime.metrics.decrement(Constants.REQUESTS_IN_FLIGHT, { type, serviceName, actionName, callerNodeId })

@@ -29,7 +29,8 @@ exports.createBrokerInstance = (runtime) => {
     log,
     services,
     transport,
-    metrics
+    metrics,
+    cache
   } = runtime
 
   // Log Messages
@@ -42,6 +43,10 @@ exports.createBrokerInstance = (runtime) => {
 
   if (metrics) {
     metrics.init()
+  }
+
+  if (cache) {
+    cache.init()
   }
 
   // broker object
@@ -373,4 +378,3 @@ exports.createBrokerInstance = (runtime) => {
 
   return broker
 }
-

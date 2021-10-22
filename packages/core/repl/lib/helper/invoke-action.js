@@ -9,12 +9,12 @@ const util = require('util')
 function handleResult (result, args, startTime) {
   const endTime = process.hrtime(startTime)
   // Save response
-  if (args.options.s) {
+  if (args.options.save) {
     const resultIsStream = isStream(result)
     let filePath
 
-    if (typeof args.options.s === 'string') {
-      filePath = path.resolve(args.options.s)
+    if (typeof args.options.save === 'string') {
+      filePath = path.resolve(args.options.save)
     } else {
       filePath = path.resolve(`${args.actionName}.response`)
 
@@ -56,6 +56,11 @@ function handleError (error) {
   }))
 }
 
+/**
+ * Prepare request options
+ * @param {*} args Params
+ * @returns {object} Options
+*/
 function prepareOptions (args) {
   const options = {
     meta: {
@@ -82,9 +87,9 @@ function preparePayloadArguments (args, payload, done) {
     const options = convertArgs(args.options)
 
     // Remove save parameter from params
-    if (args.options.s) {
-      delete options.s
-    }
+    // if (args.options.save) {
+    //   delete options.save
+    // }
 
     Object.keys(options).map(key => {
       payload[key] = options[key]
@@ -94,11 +99,17 @@ function preparePayloadArguments (args, payload, done) {
   }
 }
 
+/**
+ * Send payload from file as object.
+ * @param {*} args Params
+ * @returns {void}
+ */
 function preparePayloadFromFile (args) {
   let filePath
 
-  if (typeof args.options.f === 'string') {
-    filePath = path.resolve(args.options.f)
+  console.log(args.options)
+  if (typeof args.options.file === 'string') {
+    filePath = path.resolve(args.options.file)
   } else {
     filePath = path.resolve(`${args.actionName}.data.json`)
   }
@@ -139,7 +150,7 @@ module.exports = (broker) =>
     let payload = preparePayloadArguments(args, {}, done)
 
     // Send parameters from file
-    if (args.options.f) {
+    if (args.options.file) {
       payload = preparePayloadFromFile(args) || payload
     }
 
@@ -150,6 +161,7 @@ module.exports = (broker) =>
 
     console.log(cliUI.infoText(`>> Call "${args.actionName}" with data:`), payload)
 
+    // Save the start time.
     const startTime = process.hrtime()
 
     broker.call(args.actionName, payload, callOptions)

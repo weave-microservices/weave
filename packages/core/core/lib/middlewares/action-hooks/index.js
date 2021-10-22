@@ -1,7 +1,7 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2020 Fachwerk
+ * Copyright 2021 Fachwerk
  */
 
 function callHook (hook, service, context, result) {
@@ -41,7 +41,7 @@ const makeActionHookMiddleware = function (handler, action) {
     const errorHook = hooks.error ? sanitizeHooks(hooks.error[name], action.service) : null
 
     if (beforeWildcardHook || afterWildcardHook || errorWildcardHook || beforeHook || afterHook || errorHook) {
-      return function actionHookMiddleware (context) {
+      return function actionHookMiddleware (context, serviceInjections) {
         let promise = Promise.resolve()
 
         // before all hook
@@ -55,7 +55,7 @@ const makeActionHookMiddleware = function (handler, action) {
         }
 
         // Call action handler
-        promise = promise.then(() => handler(context))
+        promise = promise.then(() => handler(context, serviceInjections))
 
         // After hook
         if (afterHook) {

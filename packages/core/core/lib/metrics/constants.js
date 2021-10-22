@@ -29,7 +29,7 @@ exports.TRANSPORTER_PACKETS_RECEIVED = 'weave.transport.packets.received'
 exports.TRANSPORT_IN_FLIGHT_STREAMS = 'weave.transport.streams.in-flight'
 
 // Bulkhead
-exports.REQUESTS_BULKHEAD_IN_FLIGHT = 'weave.requests.bulkhead.in-flight'
+exports.REQUESTS_BULKHEAD_IN_FLIGHT = 'weave.bulkhead.requests.in-flight'
 
 // OS Metrics
 exports.OS_HOSTNAME = 'os.hostname'
@@ -50,8 +50,10 @@ exports.OS_CPU_LOAD_1 = 'os.cpu-load.1'
 exports.OS_CPU_LOAD_5 = 'os.cpu-load.5'
 exports.OS_CPU_LOAD_15 = 'os.cpu-load.15'
 
-// Metric types
-exports.TYPE_INFO = 'info'
-exports.TYPE_GAUGE = 'gauge'
-exports.TYPE_COUNTER = 'counter'
-exports.TYPE_HISTOGRAM = 'counter'
+// Cache
+exports.CACHE_GET_TOTAL = 'weave.cache.items.get'
+exports.CACHE_SET_TOTAL = 'weave.cache.items.set'
+exports.CACHE_DELETED_TOTAL = 'weave.cache.items.deleted'
+exports.CACHE_FOUND_TOTAL = 'weave.cache.items.found'
+exports.CACHE_CLEANED_TOTAL = 'weave.cache.items.cleaned'
+exports.CACHE_EXPIRED_TOTAL = 'weave.cache.items.expired'

@@ -1,12 +1,12 @@
 const { generateLogMethod } = require('./tools')
 
 const levels = {
-  verbose: 6,
-  debug: 5,
-  info: 4,
-  warn: 3,
-  error: 2,
-  fatal: 1
+  verbose: 60,
+  debug: 50,
+  info: 40,
+  warn: 30,
+  error: 20,
+  fatal: 10
 }
 
 // wrap log methods

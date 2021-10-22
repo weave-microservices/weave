@@ -3,15 +3,32 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2020 Fachwerk
+ * Copyright 2021 Fachwerk
  */
+
+/**
+ * @typedef {import('../../types.js').Runtime} Runtime
+ * @typedef {import('../../types.js').EventCollection} EventCollection
+ * @typedef {import('../../types.js').Service} Service
+ * @typedef {import('../../types.js').Node} Node
+ * @typedef {import('../../types.js').EndpointCollection} EndpointCollection
+*/
 
 const { createActionEndpoint } = require('../action-endpoint')
 const { loadBalancingStrategy } = require('../../constants')
 
+/**
+ *
+ * @param {Runtime} runtime Runtime instance
+ * @param {string} name name
+ * @param {string} groupName Group name
+ * @returns {EndpointCollection} EndpointCollection
+ */
 exports.createEndpointList = (runtime, name, groupName) => {
+  /** @type {EndpointCollection} */
   const endpointList = Object.create(null)
   const options = runtime.options
+  /** @type {Array} */
   const list = endpointList.endpoints = []
 
   let counter = 0

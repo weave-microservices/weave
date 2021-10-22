@@ -1,10 +1,11 @@
 /*
  * Author: Kevin Ries (kevin@fachw3rk.de)
  * -----
- * Copyright 2020 Fachwerk
+ * Copyright 2021 Fachwerk
  */
 const crypto = require('crypto')
 const { isObject } = require('@weave-js/utils')
+const Constants = require('../metrics/constants')
 
 function getCacheKeyByObject (val) {
   if (Array.isArray(val)) {
@@ -28,20 +29,26 @@ function generateHash (key) {
 }
 
 function registerCacheMetrics (metrics) {
-  // todo: register metric stores
+  metrics.register({ type: 'counter', name: Constants.CACHE_GET_TOTAL })
+  metrics.register({ type: 'counter', name: Constants.CACHE_SET_TOTAL })
+  metrics.register({ type: 'counter', name: Constants.CACHE_FOUND_TOTAL })
+  metrics.register({ type: 'counter', name: Constants.CACHE_EXPIRED_TOTAL })
+  metrics.register({ type: 'counter', name: Constants.CACHE_DELETED_TOTAL })
+  metrics.register({ type: 'counter', name: Constants.CACHE_CLEANED_TOTAL })
 }
 
 exports.createCacheBase = (runtime, options) => {
   const cache = {
+    runtime,
+    options,
     options: Object.assign({
       ttl: null
     }, options),
     init () {
-      this.runtime = runtime
-      this.metrics = runtime.metrics
-
-      if (this.runtime) {
-        registerCacheMetrics(this.metrics)
+      // register metrics
+      if (runtime.metrics) {
+        this.metrics = runtime.metrics
+        registerCacheMetrics(runtime.metrics)
       }
     },
     log: runtime.createLogger('CACHER'),
@@ -105,9 +112,13 @@ exports.createCacheBase = (runtime, options) => {
       localAction: (handler, action) => {
         const cacheOptions = Object.assign({ enabled: true }, isObject(action.cache) ? action.cache : { enabled: !!action.cache })
         if (cacheOptions.enabled) {
-          return function cacheMiddleware (context) {
+          return function cacheMiddleware (context, serviceInjections) {
             const cacheHashKey = cache.getCachingHash(action.name, context.data, context.meta, action.cache.keys)
             context.isCachedResult = false
+
+            if (context.meta.$noCache === true) {
+              return handler(context, serviceInjections)
+            }
 
             return cache.get(cacheHashKey).then((content) => {
               if (content !== null) {
@@ -115,7 +126,7 @@ exports.createCacheBase = (runtime, options) => {
                 return content
               }
 
-              return handler(context).then((result) => {
+              return handler(context, serviceInjections).then((result) => {
                 cache.set(cacheHashKey, result, action.cache.ttl)
                 return result
               })
