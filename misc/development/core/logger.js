@@ -2,7 +2,7 @@ const { createBroker } = require('../../../packages/core/core/lib')
 
 const broker = createBroker({
   logger: {
-    level: 'verbose'
+    level: 'debug'
   }
 })
 
