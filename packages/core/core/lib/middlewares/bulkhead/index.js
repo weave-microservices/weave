@@ -3,7 +3,7 @@
  * -----
  * Copyright 2021 Fachwerk
  */
-
+const { Constants } = require('../../metrics')
 const { WeaveQueueSizeExceededError } = require('../../errors')
 
 /**
@@ -81,6 +81,7 @@ module.exports = (runtime) => {
     created () {
       if (runtime.options.metrics.enabled) {
         // todo: add bulkhead metrics
+        runtime.metrics.register({ type: 'gauge', name: Constants.BULKHEAD_REQUESTS_IN_FLIGHT, description: 'Number of in flight requests.' })
       }
     },
     localAction: wrapBulkheadMiddleware
