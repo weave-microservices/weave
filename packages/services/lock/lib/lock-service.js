@@ -24,9 +24,9 @@ const createLockService = (lockServiceOptions = {}) => {
         async handler (context) {
           const { value, expiresAt } = context.data
           if (expiresAt < Date.now()) {
-            throw new Error('A lock must not expire in the past.') 
+            throw new Error('A lock must not expire in the past.')
           }
-    
+
           const hash = getHash(value)
           await this.store.acquireLock(hash, expiresAt)
         }
@@ -39,6 +39,20 @@ const createLockService = (lockServiceOptions = {}) => {
           const { value } = context.data
           const hash = getHash(value)
           return this.store.isLocked(hash)
+        }
+      },
+      renewLock: {
+        params: {
+          value: { type: 'string' },
+          expiresAt: { type: 'number' }
+        },
+        handler (context) {
+          const { value, expiresAt } = context.data
+          if (expiresAt < Date.now()) {
+            throw new Error('A lock must not expire in the past.')
+          }
+          const hash = getHash(value)
+          return this.store.renewLock(hash, expiresAt)
         }
       },
       releaseLock: {

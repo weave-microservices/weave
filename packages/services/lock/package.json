@@ -2,7 +2,7 @@
   "name": "@weave-js/lock-service",
   "version": "0.10.0",
   "description": "Distributed Lock service for weave.js",
-  "main": "./lib/node-service.js",
+  "main": "./lib/lock-service.js",
   "scripts": {
     "ci": "jest --watch",
     "test": "NODE_ENV=test jest --no-cache --runInBand",
