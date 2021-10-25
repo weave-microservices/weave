@@ -36,7 +36,7 @@ exports.initActionInvoker = (runtime) => {
       log.debug({ action: context.action.name, nodeId, requestId: context.requestId }, 'Call action on remote node.')
     }
 
-    const p = action.handler(context, { service: endpoint.service, runtime, errors })
+    const p = action.handler(context, { service: context.action.service, runtime, errors })
     p.context = context
 
     return p

@@ -666,9 +666,3 @@ describe('Streaming (remote)', () => {
     await Promise.all([broker1.start(), broker2.start()])
   })
 })
-
-describe('Multiple action calls', () => {
-  it('should call multiple actions', () => {
-
-  })
-})

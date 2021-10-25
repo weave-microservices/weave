@@ -1,0 +1,40 @@
+{
+  "name": "@weave-js/lock-service",
+  "version": "0.10.0",
+  "description": "Distributed Lock service for weave.js",
+  "main": "./lib/node-service.js",
+  "scripts": {
+    "ci": "jest --watch",
+    "test": "NODE_ENV=test jest --no-cache --runInBand",
+    "coverage": "jest --coverage --no-cache",
+    "lint": "eslint . --ext .js --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fachw3rk/weave"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": {
+    "name": "Kevin Ries",
+    "company": "Fachwerk Software",
+    "email": "kevin.ries@fachwerk.io",
+    "url": "https://weave-js.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@weave-js/utils": "^0.9.1"
+  },
+  "devDependencies": {
+    "@sinonjs/fake-timers": "^8.0.1",
+    "@weave-js/core": "^0.10.0",
+    "eslint": "^7.30.0",
+    "jest": "^27.0.6",
+    "jest-cli": "^27.0.6"
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  }
+}

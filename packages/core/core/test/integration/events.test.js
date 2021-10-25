@@ -248,14 +248,14 @@ describe('Remote events', () => {
 
   beforeEach(async () => {
     broker1 = Weave({
-      nodeId: 'node1',
+      nodeId: 'node1' + process.pid,
       transport: {
         adapter: 'dummy'
       }
     })
 
     broker2 = Weave({
-      nodeId: 'node2',
+      nodeId: 'node2' + process.pid,
       transport: {
         adapter: 'dummy'
       }
