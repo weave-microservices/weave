@@ -52,7 +52,7 @@ exports.mappings = (customLevels = null, useOnlyCustomLevels = false) => {
   )
 
   const values = Object.assign(
-    Object.create(Object.prototype, { silent: { value: Infinity }}),
+    Object.create(Object.prototype, { silent: { value: 0 }}),
     useOnlyCustomLevels ? null : levels,
     customLevels
   )
