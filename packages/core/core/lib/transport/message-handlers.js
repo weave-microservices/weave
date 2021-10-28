@@ -4,7 +4,7 @@
  * Copyright 2021 Fachwerk
  */
 
-const { Transform } = require('stream')
+const { InboundTransformStream } = require('./InboundTransformStream')
 const { WeaveError, restoreError } = require('../errors')
 const { createContext } = require('../broker/context')
 const MessageTypes = require('./message-types')
@@ -126,12 +126,19 @@ module.exports = (runtime, transport) => {
     if (!stream) {
       transport.log.debug(`New stream from node ${payload.sender} received. Seq: ${payload.sequence}`)
 
-      stream = new Transform({
-        objectMode: payload.meta && payload.meta.$isObjectModeStream,
-        transform: function (chunk, encoding, done) {
-          this.push(chunk)
-          return done()
-        }
+      stream = new InboundTransformStream({
+        objectMode: payload.meta && payload.meta.$isObjectModeStream
+      })
+
+      // handle backpressure
+      stream.on('backpressure', async () => {
+        const message = transport.createMessage(MessageTypes.MESSAGE_RESPONSE_STREAM_BACKPRESSURE, payload.sender, payload)
+        await transport.send(message)
+      })
+
+      stream.on('resume_backpressure', async () => {
+        const message = transport.createMessage(MessageTypes.MESSAGE_RESPONSE_STREAM_RESUME, payload.sender, payload)
+        await transport.send(message)
       })
 
       stream.$prevSeq = -1
@@ -232,10 +239,10 @@ module.exports = (runtime, transport) => {
       }
 
       return localRequestProxy(context)
-        .then(data => transport.response(sender, payload.id, data, context.meta, null))
-        .catch(error => transport.response(sender, payload.id, null, context.meta, error))
+        .then(data => transport.sendResponse(sender, payload.id, data, context.meta, null))
+        .catch(error => transport.sendResponse(sender, payload.id, null, context.meta, error))
     } catch (error) {
-      return transport.response(sender, payload.id, null, payload.meta, error)
+      return transport.sendResponse(sender, payload.id, null, payload.meta, error)
     }
   }
 
@@ -244,7 +251,7 @@ module.exports = (runtime, transport) => {
    * @param {any} payload - Payload
    * @returns {Promise} Promise
   */
-  const onResponse = payload => {
+  const onResponse = (payload) => {
     const id = payload.id
     const request = transport.pending.requests.get(id)
 
@@ -388,6 +395,22 @@ module.exports = (runtime, transport) => {
     }
   }
 
+  const onResponseStreamBackpressure = (payload) => { 
+    const stream = transport.pending.outboundResponseStreams.get(payload.id)
+
+    if (stream) {
+      stream.pause()
+    }
+  }
+
+  const onResponseStreamResume = (payload) => {
+    const stream = transport.pending.outboundResponseStreams.get(payload.id)
+
+    if (stream) {
+      stream.resume()
+    }
+  }
+
   return (type, data) => {
     try {
       if (data === null) {
@@ -436,6 +459,12 @@ module.exports = (runtime, transport) => {
         break
       case MessageTypes.MESSAGE_EVENT:
         onEvent(payload)
+        break
+      case MessageTypes.MESSAGE_RESPONSE_STREAM_BACKPRESSURE:
+        onResponseStreamBackpressure(payload)
+        break
+      case MessageTypes.MESSAGE_RESPONSE_STREAM_RESUME:
+        onResponseStreamResume(payload)
         break
       }
 

@@ -37,7 +37,8 @@ exports.createTransport = (runtime, adapter) => {
   const pending = {
     requests: new Map(),
     requestStreams: new Map(),
-    responseStreams: new Map()
+    responseStreams: new Map(),
+    outboundResponseStreams: new Map()
   }
 
   // Outgoing request
@@ -309,6 +310,8 @@ exports.createTransport = (runtime, adapter) => {
     pending.requests.delete(requestId)
     pending.requestStreams.delete(requestId)
     pending.responseStreams.delete(requestId)
+    pending.outboundResponseStreams.delete(requestId)
+
   }
 
   transport.removePendingRequestsByNodeId = (nodeId) => {
@@ -332,7 +335,7 @@ exports.createTransport = (runtime, adapter) => {
     }
   }
 
-  transport.request = (context) => {
+  transport.sendRequest = (context) => {
     // If the queue size is set, check the queue size and reject the job when the limit is reached.
     if (runtime.options.transport.maxQueueSize && runtime.options.transport.maxQueueSize < pending.requests.size) {
       return Promise.reject(new WeaveQueueSizeExceededError({
@@ -346,7 +349,8 @@ exports.createTransport = (runtime, adapter) => {
     return new Promise((resolve, reject) => doRequest(context, resolve, reject))
   }
 
-  transport.response = (target, contextId, data, meta, error) => {
+  // send response to requesting node
+  transport.sendResponse = (target, contextId, data, meta, error) => {
     // Check if data is a stream
     const isStream = utils.isStream(data)
 
@@ -373,6 +377,12 @@ exports.createTransport = (runtime, adapter) => {
 
     if (isStream) {
       const stream = data
+
+      if (!pending.outboundResponseStreams.has(payload.id)) {
+        pending.outboundResponseStreams.set(payload.id, stream)
+      }
+
+      pending.outboundResponseStreams.set(payload.id, stream)
       payload.data = null
       payload.sequence = 0
       payload.isStream = true
@@ -528,7 +538,8 @@ exports.createTransport = (runtime, adapter) => {
       adapter.subscribe(MessageTypes.MESSAGE_PONG, nodeId),
       adapter.subscribe(MessageTypes.MESSAGE_DISCONNECT),
       adapter.subscribe(MessageTypes.MESSAGE_HEARTBEAT),
-      adapter.subscribe(MessageTypes.MESSAGE_EVENT, nodeId)
+      adapter.subscribe(MessageTypes.MESSAGE_EVENT, nodeId),
+      adapter.subscribe(MessageTypes.MESSAGE_RESPONSE_STREAM_BACKPRESSURE, nodeId)
     ])
   }
 

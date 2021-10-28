@@ -397,3 +397,16 @@ describe('Local service events', () => {
     })
   })
 })
+
+describe('Event acknowledgement', () => {
+  const node1 = Weave({
+    nodeId: 'test-event-validation'
+  })
+
+  beforeAll(() => Promise.all([node1].map(node => node.start())))
+  afterAll(() => Promise.all([node1].map(node => node.stop())))
+
+  it('', () => {
+    node1.emit('user-created', null, { ack: true })
+  })
+})

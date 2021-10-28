@@ -5,7 +5,7 @@
 */
 const { defaultsDeep } = require('@weave-js/utils')
 const { getHash } = require('../utils/getHash')
-const { createLockStore } = require('../stores/createLockStore')
+const { createLockStore } = require('../../../stores/lock-store/lib/createLockStore')
 
 const createLockService = (lockServiceOptions = {}) => {
   lockServiceOptions = defaultsDeep(lockServiceOptions,{

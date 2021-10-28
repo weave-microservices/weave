@@ -201,7 +201,7 @@ exports.createRegistry = (runtime) => {
         if (node.isLocal) {
           action.handler = middlewareHandler.wrapHandler('localAction', action.handler, action)// this.onRegisterLocalAction(action)
         } else {
-          action.handler = middlewareHandler.wrapHandler('remoteAction', runtime.transport.request.bind(runtime.transport), action)// this.onRegisterRemoteAction(action)
+          action.handler = middlewareHandler.wrapHandler('remoteAction', runtime.transport.sendRequest.bind(runtime.transport), action)// this.onRegisterRemoteAction(action)
         }
 
         this.actionCollection.add(node, service, action)

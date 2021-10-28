@@ -23,7 +23,7 @@ exports.initEventbus = (runtime) => {
     context.eventName = eventName
     context.eventGroups = options.groups
 
-    // Emit system events
+    // Emit local events
     if (/^\$/.test(eventName)) {
       bus.emit(eventName, payload)
     }
@@ -50,7 +50,7 @@ exports.initEventbus = (runtime) => {
       }
     })
 
-    // send remote events
+    // Send remote events
     if (runtime.transport) {
       Object.values(groupedEndpoints)
         .forEach(groupedEndpoint => {
