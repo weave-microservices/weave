@@ -5,6 +5,8 @@ const Swim = require('./discovery/index')
 const MessageTypes = require('../../message-types')
 const TCPReader = require('./tcpReader')
 const TCPWriter = require('./tcpWriter')
+const { createMessage } = require('../../createMessage')
+
 // const TCPMessageTypeHelper = require('./tcp-messagetypes')
 
 const defaultOptions = {
@@ -83,7 +85,7 @@ module.exports = function SwimTransport (adapterOptions) {
 
     const localNode = self.broker.registry.nodeCollection.localNode
 
-    const message = self.transport.createMessage(MessageTypes.MESSAGE_GOSSIP_HELLO, nodeId, {
+    const message = createMessage(MessageTypes.MESSAGE_GOSSIP_HELLO, nodeId, {
       host: localNode.IPList[0],
       port: localNode.port
     })
@@ -252,7 +254,7 @@ module.exports = function SwimTransport (adapterOptions) {
 
     const destinationNode = nodes[Math.floor(Math.random() * nodes.length)]
     if (destinationNode) {
-      const message = self.transport.createMessage(MessageTypes.MESSAGE_GOSSIP_REQUEST, destinationNode.id, payload)
+      const message = createMessage(MessageTypes.MESSAGE_GOSSIP_REQUEST, destinationNode.id, payload)
 
       self.send(message).catch(() => {
         self.log.debug(`Unable to send gossip response to ${destinationNode.id}`)
@@ -359,7 +361,7 @@ module.exports = function SwimTransport (adapterOptions) {
 
       if (response.online || response.offline) {
         const destinationNode = self.broker.registry.nodeCollection.get(payload.sender)
-        const message = self.transport.createMessage(MessageTypes.MESSAGE_GOSSIP_RESPONSE, destinationNode.id, response)
+        const message = createMessage(MessageTypes.MESSAGE_GOSSIP_RESPONSE, destinationNode.id, response)
         self.send(message).catch(() => {})
       }
     } catch (error) {

@@ -9,14 +9,15 @@
  * @typedef {import('../types.js').TransportAdapter} TransportAdapter
  * @typedef {import('../types.js').Transport} Transport
  * @typedef {import('../types').TransportMessage} TransportMessage
+ * @typedef {import('../types').Context} Context
 */
 
 // Own packages
 const { WeaveError, WeaveQueueSizeExceededError } = require('../errors')
+const { createMessage } = require('./createMessage')
 const MessageTypes = require('./message-types')
 const utils = require('@weave-js/utils')
 const createMessageHandler = require('./message-handlers')
-
 /**
  * Create a Transport adapter
  * @param {Runtime} runtime Broker instance
@@ -42,115 +43,6 @@ exports.createTransport = (runtime, adapter) => {
   }
 
   // Outgoing request
-  const doRequest = (context, resolve, reject) => {
-    const isStream = utils.isStream(context.options.stream)
-
-    const request = {
-      targetNodeId: context.nodeId,
-      action: context.action.name,
-      context,
-      resolve,
-      reject,
-      isStream
-    }
-
-    log.debug(`Send request for ${request.action} to node ${request.targetNodeId}.`)
-
-    pending.requests.set(context.id, request)
-
-    const payload = {
-      id: context.id,
-      action: context.action.name,
-      data: context.data,
-      timeout: context.options.timeout,
-      meta: context.meta,
-      level: context.level,
-      metrics: context.metrics,
-      requestId: context.requestId,
-      parentId: context.parentId,
-      isStream
-    }
-
-    // Handle object mode streams
-    if (isStream) {
-      if (utils.isStreamObjectMode(context.options.stream)) {
-        payload.meta = payload.meta || {}
-        payload.meta.$isObjectModeStream = true
-      }
-      payload.sequence = 0
-    }
-
-    const message = transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload)
-
-    return transport.send(message)
-      .then(() => {
-        // send stream
-        if (isStream) {
-          const stream = context.options.stream
-          payload.meta = {}
-
-          if (utils.isStreamObjectMode(context.options.stream)) {
-            payload.meta.$isObjectModeStream = true
-          }
-
-          stream.on('data', data => {
-            stream.pause()
-            const chunks = []
-
-            // The chunk is larger than maxBufferSize
-            if (data instanceof Buffer && runtime.options.transport.maxChunkSize > 0 && data.length > runtime.options.transport.maxChunkSize) {
-              const length = data.length
-              let i = 0
-              while (i < length) {
-                chunks.push(data.slice(i, i += runtime.options.transport.maxChunkSize))
-              }
-            } else {
-              chunks.push(data)
-            }
-
-            // Send chunks from chunk buffer
-            for (const chunk of chunks) {
-              const payloadCopy = Object.assign({}, payload)
-              payloadCopy.sequence = ++payload.sequence
-              payloadCopy.chunk = chunk
-              payloadCopy.isStream = true
-              payload.data = null
-
-              const message = transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy)
-              transport.send(message)
-            }
-
-            // resume stream
-            stream.resume()
-            return
-          })
-
-          stream.on('end', () => {
-            const payloadCopy = Object.assign({}, payload)
-            payloadCopy.sequence = ++payload.sequence
-            payloadCopy.chunk = null
-            payloadCopy.isStream = false
-            const message = transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy)
-            return transport.send(message)
-          })
-
-          stream.on('error', (_) => {
-            const payloadCopy = Object.assign({}, payload)
-            payloadCopy.sequence = ++payload.sequence
-            payloadCopy.chunk = null
-            payloadCopy.isStream = false
-
-            // todo: Attach error on payload
-
-            const message = transport.createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy)
-            return transport.send(message)
-          })
-        }
-      })
-      .catch((error) => {
-        reject(error)
-      })
-  }
 
   transport.log = runtime.createLogger('TRANSPORT')
   transport.isConnected = false
@@ -212,7 +104,7 @@ exports.createTransport = (runtime, adapter) => {
 
     stopTimers()
 
-    const message = transport.createMessage(MessageTypes.MESSAGE_DISCONNECT)
+    const message = createMessage(MessageTypes.MESSAGE_DISCONNECT)
     return transport.send(message)
       .then(() => {
         adapter.close()
@@ -240,7 +132,7 @@ exports.createTransport = (runtime, adapter) => {
     }
 
     const info = runtime.registry.getLocalNodeInfo()
-    const message = transport.createMessage(MessageTypes.MESSAGE_INFO, sender, {
+    const message = createMessage(MessageTypes.MESSAGE_INFO, sender, {
       ...info,
       instanceId: runtime.state.instanceId
     })
@@ -259,20 +151,34 @@ exports.createTransport = (runtime, adapter) => {
   }
 
   transport.sendPing = (nodeId) => {
-    const pingMessage = transport.createMessage(MessageTypes.MESSAGE_PING, nodeId, { dispatchTime: Date.now() })
+    const pingMessage = createMessage(MessageTypes.MESSAGE_PING, nodeId, { dispatchTime: Date.now() })
     return transport.send(pingMessage)
   }
 
+  /**
+   * Send discovery message to all nodes.
+   * @returns {void}
+  */
   transport.discoverNodes = () => {
-    const discoveryMessage = transport.createMessage(MessageTypes.MESSAGE_DISCOVERY)
+    const discoveryMessage = createMessage(MessageTypes.MESSAGE_DISCOVERY)
     transport.send(discoveryMessage)
   }
 
+  /**
+   * Send discovery message to all nodes.
+   * @param{string} target - Target node ID
+   * @returns {Promise<void>} - Promise
+  */
   transport.discoverNode = (target) => {
-    const discoveryMessage = transport.createMessage(MessageTypes.MESSAGE_DISCOVERY, target)
-    transport.send(discoveryMessage)
+    const discoveryMessage = createMessage(MessageTypes.MESSAGE_DISCOVERY, target)
+    return transport.send(discoveryMessage)
   }
 
+  /**
+   * Send an event
+   * @param {Context} context - Context
+   * @returns {Promise<void>} - Promise
+   */
   transport.sendEvent = (context) => {
     const isBroadcast = context.eventType === 'broadcast'
 
@@ -288,7 +194,7 @@ exports.createTransport = (runtime, adapter) => {
       isBroadcast
     }
 
-    const message = transport.createMessage(MessageTypes.MESSAGE_EVENT, context.endpoint ? context.nodeId : null, payload)
+    const message = createMessage(MessageTypes.MESSAGE_EVENT, context.endpoint ? context.nodeId : null, payload)
     return transport.send(message)
   }
 
@@ -302,8 +208,8 @@ exports.createTransport = (runtime, adapter) => {
       isBroadcast: true
     }
 
-    const message = transport.createMessage(MessageTypes.MESSAGE_EVENT, nodeId, payload)
-    transport.send(message)
+    const message = createMessage(MessageTypes.MESSAGE_EVENT, nodeId, payload)
+    return transport.send(message)
   }
 
   transport.removePendingRequestsById = (requestId) => {
@@ -311,7 +217,6 @@ exports.createTransport = (runtime, adapter) => {
     pending.requestStreams.delete(requestId)
     pending.responseStreams.delete(requestId)
     pending.outboundResponseStreams.delete(requestId)
-
   }
 
   transport.removePendingRequestsByNodeId = (nodeId) => {
@@ -327,14 +232,6 @@ exports.createTransport = (runtime, adapter) => {
     })
   }
 
-  transport.createMessage = (type, targetNodeId, payload) => {
-    return {
-      type: type || MessageTypes.MESSAGE_UNKNOWN,
-      targetNodeId,
-      payload: payload || {}
-    }
-  }
-
   transport.sendRequest = (context) => {
     // If the queue size is set, check the queue size and reject the job when the limit is reached.
     if (runtime.options.transport.maxQueueSize && runtime.options.transport.maxQueueSize < pending.requests.size) {
@@ -346,10 +243,126 @@ exports.createTransport = (runtime, adapter) => {
       }))
     }
 
-    return new Promise((resolve, reject) => doRequest(context, resolve, reject))
+    return new Promise((resolve, reject) => {
+      const isStream = utils.isStream(context.options.stream)
+
+      const request = {
+        targetNodeId: context.nodeId,
+        action: context.action.name,
+        context,
+        resolve,
+        reject,
+        isStream
+      }
+
+      log.debug(`Send request for ${request.action} to node ${request.targetNodeId}.`)
+
+      pending.requests.set(context.id, request)
+
+      const payload = {
+        id: context.id,
+        action: context.action.name,
+        data: context.data,
+        timeout: context.options.timeout,
+        meta: context.meta,
+        level: context.level,
+        metrics: context.metrics,
+        requestId: context.requestId,
+        parentId: context.parentId,
+        isStream
+      }
+
+      // Handle object mode streams
+      if (isStream) {
+        if (utils.isStreamObjectMode(context.options.stream)) {
+          payload.meta = payload.meta || {}
+          payload.meta.$isObjectModeStream = true
+        }
+        payload.sequence = 0
+      }
+
+      const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload)
+
+      return transport.send(message)
+        .then(() => {
+          // send stream
+          if (isStream) {
+            const stream = context.options.stream
+            payload.meta = {}
+
+            if (utils.isStreamObjectMode(context.options.stream)) {
+              payload.meta.$isObjectModeStream = true
+            }
+
+            stream.on('data', data => {
+              stream.pause()
+              const chunks = []
+
+              // The chunk is larger than maxBufferSize
+              if (data instanceof Buffer && runtime.options.transport.maxChunkSize > 0 && data.length > runtime.options.transport.maxChunkSize) {
+                const length = data.length
+                let i = 0
+                while (i < length) {
+                  chunks.push(data.slice(i, i += runtime.options.transport.maxChunkSize))
+                }
+              } else {
+                chunks.push(data)
+              }
+
+              // Send chunks from chunk buffer
+              for (const chunk of chunks) {
+                const payloadCopy = Object.assign({}, payload)
+                payloadCopy.sequence = ++payload.sequence
+                payloadCopy.chunk = chunk
+                payloadCopy.isStream = true
+                payload.data = null
+
+                const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy)
+                transport.send(message)
+              }
+
+              // resume stream
+              stream.resume()
+              return
+            })
+
+            stream.on('end', () => {
+              const payloadCopy = Object.assign({}, payload)
+              payloadCopy.sequence = ++payload.sequence
+              payloadCopy.chunk = null
+              payloadCopy.isStream = false
+              const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy)
+              return transport.send(message)
+            })
+
+            stream.on('error', (_) => {
+              const payloadCopy = Object.assign({}, payload)
+              payloadCopy.sequence = ++payload.sequence
+              payloadCopy.chunk = null
+              payloadCopy.isStream = false
+
+              // todo: Attach error on payload
+
+              const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy)
+              return transport.send(message)
+            })
+          }
+        })
+        .catch((error) => {
+          reject(error)
+        })
+    })
   }
 
-  // send response to requesting node
+  /**
+   * Send response for an open request.
+   * @param {string} target - Target node ID
+   * @param {string} contextId - Context ID
+   * @param {any} data - Data
+   * @param {Object} meta - Meta data
+   * @param {WeaveError=} error - Error
+   * @returns {Promise<void>} - Promise
+  */
   transport.sendResponse = (target, contextId, data, meta, error) => {
     // Check if data is a stream
     const isStream = utils.isStream(data)
@@ -382,7 +395,6 @@ exports.createTransport = (runtime, adapter) => {
         pending.outboundResponseStreams.set(payload.id, stream)
       }
 
-      pending.outboundResponseStreams.set(payload.id, stream)
       payload.data = null
       payload.sequence = 0
       payload.isStream = true
@@ -418,7 +430,7 @@ exports.createTransport = (runtime, adapter) => {
           payloadCopy.chunk = chunk
           transport.log.debug('Send Stream chunk to ', target)
 
-          const message = transport.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy)
+          const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy)
           transport.send(message)
         }
 
@@ -436,8 +448,9 @@ exports.createTransport = (runtime, adapter) => {
 
         transport.log.debug('Send end stream chunk to ', target)
 
-        const message = transport.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy)
+        const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy)
         transport.send(message)
+        pending.outboundResponseStreams.delete(payload.id)
       })
 
       stream.on('error', (error) => {
@@ -450,17 +463,18 @@ exports.createTransport = (runtime, adapter) => {
         if (error) {
           payloadCopy.success = false
         }
-        const message = transport.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy)
+        const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy)
         transport.send(message)
+        pending.outboundResponseStreams.delete(payload.id)
       })
 
       payload.data = null
-      const message = transport.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payload)
+      const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payload)
       return transport.send(message)
         .then(() => stream.resume())
     }
 
-    const message = transport.createMessage(MessageTypes.MESSAGE_RESPONSE, target, payload)
+    const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payload)
     return transport.send(message)
   }
 
@@ -586,7 +600,7 @@ exports.createTransport = (runtime, adapter) => {
       sequence: node.sequence
     }
 
-    const message = transport.createMessage(MessageTypes.MESSAGE_HEARTBEAT, null, payload)
+    const message = createMessage(MessageTypes.MESSAGE_HEARTBEAT, null, payload)
     transport.send(message)
   }
 

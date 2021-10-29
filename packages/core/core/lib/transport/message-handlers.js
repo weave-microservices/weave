@@ -5,9 +5,11 @@
  */
 
 const { InboundTransformStream } = require('./InboundTransformStream')
+const { Transform } = require('stream')
 const { WeaveError, restoreError } = require('../errors')
 const { createContext } = require('../broker/context')
 const MessageTypes = require('./message-types')
+const { createMessage } = require('./createMessage')
 
 /**
  * @typedef {import('../types').Transport} Transport
@@ -126,18 +128,21 @@ module.exports = (runtime, transport) => {
     if (!stream) {
       transport.log.debug(`New stream from node ${payload.sender} received. Seq: ${payload.sequence}`)
 
-      stream = new InboundTransformStream({
-        objectMode: payload.meta && payload.meta.$isObjectModeStream
-      })
+      stream = new InboundTransformStream(
+        payload.sender,
+        payload.id, {
+          objectMode: payload.meta && payload.meta.$isObjectModeStream
+        }
+      )
 
       // handle backpressure
-      stream.on('backpressure', async () => {
-        const message = transport.createMessage(MessageTypes.MESSAGE_RESPONSE_STREAM_BACKPRESSURE, payload.sender, payload)
+      stream.on('backpressure', async ({ sender, requestId }) => {
+        const message = createMessage(MessageTypes.MESSAGE_RESPONSE_STREAM_BACKPRESSURE, sender, { id: requestId })
         await transport.send(message)
       })
 
-      stream.on('resume_backpressure', async () => {
-        const message = transport.createMessage(MessageTypes.MESSAGE_RESPONSE_STREAM_RESUME, payload.sender, payload)
+      stream.on('resume_backpressure', async ({ sender, requestId }) => {
+        const message = createMessage(MessageTypes.MESSAGE_RESPONSE_STREAM_RESUME, sender, { id: requestId })
         await transport.send(message)
       })
 
@@ -302,7 +307,7 @@ module.exports = (runtime, transport) => {
    * @returns {Promise} Promise
   */
   const onPing = payload => {
-    const message = transport.createMessage(MessageTypes.MESSAGE_PONG, payload.sender, {
+    const message = createMessage(MessageTypes.MESSAGE_PONG, payload.sender, {
       dispatchTime: payload.dispatchTime,
       arrivalTime: Date.now()
     })
@@ -395,7 +400,7 @@ module.exports = (runtime, transport) => {
     }
   }
 
-  const onResponseStreamBackpressure = (payload) => { 
+  const onResponseStreamBackpressure = (payload) => {
     const stream = transport.pending.outboundResponseStreams.get(payload.id)
 
     if (stream) {
