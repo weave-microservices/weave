@@ -18,6 +18,19 @@ const { createMessage } = require('./createMessage')
 const MessageTypes = require('./message-types')
 const utils = require('@weave-js/utils')
 const createMessageHandler = require('./message-handlers')
+
+const errorPayloadFactory = (runtime) => (error) => {
+  return {
+    name: error.name,
+    message: error.message,
+    nodeId: error.nodeId || runtime.nodeId,
+    code: error.code,
+    type: error.type,
+    stack: error.stack,
+    data: error.data
+  }
+}
+
 /**
  * Create a Transport adapter
  * @param {Runtime} runtime Broker instance
@@ -59,6 +72,8 @@ exports.createTransport = (runtime, adapter) => {
       packages: 0
     }
   }
+
+  const getErrorPayload = errorPayloadFactory(runtime)
 
   transport.connect = () => {
     return new Promise(resolve => {
@@ -335,13 +350,16 @@ exports.createTransport = (runtime, adapter) => {
               return transport.send(message)
             })
 
-            stream.on('error', (_) => {
+            stream.on('error', (error) => {
               const payloadCopy = Object.assign({}, payload)
               payloadCopy.sequence = ++payload.sequence
               payloadCopy.chunk = null
               payloadCopy.isStream = false
 
-              // todo: Attach error on payload
+              if (error) {
+                payloadCopy.success = false
+                payloadCopy.error = getErrorPayload(error)
+              }
 
               const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy)
               return transport.send(message)
@@ -377,15 +395,7 @@ exports.createTransport = (runtime, adapter) => {
 
     // If an error is occurs, we attach the an error object to the payload.
     if (error) {
-      payload.error = {
-        name: error.name,
-        message: error.message,
-        nodeId: error.nodeId || nodeId,
-        code: error.code,
-        type: error.type,
-        stack: error.stack,
-        data: error.data
-      }
+      payload.error = getErrorPayload(error)
     }
 
     if (isStream) {
@@ -462,7 +472,9 @@ exports.createTransport = (runtime, adapter) => {
 
         if (error) {
           payloadCopy.success = false
+          payloadCopy.error = getErrorPayload(error)
         }
+
         const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy)
         transport.send(message)
         pending.outboundResponseStreams.delete(payload.id)

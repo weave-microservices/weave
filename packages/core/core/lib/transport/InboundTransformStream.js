@@ -52,41 +52,12 @@ class InboundTransformStream extends Transform {
   }
 
   _transform (chunk, encoding, callback) {
-    // // const backpresure = this.push(chunk)
-    // const pushWithBackpressure = (chunk, encoding, callback) => {
-    //   const inFlow = this.push(chunk, encoding)
-    //   // if this.push() returns false, the target streams runs into backpressure
-    //   if (!inFlow) {
-    //     this.emit('backpressure', {
-    //       sender: this.sender,
-    //       requestId: this.requestId
-    //     })
-    //     console.log('Backpressure')
-    //     return this._readableState.pipes[0].once('drain', () => {
-    //       // if the buffer gets empty, we can resume the stream
-    //       this.emit('resume_backpressure', {
-    //         sender: this.sender,
-    //         requestId: this.requestId
-    //       })
-    //       console.log('Resume')
-
-    //       pushWithBackpressure(chunk, encoding, callback)
-    //     })
-
-    //     // notify the transport about the backpressure
-    //   }
-    //   callback()
-    // }
-
-    // pushWithBackpressure(chunk, encoding, callback)
     pushWithBackpressure(this, chunk, encoding, callback)
   }
-
 
   _flush (callback) {
     return callback()
   }
 }
-
 
 module.exports = { InboundTransformStream }

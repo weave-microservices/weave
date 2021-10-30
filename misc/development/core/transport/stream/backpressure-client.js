@@ -13,18 +13,34 @@ broker.createService({
   name: 'client',
   actions: {
     async receive (context) {
-      const stream = await context.call('server.send')
-      const file = fs.createWriteStream('target.dmg')
-      stream.pipe(file)
-      this.log.info('loading file...')
-      let size = 0
-      stream.on('data', (chunk) => {
-        size += chunk.length
-      })
+      try {
+        const stream = await context.call('server.send')
+        const file = fs.createWriteStream('target.dmg')
+        stream.pipe(file)
+        this.log.info('loading file...')
+        let size = 0
+        stream.on('data', (chunk) => {
+          size += chunk.length
+        })
 
-      stream.on('end', (chunk) => {
-        this.log.info(size)
-      })
+        stream.on('end', (chunk) => {
+          this.log.info(size)
+        })
+
+        stream.on('error', (err) => {
+          this.log.info(err)
+        })
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async sendFile (context) {
+      const stream = fs.createReadStream('./file.dmg')
+      try {
+        await context.call('server.receive', { fileName: 'file2.dmg' }, { stream })
+      } catch (error) {
+        console.log(error)
+      }
     }
   }
 })

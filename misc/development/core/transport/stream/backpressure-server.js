@@ -45,6 +45,15 @@ broker.createService({
   actions: {
     send (context) {
       return fs.createReadStream(__dirname + '/Postgres-2.5-14.dmg')
+    },
+    async receive (context) {
+      return new Promise(resolve => {
+        const stream = fs.createWriteStream(context.data.fileName)
+        context.stream.pipe(stream)
+        context.stream.on('finish', () => {
+          resolve()
+        })
+      })
     }
   }
 })
