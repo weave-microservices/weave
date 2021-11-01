@@ -68,13 +68,25 @@ module.exports = (runtime, transport) => {
 
     if (!stream) {
       isNew = true
-      stream = new Transform({
-        objectMode: payload.meta && payload.meta.$isObjectModeStream,
-        transform: function (chunk, encoding, done) {
-          this.push(chunk)
-          return done()
+      stream = new InboundTransformStream(
+        payload.sender,
+        payload.id, {
+          objectMode: payload.meta && payload.meta.$isObjectModeStream
         }
-      })
+      )
+
+      // handle backpressure
+      if (runtime.options.transport.streams.handleBackpressure) {
+        stream.on('backpressure', async ({ sender, requestId }) => {
+          const message = createMessage(MessageTypes.MESSAGE_REQUEST_STREAM_BACKPRESSURE, sender, { id: requestId })
+          await transport.send(message)
+        })
+
+        stream.on('resume_backpressure', async ({ sender, requestId }) => {
+          const message = createMessage(MessageTypes.MESSAGE_REQUEST_STREAM_RESUME, sender, { id: requestId })
+          await transport.send(message)
+        })
+      }
 
       stream.$prevSeq = -1
       stream.$pool = new Map()
@@ -136,15 +148,17 @@ module.exports = (runtime, transport) => {
       )
 
       // handle backpressure
-      stream.on('backpressure', async ({ sender, requestId }) => {
-        const message = createMessage(MessageTypes.MESSAGE_RESPONSE_STREAM_BACKPRESSURE, sender, { id: requestId })
-        await transport.send(message)
-      })
+      if (runtime.options.transport.streams.handleBackpressure) {
+        stream.on('backpressure', async ({ sender, requestId }) => {
+          const message = createMessage(MessageTypes.MESSAGE_RESPONSE_STREAM_BACKPRESSURE, sender, { id: requestId })
+          await transport.send(message)
+        })
 
-      stream.on('resume_backpressure', async ({ sender, requestId }) => {
-        const message = createMessage(MessageTypes.MESSAGE_RESPONSE_STREAM_RESUME, sender, { id: requestId })
-        await transport.send(message)
-      })
+        stream.on('resume_backpressure', async ({ sender, requestId }) => {
+          const message = createMessage(MessageTypes.MESSAGE_RESPONSE_STREAM_RESUME, sender, { id: requestId })
+          await transport.send(message)
+        })
+      }
 
       stream.$prevSeq = -1
       stream.$pool = new Map()
@@ -416,6 +430,22 @@ module.exports = (runtime, transport) => {
     }
   }
 
+  const onRequestStreamBackpressure = (payload) => {
+    const stream = transport.pending.outboundRequestStreams.get(payload.id)
+
+    if (stream) {
+      stream.pause()
+    }
+  }
+
+  const onRequestStreamResume = (payload) => {
+    const stream = transport.pending.outboundRequestStreams.get(payload.id)
+
+    if (stream) {
+      stream.resume()
+    }
+  }
+
   return (type, data) => {
     try {
       if (data === null) {
@@ -470,6 +500,12 @@ module.exports = (runtime, transport) => {
         break
       case MessageTypes.MESSAGE_RESPONSE_STREAM_RESUME:
         onResponseStreamResume(payload)
+        break
+      case MessageTypes.MESSAGE_REQUEST_STREAM_BACKPRESSURE:
+        onRequestStreamBackpressure(payload)
+        break
+      case MessageTypes.MESSAGE_REQUEST_STREAM_RESUME:
+        onRequestStreamResume(payload)
         break
       }
 

@@ -52,7 +52,8 @@ exports.createTransport = (runtime, adapter) => {
     requests: new Map(),
     requestStreams: new Map(),
     responseStreams: new Map(),
-    outboundResponseStreams: new Map()
+    outboundResponseStreams: new Map(),
+    outboundRequestStreams: new Map()
   }
 
   // Outgoing request
@@ -232,6 +233,7 @@ exports.createTransport = (runtime, adapter) => {
     pending.requestStreams.delete(requestId)
     pending.responseStreams.delete(requestId)
     pending.outboundResponseStreams.delete(requestId)
+    pending.outboundRequestStreams.delete(requestId)
   }
 
   transport.removePendingRequestsByNodeId = (nodeId) => {
@@ -289,7 +291,13 @@ exports.createTransport = (runtime, adapter) => {
 
       // Handle object mode streams
       if (isStream) {
-        if (utils.isStreamObjectMode(context.options.stream)) {
+        const stream = context.options.stream
+
+        if (!pending.outboundRequestStreams.has(payload.id)) {
+          pending.outboundRequestStreams.set(payload.id, stream)
+        }
+
+        if (utils.isStreamObjectMode(stream)) {
           payload.meta = payload.meta || {}
           payload.meta.$isObjectModeStream = true
         }
@@ -343,9 +351,13 @@ exports.createTransport = (runtime, adapter) => {
 
             stream.on('end', () => {
               const payloadCopy = Object.assign({}, payload)
+
               payloadCopy.sequence = ++payload.sequence
               payloadCopy.chunk = null
               payloadCopy.isStream = false
+
+              pending.outboundRequestStreams.delete(payload.id)
+
               const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy)
               return transport.send(message)
             })
@@ -360,6 +372,8 @@ exports.createTransport = (runtime, adapter) => {
                 payloadCopy.success = false
                 payloadCopy.error = getErrorPayload(error)
               }
+
+              pending.outboundRequestStreams.delete(payload.id)
 
               const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy)
               return transport.send(message)
@@ -438,7 +452,7 @@ exports.createTransport = (runtime, adapter) => {
           payloadCopy.sequence = ++payload.sequence
 
           payloadCopy.chunk = chunk
-          transport.log.debug('Send Stream chunk to ', target)
+          transport.log.debug(`Send Stream chunk to ${target}`)
 
           const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy)
           transport.send(message)
@@ -456,7 +470,7 @@ exports.createTransport = (runtime, adapter) => {
         payloadCopy.chunk = null
         payloadCopy.isStream = false
 
-        transport.log.debug('Send end stream chunk to ', target)
+        transport.log.debug(`Send end stream chunk to ${target}`)
 
         const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy)
         transport.send(message)
@@ -474,6 +488,8 @@ exports.createTransport = (runtime, adapter) => {
           payloadCopy.success = false
           payloadCopy.error = getErrorPayload(error)
         }
+
+        transport.log.debug(`Send closing chunk to ${target}`)
 
         const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy)
         transport.send(message)
@@ -565,7 +581,10 @@ exports.createTransport = (runtime, adapter) => {
       adapter.subscribe(MessageTypes.MESSAGE_DISCONNECT),
       adapter.subscribe(MessageTypes.MESSAGE_HEARTBEAT),
       adapter.subscribe(MessageTypes.MESSAGE_EVENT, nodeId),
-      adapter.subscribe(MessageTypes.MESSAGE_RESPONSE_STREAM_BACKPRESSURE, nodeId)
+      adapter.subscribe(MessageTypes.MESSAGE_RESPONSE_STREAM_BACKPRESSURE, nodeId),
+      adapter.subscribe(MessageTypes.MESSAGE_RESPONSE_STREAM_RESUME, nodeId),
+      adapter.subscribe(MessageTypes.MESSAGE_REQUEST_STREAM_BACKPRESSURE, nodeId),
+      adapter.subscribe(MessageTypes.MESSAGE_REQUEST_STREAM_RESUME, nodeId)
     ])
   }
 

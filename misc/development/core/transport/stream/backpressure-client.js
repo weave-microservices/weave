@@ -35,9 +35,9 @@ broker.createService({
       }
     },
     async sendFile (context) {
-      const stream = fs.createReadStream('./file.dmg')
+      const stream = fs.createReadStream(__dirname + '/file.dmg')
       try {
-        await context.call('server.receive', { fileName: 'file2.dmg' }, { stream })
+        await context.call('server.receive', { fileName: 'file.dmg' }, { stream })
       } catch (error) {
         console.log(error)
       }

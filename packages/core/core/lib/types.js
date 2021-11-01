@@ -186,6 +186,12 @@ const { EventEmitter2 } = require('eventemitter2')
 
 /**
  * Configuration object for weave service broker.
+ * @typedef {Object} TransportStreamOptions
+ * @property {Boolean} handleBackpressure Handle stream backpressure. (default = true)
+*/
+
+/**
+ * Configuration object for weave service broker.
  * @typedef {Object} TransportOptions
  * @property {String|Object} adapter Transport adapter.
  * @property {Number} maxQueueSize Maximum queue size (default = 80000).
@@ -195,6 +201,7 @@ const { EventEmitter2 } = require('eventemitter2')
  * @property {Number} offlineNodeCheckInterval - Interval in milliseconds to check and remove not offline nodes. (default = 30000ms)
  * @property {Number} maxOfflineTime - Maximum time a node can be offline before it is removed from the registry. (default = 600000ms)
  * @property {Number} maxChunkSize - Maximum chunk size for streams. (default = 256 * 1024 Bits)
+ * @property {TransportStreamOptions} streams - Transport stream options.
  */
 
 /**

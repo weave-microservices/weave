@@ -63,7 +63,9 @@ module.exports = function SwimTransport (adapterOptions) {
       MessageTypes.MESSAGE_GOSSIP_REQUEST,
       MessageTypes.MESSAGE_GOSSIP_RESPONSE,
       MessageTypes.MESSAGE_RESPONSE_STREAM_BACKPRESSURE,
-      MessageTypes.MESSAGE_RESPONSE_STREAM_RESUME
+      MessageTypes.MESSAGE_RESPONSE_STREAM_RESUME,
+      MessageTypes.MESSAGE_REQUEST_STREAM_BACKPRESSURE,
+      MessageTypes.MESSAGE_REQUEST_STREAM_RESUME
     ].includes(message.type)) {
       if (message.type === MessageTypes.MESSAGE_DISCONNECT) {
         // send a disconnect message to all connected nodes
