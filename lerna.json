@@ -5,7 +5,9 @@
       "packages/core/*",
       "packages/transports/*",
       "packages/tracing-adapters/*",
-      "packages/services/*"
+      "packages/services/*",
+      "packages/stores/*"
+
     ],
     "version": "independent",
     "command": {

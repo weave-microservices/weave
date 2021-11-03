@@ -5,16 +5,15 @@
  */
 
 const redis = require('redis')
-const { defaultsDeep } = require('@weave-js/utils')
+const { defaultsDeep, promiseDelay } = require('@weave-js/utils')
 const { TransportAdapters } = require('@weave-js/core')
-const utils = require('@weave-js/utils')
 
 const defaultOptions = {
   port: 6379,
   host: '127.0.0.1'
 }
 
-const RedisTransportAdapter = adapterOptions => {
+const RedisTransportAdapter = (adapterOptions) => {
   let clientSub
   let clientPub
 
@@ -97,7 +96,7 @@ const RedisTransportAdapter = adapterOptions => {
         clientPub.quit()
         clientSub.quit()
       }
-      return utils.promiseDelay(Promise.resolve(), 500)
+      return promiseDelay(Promise.resolve(), 500)
     }
   })
 }

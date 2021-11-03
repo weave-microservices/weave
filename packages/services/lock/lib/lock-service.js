@@ -4,8 +4,8 @@
  * Copyright 2021 Fachwerk
 */
 const { defaultsDeep } = require('@weave-js/utils')
+const { createLockService } = require('@weave-js/lock-store')
 const { getHash } = require('../utils/getHash')
-const { createLockStore } = require('../../../stores/lock-store/lib/createLockStore')
 
 const createLockService = (lockServiceOptions = {}) => {
   lockServiceOptions = defaultsDeep(lockServiceOptions,{
