@@ -47,24 +47,12 @@ exports.createRegistry = (runtime) => {
     log: runtime.createLogger('REGISTRY'),
     /**
    * Initialize the registry
-   * @param {Broker} runtime Broker instance
+   * @param {Runtime} runtime Runtime
    * @param {MiddlewareHandler} middlewareHandler Middleware handler
    * @param {ServiceChangedDelegate} serviceChanged Service changed delegate
    * @returns {void}
    */
     init (runtime) {
-      /**
-       * @type {Broker}
-      */
-
-      /**
-       * @type {MiddlewareHandler}
-      */
-
-      /**
-       * @type {ServiceChangedDelegate}
-      */
-
       // init collections
       this.nodeCollection = createNodeCollection(this)
       this.serviceCollection = createServiceCollection(this)
@@ -141,7 +129,6 @@ exports.createRegistry = (runtime) => {
         }
 
         if (oldActions) {
-          // this.deregisterAction()
           Object.keys(oldActions).forEach(actionName => {
             if (!service.actions[actionName]) {
               this.actionCollection.remove(actionName, node)

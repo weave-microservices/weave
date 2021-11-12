@@ -16,7 +16,7 @@ const { capitalize } = require('@weave-js/utils')
  * Create validator middleware
  * @param {Runtime} runtime - Runtime reference
  * @returns {Middleware} - Validator middleware
- */
+*/
 module.exports = (runtime) => {
   const validator = runtime.validator
 

@@ -24,7 +24,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@weave-js/utils": "^0.9.1"
+    "@weave-js/utils": "^0.9.1",
+    "@weave-js/lock-store": "^0.0.1"
   },
   "devDependencies": {
     "@sinonjs/fake-timers": "^8.0.1",
