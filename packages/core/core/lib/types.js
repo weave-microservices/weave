@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-const { EventEmitter2 } = require('eventemitter2')
+const { EventEmitter2: EventEmitter } = require('eventemitter2')
 
 /**
  * @typedef {import('stream').Stream} Stream
@@ -58,8 +58,8 @@ const { EventEmitter2 } = require('eventemitter2')
 /**
  * ActionInvoker
  * @typedef {object} ActionInvoker
- * @property {function(string, object, ActionOptions):Promise<any>} call - Service changed delegate
- * @property {function(string, object, ActionOptions):Promise<any>} call - Service changed delegate
+ * @property {function(string, object, ActionOptions):Promise<any>} call - Call a
+ * @property {function(string, object, ActionOptions):Promise<any>} multiCall - Service changed delegate
 */
 
 /**
@@ -76,7 +76,7 @@ const { EventEmitter2 } = require('eventemitter2')
  * @property {string} version - Weave version of the broker.
  * @property {ActionInvoker} actionInvoker - Action invoker
  * @property {EventBus} [eventBus] - Service event bus
- * @property {EventEmitter2} bus - Instance event bus
+ * @property {EventEmitter} bus - Instance event bus
  * @property {Broker} [broker] - Broker reference.
  * @property {BrokerOptions} options - options
  * @property {RuntimeInstanceState} state - Instance state
@@ -111,11 +111,11 @@ const { EventEmitter2 } = require('eventemitter2')
  * @property {function():Promise<any>} start - Start the broker.
  * @property {function():Promise<any>} stop - Stop the broker
  * @property {function(ServiceSchema):Service} createService - Create a new service with a service schema object.
- * @property {function():void} loadService - Load a service from a given path.
- * @property {function():void} loadServices - Load all services from a given directory.
+ * @property {function(string):void} loadService - Load a service from a given path.
+ * @property {function(string=, string=):void} loadServices - Load all services from a given directory.
  * @property {ContextFactory} contextFactory - contextFactory
  * @property {Logger} log - Logger instance
- * @property {function():Logger} createLogger - Create a new logger instace.
+ * @property {function(string, any):Logger} createLogger - Create a new logger instace.
  * @property {Cache} [cache] - Cache
  * @property {function():string} getUUID - Create a new from the UUID factory.
  * @property {Registry} registry - Service registry reference
@@ -128,10 +128,15 @@ const { EventEmitter2 } = require('eventemitter2')
  * @property {function(string, any, any=):Promise<any>} broadcast broadcast
  * @property {function(string, any, any=):Promise<any>} broadcastLocal broadcastLocal
  * @property {function(string):Promise<any>} waitForServices waitForServices
- * @property {Promise<PingResult>} ping ping
- * @property {function(Error)} handleError handleError
- * @property {void} fatalError fatalError
+ * @property {function(string, number=):Promise<PingResult>} ping ping
+ * @property {function(Error):void} handleError handleError
+ * @property {function():void} fatalError fatalError
 */
+
+/**
+ * Ping result
+ * @typedef {Object<string, number>} PingResult
+ */
 
 /**
  * Configuration object for weave service broker.
@@ -271,26 +276,6 @@ const { EventEmitter2 } = require('eventemitter2')
  * @typedef {Object.<string, *>}
 */
 
-// Cache
-
-/**
- * Cache interface
- * @typedef Cache
- * @property {string} [name] name
- * @property {LoggerOptions} options options
- * @property {void} init init
- * @property {Logger} log log
- * @property {Promise<any>} set set
- * @property {Promise<any>} get get
- * @property {Promise<any>} remove remove
- * @property {Promise<any>} clear clear
- * @property {string} getCachingHash getCachingHash
- * @property {Middleware} createMiddleware createMiddleware
- * @property {Promise<any>} stop stop
-*/
-
-// Context
-
 /**
  * @export
  * @typedef ContextFactory
@@ -336,11 +321,11 @@ const { EventEmitter2 } = require('eventemitter2')
  * @property {any} [metrics] metrics
  * @property {function(any):void} setData - Set data object.
  * @property {function(string, any, ActionOptions):ContextPromise} call - Call a service action
- * @property {*} emit emit
+ * @property {function(string, object):Promise<any>} emit emit
  * @property {Stream} [stream] - Stream
- * @property {*} broadcast broadcast
- * @property {*} startSpan startSpan
- * @property {*} finishSpan finishSpan
+ * @property {function(string, any):Promise<any>} broadcast Broadcast an event to all listener.
+ * @property {function():void} startSpan startSpan
+ * @property {function():void} finishSpan finishSpan
  * @property {function():Context} copy - Copy the current context.
  * @property {function(Stream):void} setStream - Set the context data stream.
  * @property {function(Endpoint):void} setEndpoint - Set data object.
@@ -358,8 +343,8 @@ const { EventEmitter2 } = require('eventemitter2')
  * @property {Promise<any>} remove remove
  * @property {Promise<any>} clear clear
  * @property {string} getCachingHash getCachingHash
- * @property {Middleware} createMiddleware createMiddleware
- * @property {Promise<any>} stop stop
+ * @property {function():Middleware} createMiddleware createMiddleware
+ * @property {function():Promise<any>} stop stop
 */
 
 // Transport
@@ -375,9 +360,9 @@ const { EventEmitter2 } = require('eventemitter2')
  * @property {PendingStore} pending pending
  * @property {Function} resolveConnect resolveConnect
  * @property {string} adapterName adapterName
- * @property {Promise<any>} connect connect
- * @property {Promise<any>} disconnect disconnect
- * @property {void} setReady setReady
+ * @property {function():Promise<any>} connect connect
+ * @property {function():Promise<any>} disconnect disconnect
+ * @property {function():void} setReady setReady
  * @property {function(TransportMessage):Promise<any>} send send
  * @property {any} sendNodeInfo sendNodeInfo
  * @property {function():Promise<any>} sendPing sendPing
@@ -482,14 +467,14 @@ const { EventEmitter2 } = require('eventemitter2')
  * @property {Endpoint | WeaveError} getNextAvailableActionEndpoint getNextAvailableActionEndpoint
  * @property {function(ServiceActionCollectionListFilterParams=):Array<any>} getActionList getActionList
  * @property {function(string): void} deregisterServiceByNodeId deregisterServiceByNodeId
- * @property {function(string, number, nodeId):boolean} hasService hasService
+ * @property {function(string, number, string):boolean} hasService hasService
  * @property {function(string, string):Endpoint} getActionEndpointByNodeId getActionEndpointByNodeId
  * @property {function(string):EndpointCollection} getActionEndpoints getActionEndpoints
  * @property {function(ServiceAction):Endpoint} createPrivateActionEndpoint createPrivateActionEndpoint
  * @property {function(string):Endpoint} getLocalActionEndpoint getLocalActionEndpoint
- * @property {NodeInfo} getNodeInfo getNodeInfo
- * @property {NodeInfo} getLocalNodeInfo getLocalNodeInfo
- * @property {NodeInfo} generateLocalNodeInfo generateLocalNodeInfo
+ * @property {function():NodeInfo} getNodeInfo getNodeInfo
+ * @property {function():NodeInfo} getLocalNodeInfo getLocalNodeInfo
+ * @property {function():NodeInfo} generateLocalNodeInfo generateLocalNodeInfo
  * @property {*} processNodeInfo processNodeInfo
  * @property {function(string, boolean):void} nodeDisconnected nodeDisconnected
  * @property {function(string):void} removeNode removeNode
@@ -541,7 +526,6 @@ const { EventEmitter2 } = require('eventemitter2')
 
 /**
  * Endpoint
- *
  * @typedef Endpoint
  * @property {Node} node node
  * @property {Service} service service
@@ -556,7 +540,7 @@ const { EventEmitter2 } = require('eventemitter2')
 /**
  * Event colleciton
  * @typedef EventCollection
- * @property {function(Node, Service, eventCollection):Endpoint} add add
+ * @property {function(Node, Service, EventCollection):Endpoint} add add
  * @property {Endpoint} get get
  * @property {function(string, Node):void} remove remove
  * @property {function(Service):void} removeByService removeByService
@@ -600,8 +584,8 @@ const { EventEmitter2 } = require('eventemitter2')
  * @typedef ServiceActionCollection
  * @property {*} add add
  * @property {function(string):EndpointCollection} get get
- * @property {function(service)} removeByService removeByService
- * @property {function(string, Node)} remove remove
+ * @property {function(Service):void} removeByService removeByService
+ * @property {function(string, Node):void} remove remove
  * @property {function(ServiceActionCollectionListFilterParams):Array<any>} list list
 */
 
@@ -629,7 +613,7 @@ const { EventEmitter2 } = require('eventemitter2')
  * @property {boolean} [withEvents=false] Include events in result.
  * @property {boolean} [withNodeService=false] Include node service.
  * @property {boolean} [withSettings=false] Include service settings.
- */
+*/
 
 /**
  * Service collection
@@ -732,6 +716,7 @@ const { EventEmitter2 } = require('eventemitter2')
  * @property {void} timer timer
  * @property {Metric} getMetric getMetric
  * @property {any} list list
+ * @property {function():Promise<any>} stop list
 */
 
 // Midlewares
@@ -741,7 +726,7 @@ const { EventEmitter2 } = require('eventemitter2')
  * @export
  * @typedef MiddlewareHandler
  * @property {void} init init
- * @property {void} add add
+ * @property {function(Middleware)} add add
  * @property {any} wrapMethod wrapMethod
  * @property {any} wrapHandler wrapHandler
  * @property {any} callHandlersAsync callHandlersAsync

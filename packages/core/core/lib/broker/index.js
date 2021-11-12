@@ -6,9 +6,9 @@
 */
 
 // node packages
+const { isFunction } = require('@weave-js/utils')
 const path = require('path')
 const glob = require('glob')
-const { isFunction } = require('@weave-js/utils')
 const Middlewares = require('../middlewares')
 
 /**
@@ -114,6 +114,7 @@ exports.createBrokerInstance = (runtime) => {
       const startTime = Date.now()
       await middlewareHandler.callHandlersAsync('starting', [runtime], true)
 
+      // If transport is used, we connect the transport adapter.
       if (transport) {
         await transport.connect()
       }
@@ -130,6 +131,7 @@ exports.createBrokerInstance = (runtime) => {
       eventBus.broadcastLocal('$broker.started')
       registry.generateLocalNodeInfo(true)
 
+      // If transport is used, we set the transport ready to inform the other nodes
       if (transport) {
         await transport.setReady()
       }
@@ -153,6 +155,7 @@ exports.createBrokerInstance = (runtime) => {
 
       await middlewareHandler.callHandlersAsync('stopping', [runtime], true)
 
+      // Stop services
       try {
         await Promise.all(services.serviceList.map(service => service.stop()))
       } catch (error) {
@@ -160,27 +163,33 @@ exports.createBrokerInstance = (runtime) => {
         throw error
       }
 
+      // Disconnect transports
       if (transport) {
         await transport.disconnect()
       }
 
+      // Stop cache
       if (runtime.cache) {
         log.debug('Stopping caching adapters.')
         await runtime.cache.stop()
       }
 
+      // Stop metrics
       if (runtime.metrics) {
         log.debug('Stopping metrics.')
         await runtime.metrics.stop()
       }
 
+      // Stop tracers
       if (runtime.tracer) {
         log.debug('Stopping tracing adapters.')
         await runtime.tracer.stop()
       }
 
+      // Call "stopped" middleware method.
       await middlewareHandler.callHandlersAsync('stopped', [runtime], true)
 
+      // Call "stopped" lifecycle hook
       if (!runtime.state.isStarted && isFunction(options.stopped)) {
         options.stopped.call(runtime)
       }
@@ -196,12 +205,6 @@ exports.createBrokerInstance = (runtime) => {
 
       // todo: handle errors
     },
-    /**
-     * Send a ping to connected nodes.
-     * @param {*} nodeId Node id
-     * @param {number} [timeout=3000] Ping timeout
-     * @returns {Array} Ping result
-    */
     ping (nodeId, timeout = 3000) {
       if (transport && transport.isConnected) {
         if (nodeId) {
@@ -343,7 +346,7 @@ exports.createBrokerInstance = (runtime) => {
     runtime.eventBus.broadcast = middlewareHandler.wrapMethod('broadcast', runtime.eventBus.broadcast)
     runtime.eventBus.broadcastLocal = middlewareHandler.wrapMethod('broadcastLocal', runtime.eventBus.broadcastLocal)
 
-    // Wrap Brober methods
+    // Wrap broker methods
     broker.createService = middlewareHandler.wrapMethod('createService', broker.createService)
     broker.loadService = middlewareHandler.wrapMethod('loadService', broker.loadService)
     broker.loadServices = middlewareHandler.wrapMethod('loadServices', broker.loadServices)

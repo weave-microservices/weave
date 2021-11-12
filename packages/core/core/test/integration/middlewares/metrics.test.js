@@ -1,4 +1,4 @@
-const { Weave } = require('../../../lib/index')
+const { Weave, TransportAdapters } = require('../../../lib/index')
 const Constants = require('../../../lib/metrics/constants')
 const contextTracker = require('../../../lib/middlewares/context-tracker')
 describe('Metric middleware', () => {
@@ -125,6 +125,77 @@ describe('Metric middleware [cache]', () => {
 
     expect(metrics.getMetric(Constants.CACHE_GET_TOTAL).value).toBe(1)
     expect(metrics.getMetric(Constants.CACHE_FOUND_TOTAL).value).toBe(1)
+  })
+})
 
+describe.only('Metric middleware between remote nodes', () => {
+  let broker1
+  let broker2
+
+  beforeEach(() => {
+    broker1 = Weave({
+      nodeId: 'node-metrics-1',
+      logger: {
+        enabled: false
+      },
+      metrics: {
+        enabled: true
+      },
+      transport: {
+        adapter: TransportAdapters.Dummy()
+      }
+    })
+
+    broker2 = Weave({
+      nodeId: 'node-metrics-2',
+      logger: {
+        enabled: false
+      },
+      metrics: {
+        enabled: true
+      },
+      transport: {
+        adapter: TransportAdapters.Dummy()
+      }
+    })
+
+    broker2.createService({
+      name: 'test-service',
+      actions: {
+        testAction: {
+          params: {
+            name: 'string'
+          },
+          handler (context) {
+            return context.data.name
+          }
+        }
+      }
+    })
+
+    return Promise.all([
+      broker1.start(),
+      broker2.start()
+    ])
+  })
+
+  afterEach(() => Promise.all([
+    broker1.stop(),
+    broker2.stop()
+  ]))
+
+  it('should register metrics', async () => {
+    const metrics1 = broker1.runtime.metrics
+    const metrics2 = broker2.runtime.metrics
+
+    await broker1.call('test-service.testAction', { name: 'Kevin' })
+    await broker1.call('test-service.testAction', { name: 'Kevin' })
+    await broker1.call('test-service.testAction', { name: 'Kevin' })
+
+    expect(metrics1.getMetric(Constants.REQUESTS_TOTAL).value).toBe(3)
+    expect(metrics1.getMetric(Constants.REQUESTS_IN_FLIGHT).value).toBe(0)
+
+    expect(metrics2.getMetric(Constants.REQUESTS_TOTAL).value).toBe(3)
+    expect(metrics2.getMetric(Constants.REQUESTS_IN_FLIGHT).value).toBe(0)
   })
 })

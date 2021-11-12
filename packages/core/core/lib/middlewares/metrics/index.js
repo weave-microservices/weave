@@ -33,7 +33,7 @@ module.exports = (runtime) => {
       return wrapMetricMiddleware('local', action, next)
     },
     remoteAction (next, action) {
-      return wrapMetricMiddleware.call('remote', action, next)
+      return wrapMetricMiddleware('remote', action, next)
     },
     emit (next) {
       return (event, payload) => {

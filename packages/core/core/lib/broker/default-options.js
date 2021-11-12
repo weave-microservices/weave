@@ -31,9 +31,6 @@ exports.getDefaultOptions = () => {
       adapter: 'memory',
       ttl: 3000
     },
-    eventSettings: {
-      needAck: false
-    },
     circuitBreaker: {
       enabled: false,
       halfOpenTimeout: 10000,

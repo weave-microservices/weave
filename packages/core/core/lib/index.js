@@ -12,7 +12,7 @@ const { createBrokerInstance } = require('./broker')
 /**
  * @type {BrokerOptions} options Broker options
 */
-exports.defaultOptions = require('./broker/default-options')
+exports.defaultOptions = getDefaultOptions()
 
 /**
  * Build runtime object

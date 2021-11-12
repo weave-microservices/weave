@@ -6,7 +6,7 @@ exports.createGauge = (registry, obj) => {
   base.value = 0
 
   base.increment = (labels, value, timestamp) => {
-    const item = base.values.get(labels)
+    const item = base.get(labels)
     base.set((item ? item.value : 0) + value, labels, timestamp)
   }
 
