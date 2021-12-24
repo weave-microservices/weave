@@ -24,6 +24,23 @@ describe('Timeout middleware', () => {
               resolve('hello')
             }, 2000)
           })
+        },
+        act1 (context) {
+          return context.call('test-service.act2')
+        },
+        act2 (context) {
+          return new Promise(resolve => {
+            setTimeout(() => {
+              resolve(context.call('test-service.act3'))
+            }, 500)
+          })
+        },
+        act3 () {
+          return new Promise(resolve => {
+            setTimeout(() => {
+              resolve('hello')
+            }, 400)
+          })
         }
       }
     })
@@ -33,18 +50,14 @@ describe('Timeout middleware', () => {
 
   afterEach(() => broker.stop())
 
-  it('should throw an timeout after timeout', (done) => {
-    broker.call('test-service.testAction')
+  it('should throw an timeout after for distributed action calls', (done) => {
+    broker.call('test-service.act1')
+      .then(result => {
+        done()
+      })
       .catch(error => {
         expect(error.message).toBe('Action test-service.testAction timed out node node1.')
         done()
       })
   })
-
-  // it('should throw an timeout after timeout', (done) => {
-  //   return broker.call('test-service.testAction', null, { timeout: 3000 })
-  //     .then(result => {
-  //       expect(result).toBe('hello')
-  //     })
-  // })
 })

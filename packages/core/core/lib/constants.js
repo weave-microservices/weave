@@ -19,7 +19,3 @@ exports.level = {
   error: 'error',
   fatal: 'fatal'
 }
-
-exports.SYNC_MIDDLEWARE_HOOKS = {
-  STARTING: 'starting'
-}

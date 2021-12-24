@@ -4,7 +4,9 @@
  * Copyright 2021 Fachwerk
  */
 
-class WeaveError extends Error {
+const { ExtendableError } = require('./ExtendableError')
+
+class WeaveError extends ExtendableError {
   constructor (message, code, type, data) {
     super(message)
     this.name = this.constructor.name
@@ -53,7 +55,7 @@ class WeaveServiceNotAvailableError extends WeaveRetrieableError {
 }
 
 class WeaveRequestTimeoutError extends WeaveRetrieableError {
-  constructor (actionName, nodeId, timeout) {
+  constructor (actionName, nodeId) {
     const message = `Action ${actionName} timed out node ${nodeId || '<local>'}.`
     super(message, 504, 'WEAVE_REQUEST_TIMEOUT_ERROR', {
       actionName,
