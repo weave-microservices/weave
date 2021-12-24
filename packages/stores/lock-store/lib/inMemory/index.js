@@ -1,5 +1,4 @@
 const createInMemoryStore = (options = {}) => {
-  // this.removeExpiredLocks()
   const database = {
     locks: []
   }
@@ -45,6 +44,12 @@ const createInMemoryStore = (options = {}) => {
     database.locks.splice(index, 1)
   }
 
+  /**
+   * Renew the value lock
+   * @param {string} hash Hash
+   * @param {number} expiresAt Expiring timestamp
+   * @returns {Promise<void>} Result
+   */
   const renewLock = async (hash, expiresAt) => {
     await removeExpiredLocks()
 

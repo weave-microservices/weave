@@ -12,6 +12,6 @@ quote_type = "single"
 trim_trailing_whitespace = true
 insert_final_newline = true
 
-[{package,bower}.json]
+[{package}.json]
 indent_style = space
 indent_size = 2
