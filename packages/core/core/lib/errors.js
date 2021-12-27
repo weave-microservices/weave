@@ -50,7 +50,7 @@ class WeaveServiceNotAvailableError extends WeaveRetrieableError {
       message = `Service "${data.actionName}" not available.`
     }
 
-    super(message, 405, 'WEAVE_SERVICE_NOT_AVAILABLE_ERROR', data)
+    super(message, 503, 'WEAVE_SERVICE_NOT_AVAILABLE_ERROR', data)
   }
 }
 
