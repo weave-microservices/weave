@@ -24,14 +24,11 @@
     "@weave-js/core": "^0.10.0",
     "@weave-js/repl": "^0.10.0",
     "@weave-js/utils": "^0.9.1",
-    "commander": "^7.2.0",
+    "commander": "^8.3.0",
     "consolidate": "^0.16.0",
-    "inquirer": "^8.0.0",
-    "kleur": "^4.1.3",
+    "inquirer": "^8.2.0",
+    "kleur": "^4.1.4",
     "update-notifier": "^5.1.0"
   },
-  "gitHead": "19371c8bca2bf6733ae30b23cd5a316c3bcdb5f4",
-  "devDependencies": {
-    "eslint": "^7.17.0"
-  }
+  "gitHead": "19371c8bca2bf6733ae30b23cd5a316c3bcdb5f4"
 }

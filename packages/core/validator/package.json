@@ -18,11 +18,5 @@
     "url": "https://weave-js.com"
   },
   "license": "MIT",
-  "devDependencies": {
-    "eslint": "^7.30.0",
-    "eslint-config-fw": "^1.0.3",
-    "jest": "^27.0.6",
-    "jest-cli": "^27.0.6"
-  },
   "gitHead": "19371c8bca2bf6733ae30b23cd5a316c3bcdb5f4"
 }

@@ -1,12 +1,12 @@
+const { timespanFromUnixTimes } = require('@weave-js/utils')
 const createSpinner = require('../utils/create-spinner')
 const formatNumber = require('../utils/format-number')
-const { timespanFromUnixTimes } = require('@weave-js/utils')
 
 module.exports = ({ vorpal, broker, cliUI }) => {
   vorpal
     .command('benchmark <action> [jsonParams]', 'Benchmark a service Endpoint.')
     .option('--iterations <number>', 'Number of iterations')
-    .option('--time <seconds>', 'Time of bench')
+    .option('--time <seconds>', 'Time of bench (default 5)')
     .option('--nodeID <nodeID>', 'NodeID (direct call)')
     .autocomplete({
       data () {
@@ -46,11 +46,11 @@ module.exports = ({ vorpal, broker, cliUI }) => {
 
       setTimeout(() => {
         timeout = true
-      }, (time !== null ? time : 60) * 1000)
+      }, time * 1000)
 
       const printResult = (duration) => {
         console.log(cliUI.successText('\nBenchmark results:\n'))
-        console.log(cliUI.infoText(`${formatNumber(responseCounter)} requests in ${timespanFromUnixTimes(duration)}`))
+        console.log(cliUI.infoText(`${formatNumber(responseCounter)} requests in ${timespanFromUnixTimes(duration)} ${duration}`))
 
         if (errorCounter > 0) {
           console.log(cliUI.errorText(`${formatNumber(errorCounter)} error(s) ${formatNumber(errorCounter / responseCounter * 100)}%`))

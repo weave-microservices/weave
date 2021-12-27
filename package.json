@@ -55,12 +55,14 @@
   },
   "homepage": "https://weave-js.com",
   "devDependencies": {
-    "@sinonjs/fake-timers": "^7.1.2",
-    "@types/jest": "^26.0.24",
-    "concurrently": "^6.2.0",
-    "eslint": "^7.30.0",
+    "@sinonjs/fake-timers": "^8.1.0",
+    "@types/jest": "^27.0.3",
+    "concurrently": "^6.5.1",
+    "lerna": "^4.0.0",
+    "eslint": "^8.5.0",
     "eslint-config-fw": "^1.0.3",
-    "lerna": "^4.0.0"
+    "jest": "^27.4.5",
+    "jest-cli": "^27.4.5"
   },
   "jest": {
     "testEnvironment": "node"

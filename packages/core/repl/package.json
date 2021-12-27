@@ -19,12 +19,11 @@
     "clui": "^0.3.6",
     "kleur": "^4.1.4",
     "ora": "^5.4.1",
-    "table": "^6.7.1",
+    "table": "^6.7.5",
     "vorpal": "^1.12.0"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.10.0",
-    "eslint": "^7.30.0"
+    "@weave-js/core": "^0.10.0"
   },
   "gitHead": "19371c8bca2bf6733ae30b23cd5a316c3bcdb5f4"
 }

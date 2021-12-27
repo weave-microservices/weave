@@ -28,11 +28,8 @@
     "@weave-js/lock-store": "^0.0.1"
   },
   "devDependencies": {
-    "@sinonjs/fake-timers": "^8.0.1",
-    "@weave-js/core": "^0.10.0",
-    "eslint": "^7.30.0",
-    "jest": "^27.0.6",
-    "jest-cli": "^27.0.6"
+    "@sinonjs/fake-timers": "^8.1.0",
+    "@weave-js/core": "^0.10.0"
   },
   "directories": {
     "lib": "lib",

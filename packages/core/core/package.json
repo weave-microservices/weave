@@ -42,13 +42,8 @@
     "@weave-js/errors": "^0.9.1",
     "@weave-js/utils": "^0.9.1",
     "@weave-js/validator": "^0.10.0",
-    "eventemitter2": "^6.4.4",
-    "glob": "^7.1.7"
-  },
-  "devDependencies": {
-    "eslint": "^7.30.0",
-    "jest": "^27.0.6",
-    "jest-cli": "^27.0.6"
+    "eventemitter2": "^6.4.5",
+    "glob": "^7.2.0"
   },
   "directories": {
     "lib": "lib",

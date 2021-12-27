@@ -23,12 +23,7 @@
     "@weave-js/core": ">=0.9.0"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.10.0",
-    "eslint": "^7.30.0",
-    "eslint-config-fw": "^1.0.3",
-    "eslint-loader": "^4.0.2",
-    "istanbul": "^0.4.5",
-    "jest": "^27.0.6"
+    "@weave-js/core": "^0.10.0"
   },
   "jest": {
     "testEnvironment": "node",
@@ -39,6 +34,6 @@
   },
   "dependencies": {
     "@weave-js/utils": "^0.9.1",
-    "ioredis": "^4.27.6"
+    "ioredis": "^4.28.2"
   }
 }

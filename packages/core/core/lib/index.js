@@ -33,7 +33,6 @@ exports.createBroker = (options) => {
   return createBrokerInstance(runtime)
 }
 
-// eslint-disable-next-line valid-jsdoc
 /**
  * @deprecated since version 0.9.0
  * @param {import('./types.js').BrokerOptions} options Broker options.
@@ -45,11 +44,16 @@ exports.Weave = exports.createBroker
 exports.Errors = require('./errors')
 
 exports.Constants = require('./constants')
+
 // Transport
 exports.TransportAdapters = require('./transport/adapters')
 
 // Caching
 exports.Cache = require('./cache')
+
+/**
+ * @deprecated since version 0.10.0
+*/
 exports.createBaseTracingCollector = require('./tracing/collectors/base').createBaseTracingCollector
 exports.TracingAdapters = require('./tracing/collectors')
 
