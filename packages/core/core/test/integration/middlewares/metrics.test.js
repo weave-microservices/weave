@@ -123,12 +123,12 @@ describe('Metric middleware [cache]', () => {
     await broker.call('test-service.testAction', { name: 'Kevin' })
     await broker.call('test-service.testAction', { name: 'Kevin' })
 
-    expect(metrics.getMetric(Constants.CACHE_GET_TOTAL).value).toBe(1)
+    expect(metrics.getMetric(Constants.CACHE_GET_TOTAL).value).toBe(2)
     expect(metrics.getMetric(Constants.CACHE_FOUND_TOTAL).value).toBe(1)
   })
 })
 
-describe.only('Metric middleware between remote nodes', () => {
+describe('Metric middleware between remote nodes', () => {
   let broker1
   let broker2
 

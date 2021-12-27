@@ -72,7 +72,7 @@ describe('Test errors', () => {
     expect(error).toBeDefined()
     expect(error).toBeInstanceOf(Error.WeaveError)
     expect(error.message).toBe('Service "do.something" not available on node "node1".')
-    expect(error.code).toBe(405)
+    expect(error.code).toBe(503)
     expect(error.type).toBe('WEAVE_SERVICE_NOT_AVAILABLE_ERROR')
     expect(error.data).toEqual({ actionName: 'do.something', nodeId: 'node1' })
     expect(error.retryable).toBe(true)

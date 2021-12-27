@@ -21,7 +21,7 @@ const { loadBalancingStrategy } = require('../../constants')
  *
  * @param {Runtime} runtime Runtime instance
  * @param {string} name name
- * @param {string} groupName Group name
+ * @param {string=} groupName Group name
  * @returns {EndpointCollection} EndpointCollection
  */
 exports.createEndpointList = (runtime, name, groupName) => {
@@ -33,7 +33,7 @@ exports.createEndpointList = (runtime, name, groupName) => {
 
   let counter = 0
 
-  endpointList.state = runtime // ????
+  // endpointList.state = runtime // ????
   endpointList.name = name
   endpointList.groupName = groupName
   endpointList.isInternal = name.startsWith('$')

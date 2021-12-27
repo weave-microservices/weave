@@ -1,8 +1,8 @@
-const { createBaseTracingCollector } = require('@weave-js/core')
+const { createBaseTracingCollector } = require('@weave-js/core/lib/tracing/collectors/base')
 const fetch = require('node-fetch')
 
-const convertTime = timestamp => timestamp != null ? Math.round(timestamp * 1000) : null
-const convertId = id => id ? id.replace(/-/g, '').substring(0, 16) : null
+const convertTime = (timestamp) => timestamp != null ? Math.round(timestamp * 1000) : null
+const convertId = (id) => id ? id.replace(/-/g, '').substring(0, 16) : null
 
 const mergeDefaultOptions = (options) => {
   return Object.assign({

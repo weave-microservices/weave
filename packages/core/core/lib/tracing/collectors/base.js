@@ -12,15 +12,15 @@ exports.createBaseTracingCollector = (options) => {
   }
 
   baseTracingCollector.startedSpan = () => {
-    throw new WeaveError('not implemented.')
+    // throw new WeaveError('not implemented.')
   }
 
   baseTracingCollector.finishedSpan = () => {
-    throw new WeaveError('not implemented.')
+    // throw new WeaveError('not implemented.')
   }
 
   baseTracingCollector.stop = () => {
-    throw new WeaveError('not implemented.')
+    // throw new WeaveError('not implemented.')
   }
 
   baseTracingCollector.flattenTags = (obj, convertToString = false, path = '') => {

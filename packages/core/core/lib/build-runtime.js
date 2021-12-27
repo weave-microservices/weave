@@ -27,7 +27,7 @@ const { uuid } = require('@weave-js/utils')
  * @param {BrokerOptions} options Broker options
  * @return {Runtime} Runtime
 */
-exports.buildRuntime = (options) => {
+exports.initRuntime = (options) => {
   /**
    * Event bus
    * @returns {EventEmitter} Service object.
