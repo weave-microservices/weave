@@ -18,7 +18,7 @@ exports.resolveCollector = (runtime, collector, tracer) => {
   }
 
   if (isFunction(collector)) {
-    return collector(runtime, tracer)
+    return collector(runtime)
   }
 
   if (typeof collector === 'object') {

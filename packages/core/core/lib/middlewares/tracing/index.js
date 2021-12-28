@@ -4,17 +4,22 @@
  * Copyright 2021 Fachwerk
  */
 
-const { buildTags } = require('./buildTags')
+const { isPlainObject } = require('@weave-js/utils')
+const { buildActionTags, buildEventTags } = require('./tags')
 
 const wrapTracingLocalActionMiddleware = function (handler) {
   const broker = this
-  const options = broker.options.tracing || {}
+  const tracingOptions = broker.options.tracing || {}
 
-  if (options.enabled) {
+  if (tracingOptions.enabled) {
     return function metricsLocalMiddleware (context, serviceInjections) {
-      const tags = buildTags(context)
+      const tags = buildActionTags(context, tracingOptions)
 
-      const spanName = `action '${context.action.name}'`
+      if (tracingOptions) {
+        tags.data = context.data !== null && isPlainObject(context.data) ? Object.assign({}, context.data) : context.data
+      }
+
+      const spanName = `action "${context.action.name}"`
 
       const span = context.startSpan(spanName, {
         id: context.id,
@@ -30,6 +35,15 @@ const wrapTracingLocalActionMiddleware = function (handler) {
 
       return handler(context, serviceInjections)
         .then(result => {
+          const tags = {
+            isCachedResult: context.isCachedResult
+          }
+
+          if (tracingOptions) {
+            tags.response = result !== null && isPlainObject(result) ? Object.assign({}, result) : result
+          }
+
+          span.addTags(tags)
           span.finish()
           return result
         })
@@ -47,13 +61,13 @@ const wrapTracingLocalActionMiddleware = function (handler) {
 const wrapTracingLocalEventMiddleware = function (handler, event) {
   const broker = this
   const service = event.service
-  const options = broker.options.tracing || {}
+  const tracingOptions = broker.options.tracing || {}
 
-  if (options.enabled) {
+  if (tracingOptions.enabled) {
     return function metricsLocalMiddleware (context) {
-      const tags = buildTags(context)
+      const tags = buildEventTags(context)
 
-      const span = context.startSpan(`event '${context.eventName}'`, {
+      const span = context.startSpan(`event "${context.eventName}"`, {
         id: context.id,
         traceId: context.requestId,
         parentId: context.parentId,
@@ -67,7 +81,6 @@ const wrapTracingLocalEventMiddleware = function (handler, event) {
 
       return handler(context)
         .then(result => {
-          span.addTags(tags)
           span.finish()
           return result
         })

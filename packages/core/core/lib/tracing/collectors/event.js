@@ -13,7 +13,7 @@ const mergeDefaultOptions = (options) => {
 module.exports = (options) => (runtime, tracer) => {
   options = mergeDefaultOptions(options)
 
-  const exporter = createBaseTracingCollector(options)
+  const exporter = createBaseTracingCollector(runtime)
 
   exporter.init(runtime, tracer)
 
@@ -28,7 +28,7 @@ module.exports = (options) => (runtime, tracer) => {
         const newSpan = Object.assign({}, span)
 
         if (newSpan.error) {
-          newSpan.error = exporter.getErrorFields(newSpan.error)
+          newSpan.error = exporter.getErrorFields(newSpan.error, exporter.options.errors.fields)
         }
 
         return newSpan

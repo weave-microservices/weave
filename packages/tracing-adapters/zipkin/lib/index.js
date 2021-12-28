@@ -12,9 +12,21 @@ const mergeDefaultOptions = (options) => {
   }, options)
 }
 
+/**
+ * @typedef {Object} ZipkinCollectorOptions Zipkin collector options
+ * @property {string=} host Zipkin host
+ * @property {string=} endpoint Zipkin endpoint
+ * @property {number=} interval Push interval
+*/
+
+/**
+ * Create a Zipkin collector adapter instance.
+ * @param {ZipkinCollectorOptions} options Zipkin collector adapter options
+ * @returns {Object} Collector
+*/
 exports.createZipkinExporter = (options) =>
-  (runtime, tracer) => {
-    const exporter = createBaseTracingCollector(runtime, tracer)
+  (runtime) => {
+    const exporter = createBaseTracingCollector(runtime)
     const queue = []
 
     options = mergeDefaultOptions(options)
@@ -59,7 +71,7 @@ exports.createZipkinExporter = (options) =>
         }
 
         if (span.error) {
-          payload.tags.error = span.error.message
+          // payload.tags.error = span.error.message
           payload.annotations.push({
             value: 'error',
             endpoint: {
@@ -73,7 +85,8 @@ exports.createZipkinExporter = (options) =>
 
         Object.assign(
           payload.tags,
-          exporter.flattenTags(span.tags, true)
+          exporter.flattenTags(span.tags, true),
+          exporter.flattenTags(span.error ? { error: exporter.getErrorFields(span.error, exporter.options.errors.fields) } : {})
         )
 
         return payload

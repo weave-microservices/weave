@@ -158,10 +158,18 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2')
 
 /**
  * Configuration object for weave service broker.
+ * @typedef {Object} TracingErrorOptions
+ * @property {Array<string>} fields - Fields of errors, that should be included in spans.
+ * @property {Boolean} stackTrace - Include stacktrace in spans
+*/
+
+/**
+ * Configuration object for weave service broker.
  * @typedef {Object} TracingOptions
  * @property {Boolean} enabled - Enable tracing middleware. (default = false)
  * @property {Number} samplingRate - Rate of traced actions. (default = 1.0)
  * @property {Array<String|Object>} collectors - Array of tracing collectors.
+ * @property {TracingErrorOptions} errors - Settings for tracing errors.
 */
 
 /**

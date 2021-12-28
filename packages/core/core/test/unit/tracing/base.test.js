@@ -1,4 +1,5 @@
 const { createBaseTracingCollector } = require('../../../lib/tracing/collectors/base')
+const { createFakeRuntime } = require('../../helper/runtime')
 // const { createEndpoint } = require('../../lib/registry/endpoint')
 
 // const fakeAction = {
@@ -6,9 +7,11 @@ const { createBaseTracingCollector } = require('../../../lib/tracing/collectors/
 //   handler: () => {}
 // }
 
+const runtime = createFakeRuntime()
+
 describe('Test base tracing colletor factory.', () => {
   it('should define default .', () => {
-    const baseCollector = createBaseTracingCollector({ })
+    const baseCollector = createBaseTracingCollector(runtime)
 
     const flattened = baseCollector.flattenTags(null)
 
@@ -16,7 +19,7 @@ describe('Test base tracing colletor factory.', () => {
   })
 
   it('should define default .', () => {
-    const baseCollector = createBaseTracingCollector({ })
+    const baseCollector = createBaseTracingCollector(runtime)
 
     const flattened = baseCollector.flattenTags({
       nodeId: '123',
@@ -34,7 +37,7 @@ describe('Test base tracing colletor factory.', () => {
   })
 
   it('should flatten tags and convert to string .', () => {
-    const baseCollector = createBaseTracingCollector({ })
+    const baseCollector = createBaseTracingCollector(runtime)
 
     const flattened = baseCollector.flattenTags({
       nodeId: '123',
@@ -52,9 +55,9 @@ describe('Test base tracing colletor factory.', () => {
   })
 
   it('should flatten tags and convert to string .', () => {
-    const baseCollector = createBaseTracingCollector({ })
+    const baseCollector = createBaseTracingCollector(runtime)
 
-    const fields = baseCollector.getErrorFields(new Error('Something went wrong!'), 'message')
+    const fields = baseCollector.getErrorFields(new Error('Something went wrong!'), ['message'])
 
     expect(fields.message).toBe('Something went wrong!')
   })

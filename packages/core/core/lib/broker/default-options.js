@@ -61,7 +61,7 @@ exports.getDefaultOptions = () => {
       collectCommonMetrics: true,
       collectInterval: 5000,
       adapters: [],
-      defaultBuckets: [1, 5, 10, 20, 25, 30, 50, 100, 250, 500, 1000, 2500, 5000, 10000]
+      defaultBuckets: [1, 5, 10, 20, 25, 30, 40, 50, 100, 250, 500, 1000, 2500, 5000, 10000]
     },
     middlewares: null,
     logger: {
@@ -75,7 +75,19 @@ exports.getDefaultOptions = () => {
     tracing: {
       enabled: false,
       samplingRate: 1.0,
-      collectors: []
+      collectors: [],
+      actions: {
+        data: false,
+        tags: {}
+      },
+      events: {
+        data: false,
+        tags: {}
+      },
+      errors: {
+        fields: ['name', 'message', 'code', 'type', 'data'],
+        stackTrace: false
+      }
     },
     namespace: '',
     registry: {

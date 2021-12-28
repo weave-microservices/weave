@@ -9,6 +9,7 @@
  * @typedef {import('../types').Context} Context
  * @typedef {import('../types').Runtime} Runtime
  * @typedef {import('../types').ContextPromise} ContextPromise
+ * @typedef {import('../types').Endpoint} Endpoint
 */
 
 const { uuid, isFunction, isStream, isStreamObjectMode } = require('@weave-js/utils')
@@ -85,6 +86,15 @@ exports.createContext = (runtime) => {
       })
     },
     startSpan (name, options) {
+      options = Object.assign({
+        id: this.id,
+        traceId: this.requestId,
+        parentId: this.parentId,
+        type: 'action',
+        service: this.service,
+        sampled: this.tracing
+      }, options)
+
       if (this.span) {
         this.span = this.span.startChildSpan(name, options)
       } else {
@@ -92,7 +102,7 @@ exports.createContext = (runtime) => {
       }
       return this.span
     },
-    finishSpan () {
+    finishSpan (span) {
       if (this.span) {
         this.span.finish()
         return this.span
@@ -100,9 +110,10 @@ exports.createContext = (runtime) => {
     },
     /**
      * Copy the current context.
+     * @param {Endpoint=} endpoint Endpoint
      * @returns {Context} New copied context
     */
-    copy () {
+    copy (endpoint) {
       const contextCopy = exports.createContext(runtime)
 
       contextCopy.nodeId = this.nodeId
@@ -111,6 +122,8 @@ exports.createContext = (runtime) => {
       contextCopy.meta = this.meta
       contextCopy.parentContext = this.parentContext
       contextCopy.callerNodeId = this.callerNodeId
+      contextCopy.requestId = this.requestId
+      contextCopy.tracing = this.tracing
       contextCopy.level = this.level
       contextCopy.eventName = this.eventName
       contextCopy.eventType = this.eventType

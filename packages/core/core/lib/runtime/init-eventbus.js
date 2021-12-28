@@ -15,7 +15,11 @@ exports.initEventbus = (runtime) => {
       options = {}
     }
 
-    const promises = []
+    // Emit local events
+    if (/^\$/.test(eventName)) {
+      bus.emit(eventName, payload)
+    }
+
     // todo: create an event context object
     const context = contextFactory.create(null, payload, options)
 
@@ -23,18 +27,15 @@ exports.initEventbus = (runtime) => {
     context.eventName = eventName
     context.eventGroups = options.groups
 
-    // Emit local events
-    if (/^\$/.test(eventName)) {
-      bus.emit(eventName, payload)
-    }
-
     const endpoints = registry.eventCollection.getBalancedEndpoints(eventName, options.groups)
     const groupedEndpoints = {}
+    const promises = []
 
     endpoints.map(([endpoint, groupName]) => {
       if (endpoint) {
         if (endpoint.node.id === brokerOptions.nodeId) {
           // Local event. Call handler
+          context.setEndpoint(endpoint)
           promises.push(endpoint.action.handler(context))
         } else {
           const e = groupedEndpoints[endpoint.node.id]

@@ -1,14 +1,14 @@
-const { isObject } = require('@weave-js/utils')
+const { isObject, pick } = require('@weave-js/utils')
 const { WeaveError } = require('../../errors')
 
-exports.createBaseTracingCollector = (options) => {
+exports.createBaseTracingCollector = (runtime) => {
   const baseTracingCollector = Object.create(null)
 
-  baseTracingCollector.options = options
+  baseTracingCollector.options = runtime.tracer.options
 
-  baseTracingCollector.init = (runtime, tracer) => {
+  baseTracingCollector.init = (runtime) => {
     baseTracingCollector.runtime = runtime
-    baseTracingCollector.tracer = tracer
+    baseTracingCollector.tracer = runtime.tracer
   }
 
   baseTracingCollector.startedSpan = () => {
@@ -42,18 +42,11 @@ exports.createBaseTracingCollector = (options) => {
     }, {})
   }
 
-  baseTracingCollector.getErrorFields = (error, ...fields) => {
-    if (!error) {
+  baseTracingCollector.getErrorFields = (err, fields) => {
+    if (!err) {
       return null
     }
-
-    const picked = {}
-
-    for (const field of fields) {
-      picked[field] = error[field]
-    }
-
-    return picked
+    return pick(err, fields)
   }
 
   return baseTracingCollector

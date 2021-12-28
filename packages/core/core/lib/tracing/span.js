@@ -1,10 +1,17 @@
 const hrTime = require('./time')
 
+/**
+ * Create a span instance
+ * @param {import('../types').Tracer} tracer Tracer reference
+ * @param {string} name Name of the span
+ * @param {*} options Span options
+ * @returns {import('../types').Span} Span
+ */
 exports.createSpan = (tracer, name, options) => {
   const span = Object.assign({}, {
     name,
-    id: options.id || tracer.broker.getUUID(),
-    traceId: options.traceId || tracer.broker.getUUID(),
+    id: options.id || tracer.runtime.generateUUID(),
+    traceId: options.traceId || tracer.runtime.generateUUID(),
     parentId: options.parentId,
     type: options.type,
     sampled: options.sampled || tracer.shouldSample(),
@@ -12,10 +19,12 @@ exports.createSpan = (tracer, name, options) => {
     tags: {}
   })
 
-  span.service = {
-    name: options.service.name,
-    version: options.service.version,
-    fullyQualifiedName: options.service.fullyQualifiedName
+  if (options.service) {
+    span.service = {
+      name: options.service.name,
+      version: options.service.version,
+      fullyQualifiedName: options.service.fullyQualifiedName
+    }
   }
 
   span.addTags = (tags) => {

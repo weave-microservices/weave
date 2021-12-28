@@ -32,5 +32,6 @@ module.exports = {
   ...require('./timespan'),
   ...require('./uuid'),
   ...require('./wrap-handler'),
-  ...require('./wrap-in-array')
+  ...require('./wrap-in-array'),
+  ...require('./pick')
 }

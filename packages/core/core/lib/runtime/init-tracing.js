@@ -9,6 +9,8 @@ exports.initTracer = (runtime) => {
 
   Object.defineProperty(runtime, 'tracer', {
     value: {
+      runtime,
+      options,
       log,
       async stop () {
         if (collectors.length > 0) {
@@ -55,7 +57,6 @@ exports.initTracer = (runtime) => {
       collectors = options.collectors
         .map(entry => {
           const initCollector = resolveCollector(runtime, entry, this)
-          // collector.init(this)
           initCollector.init(runtime)
           return initCollector
         })
