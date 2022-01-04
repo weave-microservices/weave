@@ -110,10 +110,9 @@ exports.createContext = (runtime) => {
     },
     /**
      * Copy the current context.
-     * @param {Endpoint=} endpoint Endpoint
      * @returns {Context} New copied context
     */
-    copy (endpoint) {
+    copy () {
       const contextCopy = exports.createContext(runtime)
 
       contextCopy.nodeId = this.nodeId
