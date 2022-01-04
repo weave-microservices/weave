@@ -5,11 +5,10 @@
  */
 
 const { InboundTransformStream } = require('./InboundTransformStream')
-const { Transform } = require('stream')
 const { WeaveError, restoreError } = require('../errors')
 const { createContext } = require('../broker/context')
-const MessageTypes = require('./message-types')
 const { createMessage } = require('./createMessage')
+const MessageTypes = require('./message-types')
 
 /**
  * @typedef {import('../types').Transport} Transport

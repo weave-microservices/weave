@@ -116,4 +116,4 @@ Promise.all([
   broker2.start(),
   broker3.start()
 ])
-.then(() => repl(broker))
+  .then(() => repl(broker))

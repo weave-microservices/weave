@@ -6,6 +6,21 @@
 
 const EventEmitter = require('events').EventEmitter
 
+/**
+ * @typedef {Object} AdapterBase
+ * @property {string} name Name
+ * @property {EventEmitter} bus Event bus.
+ * @property {function():Promise<any>} afterInit After init callback.
+ * @property {boolean} isConnected Is connected state.
+ * @property {number} interruptCounter Interruption counter.
+ * @property {number} repeatAttemptCounter Repeat attempt counter
+ * @property {function(Object, Object, Object):Promise<any>} init Repeat attempt counter
+*/
+
+/**
+ * Create a adapter base object.
+ * @returns {AdapterBase} Adapter base object
+*/
 const createTransportBase = () => {
   let prefix = 'weave'
 

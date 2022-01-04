@@ -19,8 +19,8 @@ const { initTracer } = require('./runtime/init-tracing')
 const { initUUIDFactory } = require('./runtime/init-uuid-factory')
 const { version } = require('../package.json')
 const { errorHandler, fatalErrorHandler } = require('./error-handler')
-const EventEmitter = require('eventemitter2')
 const { uuid } = require('@weave-js/utils')
+const EventEmitter = require('eventemitter2')
 
 /**
  * Build runtime object
