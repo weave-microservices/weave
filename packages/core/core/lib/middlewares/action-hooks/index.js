@@ -107,15 +107,13 @@ const makeActionHookMiddleware = function (handler, action) {
         if (afterWildcardHook) {
           promise = promise.then(result => callHook(afterWildcardHook, action.service, context, result))
         }
-        
+
         // Error hooks
         // Error hook in action definition
         if (actionErrorHook) {
-          promise = promise.catch(error => {
-            callErrorHook(actionErrorHook, action.service, context, error)
-          })
+          promise = promise.catch(error => callErrorHook(actionErrorHook, action.service, context, error))
         }
-  
+
         // Error hook
         if (errorHook) {
           promise = promise.catch(error => callErrorHook(errorHook, action.service, context, error))
