@@ -17,10 +17,10 @@ const { initServiceManager } = require('./runtime/init-service-manager')
 const { initMetrics } = require('./runtime/init-metrics')
 const { initTracer } = require('./runtime/init-tracing')
 const { initUUIDFactory } = require('./runtime/init-uuid-factory')
-const { version } = require('../package.json')
 const { errorHandler, fatalErrorHandler } = require('./error-handler')
 const { uuid } = require('@weave-js/utils')
 const EventEmitter = require('eventemitter2')
+const { version } = require('../package.json')
 
 /**
  * Build runtime object

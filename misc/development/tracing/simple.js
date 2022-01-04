@@ -5,6 +5,9 @@ const { createZipkinExporter } = require('../../../packages/tracing-adapters/zip
 const app = createBroker({
   nodeId: 'trace',
   watchServices: true,
+  logger: {
+    enabled: false
+  },
   tracing: {
     enabled: true,
     collectors: [
@@ -36,11 +39,14 @@ app.createService({
       return 'text from test2'
     },
     async goodbye (context) {
-      const span = await context.startSpan('do some fancy stuff')
-      setTimeout(() => {
-        await context.finishSpan(span)
-      }, 2000)
-      return 'nothing'
+      // const span = await context.startSpan('do some fancy stuff')
+      return new Promise((resolve) => {
+        setTimeout(async () => {
+          // await context.finishSpan(span)
+          resolve('nothing')
+        }, 2000)
+      })
+
     },
     error (context) {
       throw new Error('hier ist was faul!!!!')
