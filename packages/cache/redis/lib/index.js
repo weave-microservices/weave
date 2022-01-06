@@ -53,7 +53,9 @@ const makeRedisCache = (broker, options = {}) => {
       } else {
         client.set(hashKey, data)
       }
+
       this.log.debug(`Set ${hashKey}`)
+
       return Promise.resolve(data)
     },
     get (cacheKey) {

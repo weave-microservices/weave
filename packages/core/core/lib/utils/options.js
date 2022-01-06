@@ -1,4 +1,3 @@
-
 const {
   clone,
   compact,
@@ -38,6 +37,7 @@ function mergeActions (source, targetSchema) {
   return targetSchema
 }
 
+// Merge events
 function mergeEvents (source, targetSchema) {
   Object.keys(source).map(key => {
     const sourceEvent = wrapHandler(source[key])
@@ -78,7 +78,7 @@ function mergeLifecicleHooks (source, targetSchema) {
   return compact(flatten([targetSchema, source]))
 }
 
-exports.mergeSchemas = (mixin, targetSchema) => {
+function mergeSchemas (mixin, targetSchema) {
   const mixinSchema = clone(mixin)
   const resultSchema = clone(targetSchema)
 
@@ -112,3 +112,5 @@ exports.mergeSchemas = (mixin, targetSchema) => {
 
   return mixinSchema
 }
+
+module.exports = { mergeSchemas }

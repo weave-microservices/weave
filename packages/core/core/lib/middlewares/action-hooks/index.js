@@ -48,7 +48,7 @@ const makeActionHookMiddleware = function (handler, action) {
   if (hooks || action.hooks) {
     // Wildcard hooks
     const beforeWildcardHook = hooks && hooks.before ? sanitizeHooks(hooks.before['*'], action.service) : null
-    const afterWildcardHook = hooks &&  hooks.after ? sanitizeHooks(hooks.after['*'], action.service) : null
+    const afterWildcardHook = hooks && hooks.after ? sanitizeHooks(hooks.after['*'], action.service) : null
     const errorWildcardHook = hooks && hooks.error ? sanitizeHooks(hooks.error['*'], action.service) : null
 
     // Action name-related hooks

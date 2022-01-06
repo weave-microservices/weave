@@ -133,7 +133,7 @@ exports.createServiceFromSchema = (runtime, schema) => {
           context = runtime.contextFactory.create(endpoint, data, options || {})
         }
 
-        return wrappedAction(context, { service, runtime, errors: {} })
+        return wrappedAction(context, { service, runtime, errors: {}})
       }
     })
   }

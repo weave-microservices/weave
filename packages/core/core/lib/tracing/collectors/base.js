@@ -1,5 +1,4 @@
 const { isObject, pick } = require('@weave-js/utils')
-const { WeaveError } = require('../../errors')
 
 exports.createBaseTracingCollector = (runtime) => {
   const baseTracingCollector = Object.create(null)

@@ -289,7 +289,7 @@ describe('Errors on service creation', () => {
   })
 })
 
-describe('Service action handler signature',() => {
+describe('Service action handler signature', () => {
   it('interface should equal', (done) => {
     const node1 = Weave({
       nodeId: 'node1',
@@ -301,7 +301,7 @@ describe('Service action handler signature',() => {
     node1.createService({
       name: 'service1',
       actions: {
-        action1:{
+        action1: {
           handler (context, service) {
             expect(service.errors).toBeDefined()
             expect(service.runtime).toBeDefined()

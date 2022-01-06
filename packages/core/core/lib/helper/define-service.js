@@ -1,3 +1,6 @@
+
+/* istanbul ignore next */
+
 /**
  * @typedef {import('../types.js').ServiceSchema} ServiceSchema
 */

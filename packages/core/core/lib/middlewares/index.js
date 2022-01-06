@@ -7,6 +7,7 @@
 module.exports = {
   ActionHooks: require('./action-hooks'),
   Bulkhead: require('./bulkhead'),
+  Cache: require('./cache'),
   CircuitBreaker: require('./circuit-breaker'),
   ErrorHandler: require('./error-handler'),
   Metrics: require('./metrics'),

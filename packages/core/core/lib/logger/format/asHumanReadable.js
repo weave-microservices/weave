@@ -1,4 +1,4 @@
-const { green, magenta, red, yellow, white, gray, cyan } = require('../utils/colorize')
+const { green, magenta, red, yellow, gray, cyan } = require('../utils/colorize')
 const os = require('os')
 
 exports.asHumanReadable = ({ levels, options }, originObj, message, number, time) => {

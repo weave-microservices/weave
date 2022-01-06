@@ -29,7 +29,10 @@ exports.getDefaultOptions = () => {
     cache: {
       enabled: false,
       adapter: 'memory',
-      ttl: 3000
+      ttl: 3000,
+      lock: {
+        enabled: false
+      }
     },
     circuitBreaker: {
       enabled: false,

@@ -37,14 +37,17 @@ exports.createBrokerInstance = (runtime) => {
   log.info(`Initializing #weave node version ${version}`)
   log.info(`Node Id: ${options.nodeId}`)
 
+  // Output namespace
   if (options.namespace) {
     log.info(`Namespace: ${options.namespace}`)
   }
 
+  // Metrics
   if (metrics) {
     metrics.init()
   }
 
+  // Cache
   if (cache) {
     cache.init()
   }
@@ -304,7 +307,7 @@ exports.createBrokerInstance = (runtime) => {
 
       // Cache
       if (runtime.cache) {
-        middlewareHandler.add(runtime.cache.middleware)
+        middlewareHandler.add(Middlewares.Cache)
       }
 
       // Context tracking

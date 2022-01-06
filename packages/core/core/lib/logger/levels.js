@@ -51,7 +51,7 @@ exports.mappings = (customLevels = null, useOnlyCustomLevels = false) => {
     customNums
   )
 
-  // Merge log levels with "silent" log level. 
+  // Merge log levels with "silent" log level.
   const values = Object.assign(
     Object.create(Object.prototype, { silent: { value: 0 }}),
     useOnlyCustomLevels ? null : levels,

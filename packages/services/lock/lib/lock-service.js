@@ -8,7 +8,7 @@ const { createLockStore } = require('@weave-js/lock-store')
 const { getHash } = require('../utils/getHash')
 
 const createLockService = (lockServiceOptions = {}) => {
-  lockServiceOptions = defaultsDeep(lockServiceOptions,{
+  lockServiceOptions = defaultsDeep(lockServiceOptions, {
     name: '$lock',
     lockStore: createLockStore('InMemory')
   })

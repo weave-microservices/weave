@@ -1,7 +1,6 @@
-const os = require('os')
 const { Weave } = require('../../lib/index')
 const lolex = require('@sinonjs/fake-timers')
-const pkg = require('../../package.json')
+
 describe('Test weave logger integration.', () => {
   let clock
   beforeAll(() => {

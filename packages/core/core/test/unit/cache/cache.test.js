@@ -1,5 +1,7 @@
 const { Weave } = require('../../../lib/index')
 const { createCacheBase } = require('../../../lib/cache/base')
+const cacheMiddleware = require('../../../lib/middlewares/cache')
+const { createFakeRuntime } = require('../../helper/runtime')
 
 // const SlowService = require('../../services/slow.service')
 
@@ -24,13 +26,7 @@ describe('Test cache hash creation', () => {
 })
 
 describe('Test cache middleware', () => {
-  const broker = Weave({
-    logger: {
-      enabled: false
-    }
-  })
   const handler = jest.fn(() => Promise.resolve('hooray!!!'))
-  const cacheBase = createCacheBase(broker, {})
   const service = {}
 
   it('should be defined', () => {
@@ -39,7 +35,7 @@ describe('Test cache middleware', () => {
       handler,
       service
     }
-    const middleware = cacheBase.middleware(handler, action)
+    const middleware = cacheMiddleware(handler, action)
     expect(middleware).toBeDefined()
   })
 
@@ -49,7 +45,9 @@ describe('Test cache middleware', () => {
       handler,
       service
     }
-    const newHandler = cacheBase.middleware().localAction(handler, action)
+    const runtime = createFakeRuntime()
+
+    const newHandler = cacheMiddleware(runtime).localAction(handler, action)
     expect(newHandler).toBe(handler)
   })
 
@@ -62,7 +60,7 @@ describe('Test cache middleware', () => {
       handler,
       service
     }
-    const newHandler = cacheBase.middleware(handler, action)
+    const newHandler = cacheMiddleware(handler, action)
     expect(newHandler).not.toBe(handler)
   })
 })

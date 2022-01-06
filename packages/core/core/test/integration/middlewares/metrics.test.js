@@ -1,6 +1,5 @@
 const { Weave, TransportAdapters } = require('../../../lib/index')
 const Constants = require('../../../lib/metrics/constants')
-const contextTracker = require('../../../lib/middlewares/context-tracker')
 describe('Metric middleware', () => {
   let broker
 

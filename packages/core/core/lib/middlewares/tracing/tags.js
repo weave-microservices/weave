@@ -6,7 +6,8 @@
 /**
  * Build span tags object
  * @param {Context} context - Context
- * @param {TracingOptions} tracingOptions - Tracing options
+ * @param {TracingOptions} brokerTracingOptions - Tracing options
+ * @param {TracingOptions} actionTracingOptions - Tracing options
  * @returns {object} Tags
 */
 module.exports.buildActionTags = (context, brokerTracingOptions, actionTracingOptions) => {
@@ -24,7 +25,8 @@ module.exports.buildActionTags = (context, brokerTracingOptions, actionTracingOp
 /**
  * Build span tags object
  * @param {Context} context - Context
- * @param {TracingOptions} tracingOptions - Tracing options
+ * @param {TracingOptions} brokerTracingOptions - Tracing options
+ * @param {TracingOptions} actionTracingOptions - Tracing options
  * @returns {object} Tags
 */
 module.exports.buildEventTags = (context, brokerTracingOptions, actionTracingOptions) => {

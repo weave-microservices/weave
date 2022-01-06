@@ -390,7 +390,7 @@ describe('Local service events', () => {
         }
       },
       started () {
-        this.events['test.event']({ name: 'Mike'})
+        this.events['test.event']({ name: 'Mike' })
         expect(fakeEvent).toHaveBeenCalledTimes(1)
         done()
       }

@@ -1,12 +1,5 @@
 const hrTime = require('./time')
 
-/**
- * Create a span instance
- * @param {import('../types').Tracer} tracer Tracer reference
- * @param {string} name Name of the span
- * @param {*} options Span options
- * @returns {import('../types').Span} Span
- */
 exports.createSpan = (tracer, name, options) => {
   const span = Object.assign({}, {
     name,

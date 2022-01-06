@@ -1,3 +1,5 @@
+/* istanbul ignore next */
+
 /**
  * @typedef {import('../types.js').ServiceActionDefinition} ServiceActionDefinition
 */

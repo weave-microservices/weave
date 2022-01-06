@@ -39,8 +39,8 @@ function registerCacheMetrics (metrics) {
 
 exports.createCacheBase = (runtime, options) => {
   const cache = {
+    isConnected: false,
     runtime,
-    options,
     options: Object.assign({
       ttl: null
     }, options),
@@ -107,36 +107,41 @@ exports.createCacheBase = (runtime, options) => {
     }
   }
 
-  cache.middleware = () => {
-    return {
-      localAction: (handler, action) => {
-        const cacheOptions = Object.assign({ enabled: true }, isObject(action.cache) ? action.cache : { enabled: !!action.cache })
-        if (cacheOptions.enabled) {
-          return function cacheMiddleware (context, serviceInjections) {
-            const cacheHashKey = cache.getCachingHash(action.name, context.data, context.meta, action.cache.keys)
-            context.isCachedResult = false
+  // cache.middleware = (runtime) => {
+  //   return {
+  //     localAction: (handler, action) => {
+  //       const cacheOptions = Object.assign({ enabled: true }, isObject(action.cache) ? action.cache : { enabled: !!action.cache })
+  //       if (cacheOptions.enabled) {
+  //         return function cacheMiddleware (context, serviceInjections) {
+  //           const cacheHashKey = runtime.cache.getCachingHash(action.name, context.data, context.meta, action.cache.keys)
+  //           context.isCachedResult = false
 
-            if (context.meta.$noCache === true) {
-              return handler(context, serviceInjections)
-            }
+  //           if (context.meta.$noCache === true) {
+  //             return handler(context, serviceInjections)
+  //           }
 
-            return cache.get(cacheHashKey).then((content) => {
-              if (content !== null) {
-                context.isCachedResult = true
-                return content
-              }
+  //           if (runtime.cache.isConnected === false) {
+  //             runtime.cache.log('Cache adapter is not connected yet. Call handler...')
+  //             return handler(context, serviceInjections)
+  //           }
 
-              return handler(context, serviceInjections).then((result) => {
-                cache.set(cacheHashKey, result, action.cache.ttl)
-                return result
-              })
-            })
-          }
-        }
-        return handler
-      }
-    }
-  }
+  //           return runtime.cache.get(cacheHashKey).then((cachedResult) => {
+  //             if (cachedResult !== null) {
+  //               context.isCachedResult = true
+  //               return cachedResult
+  //             }
+
+  //             return handler(context, serviceInjections).then((result) => {
+  //               runtime.cache.set(cacheHashKey, result, action.cache.ttl)
+  //               return result
+  //             })
+  //           })
+  //         }
+  //       }
+  //       return handler
+  //     }
+  //   }
+  // }
 
   return cache
 }
