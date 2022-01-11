@@ -1,6 +1,6 @@
 const net = require('net')
 const { EventEmitter } = require('events')
-const MessageTypes = require('../../message-types')
+const MessageTypes = require('../../messageTypes')
 const TCPMessageTypeHelper = require('./tcp-messagetypes')
 
 module.exports = (adapter, options) => {

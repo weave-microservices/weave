@@ -4,6 +4,6 @@
  * Copyright 2019 Fachwerk
  */
 
-exports.BaseAdapter = require('./adapter-base')
+exports.BaseAdapter = require('./adapteBase')
 exports.Dummy = require('./dummy')
 exports.TCP = require('./tcp')

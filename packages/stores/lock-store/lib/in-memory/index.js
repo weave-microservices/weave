@@ -1,4 +1,4 @@
-const createInMemoryStore = (options = {}) => {
+const createInMemoryLockStore = (options = {}) => {
   const database = {
     locks: []
   }
@@ -9,7 +9,7 @@ const createInMemoryStore = (options = {}) => {
     })
   }
 
-  const acquireLock = async (hash, expiresAt = Number.MAX_SAFE_INTEGER) => {
+  const acquire = async (hash, expiresAt = Number.MAX_SAFE_INTEGER) => {
     await removeExpiredLocks()
     const isLocked = database.locks.some(lock => {
       lock.value === hash
@@ -29,7 +29,7 @@ const createInMemoryStore = (options = {}) => {
     })
   }
 
-  const releaseLock = async (hash) => {
+  const release = async (hash) => {
     await removeExpiredLocks()
 
     const index = database.locks.findIndex(lock => {
@@ -50,7 +50,7 @@ const createInMemoryStore = (options = {}) => {
    * @param {number} expiresAt Expiring timestamp
    * @returns {Promise<void>} Result
    */
-  const renewLock = async (hash, expiresAt) => {
+  const renew = async (hash, expiresAt) => {
     await removeExpiredLocks()
 
     const existingLock = database.locks.find(lock => {
@@ -65,7 +65,7 @@ const createInMemoryStore = (options = {}) => {
     existingLock.expiresAt = expiresAt
   }
 
-  return { acquireLock, isLocked, renewLock, releaseLock }
+  return { acquire, isLocked, renew, release }
 }
 
-module.exports = { createInMemoryStore }
+module.exports = { createInMemoryLockStore }

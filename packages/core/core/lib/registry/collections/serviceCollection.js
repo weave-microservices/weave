@@ -13,7 +13,7 @@
 
 // const { createEndpointCollection } = require('./endpoint-collection')
 const { omit, remove } = require('@weave-js/utils')
-const { createServiceItem } = require('../service-item')
+const { createServiceItem } = require('../serviceItem')
 
 /**
  * Service collection factory

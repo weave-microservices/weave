@@ -21,11 +21,11 @@
 const { safeCopy } = require('@weave-js/utils')
 
 // own packages
-const { createNodeCollection } = require('./collections/node-collection')
-const { createServiceCollection } = require('./collections/service-collection')
-const { createActionCollection } = require('./collections/action-collection')
-const { createEventCollection } = require('./collections/event-collection')
-const { createActionEndpoint } = require('./action-endpoint')
+const { createNodeCollection } = require('./collections/nodeCollection')
+const { createServiceCollection } = require('./collections/serviceCollection')
+const { createActionCollection } = require('./collections/actionCollection')
+const { createEventCollection } = require('./collections/eventCollection')
+const { createActionEndpoint } = require('./actionEndpoint')
 const { createNode } = require('./node')
 const { WeaveServiceNotFoundError, WeaveServiceNotAvailableError } = require('../errors')
 

@@ -8,7 +8,7 @@ const { InboundTransformStream } = require('./InboundTransformStream')
 const { WeaveError, restoreError } = require('../errors')
 const { createContext } = require('../broker/context')
 const { createMessage } = require('./createMessage')
-const MessageTypes = require('./message-types')
+const MessageTypes = require('./messageTypes')
 
 /**
  * @typedef {import('../types').Transport} Transport

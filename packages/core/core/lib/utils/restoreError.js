@@ -1,4 +1,4 @@
-const errors = require('../new-errors')
+const errors = require('../errors')
 
 exports.restoreError = (error) => {
   const ErrorClass = errors[error.name]

@@ -4,9 +4,9 @@
  * @typedef {import('./types.js').Broker} Broker
 */
 
-const { getDefaultOptions } = require('./broker/default-options')
+const { getDefaultOptions } = require('./broker/defaultOptions')
 const { defaultsDeep } = require('@weave-js/utils')
-const { initRuntime } = require('./build-runtime')
+const { initRuntime } = require('./buildRuntime')
 const { createBrokerInstance } = require('./broker')
 
 /**
@@ -58,6 +58,6 @@ exports.createBaseTracingCollector = require('./tracing/collectors/base').create
 exports.TracingAdapters = require('./tracing/collectors')
 
 // Helper
-exports.defineBrokerOptions = require('./helper/define-broker-options')
-exports.defineService = require('./helper/define-service')
-exports.defineAction = require('./helper/define-action')
+exports.defineBrokerOptions = require('./helper/defineBrokerOptions')
+exports.defineService = require('./helper/defineService')
+exports.defineAction = require('./helper/defineAction')

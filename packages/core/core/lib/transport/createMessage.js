@@ -1,4 +1,4 @@
-const MessageTypes = require('./message-types')
+const MessageTypes = require('./messageTypes')
 
 const createMessage = (type, targetNodeId, payload) => {
   return {

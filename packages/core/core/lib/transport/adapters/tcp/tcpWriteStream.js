@@ -1,6 +1,6 @@
 
 const { Writable } = require('stream')
-const MessageTypes = require('../../message-types')
+const MessageTypes = require('../../messageTypes')
 const TCPMessageTypeHelper = require('./tcp-messagetypes')
 
 module.exports = class TCPWriteStream extends Writable {

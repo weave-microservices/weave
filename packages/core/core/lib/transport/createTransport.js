@@ -15,9 +15,9 @@
 // Own packages
 const { WeaveError, WeaveQueueSizeExceededError } = require('../errors')
 const { createMessage } = require('./createMessage')
-const MessageTypes = require('./message-types')
+const MessageTypes = require('./messageTypes')
 const utils = require('@weave-js/utils')
-const createMessageHandler = require('./message-handlers')
+const createMessageHandler = require('./messageHandlers')
 
 const errorPayloadFactory = (runtime) => (error) => {
   return {

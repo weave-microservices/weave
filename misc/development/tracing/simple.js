@@ -6,7 +6,7 @@ const app = createBroker({
   nodeId: 'trace',
   watchServices: true,
   logger: {
-    enabled: false
+    enabled: true
   },
   tracing: {
     enabled: true,

@@ -1,5 +1,5 @@
 const { Weave } = require('../../../lib/index')
-const CacheMemory = require('../../../lib/cache/in-memory')
+const CacheMemory = require('../../../lib/cache/inMemory')
 // const SlowService = require('../../services/slow.service')
 
 describe('Test IN-Memory cache initialization', () => {

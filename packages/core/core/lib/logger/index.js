@@ -18,7 +18,10 @@ const defaultOptions = {
   level: 'info',
   messageKey: 'message',
   customLevels: null,
-  base: { pid, hostname },
+  base: {
+    pid,
+    hostname
+  },
   hooks: {
     logMethod: undefined
   },

@@ -1,4 +1,4 @@
-const { initServiceManager } = require('../../../lib/runtime/init-service-manager')
+const { initServiceManager } = require('../../../lib/runtime/initServiceManager')
 const { createFakeRuntime } = require('../../helper/runtime')
 
 describe('Test service manager init.', () => {

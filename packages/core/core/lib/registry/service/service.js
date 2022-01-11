@@ -9,7 +9,7 @@ const { WeaveError } = require('../../errors')
 const { parseAction } = require('./parseAction')
 const { parseEvent } = require('./parseEvent')
 const { reduceMixins } = require('./reduceMixins')
-const { createEventEndpoint } = require('../event-endpoint')
+const { createEventEndpoint } = require('../eventEndpoint')
 /**
  * Service factory
  * @param {Runtime} runtime Broker instance

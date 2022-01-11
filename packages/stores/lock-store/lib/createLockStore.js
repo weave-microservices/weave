@@ -1,9 +1,9 @@
-const { createInMemoryStore } = require('./inMemory')
+const { createInMemoryLockStore } = require('./in-memory')
 
 const createLockStore = (type, options = {}) => {
   switch (type) {
   case 'InMemory': {
-    return createInMemoryStore(options)
+    return createInMemoryLockStore(options)
   }
   default: {
     throw new Error('Database type invalid.')

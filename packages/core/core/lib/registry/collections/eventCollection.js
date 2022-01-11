@@ -15,7 +15,7 @@
 */
 
 const { omit, match } = require('@weave-js/utils')
-const { createEndpointList } = require('./endpoint-collection')
+const { createEndpointList } = require('./endpointCollection')
 
 const broadcastEvents = ['broadcast', 'localBroadcast']
 /**

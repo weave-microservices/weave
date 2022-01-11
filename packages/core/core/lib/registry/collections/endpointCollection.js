@@ -14,7 +14,7 @@
  * @typedef {import('../../types.js').EndpointCollection} EndpointCollection
 */
 
-const { createActionEndpoint } = require('../action-endpoint')
+const { createActionEndpoint } = require('../actionEndpoint')
 const { loadBalancingStrategy } = require('../../constants')
 
 /**

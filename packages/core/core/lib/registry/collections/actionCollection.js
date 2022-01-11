@@ -11,7 +11,7 @@
  * @typedef {import('../../types.js').ServiceActionCollection} ServiceActionCollection
 */
 const { omit } = require('@weave-js/utils')
-const { createEndpointList } = require('./endpoint-collection')
+const { createEndpointList } = require('./endpointCollection')
 
 /**
  * Configuration object for weave service broker.

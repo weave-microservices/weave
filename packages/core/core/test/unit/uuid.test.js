@@ -1,5 +1,5 @@
 const { createFakeRuntime } = require('../helper/runtime')
-const { initUUIDFactory } = require('../../lib/runtime/init-uuid-factory')
+const { initUUIDFactory } = require('../../lib/runtime/initUuidFactory')
 
 const UUID_REGEX = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
 

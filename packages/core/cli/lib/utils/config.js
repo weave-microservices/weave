@@ -1,7 +1,7 @@
 const path = require('path')
 const fs = require('fs')
 const { isString, dotSet } = require('@weave-js/utils')
-const { getDefaultOptions } = require('@weave-js/core/lib/broker/default-options')
+const { getDefaultOptions } = require('@weave-js/core/lib/broker/defaultOptions')
 
 const defaultConfigFileName = 'weave.config.js'
 const defaultEnvPrefix = 'WV_'
