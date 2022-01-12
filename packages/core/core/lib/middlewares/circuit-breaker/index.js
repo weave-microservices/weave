@@ -81,7 +81,7 @@ module.exports = (runtime) => {
     log.debug(`Circuit breaker has been half opened for endpoint '${item.endpoint.name}'`)
   }
 
-  function closeCircuitBreaker (item, options) {
+  function closeCircuitBreaker (item) {
     item.failureCouter = 0
     item.callCounter = 0
     item.state = 'CIRCUIT_BREAKER_CLOSED'

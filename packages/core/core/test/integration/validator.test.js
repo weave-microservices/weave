@@ -119,7 +119,7 @@ describe('Validator strict mode', () => {
           params: {
             name: { type: 'string' }
           },
-          handler (context) {
+          handler () {
             // nothing to do
           }
         }

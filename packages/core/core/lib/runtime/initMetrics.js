@@ -142,7 +142,7 @@ exports.initMetrics = (runtime) => {
 
           return item
         },
-        list (options = {}) {
+        list (/* options = {} */) {
           const results = []
 
           this.storage.forEach(metric => {

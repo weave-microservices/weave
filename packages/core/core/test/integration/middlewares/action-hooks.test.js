@@ -44,11 +44,11 @@ describe('Action hooks', () => {
         params: {
           id: 'number'
         },
-        handler (context) {
+        handler () {
           return 'hello'
         }
       },
-      greet (context) {
+      greet () {
         return 'hello'
       },
       errorAction () {
@@ -70,7 +70,7 @@ describe('Action hooks', () => {
 
   it('should call a before wildcard hock.', (done) => {
     broker.call('greeter.sayHello', { id: 1 })
-      .then(res => {
+      .then(() => {
         expect(log).toBeCalledTimes(2)
         done()
       })
@@ -78,7 +78,7 @@ describe('Action hooks', () => {
 
   it('should call a before hock by action name.', (done) => {
     broker.call('greeter.sayHello', { id: 1 })
-      .then(res => {
+      .then(() => {
         expect(fetchName).toBeCalledTimes(2)
         done()
       })
@@ -86,7 +86,7 @@ describe('Action hooks', () => {
 
   it('should call a  hock by action name.', (done) => {
     broker.call('greeter.sayHello', { id: 1 })
-      .then(res => {
+      .then(() => {
         expect(method1).toBeCalledTimes(3)
         expect(method2).toBeCalledTimes(3)
         done()
@@ -95,7 +95,7 @@ describe('Action hooks', () => {
 
   it('should call a hook by string.', (done) => {
     broker.call('greeter.greet', { id: 1 })
-      .then(res => {
+      .then(() => {
         expect(afterGreet).toBeCalledTimes(1)
         done()
       })
@@ -178,7 +178,7 @@ describe('Action hooks in action definition', () => {
 
   it('should call a before hock in action definition.', (done) => {
     broker.call('greeter.sayHello', { id: 1 })
-      .then(res => {
+      .then(() => {
         expect(fetchName).toBeCalledTimes(1)
         done()
       })
@@ -186,7 +186,7 @@ describe('Action hooks in action definition', () => {
 
   it('should call a before hock by action name in action definition.', (done) => {
     broker.call('greeter.sayHello', { id: 1 })
-      .then(res => {
+      .then(() => {
         expect(fetchName).toBeCalledTimes(2)
         done()
       })
@@ -194,7 +194,7 @@ describe('Action hooks in action definition', () => {
 
   it('should call a hock by action name in action definition.', (done) => {
     broker.call('greeter.sayHello', { id: 1 })
-      .then(res => {
+      .then(() => {
         expect(method1).toBeCalledTimes(3)
         expect(method2).toBeCalledTimes(3)
         done()
@@ -203,7 +203,7 @@ describe('Action hooks in action definition', () => {
 
   it('should call a after-hook by string in action definition.', (done) => {
     broker.call('greeter.greet', { id: 1 })
-      .then(res => {
+      .then(() => {
         expect(afterGreet).toBeCalledTimes(3)
         done()
       })
