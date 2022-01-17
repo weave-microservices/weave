@@ -65,7 +65,7 @@ describe('Test retry middleware', () => {
 
     broker.call = jest.fn(() => Promise.resolve('next call'))
 
-    newHandler(context).then(result => {
+    newHandler(context).then(() => {
       expect(context.retryCount).toBe(1)
 
       expect(handler).toHaveBeenCalledTimes(1)

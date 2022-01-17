@@ -11,7 +11,7 @@ const getByName = name => {
   return collectors[n]
 }
 
-exports.resolveCollector = (runtime, collector, tracer) => {
+exports.resolveCollector = (runtime, collector) => {
   let CollectorClass
   if (typeof collector === 'string') {
     CollectorClass = getByName(collector)

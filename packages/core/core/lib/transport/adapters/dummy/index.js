@@ -18,7 +18,7 @@ const DummyTransportAdapter = (adapterOptions) => {
 
   return Object.assign(TransportBase(adapterOptions), {
     name: 'Dummy',
-    connect (isTryReconnect = false) {
+    connect () {
       this.bus.emit('$adapter.connected', false)
       this.log.info('Dummy transport client connected.')
       return Promise.resolve()

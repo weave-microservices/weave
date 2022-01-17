@@ -52,29 +52,43 @@ exports.format = (f, args, opts) => {
       case 79: // 'O'
       case 111: // 'o'
       case 106: // 'j'
-        if (a >= argumentLength) { break }
-        if (lastPos < i) { str += f.slice(lastPos, i) }
-        if (args[a] === undefined) break
+        if (a >= argumentLength) {
+          break
+        }
+
+        if (lastPos < i) {
+          str += f.slice(lastPos, i)
+        }
+
+        if (args[a] === undefined) {
+          break
+        }
+
         const type = typeof args[a]
+
         if (type === 'string') {
           str += '\'' + args[a] + '\''
           lastPos = i + 2
           i++
           break
         }
+
         if (type === 'function') {
           str += args[a].name || '<anonymous>'
           lastPos = i + 2
           i++
           break
         }
+
         str += ss(args[a])
         lastPos = i + 2
         i++
         break
       case 115: // 's'
         if (a >= argumentLength) { break }
-        if (lastPos < i) { str += f.slice(lastPos, i) }
+        if (lastPos < i) {
+          str += f.slice(lastPos, i)
+        }
         str += String(args[a])
         lastPos = i + 2
         i++

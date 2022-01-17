@@ -3,7 +3,7 @@ const { EventEmitter } = require('events')
 const MessageTypes = require('../../messageTypes')
 const TCPMessageTypeHelper = require('./tcp-messagetypes')
 
-module.exports = (adapter, options) => {
+module.exports = (adapter) => {
   const self = Object.assign({}, EventEmitter.prototype)
   const sockets = new Map()
   const messageTypeHelper = TCPMessageTypeHelper(MessageTypes)

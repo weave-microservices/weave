@@ -1,4 +1,3 @@
-const { Weave } = require('../../../lib/index')
 const utils = require('@weave-js/utils')
 const Middleware = require('../../../lib/middlewares/bulkhead')
 const { createNode } = require('../../helper')

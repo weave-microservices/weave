@@ -44,7 +44,7 @@ describe('Test circuit breaker', () => {
         }
       },
       ugly () {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
           setTimeout(() => {
             return resolve('OK')
           }, 2000)

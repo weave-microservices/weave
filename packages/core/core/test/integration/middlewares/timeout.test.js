@@ -52,7 +52,7 @@ describe('Timeout middleware', () => {
 
   it('should throw an timeout after for distributed action calls', (done) => {
     broker.call('test-service.act1')
-      .then(result => {
+      .then(() => {
         done()
       })
       .catch(error => {

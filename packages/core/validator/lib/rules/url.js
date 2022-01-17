@@ -1,6 +1,6 @@
 const PATTERN = /^https?:\/\/\S+/
 
-module.exports = function checkUrl ({ schema, messages }) {
+module.exports = function checkUrl ({ messages }) {
   const code = []
 
   code.push(`

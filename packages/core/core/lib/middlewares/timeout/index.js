@@ -7,7 +7,7 @@
 const { promiseTimeout } = require('@weave-js/utils')
 const { WeaveRequestTimeoutError } = require('../../errors')
 
-const wrapTimeoutMiddleware = function (handler, action) {
+const wrapTimeoutMiddleware = function (handler) {
   const self = this
   const registryOptions = self.options.registry || {}
 

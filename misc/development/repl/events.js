@@ -27,7 +27,7 @@ broker.createService({
   name: 'test1',
   actions: {
     hello: {
-      handler (context) {
+      handler () {
         return {
           name: 'Kevin'
         }

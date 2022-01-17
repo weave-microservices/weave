@@ -1,4 +1,4 @@
-module.exports = function checkNumber ({ schema, messages }, path, context) {
+module.exports = function checkNumber ({ schema, messages }) {
   const code = []
   let sanitized = false
 

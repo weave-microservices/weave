@@ -95,7 +95,7 @@ const wrapTracingLocalEventMiddleware = function (handler, event) {
   return handler
 }
 
-module.exports = (broker) => {
+module.exports = () => {
   return {
     localAction: wrapTracingLocalActionMiddleware,
     localEvent: wrapTracingLocalEventMiddleware
