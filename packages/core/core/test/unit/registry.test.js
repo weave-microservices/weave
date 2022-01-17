@@ -1,6 +1,7 @@
-const { Weave, Errors } = require('../../lib/index')
+const { Errors } = require('../../lib/index')
 const { createNode } = require('../../lib/registry/node')
 const { createRegistry } = require('../../lib/registry/registry')
+const { createNode: createBroker } = require('../helper')
 
 const brokerSettings = {
   logger: {
@@ -9,7 +10,7 @@ const brokerSettings = {
 }
 
 describe('Test Registry instance', () => {
-  const broker = Weave(brokerSettings)
+  const broker = createBroker(brokerSettings)
 
   it('test registry properties', () => {
     const middlewareHandler = jest.fn()
@@ -40,7 +41,7 @@ describe('Test Registry instance', () => {
 })
 
 describe('Test "registerLocalService"', () => {
-  const broker = Weave(brokerSettings)
+  const broker = createBroker(brokerSettings)
   const registry = broker.registry
 
   registry.serviceCollection.has = jest.fn()
@@ -72,7 +73,7 @@ describe('Test "registerLocalService"', () => {
 })
 
 describe('Test "registerRemoteServices"', () => {
-  const broker = Weave(brokerSettings)
+  const broker = createBroker(brokerSettings)
   const registry = broker.registry
   const nodes = createNode('test-node')
 
@@ -205,7 +206,7 @@ describe('Test "registerRemoteServices"', () => {
 })
 
 describe('Test "getNextAvailableActionEndpoint"', () => {
-  const broker = Weave(brokerSettings)
+  const broker = createBroker(brokerSettings)
   const registry = broker.registry
 
   it('should return the endpoint if the actionName is not a string', () => {

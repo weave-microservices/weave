@@ -1,5 +1,5 @@
-const { Weave } = require('../../lib/index')
 const lolex = require('@sinonjs/fake-timers')
+const { createNode } = require('../helper')
 
 describe('Test weave logger integration.', () => {
   let clock
@@ -12,7 +12,7 @@ describe('Test weave logger integration.', () => {
   })
 
   it('should provide default log methods.', () => {
-    const broker = Weave({
+    const broker = createNode({
       logger: {
         enabled: false,
         level: 'fatal'
@@ -26,37 +26,25 @@ describe('Test weave logger integration.', () => {
     expect(broker.log.warn).toBeDefined()
   })
 
-  // it('should log fatal errors', () => {
-  //   const consoleSpy = jest.spyOn(process.stdout, 'write').mockImplementation(() => {})
-
-  //   const broker = Weave({
-  //     logger: {
-  //       enabled: true,
-  //       level: 'fatal'
-  //     }
-  //   })
-  //   consoleSpy
-  //   broker.log.fatal(new Error('Wrong'))
-  // })
-
-  it('should log with prefix and suffix', (done) => {
-    const doneHookFn = jest.fn()
-    const broker = Weave({
+  it('should log with prefix and suffix', () => {
+    const doneHookFn = jest.fn((args, method) => {
+      return method(...args)
+    })
+    const broker = createNode({
       nodeId: 'node1',
       logger: {
+        enabled: true,
         level: 'fatal',
-        types: {
-          info: {
-            done: doneHookFn
-          }
+        hooks: {
+          logMethod: doneHookFn
         }
       }
     })
 
-    broker.start()
+    return broker.start()
       .then(() => {
-        broker.log.info({ prefix: 'TEST', message: 'Hello' })
-        done()
+        broker.log.fatal({ prefix: 'TEST', message: 'Hello' })
+        expect(doneHookFn).toBeCalledTimes(1)
       })
       .then(() => clock.uninstall())
       .then(() => broker.stop())
@@ -76,7 +64,7 @@ describe('Test weave logger integration.', () => {
 //   it('should log through console trans', () => {
 //     const consoleSpy = jest.spyOn(process.stdout, 'write').mockImplementation(() => {})
 
-//     Weave({
+//     createNode({
 //       nodeId: 'loggerNode',
 //       logger: {
 //         base: {

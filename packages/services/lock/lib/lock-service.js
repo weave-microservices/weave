@@ -28,7 +28,7 @@ const createLockService = (lockServiceOptions = {}) => {
           }
 
           const hash = getHash(value)
-          await this.store.acquireLock(hash, expiresAt)
+          await this.store.acquire(hash, expiresAt)
         }
       },
       isLocked: {
@@ -52,7 +52,7 @@ const createLockService = (lockServiceOptions = {}) => {
             throw new Error('A lock must not expire in the past.')
           }
           const hash = getHash(value)
-          return this.store.renewLock(hash, expiresAt)
+          return this.store.renew(hash, expiresAt)
         }
       },
       releaseLock: {
@@ -62,7 +62,7 @@ const createLockService = (lockServiceOptions = {}) => {
         handler (context) {
           const { value } = context.data
           const hash = getHash(value)
-          return this.store.releaseLock(hash)
+          return this.store.release(hash)
         }
       }
     },

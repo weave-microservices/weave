@@ -3,6 +3,12 @@
  * -----
  * Copyright 2021 Fachwerk
  */
+const {
+  CIRCUIT_CLOSED,
+  CIRCUIT_HALF_OPENED,
+  CIRCUIT_HALF_OPEN_WAITING,
+  CIRCUIT_OPENED
+} = require('../../constants').circuitBreakerStates
 
 module.exports = (runtime) => {
   const storage = new Map()
@@ -15,7 +21,7 @@ module.exports = (runtime) => {
   }
 
   function clearEndpointStore () {
-    storage.forEach(item => {
+    storage.forEach((item) => {
       if (item.callCounter === 0) {
         storage.delete(item.name)
         return
@@ -34,7 +40,7 @@ module.exports = (runtime) => {
         options,
         callCounter: 0,
         failureCouter: 0,
-        state: 'CIRCUIT_BREAKER_CLOSED',
+        state: CIRCUIT_CLOSED,
         circuitBreakerTimer: null
       }
       storage.set(endpoint.name, item)
@@ -43,17 +49,17 @@ module.exports = (runtime) => {
     return item
   }
 
-  function success (item, options) {
+  function onSuccess (item, options) {
     item.callCounter++
 
-    if (item.state === 'CIRCUIT_BREAKER_HALF_OPENED') {
-      closeCircuitBreaker(item, options)
+    if (item.state === CIRCUIT_HALF_OPENED) {
+      closeCircuitBreaker(item)
     } else {
       checkThreshold(item, options)
     }
   }
 
-  function failure (item, error, options) {
+  function onFailure (item, options) {
     item.callCounter++
     item.failureCouter++
 
@@ -67,24 +73,36 @@ module.exports = (runtime) => {
   }
 
   function openCircuitBreaker (item) {
-    item.state = 'CIRCUIT_BREAKER_OPEN'
+    item.state = CIRCUIT_OPENED
     item.endpoint.state = false
     item.circuitBreakerTimer = setTimeout(() => halfOpenCircuitBreaker(item), item.options.halfOpenTimeout)
-
+    item.circuitBreakerTimer.unref()
     log.debug(`Circuit breaker has been opened for endpoint '${item.endpoint.name}'`)
   }
 
   function halfOpenCircuitBreaker (item) {
-    item.state = 'CIRCUIT_BREAKER_HALF_OPEN'
+    item.state = CIRCUIT_HALF_OPENED
     item.endpoint.state = true
 
     log.debug(`Circuit breaker has been half opened for endpoint '${item.endpoint.name}'`)
+
+    if (item.circuitBreakerTimer) {
+      clearTimeout(item.circuitBreakerTimer)
+      item.circuitBreakerTimer = null
+    }
+  }
+
+  function handleHalfOpen (item, context) {
+    item.state = CIRCUIT_HALF_OPEN_WAITING
+    item.endpoint.state = false
+    item.circuitBreakerTimer = setTimeout(() => halfOpenCircuitBreaker(item), item.options.halfOpenTimeout)
+    item.circuitBreakerTimer.unref()
   }
 
   function closeCircuitBreaker (item) {
     item.failureCouter = 0
     item.callCounter = 0
-    item.state = 'CIRCUIT_BREAKER_CLOSED'
+    item.state = CIRCUIT_CLOSED
     item.endpoint.state = true
 
     if (item.circuitBreakerTimer) {
@@ -103,15 +121,22 @@ module.exports = (runtime) => {
         const endpoint = context.endpoint
         const item = getEndpointState(endpoint, options)
 
+        // handle half open states
+        if (item.state === CIRCUIT_HALF_OPENED) {
+          handleHalfOpen(item, context)
+        }
+
         return handler(context, serviceInjections)
           .then(result => {
             const item = getEndpointState(endpoint, options)
-            success(item, options)
+            onSuccess(item, options)
 
             return result
           })
           .catch(error => {
-            failure(item, error, options)
+            if (item && (!error.nodeId || error.nodeId === context.nodeId)) {
+              onFailure(item, options)
+            }
 
             return Promise.reject(error)
           })

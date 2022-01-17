@@ -1,4 +1,4 @@
-const { Weave } = require('../../lib/index')
+const { createNode } = require('../helper')
 
 const isContext = () => {
   return true
@@ -58,42 +58,38 @@ const OtherService = {
 
 const createNodes = (ns) => {
   const settings = {
-    logger: {
-      enabled: false,
-      level: 'fatal'
-    },
     transport: {
       adapter: 'dummy'
     }
   }
 
-  const mainNode = Weave(Object.assign({ namespace: ns, nodeId: 'master' }, settings))
+  const mainNode = createNode(Object.assign({ namespace: ns, nodeId: 'master' }, settings))
   mainNode.createService(Object.assign({}, OtherService))
   mainNode.createService(Object.assign({}, OtherService, { name: 'other2' }))
 
-  const userNode1 = Weave(Object.assign({ namespace: ns, nodeId: 'user-1' }, settings))
+  const userNode1 = createNode(Object.assign({ namespace: ns, nodeId: 'user-1' }, settings))
   userNode1.createService(Object.assign({}, UserService))
   userNode1.bus.on('$local.user.event', () => flow.push('userNode1-on-$local.user.event'))
 
-  const userNode2 = Weave(Object.assign({ namespace: ns, nodeId: 'user-2' }, settings))
+  const userNode2 = createNode(Object.assign({ namespace: ns, nodeId: 'user-2' }, settings))
   userNode2.createService(Object.assign({}, UserService))
 
-  const userNode3 = Weave(Object.assign({ namespace: ns, nodeId: 'user-3' }, settings))
+  const userNode3 = createNode(Object.assign({ namespace: ns, nodeId: 'user-3' }, settings))
   userNode3.createService(Object.assign({}, UserService))
 
-  const paymentNode1 = Weave(Object.assign({ namespace: ns, nodeId: 'payment-1' }, settings))
+  const paymentNode1 = createNode(Object.assign({ namespace: ns, nodeId: 'payment-1' }, settings))
   paymentNode1.createService(Object.assign({}, PaymentService))
 
-  const paymentNode2 = Weave(Object.assign({ namespace: ns, nodeId: 'payment-2' }, settings))
+  const paymentNode2 = createNode(Object.assign({ namespace: ns, nodeId: 'payment-2' }, settings))
   paymentNode2.createService(Object.assign({}, PaymentService))
 
-  const paymentNode3 = Weave(Object.assign({ namespace: ns, nodeId: 'payment-3' }, settings))
+  const paymentNode3 = createNode(Object.assign({ namespace: ns, nodeId: 'payment-3' }, settings))
   paymentNode3.createService(Object.assign({}, PaymentService))
 
-  const notificationNode1 = Weave(Object.assign({ namespace: ns, nodeId: 'notification-1' }, settings))
+  const notificationNode1 = createNode(Object.assign({ namespace: ns, nodeId: 'notification-1' }, settings))
   notificationNode1.createService(Object.assign({}, NotificationService))
 
-  const notificationNode2 = Weave(Object.assign({ namespace: ns, nodeId: 'notification-2' }, settings))
+  const notificationNode2 = createNode(Object.assign({ namespace: ns, nodeId: 'notification-2' }, settings))
   notificationNode2.createService(Object.assign({}, NotificationService))
 
   return [
@@ -247,14 +243,14 @@ describe('Remote events', () => {
   const testEventS2 = jest.fn()
 
   beforeEach(async () => {
-    broker1 = Weave({
+    broker1 = createNode({
       nodeId: 'node1' + process.pid,
       transport: {
         adapter: 'dummy'
       }
     })
 
-    broker2 = Weave({
+    broker2 = createNode({
       nodeId: 'node2' + process.pid,
       transport: {
         adapter: 'dummy'
@@ -296,14 +292,14 @@ describe('Remote events', () => {
 describe('Event context', () => {
   const fakeEvent = jest.fn(context => context)
 
-  const node1 = Weave({
+  const node1 = createNode({
     nodeId: 'test-event-context1',
     transport: {
       adapter: 'dummy'
     }
   })
 
-  const node2 = Weave({
+  const node2 = createNode({
     nodeId: 'test-event-context2',
     transport: {
       adapter: 'dummy'
@@ -331,14 +327,14 @@ describe('Event context', () => {
 describe('Event parameter validation', () => {
   const fakeEvent = jest.fn(context => context)
 
-  const node1 = Weave({
+  const node1 = createNode({
     nodeId: 'test-event-validation',
     transport: {
       adapter: 'dummy'
     }
   })
 
-  const node2 = Weave({
+  const node2 = createNode({
     nodeId: 'test-event-validation2',
     transport: {
       adapter: 'dummy'
@@ -369,7 +365,7 @@ describe('Event parameter validation', () => {
 })
 
 describe('Local service events', () => {
-  const node1 = Weave({
+  const node1 = createNode({
     nodeId: 'test-event-validation'
   })
 
@@ -399,7 +395,7 @@ describe('Local service events', () => {
 })
 
 describe('Event acknowledgement', () => {
-  const node1 = Weave({
+  const node1 = createNode({
     nodeId: 'test-event-validation'
   })
 

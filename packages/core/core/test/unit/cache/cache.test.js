@@ -1,12 +1,12 @@
-const { Weave } = require('../../../lib/index')
 const { createCacheBase } = require('../../../lib/cache/base')
 const cacheMiddleware = require('../../../lib/middlewares/cache')
 const { createFakeRuntime } = require('../../helper/runtime')
+const { createNode } = require('../../helper')
 
 // const SlowService = require('../../services/slow.service')
 
 describe('Test cache hash creation', () => {
-  const broker = Weave({
+  const broker = createNode({
     logger: {
       enabled: false
     }

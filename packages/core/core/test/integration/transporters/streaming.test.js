@@ -1,10 +1,10 @@
-const { Weave } = require('../../../lib/index')
 const { isStream } = require('@weave-js/utils')
 const { Readable, Writable } = require('stream')
+const { createNode } = require('../../helper')
 
 describe('Streaming', () => {
   it('should return a requested stream', done => {
-    const broker1 = Weave({
+    const broker1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false,
@@ -15,7 +15,7 @@ describe('Streaming', () => {
       }
     })
 
-    const broker2 = Weave({
+    const broker2 = createNode({
       nodeId: 'node2',
       logger: {
         enabled: false,
@@ -58,7 +58,7 @@ describe('Streaming', () => {
   })
 
   it('should return a requested stream', done => {
-    const broker1 = Weave({
+    const broker1 = createNode({
       nodeId: 'node4',
       logger: {
         enabled: false,
@@ -69,7 +69,7 @@ describe('Streaming', () => {
       }
     })
 
-    const broker2 = Weave({
+    const broker2 = createNode({
       nodeId: 'node5',
       logger: {
         enabled: false,

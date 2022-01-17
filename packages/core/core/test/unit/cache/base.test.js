@@ -1,5 +1,5 @@
-const { Weave } = require('../../../lib/index')
 const { createCacheBase } = require('../../../lib/cache/base')
+const { createNode } = require('../../helper')
 
 const config = {
   logger: {
@@ -9,7 +9,7 @@ const config = {
 
 describe('Test base cache factory', () => {
   it('constructor.', () => {
-    const broker = Weave(config)
+    const broker = createNode(config)
     const baseCache = createCacheBase(broker)
 
     expect(baseCache.log).toBeDefined()
@@ -21,14 +21,14 @@ describe('Test base cache factory', () => {
   })
 
   it('Options.', () => {
-    const broker = Weave(config)
+    const broker = createNode(config)
     const baseCache = createCacheBase(broker)
 
     expect(baseCache.options.ttl).toBe(null)
   })
 
   it('Not implemented methods.', () => {
-    const broker = Weave(config)
+    const broker = createNode(config)
     const baseCache = createCacheBase(broker)
 
     try {
@@ -57,7 +57,7 @@ describe('Test base cache factory', () => {
   })
 
   it('schould generate a caching hash.', () => {
-    const broker = Weave(config)
+    const broker = createNode(config)
     const baseCache = createCacheBase(broker)
 
     const hash = baseCache.getCachingHash('test.action', { name: 'Kevin' })
@@ -65,7 +65,7 @@ describe('Test base cache factory', () => {
   })
 
   it('schould generate a caching hash (with 1 key)', () => {
-    const broker = Weave(config)
+    const broker = createNode(config)
     const baseCache = createCacheBase(broker)
 
     const hash = baseCache.getCachingHash('test.action', { name: 'Kevin', age: 19 }, null, ['name'])
@@ -73,7 +73,7 @@ describe('Test base cache factory', () => {
   })
 
   it('schould generate a caching hash (with 1 key)', () => {
-    const broker = Weave(config)
+    const broker = createNode(config)
     const baseCache = createCacheBase(broker)
 
     const hash = baseCache.getCachingHash('test.action', { name: 'Kevin', age: 19, hobbies: ['coding', 'gym', 'swimming'], height: null }, null, ['name', 'age', 'hobbies', 'height'])

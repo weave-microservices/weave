@@ -1,4 +1,5 @@
 const { Weave, TransportAdapters } = require('../../lib/index')
+const { createNode } = require('../helper')
 
 describe('Middleware hooks', () => {
   it('should call hooks in the right order', (done) => {
@@ -19,7 +20,7 @@ describe('Middleware hooks', () => {
       }
     }
 
-    const broker = Weave({
+    const broker = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -92,7 +93,7 @@ describe('Middleware hooks', () => {
       }
     }
 
-    const broker = Weave({
+    const broker = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -131,7 +132,7 @@ describe('Middleware hooks', () => {
       }
     }
 
-    const broker = Weave({
+    const broker = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false,
@@ -169,7 +170,7 @@ describe('Middleware hooks', () => {
       }
     }
 
-    const broker1 = Weave({
+    const broker1 = createNode({
       nodeId: 'node1',
       transport: {
         adapter: TransportAdapters.Dummy()
@@ -180,7 +181,7 @@ describe('Middleware hooks', () => {
       middlewares: [middleware]
     })
 
-    const broker2 = Weave({
+    const broker2 = createNode({
       nodeId: 'node2',
       transport: {
         adapter: TransportAdapters.Dummy()
@@ -221,7 +222,7 @@ describe('Middleware hooks', () => {
       }
     }
 
-    const broker1 = Weave({
+    const broker1 = createNode({
       nodeId: 'node1',
 
       logger: {
@@ -248,7 +249,7 @@ describe('Service creating hook', () => {
       }
     }
 
-    const broker = Weave({
+    const broker = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false

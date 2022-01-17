@@ -1,10 +1,12 @@
-const { Weave, TransportAdapters } = require('../../../lib/index')
+const { TransportAdapters } = require('../../../lib/index')
 const Constants = require('../../../lib/metrics/constants')
+const { createNode } = require('../../helper')
+
 describe('Metric middleware', () => {
   let broker
 
   beforeEach(() => {
-    broker = Weave({
+    broker = createNode({
       nodeId: 'node-metrics',
       logger: {
         enabled: false
@@ -74,7 +76,7 @@ describe('Metric middleware [cache]', () => {
   let broker
 
   beforeEach(() => {
-    broker = Weave({
+    broker = createNode({
       nodeId: 'node-metrics',
       logger: {
         enabled: false
@@ -132,7 +134,7 @@ describe('Metric middleware between remote nodes', () => {
   let broker2
 
   beforeEach(() => {
-    broker1 = Weave({
+    broker1 = createNode({
       nodeId: 'node-metrics-1',
       logger: {
         enabled: false
@@ -145,7 +147,7 @@ describe('Metric middleware between remote nodes', () => {
       }
     })
 
-    broker2 = Weave({
+    broker2 = createNode({
       nodeId: 'node-metrics-2',
       logger: {
         enabled: false

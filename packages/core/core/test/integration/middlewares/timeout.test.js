@@ -1,11 +1,11 @@
-// @ts-nocheck
-const { Weave } = require('../../../lib/index')
+const { createNode } = require("../../helper")
 
+// @ts-nocheck
 describe('Timeout middleware', () => {
   let broker
 
   beforeEach(() => {
-    broker = Weave({
+    broker = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false

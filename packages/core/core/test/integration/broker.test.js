@@ -1,17 +1,17 @@
-const { Weave } = require('../../lib/index')
 const { Readable } = require('stream')
+const { createNode } = require('../helper')
 
 describe('Test broker lifecycle', () => {
   it('should create a broker and call the started/stopped hook.', (done) => {
     const startedHook = jest.fn()
     const stoppedHook = jest.fn()
 
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node-lifecycle1',
-      logger: {
-        enabled: false,
-        level: 'fatal'
-      },
+      // logger: {
+      //   enabled: false,
+      //   level: 'fatal'
+      // },
       started: startedHook,
       stopped: stoppedHook
     })
@@ -29,7 +29,7 @@ describe('Test broker lifecycle', () => {
 
 describe('Test broker call service', () => {
   it('should call a service.', (done) => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node-call1',
       logger: {
         enabled: false,
@@ -55,7 +55,7 @@ describe('Test broker call service', () => {
   })
 
   it('should call a service action and return a value.', (done) => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node-call21',
       logger: {
         enabled: false
@@ -83,7 +83,7 @@ describe('Test broker call service', () => {
 
 describe('Test broker call error handling', () => {
   it('should call a service action and be rejected with an error.', (done) => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node1-call',
       logger: {
         enabled: false
@@ -109,7 +109,7 @@ describe('Test broker call error handling', () => {
   })
 
   it('should call a service action and be rejected with an error from a sub action.', (done) => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node-call3',
       logger: {
         enabled: false
@@ -156,7 +156,7 @@ describe('Test broker call error handling', () => {
 
 describe('Ping', () => {
   it('should result an empty array if the transporter is not connected.', done => {
-    const broker = Weave({
+    const broker = createNode({
       nodeId: 'node-ping1',
       logger: {
         enabled: false
@@ -171,7 +171,7 @@ describe('Ping', () => {
       })
   })
   it('should return an empty object if no nodes are connected.', done => {
-    const broker = Weave({
+    const broker = createNode({
       nodeId: 'node-ping2',
       logger: {
         enabled: false
@@ -191,7 +191,7 @@ describe('Ping', () => {
   })
 
   it('should return results of all connected nodes.', done => {
-    const broker1 = Weave({
+    const broker1 = createNode({
       nodeId: 'node-ping3',
       logger: {
         enabled: false
@@ -201,7 +201,7 @@ describe('Ping', () => {
       }
     })
 
-    const broker2 = Weave({
+    const broker2 = createNode({
       nodeId: 'node-ping4',
       logger: {
         enabled: false
@@ -230,7 +230,7 @@ describe('Ping', () => {
   })
 
   it('should throw a timeout error if a node not responding.', done => {
-    const broker1 = Weave({
+    const broker1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false,
@@ -241,7 +241,7 @@ describe('Ping', () => {
       }
     })
 
-    const broker2 = Weave({
+    const broker2 = createNode({
       nodeId: 'node2',
       logger: {
         enabled: false,
@@ -268,7 +268,7 @@ describe('Ping', () => {
   })
 
   it('should return result of a given nodeId.', done => {
-    const broker1 = Weave({
+    const broker1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false,
@@ -279,7 +279,7 @@ describe('Ping', () => {
       }
     })
 
-    const broker2 = Weave({
+    const broker2 = createNode({
       nodeId: 'node2',
       logger: {
         enabled: false,
@@ -307,7 +307,7 @@ describe('Ping', () => {
       })
   })
   it('should return results of all connected nodes.', (done) => {
-    const broker1 = Weave({
+    const broker1 = createNode({
       nodeId: 'node-ping41',
       logger: {
         enabled: false,
@@ -318,7 +318,7 @@ describe('Ping', () => {
       }
     })
 
-    const broker2 = Weave({
+    const broker2 = createNode({
       nodeId: 'node-ping42',
       logger: {
         enabled: false,
@@ -352,7 +352,7 @@ describe('Test broker error handling', () => {
   let broker
 
   beforeEach(d => {
-    broker = Weave({
+    broker = createNode({
       nodeId: 'node1',
       logger: {
         enabled: true,
@@ -379,7 +379,7 @@ describe('Test broker error handling', () => {
 })
 
 describe('Test broker context chaining', () => {
-  const broker = Weave({
+  const broker = createNode({
     nodeId: 'node1',
     logger: {
       enabled: false,
@@ -426,7 +426,7 @@ describe('Test broker context chaining', () => {
 })
 
 describe('Test maxCallLevel', () => {
-  const broker = Weave({
+  const broker = createNode({
     nodeId: 'node1',
     logger: {
       enabled: false,
@@ -475,7 +475,7 @@ describe('Test maxCallLevel', () => {
 describe('Error handler', () => {
   const errorHandler = jest.fn()
 
-  const broker = Weave({
+  const broker = createNode({
     nodeId: 'node1',
     errorHandler: errorHandler
   })
@@ -504,7 +504,7 @@ describe('Error handler', () => {
 })
 
 describe('Error handler', () => {
-  const broker = Weave({
+  const broker = createNode({
     nodeId: 'node1',
     logger: {
       enabled: false
@@ -531,7 +531,7 @@ describe('Error handler', () => {
 })
 
 describe('Streaming (lokal)', () => {
-  const broker = Weave({
+  const broker = createNode({
     nodeId: 'node-local-streaming',
     logger: {
       enabled: false
@@ -629,7 +629,7 @@ describe('Streaming (lokal)', () => {
 // })
 
 describe('Streaming (remote)', () => {
-  const broker1 = Weave({
+  const broker1 = createNode({
     nodeId: 'node1-remote-streaming',
     transport: {
       adapter: 'dummy'
@@ -639,7 +639,7 @@ describe('Streaming (remote)', () => {
     }
   })
 
-  const broker2 = Weave({
+  const broker2 = createNode({
     nodeId: 'node2-remote-streaming',
     transport: {
       adapter: 'dummy'

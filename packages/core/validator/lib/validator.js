@@ -1,5 +1,37 @@
 const defaultMessages = require('./messages')
+/**
+ * @typedef {Object} ValidationOptions Validation options
+ * @property {boolean} [strict] Enables strict mode.
+ * @property {'remove'|'error'} [strictMode] Set strict mode.
+ * @property {boolean} [root=false] Validate a root value.
+ */
+/**
+ * Compile a schema to validation function.
+ * @param {any} schema Validation schema
+ * @param {ValidationOptions} [options] Validation options
+ * @returns {ValidationFunction} Validation function
+*/
 
+/**
+ * ModelValidator
+ * @typedef {Object} ModelValidator
+ * @property {function(any, ValidationOptions):ValidationFunction} compile Compile validation schema and return an validation function.
+ * @property {function(any, object):void} validate Validate
+ * @property {function(string, function):void} addRule Add custom validation rule
+ *
+ * @returns
+ */
+
+/**
+ * @callback ValidationFunction
+ * @property {any} Validation object
+ * @returns {boolean|Array<Object>}
+ */
+
+/**
+ * Create model validator
+ * @returns {ModelValidator} Model validator
+*/
 function ModelValidator () {
   const messages = defaultMessages
   const cache = new Map()
@@ -41,10 +73,12 @@ function ModelValidator () {
         error.passed = passed
       }
 
+      // Error object to string
       const str = Object.keys(error)
         .map(key => `${key}: ${error[key]}`)
         .join(', ')
 
+      // Push error object content to errors
       return `errors.push({ ${str} })`
     },
     getRuleFromSchema (schema) {
@@ -115,7 +149,8 @@ function ModelValidator () {
     compile (schema, options = {}) {
       options = Object.assign({
         strict: true,
-        strictMode: 'remove'
+        strictMode: 'remove',
+        root: false
       }, options)
 
       if (typeof schema !== 'object') {
@@ -124,6 +159,7 @@ function ModelValidator () {
 
       const self = this
 
+      // define
       const context = {
         index: 0,
         rules: [],
@@ -142,6 +178,7 @@ function ModelValidator () {
 
       // prepare schema
       if (options.root !== true) {
+        // Root validator is an array (Multiple types)
         if (Array.isArray(schema)) {
           const rule = internal.getRuleFromSchema(schema)
           schema = rule.schema
@@ -156,21 +193,21 @@ function ModelValidator () {
       }
 
       const rule = internal.getRuleFromSchema(schema)
-      code.push(internal.compileRule(rule, context, null, 'context.func[##INDEX##](value, field, null, errors, context)', 'value'))
 
+      code.push(internal.compileRule(rule, context, null, 'context.func[##INDEX##](value, field, null, errors, context)', 'value'))
       code.push('if (errors.length) {')
       code.push(`
-                return errors.map(error => {
-                    if (error.message) {
-                        error.message = error.message
-                            .replace(/\\{param\\}/g, error.field || '')
-                            .replace(/\\{expected\\}/g, error.expected != null ? error.expected : '')
-                            .replace(/\\{passed\\}/g, error.passed != null ? error.passed : '')
-                    }
+        return errors.map(error => {
+          if (error.message) {
+            error.message = error.message
+              .replace(/\\{param\\}/g, error.field || '')
+              .replace(/\\{expected\\}/g, error.expected != null ? error.expected : '')
+              .replace(/\\{passed\\}/g, error.passed != null ? error.passed : '')
+          }
 
-                    return error
-                })
-            `)
+          return error
+        })
+      `)
       code.push('}')
       code.push('return true')
 
@@ -219,14 +256,14 @@ function ModelValidator () {
   return {
     compile: internal.compile,
     validate (obj, schema) {
-      const check = this.compile(schema)
+      const check = internal.compile(schema)
       return check(obj)
     },
-    addRule (type, ruleFn) {
+    addRule (typeName, ruleFn) {
       if (typeof ruleFn !== 'function') {
         throw new Error('Rule must be a function.')
       }
-      rules[type] = ruleFn
+      rules[typeName] = ruleFn
     }
   }
 }

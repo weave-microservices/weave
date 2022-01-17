@@ -84,7 +84,13 @@ module.exports = function checkString ({ schema, messages }) {
   }
 
   // if (schema.contains != null && value.indexOf(schema.contains) === -1) {
-  //     return this.makeError('stringContains', schema.contains, value)
+  //   code.push(`
+  //     if (value !== '${schema.equal}') {
+  //       ${this.makeErrorCode({ type: 'stringEqual', passed: 'value', expected: `"${schema.equal}"`, messages })}
+  //       return value
+  //     }
+  //   `)
+  //   return this.makeError('stringContains', schema.contains, value)
   // }
 
   code.push(`

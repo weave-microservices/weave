@@ -370,7 +370,7 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2')
  * @property {string} adapterName adapterName
  * @property {function():Promise<any>} connect connect
  * @property {function():Promise<any>} disconnect disconnect
- * @property {function():void} setReady setReady
+ * @property {function():Promise<any>} setReady setReady
  * @property {function(TransportMessage):Promise<any>} send send
  * @property {any} sendNodeInfo sendNodeInfo
  * @property {function():Promise<any>} sendPing sendPing

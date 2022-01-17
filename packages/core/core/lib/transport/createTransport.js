@@ -18,18 +18,7 @@ const { createMessage } = require('./createMessage')
 const MessageTypes = require('./messageTypes')
 const utils = require('@weave-js/utils')
 const createMessageHandler = require('./messageHandlers')
-
-const errorPayloadFactory = (runtime) => (error) => {
-  return {
-    name: error.name,
-    message: error.message,
-    nodeId: error.nodeId || runtime.nodeId,
-    code: error.code,
-    type: error.type,
-    stack: error.stack,
-    data: error.data
-  }
-}
+const { errorPayloadFactory } = require('./errorPayloadFactory')
 
 /**
  * Create a Transport adapter
@@ -39,15 +28,14 @@ const errorPayloadFactory = (runtime) => (error) => {
 */
 exports.createTransport = (runtime, adapter) => {
   const transport = Object.create(null)
-  const { nodeId, middlewareHandler } = runtime
+  const { nodeId, middlewareHandler, createLogger } = runtime
 
   let heartbeatTimer
   let checkNodesTimer
   let checkOfflineNodesTimer
   let updateLocalNodeTimer
 
-  const log = runtime.createLogger('TRANSPORT')
-
+  // Pending action store
   const pending = {
     requests: new Map(),
     requestStreams: new Map(),
@@ -56,9 +44,7 @@ exports.createTransport = (runtime, adapter) => {
     outboundRequestStreams: new Map()
   }
 
-  // Outgoing request
-
-  transport.log = runtime.createLogger('TRANSPORT')
+  transport.log = createLogger('TRANSPORT')
   transport.isConnected = false
   transport.isDisconnecting = false
   transport.isReady = false
@@ -116,7 +102,7 @@ exports.createTransport = (runtime, adapter) => {
     transport.isConnected = false
     transport.isReady = false
 
-    runtime.eventBus.broadcastLocal('$transporter.disconnected', { isGracefull: true })
+    runtime.eventBus.broadcastLocal('$transporter.disconnected', { isGraceful: true })
 
     stopTimers()
 
@@ -130,10 +116,10 @@ exports.createTransport = (runtime, adapter) => {
       })
   }
 
-  transport.setReady = () => {
+  transport.setReady = async () => {
     if (transport.isConnected) {
       transport.isReady = true
-      transport.sendNodeInfo()
+      await transport.sendNodeInfo()
     }
   }
 
@@ -142,16 +128,18 @@ exports.createTransport = (runtime, adapter) => {
    * @param {*} sender sender node ID.
    * @returns {Promise} Promise
   */
-  transport.sendNodeInfo = (sender) => {
+  transport.sendNodeInfo = async (sender) => {
     if (!transport.isConnected || !transport.isReady) {
       return Promise.resolve()
     }
 
+    // Collect own node info and send it to remote nodes
     const info = runtime.registry.getLocalNodeInfo()
     const message = createMessage(MessageTypes.MESSAGE_INFO, sender, {
       ...info,
       instanceId: runtime.state.instanceId
     })
+
     return transport.send(message)
   }
 
@@ -160,9 +148,9 @@ exports.createTransport = (runtime, adapter) => {
   * @param {TransportMessage} message Message to send
   * @returns {Promise} Promise
   */
-  transport.send = (message) => {
+  transport.send = async (message) => {
     transport.statistics.sent.packages = transport.statistics.sent.packages + 1
-    log.verbose(`Send ${message.type.toUpperCase()} packet to ${message.targetNodeId || 'all nodes'}`)
+    transport.log.verbose(`Send ${message.type.toUpperCase()} packet to ${message.targetNodeId || 'all nodes'}`)
     return adapter.preSend(message)
   }
 
@@ -185,7 +173,7 @@ exports.createTransport = (runtime, adapter) => {
    * @param{string} target - Target node ID
    * @returns {Promise<void>} - Promise
   */
-  transport.discoverNode = (target) => {
+  transport.discoverNode = async (target) => {
     const discoveryMessage = createMessage(MessageTypes.MESSAGE_DISCOVERY, target)
     return transport.send(discoveryMessage)
   }
@@ -195,7 +183,7 @@ exports.createTransport = (runtime, adapter) => {
    * @param {Context} context - Context
    * @returns {Promise<void>} - Promise
    */
-  transport.sendEvent = (context) => {
+  transport.sendEvent = async (context) => {
     const isBroadcast = context.eventType === 'broadcast'
 
     const payload = {
@@ -215,7 +203,7 @@ exports.createTransport = (runtime, adapter) => {
   }
 
   transport.sendBroadcastEvent = (nodeId, eventName, data, groups) => {
-    log.verbose(`Send ${eventName} to ${nodeId}`)
+    transport.log.verbose(`Send ${eventName} to ${nodeId}`)
 
     const payload = {
       data,
@@ -237,7 +225,7 @@ exports.createTransport = (runtime, adapter) => {
   }
 
   transport.removePendingRequestsByNodeId = (nodeId) => {
-    log.debug(`Remove pending requests for node ${nodeId}.`)
+    transport.log.debug(`Remove pending requests for node ${nodeId}.`)
     pending.requests.forEach((request, requestId) => {
       if (request.nodeId === nodeId) {
         pending.requests.delete(requestId)
@@ -272,7 +260,7 @@ exports.createTransport = (runtime, adapter) => {
         isStream
       }
 
-      log.debug(`Send request for ${request.action} to node ${request.targetNodeId}.`)
+      transport.log.debug(`Send request for ${request.action} to node ${request.targetNodeId}.`)
 
       pending.requests.set(context.id, request)
 
@@ -623,7 +611,7 @@ exports.createTransport = (runtime, adapter) => {
     const node = runtime.registry.nodeCollection.localNode
     node.updateLocalInfo()
 
-    log.verbose(`Send heartbeat from ${node.id}`)
+    transport.log.verbose(`Send heartbeat from ${node.id}`)
 
     const payload = {
       cpu: node.cpu,

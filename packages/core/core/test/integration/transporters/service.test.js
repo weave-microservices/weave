@@ -1,9 +1,10 @@
-const { Weave, Errors } = require('../../../lib/index')
+const { Errors } = require('../../../lib/index')
+const { createNode } = require('../../helper')
 const LocalService = require('../../services/local.service')
 
 describe('Connected services', () => {
   it('should return results of all connected nodes.', done => {
-    const broker1 = Weave({
+    const broker1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false,
@@ -14,7 +15,7 @@ describe('Connected services', () => {
       }
     })
 
-    const broker2 = Weave({
+    const broker2 = createNode({
       nodeId: 'node2',
       logger: {
         enabled: false,

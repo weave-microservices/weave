@@ -356,9 +356,9 @@ exports.createRegistry = (runtime) => {
       }
 
       // todo: Handle multiple nodes with the same ID.
-      const updateNesesary = node.update(payload, isReconnected)
+      const updateNecessary = node.update(payload, isReconnected)
 
-      if (updateNesesary && node.services) {
+      if (updateNecessary && node.services) {
         this.registerRemoteServices(node, node.services)
       }
 

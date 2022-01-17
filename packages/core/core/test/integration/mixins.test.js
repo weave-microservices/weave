@@ -1,11 +1,11 @@
-const { Weave } = require('../../lib/index')
 const ServiceHookMixin = require('./mixins/service-hook.mixin')
 const hasServiceScope = require('./scope-checks/service.scope')
 const nested1 = require('./mixins/nested1.mixin')
+const { createNode } = require('../helper')
 
 describe('Service lifetime hooks within mixins', () => {
   it('should call lifecycle hook "created" with correct scope if there are nested hooks from a mixin.', done => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -24,11 +24,8 @@ describe('Service lifetime hooks within mixins', () => {
   })
 
   it('should call lifecycle hook "started" with correct scope if there are nested hooks from a mixin.', done => {
-    const node1 = Weave({
-      nodeId: 'node1',
-      logger: {
-        enabled: true
-      }
+    const node1 = createNode({
+      nodeId: 'node1'
     })
 
     node1.createService({
@@ -43,7 +40,7 @@ describe('Service lifetime hooks within mixins', () => {
   })
 
   it('should call lifecycle hook "stopped" with correct scope if there are nested hooks from a mixin.', done => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -64,7 +61,7 @@ describe('Service lifetime hooks within mixins', () => {
 
 describe('Service lifetime hooks error handling', () => {
   it('should throw a error from a mixed started hook.', async () => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -83,7 +80,7 @@ describe('Service lifetime hooks error handling', () => {
   })
 
   it('should throw a error from a mixed stopped hook.', async () => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -104,7 +101,7 @@ describe('Service lifetime hooks error handling', () => {
   })
 
   it('should mix in nested mixins.', async () => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false

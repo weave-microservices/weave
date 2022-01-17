@@ -1,4 +1,4 @@
-const { Weave } = require('../../../lib/index')
+const { createNode } = require('../../helper')
 
 describe('Action hooks', () => {
   const fetchName = jest.fn()
@@ -10,7 +10,7 @@ describe('Action hooks', () => {
   const errorHook = jest.fn((_, error) => Promise.reject(error))
   const wildcardErrorHook = jest.fn((_, error) => Promise.reject(error))
 
-  const broker = Weave({
+  const broker = createNode({
     nodeId: 'test-node',
     logger: {
       enabled: false,
@@ -120,7 +120,7 @@ describe('Action hooks in action definition', () => {
   const afterGreet = jest.fn()
   const errorHook = jest.fn((_, error) => Promise.reject(error))
 
-  const broker = Weave({
+  const broker = createNode({
     nodeId: 'action-hook-node',
     logger: {
       enabled: false,

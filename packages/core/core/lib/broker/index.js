@@ -132,6 +132,7 @@ exports.createBrokerInstance = (runtime) => {
 
       runtime.state.isStarted = true
       eventBus.broadcastLocal('$broker.started')
+      // refresh local node information
       registry.generateLocalNodeInfo(true)
 
       // If transport is used, we set the transport ready to inform the other nodes

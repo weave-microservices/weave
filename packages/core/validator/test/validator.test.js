@@ -1,6 +1,27 @@
 const ModelValidator = require('../lib/validator')
 
 describe('Validator test', () => {
+  it('should throw an error if the schema is no object', () => {
+    const schema = 'string'
+    const validator = ModelValidator()
+
+    const compileValidationSchema = () => {
+      validator.compile(schema)
+    }
+
+    expect(compileValidationSchema).toThrowError('Invalid Schema.')
+  })
+
+  it('should throw an error on invalid custom validators', () => {
+    const validator = ModelValidator()
+
+    const addRule = () => {
+      validator.addRule('has', {})
+    }
+
+    expect(addRule).toThrowError(new Error('Rule must be a function.'))
+  })
+
   it('should call custom validator', () => {
     const schema = {
       id: { type: 'has' }
@@ -90,6 +111,50 @@ describe('Validator test', () => {
   })
 })
 
+describe('Multiple type validation', () => {
+  it('should validate mutliple types per property.', () => {
+    const schema = {
+      name: [
+        { type: 'string' },
+        { type: 'number' }
+      ]
+    }
+
+    const validator = ModelValidator()
+    const validate = validator.compile(schema)
+    const res1 = validate({ name: 'kevin'})
+    expect(res1).toBe(true)
+    const res2 = validate({ name: 123})
+    expect(res2).toBe(true)
+
+    const res3 = validate({ name: { text: 'kevin'}})
+
+    expect(Array.isArray(res3)).toBe(true)
+    expect(res3[0]).toEqual({
+      field: 'name',
+      message: 'The parameter "name" have to be a string.',
+      passed: { text: 'kevin' },
+      type: 'string'
+    })
+    expect(res3[1]).toEqual({
+      field: 'name',
+      message: 'The parameter "name" have to be a number.',
+      passed: { text: 'kevin' },
+      type: 'number'
+    })
+  })
+
+  it('should validate root string value', () => {
+    const schema = { type: 'number' }
+
+    const parameters = 5
+    const validator = ModelValidator()
+    const validate = validator.compile(schema, { root: true })
+    const res = validate(parameters)
+    expect(res).toBe(true)
+  })
+})
+
 describe('Root property validation', () => {
   it('should validate root string value', () => {
     const schema = { type: 'string' }
@@ -101,7 +166,7 @@ describe('Root property validation', () => {
     expect(res).toBe(true)
   })
 
-  it('should validate root string value', () => {
+  it('should validate root number value', () => {
     const schema = { type: 'number' }
 
     const parameters = 5
@@ -109,5 +174,111 @@ describe('Root property validation', () => {
     const validate = validator.compile(schema, { root: true })
     const res = validate(parameters)
     expect(res).toBe(true)
+  })
+})
+
+describe('Valdiate with strict mode', () => {
+  it('should remove undefined properties (simple)', () => {
+    const schema = {
+      name: { type: 'string' },
+      age: { type: 'number' }
+    }
+
+    const parameters = {
+      name: 'kevin',
+      age: 53,
+      group: 'admin'
+    }
+    const validator = ModelValidator()
+    const validate = validator.compile(schema, {
+      strict: true,
+      strictMode: 'remove'
+    })
+    const res = validate(parameters)
+    expect(res).toBe(true)
+    expect(parameters).toEqual({
+      name: 'kevin',
+      age: 53
+    })
+  })
+
+  it('should remove undefined properties (nested)', () => {
+    const schema = {
+      name: { type: 'string' },
+      age: { type: 'number' },
+      items: { type: 'array', itemType: { type: 'object', props: {
+        title: 'string'
+      }}}
+    }
+
+    const parameters = {
+      name: 'kevin',
+      age: 53,
+      group: 'admin',
+      items: [{
+        title: 'New task',
+        date: new Date()
+      }]
+    }
+    const validator = ModelValidator()
+    const validate = validator.compile(schema, {
+      strict: true,
+      strictMode: 'remove'
+    })
+    const res = validate(parameters)
+    expect(res).toBe(true)
+    expect(parameters).toEqual({
+      name: 'kevin',
+      age: 53,
+      items: [
+        {
+          title: 'New task'
+        }
+      ]
+    })
+  })
+
+  it('should throw error on undefined properties (nested)', () => {
+    const schema = {
+      name: { type: 'string' },
+      age: { type: 'number' },
+      items: { type: 'array', itemType: { type: 'object', props: {
+        title: 'string'
+      }}}
+    }
+
+    const parameters = {
+      name: 'kevin',
+      age: 53,
+      group: 'admin',
+      items: [{
+        title: 'New task',
+        date: new Date()
+      }]
+    }
+
+    const validator = ModelValidator()
+    const validate = validator.compile(schema, {
+      strict: true,
+      strictMode: 'error'
+    })
+
+    const res = validate(parameters)
+
+    expect(res[0]).toEqual({
+      expected: 'title',
+      field: 'items[0]',
+      message: 'The object "items[0]" contains forbidden keys: "date".',
+      passed: 'date',
+      type: 'objectStrict'
+    })
+
+    expect(res[1]).toEqual({
+      expected: 'name, age, items',
+      field: '$root',
+      message: 'The object "$root" contains forbidden keys: "group".',
+      passed: 'group',
+      type: 'objectStrict'
+    })
   })
 })

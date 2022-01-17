@@ -1,9 +1,10 @@
 
 const { Weave } = require('../../../lib/index')
+const { createNode } = require('../../helper')
 
 describe('Test context tracking', () => {
   it('should gracefully shutdown all services ()', async () => {
-    const broker = Weave({
+    const broker = createNode({
       contextTracking: {
         enabled: true
       }
@@ -27,7 +28,7 @@ describe('Test context tracking', () => {
   })
 
   it('should throw an error if one or more services can`t stopped gracefully.', async () => {
-    const broker = Weave({
+    const broker = createNode({
       contextTracking: {
         enabled: true,
         shutdownTimeout: 1000

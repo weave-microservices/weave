@@ -1,6 +1,6 @@
-const { Weave } = require('../../../lib/index')
 const Middleware = require('../../../lib/middlewares/retry')
 const { WeaveRetrieableError } = require('../../../lib/errors')
+const { createNode } = require('../../helper')
 
 const config = {
   logger: {
@@ -10,7 +10,7 @@ const config = {
 // const SlowService = require('../../services/slow.service')
 
 describe('Test retry middleware', () => {
-  const broker = Weave(config)
+  const broker = createNode(config)
   const contextFactory = broker.runtime.contextFactory
   const handler = jest.fn(() => Promise.resolve('hooray!!!'))
   const middleware = Middleware()

@@ -11,6 +11,13 @@ exports.loadBalancingStrategy = {
   RANDOM: 'random'
 }
 
+exports.circuitBreakerStates = {
+  CIRCUIT_CLOSED: 'closed',
+  CIRCUIT_HALF_OPENED: 'half_opened',
+  CIRCUIT_HALF_OPEN_WAITING: 'half_open_waiting',
+  CIRCUIT_OPENED: 'opened'
+}
+
 exports.level = {
   trace: 'trace',
   debug: 'debug',

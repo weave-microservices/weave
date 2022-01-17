@@ -1,8 +1,9 @@
 const { Weave } = require('../../lib/index')
+const { createNode } = require('../helper')
 
 describe('Test param validator', () => {
   it('should fail with error and validation data.', (done) => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -34,7 +35,7 @@ describe('Test param validator', () => {
   })
 
   it('should fail with error and validation data.', (done) => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -68,7 +69,7 @@ describe('Test param validator', () => {
 
 describe('Validator strict mode', () => {
   it('should remove invalid params on strict mode "remove" (global)', (done) => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node_strict',
       logger: {
         enabled: false
@@ -101,7 +102,7 @@ describe('Validator strict mode', () => {
   })
 
   it('should throw an error if ther are invalid params on strict mode "error" (global)', (done) => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node_strict',
       logger: {
         enabled: false
@@ -147,7 +148,7 @@ describe('Validator strict mode', () => {
 
 describe('Response validator', () => {
   it('Should validate responses (fails)', (done) => {
-    const broker1 = Weave({
+    const broker1 = createNode({
       nodeId: 'node_strict',
       logger: {
         enabled: false

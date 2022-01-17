@@ -1,9 +1,9 @@
 const { createHistogram } = require('../../../../lib/metrics/types/histogram')
-const { Weave } = require('../../../../lib')
+const { createNode } = require('../../../helper')
 
 describe('Test Histogram', () => {
   it('should generate a histogram', () => {
-    const broker = Weave({
+    const broker = createNode({
       logger: {
         enabled: false
       },

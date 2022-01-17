@@ -1,5 +1,5 @@
-const { Weave } = require('../../../lib/index')
 const FakeTimers = require('@sinonjs/fake-timers')
+const { createNode } = require('../../helper')
 
 describe('Cache system', () => {
   let clock
@@ -7,7 +7,7 @@ describe('Cache system', () => {
   beforeEach(() => {
     clock = FakeTimers.install()
 
-    node1 = Weave({
+    node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -102,7 +102,7 @@ describe('Cache system with cache lock', () => {
   beforeEach(() => {
     clock = FakeTimers.install()
 
-    node1 = Weave({
+    node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false

@@ -1,10 +1,10 @@
-const { Weave } = require('../../../lib/index')
 const CacheMemory = require('../../../lib/cache/inMemory')
+const { createNode } = require('../../helper')
 // const SlowService = require('../../services/slow.service')
 
 describe('Test IN-Memory cache initialization', () => {
   it('should create with default options.', () => {
-    const broker = Weave({
+    const broker = createNode({
       logger: {
         enabled: false
       }
@@ -17,7 +17,7 @@ describe('Test IN-Memory cache initialization', () => {
 
   it('should create with options.', () => {
     const options = { ttl: 4000 }
-    const broker = Weave({
+    const broker = createNode({
       logger: {
         enabled: false
       }
@@ -30,7 +30,7 @@ describe('Test IN-Memory cache initialization', () => {
 
   it('should create with options.', () => {
     const options = { ttl: 4000 }
-    const broker = Weave({
+    const broker = createNode({
       logger: {
         enabled: false
       }
@@ -44,7 +44,7 @@ describe('Test IN-Memory cache initialization', () => {
 
 describe('Test IN-Memory message flow', () => {
   it('should call "clear" after a new node is connected.', () => {
-    const broker = Weave({
+    const broker = createNode({
       logger: {
         enabled: false
       }
@@ -60,7 +60,7 @@ describe('Test IN-Memory message flow', () => {
 })
 
 describe('Test usage (without TTL)', () => {
-  const broker = Weave({
+  const broker = createNode({
     logger: {
       enabled: false
     }
@@ -116,7 +116,7 @@ describe('Test usage (without TTL)', () => {
 })
 
 // describe('Test usage with TTL', () => {
-//     const broker = Weave()
+//     const broker = createNode()
 //     const options = { ttl: 3000 }
 //     const cache = CacheMemory(broker)
 //     cache.init()

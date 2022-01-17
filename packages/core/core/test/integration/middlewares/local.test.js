@@ -1,4 +1,4 @@
-const { Weave } = require('../../../lib/index')
+const { createNode } = require('../../helper')
 
 const createMiddlewareWithFlow = (flowArray) => {
   return {
@@ -83,7 +83,7 @@ const createMiddlewareWithFlow = (flowArray) => {
 describe('Test middlewares', () => {
   it('should fire middleware hooks in always the same order', async () => {
     const flow = []
-    const broker = Weave({
+    const broker = createNode({
       middlewares: [createMiddlewareWithFlow(flow)]
     })
 
@@ -92,7 +92,7 @@ describe('Test middlewares', () => {
   })
 
   it('should decorate broker instance', async () => {
-    const broker = Weave({
+    const broker = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false

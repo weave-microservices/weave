@@ -160,4 +160,24 @@ describe('Number validator', () => {
     expect(result.length).toBe(1)
     expect(result[0].message).toBe('The value of the parameter "id" have to be negative.')
   })
+
+  it('number should be integer', () => {
+    const schema = {
+      id: { type: 'number', integer: true }
+    }
+
+    const validator = ModelValidator()
+    const validate = validator.compile(schema)
+    const result1 = validate({ id: 100 })
+
+    expect(result1).toBe(true)
+
+    const result2 = validate({ id: 100.50 })
+    expect(result2[0]).toEqual({
+      field: 'id',
+      message: 'The value of the parameter "id" have to be an integer.',
+      passed: 100.5,
+      type: 'numberInteger'
+    })
+  })
 })

@@ -1,10 +1,9 @@
-const { Weave, TransportAdapters } = require('../../../lib/index')
+const { TransportAdapters } = require('../../../lib/index')
 const { WeaveError } = require('../../../lib/errors')
-const FakeTimers = require('@sinonjs/fake-timers')
+const { createNode } = require('../../helper')
 
 describe('Test circuit breaker', () => {
-  let clock
-  const node1 = Weave({
+  const node1 = createNode({
     nodeId: 'node1',
     logger: {
       enabled: false,
@@ -21,7 +20,7 @@ describe('Test circuit breaker', () => {
     }
   })
 
-  const node2 = Weave({
+  const node2 = createNode({
     nodeId: 'node2',
     logger: {
       enabled: false
@@ -57,15 +56,13 @@ describe('Test circuit breaker', () => {
   beforeAll(() => {
     return node1.start()
       .then(() => node2.start())
-      .then(() => {
-        clock = FakeTimers.install()
-      })
+      .then(() => jest.useFakeTimers())
   })
 
   afterAll(() => {
     return node1.stop()
       .then(() => node2.stop())
-      .then(() => clock.uninstall())
+      .then(() => jest.useRealTimers())
   })
 
   it('Should call test.good 5 times without problems', () => {
@@ -100,7 +97,7 @@ describe('Test circuit breaker', () => {
   })
 
   it('Should switch from half open to open', () => {
-    clock.tick(11000)
+    jest.advanceTimersByTime(11000)
     return node1.call('test.bad')
       .catch(error => {
         expect(error.name).toBe('WeaveError')
@@ -114,7 +111,7 @@ describe('Test circuit breaker', () => {
   })
 
   it('Should switch from half-open to close', () => {
-    clock.tick(11000)
+    jest.advanceTimersByTime(11000)
     return node1.call('test.bad', { error: true })
       .then(result => expect(result).toBe('ok'))
   })

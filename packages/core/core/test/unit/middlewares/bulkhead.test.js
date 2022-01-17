@@ -1,6 +1,7 @@
 const { Weave } = require('../../../lib/index')
 const utils = require('@weave-js/utils')
 const Middleware = require('../../../lib/middlewares/bulkhead')
+const { createNode } = require('../../helper')
 
 const config = {
   logger: {
@@ -12,7 +13,7 @@ const config = {
 // const SlowService = require('../../services/slow.service')
 
 describe('Test bulkhead middleware', () => {
-  const broker = Weave(config)
+  const broker = createNode(config)
   const contentFactory = broker.runtime.contextFactory
   const handler = jest.fn(() => Promise.resolve('hooray!!!'))
   const middleware = Middleware(broker.runtime)

@@ -1,11 +1,11 @@
-const { Weave } = require('../../lib/index')
 const hasServiceScope = require('./scope-checks/service.scope')
 const malformedActionService = require('../services/malformed-action.service')
 const MathV2 = require('../services/v2.math.service')
+const { createNode } = require('../helper')
 
 describe('Test broker call service', () => {
   it('should call a service.', (done) => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -31,7 +31,7 @@ describe('Test broker call service', () => {
   })
 
   it('should call a service action and return a value.', (done) => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -57,7 +57,7 @@ describe('Test broker call service', () => {
   })
 
   it('should call a service action and return an error.', (done) => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -81,7 +81,7 @@ describe('Test broker call service', () => {
   })
 
   it('should call a service action and pass a meta value to a chained action.', (done) => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -118,7 +118,7 @@ describe('Service lifetime hooks', () => {
   it('should call lifecycle hooks.', (done) => {
     const order = []
 
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -146,7 +146,7 @@ describe('Service lifetime hooks', () => {
   })
 
   it('should call lifecycle hooks with correct scope. [creaded]', done => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -165,7 +165,7 @@ describe('Service lifetime hooks', () => {
   })
 
   it('should call lifecycle hooks with correct scope. [started]', done => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -184,7 +184,7 @@ describe('Service lifetime hooks', () => {
   })
 
   it('should call lifecycle hook with correct scope. [stopped]', done => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -204,7 +204,7 @@ describe('Service lifetime hooks', () => {
 
 describe('Service actions', () => {
   it('should fail with an malformed action description', () => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -219,7 +219,7 @@ describe('Service actions', () => {
 
 describe('Protected service actions', () => {
   it('should fail with an malformed action description', () => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -234,7 +234,7 @@ describe('Protected service actions', () => {
 
 describe('Versioned Services', () => {
   it('should create an versioned service', async () => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -251,7 +251,7 @@ describe('Versioned Services', () => {
 
 describe('Errors on service creation', () => {
   it('should fail, if there is no name', async () => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -270,7 +270,7 @@ describe('Errors on service creation', () => {
   })
 
   it('should fail, if there is no name', async () => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
@@ -291,7 +291,7 @@ describe('Errors on service creation', () => {
 
 describe('Service action handler signature', () => {
   it('interface should equal', (done) => {
-    const node1 = Weave({
+    const node1 = createNode({
       nodeId: 'node1',
       logger: {
         enabled: false
