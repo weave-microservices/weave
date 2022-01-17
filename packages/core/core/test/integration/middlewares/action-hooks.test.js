@@ -146,11 +146,11 @@ describe('Action hooks in action definition', () => {
             'afterGreet'
           ]
         },
-        handler (context) {
+        handler () {
           return 'hello'
         }
       },
-      greet (context) {
+      greet () {
         return 'hello'
       },
       errorAction: {

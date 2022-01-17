@@ -102,7 +102,7 @@ exports.createContext = (runtime) => {
       }
       return this.span
     },
-    finishSpan (span) {
+    finishSpan () {
       if (this.span) {
         this.span.finish()
         return this.span

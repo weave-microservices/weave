@@ -92,7 +92,7 @@ module.exports = (runtime) => {
     }
   }
 
-  function handleHalfOpen (item, context) {
+  function handleHalfOpen (item) {
     item.state = CIRCUIT_HALF_OPEN_WAITING
     item.endpoint.state = false
     item.circuitBreakerTimer = setTimeout(() => halfOpenCircuitBreaker(item), item.options.halfOpenTimeout)

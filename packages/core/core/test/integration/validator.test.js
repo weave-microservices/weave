@@ -1,4 +1,3 @@
-const { Weave } = require('../../lib/index')
 const { createNode } = require('../helper')
 
 describe('Test param validator', () => {

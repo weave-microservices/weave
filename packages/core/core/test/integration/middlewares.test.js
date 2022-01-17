@@ -1,4 +1,4 @@
-const { Weave, TransportAdapters } = require('../../lib/index')
+const { TransportAdapters } = require('../../lib/index')
 const { createNode } = require('../helper')
 
 describe('Middleware hooks', () => {

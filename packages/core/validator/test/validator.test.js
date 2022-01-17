@@ -26,7 +26,7 @@ describe('Validator test', () => {
     const schema = {
       id: { type: 'has' }
     }
-    const validationHandler = jest.fn(({ schema, messages }) => ({ code: '' }))
+    const validationHandler = jest.fn(() => ({ code: '' }))
     const parameters = { id: new Date(), name: 'kevin ries' }
     const validator = ModelValidator()
 
