@@ -51,7 +51,7 @@ exports.createEventCollection = (registry) => {
   }
 
   eventCollection.remove = (node, eventName) => {
-    events.map(list => {
+    events.map((list) => {
       if (list.name === eventName) {
         list.removeByNodeId(node.id)
       }
@@ -59,7 +59,7 @@ exports.createEventCollection = (registry) => {
   }
 
   eventCollection.removeByService = (service) => {
-    events.map(list => {
+    events.map((list) => {
       list.removeByService(service)
     })
   }
@@ -67,7 +67,7 @@ exports.createEventCollection = (registry) => {
   eventCollection.getBalancedEndpoints = (eventName, groups) => {
     const result = []
     getAllEventsByEventName(eventName)
-      .forEach(endpointList => {
+      .forEach((endpointList) => {
         if (groups == null || groups.length === 0 || groups.indexOf(endpointList.groupName) !== -1) {
           const endpoint = endpointList.getNextAvailableEndpoint()
           if (endpoint && endpoint.isAvailable()) {
@@ -75,10 +75,6 @@ exports.createEventCollection = (registry) => {
           }
         }
       })
-      // .filter(endpointList => (groups == null || groups.length === 0 || groups.includes(endpointList.groupName)))
-      // .map(endpointList => ({ endpoint: endpointList.getNextAvailableEndpoint(), endpointList }))
-      // .filter(({ endpoint }) => endpoint && endpoint.isAvailable())
-      // .map(({ endpoint, endpointList }) => [endpoint, endpointList.groupName])
     return result
   }
 

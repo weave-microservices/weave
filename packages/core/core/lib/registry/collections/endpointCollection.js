@@ -33,7 +33,6 @@ exports.createEndpointList = (runtime, name, groupName) => {
 
   let counter = 0
 
-  // endpointList.state = runtime // ????
   endpointList.name = name
   endpointList.groupName = groupName
   endpointList.isInternal = name.startsWith('$')
