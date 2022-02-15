@@ -64,10 +64,6 @@ const makeInMemoryCache = (runtime, options = {}) => {
             base.metrics.increment(Constants.CACHE_FOUND_TOTAL)
           }
 
-          // if (options.ttl) {
-          //   item.expire = Date.now()//  + options_.ttl
-          // }
-
           if (item.expire && item.expire < Date.now()) {
             cache.log.debug(`Delete ${cacheKey}`)
             storage.delete(cacheKey)

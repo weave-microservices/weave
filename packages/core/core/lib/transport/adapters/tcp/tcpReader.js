@@ -29,6 +29,7 @@ module.exports = (adapter, options) => {
 
   self.close = () => {
     if (server && self.isConnected) {
+      server.close()
       sockets.forEach(socket => socket.destroy())
       sockets = []
     }

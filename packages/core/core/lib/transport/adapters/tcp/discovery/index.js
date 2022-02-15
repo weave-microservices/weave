@@ -101,7 +101,6 @@ const createDiscoveryService = (adapter, options) => {
 
   function startDiscovering (port) {
     discoverTimer = setInterval(() => sendDiscoveryPackage(port), 2000)
-
     discoverTimer.unref()
   }
 

@@ -32,6 +32,7 @@ exports.createZipkinExporter = (options) =>
     options = mergeDefaultOptions(options)
 
     let timer = setInterval(() => flushQueue(), options.interval)
+    timer.unref()
 
     const flushQueue = () => {
       if (queue.length) {
