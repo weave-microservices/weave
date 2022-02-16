@@ -92,6 +92,7 @@ describe('Test logger module.', () => {
     logger.info(LogObject)
 
     expect(consoleStdOutSpy).toBeCalledTimes(2)
+
     if (tty.isatty(0)) {
       const strippedMessage = stripMessages(consoleStdOutSpy.mock.calls)
       expect(strippedMessage[0]).toEqual('INFO [1970-01-01T00:00:00.000Z] \n{\n  "0": "item1",\n  "1": "item2"\n}' + os.EOL)
@@ -117,6 +118,7 @@ describe('Test logger module.', () => {
     logger.info('message1 %s', 'message2')
 
     expect(consoleStdOutSpy).toBeCalledTimes(1)
+
     if (tty.isatty(0)) {
       const strippedMessage = stripMessages(consoleStdOutSpy.mock.calls)
       expect(strippedMessage[0]).toEqual('INFO [1970-01-01T00:00:00.000Z]  message1 message2' + os.EOL)
@@ -170,6 +172,36 @@ describe('Test logger module.', () => {
       expect(logObj.message).toBe('override message')
       expect(logObj.stack).toBe('Here could be your stack!')
       expect(logObj.type).toBe('Error')
+      expect(logObj.time).toBe(0)
+    }
+
+    consoleStdOutSpy.mockReset()
+  })
+
+  it('Should handle custom log levels', () => {
+    const consoleStdOutSpy = jest.spyOn(process.stdout, 'write').mockImplementation(() => {})
+
+    const logger = createLogger({
+      level: 'boring',
+      base: {
+        service: 'test',
+        version: 1
+      },
+      customLevels: {
+        boring: 80
+      }
+    })
+    const error = new Error('Fatal error')
+    error.stack = 'Here could be your stack!'
+    logger.boring('This is a really boring message')
+    if (tty.isatty(0)) {
+      const strippedMessage = stripMessages(consoleStdOutSpy.mock.calls)
+      expect(strippedMessage[0]).toEqual('BORING [1970-01-01T00:00:00.000Z]  This is a really boring message' + os.EOL)
+    } else {
+      const logObj = JSON.parse(consoleStdOutSpy.mock.calls[0])
+      expect(consoleStdOutSpy).toBeCalledTimes(1)
+      expect(logObj.level).toBe(80)
+      expect(logObj.message).toBe('This is a really boring message')
       expect(logObj.time).toBe(0)
     }
 

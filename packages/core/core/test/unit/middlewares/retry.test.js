@@ -1,5 +1,5 @@
 const Middleware = require('../../../lib/middlewares/retry')
-const { WeaveRetrieableError } = require('../../../lib/errors')
+const { WeaveRetryableError } = require('../../../lib/errors')
 const { createNode } = require('../../helper')
 
 const config = {
@@ -56,7 +56,7 @@ describe('Test retry middleware', () => {
     broker.options.retryPolicy.delay = 200
     broker.options.retryPolicy.retries = 3
 
-    const error = new WeaveRetrieableError('not this time')
+    const error = new WeaveRetryableError('not this time')
     const handler = jest.fn(() => Promise.reject(error))
     const newHandler = middleware.localAction.call(broker, handler, action)
 
@@ -80,7 +80,7 @@ describe('Test retry middleware', () => {
     broker.options.retryPolicy.delay = 200
     broker.options.retryPolicy.retries = 0
 
-    const error = new WeaveRetrieableError('not this time')
+    const error = new WeaveRetryableError('not this time')
     const handler = jest.fn(() => Promise.reject(error))
     const newHandler = middleware.localAction.call(broker, handler, action)
 

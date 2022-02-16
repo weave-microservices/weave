@@ -15,8 +15,9 @@ exports.asHumanReadable = ({ levels, options }, originObj, message, number, time
 
   const currentLabel = levels.labels[number]
 
+  const color = logLevelColors[currentLabel] || yellow
   // Log level label
-  logResult += logLevelColors[currentLabel](currentLabel.toUpperCase())
+  logResult += color(currentLabel.toUpperCase())
 
   // date time
   logResult += ' [' + new Date(time).toISOString() + '] '
@@ -26,7 +27,7 @@ exports.asHumanReadable = ({ levels, options }, originObj, message, number, time
   }
 
   if (message) {
-    logResult += ' ' + logLevelColors[currentLabel](message)
+    logResult += ' ' + color(message)
   }
 
   if (Object.keys(originObj).length > 0) {

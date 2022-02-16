@@ -23,7 +23,7 @@ const wrapTimeoutMiddleware = function (handler) {
     let promise = handler(context, serviceInjections)
 
     if (context.options.timeout > 0) {
-      promise = promiseTimeout(context.options.timeout, promise, new WeaveRequestTimeoutError(context.action.name, context.nodeId))
+      promise = promiseTimeout(context.options.timeout, promise, new WeaveRequestTimeoutError(context.action.name, context.nodeId, context.options.timeout))
         .catch(error => {
           if (error instanceof WeaveRequestTimeoutError) {
             self.log.warn(`Request '${context.action.name}' timed out.`)

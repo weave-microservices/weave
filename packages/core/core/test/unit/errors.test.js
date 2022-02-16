@@ -52,12 +52,12 @@ describe('Test errors', () => {
     expect(error.message).toBe('Action do.something timed out node node1.')
     expect(error.code).toBe(504)
     expect(error.type).toBe('WEAVE_REQUEST_TIMEOUT_ERROR')
-    expect(error.data).toEqual({ actionName: 'do.something', nodeId: 'node1' })
+    expect(error.data).toEqual({ actionName: 'do.something', nodeId: 'node1', timeout: 5000 })
     expect(error.retryable).toBe(true)
   })
 
   it('Action request timeout error', () => {
-    const error = new Errors.WeaveRetrieableError('Fatal error!', 500, 'DEFAULT_ERROR', { empty: 'no_data' })
+    const error = new Errors.WeaveRetryableError('Fatal error!', 500, 'DEFAULT_ERROR', { empty: 'no_data' })
     expect(error).toBeDefined()
     expect(error).toBeInstanceOf(Errors.WeaveError)
     expect(error.message).toBe('Fatal error!')
@@ -67,7 +67,7 @@ describe('Test errors', () => {
     expect(error.retryable).toBe(true)
   })
 
-  it('Service not available error', () => {
+  it('Service not available error (actionName and nodeId)', () => {
     const error = new Errors.WeaveServiceNotAvailableError({ actionName: 'do.something', nodeId: 'node1' })
     expect(error).toBeDefined()
     expect(error).toBeInstanceOf(Errors.WeaveError)
@@ -75,6 +75,28 @@ describe('Test errors', () => {
     expect(error.code).toBe(503)
     expect(error.type).toBe('WEAVE_SERVICE_NOT_AVAILABLE_ERROR')
     expect(error.data).toEqual({ actionName: 'do.something', nodeId: 'node1' })
+    expect(error.retryable).toBe(true)
+  })
+
+  it('Service not available error (actionName)', () => {
+    const error = new Errors.WeaveServiceNotAvailableError({ actionName: 'do.something' })
+    expect(error).toBeDefined()
+    expect(error).toBeInstanceOf(Errors.WeaveError)
+    expect(error.message).toBe('Service "do.something" not available.')
+    expect(error.code).toBe(503)
+    expect(error.type).toBe('WEAVE_SERVICE_NOT_AVAILABLE_ERROR')
+    expect(error.data).toEqual({ actionName: 'do.something' })
+    expect(error.retryable).toBe(true)
+  })
+
+  it('Service not available error (default constructor param)', () => {
+    const error = new Errors.WeaveServiceNotAvailableError()
+    expect(error).toBeDefined()
+    expect(error).toBeInstanceOf(Errors.WeaveError)
+    expect(error.message).toBe('Service not available.')
+    expect(error.code).toBe(503)
+    expect(error.type).toBe('WEAVE_SERVICE_NOT_AVAILABLE_ERROR')
+    expect(error.data).toEqual({})
     expect(error.retryable).toBe(true)
   })
 
@@ -97,6 +119,17 @@ describe('Test errors', () => {
     expect(error.code).toBe(404)
     expect(error.type).toBe('WEAVE_SERVICE_NOT_FOUND_ERROR')
     expect(error.data).toEqual({ actionName: 'do.something' })
+    expect(error.retryable).toBe(true)
+  })
+
+  it('Service not found error (no constructor)', () => {
+    const error = new Errors.WeaveServiceNotFoundError()
+    expect(error).toBeDefined()
+    expect(error).toBeInstanceOf(Errors.WeaveError)
+    expect(error.message).toBe('Service not found.')
+    expect(error.code).toBe(404)
+    expect(error.type).toBe('WEAVE_SERVICE_NOT_FOUND_ERROR')
+    expect(error.data).toEqual({})
     expect(error.retryable).toBe(true)
   })
 })

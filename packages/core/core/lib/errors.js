@@ -17,7 +17,7 @@ class WeaveError extends ExtendableError {
   }
 }
 
-class WeaveRetrieableError extends WeaveError {
+class WeaveRetryableError extends WeaveError {
   constructor (message, code, type, data) {
     super(message)
     this.code = code || 500
@@ -27,7 +27,7 @@ class WeaveRetrieableError extends WeaveError {
   }
 }
 
-class WeaveServiceNotFoundError extends WeaveRetrieableError {
+class WeaveServiceNotFoundError extends WeaveRetryableError {
   constructor (data = {}) {
     let message
 
@@ -35,31 +35,36 @@ class WeaveServiceNotFoundError extends WeaveRetrieableError {
       message = `Service "${data.actionName}" not found on node "${data.nodeId}".`
     } else if (data.actionName) {
       message = `Service "${data.actionName}" not found.`
+    } else {
+      message = 'Service not found.'
     }
 
     super(message, 404, 'WEAVE_SERVICE_NOT_FOUND_ERROR', data)
   }
 }
 
-class WeaveServiceNotAvailableError extends WeaveRetrieableError {
+class WeaveServiceNotAvailableError extends WeaveRetryableError {
   constructor (data = {}) {
     let message
     if (data.nodeId) {
       message = `Service "${data.actionName}" not available on node "${data.nodeId}".`
-    } else {
+    } else if (data.actionName) {
       message = `Service "${data.actionName}" not available.`
+    } else {
+      message = 'Service not available.'
     }
 
     super(message, 503, 'WEAVE_SERVICE_NOT_AVAILABLE_ERROR', data)
   }
 }
 
-class WeaveRequestTimeoutError extends WeaveRetrieableError {
-  constructor (actionName, nodeId) {
+class WeaveRequestTimeoutError extends WeaveRetryableError {
+  constructor (actionName, nodeId, timeout) {
     const message = `Action ${actionName} timed out node ${nodeId || '<local>'}.`
     super(message, 504, 'WEAVE_REQUEST_TIMEOUT_ERROR', {
       actionName,
-      nodeId
+      nodeId,
+      timeout
     })
     this.retryable = true
   }
@@ -118,7 +123,7 @@ module.exports = {
   WeaveParameterValidationError,
   WeaveQueueSizeExceededError,
   WeaveRequestTimeoutError,
-  WeaveRetrieableError,
+  WeaveRetryableError,
   WeaveServiceNotAvailableError,
   WeaveServiceNotFoundError,
   WeaveGracefulStopTimeoutError,
