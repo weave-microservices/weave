@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/lock-store",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Lock store implementation",
   "main": "lib/index.js",
   "author": "",

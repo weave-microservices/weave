@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.10.0](https://github.com/weave-microservices/weave/compare/@weave-js/utils@0.9.1...@weave-js/utils@0.10.0) (2022-02-19)
+
+
+### Bug Fixes
+
+* added error fields and request/response data in traces ([1fcdf9c](https://github.com/weave-microservices/weave/commit/1fcdf9c2fcf16d59817db8b04af1a0da8c66ce4b))
+
+
+
+
+
 ## [0.9.1](https://github.com/weave-microservices/weave/compare/@weave-js/utils@0.9.0...@weave-js/utils@0.9.1) (2021-08-17)
 
 

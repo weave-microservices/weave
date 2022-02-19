@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/weave-microservices/weave/compare/@weave-js/nats-transport@0.10.0...@weave-js/nats-transport@0.11.0) (2022-02-19)
+
+**Note:** Version bump only for package @weave-js/nats-transport
+
+
+
+
+
 # [0.10.0](https://github.com/weave-microservices/weave/compare/@weave-js/nats-transport@0.9.4...@weave-js/nats-transport@0.10.0) (2021-10-18)
 
 **Note:** Version bump only for package @weave-js/nats-transport

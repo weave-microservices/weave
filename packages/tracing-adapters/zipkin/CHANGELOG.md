@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/weave-microservices/weave/compare/@weave-js/tracing-zipkin@0.10.0...@weave-js/tracing-zipkin@0.11.0) (2022-02-19)
+
+
+### Bug Fixes
+
+* added error fields and request/response data in traces ([1fcdf9c](https://github.com/weave-microservices/weave/commit/1fcdf9c2fcf16d59817db8b04af1a0da8c66ce4b))
+* Fixed missing server closure in the TCP adapter that prevents the broker from being stopped ([6360335](https://github.com/weave-microservices/weave/commit/63603357554b330890b872aba13241a39be6418d))
+
+
+
+
+
 # [0.10.0](https://github.com/weave-microservices/weave/compare/@weave-js/tracing-zipkin@0.9.4...@weave-js/tracing-zipkin@0.10.0) (2021-10-18)
 
 **Note:** Version bump only for package @weave-js/tracing-zipkin

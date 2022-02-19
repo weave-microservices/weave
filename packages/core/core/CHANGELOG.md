@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.10.0...@weave-js/core@0.11.0) (2022-02-19)
+
+
+### Bug Fixes
+
+* added error fields and request/response data in traces ([1fcdf9c](https://github.com/fachw3rk/weave/commit/1fcdf9c2fcf16d59817db8b04af1a0da8c66ce4b))
+* Changed error code of "WEAVE_SERVICE_NOT_AVAILABLE_ERROR" from 404 to 503 ([4b2a61a](https://github.com/fachw3rk/weave/commit/4b2a61a19794129b788a6aef23b79d740481482a))
+* Fixed broken metric counter incrementation ([0cd866c](https://github.com/fachw3rk/weave/commit/0cd866c46783a7d6cdf62780d8748fbbf67d3272))
+* Fixed missing server closure in the TCP adapter that prevents the broker from being stopped ([6360335](https://github.com/fachw3rk/weave/commit/63603357554b330890b872aba13241a39be6418d))
+* integration tests ([f8c06ae](https://github.com/fachw3rk/weave/commit/f8c06aeca772a29db83166dd5a9228440e2ba0c9))
+* Typos fixed ([147237b](https://github.com/fachw3rk/weave/commit/147237bb6936eec666ebc595573c884cc6f98020))
+
+
+### Features
+
+* Added action level hook support ([86c4e28](https://github.com/fachw3rk/weave/commit/86c4e28f84bd65a8ff228ca1d9f5a4cc8c7fdab6))
+* Added cache lock support for In-Memory cache. ([9a5d178](https://github.com/fachw3rk/weave/commit/9a5d1782a3d47769b69714edaf96d8f8f2c4092f))
+* Added lock service with in memory store. ([f9e40a0](https://github.com/fachw3rk/weave/commit/f9e40a047f530bc888c7facae56228e65b84b8ad))
+* implemented lock service with in memory store ([f53e57c](https://github.com/fachw3rk/weave/commit/f53e57c60ef3da3b616f14d0b4661180d34ad710))
+
+
+
+
+
 # [0.10.0](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.9.4...@weave-js/core@0.10.0) (2021-10-18)
 
 

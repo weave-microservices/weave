@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/weave-microservices/weave/compare/@weave-js/redis-cache@0.10.0...@weave-js/redis-cache@0.11.0) (2022-02-19)
+
+
+### Features
+
+* Added cache lock support for In-Memory cache. ([9a5d178](https://github.com/weave-microservices/weave/commit/9a5d1782a3d47769b69714edaf96d8f8f2c4092f))
+
+
+
+
+
 # [0.10.0](https://github.com/weave-microservices/weave/compare/@weave-js/redis-cache@0.9.4...@weave-js/redis-cache@0.10.0) (2021-10-18)
 
 **Note:** Version bump only for package @weave-js/redis-cache
