@@ -27,7 +27,7 @@ describe('Test retry middleware', () => {
   const endpoint = {
     action,
     node: {
-      id: broker.nodeID
+      id: broker.nodeId
     },
     isLocal: true
   }

@@ -24,7 +24,7 @@ describe('Test metrics middleware', () => {
   // const endpoint = {
   //   action,
   //   node: {
-  //     id: broker.nodeID
+  //     id: broker.nodeId
   //   }
   // }
 
