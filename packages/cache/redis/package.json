@@ -35,5 +35,6 @@
   "dependencies": {
     "@weave-js/utils": "^0.10.0",
     "ioredis": "^4.28.2"
-  }
+  },
+  "gitHead": "eba5f359604b6b06accd6fa8c8f03b8bc7fa8566"
 }

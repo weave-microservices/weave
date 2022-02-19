@@ -32,5 +32,6 @@
   "directories": {
     "lib": "lib",
     "test": "test"
-  }
+  },
+  "gitHead": "eba5f359604b6b06accd6fa8c8f03b8bc7fa8566"
 }
