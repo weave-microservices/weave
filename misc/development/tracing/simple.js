@@ -46,7 +46,6 @@ app.createService({
           resolve('nothing')
         }, 2000)
       })
-
     },
     error (context) {
       throw new Error('hier ist was faul!!!!')
@@ -55,7 +54,6 @@ app.createService({
   events: {
     async 'hello.sent' (context) {
       await context.call('greater.goodbye')
-      console.log('fired')
     }
   }
 })

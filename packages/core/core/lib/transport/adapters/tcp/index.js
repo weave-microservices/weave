@@ -14,6 +14,7 @@ const defaultOptions = {
   discovery: {
     enabled: true,
     type: 'udp4',
+    udpMulticast: true,
     multicastAddress: '239.0.0.0',
     port: 54355,
     udpReuseAddress: true
@@ -171,7 +172,7 @@ module.exports = function SwimTransport (adapterOptions) {
       }
     })
 
-    self.swim.init(port)
+    self.swim.start(port)
   }
 
   function startTCPServer () {
@@ -180,19 +181,19 @@ module.exports = function SwimTransport (adapterOptions) {
 
     tcpReader.on('message', onMessage)
 
-    tcpWriter.on('error', (error, nodeID) => {
+    tcpWriter.on('error', (error, nodeId) => {
       self.log.debug('TCP client error on ', error)
-      self.broker.registry.nodeDisconnected(nodeID, false)
+      self.broker.registry.nodeDisconnected(nodeId, false)
     })
 
-    tcpWriter.on('end', nodeID => {
+    tcpWriter.on('end', nodeId => {
       self.log.debug('TCP connection ended with')
-      self.broker.registry.nodeDisconnected(nodeID, false)
+      self.broker.registry.nodeDisconnected(nodeId, false)
     })
 
-    // tcpWriter.on('error', (_, nodeID) => {
+    // tcpWriter.on('error', (_, nodeId) => {
     //   self.log.debug('TCP server error on ')
-    //   // this.nodes.disconnected(nodeID, false)
+    //   // this.nodes.disconnected(nodeId, false)
     // })
 
     return tcpReader.listen()

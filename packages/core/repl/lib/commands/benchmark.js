@@ -7,7 +7,7 @@ module.exports = ({ vorpal, broker, cliUI }) => {
     .command('benchmark <action> [jsonParams]', 'Benchmark a service Endpoint.')
     .option('--iterations <number>', 'Number of iterations')
     .option('--time <seconds>', 'Time of bench (default 5)')
-    .option('--nodeID <nodeID>', 'NodeID (direct call)')
+    .option('--nodeId <nodeId>', 'Node ID (direct call)')
     .autocomplete({
       data () {
         return [...new Set(broker.runtime.registry.actionCollection.list({}).map(item => item.name))]
@@ -16,6 +16,13 @@ module.exports = ({ vorpal, broker, cliUI }) => {
     .action((args, done) => {
       const spinner = createSpinner('🚀  Running benchmark... ')
       const action = args.action
+
+      const callOptions = {}
+
+      // Add node ID to call options for direct calls on a specific node.
+      if (args.options.nodeId) {
+        callOptions.nodeId = args.options.nodeId
+      }
 
       let time = args.options.time != null ? Number(args.options.time) : null
       let payload
@@ -103,7 +110,8 @@ module.exports = ({ vorpal, broker, cliUI }) => {
       const doRequest = () => {
         requestCounter++
         const startTime = process.hrtime()
-        return broker.call(action, payload)
+
+        return broker.call(action, payload, callOptions)
           .then(result => {
             handleRequest(startTime)
             return result

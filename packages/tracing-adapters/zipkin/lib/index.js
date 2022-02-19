@@ -43,7 +43,6 @@ exports.createZipkinExporter = (options) =>
     }
 
     const generatePayload = () => {
-      console.log(queue.length)
       return queue.map(span => {
         const serviceName = span.service ? span.service.fullyQualifiedName : null
 
