@@ -1,5 +1,4 @@
 
-const { Weave } = require('../../../lib/index')
 const { createNode } = require('../../helper')
 
 describe('Test context tracking', () => {

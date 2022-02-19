@@ -1,4 +1,4 @@
-const { createNode } = require("../../helper")
+const { createNode } = require('../../helper')
 
 // @ts-nocheck
 describe('Timeout middleware', () => {

@@ -45,6 +45,7 @@ exports.createTransport = (runtime, adapter) => {
   }
 
   transport.log = createLogger('TRANSPORT')
+  transport.reconnectInProgress = false
   transport.isConnected = false
   transport.isDisconnecting = false
   transport.isReady = false
@@ -68,18 +69,16 @@ exports.createTransport = (runtime, adapter) => {
       transport.log.info('Connecting to transport adapter...')
 
       const doConnect = (isTryReconnect) => {
-        let reconnectInProgress = false
-
         const errorHandler = (error) => {
           // Skip reconnect, if the adapter is disconnecting or an reconnect is in progress.
-          if (transport.isDisconnecting || reconnectInProgress) {
+          if (transport.isDisconnecting || transport.reconnectInProgress) {
             return
           }
 
           transport.log.warn('Connection failed')
           transport.log.debug(error)
 
-          reconnectInProgress = true
+          transport.reconnectInProgress = true
 
           if (!error.skipRetry) {
             setTimeout(() => {

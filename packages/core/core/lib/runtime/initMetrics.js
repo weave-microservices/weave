@@ -1,4 +1,5 @@
 const { isPlainObject, isFunction } = require('@weave-js/utils')
+const { WeaveError } = require('../errors')
 const { registerCommonMetrics, updateCommonMetrics } = require('../metrics/common')
 const MetricTypes = require('../metrics/types')
 
@@ -32,7 +33,7 @@ exports.initMetrics = (runtime) => {
           // Load adapters
           if (metricOptions.adapters) {
             if (!Array.isArray(metricOptions.adapters)) {
-              runtime.handleError(new Error('Metic adapter needs to be an Array'))
+              runtime.handleError(new WeaveError('Metic adapter needs to be an Array.'))
             }
 
             this.adapters = metricOptions.adapters.map(adapter => {
@@ -50,21 +51,21 @@ exports.initMetrics = (runtime) => {
         },
         register (obj) {
           if (!isPlainObject(obj)) {
-            runtime.handleError(new Error('Param needs to be an object.'))
+            runtime.handleError(new WeaveError('Param needs to be an object.'))
           }
 
           if (!obj.type) {
-            runtime.handleError(new Error('Type is missing.'))
+            runtime.handleError(new WeaveError('Type is missing.'))
           }
 
           if (!obj.name) {
-            runtime.handleError(new Error('Name is missing.'))
+            runtime.handleError(new WeaveError('Name is missing.'))
           }
 
           const createMetricType = MetricTypes.resolve(obj.type)
 
           if (!createMetricType) {
-            runtime.handleError(new Error('Unknown metric type.'))
+            runtime.handleError(new WeaveError('Unknown metric type.'))
           }
 
           const type = createMetricType(this, obj)
@@ -81,7 +82,7 @@ exports.initMetrics = (runtime) => {
           const item = this.storage.get(name)
 
           if (!item) {
-            runtime.handleError(new Error('Item not found.'))
+            runtime.handleError(new WeaveError('Item not found.'))
           }
 
           item.increment(labels, value, timestamp)
@@ -94,7 +95,7 @@ exports.initMetrics = (runtime) => {
           const item = this.storage.get(name)
 
           if (!item) {
-            runtime.handleError(new Error('Item not found.'))
+            runtime.handleError(new WeaveError('Item not found.'))
           }
 
           item.decrement(labels, value, timestamp)
@@ -107,7 +108,7 @@ exports.initMetrics = (runtime) => {
           const item = this.storage.get(name)
 
           if (!isFunction(item.set)) {
-            runtime.handleError(new Error('Invalid metric type'))
+            runtime.handleError(new WeaveError('Invalid metric type'))
           }
 
           item.set(value, labels, timestamp)
@@ -137,7 +138,7 @@ exports.initMetrics = (runtime) => {
           const item = this.storage.get(name)
 
           if (!item) {
-            runtime.handleError(new Error('Item not found.'))
+            runtime.handleError(new WeaveError('Item not found.'))
           }
 
           return item

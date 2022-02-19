@@ -22,7 +22,7 @@ describe('Test bulkhead middleware', () => {
 
     await broker.start()
     try {
-      await Promise.all(Array.from(Array(25), (_,x) => x).map((i) => {
+      await Promise.all(Array.from(Array(25), (_, x) => x).map((i) => {
         return broker.call('pusher1.push')
       }))
     } catch (error) {

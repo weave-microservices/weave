@@ -42,237 +42,255 @@ exports.createBrokerInstance = (runtime) => {
     log.info(`Namespace: ${options.namespace}`)
   }
 
-  // Metrics
+  // Init metrics
   if (metrics) {
     metrics.init()
   }
 
-  // Cache
+  // Init cache
   if (cache) {
     cache.init()
   }
 
   // broker object
   /** @type {Broker} */
-  const broker = {
-    nodeId: options.nodeId,
-    version,
-    options,
-    runtime,
-    bus,
-    validator,
-    contextFactory,
-    log,
-    createLogger: runtime.createLogger,
-    getUUID: () => runtime.generateUUID(),
-    registry,
-    getNextActionEndpoint (actionName, options = {}) {
-      return registry.getNextAvailableActionEndpoint(actionName, options)
-    },
-    emit: eventBus.emit.bind(this),
-    broadcast: eventBus.broadcast.bind(this),
-    broadcastLocal: eventBus.broadcastLocal.bind(this),
-    call: runtime.actionInvoker.call.bind(this),
-    multiCall: runtime.actionInvoker.multiCall.bind(this),
-    waitForServices: services.waitForServices.bind(this),
-    createService: services.createService.bind(this),
-    /**
-     * Load and register a service from file.
-     * @param {string} fileName Path to the service file.
-     * @returns {Service} Service
-    */
-    loadService (fileName) {
-      const filePath = path.resolve(fileName)
-      const schema = require(filePath)
-      const service = this.createService(schema)
+  const broker = Object.create(null)
 
-      // If the "watchSevrices" option is set - add service to service watcher.
-      if (options.watchServices) {
-        service.filename = fileName
-        services.watchService.call(this, service)
-      }
+  broker.runtime = runtime
+  broker.registry = registry
+  broker.bus = bus
+  broker.nodeId = options.nodeId
+  broker.version = version
+  broker.options = options
+  broker.validator = validator
+  broker.contextFactory = contextFactory
+  broker.log = log
+  broker.createLogger = runtime.createLogger
 
-      return service
-    },
-    /**
-     * Load services from a folder.
-     * @param {string} [folder='./services'] Path of the folder.
-     * @param {string} [fileMask='*.service.js'] Pattern of the service files
-     * @returns {number} Amount of services
-    */
-    loadServices (folder = './services', fileMask = '*.service.js') {
-      const serviceFiles = glob.sync(path.join(folder, fileMask))
+  broker.getUUID = function () {
+    return runtime.generateUUID()
+  }
 
-      log.info(`Searching services in folder '${folder}' with name pattern '${fileMask}'.`)
-      log.info(`${serviceFiles.length} services found.`)
+  broker.getNextActionEndpoint = function (actionName, options = {}) {
+    return registry.getNextAvailableActionEndpoint(actionName, options)
+  }
 
-      serviceFiles.forEach(fileName => this.loadService(fileName))
-      return serviceFiles.length
-    },
-    /**
-     * Starts the broker.
-     * @returns {Promise} Promise
-    */
-    async start () {
-      const startTime = Date.now()
-      await middlewareHandler.callHandlersAsync('starting', [runtime], true)
+  broker.emit = eventBus.emit.bind(broker)
 
-      // If transport is used, we connect the transport adapter.
-      if (transport) {
-        await transport.connect()
-      }
+  broker.broadcast = eventBus.broadcast.bind(broker)
 
-      try {
-        await Promise.all(services.serviceList.map(service => service.start()))
-      } catch (error) {
-        log.error(error, 'Unable to start all services')
-        clearInterval(options.waitForServiceInterval)
-        throw error
-      }
+  broker.broadcastLocal = eventBus.broadcastLocal.bind(broker)
 
-      runtime.state.isStarted = true
-      eventBus.broadcastLocal('$broker.started')
-      // refresh local node information
-      registry.generateLocalNodeInfo(true)
+  broker.call = runtime.actionInvoker.call.bind(broker)
 
-      // If transport is used, we set the transport ready to inform the other nodes
-      if (transport) {
-        await transport.setReady()
-      }
+  broker.multiCall = runtime.actionInvoker.multiCall.bind(broker)
 
-      await middlewareHandler.callHandlersAsync('started', [runtime], true)
+  broker.waitForServices = services.waitForServices.bind(broker)
 
-      if (runtime.state.isStarted && isFunction(options.started)) {
-        options.started.call(this)
-      }
+  broker.createService = services.createService.bind(broker)
 
-      const duration = Date.now() - startTime
-      log.info(`Node "${options.nodeId}" with ${services.serviceList.length} services successfully started in ${duration}ms.`)
-    },
-    /**
-     * Stops the broker.
-     * @returns {Promise} Promise
-    */
-    async stop () {
-      runtime.state.isStarted = false
-      log.info('Shutting down the node...')
+  /**
+   * Global error handler of the broker.
+   * @param {*} error Error
+   * @returns {void}
+  */
+  broker.handleError = runtime.handleError
 
-      await middlewareHandler.callHandlersAsync('stopping', [runtime], true)
+  broker.fatalError = runtime.fatalError
 
-      // Stop services
-      try {
-        await Promise.all(services.serviceList.map(service => service.stop()))
-      } catch (error) {
-        log.error(error, 'Unable to stop all services.')
-        throw error
-      }
+  /**
+  * Load and register a service from file.
+  * @param {string} fileName Path to the service file.
+  * @returns {Service} Service
+  */
+  broker.loadService = function (fileName) {
+    const filePath = path.resolve(fileName)
+    const schema = require(filePath)
+    const service = broker.createService(schema)
 
-      // Disconnect transports
-      if (transport) {
-        await transport.disconnect()
-      }
+    // If the "watchSevrices" option is set - add service to service watcher.
+    if (options.watchServices) {
+      service.filename = fileName
+      services.watchService.call(broker, service)
+    }
 
-      // Stop cache
-      if (runtime.cache) {
-        log.debug('Stopping caching adapters.')
-        await runtime.cache.stop()
-      }
+    return service
+  }
 
-      // Stop metrics
-      if (runtime.metrics) {
-        log.debug('Stopping metrics.')
-        await runtime.metrics.stop()
-      }
+  broker.loadServices = function (folder = './services', fileMask = '*.service.js') {
+    const serviceFiles = glob.sync(path.join(folder, fileMask))
 
-      // Stop tracers
-      if (runtime.tracer) {
-        log.debug('Stopping tracing adapters.')
-        await runtime.tracer.stop()
-      }
+    log.info(`Searching services in folder '${folder}' with name pattern '${fileMask}'.`)
+    log.info(`${serviceFiles.length} services found.`)
 
-      // Call "stopped" middleware method.
-      await middlewareHandler.callHandlersAsync('stopped', [runtime], true)
+    serviceFiles.forEach(fileName => broker.loadService(fileName))
+    return serviceFiles.length
+  }
 
-      // Call "stopped" lifecycle hook
-      if (!runtime.state.isStarted && isFunction(options.stopped)) {
-        options.stopped.call(runtime)
-      }
+  /**
+  * Starts the broker.
+  * @returns {Promise} Promise
+  */
+  broker.start = async function () {
+    const startTime = Date.now()
+    await middlewareHandler.callHandlersAsync('starting', [runtime], true)
 
-      log.info('The node was successfully shut down. Bye bye! 👋')
+    // If transport is used, we connect the transport adapter.
+    if (transport) {
+      await transport.connect()
+    }
 
-      eventBus.broadcastLocal('$broker.stopped')
+    try {
+      await Promise.all(services.serviceList.map(service => service.start()))
+    } catch (error) {
+      log.error(error, 'Unable to start all services')
+      clearInterval(options.waitForServiceInterval)
+      throw error
+    }
 
-      process.removeListener('beforeExit', onClose)
-      process.removeListener('exit', onClose)
-      process.removeListener('SIGINT', onClose)
-      process.removeListener('SIGTERM', onClose)
+    runtime.state.isStarted = true
+    eventBus.broadcastLocal('$broker.started')
+    // refresh local node information
+    registry.generateLocalNodeInfo(true)
 
-      // todo: handle errors
-    },
-    ping (nodeId, timeout = 3000) {
-      if (transport && transport.isConnected) {
-        if (nodeId) {
-          return new Promise((resolve) => {
-            const timeoutTimer = setTimeout(() => {
-              bus.off('$node.pong', pongHandler)
-              return resolve(null)
-            }, timeout)
+    // If transport is used, we set the transport ready to inform the other nodes
+    if (transport) {
+      await transport.setReady()
+    }
 
-            const pongHandler = pong => {
+    await middlewareHandler.callHandlersAsync('started', [runtime], true)
+
+    if (runtime.state.isStarted && isFunction(options.started)) {
+      options.started.call(broker)
+    }
+
+    const duration = Date.now() - startTime
+    log.info(`Node "${options.nodeId}" with ${services.serviceList.length} services successfully started in ${duration}ms.`)
+  }
+
+  /**
+    * Stops the broker.
+    * @returns {Promise} Promise
+  */
+  broker.stop = async function () {
+    runtime.state.isStarted = false
+    log.info('Shutting down the node...')
+
+    await middlewareHandler.callHandlersAsync('stopping', [runtime], true)
+
+    // Stop services
+    try {
+      await Promise.all(services.serviceList.map(service => service.stop()))
+    } catch (error) {
+      log.error(error, 'Unable to stop all services.')
+      throw error
+    }
+
+    // Disconnect transports
+    if (transport) {
+      await transport.disconnect()
+    }
+
+    // Stop cache
+    if (runtime.cache) {
+      log.debug('Stopping caching adapters.')
+      await runtime.cache.stop()
+    }
+
+    // Stop metrics
+    if (runtime.metrics) {
+      log.debug('Stopping metrics.')
+      await runtime.metrics.stop()
+    }
+
+    // Stop tracers
+    if (runtime.tracer) {
+      log.debug('Stopping tracing adapters.')
+      await runtime.tracer.stop()
+    }
+
+    // Call "stopped" middleware method.
+    await middlewareHandler.callHandlersAsync('stopped', [runtime], true)
+
+    // Call "stopped" lifecycle hook
+    if (!runtime.state.isStarted && isFunction(options.stopped)) {
+      options.stopped.call(runtime)
+    }
+
+    log.info('The node was successfully shut down. Bye bye! 👋')
+
+    eventBus.broadcastLocal('$broker.stopped')
+
+    process.removeListener('beforeExit', onClose)
+    process.removeListener('exit', onClose)
+    process.removeListener('SIGINT', onClose)
+    process.removeListener('SIGTERM', onClose)
+
+    // todo: handle errors
+  }
+
+  /**
+   * Ping other nodes
+   * @param {string=} nodeId Node ID
+   * @param {number} timeout Timeout
+   * @returns {Object<string, number>} Result
+  */
+  broker.ping = function (nodeId, timeout = 3000) {
+    if (transport && transport.isConnected) {
+      if (nodeId) {
+        return new Promise((resolve) => {
+          const timeoutTimer = setTimeout(() => {
+            bus.off('$node.pong', pongHandler)
+            return resolve(null)
+          }, timeout)
+
+          const pongHandler = pong => {
+            clearTimeout(timeoutTimer)
+            bus.off('$node.pong', pongHandler)
+            resolve(pong)
+          }
+
+          bus.on('$node.pong', pongHandler)
+          transport.sendPing(nodeId)
+        })
+      } else {
+        // handle arrays
+        const pongs = {}
+
+        const nodes = registry.getNodeList({})
+          .filter(node => !node.isLocal)
+          .map(node => node.id)
+
+        const onFlight = new Set(nodes)
+
+        nodes.forEach(nodeId => {
+          pongs[nodeId] = null
+        })
+
+        return new Promise((resolve) => {
+          // todo: handle timeout
+          const timeoutTimer = setTimeout(() => {
+            bus.off('$node.pong', pongHandler)
+            resolve(pongs)
+          }, timeout)
+
+          const pongHandler = pong => {
+            pongs[pong.nodeId] = pong
+            onFlight.delete(pong.nodeId)
+            if (onFlight.size === 0) {
               clearTimeout(timeoutTimer)
               bus.off('$node.pong', pongHandler)
-              resolve(pong)
-            }
-
-            bus.on('$node.pong', pongHandler)
-            transport.sendPing(nodeId)
-          })
-        } else {
-          // handle arrays
-          const pongs = {}
-
-          const nodes = registry.getNodeList({})
-            .filter(node => !node.isLocal)
-            .map(node => node.id)
-
-          const onFlight = new Set(nodes)
-
-          nodes.forEach(nodeId => {
-            pongs[nodeId] = null
-          })
-
-          return new Promise((resolve) => {
-            // todo: handle timeout
-            const timeoutTimer = setTimeout(() => {
-              bus.off('$node.pong', pongHandler)
               resolve(pongs)
-            }, timeout)
-
-            const pongHandler = pong => {
-              pongs[pong.nodeId] = pong
-              onFlight.delete(pong.nodeId)
-              if (onFlight.size === 0) {
-                clearTimeout(timeoutTimer)
-                bus.off('$node.pong', pongHandler)
-                resolve(pongs)
-              }
             }
+          }
 
-            bus.on('$node.pong', pongHandler)
-            nodes.map(nodeId => transport.sendPing(nodeId))
-          })
-        }
+          bus.on('$node.pong', pongHandler)
+          nodes.map(nodeId => transport.sendPing(nodeId))
+        })
       }
+    }
 
-      return Promise.resolve(nodeId ? null : {})
-    },
-    /**
-     * Global error handler of the broker.
-     * @param {*} error Error
-     * @returns {void}
-     */
-    handleError: runtime.handleError,
-    fatalError: runtime.fatalError
+    return Promise.resolve(nodeId ? null : {})
   }
 
   // Register internal broker events
@@ -354,6 +372,7 @@ exports.createBrokerInstance = (runtime) => {
     broker.createService = middlewareHandler.wrapMethod('createService', broker.createService)
     broker.loadService = middlewareHandler.wrapMethod('loadService', broker.loadService)
     broker.loadServices = middlewareHandler.wrapMethod('loadServices', broker.loadServices)
+    broker.ping = middlewareHandler.wrapMethod('ping', broker.ping)
   }
 
   // Run "beforeRegisterMiddlewares" hook

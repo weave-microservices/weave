@@ -1,3 +1,4 @@
+const { WeaveError } = require('../../../lib/errors')
 const { TransportAdapters } = require('../../../lib/index')
 const Constants = require('../../../lib/metrics/constants')
 const { createNode } = require('../../helper')
@@ -198,5 +199,57 @@ describe('Metric middleware between remote nodes', () => {
 
     expect(metrics2.getMetric(Constants.REQUESTS_TOTAL).value).toBe(3)
     expect(metrics2.getMetric(Constants.REQUESTS_IN_FLIGHT).value).toBe(0)
+  })
+})
+
+describe('Metric adapters validation', () => {
+  it('should register metrics', async () => {
+    try {
+      const broker1 = createNode({
+        nodeId: 'node-metrics-1',
+        logger: {
+          enabled: false
+        },
+        metrics: {
+          enabled: true,
+          adapters: {} // <- need to be an array of objects
+        },
+        transport: {
+          adapter: TransportAdapters.Dummy()
+        }
+      })
+      await broker1.start()
+    } catch (error) {
+      expect(error).toBeInstanceOf(WeaveError)
+      expect(error.message).toBe('Metic adapter needs to be an Array.')
+    }
+  })
+
+  it('should init metric adapter.', async () => {
+    const mockMetricInitFunction = jest.fn()
+    const mockMetricAdapter = () => {
+      return {
+        init: mockMetricInitFunction
+      }
+    }
+
+    const broker1 = createNode({
+      nodeId: 'node-metrics-1',
+      logger: {
+        enabled: false
+      },
+      metrics: {
+        enabled: true,
+        adapters: [
+          mockMetricAdapter()
+        ]
+      },
+      transport: {
+        adapter: TransportAdapters.Dummy()
+      }
+    })
+    await broker1.start()
+
+    expect(mockMetricInitFunction).toBeCalledTimes(1)
   })
 })
