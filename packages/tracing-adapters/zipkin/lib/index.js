@@ -43,6 +43,7 @@ exports.createZipkinExporter = (options) =>
     }
 
     const generatePayload = () => {
+      console.log(queue.length)
       return queue.map(span => {
         const serviceName = span.service ? span.service.fullyQualifiedName : null
 
@@ -51,7 +52,7 @@ exports.createZipkinExporter = (options) =>
           traceId: convertId(span.traceId),
           parentId: convertId(span.parentId),
           name: span.name,
-          kind: 'CONSUMER',
+          kind: 'SERVER',
           localEndpoint: { serviceName },
           remoteEndpoint: { serviceName },
           timestamp: convertTime(span.startTime),
@@ -67,6 +68,7 @@ exports.createZipkinExporter = (options) =>
             }
           ],
           tags: {
+            service: serviceName,
             'span.type': span.type
           }
         }
