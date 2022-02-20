@@ -27,19 +27,19 @@ const makeRedisCache = (broker, options = {}) => {
       try {
         Redis = require('ioredis')
       } catch (error) {
-        this.log.error('The package \'ioredis\' is not installed. Please install the package with \'npm install nats\'.')
+        base.log.error('The package \'ioredis\' is not installed. Please install the package with \'npm install nats\'.')
         broker.errorHandler(error)
       }
       client = new Redis(options)
 
       client.on('connect', () => {
         /* istanbul ignore next */
-        this.log.info('Redis cacher connected.')
+        base.log.info('Redis cacher connected.')
       })
 
       client.on('error', (err) => {
         /* istanbul ignore next */
-        this.log.error(err)
+        base.log.error(err)
       })
     },
     set (hashKey, data, ttl) {
@@ -54,19 +54,19 @@ const makeRedisCache = (broker, options = {}) => {
         client.set(hashKey, data)
       }
 
-      this.log.debug(`Set ${hashKey}`)
+      base.log.debug(`Set ${hashKey}`)
 
       return Promise.resolve(data)
     },
     get (cacheKey) {
       return client.get(cacheKey).then(data => {
         if (data) {
-          this.log.debug(`FOUND ${cacheKey}`)
+          base.log.debug(`FOUND ${cacheKey}`)
           try {
             data = JSON.parse(data)
             return data
           } catch (error) {
-            this.log.error('Redis result parse error', error, data)
+            base.log.error('Redis result parse error', error, data)
           }
         }
         return null
@@ -75,7 +75,7 @@ const makeRedisCache = (broker, options = {}) => {
     remove (hashKey) {
       return client.del(hashKey)
         .then(() => {
-          this.log.debug(`Delete ${hashKey}`)
+          base.log.debug(`Delete ${hashKey}`)
         })
     },
     clear (pattern = '*') {
@@ -95,7 +95,7 @@ const makeRedisCache = (broker, options = {}) => {
         })
 
         stream.on('end', () => {
-          this.log.debug('Cache cleared')
+          base.log.debug('Cache cleared')
           return resolve()
         })
       })

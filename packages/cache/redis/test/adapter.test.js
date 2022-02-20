@@ -61,6 +61,7 @@ describe('Test message flow', () => {
     broker.bus.emit('$transport.connected')
     expect(cache.clear).toBeCalledTimes(1)
     cache.stop()
+    broker.stop()
   })
 })
 
