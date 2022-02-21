@@ -15,7 +15,7 @@ const defaultMessages = require('./messages')
 /**
  * ModelValidator
  * @typedef {Object} ModelValidator
- * @property {function(any, ValidationOptions):ValidationFunction} compile Compile validation schema and return an validation function.
+ * @property {function(any, ValidationOptions=):ValidationFunction} compile Compile validation schema and return an validation function.
  * @property {function(any, object):void} validate Validate
  * @property {function(string, function):void} addRule Add custom validation rule
  *

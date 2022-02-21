@@ -16,7 +16,7 @@ exports.defaultOptions = getDefaultOptions()
 
 /**
  * Build runtime object
- * @param {BrokerOptions} options Broker options
+ * @param {BrokerOptions=} options Broker options
  * @return {Broker} Broker instance
 */
 exports.createBroker = (options) => {
