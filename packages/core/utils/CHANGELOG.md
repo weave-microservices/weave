@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.10.1](https://github.com/weave-microservices/weave/compare/@weave-js/utils@0.10.0...@weave-js/utils@0.10.1) (2022-03-07)
+
+**Note:** Version bump only for package @weave-js/utils
+
+
+
+
+
 # [0.10.0](https://github.com/weave-microservices/weave/compare/@weave-js/utils@0.9.1...@weave-js/utils@0.10.0) (2022-02-19)
 
 

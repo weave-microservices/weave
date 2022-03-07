@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.11.1](https://github.com/fachw3rk/weave/compare/@weave-js/node-service@0.11.0...@weave-js/node-service@0.11.1) (2022-03-07)
+
+
+### Bug Fixes
+
+* Fixed cache middleware ([d79be1f](https://github.com/fachw3rk/weave/commit/d79be1faf7c2dfe73d1a7bf299a51546c492f9c3))
+
+
+
+
+
 # [0.11.0](https://github.com/fachw3rk/weave/compare/@weave-js/node-service@0.10.0...@weave-js/node-service@0.11.0) (2022-02-19)
 
 **Note:** Version bump only for package @weave-js/node-service
