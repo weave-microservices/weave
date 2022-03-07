@@ -35,5 +35,6 @@
     "lib": "lib",
     "test": "test"
   },
-  "gitHead": "84fd5e4af3af96e8c004bcfba40bb3cb35f23fa7"
+  "gitHead": "84fd5e4af3af96e8c004bcfba40bb3cb35f23fa7",
+  "private": true
 }
