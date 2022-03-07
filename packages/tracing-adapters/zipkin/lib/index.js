@@ -21,10 +21,10 @@ const mergeDefaultOptions = (options) => {
 
 /**
  * Create a Zipkin collector adapter instance.
- * @param {ZipkinCollectorOptions} options Zipkin collector adapter options
+ * @param {ZipkinCollectorOptions} [options] Zipkin collector adapter options
  * @returns {Object} Collector
 */
-exports.createZipkinExporter = (options) =>
+exports.createZipkinExporter = (options = {}) =>
   (runtime) => {
     const exporter = createBaseTracingCollector(runtime)
     const queue = []

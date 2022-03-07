@@ -4,23 +4,37 @@
  * Copyright 2021 Fachwerk
  */
 
-const { match } = require('@weave-js/utils')
+const { match, defaultsDeep } = require('@weave-js/utils')
 const { createCacheBase } = require('./base')
-const { createLock } = require('./lock')
-const Constants = require('../metrics/constants')
+const { createLock } = require('../lock')
+const Constants = require('../../metrics/constants')
 
-const makeInMemoryCache = (runtime, options = {}) => {
-  const base = createCacheBase(runtime, options)
+const defaultAdapterOptions = {
+  ttlCheckInterval: 3000
+}
+
+/**
+ * @typedef {Object} InMemoryAdapterOptions
+ * @property {number=} ttlCheckInterval TTL check interval
+*/
+
+/**
+ * Create an in-memory cache adapter.
+ * @param {InMemoryAdapterOptions} adapterOptions Adapter options
+ * @returns {any} CacheFactory
+*/
+const createInMemoryCache = (adapterOptions = {}) => (runtime, options = {}) => {
+  adapterOptions = defaultsDeep(adapterOptions, defaultAdapterOptions)
+  const base = createCacheBase('In-Memory', runtime, adapterOptions, options)
   const storage = new Map()
-  const name = 'Memory'
 
   const lock = createLock()
 
-  const timer = setInterval(() => {
+  const ttlTimerHandle = setInterval(() => {
     checkTtl()
-  }, 3000)
+  }, adapterOptions.ttlCheckInterval)
 
-  timer.unref()
+  ttlTimerHandle.unref()
 
   // if a new broker gets connected, we need to clear the cache
   runtime.bus.on('$transport.connected', () => {
@@ -43,7 +57,6 @@ const makeInMemoryCache = (runtime, options = {}) => {
     {},
     base,
     {
-      name,
       init () {
         base.init()
         cache.isConnected = true
@@ -82,6 +95,7 @@ const makeInMemoryCache = (runtime, options = {}) => {
           base.metrics.increment(Constants.CACHE_SET_TOTAL)
         }
 
+        // if ttl is not set in action cache settings, use options ttl
         if (ttl == null) {
           ttl = options.ttl
         }
@@ -121,7 +135,7 @@ const makeInMemoryCache = (runtime, options = {}) => {
           return () => lock.release(key)
         })
       },
-      tryLock (key, ttl) {
+      tryAcquireLock (key, ttl) {
         if (lock.isLocked(key)) {
           return Promise.reject(new Error('Locked'))
         }
@@ -130,11 +144,11 @@ const makeInMemoryCache = (runtime, options = {}) => {
           return () => lock.release(key)
         })
       },
-      stop () {
-        clearInterval(timer)
+      async stop () {
+        clearInterval(ttlTimerHandle)
       }
     })
   return cache
 }
 
-module.exports = makeInMemoryCache
+module.exports = { createInMemoryCache }

@@ -1,5 +1,5 @@
 const { Weave } = require('@weave-js/core')
-const REDISCache = require('../lib/index.js')
+const { createRedisCache } = require('../lib/index.js')
 // const SlowService = require('../../services/slow.service')
 
 describe('Test IN-Memory cache initialization', () => {
@@ -10,7 +10,7 @@ describe('Test IN-Memory cache initialization', () => {
       }
     })
 
-    const cache = REDISCache(broker)
+    const cache = createRedisCache()(broker.runtime)
     expect(cache.options).toBeDefined()
     expect(cache.options.ttl).toBeNull()
   })
@@ -21,29 +21,28 @@ describe('Test IN-Memory cache initialization', () => {
         enabled: false
       }
     })
-    const cache = REDISCache(broker)
+    const cache = createRedisCache()(broker.runtime)
     const expectedObject = {
       host: '127.0.0.1',
-      port: 6379,
-      ttl: null
+      port: 6379
     }
-    expect(cache.options).toEqual(expectedObject)
+    expect(cache.adapterOptions).toEqual(expectedObject)
     expect(cache.options.ttl).toBeNull()
   })
 
   it('should create with options.', () => {
-    const options = { ttl: 4000 }
+    const cacheOptions = { ttl: 4000 }
     const broker = Weave({
       logger: {
         enabled: false
       }
     })
-    const cache = REDISCache(broker, options)
-    const expectedObject = Object.assign(options, {
+    const cache = createRedisCache()(broker.runtime, cacheOptions)
+    const expectedObject = {
       host: '127.0.0.1',
       port: 6379
-    })
-    expect(cache.options).toEqual(expectedObject)
+    }
+    expect(cache.adapterOptions).toEqual(expectedObject)
     expect(cache.options.ttl).toBe(4000)
   })
 })
@@ -55,12 +54,13 @@ describe('Test message flow', () => {
         enabled: false
       }
     })
-    const cache = REDISCache(broker)
+    const cache = createRedisCache()(broker)
     cache.init()
     cache.clear = jest.fn()
     broker.bus.emit('$transport.connected')
     expect(cache.clear).toBeCalledTimes(1)
     cache.stop()
+    broker.stop()
   })
 })
 
@@ -70,7 +70,7 @@ describe('Test usage (without TTL)', () => {
       enabled: false
     }
   })
-  const cache = REDISCache(broker)
+  const cache = createRedisCache()(broker)
   cache.init()
 
   const key1 = 'test1234:sadasda'

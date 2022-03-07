@@ -5,41 +5,34 @@
  */
 
 const { Cache } = require('@weave-js/core')
+const { defaultsDeep } = require('@weave-js/utils')
+const Redis = require('ioredis')
+const defaultAdapterOptions = {
+  port: 6379,
+  host: '127.0.0.1'
+}
 
-const makeRedisCache = (broker, options = {}) => {
-  // prepare options
-  options = Object.assign({
-    port: 6379,
-    host: '127.0.0.1',
-    ttl: null
-  }, options)
+const createRedisCache = (adapterOptions = {}) => (runtime, options = {}) => {
+  adapterOptions = defaultsDeep(adapterOptions, defaultAdapterOptions)
 
-  const base = Cache.createCacheBase(broker, options)
-  const name = 'Redis'
+  const base = Cache.createCacheBase('Redis', runtime, adapterOptions, options)
 
   let client
-  broker.bus.on('$transport.connected', () => cache.clear())
+  runtime.bus.on('$transport.connected', () => cache.clear())
 
   const cache = Object.assign(base, {
-    name,
     init () {
-      let Redis
-      try {
-        Redis = require('ioredis')
-      } catch (error) {
-        this.log.error('The package \'ioredis\' is not installed. Please install the package with \'npm install nats\'.')
-        broker.errorHandler(error)
-      }
       client = new Redis(options)
 
       client.on('connect', () => {
+        cache.isConnected = true
         /* istanbul ignore next */
-        this.log.info('Redis cacher connected.')
+        base.log.info('Redis cacher connected.')
       })
 
       client.on('error', (err) => {
         /* istanbul ignore next */
-        this.log.error(err)
+        base.log.error(err)
       })
     },
     set (hashKey, data, ttl) {
@@ -54,19 +47,19 @@ const makeRedisCache = (broker, options = {}) => {
         client.set(hashKey, data)
       }
 
-      this.log.debug(`Set ${hashKey}`)
+      base.log.debug(`Set ${hashKey}`)
 
       return Promise.resolve(data)
     },
     get (cacheKey) {
       return client.get(cacheKey).then(data => {
         if (data) {
-          this.log.debug(`FOUND ${cacheKey}`)
+          base.log.debug(`FOUND ${cacheKey}`)
           try {
             data = JSON.parse(data)
             return data
           } catch (error) {
-            this.log.error('Redis result parse error', error, data)
+            base.log.error('Redis result parse error', error, data)
           }
         }
         return null
@@ -75,7 +68,7 @@ const makeRedisCache = (broker, options = {}) => {
     remove (hashKey) {
       return client.del(hashKey)
         .then(() => {
-          this.log.debug(`Delete ${hashKey}`)
+          base.log.debug(`Delete ${hashKey}`)
         })
     },
     clear (pattern = '*') {
@@ -95,7 +88,7 @@ const makeRedisCache = (broker, options = {}) => {
         })
 
         stream.on('end', () => {
-          this.log.debug('Cache cleared')
+          base.log.debug('Cache cleared')
           return resolve()
         })
       })
@@ -108,4 +101,4 @@ const makeRedisCache = (broker, options = {}) => {
   return cache
 }
 
-module.exports = makeRedisCache
+module.exports = { createRedisCache }

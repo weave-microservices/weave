@@ -10,6 +10,7 @@
 
 /** @module weave */
 const os = require('os')
+const { createInMemoryCache } = require('../cache/adapters/inMemory.js')
 const { loadBalancingStrategy } = require('../constants')
 
 /**
@@ -28,7 +29,7 @@ exports.getDefaultOptions = () => {
     },
     cache: {
       enabled: false,
-      adapter: 'memory',
+      adapter: createInMemoryCache(),
       ttl: 3000,
       lock: {
         enabled: false

@@ -1,12 +1,17 @@
-const { createBroker } = require('../../../packages/core/core/lib')
-const repl = require('../../../packages/core/repl/lib/index')
-const { createZipkinExporter } = require('../../../packages/tracing-adapters/zipkin/lib/index')
+const { createInMemoryCache } = require('../../packages/cache/redis/node_modules/@weave-js/core/lib/cache/adapters')
+const { createBroker } = require('../../packages/core/core/lib')
+const repl = require('../../packages/core/repl/lib/index')
+const { createZipkinExporter } = require('../../packages/tracing-adapters/zipkin/lib/index')
 
 const app = createBroker({
   nodeId: 'trace',
   watchServices: true,
   logger: {
     enabled: true
+  },
+  cache: {
+    enabled: true,
+    adapter: createInMemoryCache()
   },
   tracing: {
     enabled: true,
@@ -38,14 +43,19 @@ app.createService({
     hello (context) {
       return 'text from test2'
     },
-    async goodbye (context) {
-      // const span = await context.startSpan('do some fancy stuff')
-      return new Promise((resolve) => {
-        setTimeout(async () => {
-          // await context.finishSpan(span)
-          resolve('nothing')
-        }, 2000)
-      })
+    goodbye: {
+      cache: {
+        ttl: 10000
+      },
+      async handler (context) {
+        // const span = await context.startSpan('do some fancy stuff')
+        return new Promise((resolve) => {
+          setTimeout(async () => {
+            // await context.finishSpan(span)
+            resolve('nothing')
+          }, 2000)
+        })
+      }
     },
     error (context) {
       throw new Error('hier ist was faul!!!!')
@@ -54,6 +64,7 @@ app.createService({
   events: {
     async 'hello.sent' (context) {
       await context.call('greater.goodbye')
+      await this.actions.hello()
     }
   }
 })

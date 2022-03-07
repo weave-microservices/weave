@@ -70,7 +70,7 @@ describe('Middleware hooks', () => {
       stopped: () => {
         order.push('stopped')
       },
-      localAction: (handler) => {
+      localAction: (handler, action) => {
         return function (context) {
           order.push('localAction1')
           return handler(context).then(res => {

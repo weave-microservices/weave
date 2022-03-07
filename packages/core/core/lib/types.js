@@ -22,7 +22,7 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2')
 /**
  * @callback CallActionFunctionDef - Action function definition
  * @param {string} actionName - Name of the action
- * @param {object} data - Payload
+ * @param {object} [data] - Payload
  * @param {ActionOptions} [options] - Action options
  * @return {Promise<any>} Promise - Result
  */
@@ -127,7 +127,7 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2')
  * @property {function(string, any, any=):Promise<any>} emit - Emit
  * @property {function(string, any, any=):Promise<any>} broadcast broadcast
  * @property {function(string, any, any=):Promise<any>} broadcastLocal broadcastLocal
- * @property {function(string):Promise<any>} waitForServices waitForServices
+ * @property {function(Array<string>|string):Promise<any>} waitForServices waitForServices
  * @property {function(string, number=):Promise<PingResult>} ping ping
  * @property {function(Error):void} handleError handleError
  * @property {function():void} fatalError fatalError
@@ -169,7 +169,13 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2')
  * @property {Boolean} enabled - Enable tracing middleware. (default = false)
  * @property {Number} samplingRate - Rate of traced actions. (default = 1.0)
  * @property {Array<String|Object>} collectors - Array of tracing collectors.
- * @property {TracingErrorOptions} errors - Settings for tracing errors.
+ * @property {TracingErrorOptions} [errors] - Settings for tracing errors.
+*/
+
+/**
+ * Configuration object for weave service broker.
+ * @typedef {Object} CacheLockOptions
+ * @property {Boolean} [enabled=false] Enable cache lock. (default = false)
 */
 
 /**
@@ -178,6 +184,7 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2')
  * @property {Boolean} enabled Enable cache middleware. (default = false)
  * @property {String | Object} adapter - Cache adapter. (default = memory (In Memory))
  * @property {number} [ttl=3000] - Cache item TTL.
+ * @property {CacheLockOptions} [lock] Cache lock options.
 */
 
 /**
@@ -328,7 +335,7 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2')
  * @property {number} stopTime stopTime
  * @property {any} [metrics] metrics
  * @property {function(any):void} setData - Set data object.
- * @property {function(string, any, ActionOptions):ContextPromise} call - Call a service action
+ * @property {CallActionFunctionDef} call - Call a service action
  * @property {function(string, object):Promise<any>} emit emit
  * @property {Stream} [stream] - Stream
  * @property {function(string, any):Promise<any>} broadcast Broadcast an event to all listener.
@@ -350,7 +357,7 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2')
  * @property {Promise<any>} get get
  * @property {Promise<any>} remove remove
  * @property {Promise<any>} clear clear
- * @property {string} getCachingHash getCachingHash
+ * @property {string} getCachingKey getCachingKey
  * @property {function():Middleware} createMiddleware createMiddleware
  * @property {function():Promise<any>} stop stop
 */
@@ -482,7 +489,7 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2')
  * @property {function(string):Endpoint} getLocalActionEndpoint getLocalActionEndpoint
  * @property {function():NodeInfo} getNodeInfo getNodeInfo
  * @property {function():NodeInfo} getLocalNodeInfo getLocalNodeInfo
- * @property {function():NodeInfo} generateLocalNodeInfo generateLocalNodeInfo
+ * @property {function(Boolean=):NodeInfo} generateLocalNodeInfo generateLocalNodeInfo
  * @property {*} processNodeInfo processNodeInfo
  * @property {function(string, boolean):void} nodeDisconnected nodeDisconnected
  * @property {function(string):void} removeNode removeNode
@@ -507,6 +514,7 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2')
  * @property {function():number} count count
  * @property {function(string):Endpoint} getByNodeId getByNodeId
  * @property {function(string):void} removeByNodeId removeByNodeId
+ * @property {function(string):Endpoint} endpointByNodeId Get endpoint by node ID.
  * @property {function():void} removeByService removeByService
 */
 
@@ -522,6 +530,7 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2')
  * @property {number} lastHeartbeatTime lastHeartbeatTime
  * @property {number} offlineTime offlineTime
  * @property {boolean} isAvailable isAvailable
+ * @property {boolean} wasDisconnectedUnexpectedly Node was disconnected unexpectedly
  * @property {Array<ServiceItem>} services services
  * @property {number} sequence sequence
  * @property {Array<string>} [events] events
@@ -561,7 +570,8 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2')
 
 /**
  * @typedef {object} NodeCollectionListFilterOptions
- * @property {boolean} [withServices=true] Output all services on an node.
+ * @property {boolean} [availableOnly=false] Git only available nodes.
+ * @property {boolean} [withServices=false] Output all services on an node.
 */
 
 /**
@@ -575,14 +585,14 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2')
  * @property {boolean} has has
  * @property {function(string):Node} get get
  * @property {function(string):boolean} remove remove
- * @property {function(NodeCollectionListFilterOptions):Array<Node>} list list
+ * @property {function(NodeCollectionListFilterOptions=):Array<Node>} list list
  * @property {void} disconnected disconnected
  * @property {Array<Node>} toArray toArray
 */
 
 /**
  * @typedef {Object} ServiceActionCollectionListFilterParams
- * @property {boolean} [onlyLocals] Shows only local service actions
+ * @property {boolean} [localOnly] Shows only local service actions
  * @property {boolean} [skipInternals] Shows only local service actions
  * @property {boolean} [withEndpoints] Shows only local service actions
  */
@@ -617,6 +627,7 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2')
 /**
  * @typedef {Object} ServiceCollectionListFilterParams
  * @property {boolean} [localOnly=false] Show only local services.
+ * @property {boolean} [availableOnly=false] Show only available services.
  * @property {boolean} [withActions=false] Include actions in result.
  * @property {boolean} [withEvents=false] Include events in result.
  * @property {boolean} [withNodeService=false] Include node service.
@@ -630,8 +641,8 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2')
  * @property {function(Node,string, number, any):ServiceItem} add Add a new service to service collection.
  * @property {*} get get
  * @property {function(string, number, string):boolean} has has
- * @property {function(string, string, number):void} remove remove
- * @property {function(string):void} removeAllByNodeId removeAllByNodeId
+ * @property {function(string, string, number=):void} remove Remove endpoint by node ID, service name and version*.
+ * @property {function(string):void} removeAllByNodeId Remove all endpoints by node ID.
  * @property {*} registerAction registerAction
  * @property {function(string):EndpointCollection} tryFindActionsByActionName tryFindActionsByActionName
  * @property {function():Array<any>} getActionsList getActionsList
