@@ -45,8 +45,6 @@ exports.Errors = require('./errors')
 
 exports.Constants = require('./constants')
 
-
-
 // Caching
 exports.Cache = require('./cache/adapters')
 

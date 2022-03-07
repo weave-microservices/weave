@@ -122,12 +122,12 @@ describe('Multiple type validation', () => {
 
     const validator = ModelValidator()
     const validate = validator.compile(schema)
-    const res1 = validate({ name: 'kevin'})
+    const res1 = validate({ name: 'kevin' })
     expect(res1).toBe(true)
-    const res2 = validate({ name: 123})
+    const res2 = validate({ name: 123 })
     expect(res2).toBe(true)
 
-    const res3 = validate({ name: { text: 'kevin'}})
+    const res3 = validate({ name: { text: 'kevin' }})
 
     expect(Array.isArray(res3)).toBe(true)
     expect(res3[0]).toEqual({
