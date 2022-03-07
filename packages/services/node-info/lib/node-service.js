@@ -54,7 +54,7 @@ exports.actions = {
   },
   actions: {
     handler (context) {
-      return this.runtime.registry.getActionList(context.data)
+      return this.runtime.registry.actionCollection.list(context.data)
     }
   },
   events: {
@@ -64,7 +64,7 @@ exports.actions = {
   },
   list: {
     handler (context) {
-      return this.runtime.registry.getNodeList(context.data)
+      return this.runtime.registry.nodeCollection.list(context.data)
     }
   }
 }

@@ -147,19 +147,22 @@ exports.createRegistry = (runtime) => {
 
       // remove old services
       const oldServices = Array.from(this.serviceCollection.services)
-      oldServices.forEach((service) => {
-        if (service.node.id !== node.id) return
+      oldServices.forEach((oldService) => {
+        if (oldService.node.id !== node.id) {
+          return
+        }
 
         let isExisting = false
 
+        // check if the old service exists in the new services.
         services.forEach((svc) => {
-          if (service.equals(svc.name, svc.version)) {
+          if (oldService.equals(svc.name, svc.version)) {
             isExisting = true
           }
         })
 
         if (!isExisting) {
-          this.deregisterService(service.name, service.version, node.id)
+          this.deregisterService(oldService.name, oldService.version, node.id)
         }
       })
 
@@ -186,9 +189,9 @@ exports.createRegistry = (runtime) => {
         }
 
         if (node.isLocal) {
-          action.handler = middlewareHandler.wrapHandler('localAction', action.handler, action)// this.onRegisterLocalAction(action)
+          action.handler = middlewareHandler.wrapHandler('localAction', action.handler, action)
         } else {
-          action.handler = middlewareHandler.wrapHandler('remoteAction', runtime.transport.sendRequest.bind(runtime.transport), action)// this.onRegisterRemoteAction(action)
+          action.handler = middlewareHandler.wrapHandler('remoteAction', runtime.transport.sendRequest.bind(runtime.transport), action)
         }
 
         this.actionCollection.add(node, service, action)
@@ -196,13 +199,10 @@ exports.createRegistry = (runtime) => {
         service.addAction(action)
       })
     },
-    getActionList (options) {
-      return this.actionCollection.list(options)
-    },
     deregisterService (name, version, nodeId) {
       this.serviceCollection.remove(nodeId || runtime.nodeId, name, version)
 
-      // It must be a local service
+      // It must be a local service if there is no node ID.
       if (!nodeId) {
         const serviceToRemove = this.nodeCollection.localNode.services.find(service => service.name === name)
         this.nodeCollection.localNode.services.splice(this.nodeCollection.localNode.services.indexOf(serviceToRemove), 1)
@@ -386,12 +386,6 @@ exports.createRegistry = (runtime) => {
       this.nodeCollection.remove(nodeId)
       runtime.eventBus.broadcastLocal('$node.removed', { nodeId })
       this.log.warn(`Node "${nodeId}" removed.`)
-    },
-    getNodeList (options) {
-      return this.nodeCollection.list(options)
-    },
-    getServiceList (options) {
-      return this.serviceCollection.list(options)
     }
   }
 

@@ -1,4 +1,4 @@
-const CacheMemory = require('../../../lib/cache/inMemory')
+const { createInMemoryCache } = require('../../../lib/cache/adapters')
 const { createNode } = require('../../helper')
 // const SlowService = require('../../services/slow.service')
 
@@ -9,7 +9,7 @@ describe('Test IN-Memory cache initialization', () => {
         enabled: false
       }
     })
-    const cache = CacheMemory(broker.runtime)
+    const cache = createInMemoryCache()(broker.runtime)
     expect(cache.options).toBeDefined()
     expect(cache.options.ttl).toBeNull()
     cache.stop()
@@ -22,7 +22,7 @@ describe('Test IN-Memory cache initialization', () => {
         enabled: false
       }
     })
-    const cache = CacheMemory(broker.runtime, options)
+    const cache = createInMemoryCache()(broker.runtime, options)
     expect(cache.options).toEqual(options)
     expect(cache.options.ttl).toBe(4000)
     cache.stop()
@@ -35,7 +35,7 @@ describe('Test IN-Memory cache initialization', () => {
         enabled: false
       }
     })
-    const cache = CacheMemory(broker.runtime, options)
+    const cache = createInMemoryCache()(broker.runtime, options)
     expect(cache.options).toEqual(options)
     expect(cache.options.ttl).toBe(4000)
     cache.stop()
@@ -50,7 +50,7 @@ describe('Test IN-Memory message flow', () => {
       }
     })
 
-    const cache = CacheMemory(broker)
+    const cache = createInMemoryCache()(broker)
     cache.init()
     cache.clear = jest.fn()
     broker.bus.emit('$transport.connected')
@@ -65,7 +65,7 @@ describe('Test usage (without TTL)', () => {
       enabled: false
     }
   })
-  const cache = CacheMemory(broker.runtime)
+  const cache = createInMemoryCache()(broker.runtime)
   cache.init()
 
   const key1 = 'test1234:sadasda'

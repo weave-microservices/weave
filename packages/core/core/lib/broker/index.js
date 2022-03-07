@@ -257,7 +257,7 @@ exports.createBrokerInstance = (runtime) => {
         // handle arrays
         const pongs = {}
 
-        const nodes = registry.getNodeList({})
+        const nodes = registry.nodeCollection.list({})
           .filter(node => !node.isLocal)
           .map(node => node.id)
 

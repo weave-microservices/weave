@@ -5,34 +5,27 @@
  */
 
 const { Cache } = require('@weave-js/core')
+const { defaultsDeep } = require('@weave-js/utils')
+const Redis = require('ioredis')
+const defaultAdapterOptions = {
+  port: 6379,
+  host: '127.0.0.1'
+}
 
-const makeRedisCache = (broker, options = {}) => {
-  // prepare options
-  options = Object.assign({
-    port: 6379,
-    host: '127.0.0.1',
-    ttl: null
-  }, options)
+const createRedisCache = (adapterOptions = {}) => (runtime, options = {}) => {
+  adapterOptions = defaultsDeep(adapterOptions, defaultAdapterOptions)
 
-  const base = Cache.createCacheBase(broker, options)
-  const name = 'Redis'
+  const base = Cache.createCacheBase('Redis', runtime, adapterOptions, options)
 
   let client
-  broker.bus.on('$transport.connected', () => cache.clear())
+  runtime.bus.on('$transport.connected', () => cache.clear())
 
   const cache = Object.assign(base, {
-    name,
     init () {
-      let Redis
-      try {
-        Redis = require('ioredis')
-      } catch (error) {
-        base.log.error('The package \'ioredis\' is not installed. Please install the package with \'npm install nats\'.')
-        broker.errorHandler(error)
-      }
       client = new Redis(options)
 
       client.on('connect', () => {
+        cache.isConnected = true
         /* istanbul ignore next */
         base.log.info('Redis cacher connected.')
       })
@@ -108,4 +101,4 @@ const makeRedisCache = (broker, options = {}) => {
   return cache
 }
 
-module.exports = makeRedisCache
+module.exports = { createRedisCache }

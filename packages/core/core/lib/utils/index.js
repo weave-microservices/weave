@@ -1,5 +1,5 @@
 
 exports = {
   ...require('./options'),
-  ...require('./restore-error')
+  ...require('./restoreError')
 }

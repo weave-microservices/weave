@@ -5,8 +5,8 @@
  */
 const crypto = require('crypto')
 const { isObject, dotGet, isString } = require('@weave-js/utils')
-const Constants = require('../metrics/constants')
-const { WeaveError } = require('../errors')
+const Constants = require('../../metrics/constants')
+const { WeaveError } = require('../../errors')
 
 /**
  * Get property from data or metadata object.
@@ -55,9 +55,9 @@ function registerCacheMetrics (metrics) {
   metrics.register({ type: 'counter', name: Constants.CACHE_CLEANED_TOTAL })
 }
 
-exports.createCacheBase = (name, runtime, options) => {
+const createCacheBase = (name, runtime, adapterOptions, options) => {
   if (!isString(name)) {
-    throw new WeaveError('Name needs to be a string.')
+    throw new WeaveError('Name must be a string.')
   }
 
   const cache = {
@@ -132,5 +132,12 @@ exports.createCacheBase = (name, runtime, options) => {
     }
   }
 
+  Object.defineProperty(cache, 'adapterOptions', {
+    value: adapterOptions,
+    writable: false
+  })
+
   return cache
 }
+
+module.exports = { createCacheBase }

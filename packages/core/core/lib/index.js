@@ -45,17 +45,18 @@ exports.Errors = require('./errors')
 
 exports.Constants = require('./constants')
 
-// Transport
-exports.TransportAdapters = require('./transport/adapters')
+
 
 // Caching
-exports.Cache = require('./cache')
+exports.Cache = require('./cache/adapters')
 
 /**
  * @deprecated since version 0.10.0
 */
 exports.createBaseTracingCollector = require('./tracing/collectors/base').createBaseTracingCollector
+exports.TransportAdapters = require('./transport/adapters')
 exports.TracingAdapters = require('./tracing/collectors')
+exports.CacheAdapters = require('./cache/adapters')
 
 // Helper
 exports.defineBrokerOptions = require('./helper/defineBrokerOptions')

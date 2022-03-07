@@ -54,44 +54,44 @@ broker.createService({
   }
 })
 
-// broker 2
-broker2.createService({
-  name: 'test1',
-  actions: {
-    hello: {
-      handler (context) {
-        console.log(context.data)
-        return {
-          name: 'Kevin'
-        }
-      }
-    }
-  },
-  events: {
-    'my-event' (context) {
-      this.log.info('hello 2', context.nodeId)
-    }
-  }
-})
+// // broker 2
+// broker2.createService({
+//   name: 'test1',
+//   actions: {
+//     hello: {
+//       handler (context) {
+//         console.log(context.data)
+//         return {
+//           name: 'Kevin'
+//         }
+//       }
+//     }
+//   },
+//   events: {
+//     'my-event' (context) {
+//       this.log.info('hello 2', context.nodeId)
+//     }
+//   }
+// })
 
-broker3.createService({
-  name: 'test1',
-  actions: {
-    hello: {
-      handler (context) {
-        console.log(context.data)
-        return {
-          name: 'Kevin'
-        }
-      }
-    }
-  },
-  events: {
-    'my-event' (context) {
-      this.log.info('hello 2', context.nodeId)
-    }
-  }
-})
+// broker3.createService({
+//   name: 'test1',
+//   actions: {
+//     hello: {
+//       handler (context) {
+//         console.log(context.data)
+//         return {
+//           name: 'Kevin'
+//         }
+//       }
+//     }
+//   },
+//   events: {
+//     'my-event' (context) {
+//       this.log.info('hello 2', context.nodeId)
+//     }
+//   }
+// })
 
 broker2.createService({
   name: 'test2-2',

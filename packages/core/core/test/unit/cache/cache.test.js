@@ -1,9 +1,25 @@
-const { createCacheBase } = require('../../../lib/cache/base')
+const { createCacheBase } = require('../../../lib/cache/adapters/base')
 const cacheMiddleware = require('../../../lib/middlewares/cache')
 const { createFakeRuntime } = require('../../helper/runtime')
 const { createNode } = require('../../helper')
+const { WeaveError } = require('../../../lib/errors')
 
-// const SlowService = require('../../services/slow.service')
+describe('Test cache base errors', () => {
+  const broker = createNode({
+    logger: {
+      enabled: false
+    }
+  })
+
+  it('should throw an error if the cache name is not a string.', () => {
+    try {
+      createCacheBase(broker, {})
+    } catch (error) {
+      expect(error instanceof WeaveError).toBe(true)
+      expect(error.message).toBe('Name must be a string.')
+    }
+  })
+})
 
 describe('Test cache hash creation', () => {
   const broker = createNode({
@@ -11,17 +27,29 @@ describe('Test cache hash creation', () => {
       enabled: false
     }
   })
-  const cacheBase = createCacheBase(broker, {})
+  const cacheBase = createCacheBase('a-name', broker, {})
 
   it('should return the action name if no parameter was passed,', () => {
-    const hash = cacheBase.getCachingHash('testAction')
+    const hash = cacheBase.getCachingKey('testAction')
     expect(hash).toEqual('testAction')
   })
 
   it('should return the hashed value for the request.', () => {
-    const hash = cacheBase.getCachingHash('testAction', { a: 3, b: 2, c: '3' })
-    expect(hash).not.toEqual('testAction')
-    expect(hash.length).toBeGreaterThan(10)
+    const hash = cacheBase.getCachingKey('testAction', { a: 3, b: 2, c: '3' })
+    expect(hash).toEqual('testAction:q8pzKOgw6ZQaqNv2lGisoaVMupw=')
+    expect(hash.length).toBe(39)
+  })
+
+  it('should return the hashed value for the request.', () => {
+    const hash = cacheBase.getCachingKey('testAction', { a: 3, b: 2, c: '3' })
+    expect(hash).toEqual('testAction:q8pzKOgw6ZQaqNv2lGisoaVMupw=')
+    expect(hash.length).toBe(39)
+  })
+
+  it('should return the hashed value for the request with all kind of types', () => {
+    const hash = cacheBase.getCachingKey('testAction', { a: 3, b: 2, c: '3', d: null, e: { a1: 'asd', a2: 123, a3: { a1: 234, a2: true, a3: null, a4: Symbol('abc') }}}, { user: { id: '1234' }}, ['id', 'd', 'e', ':user.id'])
+    expect(hash).toEqual('testAction:undefined|null|B18lMl3k9IqsLI2MjKHlGKCs5cA=|1234')
+    expect(hash.length).toBe(59)
   })
 })
 
@@ -45,7 +73,13 @@ describe('Test cache middleware', () => {
       handler,
       service
     }
-    const runtime = createFakeRuntime()
+    const runtime = createFakeRuntime({
+      cache: {
+        lock: {
+          enabled: false
+        }
+      }
+    })
 
     const newHandler = cacheMiddleware(runtime).localAction(handler, action)
     expect(newHandler).toBe(handler)
