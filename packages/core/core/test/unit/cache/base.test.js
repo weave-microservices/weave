@@ -55,25 +55,47 @@ describe('Test base cache factory', () => {
     }
   })
 
-  it('schould generate a caching hash.', () => {
+  it('should generate a caching hash.', () => {
     const broker = createNode(config)
     const baseCache = createCacheBase('a-name', broker)
     const hash = baseCache.getCachingKey('test.action', { name: 'Kevin' })
-    expect(hash).toMatchSnapshot()
+    expect(hash).toBe('nUn37CVWXJwDCnAU9YHKcqzBQeg=')
   })
 
-  it('schould generate a caching hash (with 1 key)', () => {
+  it('should generate a caching hash (with 1 key)', () => {
     const broker = createNode(config)
     const baseCache = createCacheBase('a-name', broker)
     const hash = baseCache.getCachingKey('test.action', { name: 'Kevin', age: 19 }, null, ['name'])
-    expect(hash).toMatchSnapshot()
+    expect(hash).toBe('pLJJROO/4+ZfDXD5U5b23TMD8VQ=')
   })
 
-  it('schould generate a caching hash (with 1 key)', () => {
+  it('should generate a caching hash (with 1 key)', () => {
     const broker = createNode(config)
     const baseCache = createCacheBase('a-name', broker)
-    const hash = baseCache.getCachingKey('test.action', { name: 'Kevin', age: 19, hobbies: ['coding', 'gym', 'swimming'], height: null }, null, ['name', 'age', 'hobbies', 'height'])
-    expect(hash).toMatchSnapshot()
+    const hash = baseCache.getCachingKey(
+      'test.action',
+      {
+        name: 'Kevin',
+        age: 19,
+        hobbies: ['coding', 'gym', 'swimming'],
+        height: null,
+        weight: undefined,
+        settings: {
+          enabled: true,
+          appearance: {
+            color: 'red'
+          }
+        }
+      },
+      {
+        user: {
+          id: 123,
+          sym: Symbol('ABC')
+        }
+      },
+      ['name', 'age', 'hobbies', 'height', 'settings.appearance', 'weight', ':user']
+    )
+
+    expect(hash).toBe('l/nQwYKDVk/26oWNBa8GdBDQ2N8=')
   })
 })
-
