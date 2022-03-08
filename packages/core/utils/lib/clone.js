@@ -1,6 +1,6 @@
 
 exports.clone = function clone (obj) {
-  // in case of premitives
+  // in case of primitives
   if (obj === null || typeof obj !== 'object') {
     return obj
   }
