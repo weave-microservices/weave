@@ -36,20 +36,14 @@ describe('Test cache hash creation', () => {
 
   it('should return the hashed value for the request.', () => {
     const hash = cacheBase.getCachingKey('testAction', { a: 3, b: 2, c: '3' })
-    expect(hash).toEqual('testAction:q8pzKOgw6ZQaqNv2lGisoaVMupw=')
-    expect(hash.length).toBe(39)
-  })
-
-  it('should return the hashed value for the request.', () => {
-    const hash = cacheBase.getCachingKey('testAction', { a: 3, b: 2, c: '3' })
-    expect(hash).toEqual('testAction:q8pzKOgw6ZQaqNv2lGisoaVMupw=')
-    expect(hash.length).toBe(39)
+    expect(hash).toEqual('Mx+xZ+Div1RZM1bbRXUDCsQzI1Q=')
+    expect(hash.length).toBe(28)
   })
 
   it('should return the hashed value for the request with all kind of types', () => {
     const hash = cacheBase.getCachingKey('testAction', { a: 3, b: 2, c: '3', d: null, e: { a1: 'asd', a2: 123, a3: { a1: 234, a2: true, a3: null, a4: Symbol('abc') }}}, { user: { id: '1234' }}, ['id', 'd', 'e', ':user.id'])
-    expect(hash).toEqual('testAction:undefined|null|B18lMl3k9IqsLI2MjKHlGKCs5cA=|1234')
-    expect(hash.length).toBe(59)
+    expect(hash).toEqual('c9Umg/LcJo4n8X0fA5H7IiBMotE=')
+    expect(hash.length).toBe(28)
   })
 })
 

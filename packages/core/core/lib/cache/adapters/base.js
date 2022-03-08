@@ -4,40 +4,11 @@
  * Copyright 2021 Fachwerk
  */
 const crypto = require('crypto')
-const { isObject, dotGet, isString } = require('@weave-js/utils')
+const { isObject, isString } = require('@weave-js/utils')
 const Constants = require('../../metrics/constants')
 const { WeaveError } = require('../../errors')
-
-/**
- * Get property from data or metadata object.
- * @param {any} data data object
- * @param {object} metadata metadata object
- * @param {string} key key
- * @returns {any} Result
- */
-function getPropertyFromDataOrMetadata (data, metadata, key) {
-  // if a key starts with ":", the property is picked from metadata
-  if (key.startsWith(':')) {
-    // remove ':' from key.
-    key = key.replace(':', '')
-    return dotGet(metadata, key)
-  }
-  return dotGet(data, key)
-}
-
-function getCacheKeyByObject (val) {
-  if (Array.isArray(val)) {
-    return val.map(object => getCacheKeyByObject(object)).join('/')
-  } else if (isObject(val)) {
-    return Object.keys(val).map(key => {
-      return [key, getCacheKeyByObject(val[key])].join('/')
-    }).join('/')
-  } else if (val !== null) {
-    return val.toString()
-  } else {
-    return 'null'
-  }
-}
+const { getCacheKeyByObject } = require('../getCacheKeyByObject')
+const { getPropertyFromDataOrMetadata } = require('../getPropertyFromDataOrMetadata')
 
 function generateHash (key) {
   return crypto
@@ -102,29 +73,26 @@ const createCacheBase = (name, runtime, adapterOptions, options) => {
         if (keys) {
           // fast path for single keys
           if (keys.length === 1) {
-            const value = getPropertyFromDataOrMetadata(data, metadata, keys[0])
-            const key = getCacheKeyByObject(value)
-            return prefix + (isObject(value) ? key : value)
+            const cacheKeyData = getPropertyFromDataOrMetadata(data, metadata, keys[0])
+            const key = getCacheKeyByObject(cacheKeyData)
+            const value = prefix + (isObject(cacheKeyData) ? key : cacheKeyData)
+            return generateHash(value)
           }
 
           // Handle data cache keys
           if (keys.length > 0) {
-            const res = keys.reduce((pre, property, index) => {
-              const value = getPropertyFromDataOrMetadata(data, metadata, property)
-              let hash
-              if (isObject(value)) {
-                const key = getCacheKeyByObject(value)
-                hash = generateHash(key)
-              } else {
-                hash = value
-              }
+            const valueString = keys.reduce((pre, property, index) => {
+              let value = getPropertyFromDataOrMetadata(data, metadata, property)
+              value = getCacheKeyByObject(value)
 
-              return pre + (index > 0 ? '|' : '') + hash
+              return pre + (index > 0 ? '|' : '') + value
             }, prefix)
-            return res
+
+            return generateHash(valueString)
           }
         } else {
-          return prefix + generateHash(getCacheKeyByObject(data))
+          const value = prefix + getCacheKeyByObject(data)
+          return generateHash(value)
         }
       }
 
