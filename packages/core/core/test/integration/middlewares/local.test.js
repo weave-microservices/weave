@@ -1,95 +1,95 @@
-const { createNode } = require('../../helper')
+const { createNode } = require('../../helper');
 
 const createMiddlewareWithFlow = (flowArray) => {
   return {
     created (broker) {
-      flowArray.push('created')
+      flowArray.push('created');
     },
     starting (broker) {
-      flowArray.push('starting')
+      flowArray.push('starting');
     },
     started (broker) {
-      flowArray.push('started')
+      flowArray.push('started');
     },
     serviceStarting (service, schema) {
-      flowArray.push('serviceStarting:' + service.name)
+      flowArray.push('serviceStarting:' + service.name);
     },
     serviceStarted (service, schema) {
-      flowArray.push('serviceStarted:' + service.name)
+      flowArray.push('serviceStarted:' + service.name);
     },
     serviceStopping (service, schema) {
-      flowArray.push('serviceStopping:' + service.name)
+      flowArray.push('serviceStopping:' + service.name);
     },
     serviceStopped (service, schema) {
-      flowArray.push('serviceStopped')
+      flowArray.push('serviceStopped');
     },
     localAction (next, action) {
-      flowArray.push('localAction:' + action.name)
+      flowArray.push('localAction:' + action.name);
     },
     remoteAction (next, action) {
-      flowArray.push('remoteAction')
+      flowArray.push('remoteAction');
     },
     emit (next) {
-      flowArray.push('emit')
+      flowArray.push('emit');
       return function () {
-        return next(...arguments)
-      }
+        return next(...arguments);
+      };
     },
     broadcast (next) {
-      flowArray.push('broadcast')
+      flowArray.push('broadcast');
       return function () {
-        return next(...arguments)
-      }
+        return next(...arguments);
+      };
     },
     broadcastLocal (next) {
-      flowArray.push('broadcastLocal')
+      flowArray.push('broadcastLocal');
       return function () {
-        return next(...arguments)
-      }
+        return next(...arguments);
+      };
     },
     call (next) {
-      flowArray.push('call')
+      flowArray.push('call');
       return function () {
-        return next(...arguments)
-      }
+        return next(...arguments);
+      };
     },
     multiCall (next) {
-      flowArray.push('multiCall')
+      flowArray.push('multiCall');
       return function () {
-        return next(...arguments)
-      }
+        return next(...arguments);
+      };
     },
     createService (next) {
-      flowArray.push('createService')
+      flowArray.push('createService');
       return function () {
-        return next(...arguments)
-      }
+        return next(...arguments);
+      };
     },
     loadService (next) {
-      flowArray.push('loadService')
+      flowArray.push('loadService');
       return function () {
-        return next(...arguments)
-      }
+        return next(...arguments);
+      };
     },
     loadServices (next) {
-      flowArray.push('loadServices')
+      flowArray.push('loadServices');
       return function () {
-        return next(...arguments)
-      }
+        return next(...arguments);
+      };
     }
-  }
-}
+  };
+};
 
 describe('Test middlewares', () => {
   it('should fire middleware hooks in always the same order', async () => {
-    const flow = []
+    const flow = [];
     const broker = createNode({
       middlewares: [createMiddlewareWithFlow(flow)]
-    })
+    });
 
-    await broker.start()
-    expect(flow.join('-')).toBe('call-multiCall-emit-broadcast-broadcastLocal-createService-loadService-loadServices-created-starting-started')
-  })
+    await broker.start();
+    expect(flow.join('-')).toBe('call-multiCall-emit-broadcast-broadcastLocal-createService-loadService-loadServices-created-starting-started');
+  });
 
   it('should decorate broker instance', async () => {
     const broker = createNode({
@@ -100,23 +100,23 @@ describe('Test middlewares', () => {
       middlewares: [{
         created (runtime) {
           runtime.getNodeId = () => {
-            return `The node ID is "${runtime.nodeId}"`
-          }
+            return `The node ID is "${runtime.nodeId}"`;
+          };
         }
       }]
-    })
+    });
 
     broker.createService({
       name: 'testService',
       actions: {
         getId () {
-          return this.runtime.getNodeId()
+          return this.runtime.getNodeId();
         }
       }
-    })
+    });
 
-    await broker.start()
-    const result = await broker.call('testService.getId')
-    expect(result).toBe('The node ID is "node1"')
-  })
-})
+    await broker.start();
+    const result = await broker.call('testService.getId');
+    expect(result).toBe('The node ID is "node1"');
+  });
+});

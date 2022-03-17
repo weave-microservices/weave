@@ -1,2 +1,2 @@
-const EventEmitter = require('events').EventEmitter
-exports.createEventEmitter = () => EventEmitter.prototype
+const EventEmitter = require('events').EventEmitter;
+exports.createEventEmitter = () => EventEmitter.prototype;

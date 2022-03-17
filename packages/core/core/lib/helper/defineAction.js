@@ -10,5 +10,5 @@
  * @returns {ServiceActionDefinition} Action definition
 */
 module.exports = function (actionDefinition) {
-  return actionDefinition
-}
+  return actionDefinition;
+};

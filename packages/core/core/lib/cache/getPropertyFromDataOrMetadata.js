@@ -1,4 +1,4 @@
-const { dotGet } = require('@weave-js/utils')
+const { dotGet } = require('@weave-js/utils');
 
 /**
  * Get property from data or metadata object.
@@ -11,10 +11,10 @@ const getPropertyFromDataOrMetadata = (data, metadata, key) => {
   // if a key starts with ":", the property is picked from metadata
   if (key.startsWith(':')) {
     // remove ':' from key.
-    key = key.replace(':', '')
-    return dotGet(metadata, key)
+    key = key.replace(':', '');
+    return dotGet(metadata, key);
   }
-  return dotGet(data, key)
-}
+  return dotGet(data, key);
+};
 
-module.exports = { getPropertyFromDataOrMetadata }
+module.exports = { getPropertyFromDataOrMetadata };

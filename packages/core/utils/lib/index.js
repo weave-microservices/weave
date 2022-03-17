@@ -34,4 +34,4 @@ module.exports = {
   ...require('./wrap-handler'),
   ...require('./wrap-in-array'),
   ...require('./pick')
-}
+};

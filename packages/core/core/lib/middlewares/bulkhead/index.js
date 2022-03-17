@@ -3,8 +3,8 @@
  * -----
  * Copyright 2021 Fachwerk
  */
-const { Constants } = require('../../metrics')
-const { WeaveQueueSizeExceededError } = require('../../errors')
+const { Constants } = require('../../metrics');
+const { WeaveQueueSizeExceededError } = require('../../errors');
 
 /**
  * @typedef {import('../../types').Runtime} Runtime
@@ -18,47 +18,47 @@ const { WeaveQueueSizeExceededError } = require('../../errors')
  */
 module.exports = (runtime) => {
   const wrapBulkheadMiddleware = function (handler, action) {
-    const bulkheadOptions = runtime.options.bulkhead
+    const bulkheadOptions = runtime.options.bulkhead;
 
     if (bulkheadOptions.enabled) {
-      const queue = []
-      let currentlyInFlight = 0
+      const queue = [];
+      let currentlyInFlight = 0;
 
       const callNext = () => {
-        if (queue.length === 0) return
-        if (currentlyInFlight >= bulkheadOptions.concurrentCalls) return
+        if (queue.length === 0) return;
+        if (currentlyInFlight >= bulkheadOptions.concurrentCalls) return;
 
-        const item = queue.shift()
+        const item = queue.shift();
 
-        currentlyInFlight++
+        currentlyInFlight++;
         handler(item.context)
           .then(result => {
-            currentlyInFlight--
-            item.resolve(result)
-            callNext()
+            currentlyInFlight--;
+            item.resolve(result);
+            callNext();
           })
           .catch(error => {
-            currentlyInFlight--
-            callNext()
-            return item.reject(error)
-          })
-      }
+            currentlyInFlight--;
+            callNext();
+            return item.reject(error);
+          });
+      };
 
       return function bulkheadMiddlware (context, serviceInjections) {
         // Execute action immediately
         if (currentlyInFlight < bulkheadOptions.concurrentCalls) {
-          currentlyInFlight++
+          currentlyInFlight++;
           return handler(context, serviceInjections)
             .then(result => {
-              currentlyInFlight--
-              callNext()
-              return result
+              currentlyInFlight--;
+              callNext();
+              return result;
             })
             .catch(error => {
-              currentlyInFlight--
-              callNext()
-              return Promise.reject(error)
-            })
+              currentlyInFlight--;
+              callNext();
+              return Promise.reject(error);
+            });
         }
 
         // Reject the action if the max queue size is reached.
@@ -67,23 +67,23 @@ module.exports = (runtime) => {
             action: action.name,
             limit: bulkheadOptions.maxQueueSize,
             size: queue.length
-          }))
+          }));
         }
 
         // Queue the request
-        return new Promise((resolve, reject) => queue.push({ resolve, reject, context }))
-      }
+        return new Promise((resolve, reject) => queue.push({ resolve, reject, context }));
+      };
     }
-    return handler
-  }
+    return handler;
+  };
 
   return {
     created () {
       if (runtime.options.metrics.enabled) {
         // todo: add bulkhead metrics
-        runtime.metrics.register({ type: 'gauge', name: Constants.BULKHEAD_REQUESTS_IN_FLIGHT, description: 'Number of in flight requests.' })
+        runtime.metrics.register({ type: 'gauge', name: Constants.BULKHEAD_REQUESTS_IN_FLIGHT, description: 'Number of in flight requests.' });
       }
     },
     localAction: wrapBulkheadMiddleware
-  }
-}
+  };
+};

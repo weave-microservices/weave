@@ -1,12 +1,12 @@
 exports.safeCopy = function safeCopy (obj) {
-  const cache = new WeakSet()
+  const cache = new WeakSet();
   return JSON.parse(JSON.stringify(obj, (key, value) => {
     if (typeof value === 'object' && value !== null) {
       if (cache.has(value)) {
-        return
+        return;
       }
-      cache.add(value)
+      cache.add(value);
     }
-    return value
-  }))
-}
+    return value;
+  }));
+};

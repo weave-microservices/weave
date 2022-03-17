@@ -1,15 +1,15 @@
-const { WeaveError } = require('../../errors')
+const { WeaveError } = require('../../errors');
 
 module.exports = (options) => {
-  const cache = {}
+  const cache = {};
 
   cache.init = (registry) => {
-    Promise.resolve(new WeaveError('Init method not implemented'))
-  }
+    Promise.resolve(new WeaveError('Init method not implemented'));
+  };
 
   cache.stop = (registry) => {
-    Promise.resolve(new WeaveError('Stop method not implemented'))
-  }
+    Promise.resolve(new WeaveError('Stop method not implemented'));
+  };
 
-  return cache
-}
+  return cache;
+};

@@ -1,7 +1,7 @@
-const errors = require('../errors')
+const errors = require('../errors');
 
 exports.initActionInvoker = (runtime) => {
-  const { registry, contextFactory, log, handleError } = runtime
+  const { registry, contextFactory, log, handleError } = runtime;
 
   /**
    * Call a action.
@@ -11,36 +11,36 @@ exports.initActionInvoker = (runtime) => {
    * @returns {Promise} Promise
   */
   const call = (actionName, data, opts = {}) => {
-    const endpoint = registry.getNextAvailableActionEndpoint(actionName, opts)
+    const endpoint = registry.getNextAvailableActionEndpoint(actionName, opts);
 
     if (endpoint instanceof Error) {
       return Promise.reject(endpoint)
-        .catch(error => handleError(error))
+        .catch(error => handleError(error));
     }
 
-    const action = endpoint.action
-    const nodeId = endpoint.node.id
-    let context
+    const action = endpoint.action;
+    const nodeId = endpoint.node.id;
+    let context;
 
     // If a context is passed, we use this
     if (opts.context !== undefined) {
-      context = opts.context
-      context.nodeId = nodeId
+      context = opts.context;
+      context.nodeId = nodeId;
     } else {
-      context = contextFactory.create(endpoint, data, opts)
+      context = contextFactory.create(endpoint, data, opts);
     }
 
     if (endpoint.isLocal) {
-      log.debug({ action: context.action.name, requestId: context.requestId }, 'Call action local.')
+      log.debug({ action: context.action.name, requestId: context.requestId }, 'Call action local.');
     } else {
-      log.debug({ action: context.action.name, nodeId, requestId: context.requestId }, 'Call action on remote node.')
+      log.debug({ action: context.action.name, nodeId, requestId: context.requestId }, 'Call action on remote node.');
     }
 
-    const p = action.handler(context, { service: context.action.service, runtime, errors })
-    p.context = context
+    const p = action.handler(context, { service: context.action.service, runtime, errors });
+    p.context = context;
 
-    return p
-  }
+    return p;
+  };
 
   /**
    * Call multiple actions.
@@ -49,16 +49,16 @@ exports.initActionInvoker = (runtime) => {
   */
   const multiCall = (actions) => {
     if (Array.isArray(actions)) {
-      return Promise.all(actions.map(item => call(item.actionName, item.params, item.options)))
+      return Promise.all(actions.map(item => call(item.actionName, item.params, item.options)));
     } else {
-      return Promise.reject(new errors.WeaveError('Actions need to be an Array'))
+      return Promise.reject(new errors.WeaveError('Actions need to be an Array'));
     }
-  }
+  };
 
   Object.defineProperty(runtime, 'actionInvoker', {
     value: {
       call,
       multiCall
     }
-  })
-}
+  });
+};

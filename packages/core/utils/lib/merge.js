@@ -1,31 +1,31 @@
-const { isObject } = require('./is-object')
+const { isObject } = require('./is-object');
 
 exports.merge = function merge (target, source) {
   if (!isObject(target) || !isObject(source)) {
-    return source
+    return source;
   }
 
-  const tempTarget = Object.assign({}, target)
+  const tempTarget = Object.assign({}, target);
 
   Object.keys(source).forEach(key => {
-    const targetValue = tempTarget[key]
-    const sourceValue = source[key]
+    const targetValue = tempTarget[key];
+    const sourceValue = source[key];
 
     if (Array.isArray(targetValue) && Array.isArray(sourceValue)) {
-      tempTarget[key] = targetValue.concat(sourceValue)
+      tempTarget[key] = targetValue.concat(sourceValue);
     } else if (isObject(targetValue) && isObject(sourceValue)) {
-      tempTarget[key] = merge(Object.assign({}, targetValue), sourceValue)
+      tempTarget[key] = merge(Object.assign({}, targetValue), sourceValue);
     } else {
-      tempTarget[key] = sourceValue
+      tempTarget[key] = sourceValue;
     }
-  })
+  });
 
-  return tempTarget
-}
+  return tempTarget;
+};
 
 exports.deepMerge = function deepMerge (...args) {
   // Setup target object
-  const newObj = {}
+  const newObj = {};
 
   // Merge the object into the newObj object
   const merge = function (obj) {
@@ -33,20 +33,20 @@ exports.deepMerge = function deepMerge (...args) {
       if (obj.hasOwnProperty(prop)) {
         // If property is an object, merge properties
         if (Object.prototype.toString.call(obj[prop]) === '[object Object]') {
-          newObj[prop] = deepMerge(newObj[prop], obj[prop])
+          newObj[prop] = deepMerge(newObj[prop], obj[prop]);
         } else if (Array.isArray(newObj[prop]) && Array.isArray(obj[prop])) {
-          newObj[prop] = newObj[prop].concat(obj[prop])
+          newObj[prop] = newObj[prop].concat(obj[prop]);
         } else {
-          newObj[prop] = obj[prop]
+          newObj[prop] = obj[prop];
         }
       }
     }
-  }
+  };
 
   // Loop through each object and conduct a merge
   for (let i = 0; i < args.length; i++) {
-    merge(args[i])
+    merge(args[i]);
   }
 
-  return newObj
-}
+  return newObj;
+};

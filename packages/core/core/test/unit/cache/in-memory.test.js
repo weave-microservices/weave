@@ -1,5 +1,5 @@
-const { createInMemoryCache } = require('../../../lib/cache/adapters')
-const { createNode } = require('../../helper')
+const { createInMemoryCache } = require('../../../lib/cache/adapters');
+const { createNode } = require('../../helper');
 // const SlowService = require('../../services/slow.service')
 
 describe('Test IN-Memory cache initialization', () => {
@@ -8,39 +8,39 @@ describe('Test IN-Memory cache initialization', () => {
       logger: {
         enabled: false
       }
-    })
-    const cache = createInMemoryCache()(broker.runtime)
-    expect(cache.options).toBeDefined()
-    expect(cache.options.ttl).toBeNull()
-    cache.stop()
-  })
+    });
+    const cache = createInMemoryCache()(broker.runtime);
+    expect(cache.options).toBeDefined();
+    expect(cache.options.ttl).toBeNull();
+    cache.stop();
+  });
 
   it('should create with options.', () => {
-    const options = { ttl: 4000 }
+    const options = { ttl: 4000 };
     const broker = createNode({
       logger: {
         enabled: false
       }
-    })
-    const cache = createInMemoryCache()(broker.runtime, options)
-    expect(cache.options).toEqual(options)
-    expect(cache.options.ttl).toBe(4000)
-    cache.stop()
-  })
+    });
+    const cache = createInMemoryCache()(broker.runtime, options);
+    expect(cache.options).toEqual(options);
+    expect(cache.options.ttl).toBe(4000);
+    cache.stop();
+  });
 
   it('should create with options.', () => {
-    const options = { ttl: 4000 }
+    const options = { ttl: 4000 };
     const broker = createNode({
       logger: {
         enabled: false
       }
-    })
-    const cache = createInMemoryCache()(broker.runtime, options)
-    expect(cache.options).toEqual(options)
-    expect(cache.options.ttl).toBe(4000)
-    cache.stop()
-  })
-})
+    });
+    const cache = createInMemoryCache()(broker.runtime, options);
+    expect(cache.options).toEqual(options);
+    expect(cache.options.ttl).toBe(4000);
+    cache.stop();
+  });
+});
 
 describe('Test IN-Memory message flow', () => {
   it('should call "clear" after a new node is connected.', () => {
@@ -48,28 +48,28 @@ describe('Test IN-Memory message flow', () => {
       logger: {
         enabled: false
       }
-    })
+    });
 
-    const cache = createInMemoryCache()(broker)
-    cache.init()
-    cache.clear = jest.fn()
-    broker.bus.emit('$transport.connected')
-    expect(cache.clear).toBeCalledTimes(1)
-    cache.stop()
-  })
-})
+    const cache = createInMemoryCache()(broker);
+    cache.init();
+    cache.clear = jest.fn();
+    broker.bus.emit('$transport.connected');
+    expect(cache.clear).toBeCalledTimes(1);
+    cache.stop();
+  });
+});
 
 describe('Test usage (without TTL)', () => {
   const broker = createNode({
     logger: {
       enabled: false
     }
-  })
-  const cache = createInMemoryCache()(broker.runtime)
-  cache.init()
+  });
+  const cache = createInMemoryCache()(broker.runtime);
+  cache.init();
 
-  const key1 = 'test1234:sadasda'
-  const key2 = 'test12345:sadasdasadasdasd'
+  const key1 = 'test1234:sadasda';
+  const key2 = 'test12345:sadasdasadasdasd';
 
   const result = {
     data: [
@@ -77,57 +77,57 @@ describe('Test usage (without TTL)', () => {
       'my',
       'friend'
     ]
-  }
+  };
   it('should save date with the key.', () => {
-    cache.set(key1, result)
+    cache.set(key1, result);
     return cache.get(key1).then(res => {
-      expect(res).toBeDefined()
-      expect(res).toEqual(result)
-    })
-  })
+      expect(res).toBeDefined();
+      expect(res).toEqual(result);
+    });
+  });
 
   it('should save date with the key.', () => {
-    cache.set(key1, result)
+    cache.set(key1, result);
     return cache.get(key1).then(res => {
-      expect(res).toBeDefined()
-      expect(res).toEqual(result)
-    })
-  })
+      expect(res).toBeDefined();
+      expect(res).toEqual(result);
+    });
+  });
 
   it('should delete data by key.', () => {
-    cache.remove(key1)
+    cache.remove(key1);
     return cache.get(key1).then(res => {
-      expect(res).toBeDefined()
-      expect(res).toBeNull()
-    })
-  })
+      expect(res).toBeDefined();
+      expect(res).toBeNull();
+    });
+  });
 
   it('should clear the cache.', () => {
-    cache.set(key1, result)
-    cache.set(key2, result)
+    cache.set(key1, result);
+    cache.set(key2, result);
 
-    cache.clear()
+    cache.clear();
 
     return cache.get(key1).then(res => {
-      expect(res).toBeDefined()
-      expect(res).toBeNull()
-    })
-  })
+      expect(res).toBeDefined();
+      expect(res).toBeNull();
+    });
+  });
 
   it('should clear the cache partial.', async () => {
-    cache.set(key1, result)
-    cache.set(key2, result)
+    cache.set(key1, result);
+    cache.set(key2, result);
 
-    cache.clear('test12345*')
+    cache.clear('test12345*');
 
-    const res1 = await cache.get(key1)
-    expect(res1).toBeDefined()
-    expect(res1).toEqual(res1)
+    const res1 = await cache.get(key1);
+    expect(res1).toBeDefined();
+    expect(res1).toEqual(res1);
 
-    const res2 = await cache.get(key2)
-    expect(res2).toBeNull()
-  })
-})
+    const res2 = await cache.get(key2);
+    expect(res2).toBeNull();
+  });
+});
 
 // describe('Test usage with TTL', () => {
 //     const broker = createNode()

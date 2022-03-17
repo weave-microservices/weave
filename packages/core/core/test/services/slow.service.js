@@ -5,10 +5,10 @@ module.exports = {
       handler (context) {
         return new Promise((resolve) => {
           setTimeout(() => {
-            resolve('yes')
-          }, 1000)
-        })
+            resolve('yes');
+          }, 1000);
+        });
       }
     }
   }
-}
+};

@@ -10,8 +10,8 @@
  * @typedef {import('../../types.js').Registry} Registry
  * @typedef {import('../../types.js').ServiceActionCollection} ServiceActionCollection
 */
-const { omit } = require('@weave-js/utils')
-const { createEndpointList } = require('./endpointCollection')
+const { omit } = require('@weave-js/utils');
+const { createEndpointList } = require('./endpointCollection');
 
 /**
  * Configuration object for weave service broker.
@@ -29,51 +29,51 @@ exports.createActionCollection = (registry) => {
   /**
    * @type {ServiceActionCollection}
   */
-  const actionCollection = Object.create(null)
-  const { runtime } = registry
-  const actions = new Map()
+  const actionCollection = Object.create(null);
+  const { runtime } = registry;
+  const actions = new Map();
 
   actionCollection.add = (node, service, action) => {
-    let endPointList = actions.get(action.name)
+    let endPointList = actions.get(action.name);
     if (!endPointList) {
-      endPointList = createEndpointList(runtime, action.name)
-      actions.set(action.name, endPointList)
+      endPointList = createEndpointList(runtime, action.name);
+      actions.set(action.name, endPointList);
     }
-    return endPointList.add(node, service, action)
-  }
+    return endPointList.add(node, service, action);
+  };
 
   actionCollection.get = (actionName) => {
-    return actions.get(actionName)
-  }
+    return actions.get(actionName);
+  };
 
   actionCollection.removeByService = (service) => {
     actions.forEach(list => {
-      list.removeByService(service)
-    })
-  }
+      list.removeByService(service);
+    });
+  };
 
   actionCollection.remove = (actionName, node) => {
     // todo: switch property order
-    const endpoints = actions.get(actionName)
+    const endpoints = actions.get(actionName);
     if (endpoints) {
-      endpoints.removeByNodeId(node.id)
+      endpoints.removeByNodeId(node.id);
     }
-  }
+  };
 
   actionCollection.list = ({
     onlyLocals = false,
     skipInternals = false,
     withEndpoints = false
   } = {}) => {
-    const result = []
+    const result = [];
 
     actions.forEach(action => {
       if (skipInternals && /^\$node/.test(action.name)) {
-        return
+        return;
       }
 
       if (onlyLocals && !action.hasLocal()) {
-        return
+        return;
       }
 
       // todo: don't create an new object
@@ -82,17 +82,17 @@ exports.createActionCollection = (registry) => {
         hasAvailable: action.hasAvailable(),
         hasLocal: action.hasLocal(),
         count: action.count()
-      }
+      };
 
       if (item.count > 0) {
-        const endpoint = action.endpoints[0]
+        const endpoint = action.endpoints[0];
         if (endpoint) {
-          item.action = omit(endpoint.action, ['handler', 'service'])
+          item.action = omit(endpoint.action, ['handler', 'service']);
         }
       }
 
       if (item.action == null || item.action.protected) {
-        return
+        return;
       }
 
       if (withEndpoints) {
@@ -100,14 +100,14 @@ exports.createActionCollection = (registry) => {
           return {
             nodeId: endpoint.node.id,
             state: endpoint.state
-          }
-        })
+          };
+        });
       }
 
-      result.push(item)
-    })
-    return result
-  }
+      result.push(item);
+    });
+    return result;
+  };
 
-  return actionCollection
-}
+  return actionCollection;
+};

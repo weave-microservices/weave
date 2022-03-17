@@ -1,4 +1,4 @@
-const utils = require('../lib')
+const utils = require('../lib');
 
 describe('Omit', () => {
   it('should return a property', () => {
@@ -12,11 +12,11 @@ describe('Omit', () => {
           ws: [1, 2, 3]
         }
       }
-    }
+    };
 
-    expect(utils.omit(null, ['settings'])).toBe(null)
+    expect(utils.omit(null, ['settings'])).toBe(null);
     expect(utils.omit(source, ['settings'])).toEqual({
       name: 'test'
-    })
-  })
-})
+    });
+  });
+});

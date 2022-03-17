@@ -1,5 +1,5 @@
-const { createBaseTracingCollector } = require('../../../lib/tracing/collectors/base')
-const { createFakeRuntime } = require('../../helper/runtime')
+const { createBaseTracingCollector } = require('../../../lib/tracing/collectors/base');
+const { createFakeRuntime } = require('../../helper/runtime');
 // const { createEndpoint } = require('../../lib/registry/endpoint')
 
 // const fakeAction = {
@@ -7,19 +7,19 @@ const { createFakeRuntime } = require('../../helper/runtime')
 //   handler: () => {}
 // }
 
-const runtime = createFakeRuntime()
+const runtime = createFakeRuntime();
 
 describe('Test base tracing colletor factory.', () => {
   it('should define default .', () => {
-    const baseCollector = createBaseTracingCollector(runtime)
+    const baseCollector = createBaseTracingCollector(runtime);
 
-    const flattened = baseCollector.flattenTags(null)
+    const flattened = baseCollector.flattenTags(null);
 
-    expect(flattened).toBe(null)
-  })
+    expect(flattened).toBe(null);
+  });
 
   it('should define default .', () => {
-    const baseCollector = createBaseTracingCollector(runtime)
+    const baseCollector = createBaseTracingCollector(runtime);
 
     const flattened = baseCollector.flattenTags({
       nodeId: '123',
@@ -29,15 +29,15 @@ describe('Test base tracing colletor factory.', () => {
           port: 4000
         }
       }
-    })
+    });
 
-    expect(flattened.nodeId).toBe('123')
-    expect(flattened['options.transport.adapter']).toBe('tcp')
-    expect(flattened['options.transport.port']).toBe(4000)
-  })
+    expect(flattened.nodeId).toBe('123');
+    expect(flattened['options.transport.adapter']).toBe('tcp');
+    expect(flattened['options.transport.port']).toBe(4000);
+  });
 
   it('should flatten tags and convert to string .', () => {
-    const baseCollector = createBaseTracingCollector(runtime)
+    const baseCollector = createBaseTracingCollector(runtime);
 
     const flattened = baseCollector.flattenTags({
       nodeId: '123',
@@ -47,18 +47,18 @@ describe('Test base tracing colletor factory.', () => {
           port: 4000
         }
       }
-    }, true)
+    }, true);
 
-    expect(flattened.nodeId).toBe('123')
-    expect(flattened['options.transport.adapter']).toBe('tcp')
-    expect(flattened['options.transport.port']).toBe('4000')
-  })
+    expect(flattened.nodeId).toBe('123');
+    expect(flattened['options.transport.adapter']).toBe('tcp');
+    expect(flattened['options.transport.port']).toBe('4000');
+  });
 
   it('should flatten tags and convert to string .', () => {
-    const baseCollector = createBaseTracingCollector(runtime)
+    const baseCollector = createBaseTracingCollector(runtime);
 
-    const fields = baseCollector.getErrorFields(new Error('Something went wrong!'), ['message'])
+    const fields = baseCollector.getErrorFields(new Error('Something went wrong!'), ['message']);
 
-    expect(fields.message).toBe('Something went wrong!')
-  })
-})
+    expect(fields.message).toBe('Something went wrong!');
+  });
+});

@@ -6,8 +6,8 @@ module.exports = {
         text: 'string'
       },
       handler (context) {
-        return context.text.split('').reverse()
+        return context.text.split('').reverse();
       }
     }
   }
-}
+};

@@ -1,9 +1,9 @@
 exports.isJSONString = function isJSONString (string) {
   try {
-    JSON.parse(string)
+    JSON.parse(string);
   } catch (e) {
-    return false
+    return false;
   }
 
-  return true
-}
+  return true;
+};

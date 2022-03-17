@@ -1,7 +1,7 @@
-const { isPlainObject, isFunction } = require('@weave-js/utils')
-const { WeaveError } = require('../errors')
-const { registerCommonMetrics, updateCommonMetrics } = require('../metrics/common')
-const MetricTypes = require('../metrics/types')
+const { isPlainObject, isFunction } = require('@weave-js/utils');
+const { WeaveError } = require('../errors');
+const { registerCommonMetrics, updateCommonMetrics } = require('../metrics/common');
+const MetricTypes = require('../metrics/types');
 
 /**
  * @typedef {import('../types.js').Runtime} Runtime
@@ -13,15 +13,15 @@ const MetricTypes = require('../metrics/types')
  * @returns {void}
  */
 exports.initMetrics = (runtime) => {
-  const metricOptions = runtime.options.metrics
+  const metricOptions = runtime.options.metrics;
 
   if (metricOptions.enabled) {
-    const storage = new Map()
+    const storage = new Map();
 
-    const log = runtime.createLogger('METRICS')
+    const log = runtime.createLogger('METRICS');
 
     /** @type {NodeJS.Timeout} */
-    let commonUpdateTimer
+    let commonUpdateTimer;
 
     Object.defineProperty(runtime, 'metrics', {
       value: {
@@ -33,101 +33,101 @@ exports.initMetrics = (runtime) => {
           // Load adapters
           if (metricOptions.adapters) {
             if (!Array.isArray(metricOptions.adapters)) {
-              runtime.handleError(new WeaveError('Metic adapter needs to be an Array.'))
+              runtime.handleError(new WeaveError('Metic adapter needs to be an Array.'));
             }
 
             this.adapters = metricOptions.adapters.map(adapter => {
-              adapter.init(this)
-              return adapter
-            })
+              adapter.init(this);
+              return adapter;
+            });
           }
         },
         stop () {
           if (commonUpdateTimer) {
-            clearInterval(commonUpdateTimer)
+            clearInterval(commonUpdateTimer);
           }
 
-          return Promise.all(this.adapters.map(adapter => adapter.stop()))
+          return Promise.all(this.adapters.map(adapter => adapter.stop()));
         },
         register (obj) {
           if (!isPlainObject(obj)) {
-            runtime.handleError(new WeaveError('Param needs to be an object.'))
+            runtime.handleError(new WeaveError('Param needs to be an object.'));
           }
 
           if (!obj.type) {
-            runtime.handleError(new WeaveError('Type is missing.'))
+            runtime.handleError(new WeaveError('Type is missing.'));
           }
 
           if (!obj.name) {
-            runtime.handleError(new WeaveError('Name is missing.'))
+            runtime.handleError(new WeaveError('Name is missing.'));
           }
 
-          const createMetricType = MetricTypes.resolve(obj.type)
+          const createMetricType = MetricTypes.resolve(obj.type);
 
           if (!createMetricType) {
-            runtime.handleError(new WeaveError('Unknown metric type.'))
+            runtime.handleError(new WeaveError('Unknown metric type.'));
           }
 
-          const type = createMetricType(this, obj)
+          const type = createMetricType(this, obj);
 
-          this.storage.set(obj.name, type)
+          this.storage.set(obj.name, type);
 
-          return type
+          return type;
         },
         increment (name, labels, value = 1, timestamp) {
           if (!metricOptions.enabled) {
-            return null
+            return null;
           }
 
-          const item = this.storage.get(name)
+          const item = this.storage.get(name);
 
           if (!item) {
-            runtime.handleError(new WeaveError('Item not found.'))
+            runtime.handleError(new WeaveError('Item not found.'));
           }
 
-          item.increment(labels, value, timestamp)
+          item.increment(labels, value, timestamp);
         },
         decrement (name, labels, value = 1, timestamp) {
           if (!metricOptions.enabled) {
-            return null
+            return null;
           }
 
-          const item = this.storage.get(name)
+          const item = this.storage.get(name);
 
           if (!item) {
-            runtime.handleError(new WeaveError('Item not found.'))
+            runtime.handleError(new WeaveError('Item not found.'));
           }
 
-          item.decrement(labels, value, timestamp)
+          item.decrement(labels, value, timestamp);
         },
         set (name, value, labels, timestamp) {
           if (!metricOptions.enabled) {
-            return null
+            return null;
           }
 
-          const item = this.storage.get(name)
+          const item = this.storage.get(name);
 
           if (!isFunction(item.set)) {
-            runtime.handleError(new WeaveError('Invalid metric type'))
+            runtime.handleError(new WeaveError('Invalid metric type'));
           }
 
-          item.set(value, labels, timestamp)
+          item.set(value, labels, timestamp);
         },
         timer (name, labels, timestamp) {
-          let item
+          let item;
           if (name) {
-            item = this.storage.get(name)
+            item = this.storage.get(name);
           }
-          const start = process.hrtime()
+          const start = process.hrtime();
 
           return () => {
-            const delta = process.hrtime(start)
-            const duration = (delta[0] + delta[1] / 1e9) * 1000
+            const delta = process.hrtime(start);
+            const duration = (delta[0] + delta[1] / 1e9) * 1000;
             if (item) {
-              item.set(duration, labels, timestamp)
+              item.set(duration, labels, timestamp);
             }
-            return duration
-          }
+            return duration;
+          };
           // const item = this.storage.get(name)
           // if (item) {
 
@@ -135,30 +135,30 @@ exports.initMetrics = (runtime) => {
           // item.observe(labels, value, timestamp)
         },
         getMetric (name) {
-          const item = this.storage.get(name)
+          const item = this.storage.get(name);
 
           if (!item) {
-            runtime.handleError(new WeaveError('Item not found.'))
+            runtime.handleError(new WeaveError('Item not found.'));
           }
 
-          return item
+          return item;
         },
         list (/* options = {} */) {
-          const results = []
+          const results = [];
 
           this.storage.forEach(metric => {
-            results.push(metric.toObject())
-          })
+            results.push(metric.toObject());
+          });
 
-          return results
+          return results;
         }
       }
-    })
+    });
 
     if (metricOptions.enabled && metricOptions.collectCommonMetrics) {
-      registerCommonMetrics(runtime)
-      commonUpdateTimer = setInterval(() => updateCommonMetrics(runtime), metricOptions.collectInterval)
-      commonUpdateTimer.unref()
+      registerCommonMetrics(runtime);
+      commonUpdateTimer = setInterval(() => updateCommonMetrics(runtime), metricOptions.collectInterval);
+      commonUpdateTimer.unref();
     }
   }
-}
+};

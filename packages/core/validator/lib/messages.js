@@ -27,4 +27,4 @@ module.exports = {
   arrayContains: 'The parameter "{param}"  must contain the item "{expected}".',
   enumValues: 'The  value of the parameter "{param}" with the value "{passed}" does not match with any of the allowed values.',
   objectStrict: 'The object "{param}" contains forbidden keys: "{passed}".'
-}
+};

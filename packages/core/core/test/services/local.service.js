@@ -7,8 +7,8 @@ module.exports = {
         text: 'string'
       },
       handler (context) {
-        return context.data.text.split('').reverse().join('')
+        return context.data.text.split('').reverse().join('');
       }
     }
   }
-}
+};

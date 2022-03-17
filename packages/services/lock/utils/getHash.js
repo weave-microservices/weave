@@ -1,7 +1,7 @@
-const crypto = require('crypto')
+const crypto = require('crypto');
 
 const getHash = (value) => {
-  return crypto.createHash('sha256').update(value).digest('hex')
-}
+  return crypto.createHash('sha256').update(value).digest('hex');
+};
 
-module.exports = { getHash }
+module.exports = { getHash };

@@ -1,16 +1,16 @@
-const { createBaseTracingCollector } = require('@weave-js/core/lib/tracing/collectors/base')
-const fetch = require('node-fetch')
+const { createBaseTracingCollector } = require('@weave-js/core/lib/tracing/collectors/base');
+const fetch = require('node-fetch');
 
-const convertTime = (timestamp) => timestamp != null ? Math.round(timestamp * 1000) : null
-const convertId = (id) => id ? id.replace(/-/g, '').substring(0, 16) : null
+const convertTime = (timestamp) => timestamp != null ? Math.round(timestamp * 1000) : null;
+const convertId = (id) => id ? id.replace(/-/g, '').substring(0, 16) : null;
 
 const mergeDefaultOptions = (options) => {
   return Object.assign({
     host: process.env.ZIPKIN_URL || 'http://localhost:9411',
     endpoint: '/api/v2/spans',
     interval: 5000
-  }, options)
-}
+  }, options);
+};
 
 /**
  * @typedef {Object} ZipkinCollectorOptions Zipkin collector options
@@ -26,25 +26,25 @@ const mergeDefaultOptions = (options) => {
 */
 exports.createZipkinExporter = (options = {}) =>
   (runtime) => {
-    const exporter = createBaseTracingCollector(runtime)
-    const queue = []
+    const exporter = createBaseTracingCollector(runtime);
+    const queue = [];
 
-    options = mergeDefaultOptions(options)
+    options = mergeDefaultOptions(options);
 
-    let timer = setInterval(() => flushQueue(), options.interval)
-    timer.unref()
+    let timer = setInterval(() => flushQueue(), options.interval);
+    timer.unref();
 
     const flushQueue = () => {
       if (queue.length) {
-        const data = generatePayload()
-        queue.length = 0
-        sendData(data)
+        const data = generatePayload();
+        queue.length = 0;
+        sendData(data);
       }
-    }
+    };
 
     const generatePayload = () => {
       return queue.map(span => {
-        const serviceName = span.service ? span.service.fullyQualifiedName : null
+        const serviceName = span.service ? span.service.fullyQualifiedName : null;
 
         const payload = {
           id: convertId(span.id),
@@ -70,7 +70,7 @@ exports.createZipkinExporter = (options = {}) =>
             service: serviceName,
             'span.type': span.type
           }
-        }
+        };
 
         if (span.error) {
           // payload.tags.error = span.error.message
@@ -82,21 +82,21 @@ exports.createZipkinExporter = (options = {}) =>
               port: 0
             },
             timestamp: convertTime(span.finishTime)
-          })
+          });
         }
 
         Object.assign(
           payload.tags,
           exporter.flattenTags(span.tags, true),
           exporter.flattenTags(span.error ? { error: exporter.getErrorFields(span.error, exporter.options.errors.fields) } : {})
-        )
+        );
 
-        return payload
-      })
-    }
+        return payload;
+      });
+    };
 
     const sendData = (data) => {
-      data = JSON.stringify(data)
+      data = JSON.stringify(data);
 
       fetch(`${options.host}${options.endpoint}`, {
         method: 'post',
@@ -107,19 +107,19 @@ exports.createZipkinExporter = (options = {}) =>
         }
       })
         .then(res => res.text())
-        .catch(err => console.log(err))
-    }
+        .catch(err => console.log(err));
+    };
 
     exporter.finishedSpan = (span) => {
-      queue.push(span)
-    }
+      queue.push(span);
+    };
 
     exporter.stop = async () => {
       if (timer) {
-        clearInterval(timer)
-        timer = null
+        clearInterval(timer);
+        timer = null;
       }
-    }
+    };
 
-    return exporter
-  }
+    return exporter;
+  };

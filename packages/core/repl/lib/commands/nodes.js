@@ -1,11 +1,11 @@
 
-const { table } = require('table')
+const { table } = require('table');
 
 module.exports = ({ vorpal, broker, cliUI }) => {
   vorpal
     .command('nodes', 'List connected nodes')
     .action((args, done) => {
-      const data = []
+      const data = [];
       data.push([
         cliUI.tableHeaderText('Node ID'),
         cliUI.tableHeaderText('Services'),
@@ -14,16 +14,16 @@ module.exports = ({ vorpal, broker, cliUI }) => {
         cliUI.tableHeaderText('IP'),
         cliUI.tableHeaderText('State'),
         cliUI.tableHeaderText('CPU')
-      ])
+      ]);
 
-      const nodes = broker.runtime.registry.nodeCollection.list({})
+      const nodes = broker.runtime.registry.nodeCollection.list({});
 
       nodes.map(node => {
-        let cpuLoad = '?'
+        let cpuLoad = '?';
         if (node.cpu !== null) {
-          const width = 20
-          const c = Math.round(node.cpu / (100 / width))
-          cpuLoad = ['['].concat(Array(c).fill('■'), Array(width - c).fill('.'), ['] ', node.cpu.toFixed(0), '%']).join('')
+          const width = 20;
+          const c = Math.round(node.cpu / (100 / width));
+          cpuLoad = ['['].concat(Array(c).fill('■'), Array(width - c).fill('.'), ['] ', node.cpu.toFixed(0), '%']).join('');
         }
 
         data.push([
@@ -34,11 +34,11 @@ module.exports = ({ vorpal, broker, cliUI }) => {
           node.IPList[0],
           node.isAvailable ? cliUI.successLabel(' ONLINE ') : cliUI.failureLabel(' OFFLINE '),
           cpuLoad
-        ])
-      })
-      const tableConf = {}
+        ]);
+      });
+      const tableConf = {};
 
-      console.log(table(data, tableConf))
-      done()
-    })
-}
+      console.log(table(data, tableConf));
+      done();
+    });
+};

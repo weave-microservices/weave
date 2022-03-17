@@ -17,10 +17,10 @@ module.exports.buildActionTags = (context, brokerTracingOptions, actionTracingOp
     isRemoteCall: !!context.callerNodeId,
     nodeId: context.nodeId,
     requestId: context.requestId
-  }
+  };
 
-  return tags
-}
+  return tags;
+};
 
 /**
  * Build span tags object
@@ -37,7 +37,7 @@ module.exports.buildEventTags = (context, brokerTracingOptions, actionTracingOpt
     isRemoteCall: !!context.callerNodeId,
     nodeId: context.nodeId,
     requestId: context.requestId
-  }
+  };
 
-  return tags
-}
+  return tags;
+};

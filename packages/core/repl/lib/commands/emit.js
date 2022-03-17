@@ -1,18 +1,18 @@
-const convertArgs = require('../utils/convert-args')
+const convertArgs = require('../utils/convert-args');
 
 module.exports = ({ vorpal, broker, cliUI }) => {
   vorpal
     .command('emit <eventName>', 'Emit a event.')
     .autocomplete({
       data () {
-        return [...new Set(broker.runtime.registry.eventCollection.list({}).map(item => item.name))]
+        return [...new Set(broker.runtime.registry.eventCollection.list({}).map(item => item.name))];
       }
     })
     .allowUnknownOptions()
     .action((args, done) => {
-      const payload = convertArgs(args.options)
-      console.log(cliUI.infoText(`>> Emit '${args.eventName}' with payload:`), payload)
-      broker.emit(args.eventName, payload)
-      done()
-    })
-}
+      const payload = convertArgs(args.options);
+      console.log(cliUI.infoText(`>> Emit '${args.eventName}' with payload:`), payload);
+      broker.emit(args.eventName, payload);
+      done();
+    });
+};

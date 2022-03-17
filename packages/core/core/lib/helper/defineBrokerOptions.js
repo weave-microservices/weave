@@ -10,5 +10,5 @@
  * @returns {BrokerOptions} Broker options
 */
 module.exports = function (options) {
-  return options
-}
+  return options;
+};

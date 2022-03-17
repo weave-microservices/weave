@@ -1,65 +1,65 @@
 
-const util = require('util')
+const util = require('util');
 
-const defaultTimeout = 5000
+const defaultTimeout = 5000;
 
-const promisify = util.promisify
+const promisify = util.promisify;
 
 function acquireLock (client, lockName, timeout, retryDelay, onLockAcquired) {
   function retry () {
     setTimeout(function () {
-      acquireLock(client, lockName, timeout, retryDelay, onLockAcquired)
-    }, retryDelay)
+      acquireLock(client, lockName, timeout, retryDelay, onLockAcquired);
+    }, retryDelay);
   }
 
-  var lockTimeoutValue = (Date.now() + timeout + 1)
+  var lockTimeoutValue = (Date.now() + timeout + 1);
   client.set(lockName, lockTimeoutValue, 'PX', timeout, 'NX', function (err, result) {
-    if (err || result === null) return retry()
-    onLockAcquired(lockTimeoutValue)
-  })
+    if (err || result === null) return retry();
+    onLockAcquired(lockTimeoutValue);
+  });
 }
 
 function createLock (client, retryDelay) {
   if (!(client && client.setnx)) {
-    throw new Error('You must specify a client instance of http://github.com/mranney/node_redis')
+    throw new Error('You must specify a client instance of http://github.com/mranney/node_redis');
   }
 
-  retryDelay = retryDelay || 50
+  retryDelay = retryDelay || 50;
 
   function lock (lockName, timeout, taskToPerform) {
     if (!lockName) {
-      throw new Error('You must specify a lock string. It is on the redis key `lock.[string]` that the lock is acquired.')
+      throw new Error('You must specify a lock string. It is on the redis key `lock.[string]` that the lock is acquired.');
     }
 
     if (!taskToPerform) {
-      taskToPerform = timeout
-      timeout = defaultTimeout
+      taskToPerform = timeout;
+      timeout = defaultTimeout;
     }
 
-    lockName = 'lock.' + lockName
+    lockName = 'lock.' + lockName;
 
     acquireLock(client, lockName, timeout, retryDelay, function (lockTimeoutValue) {
       taskToPerform(promisify(function (done) {
-        done = done || function () {}
+        done = done || function () {};
 
         if (lockTimeoutValue > Date.now()) {
-          client.del(lockName, done)
+          client.del(lockName, done);
         } else {
-          done()
+          done();
         }
-      }))
-    })
+      }));
+    });
   }
 
   if (util.promisify) {
     lock[util.promisify.custom] = function (lockName, timeout) {
       return new Promise(function (resolve) {
-        lock(lockName, timeout || defaultTimeout, resolve)
-      })
-    }
+        lock(lockName, timeout || defaultTimeout, resolve);
+      });
+    };
   }
 
-  return lock
+  return lock;
 }
 
-module.exports = { createLock }
+module.exports = { createLock };

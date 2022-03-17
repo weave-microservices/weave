@@ -1,5 +1,5 @@
-const { dotGet } = require('./dot-get')
-const { dotSet } = require('./dot-set')
+const { dotGet } = require('./dot-get');
+const { dotSet } = require('./dot-set');
 
 /**
  * Pick properties of object by array
@@ -8,11 +8,11 @@ const { dotSet } = require('./dot-set')
  * @returns {Object} New result object
 */
 exports.pick = (object, props) => {
-  const picked = {}
+  const picked = {};
 
   for (const prop of props) {
-    dotSet(picked, prop, dotGet(object, prop))
+    dotSet(picked, prop, dotGet(object, prop));
   }
 
-  return picked
-}
+  return picked;
+};

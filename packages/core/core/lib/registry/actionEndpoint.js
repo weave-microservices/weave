@@ -31,15 +31,15 @@ exports.createActionEndpoint = (runtime, node, service, action) => {
     isLocal: node.id === runtime.nodeId,
     state: true,
     name: `${node.id}:${action.name}`
-  }
+  };
 
   endpoint.updateAction = (newAction) => {
-    endpoint.action = newAction
-  }
+    endpoint.action = newAction;
+  };
 
   endpoint.isAvailable = () => {
-    return endpoint.state === true
-  }
+    return endpoint.state === true;
+  };
 
-  return endpoint
-}
+  return endpoint;
+};

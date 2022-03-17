@@ -1,22 +1,22 @@
-const utils = require('@weave-js/utils')
-const Middleware = require('../../../lib/middlewares/bulkhead')
-const { createNode } = require('../../helper')
+const utils = require('@weave-js/utils');
+const Middleware = require('../../../lib/middlewares/bulkhead');
+const { createNode } = require('../../helper');
 
 const config = {
   logger: {
     enabled: false,
     level: 'fatal'
   }
-}
+};
 
 // const SlowService = require('../../services/slow.service')
 
 describe('Test bulkhead middleware', () => {
-  const broker = createNode(config)
-  const contentFactory = broker.runtime.contextFactory
-  const handler = jest.fn(() => Promise.resolve('hooray!!!'))
-  const middleware = Middleware(broker.runtime)
-  const service = {}
+  const broker = createNode(config);
+  const contentFactory = broker.runtime.contextFactory;
+  const handler = jest.fn(() => Promise.resolve('hooray!!!'));
+  const middleware = Middleware(broker.runtime);
+  const service = {};
   const action = {
     name: 'math.add',
     bulkhead: {
@@ -24,61 +24,61 @@ describe('Test bulkhead middleware', () => {
     },
     handler,
     service
-  }
+  };
 
   const endpoint = {
     action,
     node: {
       id: broker.nodeId
     }
-  }
+  };
 
   it('should register hooks', () => {
-    expect(middleware.localAction).toBeDefined()
-  })
+    expect(middleware.localAction).toBeDefined();
+  });
 
   it('should not wrap handler if bulkhead is disabled', () => {
-    broker.options.bulkhead.enabled = false
+    broker.options.bulkhead.enabled = false;
 
-    const newHandler = middleware.localAction.call(broker, handler, action)
-    expect(newHandler).toBe(handler)
-  })
+    const newHandler = middleware.localAction.call(broker, handler, action);
+    expect(newHandler).toBe(handler);
+  });
 
   it('should not wrap handler if bulkhead is disabled', () => {
-    broker.options.bulkhead.enabled = true
+    broker.options.bulkhead.enabled = true;
 
-    const newHandler = middleware.localAction.call(broker, handler, action)
-    expect(newHandler).not.toBe(handler)
-  })
+    const newHandler = middleware.localAction.call(broker, handler, action);
+    expect(newHandler).not.toBe(handler);
+  });
 
   it('should call the action 2 times bevore the requests get queued', (done) => {
-    broker.options.bulkhead.enabled = true
-    broker.options.bulkhead.concurrentCalls = 2
-    broker.options.bulkhead.maxQueueSize = 10
+    broker.options.bulkhead.enabled = true;
+    broker.options.bulkhead.concurrentCalls = 2;
+    broker.options.bulkhead.maxQueueSize = 10;
 
-    let flow = []
+    let flow = [];
 
     const handler = jest.fn((context) => {
-      flow.push('handler-' + context.data.p)
+      flow.push('handler-' + context.data.p);
       return new Promise(resolve => {
-        setTimeout(() => resolve(), 10)
-      })
-    })
+        setTimeout(() => resolve(), 10);
+      });
+    });
 
-    const contexts = [...Array(10)].map((_, i) => contentFactory.create(endpoint, { p: i }))
-    const wrappedHandler = middleware.localAction.call(broker, handler, action)
+    const contexts = [...Array(10)].map((_, i) => contentFactory.create(endpoint, { p: i }));
+    const wrappedHandler = middleware.localAction.call(broker, handler, action);
 
-    Promise.all(contexts.map(context => wrappedHandler(context)))
-    expect(handler).toBeCalledTimes(2)
+    Promise.all(contexts.map(context => wrappedHandler(context)));
+    expect(handler).toBeCalledTimes(2);
     expect(flow).toEqual([
       'handler-0',
       'handler-1'
-    ])
+    ]);
 
-    flow = []
+    flow = [];
     utils.promiseDelay(Promise.resolve(), 1000)
       .then(() => {
-        expect(handler).toBeCalledTimes(10)
+        expect(handler).toBeCalledTimes(10);
         expect(flow).toEqual(expect.arrayContaining([
           'handler-2',
           'handler-3',
@@ -88,40 +88,40 @@ describe('Test bulkhead middleware', () => {
           'handler-7',
           'handler-8',
           'handler-9'
-        ]))
-        done()
-      })
+        ]));
+        done();
+      });
 
     // expect(flow).toBe(handler)
-  })
+  });
 
   it('should call the action 2 times immediately bevore the last requests get queued', (done) => {
-    broker.options.bulkhead.enabled = true
-    broker.options.bulkhead.concurrentCalls = 2
-    broker.options.bulkhead.maxQueueSize = 10
+    broker.options.bulkhead.enabled = true;
+    broker.options.bulkhead.concurrentCalls = 2;
+    broker.options.bulkhead.maxQueueSize = 10;
 
-    let flow = []
+    let flow = [];
 
     const handler = jest.fn((context) => {
-      flow.push('handler-' + context.data.p)
+      flow.push('handler-' + context.data.p);
       return new Promise(resolve => {
-        setTimeout(() => resolve(), 10)
-      })
-    })
-    const contexts = [...Array(20)].map((_, i) => contentFactory.create(endpoint, { p: i }))
-    const wrappedHandler = middleware.localAction.call(broker, handler, action)
+        setTimeout(() => resolve(), 10);
+      });
+    });
+    const contexts = [...Array(20)].map((_, i) => contentFactory.create(endpoint, { p: i }));
+    const wrappedHandler = middleware.localAction.call(broker, handler, action);
 
-    Promise.all(contexts.map(context => wrappedHandler(context).catch(error => flow.push(error.name + '-' + context.data.p))))
-    expect(handler).toBeCalledTimes(2)
+    Promise.all(contexts.map(context => wrappedHandler(context).catch(error => flow.push(error.name + '-' + context.data.p))));
+    expect(handler).toBeCalledTimes(2);
     // expect(flow).toEqual([
     //     'handler-0',
     //     'handler-1'
     // ])
 
-    flow = []
+    flow = [];
     utils.promiseDelay(Promise.resolve(), 1000)
       .then(() => {
-        expect(handler).toBeCalledTimes(13)
+        expect(handler).toBeCalledTimes(13);
         expect(flow).toEqual(expect.arrayContaining([
           'handler-2',
           'handler-3',
@@ -131,8 +131,8 @@ describe('Test bulkhead middleware', () => {
           'handler-7',
           'handler-8',
           'handler-9'
-        ]))
-        done()
-      })
-  })
-})
+        ]));
+        done();
+      });
+  });
+});

@@ -1,7 +1,7 @@
 // const utils = require('../../../lib/utils')
 
-const Middleware = require('../../../lib/middlewares/metrics')
-const { createNode } = require('../../helper')
+const Middleware = require('../../../lib/middlewares/metrics');
+const { createNode } = require('../../helper');
 // const Context = require('../../../lib/broker/context')
 
 const config = {
@@ -12,14 +12,14 @@ const config = {
   metrics: {
     enabled: true
   }
-}
+};
 // const SlowService = require('../../services/slow.service')
 
 describe('Test metrics middleware', () => {
-  const broker = createNode(config)
+  const broker = createNode(config);
   // const contentFactory = createContextFactory()
   // const handler = jest.fn(() => Promise.resolve('hooray!!!'))
-  const middleware = Middleware(broker.runtime)
+  const middleware = Middleware(broker.runtime);
 
   // const endpoint = {
   //   action,
@@ -29,6 +29,6 @@ describe('Test metrics middleware', () => {
   // }
 
   it('should register hooks', () => {
-    expect(middleware.localAction).toBeDefined()
-  })
-})
+    expect(middleware.localAction).toBeDefined();
+  });
+});

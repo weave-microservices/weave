@@ -5,5 +5,5 @@ exports.createFakeRuntime = (options = {}) => {
     tracer: {
       options: options.tracing || {}
     }
-  }
-}
+  };
+};

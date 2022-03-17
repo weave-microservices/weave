@@ -1,11 +1,11 @@
-const adapters = require('./adapters')
+const adapters = require('./adapters');
 
 module.exports = name => {
   if (!name) {
-    return
+    return;
   }
-  const foundAdapterName = Object.keys(adapters).find(adapter => adapter.toLowerCase() === name.toLowerCase())
+  const foundAdapterName = Object.keys(adapters).find(adapter => adapter.toLowerCase() === name.toLowerCase());
   if (foundAdapterName) {
-    return adapters[foundAdapterName]
+    return adapters[foundAdapterName];
   }
-}
+};

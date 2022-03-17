@@ -4,101 +4,101 @@
  * Copyright 2021 Fachwerk
  */
 
-const { Cache } = require('@weave-js/core')
-const { defaultsDeep } = require('@weave-js/utils')
-const Redis = require('ioredis')
+const { Cache } = require('@weave-js/core');
+const { defaultsDeep } = require('@weave-js/utils');
+const Redis = require('ioredis');
 const defaultAdapterOptions = {
   port: 6379,
   host: '127.0.0.1'
-}
+};
 
 const createRedisCache = (adapterOptions = {}) => (runtime, options = {}) => {
-  adapterOptions = defaultsDeep(adapterOptions, defaultAdapterOptions)
+  adapterOptions = defaultsDeep(adapterOptions, defaultAdapterOptions);
 
-  const base = Cache.createCacheBase('Redis', runtime, adapterOptions, options)
+  const base = Cache.createCacheBase('Redis', runtime, adapterOptions, options);
 
-  let client
-  runtime.bus.on('$transport.connected', () => cache.clear())
+  let client;
+  runtime.bus.on('$transport.connected', () => cache.clear());
 
   const cache = Object.assign(base, {
     init () {
-      client = new Redis(options)
+      client = new Redis(options);
 
       client.on('connect', () => {
-        cache.isConnected = true
+        cache.isConnected = true;
         /* istanbul ignore next */
-        base.log.info('Redis cacher connected.')
-      })
+        base.log.info('Redis cacher connected.');
+      });
 
       client.on('error', (err) => {
         /* istanbul ignore next */
-        base.log.error(err)
-      })
+        base.log.error(err);
+      });
     },
     set (hashKey, data, ttl) {
-      data = JSON.stringify(data)
+      data = JSON.stringify(data);
       if (ttl == null) {
-        ttl = options.ttl
+        ttl = options.ttl;
       }
 
       if (ttl) {
-        client.setex(hashKey, ttl / 1000, data)
+        client.setex(hashKey, ttl / 1000, data);
       } else {
-        client.set(hashKey, data)
+        client.set(hashKey, data);
       }
 
-      base.log.debug(`Set ${hashKey}`)
+      base.log.debug(`Set ${hashKey}`);
 
-      return Promise.resolve(data)
+      return Promise.resolve(data);
     },
     get (cacheKey) {
       return client.get(cacheKey).then(data => {
         if (data) {
-          base.log.debug(`FOUND ${cacheKey}`)
+          base.log.debug(`FOUND ${cacheKey}`);
           try {
-            data = JSON.parse(data)
-            return data
+            data = JSON.parse(data);
+            return data;
           } catch (error) {
-            base.log.error('Redis result parse error', error, data)
+            base.log.error('Redis result parse error', error, data);
           }
         }
-        return null
-      })
+        return null;
+      });
     },
     remove (hashKey) {
       return client.del(hashKey)
         .then(() => {
-          base.log.debug(`Delete ${hashKey}`)
-        })
+          base.log.debug(`Delete ${hashKey}`);
+        });
     },
     clear (pattern = '*') {
       return new Promise((resolve) => {
         const stream = client.scanStream({
           match: pattern
-        })
+        });
 
         stream.on('data', (keys) => {
           if (keys.length) {
-            var pipeline = client.pipeline()
+            var pipeline = client.pipeline();
             keys.forEach(function (key) {
-              pipeline.del(key)
-            })
-            pipeline.exec()
+              pipeline.del(key);
+            });
+            pipeline.exec();
           }
-        })
+        });
 
         stream.on('end', () => {
-          base.log.debug('Cache cleared')
-          return resolve()
-        })
-      })
+          base.log.debug('Cache cleared');
+          return resolve();
+        });
+      });
     },
     stop () {
-      return client.quit()
+      return client.quit();
     }
-  })
+  });
 
-  return cache
-}
+  return cache;
+};
 
-module.exports = { createRedisCache }
+module.exports = { createRedisCache };

@@ -1,16 +1,16 @@
-const lolex = require('@sinonjs/fake-timers')
-const { WeaveError } = require('../../lib/errors')
-const { createNode } = require('../helper')
+const lolex = require('@sinonjs/fake-timers');
+const { WeaveError } = require('../../lib/errors');
+const { createNode } = require('../helper');
 
 describe('Test weave logger integration.', () => {
-  let clock
+  let clock;
   beforeAll(() => {
-    clock = lolex.install()
-  })
+    clock = lolex.install();
+  });
 
   afterAll(() => {
-    clock.uninstall()
-  })
+    clock.uninstall();
+  });
 
   it('should provide default log methods.', () => {
     const broker = createNode({
@@ -18,14 +18,14 @@ describe('Test weave logger integration.', () => {
         enabled: false,
         level: 'fatal'
       }
-    })
+    });
 
-    expect(broker.log.info).toBeDefined()
-    expect(broker.log.debug).toBeDefined()
-    expect(broker.log.verbose).toBeDefined()
-    expect(broker.log.error).toBeDefined()
-    expect(broker.log.warn).toBeDefined()
-  })
+    expect(broker.log.info).toBeDefined();
+    expect(broker.log.debug).toBeDefined();
+    expect(broker.log.verbose).toBeDefined();
+    expect(broker.log.error).toBeDefined();
+    expect(broker.log.warn).toBeDefined();
+  });
 
   it('should work with log level value.', () => {
     const broker = createNode({
@@ -33,19 +33,19 @@ describe('Test weave logger integration.', () => {
         enabled: false,
         level: 40
       }
-    })
+    });
 
-    expect(broker.log.info).toBeDefined()
-    expect(broker.log.debug).toBeDefined()
-    expect(broker.log.verbose).toBeDefined()
-    expect(broker.log.error).toBeDefined()
-    expect(broker.log.warn).toBeDefined()
-  })
+    expect(broker.log.info).toBeDefined();
+    expect(broker.log.debug).toBeDefined();
+    expect(broker.log.verbose).toBeDefined();
+    expect(broker.log.error).toBeDefined();
+    expect(broker.log.warn).toBeDefined();
+  });
 
   it('should use the logMethod hook', () => {
     const doneHookFn = jest.fn((args, method) => {
-      return method(...args)
-    })
+      return method(...args);
+    });
 
     const broker = createNode({
       nodeId: 'node1',
@@ -56,16 +56,16 @@ describe('Test weave logger integration.', () => {
           logMethod: doneHookFn
         }
       }
-    })
+    });
 
     return broker.start()
       .then(() => {
-        broker.log.fatal({ prefix: 'TEST', message: 'Hello' })
-        expect(doneHookFn).toBeCalledTimes(1)
+        broker.log.fatal({ prefix: 'TEST', message: 'Hello' });
+        expect(doneHookFn).toBeCalledTimes(1);
       })
       .then(() => clock.uninstall())
-      .then(() => broker.stop())
-  })
+      .then(() => broker.stop());
+  });
 
   it('should throw an error on unknown log levels', () => {
     try {
@@ -75,12 +75,12 @@ describe('Test weave logger integration.', () => {
           enabled: true,
           level: 'unknown!!!'
         }
-      })
+      });
     } catch (error) {
-      expect(error).toBeInstanceOf(WeaveError)
-      expect(error.message).toBe('Unknown level: "unknown!!!"')
+      expect(error).toBeInstanceOf(WeaveError);
+      expect(error.message).toBe('Unknown level: "unknown!!!"');
     }
-  })
+  });
 
   it('should throw an error on unknown log levels values', () => {
     try {
@@ -90,17 +90,17 @@ describe('Test weave logger integration.', () => {
           enabled: true,
           level: 110
         }
-      })
+      });
     } catch (error) {
-      expect(error).toBeInstanceOf(WeaveError)
-      expect(error.message).toBe('Unknown level value: "110"')
+      expect(error).toBeInstanceOf(WeaveError);
+      expect(error.message).toBe('Unknown level value: "110"');
     }
-  })
+  });
 
   it('should log error objects', () => {
     const logMethod = jest.fn((args, method) => {
-      return method(...args)
-    })
+      return method(...args);
+    });
     const broker = createNode({
       nodeId: 'node1',
       logger: {
@@ -110,17 +110,15 @@ describe('Test weave logger integration.', () => {
           logMethod
         }
       }
-    })
+    });
 
     return broker.start()
       .then(() => {
-        broker.log.info(new Error('Error message text.'))
-        expect(logMethod).toBeCalledTimes(4)
-      })
-  })
-})
-
-
+        broker.log.info(new Error('Error message text.'));
+        expect(logMethod).toBeCalledTimes(4);
+      });
+  });
+});
 
 // describe('Test logger transporter streams.', () => {
 //   let clock

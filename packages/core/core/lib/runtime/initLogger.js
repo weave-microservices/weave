@@ -4,8 +4,8 @@
  * @typedef {import('../types.js').Transport} Transport
 */
 
-const { defaultsDeep } = require('@weave-js/utils')
-const { createLogger: createDefaultLogger } = require('../logger/index')
+const { defaultsDeep } = require('@weave-js/utils');
+const { createLogger: createDefaultLogger } = require('../logger/index');
 
 /**
  * Init logger
@@ -18,11 +18,11 @@ exports.initLogger = (runtime) => {
       nodeId: runtime.options.nodeId,
       moduleName,
       ...additional
-    }
+    };
 
     // custom logger generator function.
     if (typeof runtime.options.logger === 'function') {
-      return runtime.options.logger(bindings, runtime.options.logger.level)
+      return runtime.options.logger(bindings, runtime.options.logger.level);
     }
 
     // merge log options
@@ -30,18 +30,18 @@ exports.initLogger = (runtime) => {
       base: {
         ...bindings
       }
-    }, runtime.options.logger)
+    }, runtime.options.logger);
 
-    return createDefaultLogger(loggerOptions)
-  }
+    return createDefaultLogger(loggerOptions);
+  };
 
-  const createLogger = (moduleName, service) => loggerFactory(runtime, moduleName, service)
+  const createLogger = (moduleName, service) => loggerFactory(runtime, moduleName, service);
 
   // create weave default logger
-  const log = createLogger('WEAVE')
+  const log = createLogger('WEAVE');
 
   Object.assign(runtime, {
     createLogger,
     log
-  })
-}
+  });
+};

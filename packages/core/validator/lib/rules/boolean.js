@@ -1,9 +1,9 @@
 module.exports = function checkBoolean ({ schema, messages }) {
-  const code = []
-  let sanitized = false
+  const code = [];
+  let sanitized = false;
 
   if (schema.convert) {
-    sanitized = true
+    sanitized = true;
     code.push(`
       if (typeof value !== 'boolean') {
         if (value === 1 || value === 'true') {
@@ -12,7 +12,7 @@ module.exports = function checkBoolean ({ schema, messages }) {
           value = false
         }
       }
-    `)
+    `);
   }
 
   code.push(`
@@ -20,14 +20,14 @@ module.exports = function checkBoolean ({ schema, messages }) {
       ${this.makeErrorCode({ type: 'boolean', passed: 'value', messages })}
       return value
     }
-  `)
+  `);
 
   code.push(`
     return value
-  `)
+  `);
 
   return {
     sanitized,
     code: code.join('\n')
-  }
-}
+  };
+};

@@ -4,7 +4,7 @@
  * Copyright 2021 Fachwerk
  */
 
-const { WeaveError } = require('../../errors')
+const { WeaveError } = require('../../errors');
 
 module.exports = (runtime) => {
   const wrapErrorHandlerMiddleware = function (handler) {
@@ -12,24 +12,24 @@ module.exports = (runtime) => {
       return handler(context, serviceInjections)
         .catch(error => {
           if (!(error instanceof Error)) {
-            error = new WeaveError(error, 500)
+            error = new WeaveError(error, 500);
           }
 
           if (runtime.nodeId !== context.nodeId) {
-            runtime.transport.removePendingRequestsById(context.id)
+            runtime.transport.removePendingRequestsById(context.id);
           }
 
-          runtime.log.debug(`The action ${context.action.name} is rejected`, { requestId: context.id }, error)
-          return runtime.handleError(error)
-        })
-        // .catch(error => {
-        //   runtime.log.error(error)
-        // })
-    }
-  }
+          runtime.log.debug(`The action ${context.action.name} is rejected`, { requestId: context.id }, error);
+          return runtime.handleError(error);
+        });
+      // .catch(error => {
+      //   runtime.log.error(error)
+      // })
+    };
+  };
 
   return {
     localAction: wrapErrorHandlerMiddleware,
     remoteAction: wrapErrorHandlerMiddleware
-  }
-}
+  };
+};

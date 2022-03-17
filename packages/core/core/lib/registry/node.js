@@ -8,7 +8,7 @@
  * @typedef {import('../types.js').Node} Node
 */
 
-const { cpuUsage } = require('@weave-js/utils')
+const { cpuUsage } = require('@weave-js/utils');
 
 /**
  * Node factory
@@ -38,53 +38,53 @@ exports.createNode = (nodeId) => {
     events: null,
     IPList: [],
     update (payload, isReconnected) {
-      const newSequence = payload.sequence || 1
+      const newSequence = payload.sequence || 1;
 
-      this.services = payload.services
-      this.events = payload.events
-      this.client = payload.client || {}
-      this.IPList = payload.IPList || []
-      this.info = payload
+      this.services = payload.services;
+      this.events = payload.events;
+      this.client = payload.client || {};
+      this.IPList = payload.IPList || [];
+      this.info = payload;
 
       if ((newSequence > this.sequence) || isReconnected === true) {
-        this.sequence = newSequence
-        this.offlineTime = null
+        this.sequence = newSequence;
+        this.offlineTime = null;
 
-        return true
+        return true;
       }
-      return false
+      return false;
     },
     updateLocalInfo () {
       cpuUsage().then(result => {
-        const newVal = Math.round(result.avg)
+        const newVal = Math.round(result.avg);
 
         if (this.cpu !== newVal) {
-          this.cpu = Math.round(result.avg)
-          this.cpuSequence++
+          this.cpu = Math.round(result.avg);
+          this.cpuSequence++;
         }
-      })
+      });
     },
     heartbeat (payload) {
       if (!this.isAvailable) {
-        this.isAvailable = true
-        this.offlineTime = null
+        this.isAvailable = true;
+        this.offlineTime = null;
       }
 
       if (payload.cpu !== null) {
-        this.cpu = payload.cpu
-        this.cpuSequence = payload.cpuSequence || 1
+        this.cpu = payload.cpu;
+        this.cpuSequence = payload.cpuSequence || 1;
       }
 
-      this.lastHeartbeatTime = Date.now()
+      this.lastHeartbeatTime = Date.now();
     },
     disconnected (isUnexpected = false) {
       if (this.isAvailable) {
-        this.offlineTime = Date.now()
-        this.sequence++
-        this.isUnexpectedDisconnected = isUnexpected
+        this.offlineTime = Date.now();
+        this.sequence++;
+        this.isUnexpectedDisconnected = isUnexpected;
       }
 
-      this.isAvailable = false
+      this.isAvailable = false;
     }
-  }
-}
+  };
+};

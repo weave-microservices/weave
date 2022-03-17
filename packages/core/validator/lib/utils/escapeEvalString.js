@@ -1,5 +1,5 @@
 // Regex to escape quoted property names for eval/new Function
-const escapeEvalRegex = /[''\\\n\r\u2028\u2029]/g
+const escapeEvalRegex = /[''\\\n\r\u2028\u2029]/g;
 
 /* istanbul ignore next */
 exports.escapeEvalString = (str) => {
@@ -10,16 +10,16 @@ exports.escapeEvalString = (str) => {
     case '"':
     case '':
     case '\\':
-      return '\\' + character
+      return '\\' + character;
       // Four possible LineTerminator characters need to be escaped:
     case '\n':
-      return '\\n'
+      return '\\n';
     case '\r':
-      return '\\r'
+      return '\\r';
     case '\u2028':
-      return '\\u2028'
+      return '\\u2028';
     case '\u2029':
-      return '\\u2029'
+      return '\\u2029';
     }
-  })
-}
+  });
+};

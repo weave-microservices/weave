@@ -9,9 +9,9 @@
 */
 
 /** @module weave */
-const os = require('os')
-const { createInMemoryCache } = require('../cache/adapters/inMemory.js')
-const { loadBalancingStrategy } = require('../constants')
+const os = require('os');
+const { createInMemoryCache } = require('../cache/adapters/inMemory.js');
+const { loadBalancingStrategy } = require('../constants');
 
 /**
  * Returns the default options
@@ -112,5 +112,5 @@ exports.getDefaultOptions = () => {
       strictMode: 'remove' // 'error'
     },
     watchServices: false
-  }
-}
+  };
+};

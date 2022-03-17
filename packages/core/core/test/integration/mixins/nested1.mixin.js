@@ -1,4 +1,4 @@
-const nested2 = require('./nested2.mixin')
+const nested2 = require('./nested2.mixin');
 
 module.exports = () => {
   return {
@@ -6,5 +6,5 @@ module.exports = () => {
     actions: {
       a () {}
     }
-  }
-}
+  };
+};

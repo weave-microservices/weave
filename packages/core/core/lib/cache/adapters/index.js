@@ -7,4 +7,4 @@
 module.exports = {
   ...require('./base'),
   ...require('./inMemory')
-}
+};

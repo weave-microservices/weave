@@ -1,4 +1,4 @@
-const utils = require('../lib')
+const utils = require('../lib');
 
 describe('Get properties by dot seperated path', () => {
   it('should return a property', () => {
@@ -12,10 +12,10 @@ describe('Get properties by dot seperated path', () => {
           ws: [1, 2, 3]
         }
       }
-    }
+    };
 
-    expect(utils.defaultsDeep(source)).toEqual(source)
-  })
+    expect(utils.defaultsDeep(source)).toEqual(source);
+  });
 
   it('should return a property', () => {
     const source = {
@@ -28,10 +28,10 @@ describe('Get properties by dot seperated path', () => {
           ws: [1, 2, 3]
         }
       }
-    }
+    };
 
-    expect(utils.defaultsDeep({}, source)).toEqual(source)
-  })
+    expect(utils.defaultsDeep({}, source)).toEqual(source);
+  });
 
   it('should get defaults with an undefined target', () => {
     const source = {
@@ -44,10 +44,10 @@ describe('Get properties by dot seperated path', () => {
           ws: [1, 2, 3]
         }
       }
-    }
+    };
 
-    expect(utils.defaultsDeep(undefined, source)).toEqual(source)
-  })
+    expect(utils.defaultsDeep(undefined, source)).toEqual(source);
+  });
 
   it('should not merge undefined props', () => {
     const source = {
@@ -60,10 +60,10 @@ describe('Get properties by dot seperated path', () => {
           ws: [1, 2, 3]
         }
       }
-    }
+    };
 
-    expect(utils.defaultsDeep(source, undefined)).toEqual(source)
-  })
+    expect(utils.defaultsDeep(source, undefined)).toEqual(source);
+  });
 
   it('should return a property', () => {
     const source = {
@@ -84,7 +84,7 @@ describe('Get properties by dot seperated path', () => {
           ws: [1, 2, 3]
         }
       }
-    }
+    };
 
     const target = {
       name: 'test2',
@@ -98,9 +98,9 @@ describe('Get properties by dot seperated path', () => {
           ws: [1, 2, 3]
         }
       }
-    }
+    };
 
-    const merged = utils.defaultsDeep(target, source)
+    const merged = utils.defaultsDeep(target, source);
     expect(merged).toEqual({
       name: 'test2',
       load: false,
@@ -118,6 +118,6 @@ describe('Get properties by dot seperated path', () => {
           ws: [1, 2, 3]
         }
       }
-    })
-  })
-})
+    });
+  });
+});

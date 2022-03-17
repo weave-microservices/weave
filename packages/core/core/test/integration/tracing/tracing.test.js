@@ -1,7 +1,7 @@
 // const { omit } = require('@weave-js/utils')
-const { TracingAdapters } = require('../../../lib/index')
-const { createNode } = require('../../helper')
-const { posts, users } = require('../../helper/data')
+const { TracingAdapters } = require('../../../lib/index');
+const { createNode } = require('../../helper');
+const { posts, users } = require('../../helper/data');
 
 // const pickSpanFields = (spans, fieldsToOmit = []) => {
 //   return spans.map(span => {
@@ -11,8 +11,8 @@ const { posts, users } = require('../../helper/data')
 // }
 
 describe('Test tracing', () => {
-  let flow = []
-  let id = 0
+  let flow = [];
+  let id = 0;
 
   const defaultSettings = {
     logger: {
@@ -30,81 +30,81 @@ describe('Test tracing', () => {
       ]
     },
     uuidFactory (runtime) {
-      return `${runtime.nodeId}-${++id}`
+      return `${runtime.nodeId}-${++id}`;
     }
-  }
+  };
 
   const node1 = createNode(Object.assign({ nodeId: 'node1' }, defaultSettings), [{
     name: 'tracing-collector',
     events: {
       '$tracing.trace.spans' (ctx) {
-        flow.push(...ctx.data)
+        flow.push(...ctx.data);
       }
     }
-  }])
+  }]);
 
   const node2 = createNode(Object.assign({ nodeId: 'node2' }, defaultSettings), [{
     name: 'post',
     actions: {
       list (context) {
-        const $posts = Array.from(posts)
+        const $posts = Array.from(posts);
         return Promise.all($posts.map(async post => {
-          post.author = await context.call('user.get', { id: post.author })
-          return post
-        }))
+          post.author = await context.call('user.get', { id: post.author });
+          return post;
+        }));
       }
     }
-  }])
+  }]);
 
   const node3 = createNode(Object.assign({ nodeId: 'node3' }, defaultSettings), [{
     name: 'user',
     actions: {
       get (context) {
-        const user = users.find(user => user.id === context.data.id)
-        return user
+        const user = users.find(user => user.id === context.data.id);
+        return user;
       }
     }
-  }])
+  }]);
 
   const node4 = createNode(Object.assign({ nodeId: 'node4' }, defaultSettings), [{
     name: 'friends'
-  }])
+  }]);
 
   node2.createService({
     name: 'test',
     actions: {
       hello (context) {
-        return 'Hello'
+        return 'Hello';
       }
     }
-  })
+  });
 
   beforeAll(() => Promise.all([
     node1.start(),
     node2.start(),
     node3.start(),
     node4.start()
-  ]))
+  ]));
 
   afterAll(() => Promise.all([
     node1.stop(),
     node2.stop(),
     node3.stop(),
     node4.stop()
-  ]))
+  ]));
 
   afterEach(() => {
-    flow = []
-    id = 0
-  })
+    flow = [];
+    id = 0;
+  });
 
   it('Started and finished event should be triggered.', async () => {
-    await node1.waitForServices(['post', 'user', 'friends'])
-    const result = await node2.call('post.list')
-    expect(result).toMatchSnapshot()
+    await node1.waitForServices(['post', 'user', 'friends']);
+    const result = await node2.call('post.list');
+    expect(result).toMatchSnapshot();
 
-    flow.sort((a, b) => a.startTime - b.startTime)
-  })
+    flow.sort((a, b) => a.startTime - b.startTime);
+  });
 
   // it('Started event should be the expected format.', () => {
   //   return node1.call('test.hello')
@@ -153,4 +153,4 @@ describe('Test tracing', () => {
   //       // expect(startedEvent.stopTime).toBeGreaterThan(startedEvent.startTime)
   //     })
   // })
-})
+});

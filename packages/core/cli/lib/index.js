@@ -1,15 +1,15 @@
 #!/usr/bin/env node
-const updateNotifier = require('update-notifier')
-const pkg = require('../package.json')
-const { program } = require('commander')
-const { cleanArgs } = require('./utils/args')
+const updateNotifier = require('update-notifier');
+const pkg = require('../package.json');
+const { program } = require('commander');
+const { cleanArgs } = require('./utils/args');
 
 // Check for new CLI version
-updateNotifier({ pkg }).notify()
+updateNotifier({ pkg }).notify();
 
 program
   .version(`@weave-js/cli ${require('../package').version}`)
-  .usage('<command> [options]')
+  .usage('<command> [options]');
 
 // start command
 program
@@ -21,8 +21,8 @@ program
   .option('-w, --watch', 'Start broker with service watcher.')
   .option('-sl, --silent', 'Start broker without console outputs.')
   .action((args) => {
-    require('./commands/start').handler(cleanArgs(args))
-  })
+    require('./commands/start').handler(cleanArgs(args));
+  });
 
 // create command
 program
@@ -31,7 +31,7 @@ program
   .option('-t,--template <teplate>', 'Start broker with config file.')
   .option('-s,--suffix <suffix>', 'Service file suffix (default: service)')
   .action((type, name, options) => {
-    require('./commands/create').handler(type, name, options)
-  })
+    require('./commands/create').handler(type, name, options);
+  });
 
-program.parse(process.argv)
+program.parse(process.argv);

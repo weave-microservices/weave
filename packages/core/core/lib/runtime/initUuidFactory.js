@@ -2,7 +2,7 @@
  * @typedef {import('../types.js').Runtime} Runtime
 */
 
-const { isFunction, uuid } = require('@weave-js/utils')
+const { isFunction, uuid } = require('@weave-js/utils');
 
 /**
  * Init uuid Generator and attach it to our runtime object.
@@ -10,7 +10,7 @@ const { isFunction, uuid } = require('@weave-js/utils')
  * @returns {void}
 */
 exports.initUUIDFactory = (runtime) => {
-  const { options } = runtime
+  const { options } = runtime;
 
-  runtime.generateUUID = (options.uuidFactory && isFunction(options.uuidFactory)) ? () => options.uuidFactory(runtime) : uuid
-}
+  runtime.generateUUID = (options.uuidFactory && isFunction(options.uuidFactory)) ? () => options.uuidFactory(runtime) : uuid;
+};

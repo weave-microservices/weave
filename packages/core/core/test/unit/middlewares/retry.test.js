@@ -1,20 +1,20 @@
-const Middleware = require('../../../lib/middlewares/retry')
-const { WeaveRetryableError } = require('../../../lib/errors')
-const { createNode } = require('../../helper')
+const Middleware = require('../../../lib/middlewares/retry');
+const { WeaveRetryableError } = require('../../../lib/errors');
+const { createNode } = require('../../helper');
 
 const config = {
   logger: {
     enabled: false
   }
-}
+};
 // const SlowService = require('../../services/slow.service')
 
 describe('Test retry middleware', () => {
-  const broker = createNode(config)
-  const contextFactory = broker.runtime.contextFactory
-  const handler = jest.fn(() => Promise.resolve('hooray!!!'))
-  const middleware = Middleware()
-  const service = {}
+  const broker = createNode(config);
+  const contextFactory = broker.runtime.contextFactory;
+  const handler = jest.fn(() => Promise.resolve('hooray!!!'));
+  const middleware = Middleware();
+  const service = {};
   const action = {
     name: 'math.add',
     bulkhead: {
@@ -22,7 +22,7 @@ describe('Test retry middleware', () => {
     },
     handler,
     service
-  }
+  };
 
   const endpoint = {
     action,
@@ -30,74 +30,74 @@ describe('Test retry middleware', () => {
       id: broker.nodeId
     },
     isLocal: true
-  }
+  };
 
   it('should register middleware hooks', () => {
-    expect(middleware.localAction).toBeDefined()
-    expect(middleware.remoteAction).toBeDefined()
-  })
+    expect(middleware.localAction).toBeDefined();
+    expect(middleware.remoteAction).toBeDefined();
+  });
 
   it('should not wrap handler if retry middleware is disabled', () => {
-    broker.options.bulkhead.enabled = false
+    broker.options.bulkhead.enabled = false;
 
-    const newHandler = middleware.localAction.call(broker, handler, action)
-    expect(newHandler).toBe(handler)
-  })
+    const newHandler = middleware.localAction.call(broker, handler, action);
+    expect(newHandler).toBe(handler);
+  });
 
   it('should not wrap handler if bulkhead is disabled', () => {
-    broker.options.retryPolicy.enabled = true
+    broker.options.retryPolicy.enabled = true;
 
-    const newHandler = middleware.localAction.call(broker, handler, action)
-    expect(newHandler).not.toBe(handler)
-  })
+    const newHandler = middleware.localAction.call(broker, handler, action);
+    expect(newHandler).not.toBe(handler);
+  });
 
   it('should call the action 2 times bevore the requests get queued', (done) => {
-    broker.options.retryPolicy.enabled = true
-    broker.options.retryPolicy.delay = 200
-    broker.options.retryPolicy.retries = 3
+    broker.options.retryPolicy.enabled = true;
+    broker.options.retryPolicy.delay = 200;
+    broker.options.retryPolicy.retries = 3;
 
-    const error = new WeaveRetryableError('not this time')
-    const handler = jest.fn(() => Promise.reject(error))
-    const newHandler = middleware.localAction.call(broker, handler, action)
+    const error = new WeaveRetryableError('not this time');
+    const handler = jest.fn(() => Promise.reject(error));
+    const newHandler = middleware.localAction.call(broker, handler, action);
 
-    const context = contextFactory.create(endpoint)
-    context.setData({ name: 'Kevin' })
+    const context = contextFactory.create(endpoint);
+    context.setData({ name: 'Kevin' });
 
-    broker.call = jest.fn(() => Promise.resolve('next call'))
+    broker.call = jest.fn(() => Promise.resolve('next call'));
 
     newHandler(context).then(() => {
-      expect(context.retryCount).toBe(1)
+      expect(context.retryCount).toBe(1);
 
-      expect(handler).toHaveBeenCalledTimes(1)
-      expect(broker.call).toHaveBeenCalledTimes(1)
-      expect(broker.call).toHaveBeenCalledWith('math.add', { name: 'Kevin' }, { context })
-      done()
-    })
-  })
+      expect(handler).toHaveBeenCalledTimes(1);
+      expect(broker.call).toHaveBeenCalledTimes(1);
+      expect(broker.call).toHaveBeenCalledWith('math.add', { name: 'Kevin' }, { context });
+      done();
+    });
+  });
 
   it('should get rejected if all attempts fail', (done) => {
-    broker.options.retryPolicy.enabled = true
-    broker.options.retryPolicy.delay = 200
-    broker.options.retryPolicy.retries = 0
+    broker.options.retryPolicy.enabled = true;
+    broker.options.retryPolicy.delay = 200;
+    broker.options.retryPolicy.retries = 0;
 
-    const error = new WeaveRetryableError('not this time')
-    const handler = jest.fn(() => Promise.reject(error))
-    const newHandler = middleware.localAction.call(broker, handler, action)
+    const error = new WeaveRetryableError('not this time');
+    const handler = jest.fn(() => Promise.reject(error));
+    const newHandler = middleware.localAction.call(broker, handler, action);
 
-    const context = contextFactory.create(endpoint)
-    context.setData({ name: 'Kevin' })
+    const context = contextFactory.create(endpoint);
+    context.setData({ name: 'Kevin' });
 
-    broker.call = jest.fn(() => Promise.resolve('next call'))
+    broker.call = jest.fn(() => Promise.resolve('next call'));
 
     newHandler(context)
       .catch(error => {
-        expect(context.retryCount).toBe(1)
-        expect(error.message).toBe('not this time')
-        done()
-      })
-  })
+        expect(context.retryCount).toBe(1);
+        expect(error.message).toBe('not this time');
+        done();
+      });
+  });
 
-  it('should get rejected on remote actions', () => {})
+  it('should get rejected on remote actions', () => {});
 
   // it('should call the action 2 times immediately bevore the last requests get queued', (done) => {
   //   broker.options.bulkhead.enabled = true
@@ -141,4 +141,4 @@ describe('Test retry middleware', () => {
 
   // expect(flow).toBe(handler)
   // })
-})
+});

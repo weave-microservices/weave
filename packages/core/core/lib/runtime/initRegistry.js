@@ -7,7 +7,7 @@
 /**
  * @typedef {import('../types').Runtime} Runtime
 */
-const { createRegistry } = require('../registry/registry.js')
+const { createRegistry } = require('../registry/registry.js');
 
 /**
  * Injects registy in runtime
@@ -15,11 +15,11 @@ const { createRegistry } = require('../registry/registry.js')
  * @returns {void}
 */
 exports.initRegistry = (runtime) => {
-  const registry = createRegistry(runtime)
+  const registry = createRegistry(runtime);
 
-  registry.init(runtime)
+  registry.init(runtime);
 
   Object.defineProperty(runtime, 'registry', {
     value: registry
-  })
-}
+  });
+};

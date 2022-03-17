@@ -1,2 +1,2 @@
-exports.Constants = require('./constants')
-exports.Exporter = require('./exporter')
+exports.Constants = require('./constants');
+exports.Exporter = require('./exporter');

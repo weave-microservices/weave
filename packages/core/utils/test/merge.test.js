@@ -1,4 +1,4 @@
-const utils = require('../lib')
+const utils = require('../lib');
 
 const flatObject1 = {
   name: 'serv1',
@@ -8,7 +8,7 @@ const flatObject1 = {
     b () {},
     c () {}
   }
-}
+};
 
 const flatObject2 = {
   name: 'serv2',
@@ -20,11 +20,11 @@ const flatObject2 = {
   },
   created () {},
   merged () {}
-}
+};
 
 describe('Merge function', () => {
   it('should merge two objects', () => {
-    const mergedObject = utils.merge(flatObject1, flatObject2)
+    const mergedObject = utils.merge(flatObject1, flatObject2);
     expect(JSON.stringify(mergedObject)).toBe(JSON.stringify({
       name: 'serv2',
       items: [1, 2, 3, 4, 5, 6],
@@ -38,20 +38,20 @@ describe('Merge function', () => {
       },
       created () {},
       merged () {}
-    }))
-  })
+    }));
+  });
 
   it('should only merge objects. (return null)', () => {
-    const target = {}
-    const source = 'source'
-    const mergedObject = utils.merge(target, source)
-    expect(mergedObject).toBe(source)
-  })
-})
+    const target = {};
+    const source = 'source';
+    const mergedObject = utils.merge(target, source);
+    expect(mergedObject).toBe(source);
+  });
+});
 
 describe('Deep merge function', () => {
   it('should deep merge two objects', () => {
-    const mergedObject = utils.deepMerge(flatObject1, flatObject2)
+    const mergedObject = utils.deepMerge(flatObject1, flatObject2);
     expect(JSON.stringify(mergedObject)).toBe(JSON.stringify({
       name: 'serv2',
       items: [1, 2, 3, 4, 5, 6],
@@ -65,7 +65,7 @@ describe('Deep merge function', () => {
       },
       created () {},
       merged () {}
-    }))
-  })
-})
+    }));
+  });
+});
 

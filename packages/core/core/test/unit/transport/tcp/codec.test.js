@@ -1,11 +1,11 @@
-const createCodec = require('../../../../lib/transport/adapters/tcp/discovery/codec.js')
+const createCodec = require('../../../../lib/transport/adapters/tcp/discovery/codec.js');
 
 describe('TCP Discovery codec', () => {
   it('shout return a typed schema.', () => {
-    const decoder = createCodec()
+    const decoder = createCodec();
 
-    expect(decoder.decode).toBeDefined()
-    expect(decoder.encode).toBeDefined()
+    expect(decoder.decode).toBeDefined();
+    expect(decoder.encode).toBeDefined();
 
     const testObject = {
       name: 'Hans',
@@ -14,10 +14,10 @@ describe('TCP Discovery codec', () => {
         height: 112,
         weight: 444
       }
-    }
+    };
 
-    const decoded = decoder.encode(testObject)
-    const encoded = decoder.decode(decoded)
-    expect(encoded).toEqual(testObject)
-  })
-})
+    const decoded = decoder.encode(testObject);
+    const encoded = decoder.decode(decoded);
+    expect(encoded).toEqual(testObject);
+  });
+});

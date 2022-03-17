@@ -13,12 +13,12 @@
 */
 
 // Own packages
-const { WeaveError, WeaveQueueSizeExceededError } = require('../errors')
-const { createMessage } = require('./createMessage')
-const MessageTypes = require('./messageTypes')
-const utils = require('@weave-js/utils')
-const createMessageHandler = require('./messageHandlers')
-const { errorPayloadFactory } = require('./errorPayloadFactory')
+const { WeaveError, WeaveQueueSizeExceededError } = require('../errors');
+const { createMessage } = require('./createMessage');
+const MessageTypes = require('./messageTypes');
+const utils = require('@weave-js/utils');
+const createMessageHandler = require('./messageHandlers');
+const { errorPayloadFactory } = require('./errorPayloadFactory');
 
 /**
  * Create a Transport adapter
@@ -27,13 +27,13 @@ const { errorPayloadFactory } = require('./errorPayloadFactory')
  * @returns {Transport} transport
 */
 exports.createTransport = (runtime, adapter) => {
-  const transport = Object.create(null)
-  const { nodeId, middlewareHandler, createLogger } = runtime
+  const transport = Object.create(null);
+  const { nodeId, middlewareHandler, createLogger } = runtime;
 
-  let heartbeatTimer
-  let checkNodesTimer
-  let checkOfflineNodesTimer
-  let updateLocalNodeTimer
+  let heartbeatTimer;
+  let checkNodesTimer;
+  let checkOfflineNodesTimer;
+  let updateLocalNodeTimer;
 
   // Pending action store
   const pending = {
@@ -42,16 +42,16 @@ exports.createTransport = (runtime, adapter) => {
     responseStreams: new Map(),
     outboundResponseStreams: new Map(),
     outboundRequestStreams: new Map()
-  }
+  };
 
-  transport.log = createLogger('TRANSPORT')
-  transport.reconnectInProgress = false
-  transport.isConnected = false
-  transport.isDisconnecting = false
-  transport.isReady = false
-  transport.pending = pending
-  transport.resolveConnect = null
-  transport.adapterName = adapter.name
+  transport.log = createLogger('TRANSPORT');
+  transport.reconnectInProgress = false;
+  transport.isConnected = false;
+  transport.isDisconnecting = false;
+  transport.isReady = false;
+  transport.pending = pending;
+  transport.resolveConnect = null;
+  transport.adapterName = adapter.name;
   transport.statistics = {
     received: {
       packages: 0
@@ -59,68 +59,68 @@ exports.createTransport = (runtime, adapter) => {
     sent: {
       packages: 0
     }
-  }
+  };
 
-  const getErrorPayload = errorPayloadFactory(runtime)
+  const getErrorPayload = errorPayloadFactory(runtime);
 
   transport.connect = () => {
     return new Promise(resolve => {
-      transport.resolveConnect = resolve
-      transport.log.info('Connecting to transport adapter...')
+      transport.resolveConnect = resolve;
+      transport.log.info('Connecting to transport adapter...');
 
       const doConnect = (isTryReconnect) => {
         const errorHandler = (error) => {
           // Skip reconnect, if the adapter is disconnecting or an reconnect is in progress.
           if (transport.isDisconnecting || transport.reconnectInProgress) {
-            return
+            return;
           }
 
-          transport.log.warn('Connection failed')
-          transport.log.debug(error)
+          transport.log.warn('Connection failed');
+          transport.log.debug(error);
 
-          transport.reconnectInProgress = true
+          transport.reconnectInProgress = true;
 
           if (!error.skipRetry) {
             setTimeout(() => {
-              transport.log.info('Reconnecting')
-              doConnect(true)
-            }, 5 * 1000)
+              transport.log.info('Reconnecting');
+              doConnect(true);
+            }, 5 * 1000);
           }
-        }
+        };
         return adapter
           .connect(isTryReconnect, errorHandler)
-          .catch(errorHandler)
-      }
+          .catch(errorHandler);
+      };
 
-      doConnect(false)
-    })
-  }
+      doConnect(false);
+    });
+  };
 
   transport.disconnect = () => {
-    transport.isDisconnecting = true
-    transport.isConnected = false
-    transport.isReady = false
+    transport.isDisconnecting = true;
+    transport.isConnected = false;
+    transport.isReady = false;
 
-    runtime.eventBus.broadcastLocal('$transporter.disconnected', { isGraceful: true })
+    runtime.eventBus.broadcastLocal('$transporter.disconnected', { isGraceful: true });
 
-    stopTimers()
+    stopTimers();
 
-    const message = createMessage(MessageTypes.MESSAGE_DISCONNECT)
+    const message = createMessage(MessageTypes.MESSAGE_DISCONNECT);
     return transport.send(message)
       .then(() => {
-        adapter.close()
+        adapter.close();
       })
       .then(() => {
-        transport.isDisconnecting = false
-      })
-  }
+        transport.isDisconnecting = false;
+      });
+  };
 
   transport.setReady = async () => {
     if (transport.isConnected) {
-      transport.isReady = true
-      await transport.sendNodeInfo()
+      transport.isReady = true;
+      await transport.sendNodeInfo();
     }
-  }
+  };
 
   /**
    * Send node information.
@@ -129,18 +129,18 @@ exports.createTransport = (runtime, adapter) => {
   */
   transport.sendNodeInfo = async (sender) => {
     if (!transport.isConnected || !transport.isReady) {
-      return Promise.resolve()
+      return Promise.resolve();
     }
 
     // Collect own node info and send it to remote nodes
-    const info = runtime.registry.getLocalNodeInfo()
+    const info = runtime.registry.getLocalNodeInfo();
     const message = createMessage(MessageTypes.MESSAGE_INFO, sender, {
       ...info,
       instanceId: runtime.state.instanceId
-    })
+    });
 
-    return transport.send(message)
-  }
+    return transport.send(message);
+  };
 
   /**
   * Send a message
@@ -148,24 +148,24 @@ exports.createTransport = (runtime, adapter) => {
   * @returns {Promise} Promise
   */
   transport.send = async (message) => {
-    transport.statistics.sent.packages = transport.statistics.sent.packages + 1
-    transport.log.verbose(`Send ${message.type.toUpperCase()} packet to ${message.targetNodeId || 'all nodes'}`)
-    return adapter.preSend(message)
-  }
+    transport.statistics.sent.packages = transport.statistics.sent.packages + 1;
+    transport.log.verbose(`Send ${message.type.toUpperCase()} packet to ${message.targetNodeId || 'all nodes'}`);
+    return adapter.preSend(message);
+  };
 
   transport.sendPing = (nodeId) => {
-    const pingMessage = createMessage(MessageTypes.MESSAGE_PING, nodeId, { dispatchTime: Date.now() })
-    return transport.send(pingMessage)
-  }
+    const pingMessage = createMessage(MessageTypes.MESSAGE_PING, nodeId, { dispatchTime: Date.now() });
+    return transport.send(pingMessage);
+  };
 
   /**
    * Send discovery message to all nodes.
    * @returns {void}
   */
   transport.discoverNodes = () => {
-    const discoveryMessage = createMessage(MessageTypes.MESSAGE_DISCOVERY)
-    transport.send(discoveryMessage)
-  }
+    const discoveryMessage = createMessage(MessageTypes.MESSAGE_DISCOVERY);
+    transport.send(discoveryMessage);
+  };
 
   /**
    * Send discovery message to all nodes.
@@ -173,9 +173,9 @@ exports.createTransport = (runtime, adapter) => {
    * @returns {Promise<void>} - Promise
   */
   transport.discoverNode = async (target) => {
-    const discoveryMessage = createMessage(MessageTypes.MESSAGE_DISCOVERY, target)
-    return transport.send(discoveryMessage)
-  }
+    const discoveryMessage = createMessage(MessageTypes.MESSAGE_DISCOVERY, target);
+    return transport.send(discoveryMessage);
+  };
 
   /**
    * Send an event
@@ -183,7 +183,7 @@ exports.createTransport = (runtime, adapter) => {
    * @returns {Promise<void>} - Promise
    */
   transport.sendEvent = async (context) => {
-    const isBroadcast = context.eventType === 'broadcast'
+    const isBroadcast = context.eventType === 'broadcast';
 
     const payload = {
       data: context.data,
@@ -195,46 +195,46 @@ exports.createTransport = (runtime, adapter) => {
       requestId: context.requestId,
       parentId: context.parentId,
       isBroadcast
-    }
+    };
 
-    const message = createMessage(MessageTypes.MESSAGE_EVENT, context.endpoint ? context.nodeId : null, payload)
-    return transport.send(message)
-  }
+    const message = createMessage(MessageTypes.MESSAGE_EVENT, context.endpoint ? context.nodeId : null, payload);
+    return transport.send(message);
+  };
 
   transport.sendBroadcastEvent = (nodeId, eventName, data, groups) => {
-    transport.log.verbose(`Send ${eventName} to ${nodeId}`)
+    transport.log.verbose(`Send ${eventName} to ${nodeId}`);
 
     const payload = {
       data,
       eventName,
       groups,
       isBroadcast: true
-    }
+    };
 
-    const message = createMessage(MessageTypes.MESSAGE_EVENT, nodeId, payload)
-    return transport.send(message)
-  }
+    const message = createMessage(MessageTypes.MESSAGE_EVENT, nodeId, payload);
+    return transport.send(message);
+  };
 
   transport.removePendingRequestsById = (requestId) => {
-    pending.requests.delete(requestId)
-    pending.requestStreams.delete(requestId)
-    pending.responseStreams.delete(requestId)
-    pending.outboundResponseStreams.delete(requestId)
-    pending.outboundRequestStreams.delete(requestId)
-  }
+    pending.requests.delete(requestId);
+    pending.requestStreams.delete(requestId);
+    pending.responseStreams.delete(requestId);
+    pending.outboundResponseStreams.delete(requestId);
+    pending.outboundRequestStreams.delete(requestId);
+  };
 
   transport.removePendingRequestsByNodeId = (nodeId) => {
-    transport.log.debug(`Remove pending requests for node ${nodeId}.`)
+    transport.log.debug(`Remove pending requests for node ${nodeId}.`);
     pending.requests.forEach((request, requestId) => {
       if (request.nodeId === nodeId) {
-        pending.requests.delete(requestId)
+        pending.requests.delete(requestId);
       }
-      request.reject(new WeaveError(`Remove pending requests for node ${nodeId}.`))
+      request.reject(new WeaveError(`Remove pending requests for node ${nodeId}.`));
 
-      pending.requestStreams.delete(requestId)
-      pending.responseStreams.delete(requestId)
-    })
-  }
+      pending.requestStreams.delete(requestId);
+      pending.responseStreams.delete(requestId);
+    });
+  };
 
   transport.sendRequest = (context) => {
     // If the queue size is set, check the queue size and reject the job when the limit is reached.
@@ -244,11 +244,11 @@ exports.createTransport = (runtime, adapter) => {
         limit: runtime.options.transport.maxQueueSize,
         nodeId: context.nodeId,
         size: pending.requests.size
-      }))
+      }));
     }
 
     return new Promise((resolve, reject) => {
-      const isStream = utils.isStream(context.options.stream)
+      const isStream = utils.isStream(context.options.stream);
 
       const request = {
         targetNodeId: context.nodeId,
@@ -257,11 +257,11 @@ exports.createTransport = (runtime, adapter) => {
         resolve,
         reject,
         isStream
-      }
+      };
 
-      transport.log.debug(`Send request for ${request.action} to node ${request.targetNodeId}.`)
+      transport.log.debug(`Send request for ${request.action} to node ${request.targetNodeId}.`);
 
-      pending.requests.set(context.id, request)
+      pending.requests.set(context.id, request);
 
       const payload = {
         id: context.id,
@@ -274,104 +274,104 @@ exports.createTransport = (runtime, adapter) => {
         requestId: context.requestId,
         parentId: context.parentId,
         isStream
-      }
+      };
 
       // Handle object mode streams
       if (isStream) {
-        const stream = context.options.stream
+        const stream = context.options.stream;
 
         if (!pending.outboundRequestStreams.has(payload.id)) {
-          pending.outboundRequestStreams.set(payload.id, stream)
+          pending.outboundRequestStreams.set(payload.id, stream);
         }
 
         if (utils.isStreamObjectMode(stream)) {
-          payload.meta = payload.meta || {}
-          payload.meta.$isObjectModeStream = true
+          payload.meta = payload.meta || {};
+          payload.meta.$isObjectModeStream = true;
         }
-        payload.sequence = 0
+        payload.sequence = 0;
       }
 
-      const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload)
+      const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload);
 
       return transport.send(message)
         .then(() => {
           // send stream
           if (isStream) {
-            const stream = context.options.stream
-            payload.meta = {}
+            const stream = context.options.stream;
+            payload.meta = {};
 
             if (utils.isStreamObjectMode(context.options.stream)) {
-              payload.meta.$isObjectModeStream = true
+              payload.meta.$isObjectModeStream = true;
             }
 
             stream.on('data', data => {
-              stream.pause()
-              const chunks = []
+              stream.pause();
+              const chunks = [];
 
               // The chunk is larger than maxBufferSize
               if (data instanceof Buffer && runtime.options.transport.maxChunkSize > 0 && data.length > runtime.options.transport.maxChunkSize) {
-                const length = data.length
-                let i = 0
+                const length = data.length;
+                let i = 0;
                 while (i < length) {
-                  chunks.push(data.slice(i, i += runtime.options.transport.maxChunkSize))
+                  chunks.push(data.slice(i, i += runtime.options.transport.maxChunkSize));
                 }
               } else {
-                chunks.push(data)
+                chunks.push(data);
               }
 
               // Send chunks from chunk buffer
               for (const chunk of chunks) {
-                const payloadCopy = Object.assign({}, payload)
-                payloadCopy.sequence = ++payload.sequence
-                payloadCopy.chunk = chunk
-                payloadCopy.isStream = true
-                payload.data = null
+                const payloadCopy = Object.assign({}, payload);
+                payloadCopy.sequence = ++payload.sequence;
+                payloadCopy.chunk = chunk;
+                payloadCopy.isStream = true;
+                payload.data = null;
 
-                const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy)
-                transport.send(message)
+                const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy);
+                transport.send(message);
               }
 
               // resume stream
-              stream.resume()
-              return
-            })
+              stream.resume();
+              return;
+            });
 
             stream.on('end', () => {
-              const payloadCopy = Object.assign({}, payload)
+              const payloadCopy = Object.assign({}, payload);
 
-              payloadCopy.sequence = ++payload.sequence
-              payloadCopy.chunk = null
-              payloadCopy.isStream = false
+              payloadCopy.sequence = ++payload.sequence;
+              payloadCopy.chunk = null;
+              payloadCopy.isStream = false;
 
-              pending.outboundRequestStreams.delete(payload.id)
+              pending.outboundRequestStreams.delete(payload.id);
 
-              const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy)
-              return transport.send(message)
-            })
+              const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy);
+              return transport.send(message);
+            });
 
             stream.on('error', (error) => {
-              const payloadCopy = Object.assign({}, payload)
-              payloadCopy.sequence = ++payload.sequence
-              payloadCopy.chunk = null
-              payloadCopy.isStream = false
+              const payloadCopy = Object.assign({}, payload);
+              payloadCopy.sequence = ++payload.sequence;
+              payloadCopy.chunk = null;
+              payloadCopy.isStream = false;
 
               if (error) {
-                payloadCopy.success = false
-                payloadCopy.error = getErrorPayload(error)
+                payloadCopy.success = false;
+                payloadCopy.error = getErrorPayload(error);
               }
 
-              pending.outboundRequestStreams.delete(payload.id)
+              pending.outboundRequestStreams.delete(payload.id);
 
-              const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy)
-              return transport.send(message)
-            })
+              const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy);
+              return transport.send(message);
+            });
           }
         })
         .catch((error) => {
-          reject(error)
-        })
-    })
-  }
+          reject(error);
+        });
+    });
+  };
 
   /**
    * Send response for an open request.
@@ -384,7 +384,7 @@ exports.createTransport = (runtime, adapter) => {
   */
   transport.sendResponse = (target, contextId, data, meta, error) => {
     // Check if data is a stream
-    const isStream = utils.isStream(data)
+    const isStream = utils.isStream(data);
 
     // Build response payload
     const payload = {
@@ -392,168 +392,168 @@ exports.createTransport = (runtime, adapter) => {
       meta,
       data,
       success: error == null
-    }
+    };
 
     // If an error is occurs, we attach the an error object to the payload.
     if (error) {
-      payload.error = getErrorPayload(error)
+      payload.error = getErrorPayload(error);
     }
 
     if (isStream) {
-      const stream = data
+      const stream = data;
 
       if (!pending.outboundResponseStreams.has(payload.id)) {
-        pending.outboundResponseStreams.set(payload.id, stream)
+        pending.outboundResponseStreams.set(payload.id, stream);
       }
 
-      payload.data = null
-      payload.sequence = 0
-      payload.isStream = true
+      payload.data = null;
+      payload.sequence = 0;
+      payload.isStream = true;
 
       if (utils.isStreamObjectMode(data)) {
-        payload.meta = payload.meta || {}
-        payload.meta.$isObjectModeStream = true
+        payload.meta = payload.meta || {};
+        payload.meta.$isObjectModeStream = true;
       }
 
-      stream.pause()
-      transport.log.debug('Send new stream chunk to ', target)
+      stream.pause();
+      transport.log.debug('Send new stream chunk to ', target);
 
       stream.on('data', data => {
-        stream.pause()
-        const chunks = []
+        stream.pause();
+        const chunks = [];
 
         // chunk is larger than maxBufferSize
         if (data instanceof Buffer && runtime.options.transport.maxChunkSize > 0 && data.length > runtime.options.transport.maxChunkSize) {
-          const length = data.length
-          let i = 0
+          const length = data.length;
+          let i = 0;
           while (i < length) {
-            chunks.push(data.slice(i, i += runtime.options.transport.maxChunkSize))
+            chunks.push(data.slice(i, i += runtime.options.transport.maxChunkSize));
           }
         } else {
-          chunks.push(data)
+          chunks.push(data);
         }
 
         // Send chunks from chunk buffer
         for (const chunk of chunks) {
-          const payloadCopy = Object.assign({}, payload)
-          payloadCopy.sequence = ++payload.sequence
+          const payloadCopy = Object.assign({}, payload);
+          payloadCopy.sequence = ++payload.sequence;
 
-          payloadCopy.chunk = chunk
-          transport.log.debug(`Send Stream chunk to ${target}`)
+          payloadCopy.chunk = chunk;
+          transport.log.debug(`Send Stream chunk to ${target}`);
 
-          const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy)
-          transport.send(message)
+          const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy);
+          transport.send(message);
         }
 
         // resume stream
-        stream.resume()
-        return
-      })
+        stream.resume();
+        return;
+      });
 
       stream.on('end', () => {
-        const payloadCopy = Object.assign({}, payload)
+        const payloadCopy = Object.assign({}, payload);
 
-        payloadCopy.sequence = ++payload.sequence
-        payloadCopy.chunk = null
-        payloadCopy.isStream = false
+        payloadCopy.sequence = ++payload.sequence;
+        payloadCopy.chunk = null;
+        payloadCopy.isStream = false;
 
-        transport.log.debug(`Send end stream chunk to ${target}`)
+        transport.log.debug(`Send end stream chunk to ${target}`);
 
-        const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy)
-        transport.send(message)
-        pending.outboundResponseStreams.delete(payload.id)
-      })
+        const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy);
+        transport.send(message);
+        pending.outboundResponseStreams.delete(payload.id);
+      });
 
       stream.on('error', (error) => {
-        const payloadCopy = Object.assign({}, payload)
+        const payloadCopy = Object.assign({}, payload);
 
-        payloadCopy.sequence = ++payload.sequence
-        payloadCopy.isStream = false
-        payloadCopy.chunk = null
+        payloadCopy.sequence = ++payload.sequence;
+        payloadCopy.isStream = false;
+        payloadCopy.chunk = null;
 
         if (error) {
-          payloadCopy.success = false
-          payloadCopy.error = getErrorPayload(error)
+          payloadCopy.success = false;
+          payloadCopy.error = getErrorPayload(error);
         }
 
-        transport.log.debug(`Send closing chunk to ${target}`)
+        transport.log.debug(`Send closing chunk to ${target}`);
 
-        const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy)
-        transport.send(message)
-        pending.outboundResponseStreams.delete(payload.id)
-      })
+        const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy);
+        transport.send(message);
+        pending.outboundResponseStreams.delete(payload.id);
+      });
 
-      payload.data = null
-      const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payload)
+      payload.data = null;
+      const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payload);
       return transport.send(message)
-        .then(() => stream.resume())
+        .then(() => stream.resume());
     }
 
-    const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payload)
-    return transport.send(message)
-  }
+    const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payload);
+    return transport.send(message);
+  };
 
   const onConnect = ({ wasReconnect = false, useHeartbeatTimer = true, useRemoteNodeCheckTimer = true, useOfflineCheckTimer = true }) =>
     Promise.resolve()
       .then(() => {
         if (!wasReconnect) {
-          return makeSubscriptions()
+          return makeSubscriptions();
         }
       })
       .then(() => transport.discoverNodes())
       .then(() => utils.promiseDelay(Promise.resolve(), 500))
       .then(() => {
-        transport.isConnected = true
+        transport.isConnected = true;
 
-        runtime.eventBus.broadcastLocal('$transporter.connected', { wasReconnect })
+        runtime.eventBus.broadcastLocal('$transporter.connected', { wasReconnect });
 
         if (transport.resolveConnect) {
-          transport.resolveConnect()
-          transport.resolveConnect = null
+          transport.resolveConnect();
+          transport.resolveConnect = null;
         }
       })
       .then(() => {
-        startUpdateLocalNodeTimer()
+        startUpdateLocalNodeTimer();
 
         if (useHeartbeatTimer) {
-          startHeartbeatTimer()
+          startHeartbeatTimer();
         }
 
         if (useRemoteNodeCheckTimer) {
-          startRemoteNodeCheckTimer()
+          startRemoteNodeCheckTimer();
         }
 
         if (useOfflineCheckTimer) {
-          startOfflineNodeCheckTimer()
+          startOfflineNodeCheckTimer();
         }
-      })
+      });
 
   const onDisconnect = () => {
     Promise.resolve()
       .then(() => {
-        transport.isConnected = false
-        runtime.bus.emit('$transporter.disconnected')
+        transport.isConnected = false;
+        runtime.bus.emit('$transporter.disconnected');
       })
       .then(() => {
-        stopTimers()
-      })
-  }
+        stopTimers();
+      });
+  };
 
-  let messageHandler = createMessageHandler(runtime, transport)
+  let messageHandler = createMessageHandler(runtime, transport);
 
   // Wrap message handler for middlewares
-  messageHandler = middlewareHandler.wrapMethod('transportMessageHandler', messageHandler, transport)
+  messageHandler = middlewareHandler.wrapMethod('transportMessageHandler', messageHandler, transport);
 
   adapter.init(runtime, transport)
     .then(() => {
-      adapter.bus.on('$adapter.connected', onConnect)
-      adapter.bus.on('$adapter.disconnected', onDisconnect)
-      adapter.bus.on('$adapter.message', messageHandler)
-    })
+      adapter.bus.on('$adapter.connected', onConnect);
+      adapter.bus.on('$adapter.disconnected', onDisconnect);
+      adapter.bus.on('$adapter.message', messageHandler);
+    });
 
-  transport.send = middlewareHandler.wrapMethod('transportSend', transport.send, transport)
+  transport.send = middlewareHandler.wrapMethod('transportSend', transport.send, transport);
 
-  return transport
+  return transport;
 
   function makeSubscriptions () {
     return Promise.all([
@@ -572,80 +572,80 @@ exports.createTransport = (runtime, adapter) => {
       adapter.subscribe(MessageTypes.MESSAGE_RESPONSE_STREAM_RESUME, nodeId),
       adapter.subscribe(MessageTypes.MESSAGE_REQUEST_STREAM_BACKPRESSURE, nodeId),
       adapter.subscribe(MessageTypes.MESSAGE_REQUEST_STREAM_RESUME, nodeId)
-    ])
+    ]);
   }
 
   function startHeartbeatTimer () {
-    heartbeatTimer = setInterval(() => sendHeartbeat(), runtime.options.transport.heartbeatInterval)
-    heartbeatTimer.unref()
+    heartbeatTimer = setInterval(() => sendHeartbeat(), runtime.options.transport.heartbeatInterval);
+    heartbeatTimer.unref();
   }
 
   function startRemoteNodeCheckTimer () {
-    checkNodesTimer = setInterval(() => checkRemoteNodes(), runtime.options.transport.heartbeatTimeout)
-    checkNodesTimer.unref()
+    checkNodesTimer = setInterval(() => checkRemoteNodes(), runtime.options.transport.heartbeatTimeout);
+    checkNodesTimer.unref();
   }
 
   function startOfflineNodeCheckTimer () {
-    checkOfflineNodesTimer = setInterval(() => checkOfflineNodes(), runtime.options.transport.offlineNodeCheckInterval)
-    checkOfflineNodesTimer.unref()
+    checkOfflineNodesTimer = setInterval(() => checkOfflineNodes(), runtime.options.transport.offlineNodeCheckInterval);
+    checkOfflineNodesTimer.unref();
   }
 
   function startUpdateLocalNodeTimer () {
     updateLocalNodeTimer = setInterval(() => {
-      const node = runtime.registry.nodeCollection.localNode
-      node.updateLocalInfo(true)
-    }, runtime.options.transport.localNodeUpdateInterval)
+      const node = runtime.registry.nodeCollection.localNode;
+      node.updateLocalInfo(true);
+    }, runtime.options.transport.localNodeUpdateInterval);
 
-    updateLocalNodeTimer.unref()
+    updateLocalNodeTimer.unref();
   }
 
   function stopTimers () {
-    clearInterval(heartbeatTimer)
-    clearInterval(checkNodesTimer)
-    clearInterval(checkOfflineNodesTimer)
-    clearInterval(updateLocalNodeTimer)
+    clearInterval(heartbeatTimer);
+    clearInterval(checkNodesTimer);
+    clearInterval(checkOfflineNodesTimer);
+    clearInterval(updateLocalNodeTimer);
   }
 
   function sendHeartbeat () {
-    const node = runtime.registry.nodeCollection.localNode
-    node.updateLocalInfo()
+    const node = runtime.registry.nodeCollection.localNode;
+    node.updateLocalInfo();
 
-    transport.log.verbose(`Send heartbeat from ${node.id}`)
+    transport.log.verbose(`Send heartbeat from ${node.id}`);
 
     const payload = {
       cpu: node.cpu,
       cpuSequence: node.cpuSequence,
       sequence: node.sequence
-    }
+    };
 
-    const message = createMessage(MessageTypes.MESSAGE_HEARTBEAT, null, payload)
-    transport.send(message)
+    const message = createMessage(MessageTypes.MESSAGE_HEARTBEAT, null, payload);
+    transport.send(message);
   }
 
   function checkRemoteNodes () {
-    const now = Date.now()
+    const now = Date.now();
     runtime.registry.nodeCollection.list({ withServices: true }).forEach(node => {
       if (node.isLocal || !node.isAvailable) {
-        return
+        return;
       }
 
       if (now - (node.lastHeartbeatTime || 0) > runtime.options.transport.heartbeatTimeout) {
-        runtime.registry.nodeDisconnected(node.id, true)
+        runtime.registry.nodeDisconnected(node.id, true);
       }
-    })
+    });
   }
 
   // Removes the node after a given time from the registry.
   function checkOfflineNodes () {
-    const now = Date.now()
+    const now = Date.now();
     runtime.registry.nodeCollection.list({}).forEach(node => {
       if (node.isLocal || node.isAvailable) {
-        return
+        return;
       }
 
       if ((now - node.offlineTime) > runtime.options.transport.maxOfflineTime) {
-        runtime.registry.removeNode(node.id)
+        runtime.registry.removeNode(node.id);
       }
-    })
+    });
   }
-}
+};

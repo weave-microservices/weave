@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-const { EventEmitter2: EventEmitter } = require('eventemitter2')
+const { EventEmitter2: EventEmitter } = require('eventemitter2');
 
 /**
  * @typedef {import('stream').Stream} Stream
@@ -834,4 +834,4 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2')
  * @param {object} data - Payload
  */
 
-module.exports = {}
+module.exports = {};

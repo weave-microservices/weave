@@ -8,7 +8,7 @@
  * @typedef {import('../types.js').Runtime} Runtime
 */
 
-const ObjectValidator = require('@weave-js/validator')
+const ObjectValidator = require('@weave-js/validator');
 
 /**
  * Init validator and attach it to our runtime object.
@@ -16,11 +16,11 @@ const ObjectValidator = require('@weave-js/validator')
  * @returns {void}
 */
 exports.initValidator = (runtime) => {
-  const validator = ObjectValidator()
+  const validator = ObjectValidator();
 
   Object.defineProperty(runtime, 'validator', {
     value: {
       ...validator
     }
-  })
-}
+  });
+};

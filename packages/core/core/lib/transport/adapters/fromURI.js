@@ -3,33 +3,33 @@
  * -----
  * Copyright 2019 Fachwerk
  */
-const { parse } = require('url')
-const getAdapterByName = require('./getAdapterByName')
+const { parse } = require('url');
+const getAdapterByName = require('./getAdapterByName');
 
 function fromURI (uri) {
   if (typeof uri !== 'string') {
-    throw new Error('URI needs to be a string.')
+    throw new Error('URI needs to be a string.');
   }
 
-  const urlObject = parse(uri)
+  const urlObject = parse(uri);
 
   if (!urlObject.protocol) {
-    throw new Error('Protocol is missing.')
+    throw new Error('Protocol is missing.');
   }
 
-  const name = urlObject.protocol.slice(0, -1).toLowerCase()
+  const name = urlObject.protocol.slice(0, -1).toLowerCase();
 
-  const AdapterFactory = getAdapterByName(name)
+  const AdapterFactory = getAdapterByName(name);
 
   if (!AdapterFactory) {
-    throw new Error('No adapter found.')
+    throw new Error('No adapter found.');
   }
 
-  let config = null
+  let config = null;
   if (AdapterFactory.uriToConfig) {
-    config = AdapterFactory.uriToConfig(urlObject)
+    config = AdapterFactory.uriToConfig(urlObject);
   }
-  return AdapterFactory(config)
+  return AdapterFactory(config);
 }
 
-module.exports = fromURI
+module.exports = fromURI;

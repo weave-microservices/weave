@@ -1,4 +1,4 @@
-const { createBaseTracingCollector } = require('./base')
+const { createBaseTracingCollector } = require('./base');
 
 const mergeDefaultOptions = (options) => {
   return Object.assign({
@@ -7,80 +7,80 @@ const mergeDefaultOptions = (options) => {
     sendStartSpan: false,
     sendFinishedSpan: true,
     broadcast: false
-  }, options)
-}
+  }, options);
+};
 
 module.exports = (options) => (runtime, tracer) => {
-  options = mergeDefaultOptions(options)
+  options = mergeDefaultOptions(options);
 
-  const exporter = createBaseTracingCollector(runtime)
+  const exporter = createBaseTracingCollector(runtime);
 
-  exporter.init(runtime, tracer)
+  exporter.init(runtime, tracer);
 
-  const queue = []
+  const queue = [];
 
-  let timer
+  let timer;
 
   const generateTracingData = () => {
     return Array
       .from(queue)
       .map(span => {
-        const newSpan = Object.assign({}, span)
+        const newSpan = Object.assign({}, span);
 
         if (newSpan.error) {
-          newSpan.error = exporter.getErrorFields(newSpan.error, exporter.options.errors.fields)
+          newSpan.error = exporter.getErrorFields(newSpan.error, exporter.options.errors.fields);
         }
 
-        return newSpan
-      })
-  }
+        return newSpan;
+      });
+  };
 
   const flushQueue = () => {
-    if (queue.length === 0) return
+    if (queue.length === 0) return;
 
-    const data = generateTracingData()
-    queue.length = 0
+    const data = generateTracingData();
+    queue.length = 0;
 
     if (options.broadcast) {
-      exporter.runtime.eventBus.broadcast(options.eventName, data)
+      exporter.runtime.eventBus.broadcast(options.eventName, data);
     } else {
-      exporter.runtime.eventBus.emit(options.eventName, data)
+      exporter.runtime.eventBus.emit(options.eventName, data);
     }
-  }
+  };
 
   if (options.interval > 0) {
-    timer = setInterval(() => flushQueue(), options.interval)
-    timer.unref()
+    timer = setInterval(() => flushQueue(), options.interval);
+    timer.unref();
   }
 
   exporter.init = (runtime) => {
 
-  }
+  };
 
   exporter.startedSpan = (span) => {
     if (options.sendStartSpan) {
-      queue.push(span)
+      queue.push(span);
       if (!timer) {
-        flushQueue()
+        flushQueue();
       }
     }
-  }
+  };
 
   exporter.finishedSpan = (span) => {
     if (options.sendFinishedSpan) {
-      queue.push(span)
+      queue.push(span);
       if (!timer) {
-        flushQueue()
+        flushQueue();
       }
     }
-  }
+  };
 
   exporter.stop = async () => {
     if (timer) {
-      clearInterval(timer)
-      timer = null
+      clearInterval(timer);
+      timer = null;
     }
-  }
+  };
 
-  return exporter
-}
+  return exporter;
+};

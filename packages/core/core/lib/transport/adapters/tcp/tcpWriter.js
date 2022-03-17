@@ -1,119 +1,119 @@
-const net = require('net')
-const { EventEmitter } = require('events')
-const MessageTypes = require('../../messageTypes')
-const TCPMessageTypeHelper = require('./tcp-messagetypes')
+const net = require('net');
+const { EventEmitter } = require('events');
+const MessageTypes = require('../../messageTypes');
+const TCPMessageTypeHelper = require('./tcp-messagetypes');
 
 module.exports = (adapter) => {
-  const self = Object.assign({}, EventEmitter.prototype)
-  const sockets = new Map()
-  const messageTypeHelper = TCPMessageTypeHelper(MessageTypes)
-  const headerSize = 6
+  const self = Object.assign({}, EventEmitter.prototype);
+  const sockets = new Map();
+  const messageTypeHelper = TCPMessageTypeHelper(MessageTypes);
+  const headerSize = 6;
 
   const connect = nodeId => {
-    const node = adapter.broker.registry.nodeCollection.get(nodeId)
+    const node = adapter.broker.registry.nodeCollection.get(nodeId);
     if (!node) {
-      return Promise.reject(new Error(`Missing node info for '${nodeId}'!`))
+      return Promise.reject(new Error(`Missing node info for '${nodeId}'!`));
     }
 
-    const host = node.IPList[0]
-    const port = node.port
+    const host = node.IPList[0];
+    const port = node.port;
 
     return new Promise((resolve, reject) => {
       try {
         const socket = net.connect({ host, port }, () => {
           // send hello
-          socket.setNoDelay(true)
-          socket.nodeId = nodeId
-          socket.lastUsage = Date.now()
+          socket.setNoDelay(true);
+          socket.nodeId = nodeId;
+          socket.lastUsage = Date.now();
 
-          addSocket(nodeId, socket, true)
+          addSocket(nodeId, socket, true);
 
           adapter.sendHello(nodeId)
             .then(() => resolve(socket))
-            .catch(error => reject(error))
-        })
+            .catch(error => reject(error));
+        });
 
         socket.on('error', error => {
-          removeSocket(nodeId)
+          removeSocket(nodeId);
 
-          self.emit('error', error, nodeId)
+          self.emit('error', error, nodeId);
 
           if (error) {
-            reject(error)
+            reject(error);
           }
-        })
+        });
 
-        socket.unref()
+        socket.unref();
       } catch (error) {
         if (error) {
-          reject(error)
+          reject(error);
         }
       }
-    })
-  }
+    });
+  };
 
   const addSocket = (nodeId, socket, force) => {
-    const s = sockets.get(nodeId)
+    const s = sockets.get(nodeId);
 
     if (!force && s && !s.destroyed) {
-      return
+      return;
     }
 
-    sockets.set(nodeId, socket)
-  }
+    sockets.set(nodeId, socket);
+  };
 
   const removeSocket = nodeId => {
-    const socket = sockets.get(nodeId)
+    const socket = sockets.get(nodeId);
     if (socket && !socket.destroyed) {
-      socket.destroy()
+      socket.destroy();
     }
 
-    sockets.delete(nodeId)
-  }
+    sockets.delete(nodeId);
+  };
 
   self.send = (nodeId, type, data) => {
     return Promise.resolve()
       .then(() => {
-        const socket = sockets.get(nodeId)
+        const socket = sockets.get(nodeId);
 
         if (socket && !socket.destroyed) {
-          return socket
+          return socket;
         }
-        return connect(nodeId)
+        return connect(nodeId);
       })
       .then(socket => {
         return new Promise((resolve, reject) => {
-          const header = Buffer.alloc(headerSize)
+          const header = Buffer.alloc(headerSize);
 
-          header.writeInt32BE(data.length + headerSize, 1)
-          header.writeInt8(messageTypeHelper.getIndexByType(type), 5)
+          header.writeInt32BE(data.length + headerSize, 1);
+          header.writeInt8(messageTypeHelper.getIndexByType(type), 5);
 
-          const crc = header[1] ^ header[2] ^ header[3] ^ header[4] ^ header[5]
-          header[0] = crc
+          const crc = header[1] ^ header[2] ^ header[3] ^ header[4] ^ header[5];
+          header[0] = crc;
 
-          const payload = Buffer.concat([header, data])
+          const payload = Buffer.concat([header, data]);
 
           try {
             socket.write(payload, () => {
-              resolve()
-            })
+              resolve();
+            });
           } catch (error) {
-            removeSocket(nodeId)
-            reject(error)
+            removeSocket(nodeId);
+            reject(error);
           }
-        })
-      })
-  }
+        });
+      });
+  };
 
   self.close = () => {
     sockets.forEach(socket => {
       if (!socket.destroyed) {
-        socket.destroy()
+        socket.destroy();
       }
-      socket.end()
-    })
-    sockets.clear()
-  }
+      socket.end();
+    });
+    sockets.clear();
+  };
 
-  return self
-}
+  return self;
+};

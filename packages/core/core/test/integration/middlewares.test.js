@@ -1,24 +1,24 @@
-const { TransportAdapters } = require('../../lib/index')
-const { createNode } = require('../helper')
+const { TransportAdapters } = require('../../lib/index');
+const { createNode } = require('../helper');
 
 describe('Middleware hooks', () => {
   it('should call hooks in the right order', (done) => {
-    const order = []
+    const order = [];
 
     const middleware = {
       starting: () => {
-        order.push('starting')
+        order.push('starting');
       },
       started: () => {
-        order.push('started')
+        order.push('started');
       },
       stopping: () => {
-        order.push('stopping')
+        order.push('stopping');
       },
       stopped: () => {
-        order.push('stopped')
+        order.push('stopped');
       }
-    }
+    };
 
     const broker = createNode({
       nodeId: 'node1',
@@ -26,72 +26,72 @@ describe('Middleware hooks', () => {
         enabled: false
       },
       middlewares: [middleware]
-    })
+    });
 
     broker.start()
       .then(() => broker.stop())
       .then(() => {
-        expect(order.join('-')).toBe('starting-started-stopping-stopped')
-        done()
-      })
-  })
+        expect(order.join('-')).toBe('starting-started-stopping-stopped');
+        done();
+      });
+  });
 
   it('should call hooks in the right order (with service hooks)', (done) => {
-    const order = []
+    const order = [];
 
     const middleware = {
       starting: () => {
-        order.push('starting')
+        order.push('starting');
       },
       started: () => {
-        order.push('started')
+        order.push('started');
       },
       serviceCreating: function () {
-        order.push('serviceCreating')
+        order.push('serviceCreating');
       },
       serviceCreated: function () {
-        order.push('serviceCreated')
+        order.push('serviceCreated');
       },
       serviceStarting: () => {
-        order.push('serviceStarting')
+        order.push('serviceStarting');
       },
       serviceStarted: () => {
-        order.push('serviceStarted')
+        order.push('serviceStarted');
       },
       serviceStopping: () => {
-        order.push('serviceStopping')
+        order.push('serviceStopping');
       },
       serviceStopped: () => {
-        order.push('serviceStopped')
+        order.push('serviceStopped');
       },
       stopping: () => {
-        order.push('stopping')
+        order.push('stopping');
       },
       stopped: () => {
-        order.push('stopped')
+        order.push('stopped');
       },
       localAction: (handler, action) => {
         return function (context) {
-          order.push('localAction1')
+          order.push('localAction1');
           return handler(context).then(res => {
-            order.push('localAction2')
-            return res
-          })
-        }
+            order.push('localAction2');
+            return res;
+          });
+        };
       },
       emit (next) {
         return (event, payload) => {
-          order.push('emit')
-          return next(event, payload)
-        }
+          order.push('emit');
+          return next(event, payload);
+        };
       },
       broadcast (next) {
         return (event, payload) => {
-          order.push('broadcast')
-          return next(event, payload)
-        }
+          order.push('broadcast');
+          return next(event, payload);
+        };
       }
-    }
+    };
 
     const broker = createNode({
       nodeId: 'node1',
@@ -99,38 +99,38 @@ describe('Middleware hooks', () => {
         enabled: false
       },
       middlewares: [middleware]
-    })
+    });
 
     broker.createService({
       name: 'testService',
       actions: {
         test (context) {
-          context.emit('hihi')
-          context.broadcast('hoho')
-          return true
+          context.emit('hihi');
+          context.broadcast('hoho');
+          return true;
         }
       }
-    })
+    });
 
     broker.start()
       .then(() => broker.call('testService.test'))
       .then(() => broker.stop())
       .then(() => {
         expect(order.join('-'))
-          .toBe('serviceCreating-serviceCreated-starting-serviceStarting-serviceStarted-started-localAction1-emit-broadcast-localAction2-stopping-serviceStopping-serviceStopped-stopped')
-        done()
-      })
-  })
+          .toBe('serviceCreating-serviceCreated-starting-serviceStarting-serviceStarted-started-localAction1-emit-broadcast-localAction2-stopping-serviceStopping-serviceStopped-stopped');
+        done();
+      });
+  });
 
   it('should call local action hook', (done) => {
     const middleware = {
       localAction: function (handler) {
         return context => {
-          context.data.paramFromMiddleware = 'hello world'
-          return handler(context)
-        }
+          context.data.paramFromMiddleware = 'hello world';
+          return handler(context);
+        };
       }
-    }
+    };
 
     const broker = createNode({
       nodeId: 'node1',
@@ -139,36 +139,36 @@ describe('Middleware hooks', () => {
         level: 'fatal'
       },
       middlewares: [middleware]
-    })
+    });
 
     broker.createService({
       name: 'testService',
       actions: {
         helloWorld (context) {
-          return context.data
+          return context.data;
         }
       }
-    })
+    });
 
     broker.start()
       .then(() => {
         return broker.call('testService.helloWorld')
           .then(res => {
-            expect(res.paramFromMiddleware).toBe('hello world')
-            done()
-          })
-      })
-  })
+            expect(res.paramFromMiddleware).toBe('hello world');
+            done();
+          });
+      });
+  });
 
   it('should call remote action hook', (done) => {
     const middleware = {
       remoteAction: function (handler) {
         return context => {
-          context.data.paramFromMiddleware = 'hello world'
-          return handler(context)
-        }
+          context.data.paramFromMiddleware = 'hello world';
+          return handler(context);
+        };
       }
-    }
+    };
 
     const broker1 = createNode({
       nodeId: 'node1',
@@ -179,7 +179,7 @@ describe('Middleware hooks', () => {
         enabled: false
       },
       middlewares: [middleware]
-    })
+    });
 
     const broker2 = createNode({
       nodeId: 'node2',
@@ -189,16 +189,16 @@ describe('Middleware hooks', () => {
       logger: {
         enabled: false
       }
-    })
+    });
 
     broker2.createService({
       name: 'math',
       actions: {
         add (context) {
-          return { params: context.data, result: Number(context.data.a) + Number(context.data.b) }
+          return { params: context.data, result: Number(context.data.a) + Number(context.data.b) };
         }
       }
-    })
+    });
 
     Promise.all([
       broker1.start(),
@@ -208,19 +208,19 @@ describe('Middleware hooks', () => {
       .then(() => {
         return broker1.call('math.add', { a: 1, b: 2 })
           .then(res => {
-            expect(res.result).toBe(3)
-            expect(res.params.paramFromMiddleware).toBe('hello world')
-            done()
-          })
-      })
-  })
+            expect(res.result).toBe(3);
+            expect(res.params.paramFromMiddleware).toBe('hello world');
+            done();
+          });
+      });
+  });
 
   it('should decorate core module', () => {
     const middleware = {
       created (runtime) {
-        runtime.broker.fancyTestmethod = () => {}
+        runtime.broker.fancyTestmethod = () => {};
       }
-    }
+    };
 
     const broker1 = createNode({
       nodeId: 'node1',
@@ -229,25 +229,25 @@ describe('Middleware hooks', () => {
         enabled: false
       },
       middlewares: [middleware]
-    })
+    });
 
-    broker1.start()
-    expect(broker1.fancyTestmethod).toBeDefined()
-  })
-})
+    broker1.start();
+    expect(broker1.fancyTestmethod).toBeDefined();
+  });
+});
 
 describe('Service creating hook', () => {
   it('should modify the given service schema', (done) => {
     const middleware = {
       serviceCreating: (_, schema) => {
         if (!schema.methods) {
-          schema.methods = {}
+          schema.methods = {};
         }
         schema.methods.pull = () => {
-          return 'return pull'
-        }
+          return 'return pull';
+        };
       }
-    }
+    };
 
     const broker = createNode({
       nodeId: 'node1',
@@ -255,25 +255,25 @@ describe('Service creating hook', () => {
         enabled: false
       },
       middlewares: [middleware]
-    })
+    });
 
     broker.createService({
       name: 'testService',
       actions: {
         callPull () {
           // call hook injected method.
-          return this.pull()
+          return this.pull();
         }
       }
-    })
+    });
 
     broker.start()
       .then(() => {
         return broker.call('testService.callPull')
           .then(res => {
-            expect(res).toBe('return pull')
-            done()
-          })
-      })
-  })
-})
+            expect(res).toBe('return pull');
+            done();
+          });
+      });
+  });
+});

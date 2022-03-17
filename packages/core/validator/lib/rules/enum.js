@@ -1,5 +1,5 @@
 module.exports = function checkArray ({ schema, messages }) {
-  const enumString = JSON.stringify(schema.values || [])
+  const enumString = JSON.stringify(schema.values || []);
 
   return {
     code: `
@@ -8,5 +8,5 @@ module.exports = function checkArray ({ schema, messages }) {
       }
       return value
     `
-  }
-}
+  };
+};

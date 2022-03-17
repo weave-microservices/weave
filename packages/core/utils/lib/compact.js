@@ -1,1 +1,1 @@
-exports.compact = arr => arr.filter(Boolean)
+exports.compact = arr => arr.filter(Boolean);

@@ -1,11 +1,11 @@
-const { resolveCollector } = require('../tracing/collectors')
-const { createSpan } = require('../tracing/span')
+const { resolveCollector } = require('../tracing/collectors');
+const { createSpan } = require('../tracing/span');
 
 exports.initTracer = (runtime) => {
-  const options = runtime.options.tracing
-  const log = runtime.createLogger('TRACER')
-  let collectors = []
-  let samplingCounter = 0
+  const options = runtime.options.tracing;
+  const log = runtime.createLogger('TRACER');
+  let collectors = [];
+  let samplingCounter = 0;
 
   Object.defineProperty(runtime, 'tracer', {
     value: {
@@ -14,52 +14,52 @@ exports.initTracer = (runtime) => {
       log,
       async stop () {
         if (collectors.length > 0) {
-          return await Promise.all(collectors.map(collector => collector.stop()))
+          return await Promise.all(collectors.map(collector => collector.stop()));
         }
       },
       shouldSample (span) {
         // check span priority
         if (options.samplingRate === 0) {
-          return false
+          return false;
         }
 
         if (options.samplingRate === 1) {
-          return true
+          return true;
         }
 
         if (++samplingCounter * this.options.samplingRate >= 1) {
-          samplingCounter = 0
-          return true
+          samplingCounter = 0;
+          return true;
         }
 
-        return false
+        return false;
       },
       invokeCollectorMethod (method, args) {
-        collectors.map(collector => collector[method].apply(collector, args))
+        collectors.map(collector => collector[method].apply(collector, args));
       },
       startSpan (name, options) {
         const span = createSpan(this, name, Object.assign({
           type: 'custom'
-        }, options))
+        }, options));
 
-        span.start()
+        span.start();
 
-        return span
+        return span;
       }
     }
-  })
+  });
 
   // Init collectors
   if (options.enabled) {
-    log.info('Tracer initialized.')
+    log.info('Tracer initialized.');
 
     if (options.collectors) {
       collectors = options.collectors
         .map(entry => {
-          const initCollector = resolveCollector(runtime, entry, this)
-          initCollector.init(runtime)
-          return initCollector
-        })
+          const initCollector = resolveCollector(runtime, entry, this);
+          initCollector.init(runtime);
+          return initCollector;
+        });
     }
   }
-}
+};

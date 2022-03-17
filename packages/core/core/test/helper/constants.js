@@ -12,4 +12,4 @@ exports.middlewareHooks = [
   'broadcast',
   'broadcastLocal',
   'emit'
-]
+];

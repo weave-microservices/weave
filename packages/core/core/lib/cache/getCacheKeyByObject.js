@@ -1,4 +1,4 @@
-const { isObject, isString } = require('@weave-js/utils')
+const { isObject, isString } = require('@weave-js/utils');
 
 /**
  * Get property from data or metadata object.
@@ -7,25 +7,25 @@ const { isObject, isString } = require('@weave-js/utils')
 */
 const getCacheKeyByObject = (value) => {
   if (Array.isArray(value)) {
-    return '[' + value.map(object => getCacheKeyByObject(object)).join(',') + ']'
+    return '[' + value.map(object => getCacheKeyByObject(object)).join(',') + ']';
   } else if (isObject(value)) {
     // Handle date objects
     if (value instanceof Date) {
-      return value.toISOString()
+      return value.toISOString();
     }
 
     return '{' + Object.keys(value)
       .map((key) => {
-        return [key, getCacheKeyByObject(value[key])].join(':')
+        return [key, getCacheKeyByObject(value[key])].join(':');
       })
-      .join(',') + '}'
+      .join(',') + '}';
   } else if (isString(value)) {
-    return value
+    return value;
   } else if (typeof value === 'boolean' || typeof value === 'number') {
-    return value.toString()
+    return value.toString();
   } else {
-    return 'null'
+    return 'null';
   }
-}
+};
 
-module.exports = { getCacheKeyByObject }
+module.exports = { getCacheKeyByObject };

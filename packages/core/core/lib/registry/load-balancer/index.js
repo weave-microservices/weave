@@ -1,22 +1,22 @@
 const Strategies = {
   Random: require('./random'),
   RoundRobin: require('./round-robin')
-}
+};
 const getByName = name => {
   if (!name) {
-    return null
+    return null;
   }
 
-  const n = Object.keys(Strategies).find(n => n.toLowerCase() === name.toLowerCase())
+  const n = Object.keys(Strategies).find(n => n.toLowerCase() === name.toLowerCase());
   if (n) {
-    return this.Cache[n]
+    return this.Cache[n];
   }
-}
+};
 
 module.exports = {
   resolve (option) {
     if (typeof option === 'string') {
-      return getByName(option)
+      return getByName(option);
     }
   }
-}
+};

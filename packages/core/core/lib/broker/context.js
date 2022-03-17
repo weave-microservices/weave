@@ -3,7 +3,7 @@
  * -----
  * Copyright 2021 Fachwerk
  */
-'use strict'
+'use strict';
 
 /**
  * @typedef {import('../types').Context} Context
@@ -12,8 +12,8 @@
  * @typedef {import('../types').Endpoint} Endpoint
 */
 
-const { uuid, isFunction, isStream, isStreamObjectMode } = require('@weave-js/utils')
-const { WeaveMaxCallLevelError, WeaveError } = require('../errors')
+const { uuid, isFunction, isStream, isStreamObjectMode } = require('@weave-js/utils');
+const { WeaveMaxCallLevelError, WeaveError } = require('../errors');
 
 /**
  * Create a new context object
@@ -43,47 +43,47 @@ exports.createContext = (runtime) => {
     duration: 0,
     stopTime: 0,
     setData (newParams) {
-      this.data = newParams || {}
+      this.data = newParams || {};
     },
     setStream (stream) {
       if (isStream(stream)) {
         if (isStreamObjectMode(context.options.stream)) {
-          this.meta.$isObjectModeStream = true
+          this.meta.$isObjectModeStream = true;
         }
-        this.stream = stream
+        this.stream = stream;
       } else {
-        throw new WeaveError('No valid stream.')
+        throw new WeaveError('No valid stream.');
       }
     },
     setEndpoint (endpoint) {
-      this.nodeId = endpoint.node.id
-      this.endpoint = endpoint
-      this.action = endpoint.action
-      this.service = endpoint.action.service
+      this.nodeId = endpoint.node.id;
+      this.endpoint = endpoint;
+      this.action = endpoint.action;
+      this.service = endpoint.action.service;
     },
     emit (eventName, payload, options = {}) {
-      options.parentContext = this
-      return runtime.eventBus.emit(eventName, payload, options)
+      options.parentContext = this;
+      return runtime.eventBus.emit(eventName, payload, options);
     },
     broadcast (eventName, payload, options = {}) {
-      options.parentContext = this
-      return runtime.eventBus.broadcast(eventName, payload, options)
+      options.parentContext = this;
+      return runtime.eventBus.broadcast(eventName, payload, options);
     },
     call (actionName, params, options = {}) {
-      options.parentContext = this
+      options.parentContext = this;
       if (runtime.options.registry.maxCallLevel > 0 && this.level >= runtime.options.registry.maxCallLevel) {
-        return Promise.reject(new WeaveMaxCallLevelError({ nodeId: runtime.nodeId, maxCallLevel: runtime.options.registry.maxCallLevel }))
+        return Promise.reject(new WeaveMaxCallLevelError({ nodeId: runtime.nodeId, maxCallLevel: runtime.options.registry.maxCallLevel }));
       }
 
       /** @type {ContextPromise} */
-      const p = runtime.actionInvoker.call(actionName, params, options)
+      const p = runtime.actionInvoker.call(actionName, params, options);
 
       return p.then(result => {
         if (p.context) {
-          this.meta = Object.assign(this.meta, p.context.meta)
+          this.meta = Object.assign(this.meta, p.context.meta);
         }
-        return result
-      })
+        return result;
+      });
     },
     startSpan (name, options) {
       options = Object.assign({
@@ -93,19 +93,19 @@ exports.createContext = (runtime) => {
         type: 'action',
         service: this.service,
         sampled: this.tracing
-      }, options)
+      }, options);
 
       if (this.span) {
-        this.span = this.span.startChildSpan(name, options)
+        this.span = this.span.startChildSpan(name, options);
       } else {
-        this.span = runtime.tracer.startSpan(name, options)
+        this.span = runtime.tracer.startSpan(name, options);
       }
-      return this.span
+      return this.span;
     },
     finishSpan () {
       if (this.span) {
-        this.span.finish()
-        return this.span
+        this.span.finish();
+        return this.span;
       }
     },
     /**
@@ -113,40 +113,40 @@ exports.createContext = (runtime) => {
      * @returns {Context} New copied context
     */
     copy () {
-      const contextCopy = exports.createContext(runtime)
+      const contextCopy = exports.createContext(runtime);
 
-      contextCopy.nodeId = this.nodeId
-      contextCopy.options = this.options
-      contextCopy.data = this.data
-      contextCopy.meta = this.meta
-      contextCopy.parentContext = this.parentContext
-      contextCopy.callerNodeId = this.callerNodeId
-      contextCopy.requestId = this.requestId
-      contextCopy.tracing = this.tracing
-      contextCopy.level = this.level
-      contextCopy.eventName = this.eventName
-      contextCopy.eventType = this.eventType
-      contextCopy.eventGroups = this.eventGroups
+      contextCopy.nodeId = this.nodeId;
+      contextCopy.options = this.options;
+      contextCopy.data = this.data;
+      contextCopy.meta = this.meta;
+      contextCopy.parentContext = this.parentContext;
+      contextCopy.callerNodeId = this.callerNodeId;
+      contextCopy.requestId = this.requestId;
+      contextCopy.tracing = this.tracing;
+      contextCopy.level = this.level;
+      contextCopy.eventName = this.eventName;
+      contextCopy.eventType = this.eventType;
+      contextCopy.eventGroups = this.eventGroups;
 
-      return contextCopy
+      return contextCopy;
     }
-  }
+  };
 
   // Generate context Id
   if (!context.id) {
     // Use UUID factory from broker options
     if (runtime.options.uuidFactory && isFunction(runtime.options.uuidFactory)) {
-      context.id = runtime.options.uuidFactory.call(context, runtime)
+      context.id = runtime.options.uuidFactory.call(context, runtime);
     } else {
-      context.id = uuid()
+      context.id = uuid();
     }
 
     // Pass existing request ID
     if (!context.requestId) {
-      context.requestId = context.id
+      context.requestId = context.id;
     }
   }
 
-  return context
-}
+  return context;
+};
 

@@ -1,10 +1,10 @@
 // Unmatched property names will be quoted and validate slighly slower. https://www.ecma-international.org/ecma-262/5.1/#sec-7.6
-const identifierRegex = /^[_$a-zA-Z][_$a-zA-Z0-9]*$/
-const { escapeEvalString } = require('../utils/escapeEvalString')
+const identifierRegex = /^[_$a-zA-Z][_$a-zA-Z0-9]*$/;
+const { escapeEvalString } = require('../utils/escapeEvalString');
 
 // Quick regex to match most common unquoted JavaScript property names. Note the spec allows Unicode letters.
 module.exports = function checkObject ({ schema, messages }, path, context) {
-  const code = []
+  const code = [];
 
   // check for type
   code.push(`
@@ -12,33 +12,33 @@ module.exports = function checkObject ({ schema, messages }, path, context) {
       ${this.makeErrorCode({ type: 'object', passed: 'value', messages })}
       return value;
     }
-  `)
+  `);
 
-  const subSchema = schema.properties || schema.props
+  const subSchema = schema.properties || schema.props;
 
   // handle sub schemas
   if (subSchema) {
-    code.push('let parentObject = value')
-    code.push('let parentField = field')
+    code.push('let parentObject = value');
+    code.push('let parentField = field');
 
-    const keys = Object.keys(subSchema)
+    const keys = Object.keys(subSchema);
     for (let i = 0; i < keys.length; i++) {
-      const property = keys[i]
-      const name = escapeEvalString(property)
-      const safeSubName = identifierRegex.test(name) ? `.${name}` : `["${name}"]`
-      const safePropName = `parentObject${safeSubName}`
-      const newPath = (path ? path + '.' : '') + property
+      const property = keys[i];
+      const name = escapeEvalString(property);
+      const safeSubName = identifierRegex.test(name) ? `.${name}` : `["${name}"]`;
+      const safePropName = `parentObject${safeSubName}`;
+      const newPath = (path ? path + '.' : '') + property;
 
-      code.push(`\n// Field: ${escapeEvalString(newPath)}`)
-      code.push(`field = parentField ? parentField + '${safeSubName}' : '${name}';`)
-      code.push(`value = ${safePropName};`)
+      code.push(`\n// Field: ${escapeEvalString(newPath)}`);
+      code.push(`field = parentField ? parentField + '${safeSubName}' : '${name}';`);
+      code.push(`value = ${safePropName};`);
 
-      const rule = this.getRuleFromSchema(subSchema[property])
-      code.push(this.compileRule(rule, context, newPath, `${safePropName} = context.func[##INDEX##](value, field, parentObject, errors, context)`, safePropName))
+      const rule = this.getRuleFromSchema(subSchema[property]);
+      code.push(this.compileRule(rule, context, newPath, `${safePropName} = context.func[##INDEX##](value, field, parentObject, errors, context)`, safePropName));
     }
 
     if (schema.strict) {
-      const allowedProperties = Object.keys(subSchema)
+      const allowedProperties = Object.keys(subSchema);
 
       code.push(`
         field = parentField || '$root'
@@ -51,32 +51,32 @@ module.exports = function checkObject ({ schema, messages }, path, context) {
         }
 
         if (invalidProperties.length > 0) {
-      `)
+      `);
 
       if (context.options.strictMode === 'remove') {
         code.push(`
           invalidProperties.forEach((propertyName) => {
             delete parentObject[propertyName]
           })
-        `)
+        `);
       } else {
         code.push(`
           ${this.makeErrorCode({ type: 'objectStrict', expected: `"${allowedProperties.join(', ')}"`, passed: 'invalidProperties.join(", ")', messages })}
-        `)
+        `);
       }
-      code.push('}')
+      code.push('}');
     }
 
     code.push(`
       return parentObject
-    `)
+    `);
   } else {
     code.push(`
         return value
-    `)
+    `);
   }
 
   return {
     code: code.join('\n')
-  }
-}
+  };
+};

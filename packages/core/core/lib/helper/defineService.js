@@ -11,5 +11,5 @@
  * @returns {ServiceSchema} Service schema
 */
 module.exports = function (serviceSchema) {
-  return serviceSchema
-}
+  return serviceSchema;
+};

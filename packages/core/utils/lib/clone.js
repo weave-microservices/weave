@@ -2,30 +2,30 @@
 exports.clone = function clone (obj) {
   // in case of primitives
   if (obj === null || typeof obj !== 'object') {
-    return obj
+    return obj;
   }
 
   // date objects should be
   if (obj instanceof Date) {
-    return new Date(obj.getTime())
+    return new Date(obj.getTime());
   }
 
   // handle Array
   if (Array.isArray(obj)) {
-    var clonedArr = []
+    var clonedArr = [];
     obj.forEach(function (element) {
-      clonedArr.push(clone(element))
-    })
-    return clonedArr
+      clonedArr.push(clone(element));
+    });
+    return clonedArr;
   }
 
   // lastly, handle objects
-  const clonedObj = Object.create(Object.getPrototypeOf(obj))
+  const clonedObj = Object.create(Object.getPrototypeOf(obj));
   for (var prop in obj) {
     if (obj.hasOwnProperty(prop)) {
-      clonedObj[prop] = clone(obj[prop])
+      clonedObj[prop] = clone(obj[prop]);
     }
   }
 
-  return clonedObj
-}
+  return clonedObj;
+};

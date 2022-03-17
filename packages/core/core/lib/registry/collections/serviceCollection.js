@@ -12,8 +12,8 @@
 */
 
 // const { createEndpointCollection } = require('./endpoint-collection')
-const { omit, remove } = require('@weave-js/utils')
-const { createServiceItem } = require('../serviceItem')
+const { omit, remove } = require('@weave-js/utils');
+const { createServiceItem } = require('../serviceItem');
 
 /**
  * Service collection factory
@@ -22,10 +22,10 @@ const { createServiceItem } = require('../serviceItem')
 */
 exports.createServiceCollection = (registry) => {
   /** @type {ServiceCollection} */
-  const serviceCollection = Object.create(null)
-  const { runtime } = registry
-  const services = serviceCollection.services = []
-  const actions = new Map()
+  const serviceCollection = Object.create(null);
+  const { runtime } = registry;
+  const services = serviceCollection.services = [];
+  const actions = new Map();
   // const options = broker.options
 
   // const findServiceByNode = (nodeId, name) => {
@@ -33,52 +33,52 @@ exports.createServiceCollection = (registry) => {
   // }
 
   serviceCollection.add = (node, name, version, settings) => {
-    const item = createServiceItem(node, name, version, settings, node.id === runtime.nodeId)
-    services.push(item)
-    return item
-  }
+    const item = createServiceItem(node, name, version, settings, node.id === runtime.nodeId);
+    services.push(item);
+    return item;
+  };
 
-  serviceCollection.get = (nodeId, name, version) => services.find(svc => svc.equals(name, version, nodeId))
+  serviceCollection.get = (nodeId, name, version) => services.find(svc => svc.equals(name, version, nodeId));
 
   serviceCollection.has = (name, version, nodeId) => {
-    return !!services.find(svc => svc.equals(name, version, nodeId))
-  }
+    return !!services.find(svc => svc.equals(name, version, nodeId));
+  };
 
   serviceCollection.remove = (nodeId, name, version) => {
-    const service = serviceCollection.get(nodeId, name, version)
+    const service = serviceCollection.get(nodeId, name, version);
 
     if (service) {
-      registry.actionCollection.removeByService(service)
-      registry.eventCollection.removeByService(service)
-      remove(services, svc => svc === service)
+      registry.actionCollection.removeByService(service);
+      registry.eventCollection.removeByService(service);
+      remove(services, svc => svc === service);
     }
-  }
+  };
 
   serviceCollection.removeAllByNodeId = (nodeId) => {
     remove(services, service => {
       if (service.node.id === nodeId) {
-        registry.actionCollection.removeByService(service)
-        registry.eventCollection.removeByService(service)
-        return true
+        registry.actionCollection.removeByService(service);
+        registry.eventCollection.removeByService(service);
+        return true;
       }
-      return false
-    })
-  }
+      return false;
+    });
+  };
 
-  serviceCollection.tryFindActionsByActionName = (actionName) => actions.get(actionName)
+  serviceCollection.tryFindActionsByActionName = (actionName) => actions.get(actionName);
 
   serviceCollection.getActionsList = () => {
-    const result = []
+    const result = [];
     actions.forEach((action, key) => {
       const item = {
         name: key,
         count: action.count(),
         hasLocal: action.hasLocal()
-      }
-      result.push(item)
-    })
-    return result
-  }
+      };
+      result.push(item);
+    });
+    return result;
+  };
 
   serviceCollection.list = ({
     localOnly = false,
@@ -87,17 +87,17 @@ exports.createServiceCollection = (registry) => {
     withNodeService = false,
     withSettings = false
   } = {}) => {
-    const result = []
+    const result = [];
     services.forEach((service) => {
       if (/^\$node/.test(service.name) && !withNodeService) {
-        return
+        return;
       }
       if (service.settings && service.settings.$private) {
-        return
+        return;
       }
 
       if (localOnly && !service.isLocal) {
-        return
+        return;
       }
 
       const item = {
@@ -105,39 +105,39 @@ exports.createServiceCollection = (registry) => {
         nodeId: service.node.id,
         version: service.version,
         isAvailable: service.node.isAvailable
-      }
+      };
 
       if (withSettings) {
-        item.settings = service.settings
+        item.settings = service.settings;
       }
 
       if (withActions) {
-        item.actions = {}
+        item.actions = {};
         Object.values(service.actions)
           .forEach(action => {
-            item.actions[action.name] = omit(action, ['handler', 'service'])
-          })
+            item.actions[action.name] = omit(action, ['handler', 'service']);
+          });
       }
 
       if (withEvents) {
-        item.events = {}
+        item.events = {};
         Object.values(service.events)
           .forEach(event => {
-            item.events[event.name] = omit(event, ['service', 'handler'])
-          })
+            item.events[event.name] = omit(event, ['service', 'handler']);
+          });
       }
 
-      result.push(item)
-    })
-    return result
-  }
+      result.push(item);
+    });
+    return result;
+  };
 
   serviceCollection.findEndpointByNodeId = (actionName, nodeId) => {
-    const endpointListItem = serviceCollection.tryFindActionsByActionName(actionName)
+    const endpointListItem = serviceCollection.tryFindActionsByActionName(actionName);
     if (endpointListItem) {
-      return endpointListItem.endpointByNodeId(nodeId)
+      return endpointListItem.endpointByNodeId(nodeId);
     }
-  }
+  };
 
-  return serviceCollection
-}
+  return serviceCollection;
+};

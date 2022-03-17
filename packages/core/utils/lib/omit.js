@@ -1,14 +1,14 @@
 exports.omit = function omit (obj, fields) {
   if (obj === null) {
-    return null
+    return null;
   }
 
-  const shallowCopy = Object.assign({}, obj)
+  const shallowCopy = Object.assign({}, obj);
 
   for (let i = 0; i < fields.length; i++) {
-    const key = fields[i]
-    delete shallowCopy[key]
+    const key = fields[i];
+    delete shallowCopy[key];
   }
 
-  return shallowCopy
-}
+  return shallowCopy;
+};

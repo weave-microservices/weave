@@ -1,37 +1,37 @@
 const createLock = () => {
-  const locked = new Map()
+  const locked = new Map();
 
   function acquire (key, ttl) {
-    const lockedItems = locked.get(key)
+    const lockedItems = locked.get(key);
     if (!lockedItems) {
-      locked.set(key, [])
-      return Promise.resolve()
+      locked.set(key, []);
+      return Promise.resolve();
     } else {
-      return new Promise((resolve) => lockedItems.push(resolve))
+      return new Promise((resolve) => lockedItems.push(resolve));
     }
   }
 
   function isLocked (key) {
-    return !!locked.has(key)
+    return !!locked.has(key);
   }
 
   function release (key) {
-    const lockedItems = locked.get(key)
+    const lockedItems = locked.get(key);
     if (lockedItems) {
       if (lockedItems.length > 0) {
-        lockedItems.shift()()
+        lockedItems.shift()();
       } else {
-        locked.delete(key)
+        locked.delete(key);
       }
     }
-    return Promise.resolve()
+    return Promise.resolve();
   }
 
   return Object.freeze({
     acquire,
     isLocked,
     release
-  })
-}
+  });
+};
 
-module.exports = { createLock }
+module.exports = { createLock };

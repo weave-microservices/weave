@@ -1,6 +1,6 @@
-const { Errors } = require('../../../lib/index')
-const { createNode } = require('../../helper')
-const LocalService = require('../../services/local.service')
+const { Errors } = require('../../../lib/index');
+const { createNode } = require('../../helper');
+const LocalService = require('../../services/local.service');
 
 describe('Connected services', () => {
   it('should return results of all connected nodes.', done => {
@@ -13,7 +13,7 @@ describe('Connected services', () => {
       transport: {
         adapter: 'dummy'
       }
-    })
+    });
 
     const broker2 = createNode({
       nodeId: 'node2',
@@ -24,9 +24,9 @@ describe('Connected services', () => {
       transport: {
         adapter: 'dummy'
       }
-    })
+    });
 
-    broker1.createService(LocalService)
+    broker1.createService(LocalService);
 
     Promise.all([
       broker1.start(),
@@ -35,13 +35,13 @@ describe('Connected services', () => {
       .then(() => broker1.waitForServices(['local']))
       .then(() => broker2.call('local.hidden', { text: 'test' }))
       .catch(error => {
-        const expectedError = new Errors.WeaveServiceNotFoundError({ actionName: 'local.hidden' })
-        expect(error).toEqual(expectedError)
-        done()
+        const expectedError = new Errors.WeaveServiceNotFoundError({ actionName: 'local.hidden' });
+        expect(error).toEqual(expectedError);
+        done();
         return Promise.all([
           broker1.stop(),
           broker2.stop()
-        ])
-      })
-  })
-})
+        ]);
+      });
+  });
+});

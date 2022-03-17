@@ -1,4 +1,4 @@
-const ModelValidator = require('../../lib/validator')
+const ModelValidator = require('../../lib/validator');
 
 describe('Object validator', () => {
   it('should pass with object', () => {
@@ -9,36 +9,36 @@ describe('Object validator', () => {
           lastname: { type: 'string' }
         }
       }
-    }
+    };
 
     const parameters = { user: {
       firstname: 'Kevin',
       lastname: 'Ries'
-    }}
+    }};
 
-    const validator = ModelValidator()
-    const validate = validator.compile(schema)
-    const result = validate(parameters)
+    const validator = ModelValidator();
+    const validate = validator.compile(schema);
+    const result = validate(parameters);
 
-    expect(result).toBe(true)
-  })
+    expect(result).toBe(true);
+  });
 
   it('should validate a simple object', () => {
     const schema = {
       user: { type: 'object' }
-    }
+    };
 
     const parameters = { user: {
       firstname: 'Kevin',
       lastname: 'Ries'
-    }}
+    }};
 
-    const validator = ModelValidator()
-    const validate = validator.compile(schema)
-    const result = validate(parameters)
+    const validator = ModelValidator();
+    const validate = validator.compile(schema);
+    const result = validate(parameters);
 
-    expect(result).toBe(true)
-  })
+    expect(result).toBe(true);
+  });
 
   it('should escape js string', () => {
     const schema = {
@@ -46,19 +46,19 @@ describe('Object validator', () => {
         'first-name': { type: 'string' },
         lastname: { type: 'string' }
       }}
-    }
+    };
 
     const parameters = { user: {
       'first-name': 'Kevin',
       lastname: 'Ries'
-    }}
+    }};
 
-    const validator = ModelValidator()
-    const validate = validator.compile(schema)
-    const result = validate(parameters)
+    const validator = ModelValidator();
+    const validate = validator.compile(schema);
+    const result = validate(parameters);
 
-    expect(result).toBe(true)
-  })
+    expect(result).toBe(true);
+  });
 
   it('should remove illegal properties in strict mode', () => {
     const schema = {
@@ -69,7 +69,7 @@ describe('Object validator', () => {
           lastname: { type: 'string' }
         }
       }
-    }
+    };
 
     const parameters = {
       user: {
@@ -78,22 +78,22 @@ describe('Object validator', () => {
         shouldBeRemoved: false
       },
       password: { type: 'string' }
-    }
+    };
 
-    const validator = ModelValidator()
+    const validator = ModelValidator();
     const validate = validator.compile(schema, {
       strict: true,
       strictMode: 'error'
-    })
+    });
 
-    const result = validate(parameters)
+    const result = validate(parameters);
 
-    expect(result.length).toBe(2)
+    expect(result.length).toBe(2);
     // todo: validate errors
-  })
+  });
 
   it('should remove no properties in strict mode if there is no schema definition', () => {
-    const schema = {}
+    const schema = {};
 
     const parameters = {
       user: {
@@ -102,17 +102,17 @@ describe('Object validator', () => {
         shouldBeRemoved: false
       },
       password: { type: 'string' }
-    }
+    };
 
-    const validator = ModelValidator()
+    const validator = ModelValidator();
     const validate = validator.compile(schema, {
       strict: true,
       strictMode: 'error'
-    })
+    });
 
-    const result = validate(parameters)
+    const result = validate(parameters);
 
-    expect(result.length).toBe(1)
+    expect(result.length).toBe(1);
     // todo: validate errors
-  })
-})
+  });
+});
