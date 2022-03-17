@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/node-service",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "description": "Node info service for weave.js",
   "main": "./lib/node-service.js",
   "scripts": {
@@ -24,14 +24,14 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@weave-js/utils": "^0.10.0"
+    "@weave-js/utils": "^0.10.1"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.11.0"
+    "@weave-js/core": "^0.11.1"
   },
   "directories": {
     "lib": "lib",
     "test": "test"
   },
-  "gitHead": "eba5f359604b6b06accd6fa8c8f03b8bc7fa8566"
+  "gitHead": "84fd5e4af3af96e8c004bcfba40bb3cb35f23fa7"
 }

@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/repl",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "description": "REPL module for weave",
   "main": "lib/index.js",
   "scripts": {
@@ -15,7 +15,7 @@
     "@weave-js/core": ">=0.9.0"
   },
   "dependencies": {
-    "@weave-js/utils": "^0.10.0",
+    "@weave-js/utils": "^0.10.1",
     "clui": "^0.3.6",
     "kleur": "^4.1.4",
     "ora": "^5.4.1",
@@ -23,7 +23,7 @@
     "vorpal": "^1.12.0"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.11.0"
+    "@weave-js/core": "^0.11.1"
   },
-  "gitHead": "eba5f359604b6b06accd6fa8c8f03b8bc7fa8566"
+  "gitHead": "84fd5e4af3af96e8c004bcfba40bb3cb35f23fa7"
 }
