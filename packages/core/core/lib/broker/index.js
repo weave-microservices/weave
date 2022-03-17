@@ -28,9 +28,7 @@ exports.createBrokerInstance = (runtime) => {
     validator,
     log,
     services,
-    transport,
-    metrics,
-    cache
+    transport
   } = runtime
 
   // Log Messages
@@ -43,13 +41,13 @@ exports.createBrokerInstance = (runtime) => {
   }
 
   // Init metrics
-  if (metrics) {
-    metrics.init()
+  if (runtime.metrics) {
+    runtime.metrics.init()
   }
 
   // Init cache
-  if (cache) {
-    cache.init()
+  if (runtime.cache) {
+    runtime.cache.init()
   }
 
   // broker object

@@ -59,14 +59,14 @@ describe('Test base cache factory', () => {
     const broker = createNode(config)
     const baseCache = createCacheBase('a-name', broker)
     const hash = baseCache.getCachingKey('test.action', { name: 'Kevin' })
-    expect(hash).toBe('nUn37CVWXJwDCnAU9YHKcqzBQeg=')
+    expect(hash).toBe('test.action.kqVWw7bW5t57pReZ6HUGiNt2oyo=')
   })
 
   it('should generate a caching hash (with 1 key)', () => {
     const broker = createNode(config)
     const baseCache = createCacheBase('a-name', broker)
     const hash = baseCache.getCachingKey('test.action', { name: 'Kevin', age: 19 }, null, ['name'])
-    expect(hash).toBe('pLJJROO/4+ZfDXD5U5b23TMD8VQ=')
+    expect(hash).toBe('test.action.M011mDHOLwLBkPUImS1jBg7XYcc=')
   })
 
   it('should generate a caching hash (with 1 key)', () => {
@@ -80,6 +80,7 @@ describe('Test base cache factory', () => {
         hobbies: ['coding', 'gym', 'swimming'],
         height: null,
         weight: undefined,
+        date: new Date('2022-10-10'),
         settings: {
           enabled: true,
           appearance: {
@@ -93,9 +94,9 @@ describe('Test base cache factory', () => {
           sym: Symbol('ABC')
         }
       },
-      ['name', 'age', 'hobbies', 'height', 'settings.appearance', 'weight', ':user']
+      ['date', 'name', 'age', 'hobbies', 'height', 'settings.appearance', 'weight', ':user', 'notDefined']
     )
 
-    expect(hash).toBe('l/nQwYKDVk/26oWNBa8GdBDQ2N8=')
+    expect(hash).toBe('test.action.VhzGreeraZI+Q9ykNPXRiNSB/qk=')
   })
 })

@@ -7,8 +7,6 @@ const TCPReader = require('./tcpReader')
 const TCPWriter = require('./tcpWriter')
 const { createMessage } = require('../../createMessage')
 
-// const TCPMessageTypeHelper = require('./tcp-messagetypes')
-
 const defaultOptions = {
   port: null,
   discovery: {
@@ -31,7 +29,7 @@ module.exports = function SwimTransport (adapterOptions) {
   let tcpWriter
   let gossipTimer
 
-  self.afterInit = function () {
+  self.afterInit = async function () {
     self.nodes = this.broker.registry.nodeCollection
     self.registry = self.broker.registry
     self.swim = Swim(self, adapterOptions)

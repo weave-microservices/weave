@@ -113,6 +113,20 @@ describe('Test usage (without TTL)', () => {
       expect(res).toBeNull()
     })
   })
+
+  it('should clear the cache partial.', async () => {
+    cache.set(key1, result)
+    cache.set(key2, result)
+
+    cache.clear('test12345*')
+
+    const res1 = await cache.get(key1)
+    expect(res1).toBeDefined()
+    expect(res1).toEqual(res1)
+
+    const res2 = await cache.get(key2)
+    expect(res2).toBeNull()
+  })
 })
 
 // describe('Test usage with TTL', () => {

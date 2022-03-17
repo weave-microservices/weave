@@ -3,7 +3,7 @@ const os = require('os')
 const lolex = require('@sinonjs/fake-timers')
 const tty = require('tty')
 const { stripAnsi } = require('../helper/strip-ansi')
-
+const { format } = require('../../lib/logger/utils/format')
 const stripMessages = (messages) => messages.map((message) => stripAnsi(message[0]))
 
 describe('Test logger module.', () => {
@@ -206,5 +206,29 @@ describe('Test logger module.', () => {
     }
 
     consoleStdOutSpy.mockReset()
+  })
+})
+
+describe('Log formatter', () => {
+  it('should format log messages', () => {
+    // Float, decimal, integer
+    const numberString = format('Counter: %f, %d, %i %i', [1.5, 2.5, 3.5])
+    expect(numberString).toBe('Counter: 1.5, 2.5, 3 %i')
+
+    // Strings
+    const string = format('Name %s is %s years old.', ['Donald', 39])
+    expect(string).toBe('Name Donald is 39 years old.')
+
+    // Object value
+    const objString = format('Log: %o/%o %O', ['Donald', { settings: { enabled: true }}])
+    expect(objString).toBe('Log: \'Donald\'/{"settings":{"enabled":true}} %O')
+
+    // Object
+    const objString2 = format({ settings: { enabled: true }}, ['settings'])
+    expect(objString2).toBe('{"settings":{"enabled":true}} ')
+
+    // Wildcard
+    const wildcardString = format('String %%', ['settings'])
+    expect(wildcardString).toBe('String %')
   })
 })

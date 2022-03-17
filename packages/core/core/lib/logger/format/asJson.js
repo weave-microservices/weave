@@ -11,12 +11,12 @@ exports.asJson = (runtime, originObj, message, number, time) => {
     data[runtime.options.messageKey] = message
   }
 
-  const notHasOwnProperty = originObj.hasOwnProperty === undefined
+  const doesNotHaveOwnProperty = originObj.hasOwnProperty === undefined
 
   let value
   for (const key in originObj) {
     value = originObj[key]
-    if ((notHasOwnProperty || originObj.hasOwnProperty(key)) && value !== undefined) {
+    if ((doesNotHaveOwnProperty || originObj.hasOwnProperty(key)) && value !== undefined) {
       data[key] = value
     }
   }

@@ -80,7 +80,13 @@ exports.createServiceCollection = (registry) => {
     return result
   }
 
-  serviceCollection.list = ({ localOnly = false, withActions = false, withEvents = false, withNodeService = false, withSettings = false }) => {
+  serviceCollection.list = ({
+    localOnly = false,
+    withActions = false,
+    withEvents = false,
+    withNodeService = false,
+    withSettings = false
+  } = {}) => {
     const result = []
     services.forEach((service) => {
       if (/^\$node/.test(service.name) && !withNodeService) {

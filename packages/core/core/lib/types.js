@@ -592,9 +592,9 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2')
 
 /**
  * @typedef {Object} ServiceActionCollectionListFilterParams
- * @property {boolean} [localOnly] Shows only local service actions
- * @property {boolean} [skipInternals] Shows only local service actions
- * @property {boolean} [withEndpoints] Shows only local service actions
+ * @property {boolean} [onlyLocals=false] Shows only local service actions
+ * @property {boolean} [skipInternals=false] Shows only local service actions
+ * @property {boolean} [withEndpoints=false] Shows only local service actions
  */
 
 /**
@@ -663,7 +663,7 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2')
  * @property {function(Action):void} addAction addAction
  * @property {function(Event):void} addEvent addEvent
  * @property {function(string, number, string=): boolean} equals equals
- * @property {function(any)} update update
+ * @property {function(any):void} update update
 */
 
 /**
@@ -779,7 +779,7 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2')
  * Tracer instance
  * @typedef Tracer
  * @property {void} init init
- * @property {Promise<any>} stop stop
+ * @property {function():Promise<any>} stop stop
  * @property {boolean} shouldSample shouldSample
  * @property {function():void} invokeCollectorMethod invokeCollectorMethod
  * @property {function(string, object):Span} startSpan startSpan

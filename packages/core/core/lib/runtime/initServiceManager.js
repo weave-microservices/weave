@@ -19,19 +19,37 @@ exports.initServiceManager = (runtime) => {
     }
   }
 
-  const destroyService = (service) => Promise.resolve()
-    .then(() => service.stop())
-    .then(() => log.info(`Service "${service.name}" was stopped.`))
-    .then(() => {
+  /**
+   * Destroy a service
+   * @param {Service} service Service
+   * @returns {Promise<any>} result
+   */
+  async function destroyService (service) {
+    try {
+      await service.stop()
+      log.info(`Service "${service.name}" was stopped.`)
       registry.deregisterService(service.name, service.version)
-      log.info(`Service "${service.name}" was deregistered.`)
-      // Remove service from service store.
       serviceList.splice(serviceList.indexOf(service), 1)
-      // Fire services changed event
+      log.info(`Service "${service.name}" was deregistered.`)
       serviceChanged(true)
-      return Promise.resolve()
-    })
-    .catch(error => log.error(error, `Unable to stop service "${service.name}"`))
+    } catch (error) {
+      log.error(error, `Unable to stop service "${service.name}"`)
+    }
+  }
+
+  // const destroyService = (service) => Promise.resolve()
+  //   .then(() => service.stop())
+  //   .then(() => log.info(`Service "${service.name}" was stopped.`))
+  //   .then(() => {
+  //     registry.deregisterService(service.name, service.version)
+  //     log.info(`Service "${service.name}" was deregistered.`)
+  //     // Remove service from service store.
+  //     serviceList.splice(serviceList.indexOf(service), 1)
+  //     // Fire services changed event
+  //     serviceChanged(true)
+  //     return Promise.resolve()
+  //   })
+  //   .catch(error => log.error(error, `Unable to stop service "${service.name}"`))
 
   // `onServiceFileChanged` only triggered by the file watcher
   const onServiceFileChanged = async (service) => {

@@ -114,7 +114,7 @@ const createInMemoryCache = (adapterOptions = {}) => (runtime, options = {}) => 
           base.metrics.increment(Constants.CACHE_DELETED_TOTAL)
         }
         storage.delete(hashKey)
-        base.log.debug(`Delete ${hashKey}`)
+        base.log.debug(`Delete cached object with key ${hashKey}`)
 
         return Promise.resolve()
       },
@@ -122,9 +122,9 @@ const createInMemoryCache = (adapterOptions = {}) => (runtime, options = {}) => 
         if (base.metrics) {
           base.metrics.increment(Constants.CACHE_DELETED_TOTAL)
         }
+
         storage.forEach((_, key) => {
           if (match(key, pattern)) {
-            base.log.debug(`Delete ${key}`)
             this.remove(key)
           }
         })

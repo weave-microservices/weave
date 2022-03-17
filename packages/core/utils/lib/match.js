@@ -35,6 +35,7 @@ exports.match = function match (text, pattern) {
     }
   }
 
+  // Handle regex patterns
   let regex = RegexCache.get(pattern)
   if (regex == null) {
     if (pattern.startsWith('$')) {

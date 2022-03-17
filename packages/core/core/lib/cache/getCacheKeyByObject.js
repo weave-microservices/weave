@@ -7,11 +7,18 @@ const { isObject, isString } = require('@weave-js/utils')
 */
 const getCacheKeyByObject = (value) => {
   if (Array.isArray(value)) {
-    return '[' + value.map(object => getCacheKeyByObject(object)).join('/') + ']'
+    return '[' + value.map(object => getCacheKeyByObject(object)).join(',') + ']'
   } else if (isObject(value)) {
-    return '{' + Object.keys(value).map(key => {
-      return [key, getCacheKeyByObject(value[key])].join(':')
-    }).join('/') + '}'
+    // Handle date objects
+    if (value instanceof Date) {
+      return value.toISOString()
+    }
+
+    return '{' + Object.keys(value)
+      .map((key) => {
+        return [key, getCacheKeyByObject(value[key])].join(':')
+      })
+      .join(',') + '}'
   } else if (isString(value)) {
     return value
   } else if (typeof value === 'boolean' || typeof value === 'number') {

@@ -254,3 +254,71 @@ describe('Cache system with cache lock', () => {
       })
   })
 })
+
+describe('Cache system manual', () => {
+  let clock
+  let node1
+  beforeEach(() => {
+    clock = FakeTimers.install()
+
+    node1 = createNode({
+      nodeId: 'node1',
+      logger: {
+        enabled: false
+      },
+      cache: {
+        enabled: true
+      },
+      metrics: {
+        enabled: true
+      }
+    })
+
+    node1.createService({
+      name: 'testService',
+      actions: {
+        cachedAction: {
+          cache: {
+            keys: ['text']
+          },
+          handler (context) {
+            this.counter = this.counter + 1
+            return context.data.text.split('').reverse().join('') + this.counter
+          }
+        },
+        notCachedAction: {
+          handler (context) {
+            this.counter = this.counter + 1
+            return context.data.text.split('').reverse().join('') + this.counter
+          }
+        },
+        cachedMultiParam: {
+          params: {
+            firstname: 'string',
+            lastname: { type: 'string', optional: true }
+          },
+          cache: {
+            keys: ['firstname', 'lastname']
+          },
+          handler (context) {
+            this.counter = this.counter + 1
+            return `Hello ${context.data.firstname} ${context.data.lastname}! ${this.counter}`
+          }
+        }
+      },
+      created () {
+        this.counter = 0
+      }
+    })
+
+    node1.start()
+  })
+  afterEach(() => {
+    node1.stop()
+    clock.uninstall()
+  })
+
+  it('should clean cache items manually', () => {
+
+  })
+})

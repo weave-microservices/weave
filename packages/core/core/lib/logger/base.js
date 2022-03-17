@@ -1,16 +1,24 @@
+const { WeaveError } = require('../errors')
 const { isStandardLevel, levelMethods } = require('./levels')
 const { noop, generateLogMethod } = require('./tools')
 
 exports.initBase = (runtime) => {
   runtime.setLevel = (level) => {
     const { labels, values } = runtime.levels
+
+    // Handle number values for level
     if (typeof level === 'number') {
-      if (labels[level] === undefined) throw Error('unknown level value' + level)
+      if (labels[level] === undefined) {
+        throw new WeaveError(`Unknown level value: "${level}"`)
+      }
       level = labels[level]
     }
 
-    if (values[level] === undefined) throw Error('unknown level ' + level)
-    // const preLevelVal = this[levelValSym]
+    // Handle unknown log levels
+    if (values[level] === undefined) {
+      throw new WeaveError(`Unknown level: "${level}"`)
+    }
+
     const levelVal = runtime.levelValue = values[level]
     const useOnlyCustomLevelsVal = runtime.options.useOnlyCustomLevelsSym
     const hook = runtime.options.hooks.logMethod
@@ -24,23 +32,24 @@ exports.initBase = (runtime) => {
     }
   }
 
-  runtime.write = (originObj, message, number) => {
-    const isErrorObject = originObj instanceof Error
+  runtime.write = (originObject, message, number) => {
+    const isErrorObject = originObject instanceof Error
     const mixin = runtime.mixin
     const time = Date.now()
     let object
 
-    if (originObj === undefined || originObj === null) {
+    if (originObject === undefined || originObject === null) {
       object = mixin ? mixin({}) : {}
     } else {
-      object = Object.assign(mixin ? mixin(originObj) : {}, originObj)
+      object = Object.assign(mixin ? mixin(originObject) : {}, originObject)
 
+      // If the object is an error object, we set the message to the error message.
       if (!message && isErrorObject) {
-        message = originObj.message
+        message = originObject.message
       }
 
       if (isErrorObject) {
-        object.stack = originObj.stack
+        object.stack = originObject.stack
         if (!object.type) {
           object.type = 'Error'
         }

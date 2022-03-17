@@ -170,7 +170,16 @@ describe('Response validator', () => {
             lastname: { type: 'string' }
           },
           handler (context) {
-            return { text: 'Hello User!', user: { firstname: context.data, lastname: 'Wick' }}
+            if (context.data.name === 'RightName') {
+              return { firstname: 'Right', lastname: 'Name' }
+            }
+            return {
+              text: 'Hello User!',
+              user: {
+                firstname: context.data,
+                lastname: 'Wick'
+              }
+            }
           }
         }
       }
@@ -184,7 +193,12 @@ describe('Response validator', () => {
 
           expect(validationError.action).toBe('testService.sayHello')
           expect(validationError.field).toBe('firstname')
-          done()
+
+          broker1.call('testService.sayHello', { name: 'RightName' })
+            .then((result) => {
+              expect(result).toEqual({ firstname: 'Right', lastname: 'Name' })
+              done()
+            })
         })
     })
   })

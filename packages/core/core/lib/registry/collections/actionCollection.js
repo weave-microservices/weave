@@ -60,7 +60,11 @@ exports.createActionCollection = (registry) => {
     }
   }
 
-  actionCollection.list = ({ onlyLocals = false, skipInternals = false, withEndpoints = false } = {}) => {
+  actionCollection.list = ({
+    onlyLocals = false,
+    skipInternals = false,
+    withEndpoints = false
+  } = {}) => {
     const result = []
 
     actions.forEach(action => {

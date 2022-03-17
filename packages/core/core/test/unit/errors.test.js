@@ -1,5 +1,6 @@
 const Errors = require('../../lib/errors')
 const { ExtendableError } = require('../../lib/ExtendableError')
+
 describe('Test errors', () => {
   it('Default weave error', () => {
     const error = new Errors.WeaveError('Fatal error!', 500, 'DEFAULT_ERROR', { empty: 'no_data' })

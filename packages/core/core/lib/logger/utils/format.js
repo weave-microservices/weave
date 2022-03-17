@@ -6,7 +6,7 @@ const tryStringify = (o) => {
   }
 }
 
-exports.format = (f, args, opts) => {
+function format (f, args, opts) {
   const ss = (opts && opts.stringify) || tryStringify
   const offset = 1
   if (typeof f === 'object' && f !== null) {
@@ -37,14 +37,20 @@ exports.format = (f, args, opts) => {
       case 100: // 'd'
       case 102: // 'f'
         if (a >= argumentLength) { break }
-        if (lastPos < i) { str += f.slice(lastPos, i) }
+        if (lastPos < i) {
+          str += f.slice(lastPos, i)
+        }
         if (args[a] == null) break
         str += Number(args[a])
         lastPos = i = i + 2
         break
       case 105: // 'i'
-        if (a >= argumentLength) { break }
-        if (lastPos < i) { str += f.slice(lastPos, i) }
+        if (a >= argumentLength) {
+          break
+        }
+        if (lastPos < i) {
+          str += f.slice(lastPos, i)
+        }
         if (args[a] == null) break
         str += Math.floor(Number(args[a]))
         lastPos = i = i + 2
@@ -94,7 +100,9 @@ exports.format = (f, args, opts) => {
         i++
         break
       case 37: // '%'
-        if (lastPos < i) { str += f.slice(lastPos, i) }
+        if (lastPos < i) {
+          str += f.slice(lastPos, i)
+        }
         str += '%'
         lastPos = i + 2
         i++
@@ -112,3 +120,5 @@ exports.format = (f, args, opts) => {
 
   return str
 }
+
+module.exports = { format }

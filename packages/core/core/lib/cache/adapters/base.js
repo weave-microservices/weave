@@ -66,9 +66,17 @@ const createCacheBase = (name, runtime, adapterOptions, options) => {
       /* istanbul ignore next */
       return Promise.resolve()
     },
+    /**
+     * Generates a caching key for action data/metadata.
+     * @param {string} actionName Namme of the action
+     * @param {any} data  Data
+     * @param {object=} metadata Metadata
+     * @param {Array<string>=} keys Key array
+     * @returns {string} Result key string
+     */
     getCachingKey (actionName, data, metadata, keys) {
       if (data || metadata) {
-        const prefix = actionName + ':'
+        const prefix = actionName + '.'
 
         if (keys) {
           // fast path for single keys
@@ -76,7 +84,7 @@ const createCacheBase = (name, runtime, adapterOptions, options) => {
             const cacheKeyData = getPropertyFromDataOrMetadata(data, metadata, keys[0])
             const key = getCacheKeyByObject(cacheKeyData)
             const value = prefix + (isObject(cacheKeyData) ? key : cacheKeyData)
-            return generateHash(value)
+            return prefix + generateHash(value)
           }
 
           // Handle data cache keys
@@ -88,11 +96,11 @@ const createCacheBase = (name, runtime, adapterOptions, options) => {
               return pre + (index > 0 ? '|' : '') + value
             }, prefix)
 
-            return generateHash(valueString)
+            return prefix + generateHash(valueString)
           }
         } else {
-          const value = prefix + getCacheKeyByObject(data)
-          return generateHash(value)
+          const value = getCacheKeyByObject(data)
+          return prefix + generateHash(value)
         }
       }
 

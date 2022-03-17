@@ -46,9 +46,9 @@ exports.createEndpointList = (runtime, name, groupName) => {
    * Select an Entpoint with the selected Load-Balancing-Strategy
    * @param {*} endpointList List of all available Endpoints
    * @returns {any} Endpoint
-   */
+  */
   const select = (endpointList) => {
-    // round robin
+    // Round robin
     if (options.registry.loadBalancingStrategy === loadBalancingStrategy.ROUND_ROBIN) {
       if (counter >= endpointList.length) {
         counter = 0
@@ -146,7 +146,7 @@ exports.createEndpointList = (runtime, name, groupName) => {
     setLocalEndpoints()
   }
 
-  endpointList.removeByService = service => {
+  endpointList.removeByService = (service) => {
     const endpointToRemove = list.find(endpoint => endpoint.service === service)
     if (endpointToRemove) {
       list.splice(list.indexOf(endpointToRemove), 1)
