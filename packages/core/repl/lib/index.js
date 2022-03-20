@@ -56,6 +56,7 @@ module.exports = (broker, ...customCommands) => {
     .command('q', 'Exit application')
     .alias('quit')
     .alias('exit')
+    .alias('close')
     .action((args, done) => {
       broker
         .stop()
