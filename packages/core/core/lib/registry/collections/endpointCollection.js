@@ -1,7 +1,7 @@
 // @ts-check
 
 /*
- * Author: Kevin Ries (kevin@fachw3rk.de)
+ * Author: Kevin Ries (kevin.ries@fachwerk.io)
  * -----
  * Copyright 2021 Fachwerk
  */

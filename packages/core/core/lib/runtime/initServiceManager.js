@@ -1,7 +1,5 @@
 const { createServiceFromSchema } = require('../registry/service/service.js');
 const { WeaveError } = require('../errors');
-const { debounce } = require('@weave-js/utils');
-const fs = require('fs');
 
 exports.initServiceManager = (runtime) => {
   const { options, log, eventBus, transport, state, registry, handleError } = runtime;
@@ -19,24 +17,6 @@ exports.initServiceManager = (runtime) => {
     }
   };
 
-  /**
-   * Destroy a service
-   * @param {Service} service Service
-   * @returns {Promise<any>} result
-   */
-  async function destroyService (service) {
-    try {
-      await service.stop();
-      log.info(`Service "${service.name}" was stopped.`);
-      registry.deregisterService(service.name, service.version);
-      serviceList.splice(serviceList.indexOf(service), 1);
-      log.info(`Service "${service.name}" was deregistered.`);
-      serviceChanged(true);
-    } catch (error) {
-      log.error(error, `Unable to stop service "${service.name}"`);
-    }
-  }
-
   // const destroyService = (service) => Promise.resolve()
   //   .then(() => service.stop())
   //   .then(() => log.info(`Service "${service.name}" was stopped.`))
@@ -52,20 +32,20 @@ exports.initServiceManager = (runtime) => {
   //   .catch(error => log.error(error, `Unable to stop service "${service.name}"`))
 
   // `onServiceFileChanged` only triggered by the file watcher
-  const onServiceFileChanged = async (service) => {
-    const filename = service.filename;
+  // const onServiceFileChanged = async (service) => {
+  //   const filename = service.filename;
 
-    // Clear the require cache
-    Object.keys(require.cache).forEach(key => {
-      if (key === filename) {
-        delete require.cache[key];
-      }
-    });
+  //   // Clear the require cache
+  //   Object.keys(require.cache).forEach(key => {
+  //     if (key === filename) {
+  //       delete require.cache[key];
+  //     }
+  //   });
 
-    // Service has changed - 1. destroy the service, then reload it
-    await destroyService(service);
-    await runtime.broker.loadService(filename);
-  };
+  //   // Service has changed - 1. destroy the service, then reload it
+  //   await destroyService(service);
+  //   await runtime.broker.loadService(filename);
+  // };
 
   Object.defineProperty(runtime, 'services', {
     value: {
@@ -75,7 +55,7 @@ exports.initServiceManager = (runtime) => {
         try {
           const newService = createServiceFromSchema(runtime, schema);
 
-          // if the broker is already startet, we need to start the service.
+          // if the broker is already started, we need to start the service.
           if (runtime.state.isStarted) {
             newService.start().catch(error => log.error(`Unable to start service ${newService.name}: ${error}`));
           }
@@ -123,24 +103,43 @@ exports.initServiceManager = (runtime) => {
         });
       },
       /**
+       * Destroy a service
+       * @param {Service} service Service
+       * @returns {Promise<any>} result
+       */
+      async destroyService (service) {
+        try {
+          // Stop the service
+          await service.stop();
+          log.info(`Service "${service.name}" was stopped.`);
+
+          // Deregister the service and remove it from the service list
+          registry.deregisterService(service.name, service.version);
+          serviceList.splice(serviceList.indexOf(service), 1);
+          log.info(`Service "${service.name}" was deregistered.`);
+          serviceChanged(true);
+        } catch (error) {
+          log.error(error, `Unable to stop service "${service.name}"`);
+        }
+      }
+      /**
        * Watch a Service object for changes.
        * @param {Service} service Service object
        * @return {void}
       */
-      watchService: (service) => {
-        if (service.filename && onServiceFileChanged) {
-          // Create debounced service changed reference
-          const debouncedOnServiceChange = debounce(onServiceFileChanged, 500);
+      // watchService: (service) => {
+      //   if (service.filename && onServiceFileChanged) {
+      //     // Create debounced service changed reference
+      //     const debouncedOnServiceChange = debounce(onServiceFileChanged, 500);
 
-          // Watch file changes
-          const watcher = fs.watch(service.filename, (eventType, filename) => {
-            log.info(`The Service ${service.name} has been changed. (${eventType}, ${filename})`);
-            watcher.close();
-            debouncedOnServiceChange(service);
-          });
-        }
-      },
-      destroyService
+      //     // Watch file changes
+      //     const watcher = fs.watch(service.filename, (eventType, filename) => {
+      //       log.info(`The Service ${service.name} has been changed. (${eventType}, ${filename})`);
+      //       watcher.close();
+      //       debouncedOnServiceChange(service);
+      //     });
+      //   }
+      // }
     }
   });
 };

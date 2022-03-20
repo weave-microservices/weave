@@ -29,7 +29,7 @@ exports.deepMerge = function deepMerge (...args) {
 
   // Merge the object into the newObj object
   const merge = function (obj) {
-    for (var prop in obj) {
+    for (const prop in obj) {
       if (obj.hasOwnProperty(prop)) {
         // If property is an object, merge properties
         if (Object.prototype.toString.call(obj[prop]) === '[object Object]') {

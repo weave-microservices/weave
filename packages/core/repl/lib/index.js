@@ -57,11 +57,9 @@ module.exports = (broker, ...customCommands) => {
     .alias('quit')
     .alias('exit')
     .alias('close')
-    .action((args, done) => {
-      broker
-        .stop()
-        .then(() => process.exit(0));
-      done();
+    .action(async (args) => {
+      await broker.stop();
+      process.exit(0);
     });
 
   registerCommands(vorpal, broker);

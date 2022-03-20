@@ -98,18 +98,16 @@ exports.createBrokerInstance = (runtime) => {
 
   /**
   * Load and register a service from file.
-  * @param {string} fileName Path to the service file.
+  * @param {string} filename Path to the service file.
   * @returns {Service} Service
   */
-  broker.loadService = function (fileName) {
-    const filePath = path.resolve(fileName);
+  broker.loadService = function (filename) {
+    const filePath = path.resolve(filename);
     const schema = require(filePath);
     const service = broker.createService(schema);
 
-    // If the "watchSevrices" option is set - add service to service watcher.
-    if (options.watchServices) {
-      service.filename = fileName;
-      services.watchService.call(broker, service);
+    if (service) {
+      service.filename = filename;
     }
 
     return service;
@@ -302,7 +300,7 @@ exports.createBrokerInstance = (runtime) => {
    * @param {Array<Object>} customMiddlewares Array of user defined middlewares
    * @returns {void}
    */
-  const registerMiddlewares = customMiddlewares => {
+  const registerMiddlewares = (customMiddlewares) => {
     // Register custom middlewares
     if (Array.isArray(customMiddlewares) && customMiddlewares.length > 0) {
       customMiddlewares.forEach(middleware => middlewareHandler.add(middleware));

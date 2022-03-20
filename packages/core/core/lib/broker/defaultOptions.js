@@ -3,7 +3,7 @@
 */
 
 /*
- * Author: Kevin Ries (kevin@fachw3rk.de)
+ * Author: Kevin Ries (kevin.ries@fachwerk.io)
  * -----
  * Copyright 2021 Fachwerk
 */
@@ -67,7 +67,7 @@ exports.getDefaultOptions = () => {
       adapters: [],
       defaultBuckets: [1, 5, 10, 20, 25, 30, 40, 50, 100, 250, 500, 1000, 2500, 5000, 10000]
     },
-    middlewares: null,
+    middlewares: [],
     logger: {
       enabled: true,
       level: 'info',

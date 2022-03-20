@@ -12,7 +12,7 @@ exports.clone = function clone (obj) {
 
   // handle Array
   if (Array.isArray(obj)) {
-    var clonedArr = [];
+    const clonedArr = [];
     obj.forEach(function (element) {
       clonedArr.push(clone(element));
     });
@@ -21,7 +21,7 @@ exports.clone = function clone (obj) {
 
   // lastly, handle objects
   const clonedObj = Object.create(Object.getPrototypeOf(obj));
-  for (var prop in obj) {
+  for (const prop in obj) {
     if (obj.hasOwnProperty(prop)) {
       clonedObj[prop] = clone(obj[prop]);
     }

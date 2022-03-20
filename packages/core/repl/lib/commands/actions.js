@@ -6,7 +6,9 @@ module.exports = ({ vorpal, broker, cliUI }) => {
     .command('actions', 'List actions')
     .option('-l, --local', 'Show only local actions.')
     .action((args, done) => {
+      const tableConf = {};
       const data = [];
+
       data.push([
         ('Action'),
         cliUI.tableHeaderText('Nodes'),
@@ -15,8 +17,6 @@ module.exports = ({ vorpal, broker, cliUI }) => {
         cliUI.tableHeaderText('Params')
       ]);
 
-      const list = [];
-
       const listOptions = {
         withEndpoints: true,
         onlyLocals: !!args.options.local
@@ -24,33 +24,34 @@ module.exports = ({ vorpal, broker, cliUI }) => {
 
       const actions = broker.runtime.registry.actionCollection.list(listOptions);
 
-      actions.map(item => {
-        const action = item.action;
-        const params = action && action.params ? Object.keys(action.params).join(', ') : '';
+      if (actions.length === 0) {
+        tableConf['spanningCells'] = [
+          { col: 0, row: 1, colSpan: 5, alignment: 'center' }
+        ];
 
-        if (action) {
-          data.push([
-            action.name,
-            item.hasLocal ? `(*)${item.count}` : item.count,
-            item.hasAvailable ? cliUI.successLabel('  OK  ') : cliUI.failureLabel(' FAILURE '),
-            action.cache ? cliUI.successText('Yes') : cliUI.neutralText('No'),
-            params
-          ]);
-        }
-      });
-
-      list.map(service => {
         data.push([
-          service.name,
-          service.version ? service.version : 1,
-          service.isAvailable ? cliUI.successLabel('  OK  ') : cliUI.failureLabel(' FAILURE '),
-          service.actions,
-          service.events,
-          service.nodes.length
+          'No actions found',
+          '',
+          '',
+          '',
+          ''
         ]);
-      });
+      } else {
+        actions.map(item => {
+          const action = item.action;
+          const params = action && action.params ? Object.keys(action.params).join(', ') : '';
 
-      const tableConf = {};
+          if (action) {
+            data.push([
+              action.name,
+              item.hasLocal ? `(*)${item.count}` : item.count,
+              item.hasAvailable ? cliUI.successLabel('  OK  ') : cliUI.failureLabel(' FAILURE '),
+              action.cache ? cliUI.successText('Yes') : cliUI.neutralText('No'),
+              params
+            ]);
+          }
+        });
+      }
 
       console.log(table(data, tableConf));
 

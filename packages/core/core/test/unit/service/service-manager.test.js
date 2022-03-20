@@ -12,6 +12,5 @@ describe('Test service manager init.', () => {
     expect(runtime.services.destroyService).toBeDefined();
     expect(runtime.services.serviceChanged).toBeDefined();
     expect(runtime.services.waitForServices).toBeDefined();
-    expect(runtime.services.watchService).toBeDefined();
   });
 });

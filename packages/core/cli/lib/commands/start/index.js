@@ -1,16 +1,34 @@
-const { Weave } = require('@weave-js/core');
+const { createBroker } = require('@weave-js/core');
 const repl = require('@weave-js/repl');
 const { getConfig } = require('../../utils/config');
-const { loadServices } = require('./services');
+const { createWatchMiddleware } = require('./createWatchMiddlewares');
+const { loadServices } = require('./loadServices');
 
 exports.handler = async (args) => {
   try {
+    const cliContext = {
+      broker: null,
+      async restartBroker () {
+        const broker = this.broker;
+        if (broker) {
+          try {
+            await this.broker.stop();
+            await this.broker.start();
+          } catch (error) {
+            broker.log.error('Error while stopping broker', error);
+          }
+        }
+      }
+    };
+
     // get config
     const config = getConfig(args);
 
     // enable file watcher
     if (args.watch) {
-      config.watchServices = true;
+      config.middlewares = [
+        createWatchMiddleware(cliContext)
+      ];
     }
 
     // enable silent option. Disable log output
@@ -19,19 +37,19 @@ exports.handler = async (args) => {
     }
 
     // init broker
-    const broker = Weave(config);
+    cliContext.broker = createBroker(config);
 
     // handle service loadig
     if (args.services) {
-      loadServices(broker, args.services);
+      loadServices(cliContext.broker, args.services);
     }
 
     // start broker
-    await broker.start();
+    await cliContext.broker.start();
 
     // start REPL
     if (args.repl) {
-      repl(broker);
+      repl(cliContext.broker);
     }
   } catch (error) {
     console.error(error);

@@ -1,0 +1,7 @@
+{
+  "eslint.enable": true,
+  "cSpell.words": [
+    "backpressure",
+    "Eventbus"
+  ]
+}

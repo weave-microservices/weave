@@ -1,5 +1,5 @@
 /*
- * Author: Kevin Ries (kevin@fachw3rk.de)
+ * Author: Kevin Ries (kevin.ries@fachwerk.io)
  * -----
  * Copyright 2021 Fachwerk
  */
@@ -79,7 +79,7 @@ const createRedisCache = (adapterOptions = {}) => (runtime, options = {}) => {
 
         stream.on('data', (keys) => {
           if (keys.length) {
-            var pipeline = client.pipeline();
+            const pipeline = client.pipeline();
             keys.forEach(function (key) {
               pipeline.del(key);
             });

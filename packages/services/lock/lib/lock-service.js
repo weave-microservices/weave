@@ -1,8 +1,9 @@
 /*
- * Author: Kevin Ries (kevin@fachw3rk.de)
+ * Author: Kevin Ries (kevin.ries@fachwerk.io)
  * -----
  * Copyright 2021 Fachwerk
 */
+
 const { defaultsDeep } = require('@weave-js/utils');
 const { createLockStore } = require('@weave-js/lock-store');
 const { getHash } = require('../utils/getHash');
