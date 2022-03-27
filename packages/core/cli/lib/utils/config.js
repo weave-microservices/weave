@@ -8,13 +8,14 @@ const defaultEnvPrefix = 'WV_';
 const dotSeperator = '__';
 
 exports.getConfig = (flags) => {
+  const currentPath = process.cwd();
   let filePath;
   if (flags.config && isString(flags.config)) {
     filePath = path.isAbsolute(flags.config) ? flags.config : path.resolve(process.cwd(), flags.config);
   }
 
-  if (!filePath && fs.existsSync(path.resolve(process.cwd(), defaultConfigFileName))) {
-    filePath = path.resolve(process.cwd(), defaultConfigFileName);
+  if (!filePath && fs.existsSync(path.resolve(currentPath, defaultConfigFileName))) {
+    filePath = path.resolve(currentPath, defaultConfigFileName);
   }
 
   let config;

@@ -67,17 +67,23 @@ function createWatchMiddleware (weaveCli) {
      * @param {object} module Modle
      * @param {string} service Service
      * @param {*} level Call level
-     * @param {*} parents Parnet files
+     * @param {*} parents Parent files
      * @returns {void}
      */
-    function processModule (module, service = null, level = 0, parents = []) {
+    function processModule (module, service = null, level = 0, parents = null) {
       const filename = module.filename;
-      // Avoid circular dependency in project files
-      if (parents && parents.indexOf(filename) !== -1) {
+
+      // skip node_modules
+      if ((service || parents) && filename.includes('node_modules')) {
         return;
       }
 
-      if (filename.indexOf('node_modules') !== -1) {
+      // Avoid circular dependency in project files
+      if (parents && parents.includes(filename)) {
+        return;
+      }
+
+      if (filename.includes('node_modules') !== -1) {
         if (cache.get(filename)) {
           return;
         }
@@ -97,12 +103,21 @@ function createWatchMiddleware (weaveCli) {
       } else if (isWeaveConfigFile(filename)) {
         const watchItem = getFileWatchItem(filename);
         watchItem.restartBroker = true;
+      } else {
+        const watchItem = getFileWatchItem(filename);
+        watchItem.otherFiles.push(filename);
+        watchItem.restartAllServices = true;
       }
 
       if (module.children && module.children.length > 0) {
-        // todo: Check if the file is a weave config file
-        // Check if file os a service file
-        parents.push(filename);
+        if (service) {
+          // Check if file is a service file
+          parents = parents ? parents.concat([filename]) : [filename];
+        } else if (isWeaveConfigFile(filename)) {
+          parents = [];
+        } else if (parents) {
+          parents.push(filename);
+        }
         module.children.forEach((childModule) => {
           processModule(childModule, service, level + 1, parents);
         });
@@ -121,6 +136,7 @@ function createWatchMiddleware (weaveCli) {
       const mainModule = process.mainModule;
 
       processModule(mainModule);
+
       const needToReload = new Set();
 
       const reloadServices = debounce(() => {
@@ -144,19 +160,47 @@ function createWatchMiddleware (weaveCli) {
       projectFiles.forEach((watchItem, filename) => {
         const relativePath = path.relative(process.cwd(), filename);
         if (watchItem.restartBroker) {
-
+          runtime.log.debug(`${relativePath}: Requires broker restart`);
+        } else if (watchItem.restartAllServices) {
+          runtime.log.debug(`${relativePath}: Requires all services restart`);
         } else if (watchItem.services.length > 0) {
-
+          runtime.log.debug(`Reloading ${watchItem.services.length} services... {${relativePath}}`);
         }
 
+        // Attach file watcher to watch item.
+        // `triggeredChangeEvents` stores the last mtime from file to prevent double triggered events.
+        const triggeredChangeEvents = new Map();
         watchItem.watcher = fs.watch(relativePath, (eventType) => {
+          // store mtime of file to prevent double triggered events.
+          const stats = fs.statSync(relativePath);
+          const seconds = +stats.mtime;
+          if (triggeredChangeEvents.get(relativePath) === seconds) {
+            return;
+          }
+
+          triggeredChangeEvents.set(relativePath, seconds);
+
           runtime.log.info(`The file "${relativePath}" has been changed. (${eventType})`);
 
           clearRequireCache(filename);
 
+          if (watchItem.otherFiles.length > 0) {
+            watchItem.otherFiles.forEach((otherFile) => {
+              clearRequireCache(otherFile);
+            });
+          }
+
           if (watchItem.restartBroker) {
             Object.keys(require.cache).forEach(key => delete require.cache[key]);
             weaveCli.restartBroker();
+          } else if (watchItem.restartAllServices) {
+            runtime.services.serviceList.forEach((service) => {
+              if (service.filename) {
+                needToReload.add(service);
+              }
+            });
+
+            reloadServices();
           } else {
             runtime.services.serviceList.forEach((service) => {
               if (watchItem.services.indexOf(service.fullyQualifiedName) !== -1) {
@@ -173,11 +217,12 @@ function createWatchMiddleware (weaveCli) {
 
     return {
       started () {
+        runtime.log.info('File watcher is active.');
         watchProjectFiles();
       },
       serviceStarted () {
         if (runtime.state.isStarted) {
-          debouncedWatchProjectFiles();
+          // debouncedWatchProjectFiles();
         }
       },
       stopped () {

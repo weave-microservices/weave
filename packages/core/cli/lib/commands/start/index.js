@@ -39,10 +39,17 @@ exports.handler = async (args) => {
     // init broker
     cliContext.broker = createBroker(config);
 
-    // handle service loadig
+    // handle service loading
     if (args.services) {
       loadServices(cliContext.broker, args.services);
     }
+
+    // if (args.serviceManifest) {
+    //   const serviceManifest = require(args.serviceManifest);
+    //   if (!serviceManifest) {
+    //     throw new Error('Service manifest not found');
+    //   }
+    // }
 
     // start broker
     await cliContext.broker.start();
