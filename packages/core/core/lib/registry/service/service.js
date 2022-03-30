@@ -33,12 +33,12 @@ exports.createServiceFromSchema = (runtime, schema) => {
   // Set reference to the broker instance.
   service.broker = runtime.broker;
 
-  // Apply all mixins (including childs)
+  // Apply all mixins (including children)
   if (schema.mixins) {
     schema = reduceMixins(service, schema);
   }
 
-  // Call "afterSchemasMerged" service lifecylce hook(s)
+  // Call "afterSchemasMerged" service lifecycle hook(s)
   if (schema.afterSchemasMerged) {
     if (isFunction(schema.afterSchemasMerged)) {
       schema.afterSchemasMerged.call(service, schema);
@@ -167,7 +167,7 @@ exports.createServiceFromSchema = (runtime, schema) => {
     });
   }
 
-  // Call "created" service lifecylce hook(s)
+  // Call "created" service lifecycle hook(s)
   if (schema.created) {
     if (isFunction(schema.created)) {
       schema.created.call(service);

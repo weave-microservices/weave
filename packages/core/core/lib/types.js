@@ -268,7 +268,6 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2');
  * @property {RetryPolicyOptions} [retryPolicy] - Retry policy
  * @property {ValidatorOptions} [validatorOptions] Validator options.
  * @property {boolean} [validateActionParams] validateActionParams.
- * @property {boolean} [watchServices] watchServices.
  * @property {number} [waitForServiceInterval] waitForServiceInterval.
  * @property {function():string} [beforeRegisterMiddlewares] beforeRegisterMiddlewares.
  * @property {function(Runtime):string} [uuidFactory] uuidFactory.
@@ -757,13 +756,27 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2');
  * @typedef Middleware
  * @property {() => any} [created] created
  * @property {function(Broker):void} [started] started
- * @property {function(any, ServiceAction): any} [localAction] localAction
- * @property {(handler: any, action: ServiceAction) => any} [remoteAction] remoteAction
- * @property {function(any, ServiceAction): any} [localEvent] localEvent
- * @property {(next: Function) => MiddlewareEventDelegate} [emit] emit
- * @property {(next: Function) => MiddlewareEventDelegate} [broadcast] broadcast
- * @property {(next: Function) => MiddlewareEventDelegate} [broadcastLocal] broadcastLocal
- * @property {() => any} [brokerStopped] brokerStopped
+ * @property {function(Broker):void} [stopping] stopped
+ * @property {function(Broker):void} [createService] stopped
+ * @property {function(Broker):void} [loadService] stopped
+ * @property {function(Broker):void} [loadServices] stopped
+ * @property {function(Broker):void} [stopping] stopped
+ * @property {function(Broker):void} [ping] stopped
+ * @property {function(Broker):void} [call] stopped
+ * @property {function(Broker):void} [multiCall] stopped
+ * @property {function(Broker):void} [emit] stopped
+ * @property {function(Broker):void} [broadcast] stopped
+ * @property {function(Broker):void} [broadcastLocal] stopped
+ * @property {function(Broker):void} [serviceCreating] stopped
+ * @property {function(Broker):void} [serviceCreated] stopped
+ * @property {function(Broker):void} [serviceStopping] stopped
+ * @property {function(Broker):void} [serviceStopped] stopped
+ * @property {function(Broker):void} [localAction] stopped
+ * @property {function(Broker):void} [localEvent] stopped
+ * @property {function(Broker):void} [remoteAction] stopped
+ * @property {function(Broker):void} [remoteEvent] stopped
+ * @property {function(Broker):void} [transportSend] stopped
+ * @property {function(Broker):void} [transportMessageHandler] stopped
 */
 
 // Validator

@@ -48,8 +48,6 @@ exports.createRegistry = (runtime) => {
     /**
    * Initialize the registry
    * @param {Runtime} runtime Runtime
-   * @param {MiddlewareHandler} middlewareHandler Middleware handler
-   * @param {ServiceChangedDelegate} serviceChanged Service changed delegate
    * @returns {void}
    */
     init (runtime) {
@@ -69,10 +67,15 @@ exports.createRegistry = (runtime) => {
     onRegisterLocalAction: noop,
     onRegisterRemoteAction: noop,
     checkActionVisibility (action, node) {
-      if (typeof action.visibility === 'undefined' || action.visibility === 'public') {
+      if (
+        typeof action.visibility === 'undefined' ||
+        action.visibility === 'public' ||
+        action.visibility === 'published'
+      ) {
         return true;
       }
 
+      // Only callable from local services.
       if (action.visibility === 'protected' && node.isLocal) {
         return true;
       }

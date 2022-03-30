@@ -110,7 +110,6 @@ exports.getDefaultOptions = () => {
     validatorOptions: {
       strict: true,
       strictMode: 'remove' // 'error'
-    },
-    watchServices: false
+    }
   };
 };
