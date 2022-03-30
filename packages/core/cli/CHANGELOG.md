@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.12.0](https://github.com/weave-microservices/weave/compare/@weave-js/cli@0.11.1...@weave-js/cli@0.12.0) (2022-03-30)
+
+
+### Bug Fixes
+
+* Fixed twice triggered change event ([c12f65b](https://github.com/weave-microservices/weave/commit/c12f65b6f096ad0094d733a5c10cc4dc33361409))
+
+
+### Features
+
+* added deep file watcher to CLI ([14f0c1b](https://github.com/weave-microservices/weave/commit/14f0c1b8b27ef5e113f34cebb26df3f873071f35))
+* added middleware generator ([1e679a8](https://github.com/weave-microservices/weave/commit/1e679a8c85d517464a9ceae3534efdcd175ba05b))
+
+
+
+
+
 ## [0.11.1](https://github.com/weave-microservices/weave/compare/@weave-js/cli@0.11.0...@weave-js/cli@0.11.1) (2022-03-07)
 
 **Note:** Version bump only for package @weave-js/cli
