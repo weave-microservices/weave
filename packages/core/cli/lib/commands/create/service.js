@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const inquirer = require('inquirer');
-const consolidate = require('consolidate');
+const ejs = require('ejs');
 const kleur = require('kleur');
 
 module.exports = async (serviceName, options) => {
@@ -27,14 +27,14 @@ module.exports = async (serviceName, options) => {
   // Build service file path
   const newServicePath = path.join(serviceFolder, `${serviceName}.${suffix}.js`);
 
-  // Rentder service file from template
-  consolidate.handlebars(path.join(__dirname, 'templates', 'service.template'), { serviceName }, (error, html) => {
+  // Render service file from template
+  ejs.renderFile(path.join(__dirname, 'templates', 'service.ejs'), { serviceName }, null, function (error, result) {
     if (error) {
       throw error;
     }
 
     console.log(`✨ Writing file in ${kleur.yellow(newServicePath)}`);
     // Write file
-    fs.writeFileSync(path.resolve(newServicePath), html, 'utf8');
+    fs.writeFileSync(path.resolve(newServicePath), result, 'utf8');
   });
 };

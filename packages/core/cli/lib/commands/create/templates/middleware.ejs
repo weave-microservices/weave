@@ -1,0 +1,96 @@
+function <%=middlewareName%>Middleware (/* settings */) {
+  return function (broker) {
+    return {
+<% if (middlewareFunctions.includes('created')) { -%>
+      // Broker instance created
+      created () {},
+<%_ } _%>
+<% if (middlewareFunctions.includes('starting')) { -%>
+      // Broker started
+      starting () {},
+<%_ } _%>
+<% if (middlewareFunctions.includes('started')) { -%>
+      // Broker instance created
+      started () {},
+<%_ } _%>
+<% if (middlewareFunctions.includes('stopping')) { -%>
+      // Broker stopping, before all services, transports, etc. are stopped
+      stopping () {},
+<%_ } _%>
+<% if (middlewareFunctions.includes('stopped')) { -%>
+      // Broker instance stopped
+      stopped () {},
+<%_ } _%>
+<% if (middlewareFunctions.includes('createService')) { -%>
+      // Broker instance created
+      createService () {},
+<%_ } _%>
+<% if (middlewareFunctions.includes('loadService')) { -%>
+      // Broker instance created
+      loadService () {},
+<%_ } _%>
+<% if (middlewareFunctions.includes('loadServices')) { -%>
+      // Broker instance created
+      loadServices () {},
+<%_ } _%>
+<% if (middlewareFunctions.includes('serviceCreating')) { -%>
+      // Broker instance created
+      serviceCreating () {},
+<%_ } _%>
+<% if (middlewareFunctions.includes('serviceStopping')) { -%>
+      // Broker instance created
+      serviceStopping () {},
+<%_ } _%>
+<% if (middlewareFunctions.includes('ping')) { -%>
+      // Broker instance created
+      ping () {},
+<%_ } _%>
+<% if (middlewareFunctions.includes('call')) { -%>
+      // Broker instance created
+      call (nextAction) {},
+<%_ } _%>
+<% if (middlewareFunctions.includes('multiCall')) { -%>
+      // Broker instance created
+      multiCall () {},
+<%_ } _%>
+<% if (middlewareFunctions.includes('emit')) { -%>
+      // Broker instance created
+      emit (nextEvent) {},
+<%_ } _%>
+<% if (middlewareFunctions.includes('broadcast')) { -%>
+      // Broker instance created
+      broadcast (nextEvent) {},
+<%_ } _%>
+<% if (middlewareFunctions.includes('broadcastLocal')) { -%>
+      // Broker instance created
+      broadcastLocal () {},
+<%_ } _%>
+<% if (middlewareFunctions.includes('transportSend')) { -%>
+      // Broker instance created
+      transportSend () {},
+<%_ } _%>
+<% if (middlewareFunctions.includes('transportMessageHandler')) { -%>
+      // Broker instance created
+      transportMessageHandler () {},
+<%_ } _%>
+<% if (middlewareFunctions.includes('localAction')) { -%>
+      // Broker instance created
+      localAction () {},
+<%_ } _%>
+<% if (middlewareFunctions.includes('localEvent')) { -%>
+      // Broker instance created
+      localEvent () {},
+<%_ } _%>
+<% if (middlewareFunctions.includes('remoteAction')) { -%>
+      // Broker instance created
+      remoteAction () {},
+<%_ } _%>
+<% if (middlewareFunctions.includes('remoteEvent')) { -%>
+      // Broker instance created
+      remoteEvent () {},
+<%_ } _%>
+    };
+  };
+};
+
+module.exports = { <%=middlewareName%>Middleware };
