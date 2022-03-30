@@ -1,7 +1,6 @@
 const path = require('path');
 const { debounce } = require('@weave-js/utils');
 const fs = require('fs');
-// const watch = require('../../utils/watchRecursive');
 
 function createWatchMiddleware (weaveCli) {
   return function watchMiddleware (runtime) {
@@ -83,7 +82,7 @@ function createWatchMiddleware (weaveCli) {
         return;
       }
 
-      if (filename.includes('node_modules') !== -1) {
+      if (filename.includes('node_modules')) {
         if (cache.get(filename)) {
           return;
         }
@@ -104,9 +103,11 @@ function createWatchMiddleware (weaveCli) {
         const watchItem = getFileWatchItem(filename);
         watchItem.restartBroker = true;
       } else {
-        const watchItem = getFileWatchItem(filename);
-        watchItem.otherFiles.push(filename);
-        watchItem.restartAllServices = true;
+        if (parents) {
+          const watchItem = getFileWatchItem(filename);
+          watchItem.otherFiles.push(filename);
+          watchItem.restartAllServices = true;
+        }
       }
 
       if (module.children && module.children.length > 0) {
@@ -222,7 +223,7 @@ function createWatchMiddleware (weaveCli) {
       },
       serviceStarted () {
         if (runtime.state.isStarted) {
-          // debouncedWatchProjectFiles();
+          debouncedWatchProjectFiles();
         }
       },
       stopped () {

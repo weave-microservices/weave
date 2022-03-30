@@ -16,17 +16,16 @@
   "author": {
     "name": "Kevin Ries",
     "company": "Fachwerk Software",
-    "email": "kevin.ries@fachwerk.io",
-    "url": "https://weave-js.com"
+    "email": "kevin.ries@fachwerk.io"
   },
   "license": "MIT",
   "dependencies": {
     "@weave-js/core": "^0.11.1",
     "@weave-js/repl": "^0.11.1",
     "@weave-js/utils": "^0.10.1",
-    "commander": "^8.3.0",
-    "consolidate": "^0.16.0",
-    "inquirer": "^8.2.0",
+    "commander": "^9.1.0",
+    "ejs": "^3.1.6",
+    "inquirer": "^8.2.2",
     "kleur": "^4.1.4",
     "update-notifier": "^5.1.0"
   },

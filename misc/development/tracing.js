@@ -5,7 +5,6 @@ const { createZipkinExporter } = require('../../packages/tracing-adapters/zipkin
 
 const app = createBroker({
   nodeId: 'trace',
-  watchServices: true,
   logger: {
     enabled: true
   },

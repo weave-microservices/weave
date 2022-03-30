@@ -28,7 +28,7 @@ program
 program
   .command('create <type> <name>')
   .description('create a new project powered by vue-cli-service')
-  .option('-t,--template <teplate>', 'Start broker with config file.')
+  .option('-t,--template <template>', 'Start broker with config file.')
   .option('-s,--suffix <suffix>', 'Service file suffix (default: service)')
   .action((type, name, options) => {
     require('./commands/create').handler(type, name, options);
