@@ -6,7 +6,7 @@
 
 const { InboundTransformStream } = require('./InboundTransformStream');
 const { WeaveError, restoreError } = require('../errors');
-const { createContext } = require('../broker/context');
+const { createContext } = require('../broker/ActionContext');
 const { createMessage } = require('./createMessage');
 const MessageTypes = require('./messageTypes');
 

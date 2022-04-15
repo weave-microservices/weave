@@ -1,4 +1,4 @@
-const { mergeSchemas } = require('../../../lib/utils/options');
+const { mergeSchemas } = require('../../../src/utils/options');
 
 class TestClass {
   send () {

@@ -1,6 +1,6 @@
 const os = require('os');
 const { createNode } = require('../../helper');
-const Constants = require('../../../lib/metrics/constants');
+const Constants = require('../../../src/metrics/constants');
 
 const defaultSettings = {
   logger: {

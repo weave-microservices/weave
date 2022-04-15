@@ -1,8 +1,8 @@
-const { createCacheBase } = require('../../../lib/cache/adapters/base');
-const cacheMiddleware = require('../../../lib/middlewares/cache');
+const { createCacheBase } = require('../../../src/cache/adapters/base');
+const cacheMiddleware = require('../../../src/middlewares/cache/index');
 const { createFakeRuntime } = require('../../helper/runtime');
 const { createNode } = require('../../helper');
-const { WeaveError } = require('../../../lib/errors');
+const { WeaveError } = require('../../../src/errors');
 
 describe('Test cache base errors', () => {
   const broker = createNode({

@@ -1,4 +1,4 @@
-const { Errors } = require('../../../lib/index');
+const { Errors } = require('../../../src/index');
 const { createNode } = require('../../helper');
 const LocalService = require('../../services/local.service');
 

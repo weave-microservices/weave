@@ -1,4 +1,4 @@
-const { createNode } = require('../../../lib/registry/node');
+const { createNode } = require('../../../src/registry/node');
 
 const createMockPayload = () => {
   return {

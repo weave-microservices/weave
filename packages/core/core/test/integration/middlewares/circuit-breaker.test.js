@@ -1,5 +1,5 @@
-const { TransportAdapters } = require('../../../lib/index');
-const { WeaveError } = require('../../../lib/errors');
+const { TransportAdapters } = require('../../../src/index');
+const { WeaveError } = require('../../../src/errors');
 const { createNode } = require('../../helper');
 
 describe('Test circuit breaker', () => {

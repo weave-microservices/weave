@@ -1,4 +1,4 @@
-const { createInMemoryCache } = require('../../../lib/cache/adapters');
+const { createInMemoryCache } = require('../../../src/cache/adapters/index');
 const { createNode } = require('../../helper');
 // const SlowService = require('../../services/slow.service')
 

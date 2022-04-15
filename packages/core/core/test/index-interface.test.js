@@ -1,4 +1,4 @@
-const Module = require('../lib');
+const Module = require('../src/index');
 
 describe('Module interface', () => {
   it('should have properties', () => {

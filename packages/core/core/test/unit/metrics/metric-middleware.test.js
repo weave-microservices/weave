@@ -1,4 +1,4 @@
-const MetricMiddleware = require('../../../lib/middlewares/metrics');
+const MetricMiddleware = require('../../../src/middlewares/metrics/index');
 const { middlewareHooks } = require('../../helper/constants');
 
 describe('Test metric middleware', () => {

@@ -1,4 +1,4 @@
-const { createHistogram } = require('../../../../lib/metrics/types/histogram');
+const { createHistogram } = require('../../../../src/metrics/types/histogram');
 const { createNode } = require('../../../helper');
 
 describe('Test Histogram', () => {

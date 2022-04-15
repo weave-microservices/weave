@@ -1,5 +1,5 @@
-const Errors = require('../../lib/errors');
-// const { fatalErrorHandler } = require('../../lib/errorHandler');
+const Errors = require('../../src/errors');
+// const { fatalErrorHandler } = require('../../src/errorHandler');
 
 describe('Test error handler', () => {
   const realProcessExit = process.exit;

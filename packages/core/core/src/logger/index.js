@@ -6,7 +6,7 @@
 
 const os = require('os');
 const { initBase } = require('./base');
-const { asJson, asHumanReadable } = require('./format');
+const { asJson, asHumanReadable } = require('./format/index');
 const { mappings } = require('./levels');
 const { coreFixtures } = require('./tools');
 

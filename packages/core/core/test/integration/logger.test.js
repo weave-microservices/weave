@@ -1,5 +1,5 @@
 const lolex = require('@sinonjs/fake-timers');
-const { WeaveError } = require('../../lib/errors');
+const { WeaveError } = require('../../src/errors');
 const { createNode } = require('../helper');
 
 describe('Test weave logger integration.', () => {

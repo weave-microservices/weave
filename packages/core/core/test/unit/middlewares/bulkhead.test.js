@@ -1,5 +1,5 @@
 const utils = require('@weave-js/utils');
-const Middleware = require('../../../lib/middlewares/bulkhead');
+const Middleware = require('../../../src/middlewares/bulkhead/index');
 const { createNode } = require('../../helper');
 
 const config = {

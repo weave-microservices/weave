@@ -1,5 +1,5 @@
-const Middleware = require('../../../lib/middlewares/retry');
-const { WeaveRetryableError } = require('../../../lib/errors');
+const Middleware = require('../../../src/middlewares/retry/index');
+const { WeaveRetryableError } = require('../../../src/errors');
 const { createNode } = require('../../helper');
 
 const config = {

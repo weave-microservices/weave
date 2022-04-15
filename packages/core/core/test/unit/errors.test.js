@@ -1,5 +1,5 @@
-const Errors = require('../../lib/errors');
-const { ExtendableError } = require('../../lib/ExtendableError');
+const Errors = require('../../src/errors');
+const { ExtendableError } = require('../../src/ExtendableError');
 
 describe('Test errors', () => {
   it('Default weave error', () => {

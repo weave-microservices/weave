@@ -58,13 +58,16 @@
     "@sinonjs/fake-timers": "^9.1.1",
     "@types/jest": "^27.4.1",
     "concurrently": "^7.0.0",
-    "lerna": "^4.0.0",
     "eslint": "^8.11.0",
     "eslint-config-fw": "^1.0.3",
     "jest": "^27.5.1",
-    "jest-cli": "^27.5.1"
+    "jest-cli": "^27.5.1",
+    "lerna": "^4.0.0"
   },
   "jest": {
     "testEnvironment": "node"
+  },
+  "dependencies": {
+    "typescript": "^4.6.3"
   }
 }

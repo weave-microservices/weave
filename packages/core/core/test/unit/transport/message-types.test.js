@@ -1,4 +1,4 @@
-const messageTypes = require('../../../lib/transport/messageTypes');
+const messageTypes = require('../../../src/transport/messageTypes');
 
 describe('Message types', () => {
   it('should return defined message types', () => {

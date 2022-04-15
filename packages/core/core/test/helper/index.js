@@ -1,5 +1,5 @@
 const { defaultsDeep } = require('@weave-js/utils');
-const { Weave } = require('../../lib/index');
+const { Weave } = require('../../src/index');
 
 exports.createNode = (options, services = []) => {
   options = defaultsDeep(options, {

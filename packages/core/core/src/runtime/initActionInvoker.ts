@@ -1,6 +1,10 @@
+import { ActionContext } from "../broker/ActionContext";
+import { ActionContextOptions } from "../broker/ActionContextOptions";
+import { Runtime } from "./Runtime";
+
 const errors = require('../errors');
 
-exports.initActionInvoker = (runtime) => {
+exports.initActionInvoker = (runtime: Partial<Runtime>) => {
   const { registry, contextFactory, log, handleError } = runtime;
 
   /**
@@ -10,7 +14,7 @@ exports.initActionInvoker = (runtime) => {
    * @param {Object} [opts={}] Options
    * @returns {Promise} Promise
   */
-  const call = (actionName, data, opts = {}) => {
+  const call = (actionName: string, data: unknown, opts?: ActionContextOptions<ActionContext>) => {
     const endpoint = registry.getNextAvailableActionEndpoint(actionName, opts);
 
     if (endpoint instanceof Error) {

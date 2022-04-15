@@ -1,9 +1,9 @@
-const { createLogger } = require('../../lib/logger/index');
+const { createLogger } = require('../../src/logger/index');
 const os = require('os');
 const lolex = require('@sinonjs/fake-timers');
 const tty = require('tty');
 const { stripAnsi } = require('../helper/strip-ansi');
-const { format } = require('../../lib/logger/utils/format');
+const { format } = require('../../src/logger/utils/format');
 const stripMessages = (messages) => messages.map((message) => stripAnsi(message[0]));
 
 describe('Test logger module.', () => {

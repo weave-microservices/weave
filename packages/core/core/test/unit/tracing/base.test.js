@@ -1,6 +1,6 @@
-const { createBaseTracingCollector } = require('../../../lib/tracing/collectors/base');
+const { createBaseTracingCollector } = require('../../../src/tracing/collectors/base');
 const { createFakeRuntime } = require('../../helper/runtime');
-// const { createEndpoint } = require('../../lib/registry/endpoint')
+// const { createEndpoint } = require('../../src/registry/endpoint')
 
 // const fakeAction = {
 //   name: 'testaction',

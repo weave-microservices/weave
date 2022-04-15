@@ -1,4 +1,4 @@
-const { initContextFactory } = require('../../lib/runtime/initContextFactory');
+const { initContextFactory } = require('../../src/runtime/initContextFactory');
 const { createFakeRuntime } = require('../helper/runtime');
 
 describe('Test context factxory.', () => {

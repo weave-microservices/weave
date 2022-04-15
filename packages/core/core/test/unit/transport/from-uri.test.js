@@ -1,4 +1,4 @@
-const parseURI = require('../../../lib/transport/adapters/fromURI');
+const parseURI = require('../../../src/transport/adapters/fromURI');
 describe('URI parser', () => {
   it('should throw an error if the given value is not a string', () => {
     const call = () => parseURI([]);

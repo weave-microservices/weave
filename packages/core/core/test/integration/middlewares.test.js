@@ -1,4 +1,4 @@
-const { TransportAdapters } = require('../../lib/index');
+const { TransportAdapters } = require('../../src/index');
 const { createNode } = require('../helper');
 
 describe('Middleware hooks', () => {

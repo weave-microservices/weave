@@ -7,7 +7,7 @@
 const { getDefaultOptions } = require('./broker/defaultOptions');
 const { defaultsDeep } = require('@weave-js/utils');
 const { initRuntime } = require('./buildRuntime');
-const { createBrokerInstance } = require('./broker');
+const { createBrokerInstance } = require('./broker/index');
 
 /**
  * @type {BrokerOptions} options Broker options
@@ -46,15 +46,15 @@ exports.Errors = require('./errors');
 exports.Constants = require('./constants');
 
 // Caching
-exports.Cache = require('./cache/adapters');
+exports.Cache = require('./cache/adapters/index');
 
 /**
  * @deprecated since version 0.10.0
 */
 exports.createBaseTracingCollector = require('./tracing/collectors/base').createBaseTracingCollector;
-exports.TransportAdapters = require('./transport/adapters');
-exports.TracingAdapters = require('./tracing/collectors');
-exports.CacheAdapters = require('./cache/adapters');
+exports.TransportAdapters = require('./transport/adapters/index');
+exports.TracingAdapters = require('./tracing/collectors/index');
+exports.CacheAdapters = require('./cache/adapters/index');
 
 // Helper
 exports.defineBrokerOptions = require('./helper/defineBrokerOptions');

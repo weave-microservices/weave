@@ -1,8 +1,8 @@
-// const utils = require('../../../lib/utils')
+// const utils = require('../../../src/utils')
 
-const Middleware = require('../../../lib/middlewares/metrics');
+const Middleware = require('../../../src/middlewares/metrics/index');
 const { createNode } = require('../../helper');
-// const Context = require('../../../lib/broker/context')
+// const Context = require('../../../src/broker/context')
 
 const config = {
   logger: {

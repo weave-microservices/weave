@@ -3,7 +3,7 @@
  * -----
  * Copyright 2021 Fachwerk
  */
-const { Constants } = require('../../metrics');
+const { Constants } = require('../../metrics/index');
 const { getMiddlewareWrapper } = require('./getMiddlewareWrapper');
 
 module.exports = (runtime) => {

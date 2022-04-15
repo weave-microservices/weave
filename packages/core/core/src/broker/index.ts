@@ -5,54 +5,98 @@
  * @typedef {import('../types.js').Transport} Transport
 */
 
+import { EventEmitter2 } from "eventemitter2";
+import { ContextFactory, Logger, Runtime } from "../types";
+import { Broker } from "./Broker";
+
 // node packages
 const { isFunction } = require('@weave-js/utils');
 const path = require('path');
 const glob = require('glob');
-const Middlewares = require('../middlewares');
+const { registerMiddlewares } = require('./registerMiddlewares');
+
+/** 
+ * Types
+ */
+
+type ContextFactory = any
+type Validator = any
 
 /**
- * Creates a new Weave Broker instance
- * @param {Runtime} runtime - Weave runtime.
- * @returns {Broker} Broker instance
+ * @param {Runtime} runtime
 */
-exports.createBrokerInstance = (runtime) => {
-  const {
-    version,
-    options,
-    bus,
-    eventBus,
-    middlewareHandler,
-    registry,
-    contextFactory,
-    validator,
-    log,
-    services,
-    transport
-  } = runtime;
+class Broker {
+  runtime: Runtime;
+  nodeId: string;
+  log: Logger;
+  bus: EventEmitter2;
+  validator: Validator;
+  contextFactory: ContextFactory;
+  /**
+   * 
+   * @param runtime 
+   */
+  constructor (runtime: Runtime) {
+    this.runtime = runtime;
 
-  // Log Messages
-  log.info(`Initializing #weave node version ${version}`);
-  log.info(`Node Id: ${options.nodeId}`);
+    const {
+      version,
+      options,
+      bus,
+      eventBus,
+      middlewareHandler,
+      registry,
+      contextFactory,
+      validator,
+      log,
+      services,
+      transport
+    } = this.runtime;
+  
+    // Log Messages
+    log.info(`Initializing #weave node version ${version}`);
+    log.info(`Node Id: ${options.nodeId}`);
+  
+    // Output namespace
+    if (options.namespace) {
+      log.info(`Namespace: ${options.namespace}`);
+    }
+  
+    // Init metrics
+    if (runtime.metrics) {
+      this.runtime.metrics.init();
+    }
+  
+    // Init cache
+    if (runtime.cache) {
+      this.runtime.cache.init();
+    }
 
-  // Output namespace
-  if (options.namespace) {
-    log.info(`Namespace: ${options.namespace}`);
+    this.registry = registry;
+    this.bus = bus;
+    this.nodeId = options.nodeId;
+    this.options = options;
+    this.validator = validator;
+    this.contextFactory = contextFactory;
+    this.log = log;
+    this.createLogger = runtime.createLogger;
+
   }
 
-  // Init metrics
-  if (runtime.metrics) {
-    runtime.metrics.init();
+  /**
+   * Generate a new UUID from Factory
+   * @returns {string}
+   */
+  getUUID (): string {
+    return this.runtime.generateUUID();
   }
+}
 
-  // Init cache
-  if (runtime.cache) {
-    runtime.cache.init();
-  }
-
+const createBrokerInstance = (runtime: Runtime): Broker => {
+ 
   // broker object
   /** @type {Broker} */
-  const broker = Object.create(null);
+  const broker: Broker = Object.create(null);
 
   broker.runtime = runtime;
   broker.registry = registry;
@@ -295,89 +339,16 @@ exports.createBrokerInstance = (runtime) => {
     services.serviceChanged(false);
   });
 
-  /**
-   * Register middlewares
-   * @param {Array<Object>} customMiddlewares Array of user defined middlewares
-   * @returns {void}
-   */
-  const registerMiddlewares = (customMiddlewares) => {
-    // Register custom middlewares
-    if (Array.isArray(customMiddlewares) && customMiddlewares.length > 0) {
-      customMiddlewares.forEach(middleware => middlewareHandler.add(middleware));
-    }
-
-    // Add the built-in middlewares. (The order is important)
-    if (options.loadInternalMiddlewares) {
-      middlewareHandler.add(Middlewares.ActionHooks);
-
-      // Validator middleware
-      if (options.validateActionParams && validator) {
-        middlewareHandler.add(Middlewares.Validator);
-      }
-
-      // Bulkhead
-      if (options.bulkhead.enabled) {
-        middlewareHandler.add(Middlewares.Bulkhead);
-      }
-
-      // Cache
-      if (runtime.cache) {
-        middlewareHandler.add(Middlewares.Cache);
-      }
-
-      // Context tracking
-      if (options.contextTracking.enabled) {
-        middlewareHandler.add(Middlewares.ContextTracker);
-      }
-
-      // Circuit breaker
-      if (options.circuitBreaker.enabled) {
-        middlewareHandler.add(Middlewares.CircuitBreaker);
-      }
-
-      // timeout middleware
-      middlewareHandler.add(Middlewares.Timeout);
-
-      // Retry policy
-      if (options.retryPolicy.enabled) {
-        middlewareHandler.add(Middlewares.Retry);
-      }
-
-      // Error handler
-      middlewareHandler.add(Middlewares.ErrorHandler);
-
-      // Tracing
-      if (options.tracing.enabled) {
-        middlewareHandler.add(Middlewares.Tracing);
-      }
-
-      // Metrics
-      if (options.metrics.enabled) {
-        middlewareHandler.add(Middlewares.Metrics);
-      }
-    }
-
-    // Wrap runtime and broker methods for middlewares
-    runtime.actionInvoker.call = middlewareHandler.wrapMethod('call', runtime.actionInvoker.call);
-    runtime.actionInvoker.multiCall = middlewareHandler.wrapMethod('multiCall', broker.multiCall);
-    runtime.eventBus.emit = middlewareHandler.wrapMethod('emit', runtime.eventBus.emit);
-    runtime.eventBus.broadcast = middlewareHandler.wrapMethod('broadcast', runtime.eventBus.broadcast);
-    runtime.eventBus.broadcastLocal = middlewareHandler.wrapMethod('broadcastLocal', runtime.eventBus.broadcastLocal);
-
-    // Wrap broker methods
-    broker.createService = middlewareHandler.wrapMethod('createService', broker.createService);
-    broker.loadService = middlewareHandler.wrapMethod('loadService', broker.loadService);
-    broker.loadServices = middlewareHandler.wrapMethod('loadServices', broker.loadServices);
-    broker.ping = middlewareHandler.wrapMethod('ping', broker.ping);
-  };
-
   // Run "beforeRegisterMiddlewares" hook
   if (isFunction(options.beforeRegisterMiddlewares)) {
     options.beforeRegisterMiddlewares.call(broker, { broker, runtime });
   }
 
+  // Add broker reference to runtime
+  Object.assign(runtime, { broker });
+
   // Register middlewares
-  registerMiddlewares(options.middlewares);
+  registerMiddlewares(runtime, options.middlewares);
 
   // Stop the broker greaceful
   /* istanbul ignore next */
@@ -392,11 +363,10 @@ exports.createBrokerInstance = (runtime) => {
   process.on('SIGINT', onClose);
   process.on('SIGTERM', onClose);
 
-  // Add broker reference to runtime
-  Object.assign(runtime, { broker });
-
   // Call middleware hook for broker created.
   middlewareHandler.callHandlersSync('created', [runtime]);
 
   return broker;
 };
+
+export { createBrokerInstance };

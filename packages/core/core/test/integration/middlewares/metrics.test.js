@@ -1,6 +1,6 @@
-const { WeaveError } = require('../../../lib/errors');
-const { TransportAdapters } = require('../../../lib/index');
-const Constants = require('../../../lib/metrics/constants');
+const { WeaveError } = require('../../../src/errors');
+const { TransportAdapters } = require('../../../src/index');
+const Constants = require('../../../src/metrics/constants');
 const { createNode } = require('../../helper');
 
 describe('Metric middleware', () => {

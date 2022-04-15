@@ -1,4 +1,4 @@
-const { resolveCollector } = require('../tracing/collectors');
+const { resolveCollector } = require('../tracing/collectors/index');
 const { createSpan } = require('../tracing/span');
 
 exports.initTracer = (runtime) => {

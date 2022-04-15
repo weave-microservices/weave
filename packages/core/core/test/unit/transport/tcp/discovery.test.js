@@ -1,4 +1,4 @@
-const createDiscoveryService = require('../../../../lib/transport/adapters/tcp/discovery/index');
+const createDiscoveryService = require('../../../../src/transport/adapters/tcp/discovery/index');
 const { getIpList } = require('@weave-js/utils');
 
 const fakeAdapter = (nodeId) => ({

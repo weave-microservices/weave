@@ -1,4 +1,4 @@
-const { createCacheBase } = require('../../../lib/cache/adapters/base');
+const { createCacheBase } = require('../../../src/cache/adapters/base');
 const { createNode } = require('../../helper');
 
 const config = {

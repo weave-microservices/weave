@@ -1,4 +1,4 @@
-const ModelValidator = require('../../lib/validator');
+const ModelValidator = require('../../src/validator');
 
 describe('Number validator', () => {
   it('should validate number with short-hand definition', () => {

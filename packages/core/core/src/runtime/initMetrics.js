@@ -1,7 +1,7 @@
 const { isPlainObject, isFunction } = require('@weave-js/utils');
 const { WeaveError } = require('../errors');
 const { registerCommonMetrics, updateCommonMetrics } = require('../metrics/common');
-const MetricTypes = require('../metrics/types');
+const MetricTypes = require('../metrics/types/index');
 
 /**
  * @typedef {import('../types.js').Runtime} Runtime

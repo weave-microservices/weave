@@ -5,5 +5,5 @@
  */
 
 exports.BaseAdapter = require('./adapteBase');
-exports.Dummy = require('./dummy');
-exports.TCP = require('./tcp');
+exports.Dummy = require('./dummy/index');
+exports.TCP = require('./tcp/index');

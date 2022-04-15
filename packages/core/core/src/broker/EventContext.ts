@@ -5,15 +5,99 @@
 */
 'use strict';
 
-/**
- * @typedef {import('../types').Context} Context
- * @typedef {import('../types').Runtime} Runtime
- * @typedef {import('../types').ContextPromise} ContextPromise
- * @typedef {import('../types').Endpoint} Endpoint
-*/
+import { Service } from "../types";
+import { Context } from "./Context";
 
 const { uuid, isFunction, isStream, isStreamObjectMode } = require('@weave-js/utils');
 const { WeaveMaxCallLevelError, WeaveError } = require('../errors');
+
+type Runtime = any
+type Endpoint = any
+type ActionOptions = any
+type Tracing = any
+type Service = any
+type Span = any
+
+export type ContextOptions = {
+  stream?: ReadableStream | WritableStream,
+  timeout?: number,
+  retries?: number,
+}
+
+class ActionContext implements Context<ActionContext> {
+  // privates
+  #runtime: Runtime;
+
+  // publics
+  id: string;
+  requestId?: string;
+  nodeId: string;
+  callerNodeId?: string;
+  parentContext?: ActionContext;
+  endpoint: Endpoint;
+  level: number;
+  data: object;
+  meta: unknown;
+  options?: ContextOptions;
+  tracing?: Tracing;
+  span: Span;
+  service?: Service;
+  eventName?: string;
+  eventType?: string;
+  eventGroups: string[] = [];
+  /**
+   * Create a new context object
+  */
+  constructor(runtime: Runtime) {
+    this.#runtime = runtime;
+    this.nodeId = runtime.options.nodeId;
+    this.level = 1;
+    this.data = {};
+
+    if (this.#runtime.options.uuidFactory && isFunction(this.#runtime.options.uuidFactory)) {
+      this.id = this.#runtime.options.uuidFactory.call(this, this.#runtime);
+    } else {
+      this.id = uuid() as string;
+    }
+
+    if (!this.requestId) {
+      this.requestId = this.id;
+    }
+  }
+
+  setEndpoint (endpoint: Endpoint) {
+    this.nodeId = endpoint.node.id;
+    this.endpoint = endpoint;
+    this.action = endpoint.action;
+    this.service = endpoint.action.service;
+  }
+
+  /**
+   * Copy the context object
+   * @returns {Context}
+   */
+  copy () {
+    const contextCopy = new ActionContext(this.#runtime);
+
+    contextCopy.nodeId = this.nodeId;
+    contextCopy.options = this.options;
+    contextCopy.data = this.data;
+    contextCopy.meta = this.meta;
+    contextCopy.parentContext = this.parentContext;
+    contextCopy.callerNodeId = this.callerNodeId;
+    contextCopy.requestId = this.requestId;
+    contextCopy.tracing = this.tracing;
+    contextCopy.level = this.level;
+    contextCopy.eventName = this.eventName;
+    contextCopy.eventType = this.eventType;
+    contextCopy.eventGroups = this.eventGroups;
+
+    return contextCopy;
+  }
+}
+
+export { ActionContext };
+
 
 /**
  * Create a new context object

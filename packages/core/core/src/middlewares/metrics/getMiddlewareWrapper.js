@@ -1,4 +1,4 @@
-const { Constants } = require('../../metrics');
+const { Constants } = require('../../metrics/index');
 
 module.exports.getMiddlewareWrapper = (runtime) => function (type, action, handler) {
   const serviceName = action.service ? action.service.fullyQualifiedName : null;

@@ -3,7 +3,7 @@
 **/
 
 const { createTransport } = require('../transport/createTransport');
-const TransportAdapters = require('../transport/adapters');
+const TransportAdapters = require('../transport/adapters/index');
 
 exports.initTransport = (runtime) => {
   if (runtime.options.transport.adapter) {

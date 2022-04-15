@@ -5,7 +5,10 @@
  */
 'use strict';
 
-const { createContext } = require('../broker/context');
+import { ActionContext } from "../broker/ActionContext";
+import { ActionContextOptions } from "../broker/ActionContextOptions";
+
+const { createContext, ActionContext } = require('../broker/ActionContext');
 
 /**
  * @typedef {import('../types').Runtime} Runtime
@@ -19,7 +22,7 @@ const { createContext } = require('../broker/context');
  * @param {Runtime} runtime - Runtime reference
  * @returns {void}
 */
-exports.initContextFactory = (runtime) => {
+exports.initContextFactory = (runtime: Runtime) => {
   Object.defineProperty(runtime, 'contextFactory', {
     value: {
       /**
@@ -29,8 +32,8 @@ exports.initContextFactory = (runtime) => {
        * @param {ActionOptions} opts Options
        * @returns {Context} Context
       */
-      create (endpoint, data, opts) {
-        const context = createContext(runtime);
+      createActionContext (endpoint: Endpoint, data: unknown, opts?: ActionContextOptions<ActionContext>) {
+        const context = new ActionContext(runtime);
 
         opts = opts || {};
         context.setData(data);

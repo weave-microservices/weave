@@ -1,4 +1,4 @@
-const ModelValidator = require('../../lib/validator');
+const ModelValidator = require('../../src/validator');
 
 describe('Boolean validator', () => {
   it('boolean validator (valid)', () => {

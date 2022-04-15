@@ -1,4 +1,4 @@
-const { createLock } = require('../../../lib/cache/lock');
+const { createLock } = require('../../../src/cache/lock');
 
 describe('Test local cache lock', () => {
   it('should create with default options.', () => {

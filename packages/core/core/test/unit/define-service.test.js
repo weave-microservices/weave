@@ -1,4 +1,4 @@
-const { defineService } = require('../../lib/index');
+const { defineService } = require('../../src/index');
 
 describe('Define service composition method', () => {
   it('shout return a typed schema.', () => {
