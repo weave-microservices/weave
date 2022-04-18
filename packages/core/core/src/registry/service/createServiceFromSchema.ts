@@ -1,32 +1,28 @@
-/**
- * @typedef {import("../../types").Runtime} Runtime
- * @typedef {import("../../types").ServiceSchema} ServiceSchema
- * @typedef {import("../../types").Service} Service
-*/
 
 const { isFunction, clone, isObject, promisify } = require('@weave-js/utils');
 const { WeaveError } = require('../../errors');
-const { parseAction } = require('./parseAction');
+import { parseActionDefinition } from  './parseActionDefinition';
 const { parseEvent } = require('./parseEvent');
 const { reduceMixins } = require('./reduceMixins');
 const { createEventEndpoint } = require('../eventEndpoint');
+import { Runtime } from '../../runtime/Runtime';
+import { Service } from '../../service/Service';
+import { ServiceSchema } from '../../service/ServiceSchema';
+
 /**
  * Service factory
  * @param {Runtime} runtime Broker instance
- * @param {ServiceSchema} schema Service schema
+ * @param {ServiceSchema} serviceSchema Service schema
  * @returns {Service} Service instance
  */
-exports.createServiceFromSchema = (runtime, schema) => {
+exports.createServiceFromSchema = (runtime: Runtime, serviceSchema: ServiceSchema) => {
   // Check if a schema is given
-  if (!schema) {
+  if (!serviceSchema) {
     runtime.handleError(new WeaveError('Schema is missing!'));
   }
 
-  /**
-   * @type {Service}
-  */
-  const service = Object.create(null);
-
+  const service: Service = Object.create(null);
+  
   // Set reference to the runtime.
   service.runtime = runtime;
 
@@ -34,44 +30,44 @@ exports.createServiceFromSchema = (runtime, schema) => {
   service.broker = runtime.broker;
 
   // Apply all mixins (including children)
-  if (schema.mixins) {
-    schema = reduceMixins(service, schema);
+  if (serviceSchema.mixins) {
+    serviceSchema = reduceMixins(service, serviceSchema);
   }
 
   // Call "afterSchemasMerged" service lifecycle hook(s)
-  if (schema.afterSchemasMerged) {
-    if (isFunction(schema.afterSchemasMerged)) {
-      schema.afterSchemasMerged.call(service, schema);
-    } else if (Array.isArray(schema.afterSchemasMerged)) {
-      Promise.all(schema.afterSchemasMerged.map(afterSchemasMerged => afterSchemasMerged.call(service, schema)));
+  if (serviceSchema.afterSchemasMerged) {
+    if (isFunction(serviceSchema.afterSchemasMerged)) {
+      serviceSchema.afterSchemasMerged.call(service, serviceSchema);
+    } else if (Array.isArray(serviceSchema.afterSchemasMerged)) {
+      Promise.all(serviceSchema.afterSchemasMerged.map(afterSchemasMerged => afterSchemasMerged.call(service, serviceSchema)));
     }
   }
 
   // Call "serviceCreating" middleware hook
-  runtime.middlewareHandler.callHandlersSync('serviceCreating', [service, schema]);
+  runtime.middlewareHandler.callHandlersSync('serviceCreating', [service, serviceSchema]);
 
   // validate name
-  if (!schema.name) {
+  if (!serviceSchema.name) {
     runtime.handleError(new WeaveError('Service name is missing!'));
   }
 
   // Set name
-  service.name = schema.name;
+  service.name = serviceSchema.name;
 
   // Set service version
-  service.version = schema.version;
+  service.version = serviceSchema.version;
 
   // Create a full qualified name, including version if set.
   service.fullyQualifiedName = service.version ? `${service.name}.${service.version}` : service.name;
 
   // Set a reference to the base schema
-  service.schema = schema;
+  service.schema = serviceSchema;
 
   // Set the service settings
-  service.settings = schema.settings || {};
+  service.settings = serviceSchema.settings || {};
 
   // Set the service meta data
-  service.meta = schema.meta || {};
+  service.meta = serviceSchema.meta || {};
 
   // Create a separate protocol instance for the service.
   service.log = runtime.createLogger(`${service.name}-service`, {
@@ -94,43 +90,43 @@ exports.createServiceFromSchema = (runtime, schema) => {
     events: {}
   };
 
-  // Bind service methods to context
-  if (isObject(schema.methods)) {
-    Object.keys(schema.methods).map(name => {
-      const method = schema.methods[name];
+  // Bind service methods to service
+  if (serviceSchema.methods && isObject(serviceSchema.methods)) {
+    Object.keys(serviceSchema.methods).map(methodName => {
+      const method = serviceSchema.methods![methodName];
 
       // Reserved property names
-      if (['log', 'actions', 'meta', 'events', 'settings', 'methods', 'dependencies', 'version', 'dependencies', 'broker', 'runtime', 'afterSchemasMerged', 'created', 'started', 'stopped'].includes(name)) {
-        runtime.handleError(new WeaveError(`Invalid method name ${name} in service ${service.name}.`));
+      if (['log', 'actions', 'meta', 'events', 'settings', 'methods', 'dependencies', 'version', 'dependencies', 'broker', 'runtime', 'afterSchemasMerged', 'created', 'started', 'stopped'].includes(methodName)) {
+        runtime.handleError(new WeaveError(`Invalid method name ${methodName} in service ${service.name}.`));
       }
 
-      service[name] = method.bind(service);
+      service[methodName] = method.bind(service);
     });
   }
 
   // Bind and register service actions
-  if (isObject(schema.actions)) {
-    Object.keys(schema.actions).map(name => {
-      const actionDefinition = schema.actions[name];
+  if (serviceSchema.actions && isObject(serviceSchema.actions)) {
+    Object.keys(serviceSchema.actions).map(actionName => {
+      const actionDefinition = serviceSchema.actions![actionName];
 
       // skip actions that are set to false
       if (actionDefinition === false) return;
 
-      const innerAction = parseAction(runtime, service, clone(actionDefinition), name);
-      serviceSpecification.actions[innerAction.name] = innerAction;
+      const action = parseActionDefinition(runtime, service, clone(actionDefinition), actionName);
+      serviceSpecification.actions[action.name] = action;
 
-      const wrappedAction = runtime.middlewareHandler.wrapHandler('localAction', innerAction.handler, innerAction);
+      const wrappedAction = runtime.middlewareHandler.wrapHandler('localAction', action.handler, action);
 
       // Make the action accessable via this.actions["actionName"]
-      service.actions[name] = (data, options) => {
+      service.actions[actionName] = (data, options) => {
         let context;
         // reuse context
         if (options && options.context) {
           context = options.context;
         } else {
-          const endpoint = runtime.registry.createPrivateActionEndpoint(innerAction);
+          const endpoint = runtime.registry.createPrivateActionEndpoint(action);
           // create a new context
-          context = runtime.contextFactory.create(endpoint, data, options || {});
+          context = runtime.contextFactory.create (endpoint, data, options || {});
         }
 
         return wrappedAction(context, { service, runtime, errors: {}});
@@ -139,9 +135,9 @@ exports.createServiceFromSchema = (runtime, schema) => {
   }
 
   // Bind and register service events
-  if (isObject(schema.events)) {
-    Object.keys(schema.events).map(name => {
-      const eventDefinition = schema.events[name];
+  if (serviceSchema.events && isObject(serviceSchema.events)) {
+    Object.keys(serviceSchema.events).map(name => {
+      const eventDefinition = serviceSchema.events![name];
       const innerEvent = parseEvent(runtime, service, clone(eventDefinition), name);
 
       serviceSpecification.events[name] = innerEvent;
@@ -168,13 +164,13 @@ exports.createServiceFromSchema = (runtime, schema) => {
   }
 
   // Call "created" service lifecycle hook(s)
-  if (schema.created) {
-    if (isFunction(schema.created)) {
-      schema.created.call(service);
+  if (serviceSchema.created) {
+    if (isFunction(serviceSchema.created)) {
+      serviceSchema.created.call(service);
     }
 
-    if (Array.isArray(schema.created)) {
-      Promise.all(schema.created.map(createdHook => createdHook.call(service)));
+    if (Array.isArray(serviceSchema.created)) {
+      Promise.all(serviceSchema.created.map(createdHook => createdHook.call(service)));
     }
   }
 
@@ -188,16 +184,16 @@ exports.createServiceFromSchema = (runtime, schema) => {
     return Promise.resolve()
       .then(() => runtime.middlewareHandler.callHandlersAsync('serviceStarting', [service]))
       .then(() => {
-        if (schema.dependencies) {
-          return runtime.services.waitForServices(schema.dependencies, service.settings.$dependencyTimeout || 0);
+        if (serviceSchema.dependencies) {
+          return runtime.services.waitForServices(serviceSchema.dependencies, service.settings.$dependencyTimeout || 0);
         }
       }).then(() => {
-        if (isFunction(schema.started)) {
-          return promisify(schema.started.bind(service))();
+        if (serviceSchema.started && isFunction(serviceSchema.started)) {
+          return promisify(serviceSchema.started.bind(service))();
         }
 
-        if (Array.isArray(schema.started)) {
-          return schema.started
+        if (Array.isArray(serviceSchema.started)) {
+          return serviceSchema.started
             .map(hook => promisify(hook.bind(service)))
             .reduce((p, hook) => p.then(hook), Promise.resolve());
         }
@@ -214,12 +210,12 @@ exports.createServiceFromSchema = (runtime, schema) => {
         return runtime.middlewareHandler.callHandlersAsync('serviceStopping', [service]);
       })
       .then(() => {
-        if (isFunction(schema.stopped)) {
-          return promisify(schema.stopped.bind(service))();
+        if (serviceSchema.stopped && isFunction(serviceSchema.stopped)) {
+          return promisify(serviceSchema.stopped.bind(service, service))();
         }
 
-        if (Array.isArray(schema.stopped)) {
-          return schema.stopped
+        if (Array.isArray(serviceSchema.stopped)) {
+          return serviceSchema.stopped
             .map(hook => promisify(hook.bind(service)))
             .reduce((p, hook) => p.then(hook), Promise.resolve());
         }
@@ -228,7 +224,7 @@ exports.createServiceFromSchema = (runtime, schema) => {
       .then(() => service.log.info(`Service "${service.name}" stopped`));
   };
 
-  runtime.middlewareHandler.callHandlersSync('serviceCreated', [service, schema]);
+  runtime.middlewareHandler.callHandlersSync('serviceCreated', [service, serviceSchema]);
 
   // Add service to brokers local map
   runtime.services.serviceList.push(service);

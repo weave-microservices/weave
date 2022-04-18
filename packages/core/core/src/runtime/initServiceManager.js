@@ -1,4 +1,4 @@
-const { createServiceFromSchema } = require('../registry/service/service.js');
+const { createServiceFromSchema } = require('../registry/service/createServiceFromSchema.js');
 const { WeaveError } = require('../errors');
 
 exports.initServiceManager = (runtime) => {

@@ -1,4 +1,6 @@
-exports.initEventbus = (runtime) => {
+import { Runtime } from "./Runtime";
+
+exports.initEventbus = (runtime: Runtime) => {
   const { options: brokerOptions, bus, registry, contextFactory } = runtime;
 
   /**
@@ -8,7 +10,7 @@ exports.initEventbus = (runtime) => {
    * @param {*} [options=null] - Groups
    * @returns {Promise<any>} - Result
   */
-  const emit = (eventName, payload, options) => {
+  const emit = (eventName: string, payload: unknown, options: any) => {
     if (Array.isArray(options)) {
       options = { groups: options };
     } else if (options == null) {
@@ -29,7 +31,7 @@ exports.initEventbus = (runtime) => {
 
     const endpoints = registry.eventCollection.getBalancedEndpoints(eventName, options.groups);
     const groupedEndpoints = {};
-    const promises = [];
+    const promises: Promise<any>[] = [];
 
     endpoints.map(([endpoint, groupName]) => {
       if (endpoint) {

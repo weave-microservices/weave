@@ -5,13 +5,11 @@
 */
 'use strict';
 
-import { Service } from "../types";
 import { ContextOptions } from "./ContextOptions";
-import { Context, SpanOptions } from "./Context";
-import { ActionMetadata } from "./ActionMetadata";
+import { BaseContext, SpanOptions } from "./Context";
+import { ActionMetadata, ContextMetadata } from "./ContextMetadata";
 
-const { uuid, isFunction, isStream, isStreamObjectMode } = require('@weave-js/utils');
-const { WeaveMaxCallLevelError, WeaveError } = require('../errors');
+const { uuid, isFunction } = require('@weave-js/utils');
 
 type Runtime = any
 type Endpoint = any
@@ -19,11 +17,9 @@ type Tracing = any
 type Service = any
 type Span = any
 type Action = any
-type ActionPromise = Promise<unknown>  &{
-  context: ActionContext;
-} 
 
-class ActionContext implements Context<ActionContext> {
+
+class ActionContext extends BaseContext<ActionContext> {
   // privates
   #runtime: Runtime;
 
@@ -36,26 +32,28 @@ class ActionContext implements Context<ActionContext> {
   parentContext?: ActionContext;
   endpoint: Endpoint;
   level: number;
-  data: object;
+  data: unknown;
   stream?: ReadableStream|WritableStream;
-  meta: ActionMetadata;
+  meta: ContextMetadata;
   options: ContextOptions<ActionContext>;
   tracing?: Tracing;
   service?: Service;
   action?: Action;
   span: Span;
-  
+  retryCount: number;
   /**
    * Create a new context object
   */
   constructor(runtime: Runtime) {
+    super(runtime);
     this.#runtime = runtime;
     this.nodeId = runtime.options.nodeId;
     this.level = 1;
     this.data = {};
     this.meta = {};
     this.options = {};
-
+    this.retryCount = 0;
+    
     if (this.#runtime.options.uuidFactory && isFunction(this.#runtime.options.uuidFactory)) {
       this.id = this.#runtime.options.uuidFactory.call(this, this.#runtime);
     } else {
@@ -94,68 +92,32 @@ class ActionContext implements Context<ActionContext> {
     return contextCopy;
   }
 
-  setStream (stream: ReadableStream|WritableStream): void {
-    if (!isStream(stream)) {
-      throw new WeaveError('No valid stream.');
+
+
+  startSpan (spanName: string, spanOptions: SpanOptions) {
+    spanOptions = Object.assign({
+      id: this.id,
+      traceId: this.requestId,
+      parentId: this.parentId,
+      type: 'action',
+      service: this.service,
+      sampled: this.tracing
+    }, spanOptions);
+
+    if (this.span) {
+      this.span = this.span.startChildSpan(spanName, spanOptions);
     } else {
-      if (isStreamObjectMode(this.options.stream)) {
-        this.meta.$isObjectModeStream = true;
-      }
-      this.stream = stream;
+      this.span = this.#runtime.tracer.startSpan(spanName, spanOptions);
     }
-  }
-
-  emit (eventName: string, payload: unknown, options: ContextOptions<ActionContext> = {}): Promise<unknown> {
-    options.parentContext = this;
-    return this.#runtime.eventBus.emit(eventName, payload, options);
-  }
-
-  broadcast (eventName: string, payload: unknown, options: ContextOptions<ActionContext> = {}): Promise<unknown> {
-    options.parentContext = this;
-    return this.#runtime.eventBus.broadcast(eventName, payload, options);
-  }
-
-  call (actionName:string, data: unknown, options: ContextOptions<ActionContext> = {}) {
-    options.parentContext = this;
-    if (this.#runtime.options.registry.maxCallLevel > 0 && this.level >= this.#runtime.options.registry.maxCallLevel) {
-      return Promise.reject(new WeaveMaxCallLevelError({ nodeId: this.#runtime.nodeId, maxCallLevel: this.#runtime.options.registry.maxCallLevel }));
-    }
-
-    const p: ActionPromise = this.#runtime.actionInvoker.call(actionName, data, options);
-
-    return p.then((result) => {
-      if (p.context) {
-        this.meta = Object.assign(this.meta, p.context.meta);
-      }
-      return result;
-    });
-  }
-
-
-startSpan (spanName: string, spanOptions: SpanOptions) {
-  spanOptions = Object.assign({
-    id: this.id,
-    traceId: this.requestId,
-    parentId: this.parentId,
-    type: 'action',
-    service: this.service,
-    sampled: this.tracing
-  }, spanOptions);
-
-  if (this.span) {
-    this.span = this.span.startChildSpan(spanName, spanOptions);
-  } else {
-    this.span = this.#runtime.tracer.startSpan(spanName, spanOptions);
-  }
-  return this.span;
-}
-
-finishSpan () {
-  if (this.span) {
-    this.span.finish();
     return this.span;
   }
-}
+
+  finishSpan () {
+    if (this.span) {
+      this.span.finish();
+      return this.span;
+    }
+  }
 }
 
 export { ActionContext };

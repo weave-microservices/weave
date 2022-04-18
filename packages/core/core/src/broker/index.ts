@@ -1,12 +1,7 @@
-/**
- * @typedef {import('../types.js').Runtime} Runtime
- * @typedef {import('../types.js').BrokerOptions} BrokerOptions
- * @typedef {import('../types.js').Broker} Broker
- * @typedef {import('../types.js').Transport} Transport
-*/
-
 import { EventEmitter2 } from "eventemitter2";
-import { ContextFactory, Logger, Runtime } from "../types";
+import { Runtime } from "../runtime/Runtime";
+import { Service } from "../service/Service";
+import { ServiceSchema } from "../service/ServiceSchema";
 import { Broker } from "./Broker";
 
 // node packages
@@ -22,80 +17,133 @@ const { registerMiddlewares } = require('./registerMiddlewares');
 type ContextFactory = any
 type Validator = any
 
-/**
- * @param {Runtime} runtime
-*/
-class Broker {
-  runtime: Runtime;
-  nodeId: string;
-  log: Logger;
-  bus: EventEmitter2;
-  validator: Validator;
-  contextFactory: ContextFactory;
-  /**
-   * 
-   * @param runtime 
-   */
-  constructor (runtime: Runtime) {
-    this.runtime = runtime;
+// class Broker {
+//   runtime: Runtime;
+//   nodeId: string;
+//   log: Logger;
+//   bus: EventEmitter2;
+//   validator: Validator;
+//   contextFactory: ContextFactory;
 
-    const {
-      version,
-      options,
-      bus,
-      eventBus,
-      middlewareHandler,
-      registry,
-      contextFactory,
-      validator,
-      log,
-      services,
-      transport
-    } = this.runtime;
-  
-    // Log Messages
-    log.info(`Initializing #weave node version ${version}`);
-    log.info(`Node Id: ${options.nodeId}`);
-  
-    // Output namespace
-    if (options.namespace) {
-      log.info(`Namespace: ${options.namespace}`);
-    }
-  
-    // Init metrics
-    if (runtime.metrics) {
-      this.runtime.metrics.init();
-    }
-  
-    // Init cache
-    if (runtime.cache) {
-      this.runtime.cache.init();
-    }
+//   /**
+//    * 
+//    * @param runtime 
+//   */
+//   constructor (runtime: Runtime) {
+//     this.runtime = runtime;
 
-    this.registry = registry;
-    this.bus = bus;
-    this.nodeId = options.nodeId;
-    this.options = options;
-    this.validator = validator;
-    this.contextFactory = contextFactory;
-    this.log = log;
-    this.createLogger = runtime.createLogger;
+//     const {
+//       version,
+//       options,
+//       bus,
+//       eventBus,
+//       middlewareHandler,
+//       registry,
+//       contextFactory,
+//       validator,
+//       log,
+//       services,
+//       transport
+//     } = this.runtime;
+  
+//     // Log Messages
+//     log.info(`Initializing #weave node version ${version}`);
+//     log.info(`Node Id: ${options.nodeId}`);
+  
+//     // Output namespace
+//     if (options.namespace) {
+//       log.info(`Namespace: ${options.namespace}`);
+//     }
+  
+//     // Init metrics
+//     if (runtime.metrics) {
+//       this.runtime.metrics.init();
+//     }
+  
+//     // Init cache
+//     if (runtime.cache) {
+//       this.runtime.cache.init();
+//     }
 
-  }
+//     this.registry = registry;
+//     this.bus = bus;
+//     this.nodeId = options.nodeId;
+//     this.options = options;
+//     this.validator = validator;
+//     this.contextFactory = contextFactory;
+//     this.log = log;
+//     this.createLogger = runtime.createLogger;
 
-  /**
-   * Generate a new UUID from Factory
-   * @returns {string}
-   */
-  getUUID (): string {
-    return this.runtime.generateUUID();
-  }
-}
+//   }
+
+//   /**
+//    * Generate a new UUID from Factory
+//    * @returns {string}
+//    */
+//   getUUID (): string {
+//     return this.runtime.generateUUID();
+//   }
+
+//   loadServices (...args: string[]): number {
+//     this.log.warning('This method is deprecated. Please use loadServicesFromFolder instead')
+//     return this.loadServicesFromFolder(...args);
+//   }
+
+//   loadServicesFromFolder (folder: string = './services', filenamePattern: string = '*.service.js'): number {
+//     const serviceFiles: string[] = glob.sync(path.join(folder, filenamePattern));
+
+//     this.log.info(`Searching services in folder '${folder}' with name pattern '${filenamePattern}'.`);
+//     this.log.info(`${serviceFiles.length} services found.`);
+
+//     serviceFiles.forEach(fileName => this.loadServiceFromFile(fileName));
+//     return serviceFiles.length;
+//   }
+
+//   /**
+//    * @deprecated Please use loadServicesFromFolder instead
+//    * @param filename
+//    * @returns {Service}
+//    */
+//   loadService (filename: string) {
+//     this.log.warning('This method (loadService) is deprecated. Please use loadServicesFromFolder instead')
+
+//     return this.loadServiceFromFile(filename)
+//   };
+
+//   loadServiceFromFile (filename: string): Service {
+//     const filePath: string = path.resolve(filename);
+//     const schema = require(filePath);
+//     const service = this.createService(schema);
+
+//     if (service) {
+//       service.filename = filename;
+//     }
+
+//     return service;
+//   }
+
+//   createService (schema: ServiceSchema): Service {
+//     return this.runtime.services.createService(schema);
+//   }
+
+//   emit ()
+// }
 
 const createBrokerInstance = (runtime: Runtime): Broker => {
- 
-  // broker object
-  /** @type {Broker} */
+  const {
+    version,
+    options,
+    bus,
+    eventBus,
+    middlewareHandler,
+    registry,
+    contextFactory,
+    validator,
+    log,
+    services,
+    transport
+  } = runtime;
+
   const broker: Broker = Object.create(null);
 
   broker.runtime = runtime;
@@ -109,7 +157,7 @@ const createBrokerInstance = (runtime: Runtime): Broker => {
   broker.log = log;
   broker.createLogger = runtime.createLogger;
 
-  broker.getUUID = function () {
+  broker.getUUID = (): string => {
     return runtime.generateUUID();
   };
 
@@ -145,7 +193,7 @@ const createBrokerInstance = (runtime: Runtime): Broker => {
   * @param {string} filename Path to the service file.
   * @returns {Service} Service
   */
-  broker.loadService = function (filename) {
+  broker.loadServiceFromFile = function (filename) {
     const filePath = path.resolve(filename);
     const schema = require(filePath);
     const service = broker.createService(schema);
@@ -155,6 +203,10 @@ const createBrokerInstance = (runtime: Runtime): Broker => {
     }
 
     return service;
+  };
+
+  broker.loadService = function (filename) {
+    broker.loadServiceFromFile(filename)
   };
 
   broker.loadServices = function (folder = './services', fileMask = '*.service.js') {
@@ -369,4 +421,4 @@ const createBrokerInstance = (runtime: Runtime): Broker => {
   return broker;
 };
 
-export { createBrokerInstance };
+export { Broker, createBrokerInstance };

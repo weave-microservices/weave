@@ -7,7 +7,7 @@
 const { getDefaultOptions } = require('./broker/defaultOptions');
 const { defaultsDeep } = require('@weave-js/utils');
 const { initRuntime } = require('./buildRuntime');
-const { createBrokerInstance } = require('./broker/index');
+const { Broker } = require('./broker/index');
 
 /**
  * @type {BrokerOptions} options Broker options
@@ -30,7 +30,7 @@ exports.createBroker = (options) => {
   const runtime = initRuntime(options);
 
   // Create broker instance
-  return createBrokerInstance(runtime);
+  return new Broker(runtime);
 };
 
 /**

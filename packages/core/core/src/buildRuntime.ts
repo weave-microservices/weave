@@ -4,6 +4,8 @@
  * @typedef {import('./types.js').Broker} Broker
 */
 
+import { BrokerConfiguration } from "./broker/Options";
+
 const { initLogger } = require('./runtime/initLogger');
 const { initMiddlewareHandler } = require('./runtime/initMiddlewareManager');
 const { initRegistry } = require('./runtime/initRegistry');
@@ -27,7 +29,7 @@ const EventEmitter = require('eventemitter2');
  * @param {BrokerOptions} options Broker options
  * @return {Runtime} Runtime
 */
-exports.initRuntime = (options) => {
+exports.initRuntime = (options: BrokerConfiguration) => {
   /**
    * Event bus
    * @returns {EventEmitter} Service object.
@@ -47,8 +49,8 @@ exports.initRuntime = (options) => {
       instanceId: uuid(),
       isStarted: false
     },
-    handleError: (error) => errorHandler(runtime, error),
-    fatalError: (message, error, killProcess) => fatalErrorHandler(runtime, message, error, killProcess)
+    handleError: (error: Error) => errorHandler(runtime, error),
+    fatalError: (message: string, error: Error, killProcess: boolean) => fatalErrorHandler(runtime, message, error, killProcess)
   };
 
   // Init modules

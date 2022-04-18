@@ -4,10 +4,6 @@
  * Copyright 2021 Fachwerk
 */
 
-/**
- * @typedef {import('../types.js').Runtime} Runtime
-*/
-
 const ObjectValidator = require('@weave-js/validator');
 
 /**
