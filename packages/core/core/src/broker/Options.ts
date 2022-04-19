@@ -1,4 +1,3 @@
 export interface BrokerConfiguration {
-  nodeId?: string;
-  
+  nodeId: string;
 }

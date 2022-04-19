@@ -4,7 +4,9 @@
  * @typedef {import('./types.js').Broker} Broker
 */
 
+import { EventEmitter2 } from "eventemitter2";
 import { BrokerConfiguration } from "./broker/Options";
+import { Runtime } from "./runtime/Runtime";
 
 const { initLogger } = require('./runtime/initLogger');
 const { initMiddlewareHandler } = require('./runtime/initMiddlewareManager');
@@ -22,7 +24,6 @@ const { initUUIDFactory } = require('./runtime/initUuidFactory');
 const { errorHandler, fatalErrorHandler } = require('./errorHandler');
 const { uuid } = require('@weave-js/utils');
 const { version } = require('../package.json');
-const EventEmitter = require('eventemitter2');
 
 /**
  * Build runtime object
@@ -30,17 +31,13 @@ const EventEmitter = require('eventemitter2');
  * @return {Runtime} Runtime
 */
 exports.initRuntime = (options: BrokerConfiguration) => {
-  /**
-   * Event bus
-   * @returns {EventEmitter} Service object.
-  */
-  const bus = new EventEmitter({
+  const bus: EventEmitter2 = new EventEmitter2({
     wildcard: true,
     maxListeners: 1000
   });
 
   // Create base runtime object
-  const runtime = {
+  const runtime: Partial<Runtime> = {
     nodeId: options.nodeId,
     version,
     options,
