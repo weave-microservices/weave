@@ -1,18 +1,16 @@
+import { Runtime } from "./Runtime";
+
 const { isPlainObject, isFunction } = require('@weave-js/utils');
 const { WeaveError } = require('../errors');
 const { registerCommonMetrics, updateCommonMetrics } = require('../metrics/common');
 const MetricTypes = require('../metrics/types/index');
 
 /**
- * @typedef {import('../types.js').Runtime} Runtime
-*/
-
-/**
  * Init metrics module
  * @param {Runtime} runtime - Runtime reference
  * @returns {void}
  */
-exports.initMetrics = (runtime) => {
+exports.initMetrics = (runtime: Runtime) => {
   const metricOptions = runtime.options.metrics;
 
   if (metricOptions.enabled) {
@@ -20,8 +18,7 @@ exports.initMetrics = (runtime) => {
 
     const log = runtime.createLogger('METRICS');
 
-    /** @type {NodeJS.Timeout} */
-    let commonUpdateTimer;
+    let commonUpdateTimer: NodeJS.Timeout;
 
     Object.defineProperty(runtime, 'metrics', {
       value: {

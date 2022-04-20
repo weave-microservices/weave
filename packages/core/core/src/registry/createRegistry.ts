@@ -5,18 +5,8 @@
  * Copyright 2021 Fachwerk
 */
 
-/**
- * @typedef {import('../types.js').Registry} Registry
- * @typedef {import('../types.js').NodeCollection} NodeCollection
- * @typedef {import('../types.js').ServiceCollection} ServiceCollection
- * @typedef {import('../types.js').ServiceActionCollection} ServiceActionCollection
- * @typedef {import('../types.js').EventCollection} EventCollection
- * @typedef {import('../types.js').Runtime} Runtime
- * @typedef {import('../types.js').Broker} Broker
- * @typedef {import('../types.js').Node} Node
- * @typedef {import('../types.js').MiddlewareHandler} MiddlewareHandler
- * @typedef {import('../types.js').ServiceChangedDelegate} ServiceChangedDelegate
-*/
+import { Runtime } from "../runtime/Runtime";
+import { ActionEndpoint } from "./actionEndpoint";
 
 const { safeCopy } = require('@weave-js/utils');
 
@@ -26,23 +16,15 @@ const { createServiceCollection } = require('./collections/serviceCollection');
 const { createActionCollection } = require('./collections/actionCollection');
 const { createEventCollection } = require('./collections/eventCollection');
 const { createActionEndpoint } = require('./actionEndpoint');
-const { createNode } = require('./node');
+import { Node } from './node';
 const { WeaveServiceNotFoundError, WeaveServiceNotAvailableError } = require('../errors');
 
 const noop = () => {};
 
-/**
- * Registry factory
- * @param {Runtime} runtime Runtime
- * @returns {Registry} Registry
-*/
-exports.createRegistry = (runtime) => {
+exports.createRegistry = (runtime: Runtime) => {
   const { middlewareHandler } = runtime;
 
-  /**
-   * @type {Registry}
-  */
-  const registry = {
+  const registry: Registry = {
     runtime,
     log: runtime.createLogger('REGISTRY'),
     /**
@@ -50,7 +32,7 @@ exports.createRegistry = (runtime) => {
    * @param {Runtime} runtime Runtime
    * @returns {void}
    */
-    init (runtime) {
+    init (runtime: Runtime) {
       // init collections
       this.nodeCollection = createNodeCollection(this);
       this.serviceCollection = createServiceCollection(this);
@@ -66,7 +48,7 @@ exports.createRegistry = (runtime) => {
     },
     onRegisterLocalAction: noop,
     onRegisterRemoteAction: noop,
-    checkActionVisibility (action, node) {
+    checkActionVisibility (action, node: Node) {
       if (
         typeof action.visibility === 'undefined' ||
         action.visibility === 'public' ||
@@ -267,7 +249,7 @@ exports.createRegistry = (runtime) => {
       return this.actionCollection.get(actionName);
     },
     createPrivateActionEndpoint (action) {
-      return createActionEndpoint(runtime, this.nodeCollection.localNode, action.service, action);
+      return new ActionEndpoint(runtime, this.nodeCollection.localNode, action.service, action);
     },
     getLocalActionEndpoint (actionName) {
       const endpointList = this.getActionEndpoints(actionName);
@@ -349,7 +331,7 @@ exports.createRegistry = (runtime) => {
       // There is no node with the specified ID. It must therefore be a new node.
       if (!node) {
         isNew = true;
-        node = createNode(nodeId);
+        node = new Node(nodeId);
         this.nodeCollection.add(nodeId, node);
       } else if (!node.isAvailable) {
         // Node exists, but is marked as unavailable. It must therefore be a reconnected node.

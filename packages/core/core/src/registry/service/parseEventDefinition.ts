@@ -1,7 +1,10 @@
+import { Runtime } from "../../runtime/Runtime";
+import { Service } from "../../service/Service";
+
 const { isFunction, clone, wrapHandler, isObject, promisify } = require('@weave-js/utils');
 const { WeaveError } = require('../../errors');
 
-module.exports.parseEvent = (runtime, service, eventDefinition, name) => {
+const parseEventDefinition = function (runtime: Runtime, service: Service, eventDefinition, name: string) {
   let event;
 
   // if the handler is a method (short form), we wrap the method in our handler object.
@@ -43,3 +46,5 @@ module.exports.parseEvent = (runtime, service, eventDefinition, name) => {
 
   return event;
 };
+
+export { parseEventDefinition };

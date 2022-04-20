@@ -3,7 +3,7 @@ const { isFunction, clone, isObject, promisify } = require('@weave-js/utils');
 const { WeaveError } = require('../../errors');
 import { parseActionDefinition } from  './parseActionDefinition';
 const { parseEvent } = require('./parseEvent');
-const { reduceMixins } = require('./reduceMixins');
+import { reduceMixins } from './reduceMixins';
 const { createEventEndpoint } = require('../eventEndpoint');
 import { Runtime } from '../../runtime/Runtime';
 import { Service } from '../../service/Service';

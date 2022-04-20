@@ -1,8 +1,4 @@
-/**
- * @typedef {import('../types.js').Runtime} Runtime
- * @typedef {import('../types.js').Broker} Broker
- * @typedef {import('../types.js').Transport} Transport
-*/
+import { Runtime } from "./Runtime";
 
 const { defaultsDeep } = require('@weave-js/utils');
 const { createLogger: createDefaultLogger } = require('../logger/index');
@@ -12,8 +8,8 @@ const { createLogger: createDefaultLogger } = require('../logger/index');
  * @param {Runtime} runtime - Runtime reference
  * @returns {void}
  */
-exports.initLogger = (runtime) => {
-  const loggerFactory = (runtime, moduleName, additional = {}) => {
+exports.initLogger = (runtime: Runtime) => {
+  const loggerFactory = (runtime: Runtime, moduleName: string, additional = {}) => {
     const bindings = {
       nodeId: runtime.options.nodeId,
       moduleName,

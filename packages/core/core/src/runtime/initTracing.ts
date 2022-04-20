@@ -1,7 +1,9 @@
+import { Runtime } from "./Runtime";
+
 const { resolveCollector } = require('../tracing/collectors/index');
 const { createSpan } = require('../tracing/span');
 
-exports.initTracer = (runtime) => {
+exports.initTracer = (runtime: Runtime) => {
   const options = runtime.options.tracing;
   const log = runtime.createLogger('TRACER');
   let collectors = [];

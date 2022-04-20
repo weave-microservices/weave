@@ -1,8 +1,11 @@
+import { Service } from "../../service/Service";
+import { ServiceSchema } from "../../service/ServiceSchema";
+
 const { mergeSchemas } = require('../../utils/options');
 const { wrapInArray } = require('@weave-js/utils');
 
-const reduceMixins = (service, schema) => {
-  const mixins = wrapInArray(schema.mixins);
+const reduceMixins = function (service: Service, schema: ServiceSchema): ServiceSchema {
+  const mixins: Array<ServiceSchema> = wrapInArray(schema.mixins);
   if (mixins.length > 0) {
     const mixedSchema = Array
       .from(mixins)
@@ -20,4 +23,4 @@ const reduceMixins = (service, schema) => {
   return schema;
 };
 
-exports.reduceMixins = reduceMixins;
+export { reduceMixins };

@@ -4,6 +4,7 @@
  * Copyright 2021 Fachwerk
 */
 
+import { Runtime } from "./Runtime";
 const ObjectValidator = require('@weave-js/validator');
 
 /**
@@ -11,7 +12,7 @@ const ObjectValidator = require('@weave-js/validator');
  * @param {Runtime} runtime Runtime object.
  * @returns {void}
 */
-exports.initValidator = (runtime) => {
+exports.initValidator = (runtime: Runtime) => {
   const validator = ObjectValidator();
 
   Object.defineProperty(runtime, 'validator', {

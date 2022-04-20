@@ -1,6 +1,6 @@
 const { Errors } = require('../../src/index');
 const { createNode } = require('../../src/registry/node');
-const { createRegistry } = require('../../src/registry/registry');
+const { createRegistry } = require('../../src/registry/createRegistry');
 const { createNode: createBroker } = require('../helper');
 
 const brokerSettings = {

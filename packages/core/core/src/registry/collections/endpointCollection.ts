@@ -1,20 +1,16 @@
 // @ts-check
 
+import { Runtime } from "../../runtime/Runtime";
+import { ActionEndpoint } from "../actionEndpoint";
+import { Node } from "../node";
+
 /*
  * Author: Kevin Ries (kevin.ries@fachwerk.io)
  * -----
  * Copyright 2021 Fachwerk
  */
 
-/**
- * @typedef {import('../../types.js').Runtime} Runtime
- * @typedef {import('../../types.js').EventCollection} EventCollection
- * @typedef {import('../../types.js').Service} Service
- * @typedef {import('../../types.js').Node} Node
- * @typedef {import('../../types.js').EndpointCollection} EndpointCollection
-*/
-
-const { createActionEndpoint } = require('../actionEndpoint');
+const { createActionEndpoint, ActionEndpoint } = require('../actionEndpoint');
 const { loadBalancingStrategy } = require('../../constants');
 
 /**
@@ -24,12 +20,12 @@ const { loadBalancingStrategy } = require('../../constants');
  * @param {string=} groupName Group name
  * @returns {EndpointCollection} EndpointCollection
  */
-exports.createEndpointList = (runtime, name, groupName) => {
+exports.createEndpointList = (runtime: Runtime, name: string, groupName: string) => {
   /** @type {EndpointCollection} */
   const endpointList = Object.create(null);
   const options = runtime.options;
   /** @type {Array} */
-  const list = endpointList.endpoints = [];
+  const list: Array<ActionEndpoint> = endpointList.endpoints = [];
 
   let counter = 0;
 
@@ -62,7 +58,7 @@ exports.createEndpointList = (runtime, name, groupName) => {
     }
   };
 
-  endpointList.add = (node, service, action) => { // todo: addaction
+  endpointList.add = (node: Node, service, action) => { // todo: addaction
     const foundEndpoint = list.find(endpoint => endpoint.node.id === node.id && endpoint.service.name === service.name);
 
     if (foundEndpoint) {
@@ -70,10 +66,11 @@ exports.createEndpointList = (runtime, name, groupName) => {
       return false;
     }
 
-    const newEndpoint = createActionEndpoint(runtime, node, service, action);
+    const newEndpoint = new ActionEndpoint(runtime, node, service, action);
 
     list.push(newEndpoint);
     setLocalEndpoints();
+
     return true;
   };
 

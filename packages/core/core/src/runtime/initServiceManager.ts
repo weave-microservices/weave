@@ -1,7 +1,9 @@
+import { Runtime } from "./Runtime";
+
 const { createServiceFromSchema } = require('../registry/service/createServiceFromSchema.js');
 const { WeaveError } = require('../errors');
 
-exports.initServiceManager = (runtime) => {
+exports.initServiceManager = (runtime: Runtime) => {
   const { options, log, eventBus, transport, state, registry, handleError } = runtime;
 
   // Internal service list

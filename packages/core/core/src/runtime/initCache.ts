@@ -1,7 +1,9 @@
+import { Runtime } from "./Runtime";
+
 const { isFunction } = require('@weave-js/utils');
 const { WeaveError } = require('../errors');
 
-exports.initCache = (runtime) => {
+exports.initCache = (runtime: Runtime) => {
   if (runtime.options.cache && runtime.options.cache.enabled) {
     if (!isFunction(runtime.options.cache.adapter)) {
       throw new WeaveError('Invalid cache adapter.');

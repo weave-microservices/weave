@@ -317,8 +317,6 @@ const createBrokerInstance = (runtime: Runtime): Broker => {
     process.removeListener('exit', onClose);
     process.removeListener('SIGINT', onClose);
     process.removeListener('SIGTERM', onClose);
-
-    // todo: handle errors
   };
 
   /**
