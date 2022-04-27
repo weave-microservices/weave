@@ -1,7 +1,7 @@
-const tryStringify = (o) => {
+const tryStringify = (object: object) => {
   try {
-    return JSON.stringify(o);
-  } catch (e) {
+    return JSON.stringify(object);
+  } catch (error) {
     return '"[Circular]"';
   }
 };

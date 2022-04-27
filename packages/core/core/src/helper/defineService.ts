@@ -1,15 +1,13 @@
 
 /* istanbul ignore next */
 
-/**
- * @typedef {import('../types.js').ServiceSchema} ServiceSchema
-*/
+import { ServiceSchema } from "../service/ServiceSchema";
 
 /**
  * Create and register a new service
  * @param {ServiceSchema} serviceSchema - Schema of the Service
  * @returns {ServiceSchema} Service schema
 */
-module.exports = function (serviceSchema) {
+export default function (serviceSchema: ServiceSchema): ServiceSchema {
   return serviceSchema;
 };

@@ -1,6 +1,9 @@
-const { generateLogMethod } = require('./tools');
+import { LogMethodHook } from "./LoggerOptions";
+import { LoggerRuntime } from "./LoggerRuntime";
+import { LogLevel } from "./LogLevel";
+import { generateLogMethod } from './tools';
 
-const levels = {
+const levels: LogLevel = {
   verbose: 60,
   debug: 50,
   info: 40,
@@ -11,7 +14,7 @@ const levels = {
 
 // wrap log methods
 const levelMethods = {
-  fatal: (runtime, hook) => {
+  fatal: (runtime: LoggerRuntime, hook: LogMethodHook) => {
     const logFatal = generateLogMethod(runtime, levels.fatal, hook);
     return function (...args) {
       logFatal.call(runtime, ...args);
@@ -24,21 +27,20 @@ const levelMethods = {
       // }
     };
   },
-  error: (runtime, hook) => generateLogMethod(runtime, levels.error, hook),
-  warn: (runtime, hook) => generateLogMethod(runtime, levels.warn, hook),
-  info: (runtime, hook) => generateLogMethod(runtime, levels.info, hook),
-  debug: (runtime, hook) => generateLogMethod(runtime, levels.debug, hook),
-  verbose: (runtime, hook) => generateLogMethod(runtime, levels.verbose, hook)
+  error: (runtime: LoggerRuntime, hook: LogMethodHook) => generateLogMethod(runtime, levels.error, hook),
+  warn: (runtime: LoggerRuntime, hook: LogMethodHook) => generateLogMethod(runtime, levels.warn, hook),
+  info: (runtime: LoggerRuntime, hook: LogMethodHook) => generateLogMethod(runtime, levels.info, hook),
+  debug: (runtime: LoggerRuntime, hook: LogMethodHook) => generateLogMethod(runtime, levels.debug, hook),
+  verbose: (runtime: LoggerRuntime, hook: LogMethodHook) => generateLogMethod(runtime, levels.verbose, hook)
 };
 
-exports.levelMethods = levelMethods;
+const numbers = Object.keys(levels)
+  .reduce((o, k) => {
+    o[levels[k]] = k;
+    return o;
+  }, {});
 
-const numbers = Object.keys(levels).reduce((o, k) => {
-  o[levels[k]] = k;
-  return o;
-}, {});
-
-exports.mappings = (customLevels = null, useOnlyCustomLevels = false) => {
+const mappings = function (customLevels = null, useOnlyCustomLevels: boolean = false) {
   const customNums = customLevels ? Object.keys(customLevels).reduce((o, k) => {
     o[customLevels[k]] = k;
     return o;
@@ -61,7 +63,7 @@ exports.mappings = (customLevels = null, useOnlyCustomLevels = false) => {
   return { labels, values };
 };
 
-exports.isStandardLevel = (level, useOnlyCustomLevels) => {
+const isStandardLevel = function (level: string, useOnlyCustomLevels: boolean): boolean {
   if (useOnlyCustomLevels) {
     return false;
   }
@@ -78,3 +80,5 @@ exports.isStandardLevel = (level, useOnlyCustomLevels) => {
     return false;
   }
 };
+
+export { levelMethods, mappings, isStandardLevel }

@@ -1,6 +1,4 @@
-/**
- * @typedef {import('../types.js').BrokerOptions} BrokerOptions
-*/
+import { BrokerConfiguration } from "./BrokerConfiguration";
 
 /*
  * Author: Kevin Ries (kevin.ries@fachwerk.io)
@@ -8,16 +6,15 @@
  * Copyright 2021 Fachwerk
 */
 
-/** @module weave */
-const os = require('os');
+import os from 'os';
 const { createInMemoryCache } = require('../cache/adapters/inMemory.js');
 const { loadBalancingStrategy } = require('../constants');
 
 /**
  * Returns the default options
- * @returns {BrokerOptions} Broker options
+ * @returns {BrokerConfiguration} Broker options
 */
-exports.getDefaultOptions = () => {
+const getDefaultConfiguration = function (): BrokerConfiguration {
   // default options
   return {
     // If no node id is set - create one.
@@ -58,7 +55,7 @@ exports.getDefaultOptions = () => {
         handleBackpressure: true
       }
     },
-    errorHandler: null,
+    errorHandler: undefined,
     loadInternalMiddlewares: true,
     metrics: {
       enabled: false,
@@ -70,11 +67,16 @@ exports.getDefaultOptions = () => {
     middlewares: [],
     logger: {
       enabled: true,
+      messageKey: 'message',
       level: 'info',
       base: {
         pid: process.pid,
         hostname: os.hostname()
-      }
+      },
+      formatter: {
+        messageFormat: false
+      },
+      destination: process.stdout
     },
     tracing: {
       enabled: false,
@@ -113,3 +115,5 @@ exports.getDefaultOptions = () => {
     }
   };
 };
+
+export { getDefaultConfiguration };

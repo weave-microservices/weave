@@ -5,7 +5,7 @@
 */
 
 import { EventEmitter2 } from "eventemitter2";
-import { BrokerConfiguration } from "./broker/Options";
+import { BrokerConfiguration } from "./broker/BrokerConfiguration";
 import { Runtime } from "./runtime/Runtime";
 
 const { initLogger } = require('./runtime/initLogger');

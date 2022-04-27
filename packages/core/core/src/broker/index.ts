@@ -1,4 +1,5 @@
 import { EventEmitter2 } from "eventemitter2";
+import { Node } from "../registry/node";
 import { Runtime } from "../runtime/Runtime";
 import { Service } from "../service/Service";
 import { ServiceSchema } from "../service/ServiceSchema";
@@ -193,7 +194,7 @@ const createBrokerInstance = (runtime: Runtime): Broker => {
   * @param {string} filename Path to the service file.
   * @returns {Service} Service
   */
-  broker.loadServiceFromFile = function (filename) {
+  broker.loadServiceFromFile = function (filename: string) {
     const filePath = path.resolve(filename);
     const schema = require(filePath);
     const service = broker.createService(schema);
@@ -205,18 +206,18 @@ const createBrokerInstance = (runtime: Runtime): Broker => {
     return service;
   };
 
-  broker.loadService = function (filename) {
-    broker.loadServiceFromFile(filename)
+  broker.loadService = function (filename: string): Service {
+    return broker.loadServiceFromFile(filename)
   };
 
-  broker.loadServices = function (folder = './services', fileMask = '*.service.js') {
-    const serviceFiles = glob.sync(path.join(folder, fileMask));
+  broker.loadServices = function (folder: string = './services', fileMask: string = '*.service.js'): Service[] {
+    const serviceFiles: string[] = glob.sync(path.join(folder, fileMask));
 
     log.info(`Searching services in folder '${folder}' with name pattern '${fileMask}'.`);
     log.info(`${serviceFiles.length} services found.`);
 
-    serviceFiles.forEach(fileName => broker.loadService(fileName));
-    return serviceFiles.length;
+    const services = serviceFiles.map((fileName) => broker.loadService(fileName));
+    return services;
   };
 
   /**
@@ -319,13 +320,7 @@ const createBrokerInstance = (runtime: Runtime): Broker => {
     process.removeListener('SIGTERM', onClose);
   };
 
-  /**
-   * Ping other nodes
-   * @param {string=} nodeId Node ID
-   * @param {number} timeout Timeout
-   * @returns {Object<string, number>} Result
-  */
-  broker.ping = function (nodeId, timeout = 3000) {
+  broker.ping = function (nodeId?: string, timeout: number = 3000): Promise<any> {
     if (transport && transport.isConnected) {
       if (nodeId) {
         return new Promise((resolve) => {
@@ -334,7 +329,7 @@ const createBrokerInstance = (runtime: Runtime): Broker => {
             return resolve(null);
           }, timeout);
 
-          const pongHandler = pong => {
+          const pongHandler = (pong) => {
             clearTimeout(timeoutTimer);
             bus.off('$node.pong', pongHandler);
             resolve(pong);
@@ -347,13 +342,13 @@ const createBrokerInstance = (runtime: Runtime): Broker => {
         // handle arrays
         const pongs = {};
 
-        const nodes = registry.nodeCollection.list({})
-          .filter(node => !node.isLocal)
+        const nodes: Node[] = registry.nodeCollection.list({})
+          .filter((node) => !node.isLocal)
           .map(node => node.id);
 
         const onFlight = new Set(nodes);
 
-        nodes.forEach(nodeId => {
+        nodes.forEach((nodeId) => {
           pongs[nodeId] = null;
         });
 
@@ -364,7 +359,7 @@ const createBrokerInstance = (runtime: Runtime): Broker => {
             resolve(pongs);
           }, timeout);
 
-          const pongHandler = pong => {
+          const pongHandler = (pong) => {
             pongs[pong.nodeId] = pong;
             onFlight.delete(pong.nodeId);
             if (onFlight.size === 0) {

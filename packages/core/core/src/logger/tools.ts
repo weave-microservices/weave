@@ -1,13 +1,16 @@
+import { LogMethodHook } from "./LoggerOptions";
+import { LoggerRuntime } from "./LoggerRuntime";
+
 const { format } = require('./utils/format');
 
-exports.noop = () => {};
+const noop = () => {};
 
-exports.generateLogMethod = (runtime, level, hook) => {
+const generateLogMethod = function (runtime: LoggerRuntime, level: number, hook: LogMethodHook) {
   if (!hook) {
     return log;
   }
 
-  return function hookWrappedLog (...args) {
+  return function hookWrappedLog (...args: any[]) {
     hook.call(runtime, args, log, level);
   };
 
@@ -28,6 +31,8 @@ exports.generateLogMethod = (runtime, level, hook) => {
   }
 };
 
-exports.coreFixtures = (object) => {
+const coreFixtures = function (object: any): any {
   return object;
 };
+
+export { noop, generateLogMethod, coreFixtures }

@@ -4,38 +4,21 @@
  * Copyright 2019 Fachwerk
  */
 
-const os = require('os');
+import { LoggerOptions } from "./LoggerOptions";
+import { LoggerRuntime } from "./LoggerRuntime";
+
+import os from 'os';
+import { Logger } from "./Logger";
 const { initBase } = require('./base');
 const { asJson, asHumanReadable } = require('./format/index');
 const { mappings } = require('./levels');
 const { coreFixtures } = require('./tools');
 
-const { pid } = process;
-const hostname = os.hostname();
+const createLogger = function (options: LoggerOptions): Logger {
 
-const defaultOptions = {
-  enabled: true,
-  level: 'info',
-  messageKey: 'message',
-  customLevels: null,
-  base: {
-    pid,
-    hostname
-  },
-  hooks: {
-    logMethod: undefined
-  },
-  formatter: {
-    messageFormat: false
-  },
-  destination: process.stdout
-};
+  const instance: Partial<Logger> = {};
 
-exports.createLogger = (options) => {
-  options = Object.assign(defaultOptions, options);
-
-  const instance = {};
-  const runtime = {
+  const runtime: LoggerRuntime = {
     options,
     logMethods: {},
     destination: options.destination,
@@ -76,3 +59,5 @@ exports.createLogger = (options) => {
 
   return instance;
 };
+
+export { createLogger }

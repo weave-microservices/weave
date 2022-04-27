@@ -1,3 +1,6 @@
+import { Runtime } from "../runtime/Runtime";
+import { Middleware } from "./Middleware";
+
 const Middlewares = require('../middlewares/index');
 
 /**
@@ -5,7 +8,7 @@ const Middlewares = require('../middlewares/index');
  * @param {Array<Object>} customMiddlewares Array of user defined middlewares
  * @returns {void}
 */
-const registerMiddlewares = (runtime, customMiddlewares) => {
+const registerMiddlewares = (runtime: Runtime, customMiddlewares: Array<Middleware>) => {
   const { middlewareHandler, options, validator, broker } = runtime;
 
   // Register custom middlewares

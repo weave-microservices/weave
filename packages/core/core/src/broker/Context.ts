@@ -1,4 +1,4 @@
-import { Runtime } from "..";
+import { Runtime } from "../runtime/Runtime";
 import { WeaveError, WeaveMaxCallLevelError } from "../errors";
 import { ContextMetadata } from "./ContextMetadata";
 import { ContextOptions } from "./ContextOptions";
@@ -24,7 +24,7 @@ type ActionPromise<ContextType> = Promise<unknown>  &{
   context: ContextType;
 } 
 
-export class BaseContext<T> implements Context<T> {
+export abstract class BaseContext<T> implements Context<T> {
   #runtime: Runtime;
   id: string;
   parentId?: string;
@@ -63,12 +63,11 @@ export class BaseContext<T> implements Context<T> {
     }
   }
 
-
   setData (newData: unknown) {
     this.data = newData || {};
   }
 
-  setStream (stream: ReadableStream|WritableStream): void {
+  setStream (stream: ReadableStream | WritableStream): void {
     if (!isStream(stream)) {
       throw new WeaveError('No valid stream.');
     } else {
@@ -89,11 +88,11 @@ export class BaseContext<T> implements Context<T> {
     return this.#runtime.eventBus.broadcast(eventName, payload, options);
   }
 
-  call (actionName:string, data: unknown, options: ContextOptions<ActionContext> = {}) {
+  call (actionName:string, data: unknown, options: ContextOptions<T> = {}) {
     const {maxCallLevel} =this.#runtime.options.registry
-    // Shoul we make a copy of the context?
-    options.parentContext = this;
 
+    options.parentContext = this as unknown as T;
+    
     if (maxCallLevel > 0 && this.level >= maxCallLevel) {
       return Promise.reject(
         new WeaveMaxCallLevelError({ nodeId: this.#runtime.nodeId, maxCallLevel: maxCallLevel })
@@ -102,7 +101,7 @@ export class BaseContext<T> implements Context<T> {
 
     const promise: ActionPromise = this.#runtime.actionInvoker.call(actionName, data, options);
 
-    return promise.then((result) => {
+    return promise.then((result: any) => {
       if (promise.context) {
         this.meta = Object.assign(this.meta, promise.context.meta);
       }

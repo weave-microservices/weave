@@ -1,7 +1,7 @@
 module.exports = {
   root: true,
   extends: [
-    'eslint-config-fw'
+    'eslint-config-es'
   ],
   parserOptions: {
     ecmaVersion: 2020

@@ -5,7 +5,7 @@
 */
 
 import { Broker } from "./broker/Broker";
-import { BrokerConfiguration } from "./broker/Options";
+import { BrokerConfiguration } from "./broker/BrokerConfiguration";
 
 const { getDefaultOptions } = require('./broker/defaultOptions');
 const { defaultsDeep } = require('@weave-js/utils');

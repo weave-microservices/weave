@@ -1,8 +1,16 @@
+import { LoggerRuntime } from "./LoggerRuntime";
+
 const { WeaveError } = require('../errors');
 const { isStandardLevel, levelMethods } = require('./levels');
 const { noop, generateLogMethod } = require('./tools');
 
-exports.initBase = (runtime) => {
+type LogObject = {
+  stack?: string;
+  type?: string;
+  [key: string]: any;
+}
+
+const initBase = function (runtime: LoggerRuntime) {
   runtime.setLevel = (level) => {
     const { labels, values } = runtime.levels;
 
@@ -32,11 +40,11 @@ exports.initBase = (runtime) => {
     }
   };
 
-  runtime.write = (originObject, message, number) => {
+  runtime.write = (originObject: object, message: string, number: number) => {
     const isErrorObject = originObject instanceof Error;
     const mixin = runtime.mixin;
     const time = Date.now();
-    let object;
+    let object: LogObject;
 
     if (originObject === undefined || originObject === null) {
       object = mixin ? mixin({}) : {};
@@ -61,3 +69,5 @@ exports.initBase = (runtime) => {
     runtime.destination.write(logString);
   };
 };
+
+export { initBase };
