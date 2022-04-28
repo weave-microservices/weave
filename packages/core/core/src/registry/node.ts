@@ -8,6 +8,7 @@ const { cpuUsage: getCpuUsage } = require('@weave-js/utils');
 
 class Node {
   id: string;
+  isLocal: boolean;
   isAvailable: boolean;
   services?: Array<any>;
   events?: Array<any>;
@@ -27,6 +28,7 @@ class Node {
   constructor (nodeId: string) {
     this.id = nodeId
     this.isAvailable = true;
+    this.isLocal = false;
   }
 
   update (payload: any, isReconnected: boolean = false): boolean {

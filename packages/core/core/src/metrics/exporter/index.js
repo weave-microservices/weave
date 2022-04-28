@@ -1,5 +1,5 @@
 const { isString, isFunction } = require('@weave-js/utils');
-const { WeaveBrokerOptionsError } = require('../../errors');
+const { WeaveBrokerOptionsError } = require('../../');
 
 const adapters = {
   Base: require('./base'),

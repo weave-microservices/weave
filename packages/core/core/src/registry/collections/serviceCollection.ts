@@ -1,14 +1,11 @@
 // @ts-check
 
+import { Registry } from "../Registry";
+
 /*
  * Author: Kevin Ries (kevin.ries@fachwerk.io)
  * -----
  * Copyright 2021 Fachwerk
-*/
-
-/**
- * @typedef {import('../../types').Registry} Registry
- * @typedef {import('../../types').ServiceCollection} ServiceCollection
 */
 
 // const { createEndpointCollection } = require('./endpoint-collection')
@@ -20,7 +17,7 @@ const { createServiceItem } = require('../serviceItem');
  * @param {Registry} registry Registry instance
  * @returns {ServiceCollection} Service collection
 */
-exports.createServiceCollection = (registry) => {
+exports.createServiceCollection = (registry: Registry) => {
   /** @type {ServiceCollection} */
   const serviceCollection = Object.create(null);
   const { runtime } = registry;

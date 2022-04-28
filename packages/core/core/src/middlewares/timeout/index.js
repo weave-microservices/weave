@@ -5,7 +5,7 @@
  */
 
 const { promiseTimeout } = require('@weave-js/utils');
-const { WeaveRequestTimeoutError } = require('../../errors');
+const { WeaveRequestTimeoutError } = require('../../');
 
 const wrapTimeoutMiddleware = function (handler) {
   const self = this;

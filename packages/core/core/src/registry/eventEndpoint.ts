@@ -4,7 +4,10 @@
  * Copyright 2021 Fachwerk
  */
 
-exports.createEventEndpoint = (broker, node, service, event) => {
+import { Service } from "../service/Service";
+import { Node } from "./Node";
+
+exports.createEventEndpoint = (broker, node: Node, service: Service, event) => {
   const eventEndpoint = Object.create(null);
 
   eventEndpoint.node = node;

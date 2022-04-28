@@ -1,4 +1,4 @@
-const { WeaveError } = require('../../errors');
+const { WeaveError } = require('../../');
 
 module.exports = (options) => {
   const cache = {};

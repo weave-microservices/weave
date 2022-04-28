@@ -4,10 +4,13 @@
  * Copyright 2021 Fachwerk
  */
 
+import { MiddlewareHandler } from "./middlewares/MiddlewareHandler";
 import { Runtime } from "./Runtime";
 
 exports.initMiddlewareHandler = (runtime: Runtime) => {
   const list = [];
+
+  runtime.middlewareHandler = new MiddlewareHandler(runtime)
 
   Object.defineProperty(runtime, 'middlewareHandler', {
     value: {

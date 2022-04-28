@@ -6,7 +6,7 @@
 
 import { Runtime } from "../runtime/Runtime";
 import { Service } from "../service/Service";
-import { Node } from "./node";
+import { Node } from "./Node";
 
 type Action = any;
 

@@ -6,7 +6,7 @@
 const crypto = require('crypto');
 const { isObject, isString } = require('@weave-js/utils');
 const Constants = require('../../metrics/constants');
-const { WeaveError } = require('../../errors');
+const { WeaveError } = require('../../');
 const { getCacheKeyByObject } = require('../getCacheKeyByObject');
 const { getPropertyFromDataOrMetadata } = require('../getPropertyFromDataOrMetadata');
 

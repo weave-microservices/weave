@@ -1,4 +1,4 @@
-const { WeaveGracefulStopTimeoutError } = require('../../errors');
+const { WeaveGracefulStopTimeoutError } = require('../../');
 
 module.exports = (runtime) => {
   function addContext (context) {

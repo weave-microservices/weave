@@ -7,7 +7,6 @@
 import { LoggerOptions } from "./LoggerOptions";
 import { LoggerRuntime } from "./LoggerRuntime";
 
-import os from 'os';
 import { Logger } from "./Logger";
 const { initBase } = require('./base');
 const { asJson, asHumanReadable } = require('./format/index');
@@ -15,7 +14,6 @@ const { mappings } = require('./levels');
 const { coreFixtures } = require('./tools');
 
 const createLogger = function (options: LoggerOptions): Logger {
-
   const instance: Partial<Logger> = {};
 
   const runtime: LoggerRuntime = {

@@ -4,7 +4,7 @@
  * Copyright 2021 Fachwerk
  */
 
-const { WeaveBrokerOptionsError } = require('../../errors');
+const { WeaveBrokerOptionsError } = require('../../');
 const fromURI = require('./fromURI');
 const getAdapterByName = require('./getAdapterByName');
 const adapters = require('./adapters');

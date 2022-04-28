@@ -10,10 +10,6 @@ import os from 'os';
 const { createInMemoryCache } = require('../cache/adapters/inMemory.js');
 const { loadBalancingStrategy } = require('../constants');
 
-/**
- * Returns the default options
- * @returns {BrokerConfiguration} Broker options
-*/
 const getDefaultConfiguration = function (): BrokerConfiguration {
   // default options
   return {
@@ -112,7 +108,9 @@ const getDefaultConfiguration = function (): BrokerConfiguration {
     validatorOptions: {
       strict: true,
       strictMode: 'remove' // 'error'
-    }
+    },
+    started: null,
+    waitForServiceInterval: 2000
   };
 };
 

@@ -2,7 +2,7 @@
 
 import { Runtime } from "../../runtime/Runtime";
 import { ActionEndpoint } from "../actionEndpoint";
-import { Node } from "../node";
+import { Node } from "../Node";
 
 /*
  * Author: Kevin Ries (kevin.ries@fachwerk.io)
@@ -13,15 +13,7 @@ import { Node } from "../node";
 const { createActionEndpoint, ActionEndpoint } = require('../actionEndpoint');
 const { loadBalancingStrategy } = require('../../constants');
 
-/**
- *
- * @param {Runtime} runtime Runtime instance
- * @param {string} name name
- * @param {string=} groupName Group name
- * @returns {EndpointCollection} EndpointCollection
- */
 exports.createEndpointList = (runtime: Runtime, name: string, groupName: string) => {
-  /** @type {EndpointCollection} */
   const endpointList = Object.create(null);
   const options = runtime.options;
   /** @type {Array} */
@@ -37,12 +29,7 @@ exports.createEndpointList = (runtime: Runtime, name: string, groupName: string)
   const setLocalEndpoints = () => {
     endpointList.localEndpoints = list.filter(endpoint => endpoint.isLocal);
   };
-
-  /**
-   * Select an Entpoint with the selected Load-Balancing-Strategy
-   * @param {*} endpointList List of all available Endpoints
-   * @returns {any} Endpoint
-  */
+  
   const select = (endpointList) => {
     // Round robin
     if (options.registry.loadBalancingStrategy === loadBalancingStrategy.ROUND_ROBIN) {

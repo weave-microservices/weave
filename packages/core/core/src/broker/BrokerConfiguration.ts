@@ -20,8 +20,8 @@ export interface BrokerConfiguration {
   retryPolicy?: RetryPolicyOptions;
   validateActionParams?: boolean;
   validatorOptions?: ValidatorOptions; // todo: rename to validator
-  waitForServiceInterval: number;
+  waitForServiceInterval?: number;
   uuidFactory?: (runtime: Runtime) => string;
-  started: (this: Broker) => void;
-  errorHandler?: () => void;
+  started?: (this: Broker) => void;
+  errorHandler?: (error: Error) => void;
 }

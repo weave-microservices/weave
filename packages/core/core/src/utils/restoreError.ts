@@ -1,6 +1,6 @@
-const errors = require('../errors');
+const errors = require('../');
 
-exports.restoreError = (error) => {
+exports.restoreError = (error: any): Error | null => {
   const ErrorClass = errors[error.name];
 
   if (ErrorClass) {
@@ -9,4 +9,6 @@ exports.restoreError = (error) => {
       return new ErrorClass(error.message, error.code, error.type, error.data);
     }
   }
+
+  return null
 };

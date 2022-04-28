@@ -4,7 +4,7 @@
  * Copyright 2021 Fachwerk
  */
 
-const { WeaveParameterValidationError } = require('../../errors');
+const { WeaveParameterValidationError } = require('../../');
 const { capitalize } = require('@weave-js/utils');
 
 /**

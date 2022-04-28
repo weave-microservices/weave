@@ -41,6 +41,7 @@ class ActionContext extends BaseContext<ActionContext> {
   action?: Action;
   span: Span;
   retryCount: number;
+
   /**
    * Create a new context object
   */

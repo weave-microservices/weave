@@ -8,6 +8,7 @@ const { createEventEndpoint } = require('../eventEndpoint');
 import { Runtime } from '../../runtime/Runtime';
 import { Service } from '../../service/Service';
 import { ServiceSchema } from '../../service/ServiceSchema';
+import { ServiceRegistrationItem } from './ServiceRegistrationItem';
 
 /**
  * Service factory
@@ -21,7 +22,7 @@ exports.createServiceFromSchema = (runtime: Runtime, serviceSchema: ServiceSchem
     runtime.handleError(new WeaveError('Schema is missing!'));
   }
 
-  const service: Service = Object.create(null);
+  const service: Partial<Service> = Object.create(null);
   
   // Set reference to the runtime.
   service.runtime = runtime;
@@ -31,7 +32,7 @@ exports.createServiceFromSchema = (runtime: Runtime, serviceSchema: ServiceSchem
 
   // Apply all mixins (including children)
   if (serviceSchema.mixins) {
-    serviceSchema = reduceMixins(service, serviceSchema);
+    serviceSchema = reduceMixins(service as Service, serviceSchema);
   }
 
   // Call "afterSchemasMerged" service lifecycle hook(s)
@@ -80,15 +81,7 @@ exports.createServiceFromSchema = (runtime: Runtime, serviceSchema: ServiceSchem
   service.events = {};
 
   // Create the service registry item
-  const serviceSpecification = {
-    name: service.name,
-    fullyQualifiedName: service.fullyQualifiedName,
-    settings: service.settings,
-    meta: service.meta,
-    version: service.version,
-    actions: {},
-    events: {}
-  };
+  const serviceSpecification = new ServiceRegistrationItem(service as Service);
 
   // Bind service methods to service
   if (serviceSchema.methods && isObject(serviceSchema.methods)) {
@@ -112,13 +105,13 @@ exports.createServiceFromSchema = (runtime: Runtime, serviceSchema: ServiceSchem
       // skip actions that are set to false
       if (actionDefinition === false) return;
 
-      const action = parseActionDefinition(runtime, service, clone(actionDefinition), actionName);
+      const action = parseActionDefinition(runtime, service as Service, clone(actionDefinition), actionName);
       serviceSpecification.actions[action.name] = action;
 
       const wrappedAction = runtime.middlewareHandler.wrapHandler('localAction', action.handler, action);
 
       // Make the action accessable via this.actions["actionName"]
-      service.actions[actionName] = (data, options) => {
+      service.actions![actionName] = (data, options) => {
         let context;
         // reuse context
         if (options && options.context) {

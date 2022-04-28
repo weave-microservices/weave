@@ -1,5 +1,5 @@
 class ExtendableError extends Error {
-  constructor (message = '') {
+  constructor (message: string = '') {
     super(message);
 
     Object.defineProperty(this, 'name', {
@@ -30,4 +30,4 @@ class ExtendableError extends Error {
   }
 }
 
-module.exports = { ExtendableError };
+export { ExtendableError };

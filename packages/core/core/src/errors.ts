@@ -4,21 +4,27 @@
  * Copyright 2021 Fachwerk
  */
 
-const { ExtendableError } = require('./ExtendableError');
+import { ExtendableError } from './ExtendableError';
+import { Service } from './service/Service';
 
 class WeaveError extends ExtendableError {
-  constructor (message, code, type, data) {
+  public code: number;
+  public type?: string; 
+  public data: unknown;
+  public retryable: boolean;
+
+  constructor (message: string, code?: number, type?: string, data?: unknown) {
     super(message);
     this.name = this.constructor.name;
     this.code = code || 500;
-    this.type = type;
+    this.type = type  || 'WEAVE_UNKNOWN_ERROR';
     this.data = data;
     this.retryable = false;
   }
 }
 
 class WeaveRetryableError extends WeaveError {
-  constructor (message, code, type, data) {
+  constructor (message: string, code: number, type: string, data: unknown) {
     super(message);
     this.code = code || 500;
     this.type = type;
@@ -28,7 +34,7 @@ class WeaveRetryableError extends WeaveError {
 }
 
 class WeaveServiceNotFoundError extends WeaveRetryableError {
-  constructor (data = {}) {
+  constructor (data: any = {}) {
     let message;
 
     if (data.actionName && data.nodeId) {
@@ -44,7 +50,7 @@ class WeaveServiceNotFoundError extends WeaveRetryableError {
 }
 
 class WeaveServiceNotAvailableError extends WeaveRetryableError {
-  constructor (data = {}) {
+  constructor (data:any = {}) {
     let message;
     if (data.nodeId) {
       message = `Service "${data.actionName}" not available on node "${data.nodeId}".`;
@@ -59,43 +65,42 @@ class WeaveServiceNotAvailableError extends WeaveRetryableError {
 }
 
 class WeaveRequestTimeoutError extends WeaveRetryableError {
-  constructor (actionName, nodeId, timeout) {
+  constructor (actionName: string, nodeId: string, timeout: number) {
     const message = `Action ${actionName} timed out node ${nodeId || '<local>'}.`;
     super(message, 504, 'WEAVE_REQUEST_TIMEOUT_ERROR', {
       actionName,
       nodeId,
       timeout
     });
-    this.retryable = true;
   }
 }
 
 class WeaveParameterValidationError extends WeaveError {
-  constructor (message, data) {
+  constructor (message: string, data: any) {
     super(message, 422, 'WEAVE_PARAMETER_VALIDATION_ERROR', data);
   }
 }
 
 class WeaveBrokerOptionsError extends WeaveError {
-  constructor (message, data) {
+  constructor (message: string, data: any) {
     super(message, 500, 'WEAVE_BROKER_OPTIONS_ERROR', data);
   }
 }
 
 class WeaveQueueSizeExceededError extends WeaveError {
-  constructor (data) {
+  constructor (data: any) {
     super('Queue size limit was exceeded. Request rejected.', 429, 'WEAVE_QUEUE_SIZE_EXCEEDED_ERROR', data);
   }
 }
 
 class WeaveMaxCallLevelError extends WeaveError {
-  constructor (data) {
+  constructor (data: any) {
     super(`Request level has reached the limit (${data.maxCallLevel}) on node "${data.nodeId}".`, 500, 'WEAVE_MAX_CALL_LEVEL_ERROR', data);
   }
 }
 
 class WeaveGracefulStopTimeoutError extends WeaveError {
-  constructor (service) {
+  constructor (service: Service) {
     super(`Unable to stop service "${service.name}"`, 500, 'GRACEFUL_STOP_TIMEOUT', {
       name: service.name,
       version: service.version
@@ -103,7 +108,7 @@ class WeaveGracefulStopTimeoutError extends WeaveError {
   }
 }
 
-const restoreError = error => {
+const restoreError = (error: any) => {
   const ErrorClass = module.exports[error.name];
 
   if (ErrorClass) {
@@ -116,7 +121,7 @@ const restoreError = error => {
   }
 };
 
-module.exports = {
+export {
   WeaveBrokerOptionsError,
   WeaveMaxCallLevelError,
   WeaveError,

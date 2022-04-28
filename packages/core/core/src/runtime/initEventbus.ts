@@ -1,7 +1,7 @@
 import { Runtime } from "./Runtime";
 
 exports.initEventbus = (runtime: Runtime) => {
-  const { options: brokerOptions, bus, registry, contextFactory } = runtime;
+  const { options: brokerOptions, bus, registry, contextFactory, middlewareHandler } = runtime;
 
   /**
    * Emit a event on all services (grouped and load balanced).
@@ -10,7 +10,9 @@ exports.initEventbus = (runtime: Runtime) => {
    * @param {*} [options=null] - Groups
    * @returns {Promise<any>} - Result
   */
-  const emit = (eventName: string, payload: unknown, options: any) => {
+   runtime.eventBus.emit = middlewareHandler.wrapMethod('emit', runtime.eventBus.emit);
+
+  const emit = middlewareHandler.wrapMethod('emit', (eventName: string, payload: unknown, options: any) => {
     if (Array.isArray(options)) {
       options = { groups: options };
     } else if (options == null) {
@@ -65,7 +67,7 @@ exports.initEventbus = (runtime: Runtime) => {
     }
 
     return Promise.all(promises);
-  };
+  });
 
   /**
   * Send a broadcasted event to all local services.

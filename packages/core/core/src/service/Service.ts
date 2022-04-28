@@ -13,7 +13,7 @@ export type Service = {
   mixins?: string[];
   fullyQualifiedName: string;
   meta: any;
-  settings?: ServiceSettings,
+  settings: ServiceSettings,
   schema: ServiceSchema,
   actions: {
     [actionName: string]: (...args: any[]) => any;

@@ -1,5 +1,5 @@
 import { EventEmitter2 } from "eventemitter2";
-import { Node } from "../registry/node";
+import { Node } from "../registry/Node";
 import { Runtime } from "../runtime/Runtime";
 import { Service } from "../service/Service";
 import { ServiceSchema } from "../service/ServiceSchema";

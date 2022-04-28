@@ -1,5 +1,5 @@
 import { Runtime } from "../runtime/Runtime";
-import { WeaveError, WeaveMaxCallLevelError } from "../errors";
+import { WeaveError, WeaveMaxCallLevelError } from "../";
 import { ContextMetadata } from "./ContextMetadata";
 import { ContextOptions } from "./ContextOptions";
 const { uuid, isFunction, isStream, isStreamObjectMode } = require('@weave-js/utils');

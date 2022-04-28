@@ -6,13 +6,8 @@
  * Copyright 2021 Fachwerk
  */
 
-/**
- * @typedef {import('../../types.js').Registry} Registry
- * @typedef {import('../../types.js').NodeCollection} NodeCollection
-*/
-
 const { getIpList, omit } = require('@weave-js/utils');
-const { createNode } = require('../node');
+const { createNode } = require('../Node');
 /**
  * Create node collection
  * @param {Registry} registry Registry reference

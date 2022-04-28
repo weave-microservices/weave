@@ -5,6 +5,8 @@
  */
 'use strict';
 
+import { Node } from "./Node";
+
 /**
  * @typedef {import("../types").ServiceItem} ServiceItem
  * @typedef {import("../types").Node} Node
@@ -19,7 +21,7 @@
  * @param {boolean} isLocal Is local node
  * @returns {ServiceItem} Node instance
 */
-exports.createServiceItem = (node, name, version, settings, isLocal) => {
+exports.createServiceItem = (node: Node, name: string, version: number, settings: unknown, isLocal: boolean) => {
   /**
    * @type {ServiceItem}
   */
