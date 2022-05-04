@@ -1,5 +1,7 @@
 // @ts-check
 
+import { Runtime } from "../../runtime/Runtime";
+
 /*
  * Author: Kevin Ries (kevin.ries@fachwerk.io)
  * -----
@@ -7,42 +9,43 @@
  */
 
 const { getIpList, omit } = require('@weave-js/utils');
-const { createNode } = require('../Node');
-/**
- * Create node collection
- * @param {Registry} registry Registry reference
- * @return {NodeCollection} Node collection
- */
-exports.createNodeCollection = (registry) => {
-  const nodeCollection = Object.create(null);
-  const { runtime } = registry;
-  const nodes = new Map();
+import { Node } from '../Node'
 
-  nodeCollection.localNode = null;
+class NodeCollection {
+  #nodes: Map<string, Node>;
+  localNode?: Node;
 
-  nodeCollection.createNode = (nodeId) => {
-    return createNode(nodeId);
+  constructor (runtime: Runtime) {
+    this.#nodes = new Map();
+  }
+
+  createNode (nodeId: string): Node {
+    return new Node(nodeId);
   };
 
-  nodeCollection.add = (id, node) => {
-    nodes.set(id, node);
+  add (id: string, node: Node) {
+    this.#nodes.set(id, node);
   };
 
-  nodeCollection.has = (id) => {
-    return nodes.has(id);
+  has (id: string): boolean {
+    return this.#nodes.has(id);
   };
 
-  nodeCollection.get = (id) => {
-    return nodes.get(id);
+  get (id: string): Node | undefined {
+    return this.#nodes.get(id);
   };
 
-  nodeCollection.remove = (id) => {
-    return nodes.delete(id);
+  remove (id: string): boolean {
+    return this.#nodes.delete(id);
   };
 
-  nodeCollection.list = ({ withServices = true } = {}) => {
+  list ({
+    withServices = true
+  }: {
+    withServices?: boolean
+  } = {}) {
     const result = [];
-    nodes.forEach(node => {
+    this.#nodes.forEach((node) => {
       if (withServices) {
         result.push(omit(node, ['info']));
       } else {
@@ -52,8 +55,9 @@ exports.createNodeCollection = (registry) => {
     return result;
   };
 
-  nodeCollection.disconnected = (nodeId, isUnexpected) => {
-    const node = nodes.get(nodeId);
+  // todo: Move!!!
+  disconnected (nodeId: string, isUnexpected: boolean) {
+    const node = this.#nodes.get(nodeId);
     if (node && node.isAvailable) {
       registry.deregisterServiceByNodeId(node.id);
       node.disconnected(isUnexpected);
@@ -62,32 +66,90 @@ exports.createNodeCollection = (registry) => {
     }
   };
 
-  nodeCollection.toArray = () => {
-    const result = [];
-    nodes.forEach(node => result.push(node));
+  toArray () {
+    const result: Array<Node> = [];
+    this.#nodes.forEach((node) => result.push(node));
     return result;
   };
+}
 
-  // get Local node information and add it to the collection by
-  const addLocalNode = () => {
-    const node = createNode(runtime.options.nodeId);
+export { NodeCollection }
 
-    node.isLocal = true;
-    node.IPList = getIpList();
-    node.client = {
-      type: 'nodejs',
-      version: runtime.version,
-      langVersion: process.version
-    };
+// exports.createNodeCollection = (registry) => {
+//   const nodeCollection = Object.create(null);
+//   const { runtime } = registry;
+//   const nodes = new Map();
 
-    node.sequence = 1;
-    nodeCollection.add(node.id, node);
-    nodeCollection.localNode = node;
+//   nodeCollection.localNode = null;
 
-    return node;
-  };
+//   nodeCollection.createNode = (nodeId) => {
+//     return createNode(nodeId);
+//   };
 
-  addLocalNode();
+//   nodeCollection.add = (id, node) => {
+//     nodes.set(id, node);
+//   };
 
-  return nodeCollection;
-};
+//   nodeCollection.has = (id) => {
+//     return nodes.has(id);
+//   };
+
+//   nodeCollection.get = (id) => {
+//     return nodes.get(id);
+//   };
+
+//   nodeCollection.remove = (id) => {
+//     return nodes.delete(id);
+//   };
+
+//   nodeCollection.list = ({ withServices = true } = {}) => {
+//     const result = [];
+//     nodes.forEach(node => {
+//       if (withServices) {
+//         result.push(omit(node, ['info']));
+//       } else {
+//         result.push(omit(node, ['info', 'services']));
+//       }
+//     });
+//     return result;
+//   };
+
+//   nodeCollection.disconnected = (nodeId, isUnexpected) => {
+//     const node = nodes.get(nodeId);
+//     if (node && node.isAvailable) {
+//       registry.deregisterServiceByNodeId(node.id);
+//       node.disconnected(isUnexpected);
+//       runtime.eventBus.broadcastLocal('$node.disconnected', nodeId, isUnexpected);
+//       registry.log.warn(`Node '${node.id}'${isUnexpected ? ' unexpectedly' : ''} disconnected.`);
+//     }
+//   };
+
+//   nodeCollection.toArray = () => {
+//     const result = [];
+//     nodes.forEach(node => result.push(node));
+//     return result;
+//   };
+
+//   // get Local node information and add it to the collection by
+//   const addLocalNode = () => {
+//     const node = createNode(runtime.options.nodeId);
+
+//     node.isLocal = true;
+//     node.IPList = getIpList();
+//     node.client = {
+//       type: 'nodejs',
+//       version: runtime.version,
+//       langVersion: process.version
+//     };
+
+//     node.sequence = 1;
+//     nodeCollection.add(node.id, node);
+//     nodeCollection.localNode = node;
+
+//     return node;
+//   };
+
+//   addLocalNode();
+
+//   return nodeCollection;
+// };

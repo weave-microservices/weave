@@ -1,0 +1,1 @@
+export type MiddlewareMethod = 'call' | 'multiCall' | 'localAction' | 'remoteAction'

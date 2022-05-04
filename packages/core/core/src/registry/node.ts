@@ -13,8 +13,9 @@ class Node {
   services?: Array<any>;
   events?: Array<any>;
   weaveClient?: {
-    id: string;
-    name: string;
+    type: string;
+    version: string;
+    langVersion: string;
   }
   IPList?: Array<string>;
   info?: any;

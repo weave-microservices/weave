@@ -1,3 +1,6 @@
+import { Service } from "../service/Service";
+import { ServiceSchema } from "../service/ServiceSchema";
+
 const {
   clone,
   compact,
@@ -8,19 +11,19 @@ const {
   wrapInArray
 } = require('@weave-js/utils');
 
-function mergeSettings (source, targetSchema) {
+function mergeSettings (source: any, targetSchema: any) {
   return defaultsDeep(source, targetSchema);
 }
 
-function mergeMeta (source, targetSchema) {
+function mergeMeta (source: any, targetSchema: any) {
   return defaultsDeep(source, targetSchema);
 }
 
-function mergeUniqueArrays (source, targetSchema) {
+function mergeUniqueArrays (source: any, targetSchema: any) {
   return compact(flatten([targetSchema, source]));
 }
 
-function mergeActions (source, targetSchema) {
+function mergeActions (source: any, targetSchema: any) {
   Object.keys(source).map(key => {
     // prevent action merge
     if (source[key] === false && targetSchema[key]) {
@@ -38,7 +41,7 @@ function mergeActions (source, targetSchema) {
 }
 
 // Merge events
-function mergeEvents (source, targetSchema) {
+function mergeEvents (source: any, targetSchema: any) {
   Object.keys(source).map(key => {
     const sourceEvent = wrapHandler(source[key]);
     const targetEvent = wrapHandler(targetSchema[key]);
@@ -54,11 +57,11 @@ function mergeEvents (source, targetSchema) {
   return targetSchema;
 }
 
-function mergeMethods (source, targetSchema) {
+function mergeMethods (source: any, targetSchema: any) {
   return Object.assign(source, targetSchema);
 }
 
-function mergeActionHooks (source, target) {
+function mergeActionHooks (source: any, target: any) {
   Object.keys(source).map(hookName => {
     if (!target[hookName]) {
       target[hookName] = {};
@@ -74,18 +77,18 @@ function mergeActionHooks (source, target) {
   return target;
 }
 
-function mergeLifecicleHooks (source, targetSchema) {
+function mergeLifecycleHooks (source: Function, targetSchema: Function) {
   return compact(flatten([targetSchema, source]));
 }
 
-function mergeSchemas (mixin, targetSchema) {
-  const mixinSchema = clone(mixin);
-  const resultSchema = clone(targetSchema);
+function mergeSchemas (mixin: Service, targetSchema: ServiceSchema) {
+  const mixinSchema: Service = clone(mixin);
+  const resultSchema: ServiceSchema = clone(targetSchema);
 
   Object.keys(resultSchema).forEach(key => {
     if (['name', 'version'].includes(key)) {
       // override value
-      mixinSchema[key] = resultSchema[key];
+      mixinSchema[key] = resultSchema[key as keyof typeof resultSchema];
     } else if (key === 'dependencies') {
       mixinSchema[key] = mergeUniqueArrays(resultSchema[key], mixinSchema[key]);
     } else if (key === 'mixins') {
@@ -97,20 +100,20 @@ function mergeSchemas (mixin, targetSchema) {
     } else if (key === 'actions') {
       mixinSchema[key] = mergeActions(resultSchema[key], mixinSchema[key] || {});
     } else if (key === 'hooks') {
-      mixinSchema[key] = mergeActionHooks(resultSchema[key], mixinSchema[key] || {});
+      mixinSchema[key] = mergeActionHooks(resultSchema[key as keyof typeof resultSchema], mixinSchema[key] || {});
     } else if (key === 'events') {
       mixinSchema[key] = mergeEvents(resultSchema[key], mixinSchema[key] || {});
     } else if (key === 'methods') {
       mixinSchema[key] = mergeMethods(resultSchema[key], mixinSchema[key] || {});
     } else if (['afterSchemasMerged', 'created', 'started', 'stopped'].includes(key)) {
-      mixinSchema[key] = mergeLifecicleHooks(resultSchema[key], mixinSchema[key]);
+      mixinSchema[key] = mergeLifecycleHooks(resultSchema[key as keyof typeof resultSchema], mixinSchema[key]);
     } else {
       // default action for properties
-      mixinSchema[key] = resultSchema[key];
+      mixinSchema[key] = resultSchema[key as keyof typeof resultSchema];
     }
   });
 
   return mixinSchema;
 }
 
-module.exports = { mergeSchemas };
+export { mergeSchemas };

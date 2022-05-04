@@ -2,10 +2,12 @@ import { Broker } from "./broker/Broker";
 import { BrokerConfiguration } from "./broker/BrokerConfiguration";
 
 import { getDefaultConfiguration } from './broker/defaultOptions';
-import { Runtime } from './runtime/buildRuntime';
+import { DependencyInjectionContainer } from "./injector/DependencyInjectionContainer";
+import { Runtime } from './runtime/Runtime';
 const { defaultsDeep } = require('@weave-js/utils');
 
-exports.defaultOptions = exports.defaultConfiguration = getDefaultConfiguration();
+export const defaultConfiguration = getDefaultConfiguration();
+export const defaultOptions = defaultConfiguration
 
 export function createBroker (options: BrokerConfiguration): Broker {
   // get default options
@@ -15,10 +17,14 @@ export function createBroker (options: BrokerConfiguration): Broker {
   options = defaultsDeep(options, defaultOptions);
 
   // Init runtime
-  const runtime = new Runtime(options);
-
+  // const runtime = new Runtime(options);
+  const container = new DependencyInjectionContainer()
+  
   // Create broker instance
-  return new Broker(runtime);
+  return new Broker({
+    options,
+    container
+  });
 };
 
 /**
@@ -26,25 +32,25 @@ export function createBroker (options: BrokerConfiguration): Broker {
  * @param {import('./types.js').BrokerOptions} options Broker options.
  * @returns {import('./types.js').Broker} Broker instance
 */
-exports.Weave = exports.createBroker;
+// exports.Weave = exports.createBroker;
 
-// Errors
-exports.Errors = require('./errors');
+// // Errors
+// exports.Errors = require('./errors');
 
-exports.Constants = require('./constants');
+// exports.Constants = require('./constants');
 
-// Caching
-exports.Cache = require('./cache/adapters/index');
+// // Caching
+// exports.Cache = require('./cache/adapters/index');
 
 /**
  * @deprecated since version 0.10.0
 */
-exports.createBaseTracingCollector = require('./tracing/collectors/base').createBaseTracingCollector;
-exports.TransportAdapters = require('./transport/adapters/index');
-exports.TracingAdapters = require('./tracing/collectors/index');
-exports.CacheAdapters = require('./cache/adapters/index');
+// exports.createBaseTracingCollector = require('./tracing/collectors/base').createBaseTracingCollector;
+// exports.TransportAdapters = require('./transport/adapters/index');
+// exports.TracingAdapters = require('./tracing/collectors/index');
+// exports.CacheAdapters = require('./cache/adapters/index');
 
-// Helper
-exports.defineBrokerOptions = require('./helper/defineBrokerOptions');
-exports.defineService = require('./helper/defineService');
-exports.defineAction = require('./helper/defineAction');
+// // Helper
+// exports.defineBrokerOptions = require('./helper/defineBrokerOptions');
+// exports.defineService = require('./helper/defineService');
+// exports.defineAction = require('./helper/defineAction');

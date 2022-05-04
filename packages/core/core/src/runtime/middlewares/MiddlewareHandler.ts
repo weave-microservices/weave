@@ -1,5 +1,6 @@
 import { Middleware } from "../../broker/Middleware";
 import { Runtime } from "../Runtime";
+import { MiddlewareMethod } from "./MiddlewareMethod";
 
 class MiddlewareHandler {
   #runtime: Runtime;
@@ -14,13 +15,13 @@ class MiddlewareHandler {
     return this.#list.length;
   }
   
-  public add (middleware: Middleware) {
+  public add (middleware: Middleware | Function) {
     if (!middleware) {
       return;
     }
 
     if (typeof middleware === 'function') {
-      middleware = middleware.call(this.#runtime, this.#runtime);
+      middleware = middleware.call(this.#runtime, this.#runtime) as Middleware;
     }
 
     this.#list.push(middleware);
@@ -28,19 +29,19 @@ class MiddlewareHandler {
 
   public wrapMethod (methodName: string, handler: Function, bindTo: unknown = this.#runtime) {
     if (this.#list.length) {
-      const middlewareList = this.#list.filter(middleware => !!middleware[methodName]);
+      const middlewareList = this.#list.filter(middleware => !!middleware[methodName as keyof typeof middleware]);
       if (middlewareList.length) {
-        handler = middlewareList.reduce((next, middleware) => middleware[methodName].call(runtime, next), handler.bind(bindTo));
+        handler = middlewareList.reduce((next, middleware) => middleware[methodName as keyof typeof middleware].call(runtime, next), handler.bind(bindTo));
       }
     }
     return handler;
   }
 
-  public wrapHandler (methodName: string, handler, definition) {
+  public wrapHandler (methodName: string, handler: Function, definition: object) {
     if (this.#list.length) {
       handler = this.#list.reduce((handler, middleware) => {
-        if (typeof middleware[methodName] === 'function') {
-          return middleware[methodName].call(runtime, handler, definition);
+        if (typeof middleware[methodName as keyof typeof middleware] === 'function') {
+          return middleware[methodName as keyof typeof middleware].call(runtime, handler, definition) as Function;
         } else {
           return handler;
         }
@@ -49,26 +50,28 @@ class MiddlewareHandler {
     return handler;
   }
 
-  public callHandlersAsync (methodName: string, args, reverse = false) {
-    const middlewareList = reverse ? Array.from(this.#list).reverse() : this.#list;
+  public callHandlersAsync (methodName: string, args: Array<any>, reverse: boolean = false): Promise<any> {
+    const middlewareList: Array<Middleware> = reverse ? Array.from(this.#list).reverse() : this.#list;
     const momentousHandlers = middlewareList
-      .filter(middleware => typeof middleware[methodName] === 'function')
-      .map(middleware => middleware[methodName]);
+      .filter(middleware => typeof middleware[methodName as keyof typeof middleware] === 'function')
+      .map(middleware => middleware[methodName as keyof typeof middleware]);
 
     if (momentousHandlers.length) {
-      return momentousHandlers.reduce((p, func) => p.then(() => func.apply(runtime, args)), Promise.resolve());
+      return momentousHandlers.reduce((p, func) => {
+        return p.then(() => func.apply(this.#runtime, args)) as Promise<any>
+      }, Promise.resolve());
     }
 
     return Promise.resolve();
   }
 
-  public callHandlersSync (methodName: string, args, reverse = false) {
+  public callHandlersSync (methodName: string, args: Array<any>, reverse = false) {
     if (this.#list.length) {
       const middlewareList = reverse ? Array.from(this.#list).reverse() : this.#list;
 
       middlewareList
-        .filter(middleware => typeof middleware[methodName] === 'function')
-        .map(middleware => middleware[methodName])
+        .filter(middleware => typeof middleware[methodName as keyof typeof middleware] === 'function')
+        .map(middleware => middleware[methodName as keyof typeof middleware])
         .forEach(handler => handler.apply(this.#runtime, args));
     }
   }

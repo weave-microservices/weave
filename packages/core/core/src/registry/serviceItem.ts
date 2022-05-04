@@ -7,50 +7,77 @@
 
 import { Node } from "./Node";
 
-/**
- * @typedef {import("../types").ServiceItem} ServiceItem
- * @typedef {import("../types").Node} Node
-*/
+class ServiceItem {
+  public name: string;
+  public node: Node;
+  public settings: unknown;
+  public version: number;
+  public actions: Record<string, any>;
+  public events: Record<string, any>;
+  public isLocal: boolean;
 
-/**
- * Service item factory
- * @param {Node} node Node
- * @param {string} name Service name
- * @param {number} version Service version
- * @param {object} settings version
- * @param {boolean} isLocal Is local node
- * @returns {ServiceItem} Node instance
-*/
-exports.createServiceItem = (node: Node, name: string, version: number, settings: unknown, isLocal: boolean) => {
-  /**
-   * @type {ServiceItem}
-  */
-  const serviceItem = Object.create(null);
+  constructor (node: Node, name: string, version: number, settings: unknown, isLocal: boolean) {
+    this.name = name;
+    this.node = node;
+    this.settings = settings;
+    this.version = version;
+    this.isLocal = isLocal;
+    this.actions = {}
+    this.events = {}
+  }
 
-  serviceItem.name = name;
-  serviceItem.node = node;
-  serviceItem.settings = settings || {};
-  serviceItem.version = version;
-  serviceItem.actions = {};
-  serviceItem.events = {};
-  serviceItem.isLocal = isLocal;
-
-  serviceItem.addAction = (action) => {
-    serviceItem.actions[action.name] = action;
+  addAction (action: any) {
+    this.actions[action.name] = action;
   };
 
-  serviceItem.addEvent = (event) => {
-    serviceItem.events[event.name] = event;
+  addEvent (event: any) {
+    this.events[event.name] = event;
   };
 
-  serviceItem.equals = (name, version, nodeId) => {
-    return serviceItem.name === name && serviceItem.version === version && (nodeId == null || serviceItem.node.id === nodeId);
+  equals (name: string, version: number | undefined, nodeId: string) {
+    return this.name === name &&
+      this.version === version &&
+      (nodeId == null || this.node.id === nodeId);
   };
 
-  serviceItem.update = (service) => {
-    serviceItem.settings = service.settings;
-    serviceItem.version = service.version;
+  update (service: any) {
+    this.settings = service.settings;
+    this.version = service.version;
   };
+}
 
-  return serviceItem;
-};
+export { ServiceItem };
+
+// exports.createServiceItem = () => {
+//   /**
+//    * @type {ServiceItem}
+//   */
+//   const serviceItem = Object.create(null);
+
+//   serviceItem.name = name;
+//   serviceItem.node = node;
+//   serviceItem.settings = settings || {};
+//   serviceItem.version = version;
+//   serviceItem.actions = {};
+//   serviceItem.events = {};
+//   serviceItem.isLocal = isLocal;
+
+//   serviceItem.addAction = (action) => {
+//     serviceItem.actions[action.name] = action;
+//   };
+
+//   serviceItem.addEvent = (event) => {
+//     serviceItem.events[event.name] = event;
+//   };
+
+//   serviceItem.equals = (name, version, nodeId) => {
+//     return serviceItem.name === name && serviceItem.version === version && (nodeId == null || serviceItem.node.id === nodeId);
+//   };
+
+//   serviceItem.update = (service) => {
+//     serviceItem.settings = service.settings;
+//     serviceItem.version = service.version;
+//   };
+
+//   return serviceItem;
+// };

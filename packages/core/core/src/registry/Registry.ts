@@ -24,6 +24,7 @@ const { createActionCollection } = require('./collections/actionCollection');
 const { createEventCollection } = require('./collections/eventCollection');
 const { createActionEndpoint } = require('./actionEndpoint');
 const { WeaveServiceNotFoundError, WeaveServiceNotAvailableError } = require('../errors');
+const { getIpList } = require('@weave-js/utils');
 
 class Registry {
   #runtime: Runtime;
@@ -39,9 +40,24 @@ class Registry {
     this.log = runtime.createLogger('REGISTRY')
 
     this.nodeCollection = createNodeCollection({ runtime, registry: this });
-    this.serviceCollection = createServiceCollection({ runtime, registry: this });
+    this.serviceCollection = new ServiceCollection(runtime);// createServiceCollection({ runtime, registry: this });
     this.actionCollection = createActionCollection({ runtime, registry: this });
     this.eventCollection = createEventCollection({ runtime, registry: this });
+
+    // todo: find a better pplace
+    const node = new Node(runtime.options.nodeId);
+
+    node.isLocal = true;
+    node.IPList = getIpList();
+    node.weaveClient = {
+      type: 'nodejs',
+      version: runtime.version,
+      langVersion: process.version
+    };
+
+    node.sequence = 1;
+    this.nodeCollection.add(node.id, node);
+    this.nodeCollection.localNode = node;
 
     this.#runtime.bus.on('$broker.started', () => {
       if (this.nodeCollection.localNode) {
@@ -146,6 +162,7 @@ class Registry {
     }
   }
 
+  // todo: Move
   public checkActionVisibility (action: any, node: Node) {
     if (
       typeof action.visibility === 'undefined' ||
@@ -163,6 +180,7 @@ class Registry {
     return false;
   }
 
+  // todo: move?!
   public generateLocalNodeInfo (incrementSequence: boolean = false) {
     const { client, IPList, sequence } = this.nodeCollection.localNode;
     const nodeInfo = {
