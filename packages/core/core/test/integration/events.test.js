@@ -52,6 +52,10 @@ const OtherService = {
   events: {
     'other.thing' () {
       flow.push(`${this.broker.nodeId}-${this.name}-other.thing`);
+    },
+    'failed-event' () {
+      flow.push(`${this.broker.nodeId}-${this.name}-failed-event`);
+      throw new Error('This is a failed event');
     }
   }
 };
@@ -404,5 +408,21 @@ describe('Event acknowledgement', () => {
 
   it('', () => {
     node1.emit('user-created', null, { ack: true });
+  });
+});
+
+describe('Event error handling', () => {
+  const nodes = createNodes(['test-event-error-handling']);
+
+  beforeAll(() => Promise.all(nodes.map(node => node.start())));
+  afterAll(() => Promise.all(nodes.map(node => node.stop())));
+
+  it('should throw an error', async () => {
+    const node = nodes[0];
+    try {
+      await node.emit('failed-event');
+    } catch (error) {
+      expect(error.message).toBe('This is a failed event');
+    }
   });
 });

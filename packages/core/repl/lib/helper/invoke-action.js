@@ -3,7 +3,6 @@ const fs = require('fs');
 const cliUI = require('../utils/cli-ui');
 const convertArgs = require('../utils/convert-args');
 const { safeCopy, isStream, isObject, timespanFromUnixTimes } = require('@weave-js/utils');
-
 const util = require('util');
 
 function handleResult (result, args, startTime) {
