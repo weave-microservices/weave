@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/lock-service",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "description": "Distributed Lock service for weave.js",
   "main": "./lib/lock-service.js",
   "scripts": {
@@ -25,11 +25,11 @@
   "license": "MIT",
   "dependencies": {
     "@weave-js/lock-store": "^0.2.0",
-    "@weave-js/utils": "^0.11.0"
+    "@weave-js/utils": "^0.11.1"
   },
   "devDependencies": {
     "@sinonjs/fake-timers": "^8.1.0",
-    "@weave-js/core": "^0.12.0"
+    "@weave-js/core": "^0.12.1"
   },
   "directories": {
     "lib": "lib",

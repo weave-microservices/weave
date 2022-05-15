@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/redis-cache",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "description": "Weave redis transport adapter module",
   "main": "lib/index.js",
   "scripts": {
@@ -23,7 +23,7 @@
     "@weave-js/core": ">=0.9.0"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.12.0"
+    "@weave-js/core": "^0.12.1"
   },
   "jest": {
     "testEnvironment": "node",
@@ -33,7 +33,7 @@
     ]
   },
   "dependencies": {
-    "@weave-js/utils": "^0.11.0",
+    "@weave-js/utils": "^0.11.1",
     "ioredis": "^4.28.5"
   },
   "gitHead": "84fd5e4af3af96e8c004bcfba40bb3cb35f23fa7"
