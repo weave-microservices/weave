@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.1](https://github.com/weave-microservices/weave/compare/@weave-js/repl@0.12.0...@weave-js/repl@0.12.1) (2022-05-15)
+
+**Note:** Version bump only for package @weave-js/repl
+
+
+
+
+
+# [0.12.0](https://github.com/weave-microservices/weave/compare/@weave-js/repl@0.11.1...@weave-js/repl@0.12.0) (2022-03-30)
+
+
+### Features
+
+* added alias 'close' for exit REPL ([187c223](https://github.com/weave-microservices/weave/commit/187c2231af4c2bb38b5a43735864fb5c91e64e2b))
+
+
+
+
+
 ## [0.11.1](https://github.com/weave-microservices/weave/compare/@weave-js/repl@0.11.0...@weave-js/repl@0.11.1) (2022-03-07)
 
 **Note:** Version bump only for package @weave-js/repl

@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/nats-transport",
-  "version": "0.11.1",
+  "version": "0.12.1",
   "description": "Weave NATS transport adapter",
   "main": "lib/index.js",
   "scripts": {
@@ -23,11 +23,11 @@
     "@weave-js/core": ">=0.9.0"
   },
   "dependencies": {
-    "@weave-js/utils": "^0.10.1",
+    "@weave-js/utils": "^0.11.1",
     "nats": "^1.4.12"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.11.1"
+    "@weave-js/core": "^0.12.1"
   },
   "jest": {
     "testEnvironment": "node",

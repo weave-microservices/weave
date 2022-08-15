@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.1](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.12.0...@weave-js/core@0.12.1) (2022-05-15)
+
+**Note:** Version bump only for package @weave-js/core
+
+
+
+
+
+# [0.12.0](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.11.1...@weave-js/core@0.12.0) (2022-03-30)
+
+
+### Bug Fixes
+
+* Fixed cache key generation ([d213425](https://github.com/fachw3rk/weave/commit/d21342597c4e04472ad57113bb2548142ab99953))
+
+
+
+
+
 ## [0.11.1](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.11.0...@weave-js/core@0.11.1) (2022-03-07)
 
 
