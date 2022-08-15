@@ -4,25 +4,34 @@
  * Copyright 2021 Fachwerk
  */
 
+const { defaultsDeep } = require('@weave-js/utils');
 const { ExtendableError } = require('./ExtendableError');
 
 class WeaveError extends ExtendableError {
-  constructor (message, code, type, data) {
-    super(message);
+  constructor (message, options) { // code, type, data
+    options = defaultsDeep(
+      options,
+      {
+        code: 'WEAVE_ERROR',
+        retryable: false
+      }
+    );
+
+    super(message, options);
     this.name = this.constructor.name;
-    this.code = code || 500;
-    this.type = type;
-    this.data = data;
+    this.code = options.code || 'WEAVE_ERROR';
+    this.data = options.data;
     this.retryable = false;
+
+    if (options.statusCode) {
+      this.statusCode = options.statusCode;
+    }
   }
 }
 
 class WeaveRetryableError extends WeaveError {
-  constructor (message, code, type, data) {
-    super(message);
-    this.code = code || 500;
-    this.type = type;
-    this.data = data;
+  constructor (message, options = { code: 'WEAVE_RETRYABLE_ERROR', retryable: true }) {
+    super(message, options);
     this.retryable = true;
   }
 }
@@ -39,11 +48,11 @@ class WeaveServiceNotFoundError extends WeaveRetryableError {
       message = 'Service not found.';
     }
 
-    super(message, 404, 'WEAVE_SERVICE_NOT_FOUND_ERROR', data);
+    super(message, { code: 'WEAVE_SERVICE_NOT_FOUND_ERROR', data });
   }
 }
 
-class WeaveServiceNotAvailableError extends WeaveRetryableError {
+class WeaveServiceNotAvailableError extends WeaveRetryableError { // 503
   constructor (data = {}) {
     let message;
     if (data.nodeId) {
@@ -54,67 +63,69 @@ class WeaveServiceNotAvailableError extends WeaveRetryableError {
       message = 'Service not available.';
     }
 
-    super(message, 503, 'WEAVE_SERVICE_NOT_AVAILABLE_ERROR', data);
+    super(message, { code: 'WEAVE_SERVICE_NOT_AVAILABLE_ERROR', data });
   }
 }
 
-class WeaveRequestTimeoutError extends WeaveRetryableError {
+class WeaveRequestTimeoutError extends WeaveRetryableError { // 504
   constructor (actionName, nodeId, timeout) {
-    const message = `Action ${actionName} timed out node ${nodeId || '<local>'}.`;
-    super(message, 504, 'WEAVE_REQUEST_TIMEOUT_ERROR', {
+    const data = {
       actionName,
       nodeId,
       timeout
-    });
-    this.retryable = true;
+    };
+
+    const message = `Action ${actionName} timed out node ${nodeId || '<local>'}.`;
+    super(message, { code: 'WEAVE_REQUEST_TIMEOUT_ERROR', data });
   }
 }
 
-class WeaveParameterValidationError extends WeaveError {
+class WeaveParameterValidationError extends WeaveError { // 422
   constructor (message, data) {
-    super(message, 422, 'WEAVE_PARAMETER_VALIDATION_ERROR', data);
+    super(message, { code: 'WEAVE_PARAMETER_VALIDATION_ERROR', data });
   }
 }
 
 class WeaveBrokerOptionsError extends WeaveError {
   constructor (message, data) {
-    super(message, 500, 'WEAVE_BROKER_OPTIONS_ERROR', data);
+    super(
+      message,
+      { code: 'WEAVE_BROKER_OPTIONS_ERROR', data }
+    );
   }
 }
 
-class WeaveQueueSizeExceededError extends WeaveError {
+class WeaveQueueSizeExceededError extends WeaveError { // 429
   constructor (data) {
-    super('Queue size limit was exceeded. Request rejected.', 429, 'WEAVE_QUEUE_SIZE_EXCEEDED_ERROR', data);
+    super(
+      'Queue size limit was exceeded. Request rejected.',
+      { code: 'WEAVE_QUEUE_SIZE_EXCEEDED_ERROR', data }
+    );
   }
 }
 
 class WeaveMaxCallLevelError extends WeaveError {
   constructor (data) {
-    super(`Request level has reached the limit (${data.maxCallLevel}) on node "${data.nodeId}".`, 500, 'WEAVE_MAX_CALL_LEVEL_ERROR', data);
+    super(
+      `Request level has reached the limit ${data.maxCallLevel} on node "${data.nodeId}".`,
+      { code: 'WEAVE_MAX_CALL_LEVEL_ERROR', data }
+    );
   }
 }
 
 class WeaveGracefulStopTimeoutError extends WeaveError {
   constructor (service) {
-    super(`Unable to stop service "${service.name}"`, 500, 'GRACEFUL_STOP_TIMEOUT', {
+    const data = {
       name: service.name,
       version: service.version
-    });
+    };
+
+    super(
+      `Unable to stop service "${service.name}"`,
+      { code: 'WEAVE_GRACEFUL_STOP_TIMEOUT', data }
+    );
   }
 }
-
-const restoreError = error => {
-  const ErrorClass = module.exports[error.name];
-
-  if (ErrorClass) {
-    switch (error.name) {
-    case 'WeaveError':
-      return new ErrorClass(error.message, error.code, error.type, error.data);
-            // case 'WeaveParameterValidationError':
-            //     return new ErrorClass(error.message, error.data)
-    }
-  }
-};
 
 module.exports = {
   WeaveBrokerOptionsError,
@@ -126,6 +137,5 @@ module.exports = {
   WeaveRetryableError,
   WeaveServiceNotAvailableError,
   WeaveServiceNotFoundError,
-  WeaveGracefulStopTimeoutError,
-  restoreError
+  WeaveGracefulStopTimeoutError
 };

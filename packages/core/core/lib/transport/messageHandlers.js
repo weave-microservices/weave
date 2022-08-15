@@ -5,10 +5,11 @@
  */
 
 const { InboundTransformStream } = require('./InboundTransformStream');
-const { WeaveError, restoreError } = require('../errors');
+const { WeaveError } = require('../errors');
 const { createContext } = require('../broker/context');
 const { createMessage } = require('./createMessage');
 const MessageTypes = require('./messageTypes');
+const { restoreError } = require('../utils/restoreError');
 
 /**
  * @typedef {import('../types').Transport} Transport
@@ -291,22 +292,9 @@ module.exports = (runtime, transport) => {
 
     // Response is an error
     if (!payload.success) {
-      let error = restoreError(payload.error);
+      const error = restoreError(payload.error);
 
-      if (!error) {
-        error = new Error(payload.error.message);
-        error.name = payload.error.name;
-        error.code = payload.error.code;
-        error.type = payload.error.type;
-        error.data = payload.error.data;
-      }
-
-      error.retryable = payload.error.retryable;
       error.nodeId = error.nodeId || payload.sender;
-
-      if (payload.error.stack) {
-        error.stack = payload.error.stack;
-      }
 
       request.reject(error);
     }
@@ -398,6 +386,7 @@ module.exports = (runtime, transport) => {
   const onHeartbeat = (payload) => {
     transport.log.verbose(`Heartbeat from ${payload.sender}`);
     const node = registry.nodeCollection.get(payload.sender);
+
     // if node is unknown then request a node info message.
     if (node) {
       if (!node.isAvailable) {
@@ -510,7 +499,11 @@ module.exports = (runtime, transport) => {
 
       return true;
     } catch (error) {
-      transport.log.error(error, data);
+      transport.log.error(error, type, data);
+
+      runtime.eventBus.broadcastLocal('$transport.error', {
+        error
+      });
     }
     return false;
   };

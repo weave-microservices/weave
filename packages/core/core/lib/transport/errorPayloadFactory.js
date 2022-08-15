@@ -6,7 +6,6 @@ const errorPayloadFactory =
         message: error.message,
         nodeId: error.nodeId || runtime.nodeId,
         code: error.code,
-        type: error.type,
         stack: error.stack,
         data: error.data
       };

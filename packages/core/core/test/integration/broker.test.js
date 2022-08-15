@@ -467,7 +467,7 @@ describe('Test maxCallLevel', () => {
   it('should increment level on chained calls', () => {
     return broker.call('post.before')
       .catch(error => {
-        expect(error.message).toBe('Request level has reached the limit (1) on node "node1".');
+        expect(error.message).toBe('Request level has reached the limit 1 on node "node1".');
       });
   });
 });
@@ -664,5 +664,26 @@ describe('Streaming (remote)', () => {
     await broker2.call('file.write', {}, { stream: new Readable({ read () {} }) });
 
     await Promise.all([broker1.start(), broker2.start()]);
+  });
+});
+
+describe('Wait for Services', () => {
+  it ('should fail if the service not apears', (done) => {
+    const broker1 = createNode({
+      nodeId: 'node1-wait-for-service',
+      transport: {
+        adapter: 'dummy'
+      },
+      logger: {
+        enabled: false
+      }
+    });
+
+    broker1.start()
+      .then(() => broker1.waitForServices(['unknown'], 2000))
+      .catch((error) => {
+        expect(error.message).toBe('The waiting of the services is interrupted due to a timeout.');
+        done();
+      });
   });
 });

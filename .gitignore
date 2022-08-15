@@ -18,3 +18,11 @@ packages/services/node-info/coverage
 .history
 .lh
 packages/core/repl/.vscode
+.idea/modules.xml
+.idea/vcs.xml
+.idea/weave.iml
+.idea/workspace.xml
+.idea/codeStyles/codeStyleConfig.xml
+.idea/codeStyles/Project.xml
+.idea/inspectionProfiles/Project_Default.xml
+.idea/workspace.xml

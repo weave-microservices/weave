@@ -93,7 +93,12 @@ exports.initServiceManager = (runtime) => {
             }
 
             if (timeout && (Date.now() - startTimestamp) > timeout) {
-              return reject(new WeaveError('The waiting of the services is interrupted due to a timeout.', 500, 'WAIT_FOR_SERVICE', { services: serviceNames }));
+              return reject(new WeaveError('The waiting of the services is interrupted due to a timeout.', {
+                code: 'WAIT_FOR_SERVICE',
+                data: {
+                  services: serviceNames
+                }
+              }));
             }
 
             options.waitForServiceInterval = setTimeout(serviceCheck, interval);
