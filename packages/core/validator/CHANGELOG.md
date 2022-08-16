@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.13.0](https://github.com/weave-microservices/weave/compare/@weave-js/validator@0.12.0...@weave-js/validator@0.13.0) (2022-08-16)
+
+**Note:** Version bump only for package @weave-js/validator
+
+
+
+
+
 # [0.12.0](https://github.com/weave-microservices/weave/compare/@weave-js/validator@0.11.1...@weave-js/validator@0.12.0) (2022-03-30)
 
 **Note:** Version bump only for package @weave-js/validator

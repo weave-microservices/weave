@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/tracing-zipkin",
-  "version": "0.12.1",
+  "version": "0.13.0",
   "description": "weave zipkin tracing adapter",
   "main": "lib/index.js",
   "scripts": {
@@ -25,7 +25,7 @@
     "node-fetch": "^2.6.6"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.12.1"
+    "@weave-js/core": "^0.13.0"
   },
   "jest": {
     "testEnvironment": "node",
