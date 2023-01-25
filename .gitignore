@@ -18,3 +18,4 @@ packages/services/node-info/coverage
 .history
 .lh
 packages/core/repl/.vscode
+.idea
