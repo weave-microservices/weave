@@ -668,7 +668,7 @@ describe('Streaming (remote)', () => {
 });
 
 describe('Wait for Services', () => {
-  it ('should fail if the service not apears', (done) => {
+  it('should fail if the service not appears', (done) => {
     const broker1 = createNode({
       nodeId: 'node1-wait-for-service',
       transport: {

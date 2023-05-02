@@ -1,25 +1,25 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Test tracing Started and finished event should be triggered. 1`] = `
-Array [
-  Object {
-    "author": Object {
+[
+  {
+    "author": {
       "id": 3,
       "name": "Hank Schrader",
     },
     "id": 1,
     "title": "Post 1",
   },
-  Object {
-    "author": Object {
+  {
+    "author": {
       "id": 1,
       "name": "Walter White",
     },
     "id": 2,
     "title": "Post 2",
   },
-  Object {
-    "author": Object {
+  {
+    "author": {
       "id": 2,
       "name": "Jesse Pinkman",
     },
