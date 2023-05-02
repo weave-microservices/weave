@@ -22,7 +22,7 @@
     "@weave-js/core": ">=0.13.0"
   },
   "dependencies": {
-    "node-fetch": "^2.6.6"
+    "node-fetch": "^2.6.9"
   },
   "devDependencies": {
     "@weave-js/core": "^0.13.0"

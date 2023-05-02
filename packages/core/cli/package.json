@@ -27,7 +27,7 @@
     "ejs": "^3.1.9",
     "inquirer": "^9.2.0",
     "kleur": "^4.1.5",
-    "update-notifier": "^6.0.2"
+    "update-notifier": "^5.1.0"
   },
   "gitHead": "84fd5e4af3af96e8c004bcfba40bb3cb35f23fa7"
 }
