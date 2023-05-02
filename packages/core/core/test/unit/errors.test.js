@@ -246,7 +246,7 @@ describe('Error restoring', () => {
     const error = restoreError(rawErrorMessage);
 
     expect(error).toBeInstanceOf(Errors.WeaveServiceNotFoundError);
-    expect(error.message).toBe('Service \"test-service\" not found on node \"Node-1\".');
+    expect(error.message).toBe('Service "test-service" not found on node "Node-1".');
     expect(error.code).toBe('WEAVE_SERVICE_NOT_FOUND_ERROR');
     expect(error.data).toEqual(data);
     expect(error.retryable).toBe(true);
@@ -266,7 +266,7 @@ describe('Error restoring', () => {
     const error = restoreError(rawErrorMessage);
 
     expect(error).toBeInstanceOf(Errors.WeaveServiceNotAvailableError);
-    expect(error.message).toBe('Service \"test-service\" not available on node \"Node-1\".');
+    expect(error.message).toBe('Service "test-service" not available on node "Node-1".');
     expect(error.code).toBe('WEAVE_SERVICE_NOT_AVAILABLE_ERROR');
     expect(error.data).toEqual(data);
     expect(error.retryable).toBe(true);
@@ -367,7 +367,7 @@ describe('Error restoring', () => {
     const error = restoreError(rawErrorMessage);
 
     expect(error).toBeInstanceOf(Errors.WeaveMaxCallLevelError);
-    expect(error.message).toBe('Request level has reached the limit 100 on node \"Node-1\".');
+    expect(error.message).toBe('Request level has reached the limit 100 on node "Node-1".');
     expect(error.code).toBe('WEAVE_MAX_CALL_LEVEL_ERROR');
     expect(error.data).toEqual(data);
     expect(error.retryable).toBe(false);
@@ -389,7 +389,7 @@ describe('Error restoring', () => {
     const error = restoreError(rawErrorMessage);
 
     expect(error).toBeInstanceOf(Errors.WeaveGracefulStopTimeoutError);
-    expect(error.message).toBe('Unable to stop service \"greeter\"');
+    expect(error.message).toBe('Unable to stop service "greeter"');
     expect(error.code).toBe('WEAVE_GRACEFUL_STOP_TIMEOUT');
     expect(error.data).toEqual(data.service);
     expect(error.retryable).toBe(false);
