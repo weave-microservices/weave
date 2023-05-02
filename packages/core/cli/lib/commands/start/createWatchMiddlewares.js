@@ -2,19 +2,27 @@ const path = require('path');
 const { debounce } = require('@weave-js/utils');
 const fs = require('fs');
 
+function clearRequireCache (filename) {
+  Object.keys(require.cache).forEach((key) => {
+    if (key === filename) {
+      delete require.cache[key];
+    }
+  });
+}
+
+function isWeaveConfigFile (filename) {
+  return (
+    filename.endsWith('weave.config.js') ||
+    filename.endsWith('weave.config.ts') ||
+    filename.endsWith('weave.config.json')
+  );
+}
+
 function createWatchMiddleware (weaveCli) {
   return function watchMiddleware (runtime) {
     let projectFiles = new Map();
     let previousProjectFiles = new Map();
     const cache = new Map();
-
-    function clearRequireCache (filename) {
-      Object.keys(require.cache).forEach((key) => {
-        if (key === filename) {
-          delete require.cache[key];
-        }
-      });
-    }
 
     async function reloadService (service) {
       const relativePath = path.relative(process.cwd(), service.filename);
@@ -42,14 +50,6 @@ function createWatchMiddleware (weaveCli) {
       projectFiles.set(filename, newWatchItem);
 
       return newWatchItem;
-    }
-
-    function isWeaveConfigFile (filename) {
-      return (
-        filename.endsWith('weave.config.js') ||
-        filename.endsWith('weave.config.ts') ||
-        filename.endsWith('weave.config.json')
-      );
     }
 
     function stopFileWatcher (files) {
