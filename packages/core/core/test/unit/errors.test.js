@@ -5,7 +5,6 @@ const { restoreError } = require('../../lib/utils/restoreError');
 describe('Test errors', () => {
   it('Default weave error', () => {
     const error = new Errors.WeaveError('Fatal error!', {
-      statusCode: 500,
       code: 'DEFAULT_ERROR',
       data: { empty: 'no_data' }
     });
@@ -59,7 +58,6 @@ describe('Test errors', () => {
 
   it('Action request timeout error', () => {
     const error = new Errors.WeaveRetryableError('Fatal error!', {
-      statusCode: 500,
       code: 'DEFAULT_ERROR',
       data: { empty: 'no_data' }
     });

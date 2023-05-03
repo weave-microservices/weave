@@ -8,7 +8,7 @@ const { defaultsDeep } = require('@weave-js/utils');
 const { ExtendableError } = require('./ExtendableError');
 
 class WeaveError extends ExtendableError {
-  constructor (message, options) { // code, type, data
+  constructor (message, options) {
     options = defaultsDeep(
       options,
       {
@@ -22,10 +22,6 @@ class WeaveError extends ExtendableError {
     this.code = options.code || 'WEAVE_ERROR';
     this.data = options.data;
     this.retryable = false;
-
-    if (options.statusCode) {
-      this.statusCode = options.statusCode;
-    }
   }
 }
 
