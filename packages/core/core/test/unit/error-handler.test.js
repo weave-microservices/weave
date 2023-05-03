@@ -1,5 +1,4 @@
 const Errors = require('../../lib/errors');
-// const { fatalErrorHandler } = require('../../lib/errorHandler');
 
 describe('Test error handler', () => {
   const realProcessExit = process.exit;
@@ -9,7 +8,6 @@ describe('Test error handler', () => {
   afterAll(() => { process.exit = realProcessExit; });
   it('Default weave error', () => {
     const error = new Errors.WeaveError('Fatal error!', {
-      statusCode: 500,
       code: 'DEFAULT_ERROR',
       data: { empty: 'no_data' }
     });

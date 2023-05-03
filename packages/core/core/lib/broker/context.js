@@ -21,6 +21,8 @@ const { WeaveMaxCallLevelError, WeaveError } = require('../errors');
  * @returns {Context} Context
 */
 exports.createContext = (runtime) => {
+  const spanStack = [];
+
   /** @type {Context} */
   const context = {
     id: null,
@@ -95,17 +97,33 @@ exports.createContext = (runtime) => {
         sampled: this.tracing
       }, options);
 
+      let span;
+
       if (this.span) {
-        this.span = this.span.startChildSpan(name, options);
+        span = this.span.startChildSpan(name, options);
       } else {
-        this.span = runtime.tracer.startSpan(name, options);
+        span = runtime.tracer.startSpan(name, options);
       }
+      spanStack.push(span);
+      this.span = span;
+
       return this.span;
     },
-    finishSpan () {
-      if (this.span) {
-        this.span.finish();
-        return this.span;
+    finishSpan (span, time) {
+      if (span && !span.isActive()) {
+        return;
+      }
+
+      span.finish(time);
+
+      const idx = spanStack.findIndex((s) => s === span);
+
+      if (idx !== -1) {
+        spanStack.splice(idx, 1);
+        this.span = spanStack[spanStack.length - 1];
+      } else {
+        /* istanbul ignore next */
+        this.service.log.warn('This span is not assigned to this context', span);
       }
     },
     /**
@@ -131,6 +149,8 @@ exports.createContext = (runtime) => {
       return contextCopy;
     }
   };
+
+
 
   // Generate context Id
   if (!context.id) {

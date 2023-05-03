@@ -82,6 +82,7 @@ exports.getDefaultOptions = () => {
       collectors: [],
       actions: {
         data: false,
+        response: false,
         tags: {}
       },
       events: {

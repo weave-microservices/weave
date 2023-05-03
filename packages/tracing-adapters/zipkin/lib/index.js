@@ -73,7 +73,7 @@ exports.createZipkinExporter = (options = {}) =>
         };
 
         if (span.error) {
-          // payload.tags.error = span.error.message
+          payload.tags.error = span.error.message;
           payload.annotations.push({
             value: 'error',
             endpoint: {
@@ -107,7 +107,9 @@ exports.createZipkinExporter = (options = {}) =>
         }
       })
         .then(res => res.text())
-        .catch(err => console.log(err));
+        .catch(err => {
+          runtime.log.error(err);
+        });
     };
 
     exporter.finishedSpan = (span) => {
