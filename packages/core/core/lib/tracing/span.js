@@ -42,7 +42,7 @@ exports.createSpan = (tracer, name, options) => {
   span.finish = (time) => {
     span.finishTime = time || hrTime();
     span.duration = span.finishTime - span.startTime;
-    tracer.log.debug('Span finished');
+    tracer.log.debug(`Span "${span.id}" finished`);
     tracer.invokeCollectorMethod('finishedSpan', [span]);
 
     return span;

@@ -4,22 +4,56 @@
  * Copyright 2021 Fachwerk
  */
 
-const { isPlainObject } = require('@weave-js/utils');
+const { isPlainObject, isFunction, isObject, dotGet } = require('@weave-js/utils');
 const { buildActionTags, buildEventTags } = require('./tags');
 
-const wrapTracingLocalActionMiddleware = function (handler) {
+const wrapTracingLocalActionMiddleware = function (handler, action) {
   const broker = this;
   const tracingOptions = broker.options.tracing || {};
+  const actionTracingOptions = action.tracing || {};
 
   if (tracingOptions.enabled) {
     return function metricsLocalMiddleware (context, serviceInjections) {
       const tags = buildActionTags(context, tracingOptions);
 
-      if (tracingOptions) {
+      if (tracingOptions.actions.data) {
         tags.data = context.data !== null && isPlainObject(context.data) ? Object.assign({}, context.data) : context.data;
       }
 
-      const spanName = `action "${context.action.name}"`;
+      const globalActionTags = tracingOptions.actions.tags;
+      let actionTags;
+      // local action tags take precedence
+      if (isFunction(actionTracingOptions.tags)) {
+        actionTags = actionTracingOptions.tags;
+      } else if (!actionTracingOptions.tags && isFunction(globalActionTags)) {
+        actionTags = globalActionTags;
+      } else {
+        // By default all params are captured. This can be overridden globally and locally
+        actionTags = { ...{ data: true }, ...globalActionTags, ...actionTracingOptions.tags };
+      }
+
+      if (isObject(actionTracingOptions.tags)) {
+        if (Array.isArray(actionTags.data)) {
+          tags.data = actionTags.data.reduce((acc, current) => {
+            acc[current] = dotGet(context.data, current);
+            return acc;
+          }, {});
+        }
+      }
+
+      // Span name
+      let spanName = `action "${context.action.name}"`;
+
+      if (actionTracingOptions.spanName) {
+        switch (typeof actionTracingOptions.spanName) {
+        case 'string':
+          spanName = actionTracingOptions.spanName;
+          break;
+        case 'function':
+          spanName = actionTracingOptions.spanName.call(context.service, context);
+          break;
+        }
+      }
 
       const span = context.startSpan(spanName, {
         id: context.id,
@@ -39,18 +73,17 @@ const wrapTracingLocalActionMiddleware = function (handler) {
             isCachedResult: context.isCachedResult
           };
 
-          if (tracingOptions) {
+          if (tracingOptions.actions.response) {
             tags.response = result !== null && isPlainObject(result) ? Object.assign({}, result) : result;
           }
 
           span.addTags(tags);
-          span.finish();
+          context.finishSpan(span);
           return result;
         })
         .catch(error => {
-          span
-            .setError(error)
-            .finish();
+          span.setError(error);
+          context.finishSpan(span);
           return Promise.reject(error);
         });
     };
@@ -81,13 +114,12 @@ const wrapTracingLocalEventMiddleware = function (handler, event) {
 
       return handler(context)
         .then(result => {
-          span.finish();
+          context.finishSpan(span);
           return result;
         })
         .catch(error => {
-          span
-            .setError(error)
-            .finish();
+          span.setError(error);
+          context.finishSpan(span);
           return Promise.reject(error);
         });
     };
