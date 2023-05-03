@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const { isFunction } = require('@weave-js/utils');
+// const { isFunction } = require('@weave-js/utils');
 
 exports.loadServices = (broker, param) => {
   const servicePathsParams = param.split(',');

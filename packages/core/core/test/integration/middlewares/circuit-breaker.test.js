@@ -38,7 +38,7 @@ describe('Test circuit breaker', () => {
       },
       bad (context) {
         if (context.data.error !== true) {
-          return Promise.reject(new WeaveError('No Permission', 666));
+          return Promise.reject(new WeaveError('No Permission'));
         } else {
           return 'ok';
         }

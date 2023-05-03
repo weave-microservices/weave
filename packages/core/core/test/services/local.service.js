@@ -1,3 +1,5 @@
+const { WeaveError } = require('../../lib/errors');
+
 module.exports = {
   name: 'local',
   actions: {
@@ -8,6 +10,20 @@ module.exports = {
       },
       handler (context) {
         return context.data.text.split('').reverse().join('');
+      }
+    },
+    faulty: {
+      handler () {
+        throw new Error('Missing Data...');
+      }
+    },
+    faultyWeave: {
+      handler () {
+        throw new WeaveError('Missing Data...', {
+          data: {
+            name: 'Missing'
+          }
+        });
       }
     }
   }

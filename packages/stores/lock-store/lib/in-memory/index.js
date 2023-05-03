@@ -1,48 +1,48 @@
 const createInMemoryLockStore = (options = {}) => {
   const database = {
     locks: []
-  }
+  };
 
   const removeExpiredLocks = async () => {
     database.locks = database.locks.filter(lock => {
-      return lock.expiresAt >= Date.now()
-    })
-  }
+      return lock.expiresAt >= Date.now();
+    });
+  };
 
   const acquire = async (hash, expiresAt = Number.MAX_SAFE_INTEGER) => {
-    await removeExpiredLocks()
+    await removeExpiredLocks();
     const isLocked = database.locks.some(lock => {
-      lock.value === hash
-    })
+      lock.value === hash;
+    });
 
     if (isLocked) {
-      throw new Error('Failed to acquire lock.')
+      throw new Error('Failed to acquire lock.');
     }
 
-    const lock = { value: hash, expiresAt }
-    database.locks.push(lock)
-  }
+    const lock = { value: hash, expiresAt };
+    database.locks.push(lock);
+  };
 
   const isLocked = async (hash) => {
     return database.locks.some(lock => {
-      return lock.value === hash && Date.now() <= lock.expiresAt
-    })
-  }
+      return lock.value === hash && Date.now() <= lock.expiresAt;
+    });
+  };
 
   const release = async (hash) => {
-    await removeExpiredLocks()
+    await removeExpiredLocks();
 
     const index = database.locks.findIndex(lock => {
-      return lock.value === hash
-    })
+      return lock.value === hash;
+    });
 
     // The lock is already released
     if (index === -1) {
-      return
+      return;
     }
 
-    database.locks.splice(index, 1)
-  }
+    database.locks.splice(index, 1);
+  };
 
   /**
    * Renew the value lock
@@ -51,21 +51,21 @@ const createInMemoryLockStore = (options = {}) => {
    * @returns {Promise<void>} Result
    */
   const renew = async (hash, expiresAt) => {
-    await removeExpiredLocks()
+    await removeExpiredLocks();
 
     const existingLock = database.locks.find(lock => {
-      return lock.value === hash
-    })
+      return lock.value === hash;
+    });
 
     // The lock is already released
     if (!existingLock) {
-      throw new Error('Failed to renew lock.')
+      throw new Error('Failed to renew lock.');
     }
 
-    existingLock.expiresAt = expiresAt
-  }
+    existingLock.expiresAt = expiresAt;
+  };
 
-  return { acquire, isLocked, renew, release }
-}
+  return { acquire, isLocked, renew, release };
+};
 
-module.exports = { createInMemoryLockStore }
+module.exports = { createInMemoryLockStore };

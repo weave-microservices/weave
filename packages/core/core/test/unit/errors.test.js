@@ -1,14 +1,17 @@
 const Errors = require('../../lib/errors');
 const { ExtendableError } = require('../../lib/ExtendableError');
+const { restoreError } = require('../../lib/utils/restoreError');
 
 describe('Test errors', () => {
   it('Default weave error', () => {
-    const error = new Errors.WeaveError('Fatal error!', 500, 'DEFAULT_ERROR', { empty: 'no_data' });
+    const error = new Errors.WeaveError('Fatal error!', {
+      code: 'DEFAULT_ERROR',
+      data: { empty: 'no_data' }
+    });
     expect(error).toBeDefined();
     expect(error).toBeInstanceOf(Errors.WeaveError);
     expect(error.message).toBe('Fatal error!');
-    expect(error.code).toBe(500);
-    expect(error.type).toBe('DEFAULT_ERROR');
+    expect(error.code).toBe('DEFAULT_ERROR');
     expect(error.data).toEqual({ empty: 'no_data' });
     expect(error.retryable).toBe(false);
   });
@@ -18,8 +21,7 @@ describe('Test errors', () => {
     expect(error).toBeDefined();
     expect(error).toBeInstanceOf(Errors.WeaveError);
     expect(error.message).toBe('Fatal error!');
-    expect(error.code).toBe(500);
-    expect(error.type).toBe('WEAVE_BROKER_OPTIONS_ERROR');
+    expect(error.code).toBe('WEAVE_BROKER_OPTIONS_ERROR');
     expect(error.data).toEqual({ empty: 'no_data' });
     expect(error.retryable).toBe(false);
   });
@@ -29,8 +31,7 @@ describe('Test errors', () => {
     expect(error).toBeDefined();
     expect(error).toBeInstanceOf(Errors.WeaveError);
     expect(error.message).toBe('Fatal error!');
-    expect(error.code).toBe(422);
-    expect(error.type).toBe('WEAVE_PARAMETER_VALIDATION_ERROR');
+    expect(error.code).toBe('WEAVE_PARAMETER_VALIDATION_ERROR');
     expect(error.data).toEqual({ empty: 'no_data' });
     expect(error.retryable).toBe(false);
   });
@@ -40,8 +41,7 @@ describe('Test errors', () => {
     expect(error).toBeDefined();
     expect(error).toBeInstanceOf(Errors.WeaveError);
     expect(error.message).toBe('Queue size limit was exceeded. Request rejected.');
-    expect(error.code).toBe(429);
-    expect(error.type).toBe('WEAVE_QUEUE_SIZE_EXCEEDED_ERROR');
+    expect(error.code).toBe('WEAVE_QUEUE_SIZE_EXCEEDED_ERROR');
     expect(error.data).toEqual({ empty: 'no_data' });
     expect(error.retryable).toBe(false);
   });
@@ -51,19 +51,20 @@ describe('Test errors', () => {
     expect(error).toBeDefined();
     expect(error).toBeInstanceOf(Errors.WeaveError);
     expect(error.message).toBe('Action do.something timed out node node1.');
-    expect(error.code).toBe(504);
-    expect(error.type).toBe('WEAVE_REQUEST_TIMEOUT_ERROR');
+    expect(error.code).toBe('WEAVE_REQUEST_TIMEOUT_ERROR');
     expect(error.data).toEqual({ actionName: 'do.something', nodeId: 'node1', timeout: 5000 });
     expect(error.retryable).toBe(true);
   });
 
   it('Action request timeout error', () => {
-    const error = new Errors.WeaveRetryableError('Fatal error!', 500, 'DEFAULT_ERROR', { empty: 'no_data' });
+    const error = new Errors.WeaveRetryableError('Fatal error!', {
+      code: 'DEFAULT_ERROR',
+      data: { empty: 'no_data' }
+    });
     expect(error).toBeDefined();
     expect(error).toBeInstanceOf(Errors.WeaveError);
     expect(error.message).toBe('Fatal error!');
-    expect(error.code).toBe(500);
-    expect(error.type).toBe('DEFAULT_ERROR');
+    expect(error.code).toBe('DEFAULT_ERROR');
     expect(error.data).toEqual({ empty: 'no_data' });
     expect(error.retryable).toBe(true);
   });
@@ -73,8 +74,7 @@ describe('Test errors', () => {
     expect(error).toBeDefined();
     expect(error).toBeInstanceOf(Errors.WeaveError);
     expect(error.message).toBe('Service "do.something" not available on node "node1".');
-    expect(error.code).toBe(503);
-    expect(error.type).toBe('WEAVE_SERVICE_NOT_AVAILABLE_ERROR');
+    expect(error.code).toBe('WEAVE_SERVICE_NOT_AVAILABLE_ERROR');
     expect(error.data).toEqual({ actionName: 'do.something', nodeId: 'node1' });
     expect(error.retryable).toBe(true);
   });
@@ -84,8 +84,7 @@ describe('Test errors', () => {
     expect(error).toBeDefined();
     expect(error).toBeInstanceOf(Errors.WeaveError);
     expect(error.message).toBe('Service "do.something" not available.');
-    expect(error.code).toBe(503);
-    expect(error.type).toBe('WEAVE_SERVICE_NOT_AVAILABLE_ERROR');
+    expect(error.code).toBe('WEAVE_SERVICE_NOT_AVAILABLE_ERROR');
     expect(error.data).toEqual({ actionName: 'do.something' });
     expect(error.retryable).toBe(true);
   });
@@ -95,8 +94,7 @@ describe('Test errors', () => {
     expect(error).toBeDefined();
     expect(error).toBeInstanceOf(Errors.WeaveError);
     expect(error.message).toBe('Service not available.');
-    expect(error.code).toBe(503);
-    expect(error.type).toBe('WEAVE_SERVICE_NOT_AVAILABLE_ERROR');
+    expect(error.code).toBe('WEAVE_SERVICE_NOT_AVAILABLE_ERROR');
     expect(error.data).toEqual({});
     expect(error.retryable).toBe(true);
   });
@@ -106,8 +104,7 @@ describe('Test errors', () => {
     expect(error).toBeDefined();
     expect(error).toBeInstanceOf(Errors.WeaveError);
     expect(error.message).toBe('Service "do.something" not found on node "node1".');
-    expect(error.code).toBe(404);
-    expect(error.type).toBe('WEAVE_SERVICE_NOT_FOUND_ERROR');
+    expect(error.code).toBe('WEAVE_SERVICE_NOT_FOUND_ERROR');
     expect(error.data).toEqual({ actionName: 'do.something', nodeId: 'node1' });
     expect(error.retryable).toBe(true);
   });
@@ -117,8 +114,7 @@ describe('Test errors', () => {
     expect(error).toBeDefined();
     expect(error).toBeInstanceOf(Errors.WeaveError);
     expect(error.message).toBe('Service "do.something" not found.');
-    expect(error.code).toBe(404);
-    expect(error.type).toBe('WEAVE_SERVICE_NOT_FOUND_ERROR');
+    expect(error.code).toBe('WEAVE_SERVICE_NOT_FOUND_ERROR');
     expect(error.data).toEqual({ actionName: 'do.something' });
     expect(error.retryable).toBe(true);
   });
@@ -128,8 +124,7 @@ describe('Test errors', () => {
     expect(error).toBeDefined();
     expect(error).toBeInstanceOf(Errors.WeaveError);
     expect(error.message).toBe('Service not found.');
-    expect(error.code).toBe(404);
-    expect(error.type).toBe('WEAVE_SERVICE_NOT_FOUND_ERROR');
+    expect(error.code).toBe('WEAVE_SERVICE_NOT_FOUND_ERROR');
     expect(error.data).toEqual({});
     expect(error.retryable).toBe(true);
   });
@@ -194,5 +189,220 @@ describe('Extendable error', () => {
   it('.message', () => {
     const err = new ExtendableError('error occurred');
     expect(err.message).toBe('error occurred');
+  });
+});
+
+describe('Error restoring', () => {
+  it('Should restore WeaveError', () => {
+    const rawErrorMessage = {
+      name: 'WeaveError',
+      message: 'Error message',
+      code: 'ERROR_CODE'
+    };
+
+    const error = restoreError(rawErrorMessage);
+
+    expect(error).toBeInstanceOf(Errors.WeaveError);
+    expect(error.message).toBe('Error message');
+    expect(error.code).toBe('ERROR_CODE');
+    expect(error.retryable).toBe(false);
+  });
+
+  it('Should restore WeaveRetryableError', () => {
+    const data = {
+      service: 'test-service',
+      version: 1
+    };
+
+    const rawErrorMessage = {
+      name: 'WeaveRetryableError',
+      message: 'Error message',
+      data,
+      code: 'ERROR_CODE'
+    };
+
+    const error = restoreError(rawErrorMessage);
+
+    expect(error).toBeInstanceOf(Errors.WeaveRetryableError);
+    expect(error.message).toBe('Error message');
+    expect(error.code).toBe('ERROR_CODE');
+    expect(error.data).toEqual(data);
+    expect(error.retryable).toBe(true);
+  });
+
+  it('Should restore WeaveServiceNotFoundError', () => {
+    const data = {
+      actionName: 'test-service',
+      nodeId: 'Node-1'
+    };
+
+    const rawErrorMessage = {
+      name: 'WeaveServiceNotFoundError',
+      data
+    };
+
+    const error = restoreError(rawErrorMessage);
+
+    expect(error).toBeInstanceOf(Errors.WeaveServiceNotFoundError);
+    expect(error.message).toBe('Service "test-service" not found on node "Node-1".');
+    expect(error.code).toBe('WEAVE_SERVICE_NOT_FOUND_ERROR');
+    expect(error.data).toEqual(data);
+    expect(error.retryable).toBe(true);
+  });
+
+  it('Should restore WeaveServiceNotAvailableError', () => {
+    const data = {
+      actionName: 'test-service',
+      nodeId: 'Node-1'
+    };
+
+    const rawErrorMessage = {
+      name: 'WeaveServiceNotAvailableError',
+      data
+    };
+
+    const error = restoreError(rawErrorMessage);
+
+    expect(error).toBeInstanceOf(Errors.WeaveServiceNotAvailableError);
+    expect(error.message).toBe('Service "test-service" not available on node "Node-1".');
+    expect(error.code).toBe('WEAVE_SERVICE_NOT_AVAILABLE_ERROR');
+    expect(error.data).toEqual(data);
+    expect(error.retryable).toBe(true);
+  });
+
+  it('Should restore WeaveRequestTimeoutError', () => {
+    const data = {
+      actionName: 'test-service',
+      nodeId: 'Node-1',
+      timeout: 3000
+    };
+
+    const rawErrorMessage = {
+      name: 'WeaveRequestTimeoutError',
+      data
+    };
+
+    const error = restoreError(rawErrorMessage);
+
+    expect(error).toBeInstanceOf(Errors.WeaveRequestTimeoutError);
+    expect(error.message).toBe('Action test-service timed out node Node-1.');
+    expect(error.code).toBe('WEAVE_REQUEST_TIMEOUT_ERROR');
+    expect(error.data).toEqual(data);
+    expect(error.retryable).toBe(true);
+  });
+
+  it('Should restore WeaveParameterValidationError', () => {
+    const data = {
+      actionName: 'test-service',
+      nodeId: 'Node-1',
+      timeout: 3000
+    };
+
+    const rawErrorMessage = {
+      name: 'WeaveParameterValidationError',
+      data
+    };
+
+    const error = restoreError(rawErrorMessage);
+
+    expect(error).toBeInstanceOf(Errors.WeaveParameterValidationError);
+    expect(error.code).toBe('WEAVE_PARAMETER_VALIDATION_ERROR');
+    expect(error.data).toEqual(data);
+    expect(error.retryable).toBe(false);
+  });
+
+  it('Should restore WeaveBrokerOptionsError', () => {
+    const data = {
+      actionName: 'test-service',
+      nodeId: 'Node-1',
+      timeout: 3000
+    };
+
+    const rawErrorMessage = {
+      name: 'WeaveBrokerOptionsError',
+      data
+    };
+
+    const error = restoreError(rawErrorMessage);
+
+    expect(error).toBeInstanceOf(Errors.WeaveBrokerOptionsError);
+    expect(error.code).toBe('WEAVE_BROKER_OPTIONS_ERROR');
+    expect(error.data).toEqual(data);
+    expect(error.retryable).toBe(false);
+  });
+
+  it('Should restore WeaveQueueSizeExceededError', () => {
+    const data = {
+      actionName: 'test-service',
+      nodeId: 'Node-1',
+      timeout: 3000
+    };
+
+    const rawErrorMessage = {
+      name: 'WeaveQueueSizeExceededError',
+      data
+    };
+
+    const error = restoreError(rawErrorMessage);
+
+    expect(error).toBeInstanceOf(Errors.WeaveQueueSizeExceededError);
+    expect(error.code).toBe('WEAVE_QUEUE_SIZE_EXCEEDED_ERROR');
+    expect(error.data).toEqual(data);
+    expect(error.retryable).toBe(false);
+  });
+
+  it('Should restore WeaveMaxCallLevelError', () => {
+    const data = {
+      maxCallLevel: 100,
+      nodeId: 'Node-1'
+    };
+
+    const rawErrorMessage = {
+      name: 'WeaveMaxCallLevelError',
+      data
+    };
+
+    const error = restoreError(rawErrorMessage);
+
+    expect(error).toBeInstanceOf(Errors.WeaveMaxCallLevelError);
+    expect(error.message).toBe('Request level has reached the limit 100 on node "Node-1".');
+    expect(error.code).toBe('WEAVE_MAX_CALL_LEVEL_ERROR');
+    expect(error.data).toEqual(data);
+    expect(error.retryable).toBe(false);
+  });
+
+  it('Should restore WeaveGracefulStopTimeoutError', () => {
+    const data = {
+      service: {
+        name: 'greeter',
+        version: 1
+      }
+    };
+
+    const rawErrorMessage = {
+      name: 'WeaveGracefulStopTimeoutError',
+      data
+    };
+
+    const error = restoreError(rawErrorMessage);
+
+    expect(error).toBeInstanceOf(Errors.WeaveGracefulStopTimeoutError);
+    expect(error.message).toBe('Unable to stop service "greeter"');
+    expect(error.code).toBe('WEAVE_GRACEFUL_STOP_TIMEOUT');
+    expect(error.data).toEqual(data.service);
+    expect(error.retryable).toBe(false);
+  });
+
+  it('Should restore unkown error', () => {
+    const rawErrorMessage = {
+      name: 'AWSRateLimitError',
+      message: 'Rate limit exceeded.'
+    };
+
+    const error = restoreError(rawErrorMessage);
+
+    expect(error).toBeInstanceOf(Error);
+    expect(error.message).toBe('Rate limit exceeded.');
+    expect(error.retryable).toBeUndefined();
   });
 });

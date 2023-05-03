@@ -12,7 +12,7 @@ module.exports = (runtime) => {
       return handler(context, serviceInjections)
         .catch((error) => {
           if (!(error instanceof Error)) {
-            error = new WeaveError(error, 500);
+            error = new WeaveError(error);
           }
 
           if (runtime.nodeId !== context.nodeId) {
@@ -36,7 +36,7 @@ module.exports = (runtime) => {
       return handler(context, serviceInjections)
         .catch((error) => {
           if (!(error instanceof Error)) {
-            error = new WeaveError(error, 500);
+            error = new WeaveError(error.message, { cause: error });
           }
 
           if (runtime.nodeId !== context.nodeId) {
