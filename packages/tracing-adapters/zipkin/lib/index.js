@@ -88,7 +88,7 @@ exports.createZipkinExporter = (options = {}) =>
         Object.assign(
           payload.tags,
           exporter.flattenTags(span.tags, true),
-          exporter.flattenTags(span.error ? { error: exporter.getErrorFields(span.error, exporter.options.errors.fields) } : {})
+          exporter.flattenTags(exporter.getErrorFields(span.error, exporter.options.errors.fields), true, 'error')
         );
 
         return payload;
