@@ -15,7 +15,6 @@ exports.initEventbus = (runtime) => {
       options = {};
     }
 
-    // Emit local events
     if (/^\$/.test(eventName)) {
       bus.emit(eventName, payload);
     }
@@ -34,7 +33,6 @@ exports.initEventbus = (runtime) => {
     endpoints.map(([endpoint, groupName]) => {
       if (endpoint) {
         if (endpoint.node.id === brokerOptions.nodeId) {
-          // Local event. Call handler
           context.setEndpoint(endpoint);
           promises.push(endpoint.action.handler(context));
         } else {
@@ -51,7 +49,6 @@ exports.initEventbus = (runtime) => {
       }
     });
 
-    // Send remote events
     if (runtime.transport) {
       Object.values(groupedEndpoints)
         .forEach(groupedEndpoint => {
@@ -73,7 +70,6 @@ exports.initEventbus = (runtime) => {
   * @returns {Promise<any>} Promise
   */
   const broadcastLocal = (eventName, payload, options) => {
-    // If the given group is no array - wrap it.
     if (Array.isArray(options)) {
       options = { groups: options };
     } else if (options == null) {
@@ -84,7 +80,6 @@ exports.initEventbus = (runtime) => {
     context.eventType = 'broadcastLocal';
     context.eventName = eventName;
 
-    // Emit the event on the internal event bus
     if (/^\$/.test(eventName)) {
       bus.emit(eventName, payload);
     }
@@ -109,14 +104,12 @@ exports.initEventbus = (runtime) => {
     const promises = [];
 
     if (runtime.transport) {
-      // create context
       // todo: create an event context object
       const context = contextFactory.create(null, payload, options);
       context.eventType = 'broadcast';
       context.eventName = eventName;
       context.eventGroups = options.groups;
 
-      // Avoid to broadcast internal events.
       if (!/^\$/.test(eventName)) {
         const endpoints = registry.eventCollection.getAllEndpointsUniqueNodes(eventName, options.groups);
 

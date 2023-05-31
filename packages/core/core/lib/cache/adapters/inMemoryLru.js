@@ -22,7 +22,6 @@ const createInMemoryLruCache = (adapterOptions) => (runtime, options = {}) => {
 
   timer.unref();
 
-  // if a new broker gets connected, we need to clear the cache
   runtime.bus.on('$transport.connected', () => {
     base.log.debug('Transport adapter connected. Cache will be cleared.');
     cache.clear();

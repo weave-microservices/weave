@@ -21,25 +21,20 @@ exports.handler = async (args) => {
       }
     };
 
-    // get config
     const config = getConfig(args);
 
-    // enable file watcher
     if (args.watch) {
       config.middlewares = [
         createWatchMiddleware(cliContext)
       ];
     }
 
-    // enable silent option. Disable log output
     if (args.silent) {
       config.logger = config.logger ? Object.assign(config.logger, { enabled: false }) : { enabled: false };
     }
 
-    // init broker
     cliContext.broker = createBroker(config);
 
-    // handle service loading
     if (args.services) {
       loadServices(cliContext.broker, args.services);
     }
@@ -51,10 +46,8 @@ exports.handler = async (args) => {
     //   }
     // }
 
-    // start broker
     await cliContext.broker.start();
 
-    // start REPL
     if (args.repl) {
       repl(cliContext.broker);
     }

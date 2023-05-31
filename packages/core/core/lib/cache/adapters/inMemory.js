@@ -36,7 +36,6 @@ const createInMemoryCache = (adapterOptions = {}) => (runtime, options = {}) => 
 
   ttlTimerHandle.unref();
 
-  // if a new broker gets connected, we need to clear the cache
   runtime.bus.on('$transport.connected', () => {
     base.log.debug('Transport adapter connected. Cache will be cleared.');
     cache.clear();
@@ -95,7 +94,6 @@ const createInMemoryCache = (adapterOptions = {}) => (runtime, options = {}) => 
           base.metrics.increment(Constants.CACHE_SET_TOTAL);
         }
 
-        // if ttl is not set in action cache settings, use options ttl
         if (ttl == null) {
           ttl = options.ttl;
         }

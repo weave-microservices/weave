@@ -1,9 +1,11 @@
 const { resolveCollector } = require('../tracing/collectors');
 const { createSpan } = require('../tracing/span');
 
+
 exports.initTracer = (runtime) => {
   const options = runtime.options.tracing;
   const log = runtime.createLogger('TRACER');
+
   let collectors = [];
   let samplingCounter = 0;
 
@@ -18,7 +20,6 @@ exports.initTracer = (runtime) => {
         }
       },
       shouldSample (span) {
-        // check span priority
         if (options.samplingRate === 0) {
           return false;
         }
@@ -49,7 +50,6 @@ exports.initTracer = (runtime) => {
     }
   });
 
-  // Init collectors
   if (options.enabled) {
     log.info('Tracer initialized.');
 

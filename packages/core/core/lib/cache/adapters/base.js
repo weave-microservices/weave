@@ -39,7 +39,6 @@ const createCacheBase = (name, runtime, adapterOptions, options) => {
       ttl: null
     }, options),
     init () {
-      // register metrics
       if (runtime.metrics) {
         this.metrics = runtime.metrics;
         registerCacheMetrics(runtime.metrics);
@@ -79,7 +78,6 @@ const createCacheBase = (name, runtime, adapterOptions, options) => {
         const prefix = actionName + '.';
 
         if (keys) {
-          // fast path for single keys
           if (keys.length === 1) {
             const cacheKeyData = getPropertyFromDataOrMetadata(data, metadata, keys[0]);
             const key = getCacheKeyByObject(cacheKeyData);
@@ -87,7 +85,6 @@ const createCacheBase = (name, runtime, adapterOptions, options) => {
             return prefix + generateHash(value);
           }
 
-          // Handle data cache keys
           if (keys.length > 0) {
             const valueString = keys.reduce((pre, property, index) => {
               let value = getPropertyFromDataOrMetadata(data, metadata, property);

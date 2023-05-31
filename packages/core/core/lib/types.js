@@ -6,8 +6,6 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2');
  * @typedef {import('stream').Writable} WritableStream
 */
 
-// Broker
-
 /**
  * @typedef {object} ActionOptions - Action options
  * @property {Context} [context] - Assign a existing context instead of creating a new one.
@@ -86,7 +84,7 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2');
  * @property {ServiceManager} [services] - Service manager
  * @property {ContextFactory} [contextFactory] - contextFactory
  * @property {Logger} log - Logger instance
- * @property {function(string, any):Logger} [createLogger] - Create a new logger instace.
+ * @property {function(string, any):Logger} [createLogger] - Create a new logger instance.
  * @property {Cache} [cache] - Cache
  * @property {string} [getUUID] - Create a new from the UUID factory.
  * @property {Registry} registry - Service registry reference
@@ -361,8 +359,6 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2');
  * @property {function():Promise<any>} stop stop
 */
 
-// Transport
-
 /**
  * Transport interface
  * @export
@@ -449,8 +445,6 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2');
  * @property {void} close close
 */
 
-// Registry
-
 /**
  * Registry init function
  * @typedef {function} RegistryInitFunctionDef
@@ -498,7 +492,6 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2');
 
 /**
  * Endpoint collection
- *
  * @typedef EndpointCollection
  * @property {string} name name
  * @property {string} groupName groupName
@@ -705,7 +698,6 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2');
  * @property {function():Promise<any>} stop stop
 */
 
-// Health handler
 /**
  * Health handler
  * @typedef HealthHandler
@@ -718,8 +710,6 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2');
  * @property {any} getTransportInfos getTransportInfos
  * @property {any} getNodeHealthInfo getNodeHealthInfo
  */
-
-// Metrics
 
 /**
  * Metric registry
@@ -736,8 +726,6 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2');
  * @property {any} list list
  * @property {function():Promise<any>} stop list
 */
-
-// Midlewares
 
 /**
  * Middleware handler
@@ -779,14 +767,10 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2');
  * @property {function(Broker):void} [transportMessageHandler] stopped
 */
 
-// Validator
-
 /**
  * Validator
  * @typedef {Object} Validator
 */
-
-// Tracer
 
 /**
  * Tracer instance

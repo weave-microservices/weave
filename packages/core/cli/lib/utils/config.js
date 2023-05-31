@@ -7,6 +7,29 @@ const defaultConfigFileName = 'weave.config.js';
 const defaultEnvPrefix = 'WV_';
 const dotSeperator = '__';
 
+const overridePropertiesFromEnvVariables = (config) => {
+  Object.keys(process.env)
+    .filter(key => key.startsWith(defaultEnvPrefix))
+    .map(key => ({
+      key,
+      property: key.substr(defaultEnvPrefix.length)
+    }))
+    .forEach((envObject) => {
+      const dotted = envObject.property
+        .split(dotSeperator)
+        .map(part => part.toLocaleLowerCase())
+        .map(part => {
+          return part.split('_')
+            .map((value, index) => {
+              return index === 0 ? value : value[0].toUpperCase() + value.substring(1);
+            }).join('');
+        }).join('.');
+
+      dotSet(config, dotted, process.env[envObject.key]);
+    });
+  return config;
+};
+
 exports.getConfig = (flags) => {
   const currentPath = process.cwd();
   let filePath;
@@ -27,7 +50,6 @@ exports.getConfig = (flags) => {
 
     const fileExtension = path.extname(filePath);
 
-    // Handle file extensions
     switch (fileExtension) {
     case '.json':
     case '.js': {
@@ -41,26 +63,7 @@ exports.getConfig = (flags) => {
     config = getDefaultOptions();
   }
 
-  // Override properties from env vars.
-  Object.keys(process.env)
-    .filter(key => key.startsWith(defaultEnvPrefix))
-    .map(key => ({
-      key,
-      property: key.substr(defaultEnvPrefix.length)
-    }))
-    .forEach((envObject) => {
-      const dotted = envObject.property
-        .split(dotSeperator)
-        .map(part => part.toLocaleLowerCase())
-        .map(part => {
-          return part.split('_')
-            .map((value, index) => {
-              return index === 0 ? value : value[0].toUpperCase() + value.substring(1);
-            }).join('');
-        }).join('.');
-
-      dotSet(config, dotted, process.env[envObject.key]);
-    });
+  config = overridePropertiesFromEnvVariables(config);
 
   return config;
 };

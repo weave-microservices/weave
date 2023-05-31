@@ -5,11 +5,9 @@ const camelize = (str) => {
 exports.cleanArgs = (options) => {
   const args = {};
   Object.keys(options).forEach(o => {
-    const key = camelize(o.replace(/^--/, ''));
-    // if an option is not present and Command has a method with the same name
-    // it should not be copied
-    if (typeof options[key] !== 'function' && typeof options[key] !== 'undefined') {
-      args[key] = options[key];
+    const camelizedKey = camelize(o.replace(/^--/, ''));
+    if (typeof options[camelizedKey] !== 'function' && typeof options[camelizedKey] !== 'undefined') {
+      args[camelizedKey] = options[camelizedKey];
     }
   });
 

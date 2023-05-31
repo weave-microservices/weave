@@ -20,12 +20,10 @@ exports.initLogger = (runtime) => {
       ...additional
     };
 
-    // custom logger generator function.
     if (typeof runtime.options.logger === 'function') {
       return runtime.options.logger(bindings, runtime.options.logger.level);
     }
 
-    // merge log options
     const loggerOptions = defaultsDeep({
       base: {
         ...bindings
@@ -37,7 +35,6 @@ exports.initLogger = (runtime) => {
 
   const createLogger = (moduleName, service) => loggerFactory(runtime, moduleName, service);
 
-  // create weave default logger
   const log = createLogger('WEAVE');
 
   Object.assign(runtime, {

@@ -99,10 +99,8 @@ module.exports = async (middlewareName, options) => {
     middlewareFunctions = result.middlewareFunctions;
   }
 
-  // Handle file suffix option (.middleware.js)
   const suffix = options.suffix ? options.suffix : 'middleware';
 
-  // Build service file path
   const newMiddlewarePath = path.join(middlewareFolder, `${middlewareName}.${suffix}.js`);
 
   const data = {
@@ -110,14 +108,12 @@ module.exports = async (middlewareName, options) => {
     middlewareFunctions
   };
 
-  // Render service file from template
   ejs.renderFile(path.join(__dirname, 'templates', 'middleware.ejs'), data, null, function (error, result) {
     if (error) {
       throw error;
     }
 
     console.log(`✨ Writing file in ${kleur.yellow(newMiddlewarePath)}`);
-    // Write file
     fs.writeFileSync(path.resolve(newMiddlewarePath), result, 'utf8');
   });
 };

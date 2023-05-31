@@ -9,7 +9,6 @@ const getCacheKeyByObject = (value) => {
   if (Array.isArray(value)) {
     return '[' + value.map(object => getCacheKeyByObject(object)).join(',') + ']';
   } else if (isObject(value)) {
-    // Handle date objects
     if (value instanceof Date) {
       return value.toISOString();
     }

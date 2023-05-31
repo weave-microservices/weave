@@ -8,9 +8,7 @@ const { dotGet } = require('@weave-js/utils');
  * @returns {any} Result
  */
 const getPropertyFromDataOrMetadata = (data, metadata, key) => {
-  // if a key starts with ":", the property is picked from metadata
   if (key.startsWith(':')) {
-    // remove ':' from key.
     key = key.replace(':', '');
     return dotGet(metadata, key);
   }

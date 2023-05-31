@@ -4,14 +4,12 @@ const pkg = require('../package.json');
 const { program } = require('commander');
 const { cleanArgs } = require('./utils/args');
 
-// Check for new CLI version
 updateNotifier({ pkg }).notify();
 
 program
   .version(`@weave-js/cli ${require('../package').version}`)
   .usage('<command> [options]');
 
-// start command
 program
   .command('start')
   .description('Start a new weave broker instance')
@@ -24,7 +22,6 @@ program
     require('./commands/start').handler(cleanArgs(args));
   });
 
-// create command
 program
   .command('create <type> <name>')
   .description('create a new project powered by vue-cli-service')

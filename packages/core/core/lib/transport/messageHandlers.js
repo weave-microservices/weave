@@ -32,25 +32,20 @@ module.exports = (runtime, transport) => {
   const localRequestProxy = (context) => {
     const actionName = context.action.name;
 
-    // Get available endpoints
-    const endpointList = registry.getActionEndpoints(actionName);
+    const availableEndpointList = registry.getActionEndpoints(actionName);
 
-    // Reject the request if no local endpoint can be found.
-    if (endpointList == null || !endpointList.hasLocal()) {
+    if (availableEndpointList == null || !availableEndpointList.hasLocal()) {
       transport.log.warn(`Service ${actionName} not found localy.`);
       return Promise.reject('Service not found');
     }
 
-    // From all available local endpoints - get one.
-    const endpoint = endpointList.getNextLocalEndpoint();
+    const endpoint = availableEndpointList.getNextLocalEndpoint();
 
-    // if there is no endpoint, reject
     if (!endpoint) {
       transport.log.warn(`Service ${actionName} is not available localy.`);
       return Promise.reject('Service not found');
     }
 
-    // Call the local action handler with context
     const promise = endpoint.action.handler(context);
     promise.context = context;
 
@@ -58,7 +53,6 @@ module.exports = (runtime, transport) => {
   };
 
   const handleIncomingRequestStream = (payload) => {
-    // check for open stream.
     let stream = transport.pending.requestStreams.get(payload.id);
     let isNew = false;
 
@@ -75,7 +69,6 @@ module.exports = (runtime, transport) => {
         }
       );
 
-      // handle backpressure
       if (runtime.options.transport.streams.handleBackpressure) {
         stream.on('backpressure', async ({ sender, requestId }) => {
           const message = createMessage(MessageTypes.MESSAGE_REQUEST_STREAM_BACKPRESSURE, sender, { id: requestId });
@@ -107,7 +100,6 @@ module.exports = (runtime, transport) => {
 
         // Todo: Handle errors
 
-        // end of stream
         stream.end();
         transport.pending.requestStreams.delete(payload.id);
         return null;
@@ -147,7 +139,6 @@ module.exports = (runtime, transport) => {
         }
       );
 
-      // handle backpressure
       if (runtime.options.transport.streams.handleBackpressure) {
         stream.on('backpressure', async ({ sender, requestId }) => {
           const message = createMessage(MessageTypes.MESSAGE_RESPONSE_STREAM_BACKPRESSURE, sender, { id: requestId });
@@ -182,7 +173,6 @@ module.exports = (runtime, transport) => {
 
         // Todo: Handle errors
 
-        // end of stream
         stream.end();
         transport.pending.responseStreams.delete(payload.id);
         return null;
@@ -229,9 +219,7 @@ module.exports = (runtime, transport) => {
     try {
       let stream;
 
-      // Handle incomming stream
       if (payload.isStream !== undefined) {
-        // check for open stream.
         stream = handleIncomingRequestStream(payload);
         if (!stream) {
           return Promise.resolve();
@@ -252,7 +240,6 @@ module.exports = (runtime, transport) => {
       context.callerNodeId = payload.sender;
       context.options.timeout = getRequestTimeout(payload);
 
-      // If payload is a stream, attach stream to context
       if (payload.isStream) {
         context.stream = stream;
       }
@@ -278,10 +265,8 @@ module.exports = (runtime, transport) => {
       return Promise.resolve();
     }
 
-    // Merge meta data from response
     Object.assign(request.context.meta, payload.meta);
 
-    // Handle streams
     if (payload.isStream != null) {
       if (handleIncomingResponseStream(payload, request)) {
         return;
@@ -290,7 +275,6 @@ module.exports = (runtime, transport) => {
 
     transport.pending.requests.delete(payload.id);
 
-    // Response is an error
     if (!payload.success) {
       const error = restoreError(payload.error);
 
@@ -362,7 +346,6 @@ module.exports = (runtime, transport) => {
       context.options.timeout = payload.timeout;
     }
 
-    // add event infos
     context.eventName = payload.eventName;
     context.eventType = payload.isBroadcast ? 'broadcast' : 'emit';
 
@@ -387,17 +370,14 @@ module.exports = (runtime, transport) => {
     transport.log.verbose(`Heartbeat from ${payload.sender}`);
     const node = registry.nodeCollection.get(payload.sender);
 
-    // if node is unknown then request a node info message.
     if (node) {
       if (!node.isAvailable) {
         transport.log.debug('Known node. Propably reconnected.');
-        // unknown node. request info message.
         transport.discoverNode(payload.sender);
       } else {
         node.heartbeat(payload);
       }
     } else {
-      // unknown node. request info message.
       transport.discoverNode(payload.sender);
     }
   };
@@ -500,10 +480,7 @@ module.exports = (runtime, transport) => {
       return true;
     } catch (error) {
       transport.log.error(error, type, data);
-
-      runtime.eventBus.broadcastLocal('$transport.error', {
-        error
-      });
+      runtime.eventBus.broadcastLocal('$transport.error', { error });
     }
     return false;
   };
