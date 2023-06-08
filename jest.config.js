@@ -25,6 +25,21 @@ module.exports = {
       testEnvironment: 'node',
       displayName: lockServicePkg.name,
       testMatch: ['<rootDir>/packages/services/lock/**/?(*.)+(spec|test).[jt]s?(x)']
+    },
+    {
+      testEnvironment: 'node',
+      displayName: lockServicePkg.name,
+      testMatch: ['<rootDir>/packages/services/lock/**/?(*.)+(spec|test).[jt]s?(x)']
+    },
+    {
+      testEnvironment: 'node',
+      displayName: '@weave-js/lock-store',
+      testMatch: ['<rootDir>/packages/lock-stores/lock-store/**/?(*.)+(spec|test).[jt]s?(x)']
+    },
+    {
+      testEnvironment: 'node',
+      displayName: '@weave-js/lock-store-mongodb',
+      testMatch: ['<rootDir>/packages/lock-stores/lock-store-adapters/mongo-db/**/?(*.)+(spec|test).[jt]s?(x)']
     }
   ]
 };

@@ -1,0 +1,15 @@
+{
+  "name": "@weave-js/lock-store",
+  "version": "0.4.0",
+  "main": "lib/index.js",
+  "author": "",
+  "license": "ISC",
+  "gitHead": "84fd5e4af3af96e8c004bcfba40bb3cb35f23fa7",
+  "description": "Lock store implementation",
+  "scripts": {
+    "ci": "jest --watch",
+    "test": "NODE_ENV=test jest --no-cache --runInBand",
+    "coverage": "jest --coverage --no-cache",
+    "lint": "eslint . --ext .js --fix"
+  }
+}

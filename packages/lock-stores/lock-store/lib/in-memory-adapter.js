@@ -1,4 +1,4 @@
-const createInMemoryLockStore = (options = {}) => {
+const createInMemoryLockStoreAdapter = async (userOptions = {}) => {
   const database = {
     locks: []
   };
@@ -9,22 +9,18 @@ const createInMemoryLockStore = (options = {}) => {
     });
   };
 
-  const acquire = async (hash, expiresAt = Number.MAX_SAFE_INTEGER) => {
-    await removeExpiredLocks();
-    const isLocked = database.locks.some(lock => {
-      lock.value === hash;
+  const lock = async (lockItem) => {
+    database.locks.push(lockItem);
+  };
+
+  const getLock = async (hash) => {
+    return database.locks.find(lock => {
+      return lock.value === hash;
     });
-
-    if (isLocked) {
-      throw new Error('Failed to acquire lock.');
-    }
-
-    const lock = { value: hash, expiresAt };
-    database.locks.push(lock);
   };
 
   const isLocked = async (hash) => {
-    return database.locks.some(lock => {
+    return database.locks.some((lock) => {
       return lock.value === hash && Date.now() <= lock.expiresAt;
     });
   };
@@ -57,15 +53,10 @@ const createInMemoryLockStore = (options = {}) => {
       return lock.value === hash;
     });
 
-    // The lock is already released
-    if (!existingLock) {
-      throw new Error('Failed to renew lock.');
-    }
-
     existingLock.expiresAt = expiresAt;
   };
 
-  return { acquire, isLocked, renew, release };
+  return { removeExpiredLocks, lock, isLocked, renew, release, getLock };
 };
 
-module.exports = { createInMemoryLockStore };
+module.exports = { createInMemoryLockStoreAdapter };
