@@ -8,6 +8,5 @@ module.exports = {
   rootDir: './',
   roots: [
     './test'
-  ],
-  testTimeout: 20000
+  ]
 };
