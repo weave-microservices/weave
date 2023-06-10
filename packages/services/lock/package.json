@@ -4,6 +4,7 @@
   "description": "Distributed Lock service for weave.js",
   "main": "./lib/lock-service.js",
   "scripts": {
+    "test": "NODE_ENV=test jest --no-cache --runInBand",
     "ci": "jest --watch",
     "coverage": "jest --coverage --no-cache",
     "lint": "eslint . --ext .js --fix"

@@ -20,9 +20,7 @@ describe('Test lock service', () => {
       }
     });
 
-    broker1.createService(createLockService({
-      adapter: createMongoDbLockStoreAdapter({ url: 'mongodb://localhost:27017/lock_store' })
-    }));
+    broker1.createService(createLockService());
     broker1.bus.on('$lock.*', (lock) => {
       console.log(lock.key);
     });
