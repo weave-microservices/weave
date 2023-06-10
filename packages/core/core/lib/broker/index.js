@@ -5,7 +5,6 @@
  * @typedef {import('../types.js').Transport} Transport
 */
 
-// node packages
 const { isFunction } = require('@weave-js/utils');
 const path = require('path');
 const glob = require('glob');
@@ -31,26 +30,21 @@ exports.createBrokerInstance = (runtime) => {
     transport
   } = runtime;
 
-  // Log Messages
   log.info(`Initializing #weave node version ${version}`);
   log.info(`Node Id: ${options.nodeId}`);
 
-  // Output namespace
   if (options.namespace) {
     log.info(`Namespace: ${options.namespace}`);
   }
 
-  // Init metrics
   if (runtime.metrics) {
     runtime.metrics.init();
   }
 
-  // Init cache
   if (runtime.cache) {
     runtime.cache.init();
   }
 
-  // broker object
   /** @type {Broker} */
   const broker = Object.create(null);
 
@@ -131,7 +125,6 @@ exports.createBrokerInstance = (runtime) => {
     const startTime = Date.now();
     await middlewareHandler.callHandlersAsync('starting', [runtime], true);
 
-    // If transport is used, we connect the transport adapter.
     if (transport) {
       await transport.connect();
     }
@@ -146,10 +139,8 @@ exports.createBrokerInstance = (runtime) => {
 
     runtime.state.isStarted = true;
     eventBus.broadcastLocal('$broker.started');
-    // refresh local node information
     registry.generateLocalNodeInfo(true);
 
-    // If transport is used, we set the transport ready to inform the other nodes
     if (transport) {
       await transport.setReady();
     }
@@ -174,7 +165,6 @@ exports.createBrokerInstance = (runtime) => {
 
     await middlewareHandler.callHandlersAsync('stopping', [runtime], true);
 
-    // Stop services
     try {
       await Promise.all(services.serviceList.map(service => service.stop()));
     } catch (error) {
@@ -182,33 +172,27 @@ exports.createBrokerInstance = (runtime) => {
       throw error;
     }
 
-    // Disconnect transports
     if (transport) {
       await transport.disconnect();
     }
 
-    // Stop cache
     if (runtime.cache) {
       log.debug('Stopping caching adapters.');
       await runtime.cache.stop();
     }
 
-    // Stop metrics
     if (runtime.metrics) {
       log.debug('Stopping metrics.');
       await runtime.metrics.stop();
     }
 
-    // Stop tracers
     if (runtime.tracer) {
       log.debug('Stopping tracing adapters.');
       await runtime.tracer.stop();
     }
 
-    // Call "stopped" middleware method.
     await middlewareHandler.callHandlersAsync('stopped', [runtime], true);
 
-    // Call "stopped" lifecycle hook
     if (!runtime.state.isStarted && isFunction(options.stopped)) {
       options.stopped.call(runtime);
     }
@@ -229,7 +213,7 @@ exports.createBrokerInstance = (runtime) => {
    * Ping other nodes
    * @param {string=} nodeId Node ID
    * @param {number} timeout Timeout
-   * @returns {Object<string, number>} Result
+   * @returns {Promise<Object<string, number>>} Result
   */
   broker.ping = function (nodeId, timeout = 3000) {
     if (transport && transport.isConnected) {
@@ -250,7 +234,6 @@ exports.createBrokerInstance = (runtime) => {
           transport.sendPing(nodeId);
         });
       } else {
-        // handle arrays
         const pongs = {};
 
         const nodes = registry.nodeCollection.list({})
@@ -289,7 +272,6 @@ exports.createBrokerInstance = (runtime) => {
     return Promise.resolve(nodeId ? null : {});
   };
 
-  // Register internal broker events
   broker.bus.on('$node.disconnected', ({ nodeId }) => {
     runtime.transport.removePendingRequestsByNodeId(nodeId);
     services.serviceChanged(false);
@@ -301,101 +283,81 @@ exports.createBrokerInstance = (runtime) => {
    * @returns {void}
    */
   const registerMiddlewares = (customMiddlewares) => {
-    // Register custom middlewares
     if (Array.isArray(customMiddlewares) && customMiddlewares.length > 0) {
       customMiddlewares.forEach(middleware => middlewareHandler.add(middleware));
     }
 
-    // Add the built-in middlewares. (The order is important)
     if (options.loadInternalMiddlewares) {
       middlewareHandler.add(Middlewares.ActionHooks);
 
-      // Validator middleware
       if (options.validateActionParams && validator) {
         middlewareHandler.add(Middlewares.Validator);
       }
 
-      // Bulkhead
       if (options.bulkhead.enabled) {
         middlewareHandler.add(Middlewares.Bulkhead);
       }
 
-      // Cache
       if (runtime.cache) {
         middlewareHandler.add(Middlewares.Cache);
       }
 
-      // Context tracking
       if (options.contextTracking.enabled) {
         middlewareHandler.add(Middlewares.ContextTracker);
       }
 
-      // Circuit breaker
       if (options.circuitBreaker.enabled) {
         middlewareHandler.add(Middlewares.CircuitBreaker);
       }
 
-      // timeout middleware
       middlewareHandler.add(Middlewares.Timeout);
 
-      // Retry policy
       if (options.retryPolicy.enabled) {
         middlewareHandler.add(Middlewares.Retry);
       }
 
-      // Error handler
       middlewareHandler.add(Middlewares.ErrorHandler);
 
-      // Tracing
       if (options.tracing.enabled) {
         middlewareHandler.add(Middlewares.Tracing);
       }
 
-      // Metrics
       if (options.metrics.enabled) {
         middlewareHandler.add(Middlewares.Metrics);
       }
     }
 
-    // Wrap runtime and broker methods for middlewares
     runtime.actionInvoker.call = middlewareHandler.wrapMethod('call', runtime.actionInvoker.call);
     runtime.actionInvoker.multiCall = middlewareHandler.wrapMethod('multiCall', broker.multiCall);
     runtime.eventBus.emit = middlewareHandler.wrapMethod('emit', runtime.eventBus.emit);
     runtime.eventBus.broadcast = middlewareHandler.wrapMethod('broadcast', runtime.eventBus.broadcast);
     runtime.eventBus.broadcastLocal = middlewareHandler.wrapMethod('broadcastLocal', runtime.eventBus.broadcastLocal);
 
-    // Wrap broker methods
     broker.createService = middlewareHandler.wrapMethod('createService', broker.createService);
     broker.loadService = middlewareHandler.wrapMethod('loadService', broker.loadService);
     broker.loadServices = middlewareHandler.wrapMethod('loadServices', broker.loadServices);
     broker.ping = middlewareHandler.wrapMethod('ping', broker.ping);
   };
 
-  // Run "beforeRegisterMiddlewares" hook
   if (isFunction(options.beforeRegisterMiddlewares)) {
     options.beforeRegisterMiddlewares.call(broker, { broker, runtime });
   }
 
-  // Register middlewares
   registerMiddlewares(options.middlewares);
 
-  // Stop the broker greaceful
   /* istanbul ignore next */
   const onClose = () => broker.stop()
     .catch(error => broker.log.error(error))
     .then(() => process.exit(0));
 
-  // SIGTERM listener
   process.setMaxListeners(0);
   process.on('beforeExit', onClose);
   process.on('exit', onClose);
   process.on('SIGINT', onClose);
   process.on('SIGTERM', onClose);
 
-  // Add broker reference to runtime
   Object.assign(runtime, { broker });
 
-  // Call middleware hook for broker created.
   middlewareHandler.callHandlersSync('created', [runtime]);
 
   return broker;

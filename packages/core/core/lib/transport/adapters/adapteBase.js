@@ -81,7 +81,6 @@ const createTransportBase = () => {
     },
     serialize (packet) {
       try {
-        // Add the sender to each outgoing message
         packet.payload.sender = this.broker.nodeId;
         return Buffer.from(JSON.stringify(packet));
       } catch (error) {

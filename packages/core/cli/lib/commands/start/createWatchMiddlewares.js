@@ -72,12 +72,10 @@ function createWatchMiddleware (weaveCli) {
     function processModule (module, service = null, level = 0, parents = null) {
       const filename = module.filename;
 
-      // skip node_modules
       if ((service || parents) && filename.includes('node_modules')) {
         return;
       }
 
-      // Avoid circular dependency in project files
       if (parents && parents.includes(filename)) {
         return;
       }
@@ -94,7 +92,6 @@ function createWatchMiddleware (weaveCli) {
       }
 
       if (service) {
-        // get watch item
         const watchItem = getFileWatchItem(filename);
         if (!watchItem.services.includes(service.fullyQualifiedName)) {
           watchItem.services.push(service.fullyQualifiedName);
@@ -112,7 +109,6 @@ function createWatchMiddleware (weaveCli) {
 
       if (module.children && module.children.length > 0) {
         if (service) {
-          // Check if file is a service file
           parents = parents ? parents.concat([filename]) : [filename];
         } else if (isWeaveConfigFile(filename)) {
           parents = [];
@@ -168,11 +164,8 @@ function createWatchMiddleware (weaveCli) {
           runtime.log.debug(`Reloading ${watchItem.services.length} services... {${relativePath}}`);
         }
 
-        // Attach file watcher to watch item.
-        // `triggeredChangeEvents` stores the last mtime from file to prevent double triggered events.
         const triggeredChangeEvents = new Map();
         watchItem.watcher = fs.watch(relativePath, (eventType) => {
-          // store mtime of file to prevent double triggered events.
           const stats = fs.statSync(relativePath);
           const seconds = +stats.mtime;
           if (triggeredChangeEvents.get(relativePath) === seconds) {

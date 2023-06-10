@@ -30,7 +30,6 @@ exports.initMetrics = (runtime) => {
         storage,
         log,
         init () {
-          // Load adapters
           if (metricOptions.adapters) {
             if (!Array.isArray(metricOptions.adapters)) {
               runtime.handleError(new WeaveError('Metic adapter needs to be an Array.'));
@@ -128,11 +127,6 @@ exports.initMetrics = (runtime) => {
             }
             return duration;
           };
-          // const item = this.storage.get(name)
-          // if (item) {
-
-          // }
-          // item.observe(labels, value, timestamp)
         },
         getMetric (name) {
           const item = this.storage.get(name);

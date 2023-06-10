@@ -25,9 +25,6 @@ app.createService({
   name: 'test',
   actions: {
     hello: {
-      // params: {
-      //   name: 'string'
-      // },
       async handler (context) {
         context.emit('hello.sent');
         return context.call('greater.hello');

@@ -150,8 +150,6 @@ exports.createContext = (runtime) => {
     }
   };
 
-
-
   // Generate context Id
   if (!context.id) {
     // Use UUID factory from broker options

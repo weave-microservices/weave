@@ -70,7 +70,6 @@ exports.createTransport = (runtime, adapter) => {
 
       const doConnect = (isTryReconnect) => {
         const errorHandler = (error) => {
-          // Skip reconnect, if the adapter is disconnecting or an reconnect is in progress.
           if (transport.isDisconnecting || transport.reconnectInProgress) {
             return;
           }
@@ -132,7 +131,6 @@ exports.createTransport = (runtime, adapter) => {
       return Promise.resolve();
     }
 
-    // Collect own node info and send it to remote nodes
     const info = runtime.registry.getLocalNodeInfo();
     const message = createMessage(MessageTypes.MESSAGE_INFO, sender, {
       ...info,
@@ -237,8 +235,10 @@ exports.createTransport = (runtime, adapter) => {
   };
 
   transport.sendRequest = (context) => {
-    // If the queue size is set, check the queue size and reject the job when the limit is reached.
-    if (runtime.options.transport.maxQueueSize && runtime.options.transport.maxQueueSize < pending.requests.size) {
+    const maxQueueSizeExceeded = runtime.options.transport.maxQueueSize &&
+      runtime.options.transport.maxQueueSize < pending.requests.size;
+
+    if (maxQueueSizeExceeded) {
       return Promise.reject(new WeaveQueueSizeExceededError({
         action: context.action.name,
         limit: runtime.options.transport.maxQueueSize,
@@ -383,10 +383,8 @@ exports.createTransport = (runtime, adapter) => {
    * @returns {Promise<void>} - Promise
   */
   transport.sendResponse = (target, contextId, data, meta, error) => {
-    // Check if data is a stream
     const isStream = utils.isStream(data);
 
-    // Build response payload
     const payload = {
       id: contextId,
       meta,
@@ -394,7 +392,6 @@ exports.createTransport = (runtime, adapter) => {
       success: error == null
     };
 
-    // If an error is occurs, we attach the an error object to the payload.
     if (error) {
       payload.error = getErrorPayload(error);
     }
@@ -422,7 +419,6 @@ exports.createTransport = (runtime, adapter) => {
         stream.pause();
         const chunks = [];
 
-        // chunk is larger than maxBufferSize
         if (data instanceof Buffer && runtime.options.transport.maxChunkSize > 0 && data.length > runtime.options.transport.maxChunkSize) {
           const length = data.length;
           let i = 0;
@@ -433,7 +429,6 @@ exports.createTransport = (runtime, adapter) => {
           chunks.push(data);
         }
 
-        // Send chunks from chunk buffer
         for (const chunk of chunks) {
           const payloadCopy = Object.assign({}, payload);
           payloadCopy.sequence = ++payload.sequence;
@@ -445,7 +440,6 @@ exports.createTransport = (runtime, adapter) => {
           transport.send(message);
         }
 
-        // resume stream
         stream.resume();
         return;
       });
@@ -541,7 +535,6 @@ exports.createTransport = (runtime, adapter) => {
 
   let messageHandler = createMessageHandler(runtime, transport);
 
-  // Wrap message handler for middlewares
   messageHandler = middlewareHandler.wrapMethod('transportMessageHandler', messageHandler, transport);
 
   adapter.init(runtime, transport)
@@ -635,10 +628,11 @@ exports.createTransport = (runtime, adapter) => {
     });
   }
 
-  // Removes the node after a given time from the registry.
   function checkOfflineNodes () {
     const now = Date.now();
-    runtime.registry.nodeCollection.list({}).forEach(node => {
+    const nodeList = runtime.registry.nodeCollection.list({});
+
+    nodeList.forEach(node => {
       if (node.isLocal || node.isAvailable) {
         return;
       }

@@ -4,8 +4,8 @@
   "description": "Distributed Lock service for weave.js",
   "main": "./lib/lock-service.js",
   "scripts": {
-    "ci": "jest --watch",
     "test": "NODE_ENV=test jest --no-cache --runInBand",
+    "ci": "jest --watch",
     "coverage": "jest --coverage --no-cache",
     "lint": "eslint . --ext .js --fix"
   },
@@ -24,7 +24,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@weave-js/lock-store": "^0.4.0",
+    "@weave-js/lock-store": "^0.1.0",
     "@weave-js/utils": "^0.13.0"
   },
   "devDependencies": {
@@ -35,6 +35,5 @@
     "lib": "lib",
     "test": "test"
   },
-  "gitHead": "84fd5e4af3af96e8c004bcfba40bb3cb35f23fa7",
-  "private": true
+  "gitHead": "84fd5e4af3af96e8c004bcfba40bb3cb35f23fa7"
 }

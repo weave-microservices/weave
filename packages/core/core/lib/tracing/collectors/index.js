@@ -1,7 +1,6 @@
 const { isFunction } = require('@weave-js/utils');
 
 const collectors = {
-  // Console: require('./console'),
   Event: require('./event'),
   BaseCollector: require('./base')
 };

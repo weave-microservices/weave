@@ -21,20 +21,16 @@ module.exports = async (serviceName, options) => {
     }
   ]);
 
-  // Handle file suffix option (.service.js)
   const suffix = options.suffix ? options.suffix : 'service';
 
-  // Build service file path
   const newServicePath = path.join(serviceFolder, `${serviceName}.${suffix}.js`);
 
-  // Render service file from template
   ejs.renderFile(path.join(__dirname, 'templates', 'service.ejs'), { serviceName }, null, function (error, result) {
     if (error) {
       throw error;
     }
 
     console.log(`✨ Writing file in ${kleur.yellow(newServicePath)}`);
-    // Write file
     fs.writeFileSync(path.resolve(newServicePath), result, 'utf8');
   });
 };

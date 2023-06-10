@@ -37,7 +37,6 @@ exports.initRuntime = (options) => {
     maxListeners: 1000
   });
 
-  // Create base runtime object
   const runtime = {
     nodeId: options.nodeId,
     version,
@@ -51,7 +50,6 @@ exports.initRuntime = (options) => {
     fatalError: (message, error, killProcess) => fatalErrorHandler(runtime, message, error, killProcess)
   };
 
-  // Init modules
   initLogger(runtime);
   initUUIDFactory(runtime);
   initMiddlewareHandler(runtime);

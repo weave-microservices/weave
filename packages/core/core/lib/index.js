@@ -20,16 +20,12 @@ exports.defaultOptions = getDefaultOptions();
  * @return {Broker} Broker instance
 */
 exports.createBroker = (options) => {
-  // get default options
   const defaultOptions = getDefaultOptions();
 
-  // merge options with default options
   options = defaultsDeep(options, defaultOptions);
 
-  // Init runtime
   const runtime = initRuntime(options);
 
-  // Create broker instance
   return createBrokerInstance(runtime);
 };
 
@@ -40,12 +36,10 @@ exports.createBroker = (options) => {
 */
 exports.Weave = exports.createBroker;
 
-// Errors
 exports.Errors = require('./errors');
 
 exports.Constants = require('./constants');
 
-// Caching
 exports.Cache = require('./cache/adapters');
 
 /**
@@ -56,7 +50,6 @@ exports.TransportAdapters = require('./transport/adapters');
 exports.TracingAdapters = require('./tracing/collectors');
 exports.CacheAdapters = require('./cache/adapters');
 
-// Helper
 exports.defineBrokerOptions = require('./helper/defineBrokerOptions');
 exports.defineService = require('./helper/defineService');
 exports.defineAction = require('./helper/defineAction');

@@ -20,24 +20,23 @@ exports.initActionInvoker = (runtime) => {
 
     const action = endpoint.action;
     const nodeId = endpoint.node.id;
-    let context;
+    let contextToUse;
 
-    // If a context is passed, we use this
     if (opts.context !== undefined) {
-      context = opts.context;
-      context.nodeId = nodeId;
+      contextToUse = opts.context;
+      contextToUse.nodeId = nodeId;
     } else {
-      context = contextFactory.create(endpoint, data, opts);
+      contextToUse = contextFactory.create(endpoint, data, opts);
     }
 
     if (endpoint.isLocal) {
-      log.debug({ action: context.action.name, requestId: context.requestId }, 'Call action local.');
+      log.debug({ action: contextToUse.action.name, requestId: contextToUse.requestId }, 'Call action local.');
     } else {
-      log.debug({ action: context.action.name, nodeId, requestId: context.requestId }, 'Call action on remote node.');
+      log.debug({ action: contextToUse.action.name, nodeId, requestId: contextToUse.requestId }, 'Call action on remote node.');
     }
 
-    const p = action.handler(context, { service: context.action.service, runtime, errors });
-    p.context = context;
+    const p = action.handler(contextToUse, { service: contextToUse.action.service, runtime, errors });
+    p.context = contextToUse;
 
     return p;
   };
