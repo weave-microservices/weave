@@ -9,11 +9,11 @@
     "test": "NODE_ENV=test jest --no-cache"
   },
   "devDependencies": {
-    "@shelf/jest-mongodb": "4.1.7",
     "@weave-js/lock-store": "0.4.0"
   },
   "dependencies": {
-    "mongodb": "^5.6.0"
+    "mongodb": "^5.6.0",
+    "@weave-js/utils": "0.13.0"
   },
   "directories": {
     "lib": "lib",

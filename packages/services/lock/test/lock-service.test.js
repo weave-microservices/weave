@@ -1,6 +1,7 @@
 const { createBroker } = require('@weave-js/core');
 const { createLockService } = require('../lib/lock-service');
 const fakeTimers = require('@sinonjs/fake-timers');
+const { createMongoDbLockStoreAdapter } = require('../../../lock-stores/lock-store-adapters/mongo-db/lib');
 
 describe('Test lock service', () => {
   let clock;
@@ -19,16 +20,21 @@ describe('Test lock service', () => {
       }
     });
 
-    broker1.createService(createLockService());
+    broker1.createService(createLockService({
+      adapter: createMongoDbLockStoreAdapter({ url: 'mongodb://localhost:27017/lock_store' })
+    }));
+    broker1.bus.on('$lock.*', (lock) => {
+      console.log(lock.key);
+    });
 
     await broker1.start();
 
-    await broker1.call('$lock.acquireLock', { value: 'my-lock-key' });
+    await broker1.call('$lock.acquireLock', { key: 'my-lock-key', metadata: { userId: 1 }});
 
-    const isLocked = await broker1.call('$lock.isLocked', { value: 'my-lock-key' });
+    const isLocked = await broker1.call('$lock.isLocked', { key: 'my-lock-key' });
     expect(isLocked).toBe(true);
-    await broker1.call('$lock.releaseLock', { value: 'my-lock-key' });
-    const isStillLocked = await broker1.call('$lock.isLocked', { value: 'my-lock-key' });
+    await broker1.call('$lock.releaseLock', { key: 'my-lock-key' });
+    const isStillLocked = await broker1.call('$lock.isLocked', { key: 'my-lock-key' });
     expect(isStillLocked).toBe(false);
   });
 
@@ -44,11 +50,11 @@ describe('Test lock service', () => {
 
     await broker1.start();
 
-    await broker1.call('$lock.acquireLock', { value: 'my-lock-key', expiresAt: Date.now() + 2000 });
-    const isLocked = await broker1.call('$lock.isLocked', { value: 'my-lock-key' });
+    await broker1.call('$lock.acquireLock', { key: 'my-lock-key', expiresAt: Date.now() + 2000 });
+    const isLocked = await broker1.call('$lock.isLocked', { key: 'my-lock-key' });
     expect(isLocked).toBe(true);
     clock.tick(5000);
-    const isStillLocked = await broker1.call('$lock.isLocked', { value: 'my-lock-key' });
+    const isStillLocked = await broker1.call('$lock.isLocked', { key: 'my-lock-key' });
     expect(isStillLocked).toBe(false);
   });
 
@@ -64,11 +70,11 @@ describe('Test lock service', () => {
 
     await broker1.start();
 
-    await broker1.call('$lock.acquireLock', { value: 'my-lock-key', expiresAt: Date.now() + 2000 });
-    const isLocked = await broker1.call('$lock.isLocked', { value: 'my-lock-key' });
+    await broker1.call('$lock.acquireLock', { key: 'my-lock-key', expiresAt: Date.now() + 2000 });
+    const isLocked = await broker1.call('$lock.isLocked', { key: 'my-lock-key' });
     expect(isLocked).toBe(true);
     clock.tick(5000);
-    const isStillLocked = await broker1.call('$lock.isLocked', { value: 'my-lock-key' });
+    const isStillLocked = await broker1.call('$lock.isLocked', { key: 'my-lock-key' });
     expect(isStillLocked).toBe(false);
   });
 
@@ -84,11 +90,11 @@ describe('Test lock service', () => {
 
     await broker1.start();
 
-    await broker1.call('$lock.acquireLock', { value: 'my-lock-key', expiresAt: Date.now() + 2000 });
-    const isLocked = await broker1.call('$lock.isLocked', { value: 'my-lock-key' });
+    await broker1.call('$lock.acquireLock', { key: 'my-lock-key', expiresAt: Date.now() + 2000 });
+    const isLocked = await broker1.call('$lock.isLocked', { key: 'my-lock-key' });
     expect(isLocked).toBe(true);
-    await broker1.call('$lock.renewLock', { value: 'my-lock-key', expiresAt: Date.now() + 4000 }); // 4000
-    const isStillLocked = await broker1.call('$lock.isLocked', { value: 'my-lock-key' });
+    await broker1.call('$lock.renewLock', { key: 'my-lock-key', expiresAt: Date.now() + 4000 }); // 4000
+    const isStillLocked = await broker1.call('$lock.isLocked', { key: 'my-lock-key' });
     expect(isStillLocked).toBe(true);
     clock.tick(3000);
   });

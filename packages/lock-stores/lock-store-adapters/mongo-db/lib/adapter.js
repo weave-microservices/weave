@@ -1,15 +1,16 @@
-const { MongoClient, Collection } = require('mongodb');
+const { MongoClient } = require('mongodb');
 
-const createMongoDbLockStore = async (userOptions = {}) => {
+const createMongoDbLockStoreAdapter = async (userOptions = {}) => {
   const options = {
     url: 'mongodb://localhost:27017/lock_store',
     collectionName: 'lock_store',
     ...userOptions
   };
 
-  let isConnected = false;
+  let eventBus;
   /** @type {MongoClient} */
   let client;
+
   /** @type {Collection} */
   let collection;
 
@@ -28,19 +29,19 @@ const createMongoDbLockStore = async (userOptions = {}) => {
     }
   }
 
-  async function connect () {
+  async function connect (lockStoreEventBus) {
     try {
-      client = await MongoClient.connect(options.url, {
+      eventBus = lockStoreEventBus;
+
+      client = new MongoClient(options.url, {
         useNewUrlParser: true,
         useUnifiedTopology: true
       });
 
-      // await client.connect();
+      await client.connect();
+      await setupDatabase(client);
       const db = client.db();
       collection = db.collection(options.collectionName);
-
-      await collection.insertMany([{ name: 'oedasd' }]);
-      await setupDatabase(client);
     } catch (error) {
       console.log('error, try to reconnect');
       throw error;
@@ -57,72 +58,86 @@ const createMongoDbLockStore = async (userOptions = {}) => {
   }
 
   const removeExpiredLocks = async () => {
-    const res = await collection.find({
-      // expiresAt: {
-      //   $gt: Date.now()
-      // }
-    });
-    console.log('deleted');
+    const removableLocks = await collection.find({
+      expiresAt: {
+        $lt: Date.now()
+      }
+    }).toArray();
+
+    await Promise.all(removableLocks.map(async (lock) => {
+      await collection.deleteOne({ _id: lock._id });
+      eventBus.emit('lock-released', {
+        key: lock.key,
+        expiresAt: lock.expiresAt,
+        metadata: lock.metadata
+      });
+    }));
   };
 
-  const acquire = async (hash, expiresAt = Number.MAX_SAFE_INTEGER) => {
-    await removeExpiredLocks();
-    const isLocked = await collection.findOne({ value: hash });
-
-    // const isLocked = database.locks.some(lock => {
-    //   lock.value === hash;
-    // });
+  const lock = async (key, expiresAt = Number.MAX_SAFE_INTEGER, metadata) => {
+    const isLocked = await collection.findOne({ key });
 
     if (isLocked) {
       throw new Error('Failed to acquire lock.');
     }
 
-    const lock = { value: hash, expiresAt };
+    const lock = { key, expiresAt };
     await collection.insertOne(lock);
+    eventBus.emit('lock-created', { key: lock.key, metadata: lock.metadata });
+  };
+
+  const getLock = async (hash) => {
+    return await collection.findOne({ key: hash });
   };
 
   const isLocked = async (hash) => {
-    const isLocked = await collection.find({ value: hash }).toArray();
-    return !!isLocked;
+    const isLocked = await collection.find({ key: hash }).toArray();
+    return isLocked.length > 0;
   };
 
-  const release = async (hash) => {
-    await removeExpiredLocks();
-
-    const index = database.locks.findIndex(lock => {
-      return lock.value === hash;
-    });
-
-    // The lock is already released
-    if (index === -1) {
-      return;
-    }
-
-    database.locks.splice(index, 1);
+  const release = async (key) => {
+    const locks = await collection.find({ key }).toArray();
+    await Promise.all(locks.map(async (lock) => {
+      await collection.deleteOne({ _id: lock._id });
+      eventBus.emit('lock-released', {
+        key: lock.key,
+        expiresAt: lock.expiresAt,
+        metadata: lock.metadata
+      });
+    }));
   };
 
   /**
    * Renew the value lock
-   * @param {string} hash Hash
+   * @param {string} key Hash
    * @param {number} expiresAt Expiring timestamp
    * @returns {Promise<void>} Result
    */
-  const renew = async (hash, expiresAt) => {
-    await removeExpiredLocks();
-
-    const existingLock = database.locks.find(lock => {
-      return lock.value === hash;
-    });
-
-    // The lock is already released
-    if (!existingLock) {
-      throw new Error('Failed to renew lock.');
-    }
-
-    existingLock.expiresAt = expiresAt;
+  const renew = async (key, expiresAt) => {
+    const locks = await collection.find({ key }).toArray();
+    await Promise.all(locks.map(async (lock) => {
+      await collection.updateOne({ _id: lock._id }, { $set: { expiresAt }});
+      eventBus.emit('lock-renewed', {
+        key: lock.key,
+        expiresAt: lock.expiresAt,
+        metadata: lock.metadata
+      });
+    }));
   };
 
-  return { connect, disconnect, removeExpiredLocks, acquire, isLocked, renew, release };
+  const flush = async () => {
+    const locks = await collection.find({}).toArray();
+    await Promise.all(locks.map(async (lock) => {
+      await collection.deleteOne({ _id: lock._id });
+      eventBus.emit('lock-released', {
+        key: lock.key,
+        expiresAt: lock.expiresAt,
+        metadata: lock.metadata
+      });
+    }));
+  };
+
+  return { connect, disconnect, removeExpiredLocks, lock, getLock, isLocked, renew, release, flush };
 };
 
-module.exports = { createMongoDbLockStore };
+module.exports = { createMongoDbLockStoreAdapter };

@@ -1,3 +1,4 @@
+const EventEmitter = require('events');
 const { createInMemoryLockStoreAdapter } = require('./in-memory-adapter.js');
 
 /**
@@ -28,54 +29,60 @@ const createLockStore = async (userOptions = {}) => {
     ...userOptions
   };
 
-  const connect = async () => options.adapter.connect();
+  const eventBus = new EventEmitter();
+
+  const connect = async () => options.adapter.connect(eventBus);
   const disconnect = async () => options.adapter.disconnect();
 
   /**
    * Acquire a lock
-   * @param {string} hash Lock hash
+   * @param {string} key Lock hash
    * @param {number} expiresAt Expiring timestamp
+   * @param {Object} metadata Metadata
    * @return {Promise<void>} Promise
    */
-  const acquire = async (hash, expiresAt = Number.MAX_SAFE_INTEGER) => {
+  const acquire = async (key, expiresAt = Number.MAX_SAFE_INTEGER, metadata = {}) => {
     await options.adapter.removeExpiredLocks();
-    if (await options.adapter.isLocked(hash)) {
+    if (await options.adapter.isLocked(key)) {
       throw new Error('Failed to acquire lock.');
     }
 
-    const lock = { value: hash, expiresAt };
-    await options.adapter.lock(lock);
-    // database.locks.push(lock);
+    await options.adapter.lock(key, expiresAt, metadata);
   };
 
-  const isLocked = async (hash) => {
-    return options.adapter.isLocked(hash);
-  };
-
-  const release = async (hash) => {
+  const isLocked = async (key) => {
     await options.adapter.removeExpiredLocks();
-    await options.adapter.release(hash);
+    return options.adapter.isLocked(key);
+  };
+
+  const release = async (key) => {
+    await options.adapter.removeExpiredLocks();
+    await options.adapter.release(key);
+  };
+
+  const flush = async () => {
+    await options.adapter.flush();
   };
 
   /**
    * Renew the value lock
-   * @param {string} hash Hash
+   * @param {string} key Hash
    * @param {number} expiresAt Expiring timestamp
    * @returns {Promise<void>} Result
    */
-  const renew = async (hash, expiresAt) => {
+  const renew = async (key, expiresAt) => {
     await options.adapter.removeExpiredLocks();
-    const existingLock = await options.adapter.getLock(hash);
+    const existingLock = await options.adapter.getLock(key);
 
     // The lock is already released
     if (!existingLock) {
       throw new Error('Failed to renew lock.');
     }
 
-    await options.adapter.renew(hash, expiresAt);
+    await options.adapter.renew(key, expiresAt);
   };
 
-  return { connect, disconnect, acquire, isLocked, renew, release };
+  return { eventBus, connect, disconnect, acquire, isLocked, renew, release, flush };
 };
 
 module.exports = { createLockStore };

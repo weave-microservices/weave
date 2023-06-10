@@ -1,46 +1,85 @@
 const lockStore = require('@weave-js/lock-store');
-const { createMongoDbLockStore } = require('../lib/index');
+const { createMongoDbLockStoreAdapter } = require('../lib/index');
 
 jest.setTimeout(30000);
 
 describe('lock-store', () => {
-  jest.useFakeTimers();
+  jest.useFakeTimers({
+    doNotFake: [
+      'setImmediate',
+      'nextTick'
+    ]
+  });
 
   let store;
-  beforeAll(async () => {
+  let eventStack = [];
+  beforeEach(async () => {
     store = await lockStore.createLockStore({
-      adapter: await createMongoDbLockStore({ url: 'mongodb://localhost:27017/lock_store' })
+      adapter: await createMongoDbLockStoreAdapter({ url: 'mongodb://localhost:27017/lock_store' })
     });
-  });
 
-  afterAll(async () => {
-  });
+    store.eventBus.on('lock-created', ({ key }) => {
+      eventStack.push(`lock-created-${key}`);
+    });
 
-  it('should lock', async () => {
+    store.eventBus.on('lock-released', ({ key }) => {
+      eventStack.push(`lock-released-${key}`);
+    });
+
+    store.eventBus.on('lock-renewed', ({ key }) => {
+      eventStack.push(`lock-renewed-${key}`);
+    });
+
     await store.connect();
+  });
 
-    await store.acquire('test', Date.now() + 1000);
+  afterEach(async () => {
+    await store.flush();
+    await store.disconnect();
+    eventStack = [];
+  });
+
+  it('should lock and release', async () => {
+    await store.acquire('test');
     const isLocked = await store.isLocked('test');
     expect(isLocked).toBe(true);
-    await store.disconnect();
+    await store.release('test');
+    const isLocked2 = await store.isLocked('test');
+    expect(isLocked2).toBe(false);
+    expect(eventStack).toEqual([
+      'lock-created-test',
+      'lock-released-test'
+    ]);
   });
 
-  // it('should release lock', async () => {
-  //   const store = await lockStore.createLockStore();
-  //   await store.acquire('test', Date.now() + 1000);
-  //   await store.release('test');
-  //   const isLocked = await store.isLocked('test');
-  //   expect(isLocked).toBe(false);
-  // });
+  it('should lock and release after expiration time', async () => {
+    await store.acquire('test', Date.now() + 1000);
+    const isLockedBeforeExpiration = await store.isLocked('test');
+    expect(isLockedBeforeExpiration).toBe(true);
+    jest.advanceTimersByTime(2000);
+    const isLocked = await store.isLocked('test');
+    expect(isLocked).toBe(false);
+    expect(eventStack).toEqual([
+      'lock-created-test',
+      'lock-released-test'
+    ]);
+  });
 
-  // it('should release lock after time expired', async () => {
-  //   const store = await lockStore.createLockStore();
-  //   await store.acquire('test', Date.now() + 2000);
-  //   jest.advanceTimersByTime(1000);
-  //   const isLocked1 = await store.isLocked('test');
-  //   expect(isLocked1).toBe(true);
-  //   jest.advanceTimersByTime(3000);
-  //   const isLocked2 = await store.isLocked('test');
-  //   expect(isLocked2).toBe(false);
-  // });
+  it('should lock and renew the expiration time', async () => {
+    await store.acquire('test', Date.now() + 1000);
+    const isLockedBeforeExpiration = await store.isLocked('test');
+    expect(isLockedBeforeExpiration).toBe(true);
+    jest.advanceTimersByTime(500);
+    const isLocked = await store.isLocked('test');
+    expect(isLocked).toBe(true);
+    await store.renew('test', Date.now() + 500);
+    jest.advanceTimersByTime(600);
+    const isLocked2 = await store.isLocked('test');
+    expect(isLocked2).toBe(false);
+    expect(eventStack).toEqual([
+      'lock-created-test',
+      'lock-renewed-test',
+      'lock-released-test'
+    ]);
+  });
 });

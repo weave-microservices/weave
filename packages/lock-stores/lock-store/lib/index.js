@@ -1,2 +1,4 @@
 const { createLockStore } = require('./createLockStore');
-module.exports = { createLockStore };
+const { createInMemoryLockStoreAdapter } = require('./in-memory-adapter');
+
+module.exports = { createLockStore, createInMemoryLockStoreAdapter };

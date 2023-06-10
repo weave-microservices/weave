@@ -1,2 +1,2 @@
-const { createMongoDbLockStore } = require('./adapter');
-module.exports = { createMongoDbLockStore };
+const { createMongoDbLockStoreAdapter } = require('./adapter');
+module.exports = { createMongoDbLockStoreAdapter };
