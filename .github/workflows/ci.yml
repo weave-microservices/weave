@@ -24,7 +24,7 @@ jobs:
         ports:
           - 4222:4222
       mongodb:
-        image: mongo
+        image: mongo:6
         options: >-
           --health-cmd mongo
           --health-interval 10s
