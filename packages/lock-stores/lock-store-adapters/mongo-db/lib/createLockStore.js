@@ -5,6 +5,9 @@ const createLockStore = (type, options = {}) => {
   case 'InMemory': {
     return createInMemoryLockStore(options);
   }
+  case 'MongoDb': {
+    return createInMemoryLockStore(options);
+  }
   default: {
     throw new Error('Database type invalid.');
   }

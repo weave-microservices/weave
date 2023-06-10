@@ -6,8 +6,8 @@
       "packages/transports/*",
       "packages/tracing-adapters/*",
       "packages/services/*",
-      "packages/stores/*"
-
+      "packages/lock-stores/*",
+      "packages/lock-stores/lock-store-adapters/*"
     ],
     "version": "independent",
     "command": {
