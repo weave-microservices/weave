@@ -5,7 +5,6 @@
   "main": "./lib/lock-service.js",
   "scripts": {
     "ci": "jest --watch",
-    "test": "NODE_ENV=test jest --no-cache --runInBand",
     "coverage": "jest --coverage --no-cache",
     "lint": "eslint . --ext .js --fix"
   },

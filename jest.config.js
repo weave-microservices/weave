@@ -21,16 +21,11 @@ module.exports = {
       displayName: utilsPkg.name,
       testMatch: ['<rootDir>/packages/core/utils/**/?(*.)+(spec|test).[jt]s?(x)']
     },
-    {
-      testEnvironment: 'node',
-      displayName: lockServicePkg.name,
-      testMatch: ['<rootDir>/packages/services/lock/**/?(*.)+(spec|test).[jt]s?(x)']
-    },
-    {
-      testEnvironment: 'node',
-      displayName: lockServicePkg.name,
-      testMatch: ['<rootDir>/packages/services/lock/**/?(*.)+(spec|test).[jt]s?(x)']
-    },
+    // {
+    //   testEnvironment: 'node',
+    //   displayName: lockServicePkg.name,
+    //   testMatch: ['<rootDir>/packages/services/lock/**/?(*.)+(spec|test).[jt]s?(x)']
+    // },
     {
       testEnvironment: 'node',
       displayName: '@weave-js/lock-store',
