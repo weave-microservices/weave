@@ -1,12 +1,12 @@
-const { createBroker, TransportAdapters, CacheAdapters } = require('../../../packages/core/core/lib')
-const repl = require('../../../packages/core/repl/lib/index')
+const { createBroker, TransportAdapters, CacheAdapters } = require('../../../packages/core/core/lib');
+const repl = require('../../../packages/core/repl/lib/index');
 
 const gwBroker = createBroker({
   nodeId: 'gateway',
   transport: {
     adapter: TransportAdapters.Dummy()
   }
-})
+});
 
 const workerBroker = createBroker({
   nodeId: 'worker',
@@ -20,7 +20,7 @@ const workerBroker = createBroker({
   transport: {
     adapter: TransportAdapters.Dummy()
   }
-})
+});
 
 workerBroker.createService({
   name: 'greeter',
@@ -32,13 +32,13 @@ workerBroker.createService({
       handler (context) {
         return new Promise(resolve => {
           setTimeout(() => {
-            resolve('hello' + context.meta.user.id)
-          }, 500)
-        })
+            resolve('hello' + context.meta.user.id);
+          }, 500);
+        });
       }
     }
   }
-})
+});
 
 workerBroker.createService({
   name: 'user',
@@ -49,15 +49,15 @@ workerBroker.createService({
           user: {
             id: '123'
           }
-        }})
+        }});
       }
     }
   }
-})
+});
 
 Promise.all([
   gwBroker.start(),
   workerBroker.start()
 ]).then(() => {
-  repl(gwBroker)
-})
+  repl(gwBroker);
+});

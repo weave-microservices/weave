@@ -20,7 +20,6 @@ const app = createBroker({
     samplingRate: 1
   }
 });
-
 app.createService({
   name: 'test',
   actions: {
@@ -67,3 +66,4 @@ app.createService({
 
 app.start()
   .then(() => repl(app));
+
