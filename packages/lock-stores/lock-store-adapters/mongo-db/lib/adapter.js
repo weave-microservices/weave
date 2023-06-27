@@ -83,7 +83,11 @@ const createMongoDbLockStoreAdapter = async (userOptions = {}) => {
 
     const lock = { key, expiresAt };
     await collection.insertOne(lock);
-    eventBus.emit('lock-created', { key: lock.key, metadata: lock.metadata });
+    eventBus.emit('lock-created', {
+      key: lock.key,
+      expiresAt: lock.expiresAt,
+      metadata: lock.metadata
+    });
   };
 
   const getLock = async (hash) => {

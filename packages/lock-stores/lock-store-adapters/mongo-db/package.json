@@ -1,12 +1,11 @@
 {
   "name": "@weave-js/lock-store-mongodb",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MongoDb-Adapter for lock store",
   "main": "lib/index.js",
   "author": "",
   "license": "ISC",
-  "scripts": {
-  },
+  "scripts": {},
   "devDependencies": {
     "@weave-js/lock-store": "0.1.0"
   },
