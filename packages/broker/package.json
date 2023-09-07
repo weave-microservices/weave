@@ -1,0 +1,56 @@
+{
+  "name": "@weave-js/core",
+  "version": "0.14.0",
+  "description": "The core package of weave",
+  "keywords": [
+    "Weave",
+    "Microservice",
+    "Microservices",
+    "Framework",
+    "SAAS",
+    "Backend",
+    "Pubsub",
+    "Scalable",
+    "Messagebus",
+    "RPC",
+    "Distributed",
+    "Services",
+    "Micro"
+  ],
+  "main": "./lib/index.js",
+  "scripts": {
+    "ci": "jest --watch",
+    "test": "NODE_ENV=test jest --no-cache --runInBand",
+    "coverage": "jest --coverage --no-cache",
+    "lint": "eslint . --ext .js --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fachw3rk/weave"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": {
+    "name": "Kevin Ries",
+    "company": "Fachwerk Software",
+    "email": "kevin.ries@fachwerk.io",
+    "url": "https://weave-js.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@weave-js/errors": "^0.9.1",
+    "@weave-js/utils": "^0.13.0",
+    "@weave-js/validator": "^0.14.0",
+    "eventemitter2": "^6.4.9",
+    "glob": "^10.2.2"
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "gitHead": "84fd5e4af3af96e8c004bcfba40bb3cb35f23fa7",
+  "devDependencies": {
+    "typescript": "^5.1.6"
+  }
+}

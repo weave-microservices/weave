@@ -1,4 +1,4 @@
-const { createBroker } = require('../../../packages/core/core/lib');
+const { createBroker } = require('../../../packages/broker/src');
 
 const broker = createBroker({
   logger: {

@@ -1,5 +1,5 @@
-const { createBroker, TransportAdapters, CacheAdapters } = require('../../../packages/core/core/lib');
-const repl = require('../../../packages/core/repl/lib/index');
+const { createBroker, TransportAdapters, CacheAdapters } = require('../../../packages/broker/src');
+const repl = require('../../../packages/repl/lib/index');
 
 const gwBroker = createBroker({
   nodeId: 'gateway',

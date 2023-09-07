@@ -19,3 +19,5 @@ packages/services/node-info/coverage
 .lh
 packages/core/repl/.vscode
 .idea
+/coverage/
+dist
