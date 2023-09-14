@@ -192,6 +192,8 @@ exports.createTransport = (runtime, adapter) => {
       metrics: context.metrics,
       requestId: context.requestId,
       parentId: context.parentId,
+      callerNodeId: context.callerNodeId,
+      tracing: context.tracing,
       isBroadcast
     };
 
@@ -273,6 +275,8 @@ exports.createTransport = (runtime, adapter) => {
         metrics: context.metrics,
         requestId: context.requestId,
         parentId: context.parentId,
+        callerNodeId: context.callerNodeId,
+        tracing: context.tracing,
         isStream
       };
 

@@ -27,7 +27,9 @@ exports.createSpan = (tracer, name, options) => {
 
   span.start = (time) => {
     span.startTime = time || hrTime();
-    tracer.invokeCollectorMethod('startedSpan', [span]);
+    if (span.sampled) {
+      tracer.invokeCollectorMethod('startedSpan', [span]);
+    }
     return span;
   };
 
@@ -42,8 +44,12 @@ exports.createSpan = (tracer, name, options) => {
   span.finish = (time) => {
     span.finishTime = time || hrTime();
     span.duration = span.finishTime - span.startTime;
+
     tracer.log.debug(`Span "${span.id}" finished`);
-    tracer.invokeCollectorMethod('finishedSpan', [span]);
+
+    if (span.sampled) {
+      tracer.invokeCollectorMethod('finishedSpan', [span]);
+    }
 
     return span;
   };

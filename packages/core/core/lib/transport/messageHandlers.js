@@ -238,6 +238,7 @@ module.exports = (runtime, transport) => {
       context.metrics = payload.metrics;
       context.level = payload.level;
       context.callerNodeId = payload.sender;
+      context.tracing = payload.tracing;
       context.options.timeout = getRequestTimeout(payload);
 
       if (payload.isStream) {
@@ -341,6 +342,7 @@ module.exports = (runtime, transport) => {
     context.metrics = payload.metrics;
     context.level = payload.level;
     context.callerNodeId = payload.sender;
+    context.tracing = !!payload.tracing;
 
     if (payload.timeout) {
       context.options.timeout = payload.timeout;

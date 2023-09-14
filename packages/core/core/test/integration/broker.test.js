@@ -410,7 +410,6 @@ describe('Test broker context chaining', () => {
       expect(context.id).toBeDefined();
       expect(context.level).toBe(1);
       expect(context.id).toEqual(context.requestId);
-      expect(context.parentContext).toBe(null);
     });
   });
 
@@ -420,7 +419,6 @@ describe('Test broker context chaining', () => {
       expect(context.level).toBe(3);
       expect(context.id).not.toEqual(context.requestId);
       expect(context.options.parentContext.parentId).toEqual(context.requestId);
-      expect(context.parentContext).toBe(null);
     });
   });
 });
@@ -460,7 +458,6 @@ describe('Test maxCallLevel', () => {
       expect(context.id).toBeDefined();
       expect(context.level).toBe(1);
       expect(context.id).toEqual(context.requestId);
-      expect(context.parentContext).toBe(null);
     });
   });
 

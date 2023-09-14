@@ -65,7 +65,7 @@ const wrapTracingLocalActionMiddleware = function (handler, action) {
         sampled: context.tracing
       });
 
-      context.span = span;
+      context.tracing = span.sampled;
 
       return handler(context, serviceInjections)
         .then(result => {
@@ -110,7 +110,7 @@ const wrapTracingLocalEventMiddleware = function (handler, event) {
         sampled: context.tracing
       });
 
-      context.span = span;
+      context.tracing = span.sampled;
 
       return handler(context)
         .then(result => {

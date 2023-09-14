@@ -53,5 +53,41 @@ describe('Test context factxory.', () => {
     // expect(context.options).toBeDefined({})
     expect(context.data).toBeDefined();
     expect(context.requestId).toBe('fancy-request');
+    expect(context.tracing).toBe(null);
+  });
+
+  describe('context tracing', () => {
+    it('should handle parent span.', () => {
+      const runtime = createFakeRuntime({
+        nodeId: 'Testnode'
+      });
+
+      initContextFactory(runtime);
+      const { contextFactory } = runtime;
+
+      expect(contextFactory.create).toBeDefined();
+
+      const parentSpan = {
+        traceId: 123,
+        parentId: 456,
+        sampled: true
+      };
+      // create contex
+
+      const context = contextFactory.create(null, {}, { requestId: 'fancy-request', parentSpan });
+      expect(context.broadcast).toBeDefined();
+      expect(context.call).toBeDefined();
+      expect(context.callerNodeId).toBeNull();
+      expect(context.data).toEqual({});
+      expect(context.duration).toBe(0);
+      expect(context.emit).toBeDefined();
+      expect(context.id).toBeDefined();
+      expect(context.level).toBe(1);
+      expect(context.meta).toEqual({});
+      expect(context.nodeId).toBe('Testnode');
+      expect(context.data).toBeDefined();
+      expect(context.requestId).toBe('fancy-request');
+      expect(context.tracing).toBe(true);
+    });
   });
 });

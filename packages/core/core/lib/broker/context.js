@@ -27,8 +27,8 @@ exports.createContext = (runtime) => {
   const context = {
     id: null,
     nodeId: runtime.nodeId || null,
+    parentId: null,
     callerNodeId: null,
-    parentContext: null,
     endpoint: null,
     data: {},
     meta: {},
@@ -44,6 +44,7 @@ exports.createContext = (runtime) => {
     },
     duration: 0,
     stopTime: 0,
+    isCachedResult: false,
     setData (newParams) {
       this.data = newParams || {};
     },
@@ -137,14 +138,16 @@ exports.createContext = (runtime) => {
       contextCopy.options = this.options;
       contextCopy.data = this.data;
       contextCopy.meta = this.meta;
-      contextCopy.parentContext = this.parentContext;
+      contextCopy.parentId = this.parentId;
       contextCopy.callerNodeId = this.callerNodeId;
       contextCopy.requestId = this.requestId;
       contextCopy.tracing = this.tracing;
+      contextCopy.span = this.span;
       contextCopy.level = this.level;
       contextCopy.eventName = this.eventName;
       contextCopy.eventType = this.eventType;
       contextCopy.eventGroups = this.eventGroups;
+      contextCopy.isCachedResult = this.isCachedResult;
 
       return contextCopy;
     }

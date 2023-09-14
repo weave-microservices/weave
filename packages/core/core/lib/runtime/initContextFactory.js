@@ -32,6 +32,10 @@ exports.initContextFactory = (runtime) => {
       create (endpoint, data, opts) {
         const context = createContext(runtime);
 
+        if (endpoint) {
+          context.setEndpoint(endpoint);
+        }
+
         opts = opts || {};
         context.setData(data);
         // context.timeout = opts.timeout || 0
@@ -67,10 +71,9 @@ exports.initContextFactory = (runtime) => {
           }
         }
 
-        if (endpoint) {
-          context.setEndpoint(endpoint);
+        if (opts.parentSpan) {
+          context.tracing = opts.parentSpan.sampled;
         }
-
         return context;
       }
     }

@@ -120,8 +120,7 @@ describe('Cache system', () => {
     const promise = node1.call('testService.notCachedAction', { text: 'hello user' });
     const result = await promise;
     expect(result).toBe('resu olleh1');
-    // cache is disabled, so "isCachedResult" is undefined.
-    expect(promise.context.isCachedResult).toBeUndefined();
+    expect(promise.context.isCachedResult).toBe(false);
   });
 
   it('should work with multiple keys', async () => {

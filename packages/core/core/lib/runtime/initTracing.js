@@ -38,6 +38,12 @@ exports.initTracer = (runtime) => {
         collectors.map(collector => collector[method].apply(collector, args));
       },
       startSpan (name, options) {
+        const parentOptions = {};
+        if (options.parentSpan) {
+          parentOptions.traceId = options.parentSpan.traceId;
+          parentOptions.parentId = options.parentSpan.id;
+          parentOptions.sampled = options.parentSpan.sampled;
+        }
         const span = createSpan(this, name, Object.assign({
           type: 'custom'
         }, options));
