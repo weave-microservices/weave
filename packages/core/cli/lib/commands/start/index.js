@@ -25,7 +25,8 @@ exports.handler = async (args) => {
 
     if (args.watch) {
       config.middlewares = [
-        createWatchMiddleware(cliContext)
+        createWatchMiddleware(cliContext),
+        ...config.middlewares
       ];
     }
 
