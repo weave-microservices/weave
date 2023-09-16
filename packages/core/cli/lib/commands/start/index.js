@@ -24,9 +24,10 @@ exports.handler = async (args) => {
     const config = getConfig(args);
 
     if (args.watch) {
+      const customMiddlewares = config.middlewares || [];
       config.middlewares = [
         createWatchMiddleware(cliContext),
-        ...config.middlewares
+        ...customMiddlewares
       ];
     }
 
