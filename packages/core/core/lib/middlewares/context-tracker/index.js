@@ -7,7 +7,7 @@ module.exports = (runtime) => {
       context.service._trackedContexts.push(context);
     } else {
       // remote actions
-      context.service._trackedContexts.push(context);
+      runtime.state.trackedContexts.push(context);
     }
   }
 
@@ -19,9 +19,9 @@ module.exports = (runtime) => {
         context.service._trackedContexts.splice(index, 1);
       }
     } else {
-      const index = context.service._trackedContexts.indexOf(context);
+      const index = runtime.state.trackedContexts.indexOf(context);
       if (index !== -1) {
-        context.service._trackedContexts.splice(index, 1);
+        runtime.state.trackedContexts.splice(index, 1);
       }
     }
   }
