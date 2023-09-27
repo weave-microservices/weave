@@ -15,6 +15,7 @@ program
   .description('Start a new weave broker instance')
   .option('-c, --config [configPath]', 'Start broker with config file.')
   .option('-s, --services <servicePath>', 'Start broker with services loaded from the given path.')
+  .option('-f --factory <factoryPath>', 'Start broker with services loaded from the given factory.')
   .option('-r, --repl', 'Start broker with REPL.')
   .option('-w, --watch', 'Start broker with service watcher.')
   .option('-sl, --silent', 'Start broker without console outputs.')
