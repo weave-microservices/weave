@@ -431,11 +431,12 @@ module.exports = (runtime, transport) => {
       // todo: check protocol version
       // todo: check node ID conflict
 
-      // if (payload.sender === runtime.nodeId) {
-      //   if (type === MessageTypes.MESSAGE_INFO && payload.instanceId !== runtime.state.instanceId) {
-      //     return runtime.fatalError('Weave broker has detected a node ID conflict. "nodeId" of broker needs to be unique. Broker will be stopped.')
-      //   }
-      // }
+      if (payload.sender === runtime.nodeId) {
+        if (type === MessageTypes.MESSAGE_INFO && payload.instanceId !== runtime.state.instanceId) {
+          runtime.fatalError(`Weave broker has detected a node ID conflict. "nodeId" of broker needs to be unique, but there is an broker with node ID "${runtime.nodeId}". Broker will be stopped.`);
+          return false;
+        }
+      }
 
       switch (type) {
       case MessageTypes.MESSAGE_DISCOVERY:

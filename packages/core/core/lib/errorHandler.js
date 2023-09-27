@@ -8,7 +8,7 @@ exports.errorHandler = ({ options }, error) => {
 exports.fatalErrorHandler = (runtime, message, error, killProcess = true) => {
   const { options, log } = runtime;
   if (options.logger.enabled) {
-    log.fatal(error, message);
+    log.fatal({ error }, message);
   } else {
     console.error(message, error);
   }
