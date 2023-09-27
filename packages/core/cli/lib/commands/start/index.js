@@ -2,7 +2,9 @@ const { createBroker } = require('@weave-js/core');
 const repl = require('@weave-js/repl');
 const { getConfig } = require('../../utils/config');
 const { createWatchMiddleware } = require('./createWatchMiddlewares');
-const { loadServices } = require('./loadServices');
+const { loadServices, loadServicesFromFactory } = require('./loadServices');
+const path = require('path');
+const fs = require('fs');
 
 exports.handler = async (args) => {
   try {
@@ -24,9 +26,24 @@ exports.handler = async (args) => {
     const config = getConfig(args);
 
     if (args.watch) {
+      const additionalFiles = [];
+
+      if (args.services) {
+      }
+
+      if (args.factory) {
+        const serviceFactoryPath = path.isAbsolute(args.factory) ? args.factory : path.resolve(process.cwd(), args.factory);
+        if (fs.existsSync(serviceFactoryPath)) {
+          additionalFiles.push({
+            filename: serviceFactoryPath,
+            changeScope: 'services'
+          });
+        }
+      }
+
       const customMiddlewares = config.middlewares || [];
       config.middlewares = [
-        createWatchMiddleware(cliContext),
+        createWatchMiddleware(cliContext, { additionalFiles }),
         ...customMiddlewares
       ];
     }
@@ -41,12 +58,9 @@ exports.handler = async (args) => {
       loadServices(cliContext.broker, args.services);
     }
 
-    // if (args.serviceManifest) {
-    //   const serviceManifest = require(args.serviceManifest);
-    //   if (!serviceManifest) {
-    //     throw new Error('Service manifest not found');
-    //   }
-    // }
+    if (args.factory) {
+      loadServicesFromFactory(cliContext.broker, args.factory);
+    }
 
     await cliContext.broker.start();
 

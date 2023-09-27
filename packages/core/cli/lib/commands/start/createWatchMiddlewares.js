@@ -1,6 +1,8 @@
+const { debounce, isFunction } = require('@weave-js/utils');
 const path = require('path');
-const { debounce } = require('@weave-js/utils');
 const fs = require('fs');
+const Module = require('module');
+const originalRequire = Module.prototype.require;
 
 function clearRequireCache (filename) {
   Object.keys(require.cache).forEach((key) => {
@@ -18,7 +20,34 @@ function isWeaveConfigFile (filename) {
   );
 }
 
-function createWatchMiddleware (weaveCli) {
+/**
+ * @typedef {Object} AdditionalFile
+ * @property {string} filename Filename
+ * @property {string} changeScope Change scope
+ */
+
+/**
+ * @typedef {Object} WatcherOptions
+ * @property {AdditionalFile[]} additionalFiles Additional files to watch
+ */
+
+/**
+ * Creates an Weave watch middleware
+ * @param {any} weaveCli weave CLI instance
+ * @param {WatcherOptions} options weave middleware options
+ * @returns {any} Middleware
+ */
+function createWatchMiddleware (weaveCli, options) {
+  Module.prototype.require = function () {
+    const result = originalRequire.apply(this, arguments);
+
+    if (!isFunction(result) && result.name) {
+      result.__filename = path.join(this.path, arguments[0]);
+    }
+
+    return result;
+  };
+
   return function watchMiddleware (runtime) {
     let projectFiles = new Map();
     let previousProjectFiles = new Map();
@@ -30,7 +59,11 @@ function createWatchMiddleware (weaveCli) {
       await runtime.services.destroyService(service);
 
       if (fs.existsSync(service.filename)) {
-        await runtime.broker.loadService(service.filename);
+        try {
+          await runtime.broker.loadService(service.filename);
+        } catch (error) {
+          runtime.log.error(`Failed to load service "${service.filename}"`, error);
+        }
       }
     }
 
@@ -57,6 +90,7 @@ function createWatchMiddleware (weaveCli) {
         if (watchItem.watcher) {
           watchItem.watcher.close();
           delete watchItem.watcher;
+          watchItem.watcher = null;
         }
       });
     }
@@ -96,6 +130,8 @@ function createWatchMiddleware (weaveCli) {
         if (!watchItem.services.includes(service.fullyQualifiedName)) {
           watchItem.services.push(service.fullyQualifiedName);
         }
+
+        watchItem.otherFiles = [...watchItem.otherFiles, ...(parents || [])];
       } else if (isWeaveConfigFile(filename)) {
         const watchItem = getFileWatchItem(filename);
         watchItem.restartBroker = true;
@@ -116,7 +152,11 @@ function createWatchMiddleware (weaveCli) {
           parents.push(filename);
         }
         module.children.forEach((childModule) => {
-          processModule(childModule, service, level + 1, parents);
+          const childLevel = service ? level + 1 : 0;
+          // if (!service && !parents) {
+          //   parents = [filename];
+          // }
+          processModule(childModule, service, childLevel, parents);
         });
       }
     }
@@ -130,9 +170,23 @@ function createWatchMiddleware (weaveCli) {
       previousProjectFiles = projectFiles;
       projectFiles = new Map();
 
-      const mainModule = process.mainModule;
+      const mainModule = process.mainModule || require.main;
 
       processModule(mainModule);
+
+      if (options.additionalFiles) {
+        options.additionalFiles.forEach((file) => {
+          const watchItem = getFileWatchItem(file.filename);
+          watchItem.otherFiles.push(file.filename);
+          if (file.changeScope === 'broker') {
+            watchItem.restartBroker = true;
+          } else if (file.changeScope === 'services') {
+            watchItem.restartAllServices = true;
+          } else {
+            watchItem.services.push(file.changeScope);
+          }
+        });
+      }
 
       const needToReload = new Set();
 
@@ -195,12 +249,17 @@ function createWatchMiddleware (weaveCli) {
             });
 
             reloadServices();
-          } else {
+          } else if (watchItem.services.length > 0) {
             runtime.services.serviceList.forEach((service) => {
               if (watchItem.services.indexOf(service.fullyQualifiedName) !== -1) {
                 needToReload.add(service);
               }
             });
+
+            if (needToReload.size === 0) {
+              needToReload.add(relativePath);
+            }
+
             reloadServices();
           }
         });
@@ -219,8 +278,10 @@ function createWatchMiddleware (weaveCli) {
           debouncedWatchProjectFiles();
         }
       },
-      stopped () {
-
+      serviceCreated (service, schema) {
+        if (!service.filename) {
+          service.filename = schema.__filename;
+        }
       }
     };
   };
