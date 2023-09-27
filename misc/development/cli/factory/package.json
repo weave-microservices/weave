@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node ../../../../packages/core/cli/lib/index.js start --services ./services --config --repl --watch"
+    "start": "node ../../../../packages/core/cli/lib/index.js start --config --repl --watch --factory ./services/main.js"
   },
   "author": "",
   "license": "ISC"

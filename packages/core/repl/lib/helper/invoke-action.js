@@ -106,17 +106,41 @@ function preparePayloadArguments (args, payload, done) {
 function preparePayloadFromFile (args) {
   let filePath;
 
-  console.log(args.options);
-  if (typeof args.options.file === 'string') {
-    filePath = path.resolve(args.options.file);
+  if (typeof args.options.data === 'string') {
+    filePath = path.resolve(args.options.data);
   } else {
     filePath = path.resolve(`${args.actionName}.data.json`);
   }
 
   if (fs.existsSync(filePath)) {
     try {
-      console.log(cliUI.infoText(`Read payload from ${filePath}`));
+      console.log(cliUI.infoText(`Load data from ${filePath}`));
       return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    } catch (error) {
+      console.log(cliUI.errorText('Can\'t parse parameter file'), error);
+    }
+  } else {
+    console.log(cliUI.errorText(`File not found: ${filePath}`));
+  }
+}
+
+function prepareMetadataFromFile (args, metadata) {
+  let filePath;
+
+  if (typeof args.options.loadMeta === 'string') {
+    filePath = path.resolve(args.options.loadMeta);
+  } else {
+    filePath = path.resolve(`${args.actionName}.meta.json`);
+  }
+
+  if (fs.existsSync(filePath)) {
+    try {
+      console.log(cliUI.infoText(`Load metadata from ${filePath}`));
+      const loadedMetadata = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      return {
+        ...loadedMetadata,
+        ...metadata
+      };
     } catch (error) {
       console.log(cliUI.errorText('Can\'t parse parameter file'), error);
     }
@@ -149,8 +173,13 @@ module.exports = (broker) =>
     let payload = preparePayloadArguments(args, {}, done);
 
     // Send parameters from file
-    if (args.options.file) {
+    if (args.options.data) {
       payload = preparePayloadFromFile(args) || payload;
+    }
+
+    if (args.options.metadata) {
+      delete payload.metadata;
+      callOptions.meta = prepareMetadataFromFile(args, callOptions.meta);
     }
 
     // Prepare send file stream
