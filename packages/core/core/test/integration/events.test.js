@@ -248,14 +248,14 @@ describe('Remote events', () => {
 
   beforeEach(async () => {
     broker1 = createNode({
-      nodeId: 'node1' + process.pid,
+      nodeId: 'node1_' + Date.now(),
       transport: {
         adapter: 'dummy'
       }
     });
 
     broker2 = createNode({
-      nodeId: 'node2' + process.pid,
+      nodeId: 'node2_' + Date.now(),
       transport: {
         adapter: 'dummy'
       }

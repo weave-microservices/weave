@@ -13,8 +13,12 @@ module.exports = {
   failureLabel (text) {
     return kleur
       .bgRed()
-      .white()
-      .bold(text);
+      .white(text);
+  },
+  infoLabel (text) {
+    return kleur
+      .bgYellow()
+      .white(text);
   },
   text (text) {
     return kleur.white(text);

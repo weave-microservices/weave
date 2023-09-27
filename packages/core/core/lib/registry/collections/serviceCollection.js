@@ -85,14 +85,18 @@ exports.createServiceCollection = (registry) => {
     withActions = false,
     withEvents = false,
     withNodeService = false,
-    withSettings = false
+    withSettings = false,
+    withPrivate = false
   } = {}) => {
     const result = [];
     services.forEach((service) => {
       if (/^\$node/.test(service.name) && !withNodeService) {
         return;
       }
-      if (service.settings && service.settings.$private) {
+
+      const isPrivate = service.settings && service.settings.$private;
+
+      if (isPrivate && withPrivate === false) {
         return;
       }
 
@@ -104,7 +108,8 @@ exports.createServiceCollection = (registry) => {
         name: service.name,
         nodeId: service.node.id,
         version: service.version,
-        isAvailable: service.node.isAvailable
+        isAvailable: service.node.isAvailable,
+        isPrivate
       };
 
       if (withSettings) {

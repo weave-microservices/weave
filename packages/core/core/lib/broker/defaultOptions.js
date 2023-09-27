@@ -58,7 +58,7 @@ exports.getDefaultOptions = () => {
         handleBackpressure: true
       }
     },
-    errorHandler: null,
+    errorHandler: undefined,
     loadInternalMiddlewares: true,
     metrics: {
       enabled: false,

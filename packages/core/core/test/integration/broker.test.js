@@ -269,7 +269,7 @@ describe('Ping', () => {
 
   it('should return result of a given nodeId.', done => {
     const broker1 = createNode({
-      nodeId: 'node1',
+      nodeId: 'node4',
       logger: {
         enabled: false,
         level: 'fatal'
@@ -280,7 +280,7 @@ describe('Ping', () => {
     });
 
     const broker2 = createNode({
-      nodeId: 'node2',
+      nodeId: 'node5',
       logger: {
         enabled: false,
         level: 'fatal'
@@ -294,11 +294,11 @@ describe('Ping', () => {
       broker1.start(),
       broker2.start()
     ])
-      .then(() => broker1.ping('node2'))
+      .then(() => broker1.ping('node5'))
       .then(res => {
         expect(res.elapsedTime).toBeLessThan(5);
         expect(res.timeDiff).toBeDefined();
-        expect(res.nodeId).toBe('node2');
+        expect(res.nodeId).toBe('node5');
         done();
         return Promise.all([
           broker1.stop(),
@@ -353,7 +353,7 @@ describe('Test broker error handling', () => {
 
   beforeEach(d => {
     broker = createNode({
-      nodeId: 'node1',
+      nodeId: 'node1_' + Date.now(),
       logger: {
         enabled: true,
         level: 'fatal'
@@ -425,7 +425,7 @@ describe('Test broker context chaining', () => {
 
 describe('Test maxCallLevel', () => {
   const broker = createNode({
-    nodeId: 'node1',
+    nodeId: 'node2',
     logger: {
       enabled: false,
       level: 'fatal'
@@ -464,7 +464,7 @@ describe('Test maxCallLevel', () => {
   it('should increment level on chained calls', () => {
     return broker.call('post.before')
       .catch(error => {
-        expect(error.message).toBe('Request level has reached the limit 1 on node "node1".');
+        expect(error.message).toBe('Request level has reached the limit 1 on node "node2".');
       });
   });
 });
@@ -473,7 +473,7 @@ describe('Error handler', () => {
   const errorHandler = jest.fn();
 
   const broker = createNode({
-    nodeId: 'node1',
+    nodeId: 'node3',
     errorHandler: errorHandler
   });
 
@@ -502,7 +502,7 @@ describe('Error handler', () => {
 
 describe('Error handler', () => {
   const broker = createNode({
-    nodeId: 'node1',
+    nodeId: 'node4',
     logger: {
       enabled: false
     }

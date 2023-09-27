@@ -9,6 +9,7 @@ module.exports = ({ vorpal, broker, cliUI }) => {
       data.push([
         cliUI.tableHeaderText('Service'),
         cliUI.tableHeaderText('Version'),
+        cliUI.tableHeaderText('Visibility'),
         cliUI.tableHeaderText('State'),
         cliUI.tableHeaderText('Actions'),
         cliUI.tableHeaderText('Events'),
@@ -19,7 +20,8 @@ module.exports = ({ vorpal, broker, cliUI }) => {
       const services = broker.runtime.registry.serviceCollection.list({
         withActions: true,
         withEvents: true,
-        withNodeService: true
+        withNodeService: true,
+        withPrivate: true
       });
 
       services.map(service => {
@@ -34,6 +36,7 @@ module.exports = ({ vorpal, broker, cliUI }) => {
           item = Object.create(null);
           item.name = service.name;
           item.version = service.version;
+          item.isPrivate = service.isPrivate;
           item.isAvailable = service.isAvailable;
           item.actions = service.actions ? Object.keys(service.actions).length : 0;
           item.events = service.events ? Object.keys(service.events).length : 0;
@@ -49,6 +52,7 @@ module.exports = ({ vorpal, broker, cliUI }) => {
         data.push([
           service.name,
           service.version ? service.version : '-',
+          service.isPrivate ? cliUI.failureLabel(' PRIVATE ') : cliUI.successLabel(' PUBLIC '),
           service.isAvailable ? cliUI.successLabel('  OK  ') : cliUI.failureLabel(' FAILURE '),
           service.actions,
           service.events,

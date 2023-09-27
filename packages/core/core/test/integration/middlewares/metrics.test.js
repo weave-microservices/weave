@@ -8,7 +8,7 @@ describe('Metric middleware', () => {
 
   beforeEach(() => {
     broker = createNode({
-      nodeId: 'node-metrics',
+      nodeId: 'node-metrics1',
       logger: {
         enabled: false
       },
@@ -78,7 +78,7 @@ describe('Metric middleware [cache]', () => {
 
   beforeEach(() => {
     broker = createNode({
-      nodeId: 'node-metrics',
+      nodeId: 'node-metrics2',
       logger: {
         enabled: false
       },
@@ -136,7 +136,7 @@ describe('Metric middleware between remote nodes', () => {
 
   beforeEach(() => {
     broker1 = createNode({
-      nodeId: 'node-metrics-1',
+      nodeId: 'node-metrics3',
       logger: {
         enabled: false
       },
@@ -149,7 +149,7 @@ describe('Metric middleware between remote nodes', () => {
     });
 
     broker2 = createNode({
-      nodeId: 'node-metrics-2',
+      nodeId: 'node-metrics4',
       logger: {
         enabled: false
       },
@@ -206,7 +206,7 @@ describe('Metric adapters validation', () => {
   it('should register metrics', async () => {
     try {
       const broker1 = createNode({
-        nodeId: 'node-metrics-1',
+        nodeId: 'node-metrics5',
         logger: {
           enabled: false
         },
@@ -234,7 +234,7 @@ describe('Metric adapters validation', () => {
     };
 
     const broker1 = createNode({
-      nodeId: 'node-metrics-1',
+      nodeId: 'node-metrics6',
       logger: {
         enabled: false
       },

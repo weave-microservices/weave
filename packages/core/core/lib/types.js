@@ -626,6 +626,7 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2');
  * @property {boolean} [withEvents=false] Include events in result.
  * @property {boolean} [withNodeService=false] Include node service.
  * @property {boolean} [withSettings=false] Include service settings.
+ * @property {boolean} [withPrivate=false] Include private services.
 */
 
 /**
