@@ -1,6 +1,6 @@
 
 const { defaultsDeep } = require('@weave-js/utils');
-const TransportBase = require('../adapteBase');
+const TransportBase = require('../adapterBase');
 const Swim = require('./discovery/index');
 const MessageTypes = require('../../messageTypes');
 const TCPReader = require('./tcpReader');

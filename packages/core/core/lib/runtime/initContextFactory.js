@@ -55,10 +55,14 @@ exports.initContextFactory = (runtime) => {
         }
 
         if (opts.parentContext != null) {
-          context.parentId = opts.parentContext.id;
-          context.level = opts.parentContext.level + 1;
           context.tracing = opts.parentContext.tracing;
-          context.span = opts.parentContext.span;
+          context.level = opts.parentContext.level + 1;
+          if (opts.parentContext.span) {
+            // context.span = opts.parentContext.span;
+            context.parentId = opts.parentContext.span.id;
+          } else {
+            context.parentId = opts.parentContext.id;
+          }
         }
 
         if (opts.stream) {

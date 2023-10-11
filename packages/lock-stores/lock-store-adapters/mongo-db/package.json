@@ -5,13 +5,12 @@
   "main": "lib/index.js",
   "author": "",
   "license": "ISC",
-  "scripts": {},
   "devDependencies": {
-    "@weave-js/lock-store": "0.1.0"
+    "@weave-js/lock-store": "^0.1.0"
   },
   "dependencies": {
     "mongodb": "^5.6.0",
-    "@weave-js/utils": "0.13.0"
+    "@weave-js/utils": "^0.13.0"
   },
   "directories": {
     "lib": "lib",

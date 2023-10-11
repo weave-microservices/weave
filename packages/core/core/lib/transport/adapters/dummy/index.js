@@ -4,7 +4,7 @@
  * Copyright 2021 Fachwerk
  */
 
-const TransportBase = require('../adapteBase');
+const TransportBase = require('../adapterBase');
 const EventEmitter = require('eventemitter2').EventEmitter2;
 
 // create a global eventbus to pass messages between weave service brokers.

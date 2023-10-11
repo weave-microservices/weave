@@ -80,7 +80,7 @@ exports.getDefaultOptions = () => {
       enabled: false,
       samplingRate: 1.0,
       collectors: [],
-      defaultTags: null,
+      defaultTags: {},
       actions: {
         data: false,
         response: false,

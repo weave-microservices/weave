@@ -1,12 +1,21 @@
 {
   "name": "weave-js",
+  "workspaces": [
+    "packages/cache/*",
+    "packages/core/*",
+    "packages/transports/*",
+    "packages/tracing-adapters/*",
+    "packages/services/*",
+    "packages/lock-stores/*",
+    "packages/lock-stores/lock-store-adapters/*"
+  ],
   "scripts": {
-    "postinstall": "lerna bootstrap --hoist",
-    "setup": "lerna bootstrap --hoist",
-    "link": "lerna link --force-local",
     "test": "jest",
-    "audit": "lerna exec --concurrency 1 npm audit fix",
-    "lint": "concurrently \"lerna run lint --stream\" "
+    "audit": "npm audit fix",
+    "lint": "npm run lint --workspaces --if-present",
+    "clean": "npm exec --workspaces -- npx rimraf node_modules && npx rimraf node_modules",
+    "align-versions": "syncpack",
+    "align-semver": "syncpack set-semver-ranges --types dev,prod --semver-range ^"
   },
   "repository": {
     "type": "git",
@@ -54,13 +63,14 @@
     "url": "https://github.com/weave-microservices/weave/issues"
   },
   "devDependencies": {
-    "@sinonjs/fake-timers": "^10.0.2",
-    "@types/jest": "^29.5.1",
-    "concurrently": "^8.0.1",
-    "lerna": "^6.6.1",
-    "eslint": "^8.39.0",
+    "@sinonjs/fake-timers": "^11.1.0",
+    "@types/jest": "^29.5.5",
+    "concurrently": "^8.2.1",
+    "eslint": "^8.50.0",
     "eslint-config-fw": "^1.0.3",
-    "jest": "^29.5.0",
-    "jest-cli": "^29.5.0"
+    "jest": "^29.7.0",
+    "jest-cli": "^29.7.0",
+    "syncpack": "^11.2.1",
+    "workspace-version": "^0.1.4"
   }
 }

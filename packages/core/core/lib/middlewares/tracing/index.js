@@ -4,56 +4,42 @@
  * Copyright 2021 Fachwerk
  */
 
-const { isPlainObject, isFunction, isObject, dotGet } = require('@weave-js/utils');
-const { buildActionTags, buildEventTags } = require('./tags');
+const { buildActionTags, buildEventTags, addResponseTags } = require('./tags');
+
+function getSpanName (context, actionTracingOptions) {
+  let spanName = `action "${context.action.name}"`;
+
+  try {
+    if (actionTracingOptions.spanName) {
+      switch (typeof actionTracingOptions.spanName) {
+      case 'string':
+        spanName = actionTracingOptions.spanName;
+        break;
+      case 'function':
+        spanName = actionTracingOptions.spanName.call(context.service, context);
+        break;
+      }
+    }
+  } catch (error) {
+    context.service.log.warn({
+      requestId: context.requestId,
+      spanId: context.span.id
+    }, `Error while getting span name: ${error.message}`);
+  }
+
+  return spanName;
+}
 
 const wrapTracingLocalActionMiddleware = function (handler, action) {
   const broker = this;
-  const tracingOptions = broker.options.tracing || {};
+  const globalTracingOptions = broker.options.tracing || {};
   const actionTracingOptions = action.tracing || {};
 
-  if (tracingOptions.enabled) {
-    return function metricsLocalMiddleware (context, serviceInjections) {
-      const tags = buildActionTags(context, tracingOptions);
+  if (globalTracingOptions.enabled) {
+    return function tracingLocalMiddleware (context, serviceInjections) {
+      const tags = buildActionTags(context, globalTracingOptions, actionTracingOptions);
 
-      if (tracingOptions.actions.data) {
-        tags.data = context.data !== null && isPlainObject(context.data) ? Object.assign({}, context.data) : context.data;
-      }
-
-      const globalActionTags = tracingOptions.actions.tags;
-      let actionTags;
-      // local action tags take precedence
-      if (isFunction(actionTracingOptions.tags)) {
-        actionTags = actionTracingOptions.tags;
-      } else if (!actionTracingOptions.tags && isFunction(globalActionTags)) {
-        actionTags = globalActionTags;
-      } else {
-        // By default all params are captured. This can be overridden globally and locally
-        actionTags = { ...{ data: true }, ...globalActionTags, ...actionTracingOptions.tags };
-      }
-
-      if (isObject(actionTracingOptions.tags)) {
-        if (Array.isArray(actionTags.data)) {
-          tags.data = actionTags.data.reduce((acc, current) => {
-            acc[current] = dotGet(context.data, current);
-            return acc;
-          }, {});
-        }
-      }
-
-      // Span name
-      let spanName = `action "${context.action.name}"`;
-
-      if (actionTracingOptions.spanName) {
-        switch (typeof actionTracingOptions.spanName) {
-        case 'string':
-          spanName = actionTracingOptions.spanName;
-          break;
-        case 'function':
-          spanName = actionTracingOptions.spanName.call(context.service, context);
-          break;
-        }
-      }
+      const spanName = getSpanName(context, actionTracingOptions);
 
       const span = context.startSpan(spanName, {
         id: context.id,
@@ -73,9 +59,7 @@ const wrapTracingLocalActionMiddleware = function (handler, action) {
             isCachedResult: context.isCachedResult
           };
 
-          if (tracingOptions.actions.response) {
-            tags.response = result !== null && isPlainObject(result) ? Object.assign({}, result) : result;
-          }
+          addResponseTags(context, tags, result, globalTracingOptions.actions, actionTracingOptions);
 
           span.addTags(tags);
           context.finishSpan(span);
@@ -95,10 +79,11 @@ const wrapTracingLocalEventMiddleware = function (handler, event) {
   const broker = this;
   const service = event.service;
   const tracingOptions = broker.options.tracing || {};
+  const eventTracingOptions = event.tracing || {};
 
   if (tracingOptions.enabled) {
     return function metricsLocalMiddleware (context) {
-      const tags = buildEventTags(context);
+      const tags = buildEventTags(context, tracingOptions, eventTracingOptions);
 
       const span = context.startSpan(`event "${context.eventName}"`, {
         id: context.id,

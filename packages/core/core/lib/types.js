@@ -167,7 +167,7 @@ const { EventEmitter2: EventEmitter } = require('eventemitter2');
  * @property {Boolean} enabled - Enable tracing middleware. (default = false)
  * @property {Number} samplingRate - Rate of traced actions. (default = 1.0)
  * @property {Array<String|Object>} collectors - Array of tracing collectors.
- * @property {Array<String>} defaultTags - Default tags for spans.
+ * @property {Object.<string, string>} defaultTags - Default tags for spans.
  * @property {TracingErrorOptions} [errors] - Settings for tracing errors.
 */
 

@@ -27,7 +27,7 @@
     "@weave-js/utils": "^0.13.0"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.14.0"
+    "@weave-js/core": "^0.15.2"
   },
   "directories": {
     "lib": "lib",

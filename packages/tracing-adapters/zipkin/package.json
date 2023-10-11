@@ -19,13 +19,13 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@weave-js/core": ">=0.14.0"
+    "@weave-js/core": "^0.14.1"
   },
   "dependencies": {
     "node-fetch": "^2.6.9"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.14.0"
+    "@weave-js/core": "^0.15.2"
   },
   "jest": {
     "testEnvironment": "node",

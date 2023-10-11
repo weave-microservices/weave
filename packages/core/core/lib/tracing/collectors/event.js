@@ -36,7 +36,9 @@ module.exports = (options) => (runtime, tracer) => {
   };
 
   const flushQueue = () => {
-    if (queue.length === 0) return;
+    if (queue.length === 0) {
+      return;
+    };
 
     const data = generateTracingData();
     queue.length = 0;

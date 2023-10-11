@@ -20,7 +20,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@weave-js/core": "^0.14.0",
+    "@weave-js/core": "^0.15.2",
     "@weave-js/repl": "^0.14.0",
     "@weave-js/utils": "^0.13.0",
     "commander": "^10.0.1",

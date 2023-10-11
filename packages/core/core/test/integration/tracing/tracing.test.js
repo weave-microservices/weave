@@ -9,6 +9,7 @@ const { posts, users } = require('../../helper/data');
 //     return span
 //   })
 // }
+jest.useFakeTimers({ advanceTimers: true });
 
 describe('Test tracing', () => {
   let flow = [];
@@ -25,7 +26,7 @@ describe('Test tracing', () => {
       enabled: true,
       collectors: [
         TracingAdapters.Event({
-          interval: 0
+          interval: 1
         })
       ]
     },
@@ -47,8 +48,8 @@ describe('Test tracing', () => {
     name: 'post',
     actions: {
       list (context) {
-        const $posts = Array.from(posts);
-        return Promise.all($posts.map(async post => {
+        const copiedPosts = JSON.parse(JSON.stringify(posts));
+        return Promise.all(copiedPosts.map(async post => {
           post.author = await context.call('user.get', { id: post.author });
           return post;
         }));
@@ -79,12 +80,14 @@ describe('Test tracing', () => {
     }
   });
 
-  beforeAll(() => Promise.all([
-    node1.start(),
-    node2.start(),
-    node3.start(),
-    node4.start()
-  ]));
+  beforeAll(() => {
+    return Promise.all([
+      node1.start(),
+      node2.start(),
+      node3.start(),
+      node4.start()
+    ]);
+  });
 
   afterAll(() => Promise.all([
     node1.stop(),
@@ -101,56 +104,161 @@ describe('Test tracing', () => {
   it('Started and finished event should be triggered.', async () => {
     await node1.waitForServices(['post', 'user', 'friends']);
     const result = await node2.call('post.list');
+    jest.advanceTimersByTime(1000);
+
     expect(result).toMatchSnapshot();
 
     flow.sort((a, b) => a.startTime - b.startTime);
   });
+});
 
-  // it('Started event should be the expected format.', () => {
-  //   return node1.call('test.hello')
-  //     .then(() => {
-  //       const startedEvent = flow[0]
+describe('Test tag handling for spans', () => {
+  let flow = [];
+  let id = 0;
 
-  //       // expect(startedEvent.id).toBeDefined()
-  //       expect(startedEvent.id).toBeDefined()
-  //       expect(startedEvent.name).toBe('action \'test.hello\'')
-  //       expect(startedEvent.tags).toBeDefined()
-  //       expect(startedEvent.tags.nodeId).toBe('node2')
-  //       // expect(startedEvent.callerNodeId).toBe('node1')
-  //       expect(startedEvent.tags.remoteCall).toBe(true)
-  //       // expect(startedEvent.nodeId).toBe('node2')
-  //       expect(startedEvent.startTime).toBeDefined()
-  //       // expect(startedEvent.callerNodeId).toBe('node1')
-  //     })
-  // })
+  const defaultSettings = {
+    logger: {
+      enabled: false
+    },
+    transport: {
+      adapter: 'dummy'
+    },
+    tracing: {
+      enabled: true,
+      collectors: [
+        TracingAdapters.Event({
+          interval: 1
+        })
+      ]
+    },
+    uuidFactory (runtime) {
+      return `${runtime.nodeId}-${++id}`;
+    }
+  };
 
-  // it('Finished event should be the expected format.', () => {
-  //   return node1.call('test.hello')
-  //     .then(res => {
-  //       const startedEvent = flow[1]
+  const node1 = createNode(Object.assign({ nodeId: 'node-link-1' }, defaultSettings), [{
+    name: 'user',
+    events: {
+      '$tracing.trace.spans' (ctx) {
+        flow.push(...ctx.data);
+      }
+    },
+    actions: {
+      get: {
+        tracing: {
+          tags: {
+            data: ['id'],
+            response: ['name']
+          }
+        },
+        async handler (context) {
+          const user = users.find(user => user.id === context.data.id);
+          return user;
+        }
+      }
+    }
+  }]);
 
-  //       expect(startedEvent.id).toBeDefined()
-  //       expect(startedEvent.name).toBe('action \'test.hello\'')
-  //       expect(startedEvent.tags).toBeDefined()
-  //       expect(startedEvent.tags.nodeId).toBe('node2')
-  //       // expect(startedEvent.callerNodeId).toBe('node1')
-  //       expect(startedEvent.startTime).toBeDefined()
-  //       expect(startedEvent.finishTime).toBeDefined()
-  //       expect(startedEvent.duration).toBeDefined()
+  const node2 = createNode(Object.assign({ nodeId: 'node-link-2' }, defaultSettings), [{
+    name: 'post',
+    actions: {
+      list: {
+        tracing: {
+          tags: {
+            response: true
+          }
+        },
+        async handler (context) {
+          const copiedPosts = JSON.parse(JSON.stringify(posts));
+          return Promise.all(copiedPosts.map(async (post) => {
+            post.author = await context.call('user.get', { id: post.author });
+            return post;
+          }));
+        }
+      }
+    }
+  }]);
 
-  //       expect(startedEvent.tags.remoteCall).toBe(true)
+  node1.createService({
+    name: 'from-service',
+    actions: {
+      departure (context) {
+        return 'Hello';
+      }
+    }
+  });
 
-  //       // expect(startedEvent.id).toBeDefined()
-  //       // expect(startedEvent.requestId).toBeDefined()
-  //       // expect(startedEvent.callerNodeId).toBe('node1')
-  //       // expect(startedEvent.isRemoteCall).toBe(true)
-  //       // expect(startedEvent.nodeId).toBe('node2')
-  //       // expect(startedEvent.startTime).toBeDefined()
-  //       // expect(startedEvent.callerNodeId).toBe('node1')
-  //       // expect(startedEvent.stopTime).toBeDefined()
-  //       // expect(startedEvent.isCachedResult).toBeDefined()
-  //       // expect(startedEvent.isCachedResult).toBe(false)
-  //       // expect(startedEvent.stopTime).toBeGreaterThan(startedEvent.startTime)
-  //     })
-  // })
+  node1.createService({
+    name: 'to-service',
+    actions: {
+      destination (context) {
+        return 'Hello';
+      }
+    }
+  });
+
+  beforeAll(() => {
+    return Promise.all([
+      node1.start(),
+      node2.start()
+    ]);
+  });
+
+  afterAll(() => Promise.all([
+    node1.stop(),
+    node2.stop()
+  ]));
+
+  afterEach(() => {
+    flow = [];
+    id = 0;
+  });
+
+  it('Should link spans over context', async () => {
+    await node1.waitForServices(['post']);
+    await node2.call('post.list');
+    jest.advanceTimersByTime(1000);
+    const userGetActions = flow.filter(span => span.name === 'action "user.get"');
+    const postListAction = flow.filter(span => span.name === 'action "post.list"');
+
+    expect(userGetActions.length).toBe(3);
+    expect(postListAction.length).toBe(1);
+  });
+
+  it('Should create tags from data object', async () => {
+    await node1.waitForServices(['post']);
+    await node2.call('post.list');
+    jest.advanceTimersByTime(1000);
+    const userGetActions = flow.filter(span => span.name === 'action "user.get"');
+    const postListAction = flow.filter(span => span.name === 'action "post.list"');
+
+    const idsFromTags = userGetActions.map(span => span.tags.data.id).sort();
+
+    expect(idsFromTags).toEqual([1, 2, 3]);
+
+    expect(userGetActions.length).toBe(3);
+    expect(postListAction.length).toBe(1);
+  });
+
+  it('Should create tags from complete response', async () => {
+    await node1.waitForServices(['post']);
+    const result = await node2.call('post.list');
+    jest.advanceTimersByTime(1000);
+    const postListAction = flow.filter(span => span.name === 'action "post.list"');
+
+    const postResultFromTags = postListAction[0];
+    expect(postListAction.length).toBe(1);
+    expect(Object.assign({}, result)).toEqual(postResultFromTags.tags.response);
+  });
+
+  it('Should create tags from response object properties', async () => {
+    await node1.waitForServices(['post']);
+    await node2.call('post.list');
+    jest.advanceTimersByTime(1000);
+    const userGetActions = flow.filter(span => span.name === 'action "user.get"');
+
+    const namesFromTags = userGetActions.map(span => span.tags.response.name).sort();
+
+    expect(namesFromTags).toEqual(['Hank Schrader', 'Jesse Pinkman', 'Walter White']);
+  });
 });

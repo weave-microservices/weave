@@ -89,17 +89,7 @@ exports.createContext = (runtime) => {
       });
     },
     startSpan (name, options) {
-      options = Object.assign({
-        id: this.id,
-        traceId: this.requestId,
-        parentId: this.parentId,
-        type: 'action',
-        service: this.service,
-        sampled: this.tracing
-      }, options);
-
       let span;
-
       if (this.span) {
         span = this.span.startChildSpan(name, options);
       } else {

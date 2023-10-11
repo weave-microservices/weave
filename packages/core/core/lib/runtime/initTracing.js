@@ -1,5 +1,5 @@
 const { resolveCollector } = require('../tracing/collectors');
-const { createSpan } = require('../tracing/span');
+const { Span } = require('../tracing/span');
 
 exports.initTracer = (runtime) => {
   const options = runtime.options.tracing;
@@ -37,16 +37,30 @@ exports.initTracer = (runtime) => {
       invokeCollectorMethod (method, args) {
         collectors.map(collector => collector[method].apply(collector, args));
       },
-      startSpan (name, options) {
+      startSpan (name, spanOptions) {
         const parentOptions = {};
-        if (options.parentSpan) {
-          parentOptions.traceId = options.parentSpan.traceId;
-          parentOptions.parentId = options.parentSpan.id;
-          parentOptions.sampled = options.parentSpan.sampled;
+
+        if (spanOptions.parentSpan) {
+          parentOptions.traceId = spanOptions.parentSpan.traceId;
+          parentOptions.parentId = spanOptions.parentSpan.id;
+          parentOptions.sampled = spanOptions.parentSpan.sampled;
         }
-        const span = createSpan(this, name, Object.assign({
-          type: 'custom'
-        }, options));
+
+        const span = new Span(
+          this,
+          name,
+          Object.assign(
+            {
+              type: 'custom',
+              defaultTags: options.defaultTags
+            },
+            parentOptions,
+            spanOptions,
+            {
+              parentSpan: undefined
+            }
+          )
+        );
 
         span.start();
 
