@@ -37,7 +37,7 @@ exports.initTracer = (runtime) => {
       invokeCollectorMethod (method, args) {
         collectors.map(collector => collector[method].apply(collector, args));
       },
-      startSpan (name, spanOptions) {
+      startSpan (name, spanOptions = {}) {
         const parentOptions = {};
 
         if (spanOptions.parentSpan) {
