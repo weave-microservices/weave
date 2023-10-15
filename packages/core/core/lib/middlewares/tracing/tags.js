@@ -24,9 +24,11 @@ function addPreHandleTagsFromDefinition (context, tags, globalTracingActionOptio
         try {
           acc[current] = dotGet(context.data, current);
         } catch (error) {
+          const spanId = context.span ? context.span.id : undefined;
+
           context.service.log.warn({
             requestId: context.requestId,
-            spanId: context.span.id
+            spanId
           }, `Unable to get value for tag "${current}" from data`);
           acc[current] = undefined;
         }
@@ -41,9 +43,11 @@ function addPreHandleTagsFromDefinition (context, tags, globalTracingActionOptio
         try {
           acc[current] = dotGet(context.meta, current);
         } catch (error) {
+          const spanId = context.span ? context.span.id : undefined;
+
           context.service.log.warn({
             requestId: context.requestId,
-            spanId: context.span.id
+            spanId
           }, `Unable to get value for tag "${current}" from metadata`);
           acc[current] = undefined;
         }
@@ -71,20 +75,12 @@ module.exports.buildActionTags = (context, globalTracingOptions, actionTracingOp
 
   try {
     addPreHandleTagsFromDefinition(context, tags, globalTracingOptions.actions, actionTracingOptions);
-
-    let globalTags;
-    // local action tags take precedence
-    if (isFunction(globalTracingOptions.actions.tags)) {
-      globalTags = globalTracingOptions.actions.tags.call(context.service, context);
-    } else if (isObject(globalTracingOptions.actions.tags)) {
-      globalTags = Object.assign({}, globalTracingOptions.actions.tags);
-    }
-
-    Object.assign(tags, globalTags);
   } catch (error) {
+    const spanId = context.span ? context.span.id : undefined;
+
     context.service.log.warn({
       requestId: context.requestId,
-      spanId: context.span.id
+      spanId
     }, `Error while building action tags: ${error.message}`);
   }
 
@@ -108,19 +104,12 @@ module.exports.buildEventTags = (context, globalTracingOptions, eventTracingOpti
 
   try {
     addPreHandleTagsFromDefinition(context, tags, globalTracingOptions.events, eventTracingOptions);
-
-    let globalTags;
-    if (isFunction(globalTracingOptions.events.tags)) {
-      globalTags = globalTracingOptions.events.tags.call(context.service, context);
-    } else if (isObject(globalTracingOptions.events.tags)) {
-      globalTags = Object.assign({}, globalTracingOptions.events.tags);
-    }
-
-    Object.assign(tags, globalTags);
   } catch (error) {
+    const spanId = context.span ? context.span.id : undefined;
+
     context.service.log.warn({
       requestId: context.requestId,
-      spanId: context.span.id
+      spanId
     }, `Error while building event tags: ${error.message}`);
   }
 
@@ -138,9 +127,11 @@ module.exports.addResponseTags = (context, tags, result, globalTracingActionOpti
       try {
         acc[current] = dotGet(result, current);
       } catch (error) {
+        const spanId = context.span ? context.span.id : undefined;
+
         context.service.log.warn({
           requestId: context.requestId,
-          spanId: context.span.id
+          spanId
         }, `Unable to get response tag "${current}" from result`);
         acc[current] = undefined;
       }
