@@ -38,16 +38,6 @@ function isWeaveConfigFile (filename) {
  * @returns {any} Middleware
  */
 function createWatchMiddleware (weaveCli, options) {
-  Module.prototype.require = function () {
-    const result = originalRequire.apply(this, arguments);
-
-    if (!isFunction(result) && result.name) {
-      result.__filename = path.join(this.path, arguments[0]);
-    }
-
-    return result;
-  };
-
   return function watchMiddleware (runtime) {
     let projectFiles = new Map();
     let previousProjectFiles = new Map();
@@ -279,7 +269,7 @@ function createWatchMiddleware (weaveCli, options) {
         }
       },
       serviceCreated (service, schema) {
-        if (!service.filename) {
+        if (!service.filename && schema.__filename) {
           service.filename = schema.__filename;
         }
       }
