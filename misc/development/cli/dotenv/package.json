@@ -1,0 +1,11 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ../../../../packages/core/cli/lib/index.js start --services ./services --config --repl --watch --dotenv"
+  },
+  "author": "",
+  "license": "ISC"
+}
