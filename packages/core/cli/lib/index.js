@@ -14,6 +14,7 @@ program
   .command('start')
   .description('Start a new weave broker instance')
   .option('-c, --config [configPath]', 'Start broker with config file.')
+  .option('-e, --dotenv [dotEnvPath]', 'Load .env file.')
   .option('-s, --services <servicePath>', 'Start broker with services loaded from the given path.')
   .option('-f --factory <factoryPath>', 'Start broker with services loaded from the given factory.')
   .option('-r, --repl', 'Start broker with REPL.')

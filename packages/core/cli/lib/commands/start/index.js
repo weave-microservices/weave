@@ -7,6 +7,11 @@ const path = require('path');
 const fs = require('fs');
 
 exports.handler = async (args) => {
+  if (args.dotenv) {
+    const dotEnvPath = typeof args.dotenv === 'string' ? args.dotenv : path.resolve(process.cwd(), '.env');
+    require('dotenv').config({ path: dotEnvPath });
+  }
+
   try {
     const cliContext = {
       broker: null,

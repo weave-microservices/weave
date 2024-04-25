@@ -1,7 +1,7 @@
 module.exports = {
   addTask: {
     handler (context) {
-      return 'hello from new user';
+      return 'hello from add task';
     }
   }
 };
