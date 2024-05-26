@@ -1,33 +1,31 @@
 const { isObject } = require('./is-object');
 
-exports.defaultsDeep = function defaultsDeep (object) {
-  const length = arguments.length;
-  object = Object(object);
+/**
+ * Merge settings with default options.
+ * @template T, K
+ * @param {K} settings Settings
+ * @param {T} [defaults] Default settings
+ * @returns {K & T}
+ */
+exports.defaultsDeep = function defaultsDeep (settings, defaults) {
+  const target = Object(settings);
 
-  if (length < 2 || object == null) {
-    return object;
+  if (!defaults || target == null) {
+    return target;
   }
 
-  for (let index = 1; index < length; index++) {
-    const source = arguments[index];
+  const keys = Object.keys(defaults);
+  const le = keys.length;
 
-    if (!source) {
-      continue;
-    }
+  for (let i = 0; i < le; i++) {
+    const key = keys[i];
 
-    const keys = Object.keys(source);
-    const le = keys.length;
-
-    for (let i = 0; i < le; i++) {
-      const key = keys[i];
-
-      if (object[key] === void 0) {
-        object[key] = source[key];
-      } else if (isObject(object[key])) {
-        object[key] = defaultsDeep(object[key], source[key]);
-      }
+    if (target[key] === void 0) {
+      target[key] = defaults[key];
+    } else if (isObject(target[key])) {
+      target[key] = defaultsDeep(target[key], defaults[key]);
     }
   }
 
-  return object;
+  return target;
 };

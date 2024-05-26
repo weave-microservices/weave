@@ -1,7 +1,7 @@
 const utils = require('../lib');
 
 describe('Get properties by dot seperated path', () => {
-  it('should return a property', () => {
+  it('should return a property (1)', () => {
     const source = {
       name: 'test',
       settings: {
@@ -17,7 +17,7 @@ describe('Get properties by dot seperated path', () => {
     expect(utils.defaultsDeep(source)).toEqual(source);
   });
 
-  it('should return a property', () => {
+  it('should return a property (2)', () => {
     const source = {
       name: 'test',
       settings: {
@@ -101,6 +101,7 @@ describe('Get properties by dot seperated path', () => {
     };
 
     const merged = utils.defaultsDeep(target, source);
+
     expect(merged).toEqual({
       name: 'test2',
       load: false,
