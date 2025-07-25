@@ -20,7 +20,7 @@ exports.createBroker = (options) => {
 
   const runtime = initRuntime(options);
   const broker = createBrokerInstance(runtime);
-  
+
   // Establish circular reference for graceful shutdown in fatal errors
   runtime.broker = broker;
 

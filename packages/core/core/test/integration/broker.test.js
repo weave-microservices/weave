@@ -373,10 +373,10 @@ describe('Test broker error handling', () => {
     const exitMock = jest.spyOn(process, 'exit').mockImplementation((number) => number);
 
     broker.fatalError('Throw some fatal error', new Error('Absolutly fatal'));
-    
+
     // Wait for graceful shutdown to complete
     await new Promise(resolve => setTimeout(resolve, 100));
-    
+
     expect(exitMock).toHaveBeenCalledWith(ERROR_CODE);
     exitMock.mockRestore();
   });

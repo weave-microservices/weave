@@ -8,7 +8,7 @@ exports.initEventbus = (runtime) => {
    * @param {*} [options=null] - Groups
    * @returns {Promise<any>} - Result
   */
-  const emit = (eventName, payload, options) => {
+  const emit = async (eventName, payload, options) => {
     if (Array.isArray(options)) {
       options = { groups: options };
     } else if (options == null) {
@@ -59,7 +59,17 @@ exports.initEventbus = (runtime) => {
         });
     }
 
-    return Promise.all(promises);
+    // Use allSettled to ensure all events are attempted even if some fail
+    const results = await Promise.allSettled(promises);
+
+    const failures = results.filter(result => result.status === 'rejected');
+    if (failures.length > 0) {
+      failures.forEach(failure => {
+        runtime.log.warn(failure.reason, `Failed to emit event "${eventName}" to remote service`);
+      });
+    }
+
+    return results;
   };
 
   /**
@@ -94,7 +104,7 @@ exports.initEventbus = (runtime) => {
   * @param {*} [options=null] Groups
   * @returns {Promise<any>} Promise
   */
-  const broadcast = (eventName, payload, options) => {
+  const broadcast = async (eventName, payload, options) => {
     if (Array.isArray(options)) {
       options = { groups: options };
     } else if (options == null) {
@@ -124,7 +134,18 @@ exports.initEventbus = (runtime) => {
     }
 
     promises.push(broadcastLocal(eventName, payload, options));
-    return Promise.all(promises);
+
+    // Use allSettled to ensure all broadcasts are attempted even if some fail
+    const results = await Promise.allSettled(promises);
+
+    const failures = results.filter(result => result.status === 'rejected');
+    if (failures.length > 0) {
+      failures.forEach(failure => {
+        runtime.log.warn(failure.reason, `Failed to broadcast event "${eventName}" to remote service`);
+      });
+    }
+
+    return results;
   };
 
   Object.defineProperty(runtime, 'eventBus', {

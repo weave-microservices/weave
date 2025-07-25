@@ -37,12 +37,26 @@ exports.initMetrics = (runtime) => {
             });
           }
         },
-        stop () {
+        async stop () {
           if (commonUpdateTimer) {
             clearInterval(commonUpdateTimer);
           }
 
-          return Promise.all(this.adapters.map(adapter => adapter.stop()));
+          if (!this.adapters || this.adapters.length === 0) {
+            return;
+          }
+
+          const results = await Promise.allSettled(this.adapters.map(adapter => adapter.stop()));
+          const failures = results.filter(result => result.status === 'rejected');
+
+          if (failures.length > 0) {
+            failures.forEach(failure => {
+              log.warn(failure.reason, 'Failed to stop metrics adapter');
+            });
+            log.warn(`Failed to stop ${failures.length} of ${this.adapters.length} metrics adapters`);
+          }
+
+          return results;
         },
         register (obj) {
           if (!isPlainObject(obj)) {

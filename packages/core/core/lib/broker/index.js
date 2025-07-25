@@ -129,12 +129,37 @@ exports.createBrokerInstance = (runtime) => {
       await transport.connect();
     }
 
-    try {
-      await Promise.all(services.serviceList.map(service => service.start()));
-    } catch (error) {
-      log.error(error, 'Unable to start all services');
+    // Start services using Promise.allSettled to continue even if some fail
+    const serviceStartResults = await Promise.allSettled(
+      services.serviceList.map(service => service.start())
+    );
+
+    const failedServices = serviceStartResults
+      .map((result, index) => ({ result, service: services.serviceList[index] }))
+      .filter(({ result }) => result.status === 'rejected');
+
+    if (failedServices.length > 0) {
+      const errorMessage = `Failed to start ${failedServices.length} of ${services.serviceList.length} services`;
+
+      failedServices.forEach(({ result, service }) => {
+        log.error(result.reason, `Unable to start service "${service.name}"`);
+      });
+
       clearInterval(options.waitForServiceInterval);
-      throw error;
+
+      // If critical services failed, throw error to prevent startup
+      if (failedServices.some(({ service }) => service.schema.critical !== false)) {
+        const criticalFailures = failedServices.filter(({ service }) => service.schema.critical !== false);
+
+        // If only one service failed, preserve the original error message for compatibility
+        if (criticalFailures.length === 1 && services.serviceList.length === 1) {
+          throw criticalFailures[0].result.reason;
+        } else {
+          throw new Error(`${errorMessage}. Critical services failed: ${criticalFailures.map(({ service }) => service.name).join(', ')}`);
+        }
+      } else {
+        log.warn(`${errorMessage}, but continuing startup as no critical services failed`);
+      }
     }
 
     runtime.state.isStarted = true;
@@ -165,11 +190,27 @@ exports.createBrokerInstance = (runtime) => {
 
     await middlewareHandler.callHandlersAsync('stopping', [runtime], true);
 
-    try {
-      await Promise.all(services.serviceList.map(service => service.stop()));
-    } catch (error) {
-      log.error(error, 'Unable to stop all services.');
-      throw error;
+    // Stop services using Promise.allSettled to attempt stopping all services
+    const serviceStopResults = await Promise.allSettled(
+      services.serviceList.map(service => service.stop())
+    );
+
+    const failedStops = serviceStopResults
+      .map((result, index) => ({ result, service: services.serviceList[index] }))
+      .filter(({ result }) => result.status === 'rejected');
+
+    if (failedStops.length > 0) {
+      failedStops.forEach(({ result, service }) => {
+        log.error(result.reason, `Unable to stop service "${service.name}"`);
+      });
+
+      // If only one service and it failed, preserve original error for compatibility
+      if (failedStops.length === 1 && services.serviceList.length === 1) {
+        throw failedStops[0].result.reason;
+      } else {
+        log.error(`Failed to stop ${failedStops.length} of ${services.serviceList.length} services, but continuing shutdown`);
+        // Continue with shutdown process rather than throwing
+      }
     }
 
     if (transport) {
