@@ -1,6 +1,15 @@
-const { isFunction, clone, wrapHandler, isObject, promisify } = require('@weave-js/utils');
+const { isFunction, clone, isObject, promisify } = require('@weave-js/utils');
 const { WeaveError } = require('../../errors');
+const { wrapHandler } = require('../../utils/wrap-handler');
 
+/**
+ *
+ * @param {import('../../../types').Runtime} runtime Runtime
+ * @param {import('../../../types').Service} service Service
+ * @param {import('../../../types').ServiceActionSchema} actionDefinition Action definition
+ * @param {string} name
+ * @returns {import('../../../types').ServiceActionDefinition}
+ */
 module.exports.parseAction = (runtime, service, actionDefinition, name) => {
   let action = actionDefinition;
 

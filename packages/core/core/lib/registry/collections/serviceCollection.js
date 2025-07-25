@@ -7,8 +7,8 @@
 */
 
 /**
- * @typedef {import('../../types').Registry} Registry
- * @typedef {import('../../types').ServiceCollection} ServiceCollection
+ * @typedef {import('../../types.__js').Registry} Registry
+ * @typedef {import('../../types.__js').ServiceCollection} ServiceCollection
 */
 
 // const { createEndpointCollection } = require('./endpoint-collection')

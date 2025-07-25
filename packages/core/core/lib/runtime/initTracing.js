@@ -1,6 +1,10 @@
 const { resolveCollector } = require('../tracing/collectors');
 const { Span } = require('../tracing/span');
 
+/**
+ * Init tracer
+ * @param {import('../../types').Runtime} runtime Runtime
+ */
 exports.initTracer = (runtime) => {
   const options = runtime.options.tracing;
   const log = runtime.createLogger('TRACER');

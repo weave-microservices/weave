@@ -1,3 +1,10 @@
+/**
+ * Check array validator
+ * @param {} param0
+ * @param {*} path
+ * @param {*} context
+ * @returns
+ */
 module.exports = function checkArray ({ schema, messages }, path, context) {
   const code = [];
 

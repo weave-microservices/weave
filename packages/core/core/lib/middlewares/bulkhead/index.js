@@ -7,8 +7,8 @@ const { Constants } = require('../../metrics');
 const { WeaveQueueSizeExceededError } = require('../../errors');
 
 /**
- * @typedef {import('../../types').Runtime} Runtime
- * @typedef {import('../../types').Middleware} Middleware
+ * @typedef {import('../../types.__js').Runtime} Runtime
+ * @typedef {import('../../types.__js').Middleware} Middleware
 */
 
 /**
@@ -44,7 +44,7 @@ module.exports = (runtime) => {
           });
       };
 
-      return function bulkheadMiddlware (context, serviceInjections) {
+      return function bulkheadMiddleware (context, serviceInjections) {
         // Execute action immediately
         if (currentlyInFlight < bulkheadOptions.concurrentCalls) {
           currentlyInFlight++;

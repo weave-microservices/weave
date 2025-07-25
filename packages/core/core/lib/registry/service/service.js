@@ -1,7 +1,7 @@
 /**
- * @typedef {import("../../types").Runtime} Runtime
- * @typedef {import("../../types").ServiceSchema} ServiceSchema
- * @typedef {import("../../types").Service} Service
+ * @typedef {import("../../types.__js").Runtime} Runtime
+ * @typedef {import("../../types.__js").ServiceSchema} ServiceSchema
+ * @typedef {import("../../types.__js").Service} Service
 */
 
 const { isFunction, clone, isObject, promisify } = require('@weave-js/utils');

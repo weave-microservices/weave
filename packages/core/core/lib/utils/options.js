@@ -4,9 +4,10 @@ const {
   deepMerge,
   defaultsDeep,
   flatten,
-  wrapHandler,
   wrapInArray
 } = require('@weave-js/utils');
+
+const { wrapHandler } = require('../utils/wrap-handler');
 
 function mergeSettings (source, targetSchema) {
   return defaultsDeep(source, targetSchema);
@@ -78,6 +79,12 @@ function mergeLifecicleHooks (source, targetSchema) {
   return compact(flatten([targetSchema, source]));
 }
 
+/**
+ * Merge ServiceSChemas
+ * @param {import('../../types').ServiceSchema} mixin
+ * @param {import('../../types').ServiceSchema} targetSchema
+ * @returns {import('../../types').ServiceSchema}
+ */
 function mergeSchemas (mixin, targetSchema) {
   const mixinSchema = clone(mixin);
   const resultSchema = clone(targetSchema);

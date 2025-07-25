@@ -4,18 +4,14 @@ const { registerCommonMetrics, updateCommonMetrics } = require('../metrics/commo
 const MetricTypes = require('../metrics/types');
 
 /**
- * @typedef {import('../types.js').Runtime} Runtime
-*/
-
-/**
  * Init metrics module
- * @param {Runtime} runtime - Runtime reference
+ * @param {import('../../types').Runtime} runtime - Runtime reference
  * @returns {void}
  */
 exports.initMetrics = (runtime) => {
   const metricOptions = runtime.options.metrics;
 
-  if (metricOptions.enabled) {
+  if (metricOptions?.enabled) {
     const storage = new Map();
 
     const log = runtime.createLogger('METRICS');

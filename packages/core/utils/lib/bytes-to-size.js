@@ -1,3 +1,8 @@
+/**
+ * Returns the size of a byte value.
+ * @param {number} bytes Bytes as number
+ * @returns {string}
+ */
 exports.bytesToSize = (bytes) => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
 

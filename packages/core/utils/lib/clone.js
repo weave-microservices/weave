@@ -1,4 +1,9 @@
-
+/**
+ * Clone an object.
+ * @template T
+ * @param {T} obj Object to clone.
+ * @returns {T}
+ */
 exports.clone = function clone (obj) {
   // in case of primitives
   if (obj === null || typeof obj !== 'object') {

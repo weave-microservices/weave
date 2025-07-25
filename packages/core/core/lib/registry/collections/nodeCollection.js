@@ -7,8 +7,8 @@
  */
 
 /**
- * @typedef {import('../../types.js').Registry} Registry
- * @typedef {import('../../types.js').NodeCollection} NodeCollection
+ * @typedef {import('../../types.__js').Registry} Registry
+ * @typedef {import('../../types.__js').NodeCollection} NodeCollection
 */
 
 const { getIpList, omit } = require('@weave-js/utils');

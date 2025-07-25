@@ -1,4 +1,9 @@
-exports.isStreamObjectMode = obj => {
+/**
+ * Checks if an node stream is in object mode.
+ * @param {NodeJS.ReadStream | NodeJS.WriteStream} obj
+ * @returns
+ */
+exports.isStreamObjectMode = (obj) => {
   if (obj.readableObjectMode || obj._readableState) {
     return obj.readableObjectMode === true || (obj._readableState && obj._readableState.objectMode === true);
   } else if (obj.writableObjectMode || obj._writableState) {

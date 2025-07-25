@@ -12,7 +12,7 @@ const app = createBroker({
   //   adapter: createInMemoryCache()
   // },
   tracing: {
-    enabled: true,
+    enabled: false,
     collectors: [
       createZipkinExporter()
     ],
@@ -90,11 +90,11 @@ app.createService({
   name: 'greater',
   actions: {
     hello: {
-      tracing: {
-        tags: {
-          response: true
-        }
-      },
+      // tracing: {
+      //   tags: {
+      //     response: true
+      //   }
+      // },
       handler (context) {
         return 'text from test2';
       }

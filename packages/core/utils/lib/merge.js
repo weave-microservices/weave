@@ -1,5 +1,12 @@
 const { isObject } = require('./is-object');
 
+/**
+ * Megr two objects
+ * @template {Object} T
+ * @param {import('../types').ObjectType<T>} target
+ * @param {S} source
+ * @returns
+ */
 exports.merge = function merge (target, source) {
   if (!isObject(target) || !isObject(source)) {
     return source;

@@ -1,5 +1,10 @@
 const os = require('os');
 
+/**
+ * Get CPU usage for all CPU cores
+ * @param {number} sampleTime sample time in milliseconds
+ * @returns {Promise<import('..').CPUUsage>}
+*/
 exports.cpuUsage = function cpuUsage (sampleTime = 100) {
   return new Promise(resolve => {
     const first = os.cpus().map(cpu => cpu.times);

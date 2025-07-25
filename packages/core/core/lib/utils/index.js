@@ -1,5 +1,6 @@
 
 exports = {
   ...require('./options'),
-  ...require('./restoreError')
+  ...require('./restoreError'),
+  ...require('./wrap-handler')
 };

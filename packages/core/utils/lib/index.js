@@ -31,7 +31,7 @@ module.exports = {
   ...require('./safe-copy'),
   ...require('./timespan'),
   ...require('./uuid'),
-  ...require('./wrap-handler'),
+  ...require('../../core/lib/utils/wrap-handler'),
   ...require('./wrap-in-array'),
   ...require('./pick')
 };

@@ -5,7 +5,7 @@
  * Copyright 2021 Fachwerk
 */
 /**
- * @typedef {import('../types').Runtime} Runtime
+ * @typedef {import('../types.__js').Runtime} Runtime
 */
 const { createRegistry } = require('../registry/registry.js');
 

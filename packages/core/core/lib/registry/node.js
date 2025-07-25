@@ -5,7 +5,7 @@
  */
 
 /**
- * @typedef {import('../types.js').Node} Node
+ * @typedef {import('../types.__js').Node} Node
 */
 
 const { cpuUsage } = require('@weave-js/utils');

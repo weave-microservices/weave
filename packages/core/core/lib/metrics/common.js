@@ -1,5 +1,5 @@
 /**
- * @typedef {import('../types.js').Runtime} Runtime
+ * @typedef {import('../types.__js').Runtime} Runtime
 */
 const os = require('os');
 const Constants = require('./constants');

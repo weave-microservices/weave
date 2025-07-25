@@ -8,35 +8,26 @@
 const { createContext } = require('../broker/context');
 
 /**
- * @typedef {import('../types').Runtime} Runtime
- * @typedef {import('../types').Context} Context
- * @typedef {import('../types').Endpoint} Endpoint
- * @typedef {import('../types').ActionOptions} ActionOptions
-*/
-
-/**
  * Init context factory.
- * @param {Runtime} runtime - Runtime reference
- * @returns {void}
+ * @param {import('../../types').Runtime} runtime - Runtime reference
 */
 exports.initContextFactory = (runtime) => {
   Object.defineProperty(runtime, 'contextFactory', {
     value: {
       /**
        * Creates a new context
-       * @param {Endpoint} endpoint - Endpoint
-       * @param {any} data - Data
-       * @param {ActionOptions} opts Options
-       * @returns {Context} Context
+       * @param {import('../../types').Endpoint} endpoint - Endpoint
+       * @param {Record<string, any>} data - Data
+       * @param {import('../../types').ActionOptions} opts Options
+       * @returns {import('../../types').Context} Context
       */
-      create (endpoint, data, opts) {
+      create (endpoint, data, opts = {}) {
         const context = createContext(runtime);
 
         if (endpoint) {
           context.setEndpoint(endpoint);
         }
 
-        opts = opts || {};
         context.setData(data);
         // context.timeout = opts.timeout || 0
         context.retryCount = opts.retryCount;

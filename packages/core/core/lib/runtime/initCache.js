@@ -1,6 +1,10 @@
 const { isFunction } = require('@weave-js/utils');
 const { WeaveError } = require('../errors');
 
+/**
+ * Init Cache
+ * @param {import('../../types').Runtime} runtime Runtime
+ */
 exports.initCache = (runtime) => {
   if (runtime.options.cache && runtime.options.cache.enabled) {
     if (!isFunction(runtime.options.cache.adapter)) {

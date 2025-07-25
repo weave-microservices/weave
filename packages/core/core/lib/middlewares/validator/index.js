@@ -8,8 +8,8 @@ const { WeaveParameterValidationError } = require('../../errors');
 const { capitalize } = require('@weave-js/utils');
 
 /**
- * @typedef {import('../../types').Runtime} Runtime
- * @typedef {import('../../types').Middleware} Middleware
+ * @typedef {import('../../types.__js').Runtime} Runtime
+ * @typedef {import('../../types.__js').Middleware} Middleware
 **/
 
 /**

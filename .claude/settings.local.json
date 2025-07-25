@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm audit:*)",
+      "Bash(npm run coverage:*)"
+    ],
+    "deny": []
+  }
+}

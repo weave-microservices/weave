@@ -1,9 +1,3 @@
-/**
- * @typedef {import('./types.js').BrokerOptions} BrokerOptions
- * @typedef {import('./types.js').Runtime} Runtime
- * @typedef {import('./types.js').Broker} Broker
-*/
-
 const { initLogger } = require('./runtime/initLogger');
 const { initMiddlewareHandler } = require('./runtime/initMiddlewareManager');
 const { initRegistry } = require('./runtime/initRegistry');
@@ -24,8 +18,8 @@ const EventEmitter = require('eventemitter2');
 
 /**
  * Build runtime object
- * @param {BrokerOptions} options Broker options
- * @return {Runtime} Runtime
+ * @param {import('../types').BrokerOptions} options Broker options
+ * @return {import('../types').Runtime} Runtime
 */
 exports.initRuntime = (options) => {
   /**
@@ -37,6 +31,9 @@ exports.initRuntime = (options) => {
     maxListeners: 1000
   });
 
+  /**
+   * @typedef {Partial<import('../types').Runtime>}
+  */
   const runtime = {
     nodeId: options.nodeId,
     version,

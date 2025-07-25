@@ -1,3 +1,9 @@
+/**
+ * Wraps a function in a promise
+ * @template {() => {}} T
+ * @param {T} callback
+ * @returns {() => Promise<any>}
+ */
 exports.promisify = function promisify (callback) {
   return function makePromisedFunction () {
     const args = arguments;

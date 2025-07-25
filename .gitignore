@@ -20,3 +20,4 @@ packages/services/node-info/coverage
 packages/core/repl/.vscode
 .idea
 .nx
+CLAUDE.md

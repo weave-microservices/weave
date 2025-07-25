@@ -1,5 +1,13 @@
 const defaultError = new Error('Promise timed out.');
 
+/**
+ * Execute a promise with a timeout
+ * @template T
+ * @param {number} ms timeout in milliseconds
+ * @param {Promise<T>} promise Promise
+ * @param {*} [error] Error
+ * @returns {Promise<T>} Promise
+ */
 exports.promiseTimeout = function promiseTimeout (ms, promise, error = defaultError) {
   let id;
 

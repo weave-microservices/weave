@@ -7,11 +7,11 @@
  */
 
 /**
- * @typedef {import('../../types.js').Runtime} Runtime
- * @typedef {import('../../types.js').EventCollection} EventCollection
- * @typedef {import('../../types.js').Service} Service
- * @typedef {import('../../types.js').Node} Node
- * @typedef {import('../../types.js').EndpointCollection} EndpointCollection
+ * @typedef {import('../../types.__js').Runtime} Runtime
+ * @typedef {import('../../types.__js').EventCollection} EventCollection
+ * @typedef {import('../../types.__js').Service} Service
+ * @typedef {import('../../types.__js').Node} Node
+ * @typedef {import('../../types.__js').EndpointCollection} EndpointCollection
 */
 
 const { createActionEndpoint } = require('../actionEndpoint');

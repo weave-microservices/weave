@@ -1,13 +1,19 @@
-exports.isPlainObject = function isPlainObject (o, strict = true) {
-  if (o === null || o === undefined) {
+/**
+ * Checks if the given object is a plain object.
+ * @param {any} object to check
+ * @param {boolean} strict
+ * @returns {boolean}
+ */
+exports.isPlainObject = function isPlainObject (object, strict = true) {
+  if (object === null || object === undefined) {
     return false;
   }
 
-  const instanceOfObject = o instanceof Object;
-  const typeOfObject = typeof o === 'object';
-  const constructorUndefined = o.constructor === undefined;
-  const constructorObject = o.constructor === Object;
-  const typeOfConstructorObject = typeof o.constructor === 'function';
+  const instanceOfObject = object instanceof Object;
+  const typeOfObject = typeof object === 'object';
+  const constructorUndefined = object.constructor === undefined;
+  const constructorObject = object.constructor === Object;
+  const typeOfConstructorObject = typeof object.constructor === 'function';
 
   let result;
 

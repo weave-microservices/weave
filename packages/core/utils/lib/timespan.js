@@ -6,6 +6,13 @@ const units = {
 
 const format = (num, unit, mode) => `${num + (mode === 'short' ? '' : ' ')}${unit}${mode === 'short' || num === 1 ? '' : 's'}`;
 
+/**
+ * Format time span as string with unit.
+ * @param {number} fromTime From time
+ * @param {number} toTime To time
+ * @param {string} unit Format unit
+ * @returns {string}
+ */
 function timespan (fromTime, toTime, unit) {
   unit = typeof arguments[arguments.length - 1] === 'string' ? arguments[arguments.length - 1] : 'long';
   fromTime = Array.isArray(fromTime) ? fromTime[0] * 1e3 + fromTime[1] / 1e6 : fromTime;
@@ -52,5 +59,18 @@ function timespan (fromTime, toTime, unit) {
   return format(Math.floor(milliseconds / 52), units[unit][9], unit);
 }
 
+/**
+ * Format a timespan as string
+ * @param {number} fromTime From time
+ * @param {number} toTime To time
+ * @returns {string} Formatted time span string
+ */
 exports.timespanFromUnixTimes = timespan;
+
+/**
+ * Format a timespan as short string
+ * @param {number} fromTime From time
+ * @param {number} toTime To time
+ * @returns {string} Formatted time span string
+ */
 exports.timespanFromUnixTimesShort = (fromTime, toTime) => timespan(fromTime, toTime, 'short');

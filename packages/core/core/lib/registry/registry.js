@@ -6,16 +6,16 @@
 */
 
 /**
- * @typedef {import('../types.js').Registry} Registry
- * @typedef {import('../types.js').NodeCollection} NodeCollection
- * @typedef {import('../types.js').ServiceCollection} ServiceCollection
- * @typedef {import('../types.js').ServiceActionCollection} ServiceActionCollection
- * @typedef {import('../types.js').EventCollection} EventCollection
- * @typedef {import('../types.js').Runtime} Runtime
- * @typedef {import('../types.js').Broker} Broker
- * @typedef {import('../types.js').Node} Node
- * @typedef {import('../types.js').MiddlewareHandler} MiddlewareHandler
- * @typedef {import('../types.js').ServiceChangedDelegate} ServiceChangedDelegate
+ * @typedef {import('../types.__js').Registry} Registry
+ * @typedef {import('../types.__js').NodeCollection} NodeCollection
+ * @typedef {import('../types.__js').ServiceCollection} ServiceCollection
+ * @typedef {import('../types.__js').ServiceActionCollection} ServiceActionCollection
+ * @typedef {import('../types.__js').EventCollection} EventCollection
+ * @typedef {import('../types.__js').Runtime} Runtime
+ * @typedef {import('../types.__js').Broker} Broker
+ * @typedef {import('../types.__js').Node} Node
+ * @typedef {import('../types.__js').MiddlewareHandler} MiddlewareHandler
+ * @typedef {import('../types.__js').ServiceChangedDelegate} ServiceChangedDelegate
 */
 
 const { safeCopy } = require('@weave-js/utils');

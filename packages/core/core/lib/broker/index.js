@@ -1,8 +1,8 @@
 /**
- * @typedef {import('../types.js').Runtime} Runtime
- * @typedef {import('../types.js').BrokerOptions} BrokerOptions
- * @typedef {import('../types.js').Broker} Broker
- * @typedef {import('../types.js').Transport} Transport
+ * @typedef {import('../types.__js').Runtime} Runtime
+ * @typedef {import('../types.__js').BrokerOptions} BrokerOptions
+ * @typedef {import('../types.__js').Broker} Broker
+ * @typedef {import('../types.__js').Transport} Transport
 */
 
 const { isFunction } = require('@weave-js/utils');

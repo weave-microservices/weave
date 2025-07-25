@@ -1,5 +1,9 @@
 const errors = require('../errors');
 
+/**
+ * Attach action invoker
+ * @param {Partial<import('../../types').Runtime>} runtime Runtime
+ */
 exports.initActionInvoker = (runtime) => {
   const { registry, contextFactory, log, handleError } = runtime;
 
@@ -11,7 +15,7 @@ exports.initActionInvoker = (runtime) => {
    * @returns {Promise} Promise
   */
   const call = (actionName, data, opts = {}) => {
-    const endpoint = registry.getNextAvailableActionEndpoint(actionName, opts);
+    const endpoint = registry?.getNextAvailableActionEndpoint(actionName, opts);
 
     if (endpoint instanceof Error) {
       return Promise.reject(endpoint)

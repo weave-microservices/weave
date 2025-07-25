@@ -1,5 +1,10 @@
 const { isObject, pick } = require('@weave-js/utils');
 
+/**
+ * Create a base tracing collector
+ * @param {import('../../../types').Runtime} runtime
+ * @returns {import('../../../types').TracingCollector}
+ */
 exports.createBaseTracingCollector = (runtime) => {
   const baseTracingCollector = Object.create(null);
 
@@ -22,6 +27,13 @@ exports.createBaseTracingCollector = (runtime) => {
     // throw new WeaveError('not implemented.')
   };
 
+  /**
+   * Flatten an object.
+   * @param {object} obj Object
+   * @param {boolean?} convertToString
+   * @param {string?} path
+   * @returns {object}
+   */
   baseTracingCollector.flattenTags = (obj, convertToString = false, path = '') => {
     if (!obj) {
       return null;
@@ -41,11 +53,17 @@ exports.createBaseTracingCollector = (runtime) => {
     }, {});
   };
 
-  baseTracingCollector.getErrorFields = (err, fields) => {
-    if (!err) {
+  /**
+   * Get fields of an error object.
+   * @param {Error} error Error
+   * @param {string[]} fields
+   * @returns
+   */
+  baseTracingCollector.getErrorFields = (error, fields) => {
+    if (!error) {
       return null;
     }
-    return pick(err, fields);
+    return pick(error, fields);
   };
 
   return baseTracingCollector;

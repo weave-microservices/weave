@@ -7,8 +7,8 @@
 */
 
 /**
- * @typedef {import('../../types.js').Registry} Registry
- * @typedef {import('../../types.js').ServiceActionCollection} ServiceActionCollection
+ * @typedef {import('../../types.__js').Registry} Registry
+ * @typedef {import('../../types.__js').ServiceActionCollection} ServiceActionCollection
 */
 const { omit } = require('@weave-js/utils');
 const { createEndpointList } = require('./endpointCollection');

@@ -1,5 +1,11 @@
 const RegexCache = new Map();
 
+/**
+ * Checks whether a check pattern is contained in the text.
+ * @param {string} text Text to check.
+ * @param {string} pattern Check pattern
+ * @returns {boolean}
+ */
 exports.match = function match (text, pattern) {
   if (pattern.indexOf('?') === -1) {
     const firstStarPosition = pattern.indexOf('*');

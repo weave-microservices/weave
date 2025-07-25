@@ -1,8 +1,16 @@
 const { isObject } = require('./is-object');
 
-exports.dotSet = function dotSet (object, key, value) {
-  if (key.includes('.')) {
-    const pathArray = key.split('.');
+/**
+ * Set a property on an object by dot-notated path string.
+ * @template {Object} T
+ * @param {T} object target object
+ * @param {import('../types').Path<T>} path Dot notated path string
+ * @param {any} value
+ * @returns {T} Modified object
+*/
+exports.dotSet = function dotSet (object, path, value) {
+  if (path.includes('.')) {
+    const pathArray = path.split('.');
     return pathArray.reduce((obj, i, index) => {
       const isTargetProp = (index + 1) === pathArray.length;
       const currentIsOject = isObject(obj[i]);
@@ -20,6 +28,7 @@ exports.dotSet = function dotSet (object, key, value) {
     }, object);
   }
 
-  object[key] = value;
+  object[path] = value;
   return object;
 };
+

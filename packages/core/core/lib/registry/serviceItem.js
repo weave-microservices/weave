@@ -6,8 +6,8 @@
 'use strict';
 
 /**
- * @typedef {import("../types").ServiceItem} ServiceItem
- * @typedef {import("../types").Node} Node
+ * @typedef {import("../types.__js").ServiceItem} ServiceItem
+ * @typedef {import("../types.__js").Node} Node
 */
 
 /**

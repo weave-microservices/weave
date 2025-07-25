@@ -1,3 +1,8 @@
+/**
+ * Deep flattens an array
+ * @param {Array<any | any[]>} array array
+ * @returns {Array<any>}
+ */
 exports.flattenDeep = function flattenDeep (array) {
   return array.reduce((acc, e) => {
     if (Array.isArray(e)) {

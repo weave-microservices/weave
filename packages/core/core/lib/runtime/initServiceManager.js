@@ -1,6 +1,10 @@
 const { createServiceFromSchema } = require('../registry/service/service.js');
 const { WeaveError } = require('../errors');
 
+/**
+ *
+ * @param {import('../../types/index.js').Runtime} runtime
+ */
 exports.initServiceManager = (runtime) => {
   const { options, log, eventBus, transport, state, registry, handleError } = runtime;
 

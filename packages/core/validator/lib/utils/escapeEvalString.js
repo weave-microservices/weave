@@ -2,6 +2,11 @@
 const escapeEvalRegex = /[''\\\n\r\u2028\u2029]/g;
 
 /* istanbul ignore next */
+/**
+ * Escapes eval string
+ * @param {string} str JS String
+ * @returns {string}
+ */
 exports.escapeEvalString = (str) => {
   // Based on https://github.com/joliss/js-string-escape
   return str.replace(escapeEvalRegex, character => {

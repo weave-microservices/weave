@@ -5,25 +5,18 @@
 */
 'use strict';
 
-/**
- * @typedef {import('../types').Context} Context
- * @typedef {import('../types').Runtime} Runtime
- * @typedef {import('../types').ContextPromise} ContextPromise
- * @typedef {import('../types').Endpoint} Endpoint
-*/
-
 const { uuid, isFunction, isStream, isStreamObjectMode } = require('@weave-js/utils');
 const { WeaveMaxCallLevelError, WeaveError } = require('../errors');
 
 /**
  * Create a new context object
- * @param {Runtime} runtime Runtime reference
- * @returns {Context} Context
+ * @param {import('../../types').Runtime} runtime Runtime reference
+ * @returns {import('../../types').Context} Context
 */
 exports.createContext = (runtime) => {
   const spanStack = [];
 
-  /** @type {Context} */
+  /** @type {import('../../types').Context} */
   const context = {
     id: null,
     nodeId: runtime.nodeId || null,
@@ -119,7 +112,7 @@ exports.createContext = (runtime) => {
     },
     /**
      * Copy the current context.
-     * @returns {Context} New copied context
+     * @returns {import('../../types').Context} New copied context
     */
     copy () {
       const contextCopy = exports.createContext(runtime);

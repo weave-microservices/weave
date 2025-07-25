@@ -25,6 +25,7 @@ const flatObject2 = {
 describe('Merge function', () => {
   it('should merge two objects', () => {
     const mergedObject = utils.merge(flatObject1, flatObject2);
+
     expect(JSON.stringify(mergedObject)).toBe(JSON.stringify({
       name: 'serv2',
       items: [1, 2, 3, 4, 5, 6],

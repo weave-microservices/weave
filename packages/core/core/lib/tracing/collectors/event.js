@@ -1,5 +1,10 @@
 const { createBaseTracingCollector } = require('./base');
 
+/**
+ * Merge options wirh default options.
+ * @param {import('../../../types').TracingOptions} options
+ * @returns {import('../../../types').TracingOptions}
+ */
 const mergeDefaultOptions = (options) => {
   return Object.assign({
     interval: 5000,
@@ -10,6 +15,11 @@ const mergeDefaultOptions = (options) => {
   }, options);
 };
 
+/**
+ * Create event collector for tracing
+ * @param {import('../../../types').TracingOptions} options
+ * @returns {(runtime: import('../../broker').Runtime, tracer: any) => import('../../../types').TracingCollector}
+ */
 module.exports = (options) => (runtime, tracer) => {
   options = mergeDefaultOptions(options);
 

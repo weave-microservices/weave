@@ -18,6 +18,7 @@
     "Micro"
   ],
   "main": "./lib/index.js",
+  "types": "./types.d.ts",
   "scripts": {
     "ci": "jest --watch",
     "test": "NODE_ENV=test jest --no-cache --runInBand",

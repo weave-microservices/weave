@@ -1,9 +1,9 @@
 /**
- * @typedef {import("../types.js").Runtime} Runtime
- * @typedef {import("../types.js").Endpoint} Endpoint
- * @typedef {import("../types.js").Node} Node
- * @typedef {import("../types.js").Service} Service
- * @typedef {import("../types.js").ServiceAction} ServiceAction
+ * @typedef {import("../types.__js").Runtime} Runtime
+ * @typedef {import("../types.__js").Endpoint} Endpoint
+ * @typedef {import("../types.__js").Node} Node
+ * @typedef {import("../types.__js").Service} Service
+ * @typedef {import("../types.__js").ServiceAction} ServiceAction
 */
 
 /*

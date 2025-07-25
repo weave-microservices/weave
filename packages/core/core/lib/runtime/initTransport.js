@@ -1,5 +1,5 @@
 /**
- * @typedef {import('../types').TransportAdapter} TransportAdapter
+ * @typedef {import('../types.__js').TransportAdapter} TransportAdapter
 **/
 
 const { createTransport } = require('../transport/createTransport');

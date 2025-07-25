@@ -1,3 +1,10 @@
+/**
+ * Debounce function execution
+ * @param {import("../types").DebounceCallback} func
+ * @param {number} wait Time to wait for execution
+ * @param {boolean} immediate Execute immediately
+ * @returns void
+ */
 exports.debounce = function debounce (func, wait, immediate = false) {
   let timeout;
 

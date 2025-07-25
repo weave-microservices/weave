@@ -1,8 +1,4 @@
-/* istanbul ignore next */
-
-/**
- * @typedef {import('../types.js').BrokerOptions} BrokerOptions
- */
+/** @import { BrokerOptions } from '@weave-js/core' */
 
 /**
  * Create and register a new service

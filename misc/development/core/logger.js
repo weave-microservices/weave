@@ -10,8 +10,11 @@ broker.createService({
   name: 'test',
   actions: {
     hello: {
-      handler (context, { service }) {
-        service;
+      params: {
+        name: ''
+      },
+      handler (context) {
+        context.data;
       }
     }
   }

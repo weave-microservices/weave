@@ -5,11 +5,11 @@
  */
 
 /**
- * @typedef {import('../types').Runtime} Runtime
- * @typedef {import('../types.js').TransportAdapter} TransportAdapter
- * @typedef {import('../types.js').Transport} Transport
- * @typedef {import('../types').TransportMessage} TransportMessage
- * @typedef {import('../types').Context} Context
+ * @typedef {import('../types.__js').Runtime} Runtime
+ * @typedef {import('../types.__js').TransportAdapter} TransportAdapter
+ * @typedef {import('../types.__js').Transport} Transport
+ * @typedef {import('../types.__js').TransportMessage} TransportMessage
+ * @typedef {import('../types.__js').Context} Context
 */
 
 // Own packages

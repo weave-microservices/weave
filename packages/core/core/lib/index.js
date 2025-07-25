@@ -1,23 +1,17 @@
-/**
- * @typedef {import('./types.js').BrokerOptions} BrokerOptions
- * @typedef {import('./types.js').Runtime} Runtime
- * @typedef {import('./types.js').Broker} Broker
-*/
-
 const { getDefaultOptions } = require('./broker/defaultOptions');
 const { defaultsDeep } = require('@weave-js/utils');
 const { initRuntime } = require('./buildRuntime');
 const { createBrokerInstance } = require('./broker');
 
 /**
- * @type {BrokerOptions} options Broker options
+ * @type {import('../types').Weave.BrokerOptions} options Broker options
 */
 exports.defaultOptions = getDefaultOptions();
 
 /**
  * Build runtime object
- * @param {BrokerOptions} options Broker options
- * @return {Broker} Broker instance
+ * @param {import('../types').Weave.BrokerOptions} options Broker options
+ * @return {import('../types').Weave.Broker} Broker instance
 */
 exports.createBroker = (options) => {
   const defaultOptions = getDefaultOptions();
@@ -31,8 +25,8 @@ exports.createBroker = (options) => {
 
 /**
  * @deprecated since version 0.9.0
- * @param {import('./types.js').BrokerOptions} options Broker options.
- * @returns {import('./types.js').Broker} Broker instance
+ * @param {import('../types').Weave.BrokerOptions} options Broker options.
+ * @returns {import('../types').Weave.Broker} Broker instance
 */
 exports.Weave = exports.createBroker;
 

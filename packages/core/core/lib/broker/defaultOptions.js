@@ -1,5 +1,5 @@
 /**
- * @typedef {import('../types.js').BrokerOptions} BrokerOptions
+ * @typedef {import('../types.__js').BrokerOptions} BrokerOptions
 */
 
 /*

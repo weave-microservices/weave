@@ -1,6 +1,6 @@
 /**
- * @typedef {import("../../types.js").Context} Context
- * @typedef {import("../../types.js").TracingOptions} TracingOptions
+ * @typedef {import("../../types.__js").Context} Context
+ * @typedef {import("../../types.__js").TracingOptions} TracingOptions
 */
 
 const { isFunction, dotGet, isObject } = require('@weave-js/utils');

@@ -12,9 +12,9 @@ const MessageTypes = require('./messageTypes');
 const { restoreError } = require('../utils/restoreError');
 
 /**
- * @typedef {import('../types').Transport} Transport
- * @typedef {import('../types').Runtime} Runtime
- * @typedef {import('../types').TransportMessageHandler} TransportMessageHandler
+ * @typedef {import('../types.__js').Transport} Transport
+ * @typedef {import('../types.__js').Runtime} Runtime
+ * @typedef {import('../types.__js').TransportMessageHandler} TransportMessageHandler
 */
 
 /**
