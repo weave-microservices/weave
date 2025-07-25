@@ -19,8 +19,12 @@ exports.createBroker = (options) => {
   options = defaultsDeep(options, defaultOptions);
 
   const runtime = initRuntime(options);
+  const broker = createBrokerInstance(runtime);
+  
+  // Establish circular reference for graceful shutdown in fatal errors
+  runtime.broker = broker;
 
-  return createBrokerInstance(runtime);
+  return broker;
 };
 
 /**

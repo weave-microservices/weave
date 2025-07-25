@@ -52,32 +52,39 @@ module.exports = (runtime) => {
     return new Promise((resolve) => {
       if (contextList.length === 0) {
         resolve();
+        return;
       }
 
       let isTimedOut = false;
       const timeout = setTimeout(() => {
         isTimedOut = true;
         log.error(new WeaveGracefulStopTimeoutError(service));
-        contextList = [];
         resolve();
       }, shutdownTimeout);
 
       let isFirstCheck = true;
+      let checkInterval;
+
       const checkContexts = () => {
         if (contextList.length === 0) {
           clearTimeout(timeout);
+          if (checkInterval) {
+            clearInterval(checkInterval);
+          }
           resolve();
         } else {
           if (isFirstCheck) {
             log.info(`Waiting for ${contextList.length} open Contexts...`);
             isFirstCheck = false;
           }
-
-          if (!isTimedOut) {
-            setTimeout(checkContexts, 100);
-          }
         }
       };
+
+      // Use setInterval instead of recursive setTimeout to prevent stack overflow
+      if (!isTimedOut) {
+        checkInterval = setInterval(checkContexts, 100);
+        checkInterval.unref();
+      }
       setImmediate(checkContexts);
     });
   };
