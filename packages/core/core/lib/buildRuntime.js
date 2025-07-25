@@ -17,23 +17,43 @@ const { version } = require('../package.json');
 const EventEmitter = require('eventemitter2');
 
 /**
- * Build runtime object
- * @param {import('../types').BrokerOptions} options Broker options
- * @return {import('../types').Runtime} Runtime
-*/
+ * Initializes and builds the complete Weave runtime with all core components
+ *
+ * The runtime contains all the core subsystems needed for a Weave broker:
+ * - Logger: Configurable logging system
+ * - Middleware: Request/response processing pipeline
+ * - Registry: Service discovery and load balancing
+ * - Context Factory: Request context creation
+ * - Event Bus: Pub/sub messaging system
+ * - Transport: Network communication layer
+ * - Cache: Distributed caching
+ * - Metrics: Performance monitoring
+ * - Tracing: Distributed tracing
+ *
+ * @param {import('../types').BrokerOptions} options - Broker configuration options
+ * @returns {import('../types').Runtime} Fully initialized runtime instance
+ * @example
+ * const runtime = initRuntime({
+ *   nodeId: 'my-service',
+ *   logger: { level: 'info' },
+ *   transport: { adapter: 'TCP' }
+ * });
+ */
 exports.initRuntime = (options) => {
   /**
-   * Event bus
-   * @returns {EventEmitter} Service object.
-  */
+   * Internal event bus for broker communication
+   * Supports wildcard patterns and high listener count for complex service topologies
+   * @type {EventEmitter}
+   */
   const bus = new EventEmitter({
     wildcard: true,
     maxListeners: 1000
   });
 
   /**
-   * @typedef {Partial<import('../types').Runtime>}
-  */
+   * Core runtime object containing all initialized subsystems
+   * @type {import('../types').Runtime}
+   */
   const runtime = {
     nodeId: options.nodeId,
     version,

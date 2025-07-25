@@ -1,3 +1,7 @@
+/**
+ * @typedef {import('../../types').ServiceSchema} ServiceSchema
+ */
+
 const {
   clone,
   compact,
@@ -9,18 +13,42 @@ const {
 
 const { wrapHandler } = require('../utils/wrap-handler');
 
+/**
+ * Merge service settings with deep default merging
+ * @param {Object} source Source settings object
+ * @param {Object} targetSchema Target schema settings
+ * @returns {Object} Merged settings object
+ */
 function mergeSettings (source, targetSchema) {
   return defaultsDeep(source, targetSchema);
 }
 
+/**
+ * Merge service metadata with deep default merging
+ * @param {Object} source Source metadata object
+ * @param {Object} targetSchema Target schema metadata
+ * @returns {Object} Merged metadata object
+ */
 function mergeMeta (source, targetSchema) {
   return defaultsDeep(source, targetSchema);
 }
 
+/**
+ * Merge arrays ensuring unique values
+ * @param {Array} source Source array
+ * @param {Array} targetSchema Target schema array
+ * @returns {Array} Flattened and compacted unique array
+ */
 function mergeUniqueArrays (source, targetSchema) {
   return compact(flatten([targetSchema, source]));
 }
 
+/**
+ * Merge service actions with handler wrapping and conflict resolution
+ * @param {Object} source Source actions object
+ * @param {Object} targetSchema Target schema actions
+ * @returns {Object} Merged actions object with wrapped handlers
+ */
 function mergeActions (source, targetSchema) {
   Object.keys(source).map(key => {
     // prevent action merge
@@ -38,7 +66,12 @@ function mergeActions (source, targetSchema) {
   return targetSchema;
 }
 
-// Merge events
+/**
+ * Merge service events with handler composition
+ * @param {Object} source Source events object
+ * @param {Object} targetSchema Target schema events
+ * @returns {Object} Merged events object with composed handlers
+ */
 function mergeEvents (source, targetSchema) {
   Object.keys(source).map(key => {
     const sourceEvent = wrapHandler(source[key]);
@@ -55,10 +88,22 @@ function mergeEvents (source, targetSchema) {
   return targetSchema;
 }
 
+/**
+ * Merge service methods by object assignment
+ * @param {Object} source Source methods object
+ * @param {Object} targetSchema Target schema methods
+ * @returns {Object} Merged methods object
+ */
 function mergeMethods (source, targetSchema) {
   return Object.assign(source, targetSchema);
 }
 
+/**
+ * Merge action hooks by combining hook arrays
+ * @param {Object} source Source action hooks object
+ * @param {Object} target Target action hooks object
+ * @returns {Object} Merged action hooks with combined arrays
+ */
 function mergeActionHooks (source, target) {
   Object.keys(source).map(hookName => {
     if (!target[hookName]) {
@@ -75,15 +120,31 @@ function mergeActionHooks (source, target) {
   return target;
 }
 
+/**
+ * Merge lifecycle hooks into a flattened array
+ * @param {Array|Function} source Source lifecycle hooks
+ * @param {Array|Function} targetSchema Target schema lifecycle hooks
+ * @returns {Array} Flattened and compacted lifecycle hooks array
+ */
 function mergeLifecicleHooks (source, targetSchema) {
   return compact(flatten([targetSchema, source]));
 }
 
 /**
- * Merge ServiceSChemas
- * @param {import('../../types').ServiceSchema} mixin
- * @param {import('../../types').ServiceSchema} targetSchema
- * @returns {import('../../types').ServiceSchema}
+ * Merge service schemas with comprehensive property handling
+ *
+ * Handles different merge strategies for various schema properties:
+ * - name, version: Override values
+ * - dependencies, mixins: Merge unique arrays
+ * - settings, meta: Deep merge objects
+ * - actions, events: Merge with handler wrapping
+ * - hooks: Merge action hooks by combining arrays
+ * - lifecycle hooks: Flatten into arrays
+ * - methods: Object assignment
+ *
+ * @param {ServiceSchema} mixin Mixin service schema
+ * @param {ServiceSchema} targetSchema Target service schema to merge into
+ * @returns {ServiceSchema} Merged service schema with combined properties
  */
 function mergeSchemas (mixin, targetSchema) {
   const mixinSchema = clone(mixin);

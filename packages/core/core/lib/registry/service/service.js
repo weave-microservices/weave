@@ -1,8 +1,9 @@
 /**
- * @typedef {import("../../types.__js").Runtime} Runtime
- * @typedef {import("../../types.__js").ServiceSchema} ServiceSchema
- * @typedef {import("../../types.__js").Service} Service
-*/
+ * @typedef {import("../../../types").Runtime} Runtime
+ * @typedef {import("../../../types").ServiceSchema} ServiceSchema
+ * @typedef {import("../../../types").Service} Service
+ * @typedef {import("../../../types").Context} Context
+ */
 
 const { isFunction, clone, isObject, promisify } = require('@weave-js/utils');
 const { WeaveError } = require('../../errors');
@@ -11,10 +12,30 @@ const { parseEvent } = require('./parseEvent');
 const { reduceMixins } = require('./reduceMixins');
 const { createEventEndpoint } = require('../eventEndpoint');
 /**
- * Service factory
- * @param {Runtime} runtime Broker instance
- * @param {ServiceSchema} schema Service schema
- * @returns {Service} Service instance
+ * Creates a service instance from a service schema definition
+ *
+ * This factory function handles the complete service lifecycle:
+ * - Applies mixins and merges schemas
+ * - Parses and validates actions and events
+ * - Sets up service methods and lifecycle hooks
+ * - Initializes service metadata and settings
+ * - Creates action and event endpoints for the registry
+ *
+ * @param {Runtime} runtime - Weave runtime instance with broker reference
+ * @param {ServiceSchema} schema - Service definition containing actions, events, and configuration
+ * @returns {Service} Fully initialized service instance ready for registration
+ * @throws {WeaveError} When schema is missing or invalid
+ * @example
+ * const service = createServiceFromSchema(runtime, {
+ *   name: 'math',
+ *   version: '1.0.0',
+ *   actions: {
+ *     add: {
+ *       params: { a: 'number', b: 'number' },
+ *       handler: (ctx) => ctx.data.a + ctx.data.b
+ *     }
+ *   }
+ * });
  */
 exports.createServiceFromSchema = (runtime, schema) => {
   // Check if a schema is given

@@ -1,9 +1,11 @@
 /**
- * @typedef {import('../types.__js').Runtime} Runtime
- * @typedef {import('../types.__js').BrokerOptions} BrokerOptions
- * @typedef {import('../types.__js').Broker} Broker
- * @typedef {import('../types.__js').Transport} Transport
-*/
+ * @typedef {import('../../types').Runtime} Runtime
+ * @typedef {import('../../types').BrokerOptions} BrokerOptions
+ * @typedef {import('../../types').Broker} Broker
+ * @typedef {import('../../types').Transport} Transport
+ * @typedef {import('../../types').Service} Service
+ * @typedef {import('../../types').ServiceSchema} ServiceSchema
+ */
 
 const { isFunction } = require('@weave-js/utils');
 const path = require('path');
@@ -11,10 +13,10 @@ const glob = require('glob');
 const Middlewares = require('../middlewares');
 
 /**
- * Creates a new Weave Broker instance
- * @param {Runtime} runtime - Weave runtime.
- * @returns {Broker} Broker instance
-*/
+ * Creates a new Weave Broker instance from the provided runtime
+ * @param {Runtime} runtime - Initialized Weave runtime containing all core components
+ * @returns {Broker} A fully configured Broker instance ready for use
+ */
 exports.createBrokerInstance = (runtime) => {
   const {
     version,
@@ -82,19 +84,30 @@ exports.createBrokerInstance = (runtime) => {
   broker.createService = services.createService.bind(broker);
 
   /**
-   * Global error handler of the broker.
-   * @param {*} error Error
+   * Global error handler for the broker. Processes non-fatal errors and passes them to the configured error handler.
+   * @param {Error} error - The error to handle
    * @returns {void}
-  */
+   */
   broker.handleError = runtime.handleError;
 
+  /**
+   * Fatal error handler that triggers graceful shutdown. Should only be used for unrecoverable errors.
+   * @param {string} [message] - Error message describing the fatal condition
+   * @param {Error} [error] - The underlying error that caused the fatal condition
+   * @param {boolean} [killProcess=true] - Whether to terminate the process after cleanup
+   * @returns {void}
+   */
   broker.fatalError = runtime.fatalError;
 
   /**
-  * Load and register a service from file.
-  * @param {string} filename Path to the service file.
-  * @returns {Service} Service
-  */
+   * Loads and registers a service from a file path. The file should export a service schema.
+   * @param {string} filename - Absolute or relative path to the service file
+   * @returns {Service} The created and registered service instance
+   * @throws {Error} When the service file cannot be loaded or contains invalid schema
+   * @example
+   * // Load a service from a file
+   * const service = broker.loadService('./services/math.service.js');
+   */
   broker.loadService = function (filename) {
     const filePath = path.resolve(filename);
     const schema = require(filePath);

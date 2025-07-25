@@ -6,17 +6,14 @@
 */
 
 /**
- * @typedef {import('../types.__js').Registry} Registry
- * @typedef {import('../types.__js').NodeCollection} NodeCollection
- * @typedef {import('../types.__js').ServiceCollection} ServiceCollection
- * @typedef {import('../types.__js').ServiceActionCollection} ServiceActionCollection
- * @typedef {import('../types.__js').EventCollection} EventCollection
- * @typedef {import('../types.__js').Runtime} Runtime
- * @typedef {import('../types.__js').Broker} Broker
- * @typedef {import('../types.__js').Node} Node
- * @typedef {import('../types.__js').MiddlewareHandler} MiddlewareHandler
- * @typedef {import('../types.__js').ServiceChangedDelegate} ServiceChangedDelegate
-*/
+ * @typedef {import('../../types').Registry} Registry
+ * @typedef {import('../../types').Runtime} Runtime
+ * @typedef {import('../../types').Broker} Broker
+ * @typedef {import('../../types').Node} Node
+ * @typedef {import('../../types').ServiceItem} ServiceItem
+ * @typedef {import('../../types').Endpoint} Endpoint
+ * @typedef {import('../../types').MiddlewareHandler} MiddlewareHandler
+ */
 
 const { safeCopy } = require('@weave-js/utils');
 
@@ -32,10 +29,22 @@ const { WeaveServiceNotFoundError, WeaveServiceNotAvailableError } = require('..
 const noop = () => {};
 
 /**
- * Registry factory
- * @param {Runtime} runtime Runtime
- * @returns {Registry} Registry
-*/
+ * Creates a service registry for managing distributed services and nodes
+ *
+ * The registry is responsible for:
+ * - Tracking available nodes and their services
+ * - Load balancing requests across service instances
+ * - Service discovery and routing
+ * - Handling node lifecycle events (connect/disconnect)
+ * - Managing action and event endpoints
+ *
+ * @param {Runtime} runtime - Weave runtime instance
+ * @returns {Registry} Initialized registry instance with collections and routing logic
+ * @example
+ * const registry = createRegistry(runtime);
+ * registry.registerLocalService(serviceItem);
+ * const endpoint = registry.getNextAvailableActionEndpoint('math.add');
+ */
 exports.createRegistry = (runtime) => {
   const { middlewareHandler } = runtime;
 

@@ -86,7 +86,7 @@ describe('Fatal Error Handling', () => {
 
       expect(stopSpy).toHaveBeenCalled();
       expect(global.setTimeout).toHaveBeenCalledWith(expect.any(Function), 10000);
-      
+
       // Manually trigger the timeout to test the behavior
       if (timeoutCallback) {
         timeoutCallback();
@@ -146,8 +146,6 @@ describe('Fatal Error Handling', () => {
 
   describe('Error logging during fatal errors', () => {
     it('should log fatal errors appropriately', async () => {
-      const logSpy = jest.fn();
-
       broker = createNode({
         nodeId: 'fatal-logging-test',
         logger: {

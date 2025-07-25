@@ -5,12 +5,13 @@
  */
 
 /**
- * @typedef {import('../types.__js').Runtime} Runtime
- * @typedef {import('../types.__js').TransportAdapter} TransportAdapter
- * @typedef {import('../types.__js').Transport} Transport
- * @typedef {import('../types.__js').TransportMessage} TransportMessage
- * @typedef {import('../types.__js').Context} Context
-*/
+ * @typedef {import('../../types').Runtime} Runtime
+ * @typedef {import('../../types').Transport} Transport
+ * @typedef {import('../../types').TransportMessage} TransportMessage
+ * @typedef {import('../../types').Context} Context
+ * @typedef {import('../../types').Node} Node
+ * @typedef {import('../../types').PendingStore} PendingStore
+ */
 
 // Own packages
 const { WeaveError, WeaveQueueSizeExceededError } = require('../errors');
@@ -21,11 +22,25 @@ const createMessageHandler = require('./messageHandlers');
 const { errorPayloadFactory } = require('./errorPayloadFactory');
 
 /**
- * Create a Transport adapter
- * @param {Runtime} runtime Broker instance
- * @param {TransportAdapter} adapter Adapter wrapper
- * @returns {Transport} transport
-*/
+ * Creates a transport layer for network communication between Weave nodes
+ *
+ * The transport handles:
+ * - Network connections between nodes
+ * - Message serialization and deserialization
+ * - Request/response lifecycle management
+ * - Stream handling for large payloads
+ * - Heartbeat and node discovery
+ * - Connection reconnection and error recovery
+ * - Load balancing and routing
+ *
+ * @param {Runtime} runtime - Weave runtime instance
+ * @param {any} adapter - Transport adapter implementation (TCP, NATS, Redis, etc.)
+ * @returns {Transport} Configured transport instance with messaging capabilities
+ * @example
+ * const tcpAdapter = require('./adapters/tcp');
+ * const transport = createTransport(runtime, tcpAdapter);
+ * await transport.connect();
+ */
 exports.createTransport = (runtime, adapter) => {
   const transport = Object.create(null);
   const { nodeId, middlewareHandler, createLogger } = runtime;
