@@ -1,7 +1,7 @@
 const { green, magenta, red, yellow, gray, cyan } = require('../utils/colorize');
 const os = require('os');
 
-exports.asHumanReadable = ({ levels, options }, originObj, message, number, time) => {
+exports.asHumanReadable = (runtime, originObj, message, number, time) => {
   let logResult = '';
 
   const logLevelColors = {
@@ -13,7 +13,7 @@ exports.asHumanReadable = ({ levels, options }, originObj, message, number, time
     verbose: gray
   };
 
-  const currentLabel = levels.labels[number];
+  const currentLabel = runtime.levels.labels[number];
 
   const color = logLevelColors[currentLabel] || yellow;
   // Log level label
@@ -22,8 +22,8 @@ exports.asHumanReadable = ({ levels, options }, originObj, message, number, time
   // date time
   logResult += ' [' + new Date(time).toISOString() + '] ';
 
-  if (options.base.pid && options.base.hostname) {
-    logResult += ` (${options.base.pid} on ${options.base.hostname})`;
+  if (runtime.options.base.pid && runtime.options.base.hostname) {
+    logResult += ` (${runtime.options.base.pid} on ${runtime.options.base.hostname})`;
   }
 
   if (message) {

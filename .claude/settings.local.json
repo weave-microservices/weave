@@ -7,7 +7,8 @@
       "Bash(npm test:*)",
       "Bash(node:*)",
       "Bash(rm:*)",
-      "Bash(npm run lint)"
+      "Bash(npm run lint)",
+      "Bash(npm run test:coverage:*)"
     ],
     "deny": []
   }
