@@ -1,35 +1,37 @@
-const { createBaseMetricAdapter } = require('./base');
+const BaseAdapter = require('./base');
 
 module.exports = (options) => {
   const lastChanges = new Set();
 
-  const adapter = createBaseMetricAdapter(options);
+  const adapter = BaseAdapter(options);
 
-  const sendEvent = (registry, options) => {
-    const broker = registry.broker;
-    const list = this.registry.list();
+  const sendEvent = () => {
+    const broker = adapter.registry.broker;
+    const list = adapter.registry.list();
 
-    broker.emit(this.options.eventName, list);
+    broker.emit(adapter.options.eventName, list);
 
     lastChanges.clear();
   };
 
   adapter.init = (registry) => {
-    this.options = Object.assign(options, {
+    adapter.options = Object.assign({
       eventName: '$metrics.changed',
       interval: 5000
-    });
+    }, options);
 
-    this.registry = registry;
+    adapter.registry = registry;
 
-    if (this.options.interval > 0) {
-      this.timer = setInterval(() => sendEvent(), this.options.interval);
-      this.timer.unref();
+    if (adapter.options.interval > 0) {
+      adapter.timer = setInterval(() => sendEvent(), adapter.options.interval);
+      adapter.timer.unref();
+    } else {
+      adapter.timer = undefined;
     }
   };
 
   adapter.stop = () => {
-    clearInterval(this.timer);
+    clearInterval(adapter.timer);
     return Promise.resolve();
   };
 

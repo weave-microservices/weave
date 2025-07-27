@@ -24,7 +24,7 @@ module.exports = {
     let cacheFactory;
 
     if (options === true) {
-      cacheFactory = this.adapters.Event;
+      cacheFactory = adapters.Event;
     } else if (isString(options)) {
       const cache = getByName(options);
 
