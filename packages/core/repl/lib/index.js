@@ -1,4 +1,4 @@
-const vorpal = require('vorpal')();
+const Vorpal = require('vorpal');
 const path = require('path');
 const cliUI = require('./utils/cli-ui');
 
@@ -26,13 +26,47 @@ const registerCustomCommands = (vorpal, broker, commands) => commands.map(regist
 /**
  * @typedef {Object} CommandContext
  * @param {Vorpal} vorpal - Vorpal instance
- * @param {Broker} broker - Broker instance
+ * @param {import('@weave-js/core').Broker} broker - Broker instance
  * @param  {Object} cliUI - CLI UI
  */
 
 /**
+ * Clean up all existing REPL commands to prevent duplication warnings
+ */
+function cleanupExistingCommands (vorpal) {
+  const commandNames = [
+    'exit', 'q', 'quit', 'close',
+    'actions', 'benchmark', 'broadcast', 'call', 'clear',
+    'dcall', 'emit', 'events', 'info', 'metrics', 'nodes', 'services'
+  ];
+
+  commandNames.forEach(commandName => {
+    const command = vorpal.find(commandName);
+    if (command) {
+      command.remove();
+    }
+  });
+
+  // Also clean up commands with parameters (more specific patterns)
+  const parameterizedCommands = [
+    'benchmark <action> [jsonParams]',
+    'broadcast <eventName>',
+    'call <actionName> [jsonParams]',
+    'dcall <nodeId> <actionName> [jsonParams]',
+    'emit <eventName>'
+  ];
+
+  parameterizedCommands.forEach(commandPattern => {
+    const command = vorpal.find(commandPattern);
+    if (command) {
+      command.remove();
+    }
+  });
+}
+
+/**
  * Register weave repl
- * @param {Broker} broker - Broker instance
+ * @param {import('@weave-js/core').Broker} broker - Broker instance
  * @param  {...function(CommandContext):void} customCommands - Custom commands
  * @returns {void}
  */
@@ -44,12 +78,10 @@ module.exports = (broker, ...customCommands) => {
   if (!customCommands.every(command => typeof command === 'function')) {
     throw new Error('Custom commands need to be a function.');
   }
+  const vorpal = new Vorpal();
 
-  // if (!Array.isArray(customCommands)) {
-  //   throw new Error('Custom commands need to be')
-  // }
-
-  vorpal.find('exit').remove();
+  // Clean up all existing commands to prevent duplication warnings
+  cleanupExistingCommands(vorpal);
 
   // exit command
   vorpal

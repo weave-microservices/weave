@@ -9,6 +9,7 @@ exports.started = function () {
 
 exports.actions = {
   hello (context) {
+    console.log(context.data);
     return context.data;
   }
 };

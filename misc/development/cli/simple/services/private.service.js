@@ -19,4 +19,5 @@ exports.actions = {
 
 exports.started = async function () {
   testFunc();
+  console.log('test');
 };
