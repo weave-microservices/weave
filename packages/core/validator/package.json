@@ -3,6 +3,7 @@
   "version": "0.14.0",
   "description": "Weave js object validator.",
   "main": "lib/validator.js",
+  "types": "types.ts",
   "scripts": {
     "test": "NODE_ENV=test jest --no-cache",
     "coverage": "jest --coverage --no-cache",

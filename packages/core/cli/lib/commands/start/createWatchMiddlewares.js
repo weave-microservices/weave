@@ -152,12 +152,12 @@ function createWatchMiddleware (weaveCli, options) {
     /**
      * Process Modules
      * @param {object} module Module
-     * @param {string?} service Service
+     * @param {import('@weave-js/core').Service} service Service
      * @param {*} level Call level
      * @param {*} parents Parent files
      * @returns {void}
      */
-    function processModule (module, service = null, level = 0, parents = null) {
+    function processModule (module, service, level = 0, parents = null) {
       // Prevent infinite recursion
       if (level > MAX_RECURSION_DEPTH) {
         return;

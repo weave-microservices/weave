@@ -1,8 +1,51 @@
-// Unmatched property names will be quoted and validate slighly slower. https://www.ecma-international.org/ecma-262/5.1/#sec-7.6
+/**
+ * @fileoverview Object validation rule generator for Weave validator
+ * Generates optimized validation code for object type schemas
+ * @author Kevin Ries <kevin.ries@fachwerk.io>
+ * @version 0.14.0
+ */
+
+/**
+ * Regular expression to match valid JavaScript identifiers for property access optimization
+ * Unmatched property names will be quoted and validate slightly slower.
+ * @see {@link https://www.ecma-international.org/ecma-262/5.1/#sec-7.6}
+ * @type {RegExp}
+ * @constant
+ */
 const identifierRegex = /^[_$a-zA-Z][_$a-zA-Z0-9]*$/;
 const { escapeEvalString } = require('../utils/escapeEvalString');
 
-// Quick regex to match most common unquoted JavaScript property names. Note the spec allows Unicode letters.
+/**
+ * Object validation rule generator function
+ * @typedef {Object} ObjectValidationContext
+ * @property {Object} schema - Object schema configuration
+ * @property {boolean} [schema.strict] - Whether to enforce strict property validation
+ * @property {Object} [schema.properties] - Schema for each object property
+ * @property {Object} [schema.props] - Alias for properties
+ * @property {Object} messages - Error message templates
+ *
+ * @typedef {Object} ObjectValidationResult
+ * @property {string} code - Generated JavaScript validation code
+ *
+ * @param {ObjectValidationContext} context - Validation context with schema and messages
+ * @param {string} path - Current field path for nested validation
+ * @param {Object} validationContext - Compilation context with options and rule cache
+ * @returns {ObjectValidationResult} Generated validation code
+ * @example
+ * // Example usage in validator compilation
+ * const result = checkObject({
+ *   schema: {
+ *     type: 'object',
+ *     strict: true,
+ *     properties: {
+ *       name: { type: 'string' },
+ *       age: { type: 'number', min: 0 }
+ *     }
+ *   },
+ *   messages: { object: 'Must be an object', objectStrict: 'Extra properties not allowed' }
+ * }, 'user', context);
+ * console.log(result.code); // Generated validation function code
+ */
 module.exports = function checkObject ({ schema, messages }, path, context) {
   const code = [];
 

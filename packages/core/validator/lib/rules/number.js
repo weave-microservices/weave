@@ -1,3 +1,39 @@
+/**
+ * @fileoverview Number validation rule generator for Weave validator
+ * Generates optimized validation code for number type schemas
+ * @author Kevin Ries <kevin.ries@fachwerk.io>
+ * @version 0.14.0
+ */
+
+/**
+ * Number validation rule generator function
+ * @typedef {Object} NumberValidationContext
+ * @property {Object} schema - Number schema configuration
+ * @property {boolean} [schema.convert] - Convert value to number before validation
+ * @property {number} [schema.min] - Minimum numeric value
+ * @property {number} [schema.max] - Maximum numeric value
+ * @property {number} [schema.equal] - Exact numeric value required
+ * @property {number} [schema.notEqual] - Value that is not allowed
+ * @property {boolean} [schema.integer] - Must be an integer
+ * @property {boolean} [schema.positive] - Must be positive (> 0)
+ * @property {boolean} [schema.negative] - Must be negative (< 0)
+ * @property {Object} messages - Error message templates
+ *
+ * @typedef {Object} NumberValidationResult
+ * @property {boolean} sanitized - Whether the validation includes value transformation
+ * @property {string} code - Generated JavaScript validation code
+ *
+ * @param {NumberValidationContext} context - Validation context with schema and messages
+ * @returns {NumberValidationResult} Generated validation code and metadata
+ * @example
+ * // Example usage in validator compilation
+ * const result = checkNumber({
+ *   schema: { type: 'number', min: 0, max: 100, integer: true },
+ *   messages: { number: 'Must be a number', numberMin: 'Too small' }
+ * });
+ * console.log(result.code); // Generated validation function code
+ * console.log(result.sanitized); // false (no conversion)
+ */
 module.exports = function checkNumber ({ schema, messages }) {
   const code = [];
   let sanitized = false;
