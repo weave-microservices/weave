@@ -1,11 +1,14 @@
 const { isObject } = require('./is-object');
 
 /**
- * Megr two objects
+ * Merge two objects shallowly, with arrays being concatenated.
  * @template {Object} T
- * @param {import('../types').ObjectType<T>} target
- * @param {S} source
- * @returns
+ * @template S
+ * @param {T} target - Target object to merge into
+ * @param {S} source - Source object to merge from
+ * @returns {T & S} Merged object
+ * @example
+ * merge({a: 1, b: [1, 2]}, {b: [3, 4], c: 3}); // {a: 1, b: [1, 2, 3, 4], c: 3}
  */
 exports.merge = function merge (target, source) {
   if (!isObject(target) || !isObject(source)) {
@@ -30,6 +33,15 @@ exports.merge = function merge (target, source) {
   return tempTarget;
 };
 
+/**
+ * Deep merge multiple objects recursively.
+ * Objects are merged deeply, arrays are concatenated.
+ * @template T
+ * @param {...Partial<T>} args - Objects to merge
+ * @returns {T} Deep merged object
+ * @example
+ * deepMerge({a: {b: 1}}, {a: {c: 2}}, {d: 3}); // {a: {b: 1, c: 2}, d: 3}
+ */
 exports.deepMerge = function deepMerge (...args) {
   // Setup target object
   const newObj = {};

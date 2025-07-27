@@ -6,12 +6,14 @@
   "homepage": "https://weave-js.com/packages/utils",
   "license": "ISC",
   "main": "lib/index.js",
+  "types": "types.d.ts",
   "directories": {
     "lib": "lib",
     "test": "tests"
   },
   "files": [
-    "lib"
+    "lib",
+    "types.d.ts"
   ],
   "repository": {
     "type": "git",

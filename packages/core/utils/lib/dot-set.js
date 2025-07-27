@@ -1,13 +1,18 @@
 const { isObject } = require('./is-object');
 
 /**
- * Set a property on an object by dot-notated path string.
+ * Set a property on an object using dot notation path.
+ * Creates nested objects as needed if they don't exist.
  * @template {Object} T
- * @param {T} object target object
- * @param {import('../types').Path<T>} path Dot notated path string
- * @param {any} value
+ * @param {T} object - Target object to modify
+ * @param {string} path - Dot notation path (e.g., 'a.b.c')
+ * @param {any} value - Value to set at the path
  * @returns {T} Modified object
-*/
+ * @example
+ * const obj = {};
+ * dotSet(obj, 'a.b.c', 123);
+ * // obj is now {a: {b: {c: 123}}}
+ */
 exports.dotSet = function dotSet (object, path, value) {
   if (path.includes('.')) {
     const pathArray = path.split('.');

@@ -1,10 +1,15 @@
 const os = require('os');
 
 /**
- * Get CPU usage for all CPU cores
- * @param {number} sampleTime sample time in milliseconds
- * @returns {Promise<import('..').CPUUsage>}
-*/
+ * Get CPU usage statistics for all CPU cores over a sampling period.
+ * Takes three measurements with the specified interval to calculate accurate usage.
+ * @param {number} [sampleTime=100] - Sample time in milliseconds between measurements
+ * @returns {Promise<import('..').CPUUsage>} Promise resolving to CPU usage statistics
+ * @example
+ * const usage = await cpuUsage(200);
+ * console.log(`Average: ${usage.avg}%`);
+ * console.log(`Per core: ${usage.usages}%`);
+ */
 exports.cpuUsage = function cpuUsage (sampleTime = 100) {
   return new Promise(resolve => {
     const first = os.cpus().map(cpu => cpu.times);

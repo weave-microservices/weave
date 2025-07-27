@@ -1,7 +1,8 @@
 /**
- * Checks if an node stream is in object mode.
- * @param {NodeJS.ReadStream | NodeJS.WriteStream} obj
- * @returns
+ * Checks if a Node.js stream is in object mode.
+ * Object mode allows streams to work with objects instead of just strings and buffers.
+ * @param {NodeJS.ReadStream | NodeJS.WriteStream} obj - The stream to check
+ * @returns {boolean} True if the stream is in object mode, false otherwise
  */
 exports.isStreamObjectMode = (obj) => {
   if (obj.readableObjectMode || obj._readableState) {

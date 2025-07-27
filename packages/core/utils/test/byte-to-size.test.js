@@ -4,6 +4,7 @@ describe('Byte to size converter (short)', () => {
   it('should output the size. (Zero bytes)', () => {
     const bytes = 0;
     const size = utils.bytesToSize(bytes);
+
     expect(size).toBe('0 Bytes');
   });
 

@@ -22,6 +22,7 @@ describe('Get properties by dot seperated path', () => {
       }
     };
 
+    utils.dotGet(source, 'settings.endpoints.http');
     expect(utils.dotGet(source, 'name')).toBe('test');
     expect(utils.dotGet(source, 'settings.a')).toBe(100);
     expect(utils.dotGet(source, 'settings.endpoints')).toEqual({

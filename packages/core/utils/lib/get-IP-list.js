@@ -1,9 +1,12 @@
 const os = require('os');
 
 /**
- *
- * @param {boolean} skipInternal
- * @returns {string[]}
+ * Get a list of IPv4 addresses from all network interfaces.
+ * @param {boolean} [skipInternal=true] - Whether to skip internal/loopback addresses
+ * @returns {string[]} Array of IPv4 addresses
+ * @example
+ * getIpList(); // ['192.168.1.100', '10.0.0.5']
+ * getIpList(false); // ['127.0.0.1', '192.168.1.100', '10.0.0.5']
  */
 exports.getIpList = function getIpList (skipInternal = true) {
   const interfaces = os.networkInterfaces();

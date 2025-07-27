@@ -1,9 +1,12 @@
 /**
- * Get a value from an object by path
+ * Get a value from an object using dot notation path.
  * @template T
- * @param {T} object Target Object
- * @param {import('../types').Path<T>} key path
- * @returns {any} Result
+ * @param {T} object - Target object to get value from
+ * @param {string} key - Dot notation path (e.g., 'a.b.c')
+ * @returns {any} The value at the specified path
+ * @example
+ * dotGet({a: {b: {c: 123}}}, 'a.b.c'); // 123
+ * dotGet({name: 'John'}, 'name'); // 'John'
  */
 exports.dotGet = function dotGet (object, key) {
   if (key.includes('.')) {
