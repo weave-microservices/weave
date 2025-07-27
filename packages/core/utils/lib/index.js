@@ -33,7 +33,6 @@ module.exports = {
   timespanFromUnixTimes: require('./timespan').timespanFromUnixTimes,
   timespanFromUnixTimesShort: require('./timespan').timespanFromUnixTimesShort,
   uuid: require('./uuid').uuid,
-  wrapHandler: require('../../core/lib/utils/wrap-handler').wrapHandler,
   wrapInArray: require('./wrap-in-array').wrapInArray,
   pick: require('./pick').pick
 };

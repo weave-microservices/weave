@@ -1,4 +1,5 @@
-const { isFunction, clone, wrapHandler, isObject, promisify } = require('@weave-js/utils');
+const { isFunction, clone, isObject, promisify } = require('@weave-js/utils');
+const { wrapHandler } = require('../../utils/wrap-handler');
 const { WeaveError } = require('../../errors');
 
 module.exports.parseEvent = (runtime, service, eventDefinition, name) => {
