@@ -22,7 +22,7 @@ const createRedisCache = (adapterOptions = {}) => (runtime, options = {}) => {
 
   const cache = Object.assign(base, {
     init () {
-      client = new Redis(options);
+      client = new Redis(adapterOptions);
 
       client.on('connect', () => {
         cache.isConnected = true;
@@ -31,8 +31,15 @@ const createRedisCache = (adapterOptions = {}) => (runtime, options = {}) => {
       });
 
       client.on('error', (err) => {
+        cache.isConnected = false;
         /* istanbul ignore next */
-        base.log.error(err);
+        base.log.error('Redis cache error:', err);
+      });
+
+      client.on('close', () => {
+        cache.isConnected = false;
+        /* istanbul ignore next */
+        base.log.warn('Redis cache connection closed.');
       });
     },
     set (hashKey, data, ttl) {
@@ -60,6 +67,7 @@ const createRedisCache = (adapterOptions = {}) => (runtime, options = {}) => {
             return data;
           } catch (error) {
             base.log.error('Redis result parse error', error, data);
+            return null;
           }
         }
         return null;
@@ -72,7 +80,7 @@ const createRedisCache = (adapterOptions = {}) => (runtime, options = {}) => {
         });
     },
     clear (pattern = '*') {
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         const stream = client.scanStream({
           match: pattern
         });
@@ -83,13 +91,20 @@ const createRedisCache = (adapterOptions = {}) => (runtime, options = {}) => {
             keys.forEach(function (key) {
               pipeline.del(key);
             });
-            pipeline.exec();
+            pipeline.exec().catch(err => {
+              base.log.error('Error executing pipeline:', err);
+            });
           }
         });
 
         stream.on('end', () => {
           base.log.debug('Cache cleared');
-          return resolve();
+          resolve();
+        });
+
+        stream.on('error', (err) => {
+          base.log.error('Error clearing cache:', err);
+          reject(err);
         });
       });
     },

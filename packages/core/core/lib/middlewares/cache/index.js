@@ -21,7 +21,7 @@ module.exports = (runtime) => {
         return function cacheMiddleware (context, serviceInjections) {
           // handle enabled function
           if (isEnabledFunction) {
-            if (!action.cache.enabled.call(null, context)) {
+            if (!action.cache.condition.call(null, context)) {
               // Enabled function returns "false". Cache is disabled.
               return handler(context, serviceInjections);
             }
@@ -75,11 +75,12 @@ module.exports = (runtime) => {
 
                   return handler(context).then((result) => {
                     // Cache the value
-                    cache.set(cacheHashKey, result, action.cache.ttl).then(() => {
-                      // release the lock
-                      release();
+                    return cache.set(cacheHashKey, result, action.cache.ttl).then(() => {
+                      return result;
                     });
-                    return result;
+                  }).finally(() => {
+                    // Always release the lock
+                    release();
                   });
                 });
               });
