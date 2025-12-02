@@ -1,11 +1,10 @@
+import { table } from 'table';
 
-const { table } = require('table');
-
-module.exports = ({ vorpal, broker, cliUI }) => {
+export default ({ vorpal, broker, cliUI }: any) => {
   vorpal
     .command('actions', 'List actions')
     .option('-l, --local', 'Show only local actions.')
-    .action((args, done) => {
+    .action((args: any, done: any) => {
       const tableConf = {};
       const data = [];
 

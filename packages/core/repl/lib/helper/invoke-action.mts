@@ -1,9 +1,9 @@
-const path = require('path');
-const fs = require('fs');
-const cliUI = require('../utils/cli-ui');
-const convertArgs = require('../utils/convert-args');
-const { safeCopy, isStream, isObject, timespanFromUnixTimes } = require('@weave-js/utils');
-const util = require('util');
+import path from 'path';
+import fs from 'fs';
+import * as cliUI from '../utils/cli-ui.mts';
+import convertArgs from '../utils/convert-args.mts';
+import { safeCopy, isStream, isObject, timespanFromUnixTimes } from '@weave-js/utils';
+import util from 'util';
 
 function handleResult (result, args, startTime) {
   const endTime = process.hrtime(startTime);
@@ -166,9 +166,9 @@ function preparePayloadStream (args) {
   }
 }
 
-module.exports = (broker) =>
-  (args, done) => {
-    const callOptions = prepareOptions(args);
+export default (broker: any) =>
+  (args: any, done: any) => {
+    const callOptions: any = prepareOptions(args);
     // try to get data from arguments
     let payload = preparePayloadArguments(args, {}, done);
 
@@ -184,7 +184,7 @@ module.exports = (broker) =>
 
     // Prepare send file stream
     if (args.options.stream) {
-      callOptions.stream = preparePayloadStream(args, payload) || payload;
+      callOptions.stream = preparePayloadStream(args) || payload;
     }
 
     console.log(cliUI.infoText(`>> Call "${args.actionName}" with data:`), payload);
@@ -193,7 +193,7 @@ module.exports = (broker) =>
     const startTime = process.hrtime();
 
     broker.call(args.actionName, payload, callOptions)
-      .then(result => handleResult(result, args, startTime))
-      .catch(error => handleError(error))
+      .then((result: any) => handleResult(result, args, startTime))
+      .catch((error: any) => handleError(error))
       .finally(done);
   };

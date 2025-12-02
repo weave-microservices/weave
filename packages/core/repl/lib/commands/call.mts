@@ -1,8 +1,9 @@
-const invokeAction = require('../helper/invoke-action');
+import invokeAction from '../helper/invoke-action.mts';
 
-module.exports = ({ vorpal, broker }) => {
+export default ({ vorpal, broker }: any) => {
   vorpal
-    .command('dcall <nodeId> <actionName> [jsonParams]', 'Direct call of an action using its node ID.')
+    .command('call <actionName> [jsonParams]', 'Call an action.')
+    .alias('c')
     .option('-d, --data [filename]', 'Load params from file')
     .option('-m, --metadata [filename]', 'Load metadata from file')
     .option('--stream [filename]', 'Send a file as stream')

@@ -1,6 +1,6 @@
-const convertArgs = require('../utils/convert-args');
+import convertArgs from '../utils/convert-args.mts';
 
-module.exports = ({ vorpal, broker, cliUI }) => {
+export default ({ vorpal, broker, cliUI }: any) => {
   vorpal
     .command('broadcast <eventName>', 'Broadcast a event.')
     .autocomplete({
@@ -9,7 +9,7 @@ module.exports = ({ vorpal, broker, cliUI }) => {
       }
     })
     .allowUnknownOptions()
-    .action((args, done) => {
+    .action((args: any, done: any) => {
       const payload = convertArgs(args.options);
 
       console.log(cliUI.infoText(`>> Broadcast '${args.eventName}' with payload:`), payload);

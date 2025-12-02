@@ -1,10 +1,9 @@
+import { table } from 'table';
 
-const { table } = require('table');
-
-module.exports = ({ vorpal, broker, cliUI }) => {
+export default ({ vorpal, broker, cliUI }: any) => {
   vorpal
     .command('nodes', 'List connected nodes')
-    .action((args, done) => {
+    .action((args: any, done: any) => {
       const data = [];
       data.push([
         cliUI.tableHeaderText('Node ID'),
@@ -18,7 +17,7 @@ module.exports = ({ vorpal, broker, cliUI }) => {
 
       const nodes = broker.runtime.registry.nodeCollection.list({});
 
-      nodes.map(node => {
+      nodes.map((node: any) => {
         let cpuLoad = '?';
         if (node.cpu !== null) {
           const width = 20;

@@ -1,12 +1,12 @@
-const os = require('os');
-const clui = require('clui');
-const v8 = require('v8');
-const { getIpList } = require('@weave-js/utils');
+import os from 'os';
+import clui from 'clui';
+import v8 from 'v8';
+import { getIpList } from '@weave-js/utils';
 
-module.exports = ({ vorpal, broker, cliUI }) => {
+export default ({ vorpal, broker, cliUI }: any) => {
   vorpal
     .command('info', 'Show node informations.')
-    .action((_, done) => {
+    .action((_: any, done: any) => {
       const gauge = clui.Gauge;
       const heapStatistic = v8.getHeapStatistics();
       const ips = getIpList(false);

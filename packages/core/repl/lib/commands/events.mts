@@ -1,9 +1,9 @@
-const { table } = require('table');
+import { table } from 'table';
 
-module.exports = ({ vorpal, broker, cliUI }) => {
+export default ({ vorpal, broker, cliUI }: any) => {
   vorpal
     .command('events', 'List registered events.')
-    .action((args, done) => {
+    .action((args: any, done: any) => {
       const tableConf = {};
       const data = [];
 
@@ -30,7 +30,7 @@ module.exports = ({ vorpal, broker, cliUI }) => {
           ''
         ]);
       } else {
-        events.map(event => {
+        events.map((event: any) => {
           if (event) {
             data.push([
               event.name,

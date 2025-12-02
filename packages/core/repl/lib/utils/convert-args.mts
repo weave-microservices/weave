@@ -1,12 +1,12 @@
-module.exports = function convertArgs (args) {
-  const res = {};
+export default function convertArgs (args: any): any {
+  const res: any = {};
 
   Object.keys(args).forEach(key => {
     const value = args[key];
     if (Array.isArray(value)) {
       res[key] = value;
     } else if (typeof (value) === 'object') {
-      res[key] = this.convertArgs(value);
+      res[key] = convertArgs(value);
     } else if (value === 'true') {
       res[key] = true;
     } else if (value === 'false') {
@@ -17,4 +17,4 @@ module.exports = function convertArgs (args) {
   });
 
   return res;
-};
+}

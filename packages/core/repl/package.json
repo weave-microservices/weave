@@ -2,14 +2,27 @@
   "name": "@weave-js/repl",
   "version": "0.14.0",
   "description": "REPL module for weave",
-  "main": "lib/index.js",
+  "type": "module",
+  "main": "lib/index.mts",
+  "types": "lib/index.mts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.mts",
+      "default": "./lib/index.mts"
+    }
+  },
   "scripts": {
-    "lint": "eslint . --ext .js --fix"
+    "lint": "eslint . --ext .mts --fix"
   },
   "publishConfig": {
     "access": "public"
   },
-  "author": "Kevin Ries",
+  "author": {
+    "name": "Kevin Ries",
+    "company": "Fachwerk Software",
+    "email": "kevin.ries@fachwerk.io",
+    "url": "https://weave-js.com"
+  },
   "license": "MIT",
   "peerDependencies": {
     "@weave-js/core": "0.15.2"
@@ -23,7 +36,9 @@
     "vorpal": "^1.12.0"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.15.1"
+    "@types/node": "^22.0.0",
+    "@weave-js/core": "^0.15.1",
+    "typescript": "^5.6.0"
   },
   "gitHead": "84fd5e4af3af96e8c004bcfba40bb3cb35f23fa7"
 }

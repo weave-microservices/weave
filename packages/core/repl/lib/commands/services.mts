@@ -1,10 +1,9 @@
+import { table } from 'table';
 
-const { table } = require('table');
-
-module.exports = ({ vorpal, broker, cliUI }) => {
+export default ({ vorpal, broker, cliUI }: any) => {
   vorpal
     .command('services', 'List services')
-    .action((args, done) => {
+    .action((args: any, done: any) => {
       const data = [];
       data.push([
         cliUI.tableHeaderText('Service'),
@@ -24,8 +23,8 @@ module.exports = ({ vorpal, broker, cliUI }) => {
         withPrivate: true
       });
 
-      services.map(service => {
-        let item = list.find(item => item.name === service.name && item.version === service.version);
+      services.map((service: any) => {
+        let item = list.find((item: any) => item.name === service.name && item.version === service.version);
 
         if (item) {
           item.nodes.push({
@@ -48,7 +47,7 @@ module.exports = ({ vorpal, broker, cliUI }) => {
         }
       });
 
-      list.map(service => {
+      list.map((service: any) => {
         data.push([
           service.name,
           service.version ? service.version : '-',

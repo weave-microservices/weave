@@ -1,8 +1,8 @@
-const { timespanFromUnixTimes } = require('@weave-js/utils');
-const createSpinner = require('../utils/create-spinner');
-const formatNumber = require('../utils/format-number');
+import { timespanFromUnixTimes } from '@weave-js/utils';
+import createSpinner from '../utils/create-spinner.mts';
+import formatNumber from '../utils/format-number.mts';
 
-module.exports = ({ vorpal, broker, cliUI }) => {
+export default ({ vorpal, broker, cliUI }: any) => {
   vorpal
     .command('benchmark <action> [jsonParams]', 'Benchmark a service Endpoint.')
     .option('--iterations <number>', 'Number of iterations')
@@ -13,7 +13,7 @@ module.exports = ({ vorpal, broker, cliUI }) => {
         return [...new Set(broker.runtime.registry.actionCollection.list({}).map(item => item.name))];
       }
     })
-    .action((args, done) => {
+    .action((args: any, done: any) => {
       const spinner = createSpinner('🚀  Running benchmark... ');
       const action = args.action;
 
@@ -55,7 +55,7 @@ module.exports = ({ vorpal, broker, cliUI }) => {
         timeout = true;
       }, time * 1000);
 
-      const printResult = (duration) => {
+      const printResult = (duration: number) => {
         console.log(cliUI.successText('\nBenchmark results:\n'));
         console.log(cliUI.infoText(`${formatNumber(responseCounter)} requests in ${timespanFromUnixTimes(duration)} ${duration}`));
 
@@ -71,7 +71,7 @@ module.exports = ({ vorpal, broker, cliUI }) => {
         console.log(`	Max time: ${cliUI.highlightedText(timespanFromUnixTimes(maxTime))}`);
       };
 
-      const handleRequest = (startTime, error) => {
+      const handleRequest = (startTime: any, error?: any) => {
         if (error) {
           errorCounter++;
         }

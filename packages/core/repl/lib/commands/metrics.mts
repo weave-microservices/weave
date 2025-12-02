@@ -1,9 +1,9 @@
-const { table } = require('table');
+import { table } from 'table';
 
-module.exports = ({ vorpal, broker, cliUI }) => {
+export default ({ vorpal, broker, cliUI }: any) => {
   vorpal
     .command('metrics', 'Show node metrics.')
-    .action((args, done) => {
+    .action((args: any, done: any) => {
       if (!broker.runtime.metrics) {
         console.log('Metrics are not enabled on this node');
       } else {
@@ -20,7 +20,7 @@ module.exports = ({ vorpal, broker, cliUI }) => {
         const tableConf = {};
         const metrics = broker.runtime.metrics.list();
 
-        metrics.forEach(metric => {
+        metrics.forEach((metric: any) => {
           if (metric.value.length === 0) {
             data.push([
               metric.description,
@@ -30,7 +30,7 @@ module.exports = ({ vorpal, broker, cliUI }) => {
               cliUI.neutralText('no value')
             ]);
           } else {
-            metric.value.forEach(value => {
+            metric.value.forEach((value: any) => {
               const labels = value.labels || '';
 
               data.push([
