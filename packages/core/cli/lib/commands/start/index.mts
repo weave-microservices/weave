@@ -1,23 +1,24 @@
-const { createBroker } = require('@weave-js/core');
-const repl = require('@weave-js/repl');
-const { getConfig } = require('../../utils/config');
-const { createWatchMiddleware } = require('./createWatchMiddlewares');
-const { loadServices, loadServicesFromFactory } = require('./loadServices');
-const path = require('path');
-const fs = require('fs');
+import { createBroker } from '@weave-js/core';
+import repl from '@weave-js/repl';
+import { getConfig } from '../../utils/config.mts';
+import { createWatchMiddleware } from './createWatchMiddlewares.mts';
+import { loadServices, loadServicesFromFactory } from './loadServices.mts';
+import path from 'path';
+import fs from 'fs';
+import dotenv from 'dotenv';
 
-exports.handler = async (args) => {
+export const handler = async (args: any): Promise<void> => {
   if (args.dotenv) {
     const dotEnvPath = typeof args.dotenv === 'string' ? args.dotenv : path.resolve(process.cwd(), '.env');
-    require('dotenv').config({ path: dotEnvPath });
+    dotenv.config({ path: dotEnvPath });
   }
 
   try {
-    const cliContext = {
+    const cliContext: any = {
       broker: null,
       args: args, // Store args for config reloading
       isRestarting: false, // Flag to prevent restart loops
-      async restartBroker () {
+      async restartBroker() {
         // Prevent multiple concurrent restarts
         if (this.isRestarting) {
           return;
@@ -32,11 +33,11 @@ exports.handler = async (args) => {
 
             // Reload config from file system
             broker.log.info('Reloading configuration...');
-            const freshConfig = getConfig(this.args);
+            const freshConfig = await getConfig(this.args);
 
             // Apply watch middleware if needed
             if (this.args.watch) {
-              const additionalFiles = [];
+              const additionalFiles: any[] = [];
 
               if (this.args.factory) {
                 const serviceFactoryPath = path.isAbsolute(this.args.factory) ? this.args.factory : path.resolve(process.cwd(), this.args.factory);
@@ -65,11 +66,11 @@ exports.handler = async (args) => {
 
             // Reload services
             if (this.args.services) {
-              loadServices(this.broker, this.args.services);
+              await loadServices(this.broker, this.args.services);
             }
 
             if (this.args.factory) {
-              loadServicesFromFactory(this.broker, this.args.factory);
+              await loadServicesFromFactory(this.broker, this.args.factory);
             }
 
             await this.broker.start();
@@ -93,10 +94,10 @@ exports.handler = async (args) => {
       }
     };
 
-    const config = getConfig(args);
+    const config = await getConfig(args);
 
     if (args.watch) {
-      const additionalFiles = [];
+      const additionalFiles: any[] = [];
 
       if (args.services) {
       }
@@ -125,11 +126,11 @@ exports.handler = async (args) => {
     cliContext.broker = createBroker(config);
 
     if (args.services) {
-      loadServices(cliContext.broker, args.services);
+      await loadServices(cliContext.broker, args.services);
     }
 
     if (args.factory) {
-      loadServicesFromFactory(cliContext.broker, args.factory);
+      await loadServicesFromFactory(cliContext.broker, args.factory);
     }
 
     await cliContext.broker.start();

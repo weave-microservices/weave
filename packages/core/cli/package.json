@@ -2,13 +2,21 @@
   "name": "@weave-js/cli",
   "version": "0.16.1",
   "description": "Weave CLI tool",
-  "main": "index.js",
+  "type": "module",
+  "main": "lib/index.mts",
+  "types": "lib/index.mts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.mts",
+      "default": "./lib/index.mts"
+    }
+  },
   "scripts": {
-    "lint": "eslint . --ext .js --fix",
-    "start": "node ./lib/index start -r"
+    "lint": "eslint . --ext .mts --fix",
+    "start": "node --experimental-strip-types ./lib/index.mts start -r"
   },
   "bin": {
-    "weave": "./bin/weave.js"
+    "weave": "./bin/weave.mts"
   },
   "publishConfig": {
     "access": "public"
@@ -23,12 +31,18 @@
     "@weave-js/core": "^0.15.2",
     "@weave-js/repl": "^0.14.0",
     "@weave-js/utils": "^0.13.0",
-    "commander": "^10.0.1",
+    "commander": "^11.1.0",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.9",
-    "inquirer": "^9.2.0",
+    "inquirer": "^13.0.1",
     "kleur": "^4.1.5",
-    "update-notifier": "^5.1.0"
+    "mkdirp": "^3.0.1",
+    "update-notifier": "^5.1.0",
+    "user-home": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "typescript": "^5.9.3"
   },
   "gitHead": "84fd5e4af3af96e8c004bcfba40bb3cb35f23fa7"
 }

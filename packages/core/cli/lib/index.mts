@@ -1,13 +1,15 @@
 #!/usr/bin/env node
-const updateNotifier = require('update-notifier');
-const pkg = require('../package.json');
-const { program } = require('commander');
-const { cleanArgs } = require('./utils/args');
+import updateNotifier from 'update-notifier';
+import pkg from '../package.json' with { type: 'json' };
+import { program } from 'commander';
+import { cleanArgs } from './utils/args.mts';
+import * as startCommand from './commands/start/index.mts';
+import * as createCommand from './commands/create/index.mts';
 
 updateNotifier({ pkg }).notify();
 
 program
-  .version(`@weave-js/cli ${require('../package').version}`)
+  .version(`@weave-js/cli ${pkg.version}`)
   .usage('<command> [options]');
 
 program
@@ -21,7 +23,7 @@ program
   .option('-w, --watch', 'Start broker with service watcher.')
   .option('-sl, --silent', 'Start broker without console outputs.')
   .action((args) => {
-    require('./commands/start').handler(cleanArgs(args));
+    startCommand.handler(cleanArgs(args));
   });
 
 program
@@ -30,7 +32,7 @@ program
   .option('-t,--template <template>', 'Start broker with config file.')
   .option('-s,--suffix <suffix>', 'Service file suffix (default: service)')
   .action((type, name, options) => {
-    require('./commands/create').handler(type, name, options);
+    createCommand.handler(type, name, options);
   });
 
 program.parse(process.argv);

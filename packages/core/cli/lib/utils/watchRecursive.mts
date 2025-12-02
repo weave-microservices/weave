@@ -1,14 +1,14 @@
-const os = require('os');
-const fs = require('fs');
-const path = require('path');
-const Cache = require('./ttlCache');
+import os from 'os';
+import fs from 'fs';
+import path from 'path';
+import Cache from './ttlCache.mts';
 const isLinux = os.platform() === 'linux'; // native recursive watching not supported here
 const watchDirectory = isLinux ? watchFallback : watchRecursive;
 
-module.exports = watch;
+export default watch;
 
-function watch (name, onchange) {
-  let clear = null;
+function watch(name: string, onchange: (filename: string) => void): () => void {
+  let clear: (() => void) | null = null;
   let stopped = false;
 
   fs.lstat(name, function (_, st) {
@@ -28,8 +28,8 @@ function watch (name, onchange) {
   };
 }
 
-function watchFile (filename, onchange) {
-  let prev = null;
+function watchFile(filename: string, onchange: (filename: string) => void): () => void {
+  let prev: fs.Stats | null = null;
   let prevTime = 0;
 
   const w = fs.watch(filename, function () {
@@ -46,7 +46,7 @@ function watchFile (filename, onchange) {
   };
 }
 
-function watchRecursive (directory, onchange) {
+function watchRecursive(directory: string, onchange: (filename: string) => void): () => void {
   const w = fs.watch(directory, { recursive: true }, function (change, filename) {
     if (!filename) {
       return; // filename not always given (https://nodejs.org/api/fs.html#fs_filename_argument)
@@ -59,10 +59,10 @@ function watchRecursive (directory, onchange) {
   };
 }
 
-function watchFallback (directory, onchange) {
-  const watching = {};
+function watchFallback(directory: string, onchange: (filename: string) => void): () => void {
+  const watching: Record<string, fs.FSWatcher> = {};
   let loaded = false;
-  const queued = [];
+  const queued: string[] = [];
   const prevs = new Cache({ ttl: 2e3, capacity: 30 });
 
   visit('.', function () {
@@ -75,12 +75,12 @@ function watchFallback (directory, onchange) {
     });
   };
 
-  function emit (name) {
+  function emit(name: string): void {
     queued.push(name);
     if (queued.length === 1) update();
   }
 
-  function update () {
+  function update(): void {
     const filename = queued[0];
 
     fs.lstat(filename, function (err, st) {
@@ -102,7 +102,7 @@ function watchFallback (directory, onchange) {
     });
   }
 
-  function visit (next, cb) {
+  function visit(next: string, cb: (err?: Error) => void): void {
     const dir = path.join(directory, next);
 
     fs.lstat(dir, function (err, st) {
@@ -117,8 +117,10 @@ function watchFallback (directory, onchange) {
       }
 
       const w = fs.watch(dir, function (change, filename) {
-        filename = path.join(next, filename);
-        emit(path.join(directory, filename));
+        if (filename) {
+          filename = path.join(next, filename);
+          emit(path.join(directory, filename));
+        }
       });
 
       w.on('error', noop);
@@ -133,16 +135,19 @@ function watchFallback (directory, onchange) {
           if (!list.length) {
             return cb();
           }
-          visit(path.join(next, list.shift()), loop);
+          const item = list.shift();
+          if (item) {
+            visit(path.join(next, item), loop);
+          }
         }
       });
     });
   }
 }
 
-function noop () {}
+function noop(): void {}
 
-function same (a, b) {
+function same(a: fs.Stats | null, b: fs.Stats | null): boolean {
   if (!a || !b) return false;
   return a.dev === b.dev &&
     a.mode === b.mode &&

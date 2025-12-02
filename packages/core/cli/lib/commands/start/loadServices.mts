@@ -1,8 +1,8 @@
-const path = require('path');
-const fs = require('fs');
-const { isFunction } = require('@weave-js/utils');
+import path from 'path';
+import fs from 'fs';
+import { isFunction } from '@weave-js/utils';
 
-exports.loadServices = (broker, param) => {
+export const loadServices = async (broker: any, param: string): Promise<void> => {
   const servicePathsParams = param.split(',');
   for (const servicePathParam of servicePathsParams) {
     const servicePath = path.isAbsolute(servicePathParam) ? servicePathParam : path.resolve(process.cwd(), servicePathParam);
@@ -16,7 +16,8 @@ exports.loadServices = (broker, param) => {
     if (isDir) {
       const folderContainsManifestFile = fs.existsSync(path.join(servicePath, 'index.js'));
       if (folderContainsManifestFile) {
-        const serviceFactory = require(path.join(servicePath, 'index.js'));
+        const module = await import(path.join(servicePath, 'index.js'));
+        const serviceFactory = module.default || module;
         if (isFunction(serviceFactory)) {
           serviceFactory(broker);
           broker.log.warn(`An index.js file was found in the "${servicePath}" folder. Since it is not a service loader function, it was ignored.`);
@@ -33,10 +34,11 @@ exports.loadServices = (broker, param) => {
   }
 };
 
-exports.loadServicesFromFactory = (broker, param) => {
+export const loadServicesFromFactory = async (broker: any, param: string): Promise<void> => {
   try {
     const serviceFactoryPath = path.isAbsolute(param) ? param : path.resolve(process.cwd(), param);
-    const serviceFactory = require(serviceFactoryPath);
+    const module = await import(serviceFactoryPath);
+    const serviceFactory = module.default || module;
 
     if (!serviceFactory) {
       throw new Error('Service factory not found.');

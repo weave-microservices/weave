@@ -1,17 +1,22 @@
-const fs = require('fs');
-const path = require('path');
-const inquirer = require('inquirer');
-const ejs = require('ejs');
-const kleur = require('kleur');
+import fs from 'fs';
+import path from 'path';
+import inquirer from 'inquirer';
+import ejs from 'ejs';
+import kleur from 'kleur';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
-module.exports = async (serviceName, options) => {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+export default async (serviceName: string, options: any): Promise<void> => {
   const { serviceFolder } = await inquirer.prompt([
     {
       type: 'input',
       name: 'serviceFolder',
       message: 'Service directory',
       default: './services',
-      validate (input) {
+      validate(input: string) {
         if (!fs.existsSync(path.resolve(input))) {
           return `The '${input}' directory is not exists! Full path: ${path.resolve(input)}`;
         }

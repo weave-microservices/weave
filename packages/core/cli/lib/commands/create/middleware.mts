@@ -1,8 +1,13 @@
-const fs = require('fs');
-const path = require('path');
-const inquirer = require('inquirer');
-const ejs = require('ejs');
-const kleur = require('kleur');
+import fs from 'fs';
+import path from 'path';
+import inquirer from 'inquirer';
+import ejs from 'ejs';
+import kleur from 'kleur';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const groupedMiddlewareFunctions = [
   {
@@ -56,14 +61,14 @@ const groupedMiddlewareFunctions = [
 
 ];
 
-module.exports = async (middlewareName, options) => {
+export default async (middlewareName: string, options: any): Promise<void> => {
   const { middlewareFolder } = await inquirer.prompt([
     {
       type: 'input',
       name: 'middlewareFolder',
       message: 'Where should the middleware be stored?',
       default: './',
-      async validate (input) {
+      async validate(input: string) {
         if (!fs.existsSync(path.resolve(input))) {
           return `The '${input}' directory is not exists! Full path: ${path.resolve(input)}`;
         }

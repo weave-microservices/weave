@@ -1,13 +1,13 @@
-const path = require('path');
-const fs = require('fs');
-const { isString, dotSet } = require('@weave-js/utils');
-const { getDefaultOptions } = require('@weave-js/core/lib/broker/defaultOptions');
+import path from 'path';
+import fs from 'fs';
+import { isString, dotSet } from '@weave-js/utils';
+import { getDefaultOptions } from '@weave-js/core/lib/broker/defaultOptions.js';
 
 const defaultConfigFileName = 'weave.config.js';
 const defaultEnvPrefix = 'WV_';
 const dotSeperator = '__';
 
-const overridePropertiesFromEnvVariables = (config) => {
+const overridePropertiesFromEnvVariables = (config: any): any => {
   Object.keys(process.env)
     .filter(key => key.startsWith(defaultEnvPrefix))
     .map(key => ({
@@ -30,7 +30,7 @@ const overridePropertiesFromEnvVariables = (config) => {
   return config;
 };
 
-exports.getConfig = (flags) => {
+export const getConfig = async (flags: any): Promise<any> => {
   const currentPath = process.cwd();
   let filePath;
   if (flags.config && isString(flags.config)) {
@@ -53,7 +53,8 @@ exports.getConfig = (flags) => {
     switch (fileExtension) {
     case '.json':
     case '.js': {
-      config = require(filePath);
+      const module = await import(filePath);
+      config = module.default || module;
       break;
     }
     default:
