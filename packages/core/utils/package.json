@@ -5,31 +5,40 @@
   "author": "Kevin Ries <kevin.ries@fachwerk.io>",
   "homepage": "https://weave-js.com/packages/utils",
   "license": "ISC",
-  "main": "lib/index.js",
-  "types": "types.d.ts",
+  "type": "module",
+  "main": "lib/index.mts",
+  "types": "lib/index.mts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.mts",
+      "default": "./lib/index.mts"
+    }
+  },
   "directories": {
     "lib": "lib",
-    "test": "tests"
+    "test": "test"
   },
   "files": [
-    "lib",
-    "types.d.ts"
+    "lib"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/weave-microservices/weave.git"
   },
   "scripts": {
-    "ci": "jest --watch",
-    "test": "NODE_ENV=test jest --no-cache",
-    "coverage": "jest --coverage --no-cache",
-    "lint": "eslint . --ext .js --fix"
+    "test": "node --test test/**/*.mts",
+    "test:watch": "node --test --watch test/**/*.mts",
+    "lint": "eslint . --ext .mts --fix"
   },
   "publishConfig": {
     "access": "public"
   },
   "bugs": {
     "url": "https://github.com/weave-microservices/weave/issues"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
   },
   "gitHead": "eba5f359604b6b06accd6fa8c8f03b8bc7fa8566"
 }
