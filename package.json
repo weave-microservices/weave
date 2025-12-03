@@ -1,6 +1,7 @@
 {
   "name": "weave-js",
   "workspaces": [
+    "misc/development/cli/simple",
     "packages/cache/*",
     "packages/core/*",
     "packages/transports/*",

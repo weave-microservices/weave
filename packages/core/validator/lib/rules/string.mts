@@ -5,6 +5,8 @@
  * @version 0.14.0
  */
 
+import { escapeEvalString } from '../utils/escapeEvalString.mts';
+
 /**
  * Regular expression pattern for validating Base64 encoded strings
  */
@@ -92,9 +94,10 @@ export default function checkString(this: any, { schema, messages }: any) {
   }
 
   if (schema.equal) {
+    const escapedEqual = escapeEvalString(schema.equal);
     code.push(`
-      if (value !== '${schema.equal}') {
-        ${this.makeErrorCode({ type: 'stringEqual', passed: 'value', expected: `"${schema.equal}"`, messages })}
+      if (value !== '${escapedEqual}') {
+        ${this.makeErrorCode({ type: 'stringEqual', passed: 'value', expected: `"${escapedEqual}"`, messages })}
         return value
       }
     `);
@@ -138,9 +141,10 @@ export default function checkString(this: any, { schema, messages }: any) {
 
   if (schema.pattern) {
     const pattern = schema.pattern instanceof RegExp ? schema.pattern : new RegExp(schema.pattern);
+    const escapedSource = escapeEvalString(pattern.source);
     code.push(`
       if(!${pattern.toString()}.test(value)) {
-        ${this.makeErrorCode({ type: 'stringPattern', passed: 'value', expected: `"${pattern.source}"`, messages })}
+        ${this.makeErrorCode({ type: 'stringPattern', passed: 'value', expected: `"${escapedSource}"`, messages })}
         return value
       }
     `);

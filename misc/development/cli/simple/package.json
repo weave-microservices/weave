@@ -4,8 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node ../../../../packages/core/cli/lib/index.js start --services ./services --config --repl --watch"
+    "start": "node ../../../../packages/core/cli/lib/index.js start --services ./services --config --repl --watch",
+    "debug": "node ./src/broker.mts"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@weave-js/core": "*"
+  }
 }

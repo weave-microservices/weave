@@ -1,0 +1,55 @@
+
+import { createNode } from '../../helper/index.mts';
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+
+describe('Test context tracking', () => {
+  it('should gracefully shutdown all services ()', async () => {
+    const broker = createNode({
+      contextTracking: {
+        enabled: true
+      }
+    });
+
+    const service = broker.createService({
+      name: 'pusher1',
+      actions: {
+        push () {
+          return new Promise(resolve => {
+            setTimeout(() => resolve(true), 2000);
+          });
+        }
+      }
+    });
+
+    await broker.start();
+    broker.call('pusher1.push');
+    await broker.stop();
+    assert.strictEqual(service._trackedContexts.length, 0);
+  });
+
+  it('should throw an error if one or more services can`t stopped gracefully.', async () => {
+    const broker = createNode({
+      contextTracking: {
+        enabled: true,
+        shutdownTimeout: 1000
+      }
+    });
+
+    broker.createService({
+      name: 'pusher2',
+      actions: {
+        push () {
+          return new Promise(resolve => {
+            setTimeout(() => resolve(true), 2000);
+          });
+        }
+      }
+    });
+
+    await broker.start();
+    broker.call('pusher2.push');
+    await broker.stop();
+    assert.strictEqual(broker.runtime.state.trackedContexts.length, 0);
+  });
+});

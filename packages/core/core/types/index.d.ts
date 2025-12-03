@@ -53,6 +53,13 @@ export interface Span {
   logs?: Array<{ timestamp: number; fields: Record<string, any> }>;
 }
 
+export interface SpanOptions {
+  parentSpan?: Span,
+  parentId?: string;
+  traceId?: string;
+  sampled?: boolean;
+}
+
 /**
  * Context metadata object
  */
@@ -106,7 +113,7 @@ export interface Context<T = any> {
   level: number;
   retryCount?: number;
   tracing: boolean;
-  span: Span;
+  span?: Span;
   isCachedResult?: boolean;
   eventType?: string;
   eventName?: string;
@@ -115,14 +122,18 @@ export interface Context<T = any> {
   duration: number;
   stopTime: number;
   metrics?: any;
+  service?: any;
+  stream?: Stream;
+  action?: any;
+  startHighResolutionTime?: [number, number] | null;
   
   // Methods
-  setData(data: any): void;
-  call<TParams = any, TResult = any>(actionName: string, params?: TParams, options?: ActionOptions): Promise<TResult>;
-  emit(eventName: string, payload?: any, options?: EventOptions): Promise<void>;
-  broadcast(eventName: string, payload?: any, options?: EventOptions): Promise<void>;
-  startSpan(name?: string, parentSpan?: Span): Span;
-  finishSpan(span?: Span): void;
+  setData(data: T): void;
+  call<TParams = unknown, TResult = unknown>(actionName: string, params?: TParams, options?: ActionOptions): Promise<TResult>;
+  emit(eventName: string, payload?: unknown, options?: EventOptions): Promise<void>;
+  broadcast(eventName: string, payload?: unknown, options?: EventOptions): Promise<void>;
+  startSpan(name?: string, options?: Record<string, unknown>): Span;
+  finishSpan(span?: Span, time?: number): void;
   copy(): Context<T>;
   setStream(stream: Stream): void;
   setEndpoint(endpoint: Endpoint): void;
@@ -334,10 +345,17 @@ export interface ServiceItem {
   version?: string | number;
   fullName: string;
   nodeId: string;
+  node?: Node;
   actions?: Record<string, any>;
   events?: Record<string, any>;
   settings?: ServiceSettings;
   metadata?: object;
+  
+  // Methods
+  update(service: ServiceItem): void;
+  addAction(action: any): void;
+  addEvent(event: any): void;
+  equals(name: string, version?: string | number): boolean;
 }
 
 /**
@@ -394,24 +412,100 @@ export interface RegistryOptions {
 }
 
 /**
+ * Node collection interface
+ */
+export interface NodeCollection {
+  localNode: Node;
+  get(nodeId: string): Node | undefined;
+  add(nodeId: string, node: Node): void;
+  remove(nodeId: string): void;
+  list(params?: any): Node[];
+}
+
+/**
+ * Service collection interface
+ */
+export interface ServiceCollection {
+  services: Set<ServiceItem>;
+  has(name: string, version?: string | number, nodeId?: string): boolean;
+  get(nodeId: string, name: string, version?: string | number): ServiceItem | undefined;
+  add(node: Node, name: string, version?: string | number, settings?: any): ServiceItem;
+  remove(nodeId: string, name: string, version?: string | number): void;
+  removeAllByNodeId(nodeId: string): void;
+  list(params?: any): ServiceItem[];
+}
+
+/**
+ * Action collection interface
+ */
+export interface ActionCollection {
+  get(actionName: string): any;
+  add(node: Node, service: ServiceItem, action: any): void;
+  remove(actionName: string, node: Node): void;
+}
+
+/**
+ * Event collection interface
+ */
+export interface EventCollection {
+  get(eventName: string): any;
+  add(node: Node, service: ServiceItem, event: any): void;
+  remove(eventName: string, node: Node): void;
+}
+
+/**
  * Registry interface
  */
 export interface Registry {
-  runtime?: Runtime;
+  runtime: Runtime;
   log: Logger;
   
-  // Methods
-  init?(): void;
+  // Collections
+  nodeCollection: NodeCollection;
+  serviceCollection: ServiceCollection;
+  actionCollection: ActionCollection;
+  eventCollection: EventCollection;
+  
+  // Lifecycle
+  init(runtime: Runtime): void;
+  
+  // Service registration
   registerLocalService(serviceItem: ServiceItem): void;
   registerRemoteServices(node: Node, services: ServiceItem[]): void;
+  registerActions(node: Node, service: ServiceItem, actions: Record<string, any>): void;
+  registerEvents(node: Node, service: ServiceItem, events: Record<string, any>): void;
+  
+  // Service deregistration
   deregisterService(serviceName: string, version?: string | number, nodeId?: string): void;
   deregisterServiceByNodeId(nodeId: string): void;
+  
+  // Service queries
   hasService(serviceName: string, version?: string | number, nodeId?: string): boolean;
-  getNextAvailableActionEndpoint(actionName: string): Endpoint | Error;
-  getActionEndpointByNodeId(actionName: string, nodeId: string): Endpoint | undefined;
-  getActionEndpoints(actionName: string): Endpoint[];
+  
+  // Action endpoints
+  getNextAvailableActionEndpoint(actionName: string | Endpoint, opts?: any): Endpoint | Error;
+  getActionEndpointByNodeId(actionName: string, nodeId: string): Endpoint | null;
+  getActionEndpoints(actionName: string): any;
   getLocalActionEndpoint(actionName: string): Endpoint | undefined;
-  getActionList(filterParams?: any): any[];
+  createPrivateActionEndpoint(action: any): Endpoint;
+  
+  // Action visibility
+  checkActionVisibility(action: any, node: Node): boolean;
+  // onRegisterLocalAction: () => void;
+  // onRegisterRemoteAction: () => void;
+  
+  // Node info
+  getNodeInfo(nodeId: string): NodeInfo | null;
+  getLocalNodeInfo(forceGenerateInfo?: boolean): NodeInfo;
+  generateLocalNodeInfo(incrementSequence?: boolean): NodeInfo;
+  processNodeInfo(payload: any): void;
+  
+  // Node lifecycle
+  nodeDisconnected(nodeId: string, isUnexpected?: boolean): void;
+  removeNode(nodeId: string): void;
+  
+  // Utility
+  getActionList?(filterParams?: any): any[];
 }
 
 // ===== TRANSPORT INTERFACES =====
@@ -475,7 +569,8 @@ export interface Transport {
   disconnect(): Promise<void>;
   setReady(): Promise<void>;
   send(message: TransportMessage): Promise<void>;
-  request(context: Context): Promise<any>;
+  sendRequest(context: Context): Promise<unknown>;
+  request(context: Context): Promise<unknown>;
   response(nodeId: string, action: string, params: object, meta: object, error?: Error): Promise<void>;
   createMessage(nodeId: string, action: string, params: object): TransportMessage;
   removePendingRequestsById(id: string): void;
@@ -483,13 +578,13 @@ export interface Transport {
   
   // Transport-specific methods
   sendNodeInfo?(): Promise<void>;
-  sendPing?(): Promise<void>;
+  sendPing(nodeId: string): Promise<void>;
   discoverNode?(nodeId: string): Promise<void>;
   discoverNodes?(): Promise<void>;
   sendEvent?(): Promise<void>;
   sendBroadcastEvent?(): Promise<void>;
   
-  statistics?: any;
+  statistics?: Record<string, unknown>;
 }
 
 // ===== CACHE INTERFACES =====
@@ -613,17 +708,80 @@ export interface Tracer {
 // ===== MIDDLEWARE INTERFACES =====
 
 /**
- * Middleware handler function
+ * Action handler wrapper function
  */
-export type MiddlewareHandler = (context: Context, next: () => Promise<any>) => Promise<any>;
+export type ActionHandlerWrapper = <T extends Function>(handler: T, action: any) => T;
 
 /**
- * Middleware definition
+ * Event handler wrapper function
+ */
+export type EventHandlerWrapper = <T extends Function>(handler: T, event: any) => T;
+
+/**
+ * Method wrapper function
+ */
+export type MethodWrapper = <T extends Function>(handler: T) => T;
+
+/**
+ * Middleware lifecycle hook
+ */
+export type MiddlewareLifecycleHook = (runtime?: Runtime) => void | Promise<void>;
+
+/**
+ * Middleware service lifecycle hook
+ */
+export type MiddlewareServiceLifecycleHook = (service: Service) => void | Promise<void>;
+
+/**
+ * Middleware definition with all available hooks
  */
 export interface Middleware {
   name?: string;
-  handler: MiddlewareHandler;
   priority?: number;
+  
+  // Lifecycle hooks
+  created?: MiddlewareLifecycleHook;
+  started?: MiddlewareLifecycleHook;
+  starting?: MiddlewareLifecycleHook;
+  stopped?: MiddlewareLifecycleHook;
+  stopping?: MiddlewareLifecycleHook;
+  serviceChanged?: MiddlewareLifecycleHook;
+  // Service lifecycle hooks
+  serviceStarted?: MiddlewareServiceLifecycleHook;
+  serviceStopping?: MiddlewareServiceLifecycleHook;
+  
+  // Action handler wrappers
+  localAction?: ActionHandlerWrapper;
+  remoteAction?: ActionHandlerWrapper;
+  
+  // Event handler wrappers
+  localEvent?: EventHandlerWrapper;
+  
+  // Method wrappers
+  call?: MethodWrapper;
+  multiCall?: MethodWrapper;
+  emit?: MethodWrapper;
+  broadcast?: MethodWrapper;
+  broadcastLocal?: MethodWrapper;
+  createService?: MethodWrapper;
+  loadService?: MethodWrapper;
+  loadServices?: MethodWrapper;
+  ping?: MethodWrapper;
+  
+  // Custom hooks
+  [key: string]: any;
+}
+
+/**
+ * Middleware handler manager
+ */
+export interface MiddlewareHandler {
+  add(middleware: Middleware | ((runtime: Runtime) => Middleware)): void;
+  count(): number;
+  callHandlersSync(hook: string, args: unknown[], reverse?: boolean): void;
+  callHandlersAsync(hook: string, args: unknown[], reverse?: boolean): Promise<void>;
+  wrapMethod<T extends Function>(method: string, handler: T, bindTo?: any): T;
+  wrapHandler<T extends Function>(hook: string, handler: T, definition?: any): T;
 }
 
 /**
@@ -679,6 +837,7 @@ export interface ValidatorOptions {
  */
 export interface ServiceManager {
   services: Map<string, Service>;
+  serviceList: Service[];
   
   // Methods
   createService(schema: ServiceSchema): Service;
@@ -686,13 +845,15 @@ export interface ServiceManager {
   unregisterService(serviceName: string): void;
   startServices(): Promise<void>;
   stopServices(): Promise<void>;
+  waitForServices(services: string | string[], timeout?: number): Promise<void>;
+  serviceChanged(localService: boolean): void;
 }
 
 /**
  * Context factory interface
  */
 export interface ContextFactory {
-  create(endpoint: Endpoint, data: any, options?: ActionOptions): Context;
+  create(endpoint: Endpoint | null, data: any, options?: ActionOptions): Context;
   createFromService(service: Service, data: any, options?: ActionOptions): Context;
 }
 
@@ -701,8 +862,8 @@ export interface ContextFactory {
  */
 export interface EventBus {
   emit(eventName: string, payload?: any, options?: EventOptions): Promise<void>;
-  broadcast(eventName: string, payload: any, options?: EventOptions): Promise<void>;
-  broadcastLocal(eventName: string, payload: any, options?: EventOptions): Promise<void>;
+  broadcast(eventName: string, payload?: any, options?: EventOptions): Promise<void>;
+  broadcastLocal(eventName: string, payload?: any, options?: EventOptions): void;
 }
 
 /**
@@ -742,12 +903,12 @@ export interface Runtime {
   
   // Core components
   actionInvoker: ActionInvoker;
-  eventBus?: EventBus;
+  eventBus: EventBus;
   broker?: Broker;
-  middlewareHandler?: MiddlewareHandler;
+  middlewareHandler: MiddlewareHandler;
   validator?: any;
-  services?: ServiceManager;
-  contextFactory?: ContextFactory;
+  services: ServiceManager;
+  contextFactory: ContextFactory;
   registry: Registry;
   transport?: Transport;
   cache?: Cache;
@@ -756,7 +917,7 @@ export interface Runtime {
   
   // Utilities
   log: Logger;
-  createLogger?: (topic: string, data?: any) => Logger;
+  createLogger: (topic: string, data?: any) => Logger;
   getUUID?: () => string;
   generateUUID: () => string;
   
@@ -804,6 +965,9 @@ export interface BrokerOptions {
   stopped?(this: Broker): void | Promise<void>;
 }
 
+export interface ActionContracts {}
+
+
 /**
  * Main Broker interface - the primary API
  */
@@ -832,10 +996,14 @@ export interface Broker {
   // Service management
   createService(schema: ServiceSchema): Service;
   loadService(path: string): Service;
-  loadServices(path?: string, pattern?: string): Service[];
+  loadServices(path?: string, pattern?: string): number;
   
   // Action calls
-  call<TParams = any, TResult = any>(actionName: string, params?: TParams, options?: ActionOptions): Promise<TResult>;
+  call<K extends keyof ActionContracts>(
+    action: K,
+    params?: K extends keyof ActionContracts ? ActionContracts[K]["params"] : any,
+    options?: ActionOptions
+  ): Promise<K extends keyof ActionContracts ? ActionContracts[K]["response"] : any>;
   multiCall(calls: Array<{ action: string; params?: any; options?: ActionOptions }>): Promise<any[]>;
   
   // Events
@@ -847,8 +1015,8 @@ export interface Broker {
   createLogger(topic: string, data?: any): Logger;
   getUUID(): string;
   waitForServices(services: string[] | string, timeout?: number): Promise<void>;
-  ping(nodeId: string, timeout?: number): Promise<PingResult>;
-  getNextActionEndpoint(actionName: string): Endpoint | Error;
+  ping(nodeId?: string, timeout?: number): Promise<PingResult | Record<string, PingResult | null> | null>;
+  getNextActionEndpoint(actionName: string, options?: any): Endpoint | Error;
   
   // Error handling
   handleError(error: Error): void;

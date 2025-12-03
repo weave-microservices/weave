@@ -2,28 +2,13 @@
   "name": "@weave-js/core",
   "version": "0.15.4",
   "description": "The core package of weave",
-  "keywords": [
-    "Weave",
-    "Microservice",
-    "Microservices",
-    "Framework",
-    "SAAS",
-    "Backend",
-    "Pubsub",
-    "Scalable",
-    "Messagebus",
-    "RPC",
-    "Distributed",
-    "Services",
-    "Micro"
-  ],
-  "main": "./lib/index.js",
+  "type": "module",
+  "main": "./lib/index.mts",
   "types": "./types/index.d.ts",
   "scripts": {
-    "ci": "jest --watch",
-    "test": "NODE_ENV=test jest --no-cache --runInBand",
-    "coverage": "jest --coverage --no-cache",
-    "lint": "eslint . --ext .js --fix"
+    "test": "node --test test/**/*.mts",
+    "test:watch": "node --test --watch test/**/*.mts",
+    "lint": "eslint . --ext .mts --fix"
   },
   "repository": {
     "type": "git",
@@ -44,6 +29,10 @@
     "@weave-js/validator": "^0.14.0",
     "eventemitter2": "^6.4.9",
     "glob": "^10.3.10"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "typescript": "^5.9.3"
   },
   "directories": {
     "lib": "lib",

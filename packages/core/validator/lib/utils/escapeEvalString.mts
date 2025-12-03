@@ -10,7 +10,7 @@
  * @type {RegExp}
  * @constant
  */
-const escapeEvalRegex = /[''\\\n\r\u2028\u2029]/g;
+const escapeEvalRegex = /['"\\\n\r\u2028\u2029]/g;
 
 /* istanbul ignore next */
 /**
@@ -37,7 +37,6 @@ export function escapeEvalString(str: string): string {
     switch (character) {
     case '\'':
     case '"':
-    case '':
     case '\\':
       return '\\' + character;
       // Four possible LineTerminator characters need to be escaped:
