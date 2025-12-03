@@ -1,16 +1,16 @@
 import { createNode } from '../../helper/index.mts';
-import { describe, it, before, after } from 'node:test';
+import { describe, it, before, after, mock } from 'node:test';
 import assert from 'node:assert/strict';
 
 describe('Action hooks', () => {
-  const fetchName = jest.fn();
-  const method1 = jest.fn();
-  const method2 = jest.fn();
-  const arrayMethod = jest.fn();
-  const log = jest.fn();
-  const afterGreet = jest.fn();
-  const errorHook = jest.fn((_, error) => Promise.reject(error));
-  const wildcardErrorHook = jest.fn((_, error) => Promise.reject(error));
+  const fetchName = mock.fn();
+  const method1 = mock.fn();
+  const method2 = mock.fn();
+  const arrayMethod = mock.fn();
+  const log = mock.fn();
+  const afterGreet = mock.fn();
+  const errorHook = mock.fn((_, error) => Promise.reject(error));
+  const wildcardErrorHook = mock.fn((_, error) => Promise.reject(error));
 
   const broker = createNode({
     nodeId: 'test-node',
@@ -70,57 +70,46 @@ describe('Action hooks', () => {
   before(() => broker.start());
   after(() => broker.stop());
 
-  it('should call a before wildcard hock.', (done) => {
-    broker.call('greeter.sayHello', { id: 1 })
-      .then(() => {
-        expect(log).toBeCalledTimes(2);
-        done();
-      });
+  it('should call a before wildcard hock.', async () => {
+    await broker.call('greeter.sayHello', { id: 1 });
+    assert.strictEqual(log.mock.callCount(), 2);
   });
 
-  it('should call a before hock by action name.', (done) => {
-    broker.call('greeter.sayHello', { id: 1 })
-      .then(() => {
-        expect(fetchName).toBeCalledTimes(2);
-        done();
-      });
+  it('should call a before hock by action name.', async () => {
+    await broker.call('greeter.sayHello', { id: 1 });
+    assert.strictEqual(fetchName.mock.callCount(), 2);
   });
 
-  it('should call a  hock by action name.', (done) => {
-    broker.call('greeter.sayHello', { id: 1 })
-      .then(() => {
-        expect(method1).toBeCalledTimes(3);
-        expect(method2).toBeCalledTimes(3);
-        done();
-      });
+  it('should call a  hock by action name.', async () => {
+    await broker.call('greeter.sayHello', { id: 1 });
+    assert.strictEqual(method1.mock.callCount(), 3);
+    assert.strictEqual(method2.mock.callCount(), 3);
   });
 
-  it('should call a hook by string.', (done) => {
-    broker.call('greeter.greet', { id: 1 })
-      .then(() => {
-        expect(afterGreet).toBeCalledTimes(1);
-        done();
-      });
+  it('should call a hook by string.', async () => {
+    await broker.call('greeter.greet', { id: 1 });
+    assert.strictEqual(afterGreet.mock.callCount(), 1);
   });
 
-  it('should call a hook error hook.', (done) => {
-    broker.call('greeter.errorAction', { id: 1 })
-      .catch(error => {
-        assert.strictEqual(error.message, 'Error');
-        expect(errorHook).toBeCalledTimes(1);
-        expect(wildcardErrorHook).toBeCalledTimes(1);
-        done();
-      });
+  it('should call a hook error hook.', async () => {
+    try {
+      await broker.call('greeter.errorAction', { id: 1 });
+      assert.fail('Should have thrown an error');
+    } catch (error) {
+      assert.strictEqual(error.message, 'Error');
+      assert.strictEqual(errorHook.mock.callCount(), 1);
+      assert.strictEqual(wildcardErrorHook.mock.callCount(), 1);
+    }
   });
 });
 
 describe('Action hooks in action definition', () => {
-  const fetchName = jest.fn();
-  const method1 = jest.fn();
-  const method2 = jest.fn();
-  const arrayMethod = jest.fn();
-  const afterGreet = jest.fn();
-  const errorHook = jest.fn((_, error) => Promise.reject(error));
+  const fetchName = mock.fn();
+  const method1 = mock.fn();
+  const method2 = mock.fn();
+  const arrayMethod = mock.fn();
+  const afterGreet = mock.fn();
+  const errorHook = mock.fn((_, error) => Promise.reject(error));
 
   const broker = createNode({
     nodeId: 'action-hook-node',
@@ -178,45 +167,34 @@ describe('Action hooks in action definition', () => {
   before(() => broker.start());
   after(() => broker.stop());
 
-  it('should call a before hock in action definition.', (done) => {
-    broker.call('greeter.sayHello', { id: 1 })
-      .then(() => {
-        expect(fetchName).toBeCalledTimes(1);
-        done();
-      });
+  it('should call a before hock in action definition.', async () => {
+    await broker.call('greeter.sayHello', { id: 1 });
+    assert.strictEqual(fetchName.mock.callCount(), 1);
   });
 
-  it('should call a before hock by action name in action definition.', (done) => {
-    broker.call('greeter.sayHello', { id: 1 })
-      .then(() => {
-        expect(fetchName).toBeCalledTimes(2);
-        done();
-      });
+  it('should call a before hock by action name in action definition.', async () => {
+    await broker.call('greeter.sayHello', { id: 1 });
+    assert.strictEqual(fetchName.mock.callCount(), 2);
   });
 
-  it('should call a hock by action name in action definition.', (done) => {
-    broker.call('greeter.sayHello', { id: 1 })
-      .then(() => {
-        expect(method1).toBeCalledTimes(3);
-        expect(method2).toBeCalledTimes(3);
-        done();
-      });
+  it('should call a hock by action name in action definition.', async () => {
+    await broker.call('greeter.sayHello', { id: 1 });
+    assert.strictEqual(method1.mock.callCount(), 3);
+    assert.strictEqual(method2.mock.callCount(), 3);
   });
 
-  it('should call a after-hook by string in action definition.', (done) => {
-    broker.call('greeter.greet', { id: 1 })
-      .then(() => {
-        expect(afterGreet).toBeCalledTimes(3);
-        done();
-      });
+  it('should call a after-hook by string in action definition.', async () => {
+    await broker.call('greeter.greet', { id: 1 });
+    assert.strictEqual(afterGreet.mock.callCount(), 3);
   });
 
-  it('should call a hook error hook in action definition.', (done) => {
-    broker.call('greeter.errorAction', { id: 1 })
-      .catch(error => {
-        assert.strictEqual(error.message, 'Error');
-        expect(errorHook).toBeCalledTimes(1);
-        done();
-      });
+  it('should call a hook error hook in action definition.', async () => {
+    try {
+      await broker.call('greeter.errorAction', { id: 1 });
+      assert.fail('Should have thrown an error');
+    } catch (error) {
+      assert.strictEqual(error.message, 'Error');
+      assert.strictEqual(errorHook.mock.callCount(), 1);
+    }
   });
 });

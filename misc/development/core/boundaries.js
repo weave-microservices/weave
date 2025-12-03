@@ -1,6 +1,5 @@
-const defineAction = require('@weave-js/core/lib/helper/defineAction');
-const { createBroker, TransportAdapters } = require('../../../packages/core/core/lib');
-const repl = require('../../../packages/core/repl/lib/index');
+import { createBroker, TransportAdapters, defineAction } from '../../../packages/core/core/lib/index.mts';
+import repl from '../../../packages/core/repl/lib/index.mts';
 
 const gwBroker = createBroker({
   nodeId: 'gateway',
@@ -54,9 +53,8 @@ workerBroker.createService({
   }
 });
 
-Promise.all([
+await Promise.all([
   gwBroker.start(),
   workerBroker.start()
-]).then(() => {
-  repl(gwBroker);
-});
+])
+repl(gwBroker);

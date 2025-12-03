@@ -16,7 +16,10 @@ function ruleToTs(rule: string | object): string {
         
             case "object":
               return `{ ${Object.entries(rule.properties)
-                .map(([key, value]) => `${key}: ${schemaToTs(value)}`)
+                  .map(([key, value]) => {
+                      console.log(key, value)
+                    return `${key}: ${ruleToTs(value)}`
+                })
                 .join("; ")} }`;
         
             default:

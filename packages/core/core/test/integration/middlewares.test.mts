@@ -4,7 +4,7 @@ import { describe, it, test } from 'node:test';
 import assert from 'node:assert/strict';
 
 describe('Middleware hooks', () => {
-  it('should call hooks in the right order', (done) => {
+  it('should call hooks in the right order', async () => {
     const order = [];
 
     const middleware = {
@@ -30,16 +30,13 @@ describe('Middleware hooks', () => {
       middlewares: [middleware]
     });
 
-    broker.start()
-      .then(() => broker.stop())
-      .then(() => {
-        expect(order.join('-')).toBe('starting-started-stopping-stopped');
-        done();
-      });
+    await broker.start();
+    await broker.stop();
+    assert.strictEqual(order.join('-'), 'starting-started-stopping-stopped');
   });
 
-  it('should call hooks in the right order (with service hooks)', (done) => {
-    const order = [];
+  it('should call hooks in the right order (with service hooks)', async () => {
+    const order: string[] = [];
 
     const middleware = {
       starting: () => {
@@ -114,14 +111,10 @@ describe('Middleware hooks', () => {
       }
     });
 
-    broker.start()
-      .then(() => broker.call('testService.test'))
-      .then(() => broker.stop())
-      .then(() => {
-        expect(order.join('-'))
-          .toBe('serviceCreating-serviceCreated-starting-serviceStarting-serviceStarted-started-localAction1-emit-broadcast-localAction2-stopping-serviceStopping-serviceStopped-stopped');
-        done();
-      });
+    await broker.start();
+    await broker.call('testService.test');
+    await broker.stop();
+    assert.strictEqual(order.join('-'), 'serviceCreating-serviceCreated-starting-serviceStarting-serviceStarted-started-localAction1-emit-broadcast-localAction2-stopping-serviceStopping-serviceStopped-stopped');
   });
 
   it('should call local action hook', (done) => {

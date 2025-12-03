@@ -12,8 +12,9 @@ import infoCommand from './commands/info.mts';
 import metricsCommand from './commands/metrics.mts';
 import nodesCommand from './commands/nodes.mts';
 import servicesCommand from './commands/services.mts';
+import type { Broker } from '@weave-js/core';
 
-function registerCommands (vorpal: any, broker: any) {
+function registerCommands (vorpal: any, broker: Broker) {
   const dependencies = { vorpal, broker, cliUI };
 
   // Register REPL commands
@@ -31,7 +32,7 @@ function registerCommands (vorpal: any, broker: any) {
   servicesCommand(dependencies);
 }
 
-const registerCustomCommands = (vorpal: any, broker: any, commands: any[]) => commands.map(registerCustomCommand => registerCustomCommand({ vorpal, broker, cliUI }));
+const registerCustomCommands = (vorpal: any, broker: Broker, commands: any[]) => commands.map(registerCustomCommand => registerCustomCommand({ vorpal, broker, cliUI }));
 
 export interface CommandContext {
   vorpal: any;
@@ -76,7 +77,7 @@ function cleanupExistingCommands (vorpal: any): void {
 /**
  * Register weave repl
  */
-export default (broker: any, ...customCommands: ((ctx: CommandContext) => void)[]) => {
+export default (broker: Broker, ...customCommands: ((ctx: CommandContext) => void)[]) => {
   if (!broker) {
     throw new Error('You have to pass a weave broker instance.');
   }

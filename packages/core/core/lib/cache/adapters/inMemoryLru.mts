@@ -7,9 +7,10 @@
 import { match } from '@weave-js/utils';
 import { createCacheBase } from './base.mts';
 import { createLock } from '../lock.mts';
-import Constants from '../../metrics/constants.mts';
+import * as Constants from '../../metrics/constants.mts';
+import type { Runtime } from '../../../types/index.js';
 
-const createInMemoryLruCache = (adapterOptions) => (runtime, options = {}) => {
+export const createInMemoryLruCache = (adapterOptions) => (runtime: Runtime, options = {}) => {
   const name = 'In-Memory';
   const base = createCacheBase(name, runtime, options);
   const storage = new Map();
@@ -135,5 +136,3 @@ const createInMemoryLruCache = (adapterOptions) => (runtime, options = {}) => {
     });
   return cache;
 };
-
-export default { createInMemoryLruCache };

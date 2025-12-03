@@ -8,6 +8,7 @@ import { match, defaultsDeep } from '@weave-js/utils';
 import { createCacheBase } from './base.mts';
 import { createLock } from '../lock.mts';
 import * as Constants from '../../metrics/constants.mts';
+import type { Runtime } from '../../../types/index.js';
 
 const defaultAdapterOptions = {
   ttlCheckInterval: 3000
@@ -22,7 +23,7 @@ const defaultAdapterOptions = {
  * @param {InMemoryAdapterOptions} adapterOptions Adapter options
  * @returns {any} CacheFactory
 */
-export const createInMemoryCache = (adapterOptions = {}) => (runtime, options = {}) => {
+export const createInMemoryCache = (adapterOptions = {}) => (runtime: Runtime, options = {}) => {
   adapterOptions = defaultsDeep(adapterOptions, defaultAdapterOptions);
   const base = createCacheBase('In-Memory', runtime, adapterOptions, options);
   const storage = new Map();
@@ -58,7 +59,7 @@ export const createInMemoryCache = (adapterOptions = {}) => (runtime, options = 
         base.init();
         cache.isConnected = true;
       },
-      get (cacheKey) {
+      get (cacheKey: string) {
         base.log.debug(`Get ${cacheKey}`);
 
         if (base.metrics) {
@@ -87,7 +88,7 @@ export const createInMemoryCache = (adapterOptions = {}) => (runtime, options = 
         }
         return Promise.resolve(null);
       },
-      set (hashKey, data, ttl) {
+      set (hashKey: string, data: any, ttl: number) {
         if (base.metrics) {
           base.metrics.increment(Constants.CACHE_SET_TOTAL);
         }
@@ -114,7 +115,7 @@ export const createInMemoryCache = (adapterOptions = {}) => (runtime, options = 
 
         return Promise.resolve();
       },
-      clear (pattern = '**') {
+      clear (pattern: string = '**') {
         if (base.metrics) {
           base.metrics.increment(Constants.CACHE_DELETED_TOTAL);
         }
@@ -126,12 +127,12 @@ export const createInMemoryCache = (adapterOptions = {}) => (runtime, options = 
         });
         return Promise.resolve();
       },
-      lock (key, ttl) {
+      lock (key: string, ttl: number) {
         return lock.acquire(key, ttl).then(() => {
           return () => lock.release(key);
         });
       },
-      tryAcquireLock (key, ttl) {
+      tryAcquireLock (key: string, ttl: number) {
         if (lock.isLocked(key)) {
           return Promise.reject(new Error('Locked'));
         }

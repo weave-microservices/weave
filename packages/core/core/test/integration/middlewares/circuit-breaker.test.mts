@@ -55,16 +55,14 @@ describe('Test circuit breaker', () => {
     }
   });
 
-  before(() => {
-    return node1.start()
-      .then(() => node2.start())
-      .then(() => jest.useFakeTimers());
+  before(async () => {
+    await node1.start();
+    await node2.start();
   });
 
-  after(() => {
-    return node1.stop()
-      .then(() => node2.stop())
-      .then(() => jest.useRealTimers());
+  after(async () => {
+    await node1.stop();
+    await node2.stop();
   });
 
   it('Should call test.good 5 times without problems', () => {
@@ -98,8 +96,8 @@ describe('Test circuit breaker', () => {
       .then(result => assert.strictEqual(result, 'ok'));
   });
 
-  it('Should switch from half open to open', () => {
-    jest.advanceTimersByTime(11000);
+  it('Should switch from half open to open', async () => {
+    await new Promise(resolve => setTimeout(resolve, 11000));
     return node1.call('test.bad')
       .catch(error => {
         assert.strictEqual(error.name, 'WeaveError');
@@ -112,8 +110,8 @@ describe('Test circuit breaker', () => {
       .then(result => assert.strictEqual(result, 'ok'));
   });
 
-  it('Should switch from half-open to close', () => {
-    jest.advanceTimersByTime(11000);
+  it('Should switch from half-open to close', async () => {
+    await new Promise(resolve => setTimeout(resolve, 11000));
     return node1.call('test.bad', { error: true })
       .then(result => assert.strictEqual(result, 'ok'));
   });

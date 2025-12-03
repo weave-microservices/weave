@@ -18,7 +18,6 @@
  *
  * @namespace CacheAdapters
  */
-export default {
-  ...await import('./base.mts'),
-  ...await import('./inMemory.mts')
-};
+export { createCacheBase } from './base.mts';
+export { createInMemoryCache } from './inMemory.mts';
+export { createInMemoryLruCache } from './inMemoryLru.mts';

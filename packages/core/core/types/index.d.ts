@@ -1001,9 +1001,14 @@ export interface Broker {
   // Action calls
   call<K extends keyof ActionContracts>(
     action: K,
-    params?: K extends keyof ActionContracts ? ActionContracts[K]["params"] : any,
+    params: K extends keyof ActionContracts ? ActionContracts[K]["params"] : any,
     options?: ActionOptions
   ): Promise<K extends keyof ActionContracts ? ActionContracts[K]["response"] : any>;
+  call<K extends string>(
+    action: Exclude<K, keyof ActionContracts>,
+    params?: any,
+    options?: ActionOptions
+  ): Promise<any>;
   multiCall(calls: Array<{ action: string; params?: any; options?: ActionOptions }>): Promise<any[]>;
   
   // Events

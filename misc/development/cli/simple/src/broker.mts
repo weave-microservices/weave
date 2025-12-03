@@ -28,9 +28,15 @@ broker.createService({
   name: 'external',
   actions: {
     makeSomething: {
-      // params: {
-      //   email: { type: 'string' },
-      // },
+      params: {
+        email: { type: 'string' },
+        settings: {
+          type: 'object', properties: {
+            enabled: { type: 'boolean' },
+            timeout: { type: 'number' }
+          }
+        }
+      },
       handler(context) {
         return "require('./external/external-test').makeSomething()";
       }
@@ -42,7 +48,3 @@ await broker.start();
 
 let result = await broker.call('test.hello', { name: 'kevin', age: 12 },  { meta: { retryCount: 2}});
 
-
-const something = await broker.call("test.hello")
-
-console.log(something)

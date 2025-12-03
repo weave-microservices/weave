@@ -112,7 +112,7 @@ describe('Test broker call service', () => {
 
 describe('Service lifetime hooks', () => {
   it('should call lifecycle hooks.', async () => {
-    const order = [];
+    const order: string[] = [];
 
     const node1 = createNode({
       nodeId: 'node1',

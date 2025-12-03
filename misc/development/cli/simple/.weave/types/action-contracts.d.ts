@@ -6,7 +6,8 @@ declare module "@weave-js/core" {
 response: { type: string };
     };
 "external.makeSomething": { 
-        response: { type: any };
+        params: { email: string; settings: { enabled: boolean; timeout: number } };
+response: { type: any };
     }
   }
 }

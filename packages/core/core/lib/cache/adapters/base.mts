@@ -9,15 +9,16 @@ import * as Constants from '../../metrics/constants.mts';
 import * as Errors from '../../errors.mts';
 import { default as getCacheKeyByObject } from '../getCacheKeyByObject.mts';
 import { default as getPropertyFromDataOrMetadata } from '../getPropertyFromDataOrMetadata.mts';
+import type { Runtime } from '../../../types/index.js';
 
-function generateHash (key) {
+function generateHash (key: string) {
   return crypto
     .createHash('sha1')
     .update(key)
     .digest('base64');
 }
 
-function registerCacheMetrics (metrics) {
+function registerCacheMetrics (metrics: any) {
   metrics.register({ type: 'counter', name: Constants.CACHE_GET_TOTAL });
   metrics.register({ type: 'counter', name: Constants.CACHE_SET_TOTAL });
   metrics.register({ type: 'counter', name: Constants.CACHE_FOUND_TOTAL });
@@ -26,7 +27,7 @@ function registerCacheMetrics (metrics) {
   metrics.register({ type: 'counter', name: Constants.CACHE_CLEANED_TOTAL });
 }
 
-export const createCacheBase = (name, runtime, adapterOptions, options) => {
+export const createCacheBase = (name: string, runtime: Runtime, adapterOptions: any, options: any) => {
   if (!isString(name)) {
     throw new Errors.WeaveError('Name must be a string.');
   }
