@@ -1,25 +1,10 @@
-/*
- * Author: Kevin Ries (kevin.ries@fachwerk.io)
- * -----
- * Copyright 2021 Fachwerk
- */
-
-/**
- * @typedef {import('../../types').Runtime} Runtime
- * @typedef {import('../../types').Transport} Transport
- * @typedef {import('../../types').TransportMessage} TransportMessage
- * @typedef {import('../../types').Context} Context
- * @typedef {import('../../types').Node} Node
- * @typedef {import('../../types').PendingStore} PendingStore
- */
-
-// Own packages
 import { WeaveError, WeaveQueueSizeExceededError } from '../errors.mts';
 import { createMessage } from './createMessage.mts';
 import * as MessageTypes from './messageTypes.mts';
 import * as utils from '@weave-js/utils';
 import createMessageHandler from './messageHandlers.mts';
 import { errorPayloadFactory } from './errorPayloadFactory.mts';
+import type { Context, Runtime, TransportMessage  } from '../../types/index.js';
 
 /**
  * Creates a transport layer for network communication between Weave nodes
@@ -41,7 +26,7 @@ import { errorPayloadFactory } from './errorPayloadFactory.mts';
  * const transport = createTransport(runtime, tcpAdapter);
  * await transport.connect();
  */
-export const createTransport = (runtime, adapter) => {
+export const createTransport = (runtime: Runtime, adapter: any) => {
   const transport = Object.create(null);
   const { nodeId, middlewareHandler, createLogger } = runtime;
 
@@ -83,8 +68,8 @@ export const createTransport = (runtime, adapter) => {
       transport.resolveConnect = resolve;
       transport.log.info('Connecting to transport adapter...');
 
-      const doConnect = (isTryReconnect) => {
-        const errorHandler = (error) => {
+      const doConnect = (isTryReconnect: boolean) => {
+        const errorHandler = (error: Error) => {
           if (transport.isDisconnecting || transport.reconnectInProgress) {
             return;
           }
@@ -141,7 +126,7 @@ export const createTransport = (runtime, adapter) => {
    * @param {*} sender sender node ID.
    * @returns {Promise} Promise
   */
-  transport.sendNodeInfo = async (sender) => {
+  transport.sendNodeInfo = async (sender: string) => {
     if (!transport.isConnected || !transport.isReady) {
       return Promise.resolve();
     }
@@ -160,13 +145,13 @@ export const createTransport = (runtime, adapter) => {
   * @param {TransportMessage} message Message to send
   * @returns {Promise} Promise
   */
-  transport.send = async (message) => {
+  transport.send = async (message: TransportMessage) => {
     transport.statistics.sent.packages = transport.statistics.sent.packages + 1;
     transport.log.verbose(`Send ${message.type.toUpperCase()} packet to ${message.targetNodeId || 'all nodes'}`);
     return adapter.preSend(message);
   };
 
-  transport.sendPing = (nodeId) => {
+  transport.sendPing = (nodeId: string) => {
     const pingMessage = createMessage(MessageTypes.MESSAGE_PING, nodeId, { dispatchTime: Date.now() });
     return transport.send(pingMessage);
   };
@@ -195,7 +180,7 @@ export const createTransport = (runtime, adapter) => {
    * @param {Context} context - Context
    * @returns {Promise<void>} - Promise
    */
-  transport.sendEvent = async (context) => {
+  transport.sendEvent = async (context: Context) => {
     const isBroadcast = context.eventType === 'broadcast';
 
     const payload = {
@@ -216,7 +201,7 @@ export const createTransport = (runtime, adapter) => {
     return transport.send(message);
   };
 
-  transport.sendBroadcastEvent = (nodeId, eventName, data, groups) => {
+  transport.sendBroadcastEvent = (nodeId: string, eventName: string, data: any, groups: string[]) => {
     transport.log.verbose(`Send ${eventName} to ${nodeId}`);
 
     const payload = {
@@ -230,7 +215,7 @@ export const createTransport = (runtime, adapter) => {
     return transport.send(message);
   };
 
-  transport.removePendingRequestsById = (requestId) => {
+  transport.removePendingRequestsById = (requestId: string) => {
     pending.requests.delete(requestId);
     pending.requestStreams.delete(requestId);
     pending.responseStreams.delete(requestId);
@@ -238,7 +223,7 @@ export const createTransport = (runtime, adapter) => {
     pending.outboundRequestStreams.delete(requestId);
   };
 
-  transport.removePendingRequestsByNodeId = (nodeId) => {
+  transport.removePendingRequestsByNodeId = (nodeId: string) => {
     transport.log.debug(`Remove pending requests for node ${nodeId}.`);
     pending.requests.forEach((request, requestId) => {
       if (request.nodeId === nodeId) {
@@ -251,14 +236,14 @@ export const createTransport = (runtime, adapter) => {
     });
   };
 
-  transport.sendRequest = (context) => {
-    const maxQueueSizeExceeded = runtime.options.transport.maxQueueSize &&
-      runtime.options.transport.maxQueueSize < pending.requests.size;
+  transport.sendRequest = (context: Context) => {
+    const maxQueueSizeExceeded = runtime.options.transport?.maxQueueSize &&
+      runtime.options.transport?.maxQueueSize < pending.requests.size;
 
     if (maxQueueSizeExceeded) {
       return Promise.reject(new WeaveQueueSizeExceededError({
         action: context.action.name,
-        limit: runtime.options.transport.maxQueueSize,
+        limit: runtime.options.transport?.maxQueueSize,
         nodeId: context.nodeId,
         size: pending.requests.size
       }));
@@ -588,17 +573,17 @@ export const createTransport = (runtime, adapter) => {
   }
 
   function startHeartbeatTimer () {
-    heartbeatTimer = setInterval(() => sendHeartbeat(), runtime.options.transport.heartbeatInterval);
+    heartbeatTimer = setInterval(() => sendHeartbeat(), runtime.options.transport?.heartbeatInterval);
     heartbeatTimer.unref();
   }
 
   function startRemoteNodeCheckTimer () {
-    checkNodesTimer = setInterval(() => checkRemoteNodes(), runtime.options.transport.heartbeatTimeout);
+    checkNodesTimer = setInterval(() => checkRemoteNodes(), runtime.options.transport?.heartbeatTimeout);
     checkNodesTimer.unref();
   }
 
   function startOfflineNodeCheckTimer () {
-    checkOfflineNodesTimer = setInterval(() => checkOfflineNodes(), runtime.options.transport.offlineNodeCheckInterval);
+    checkOfflineNodesTimer = setInterval(() => checkOfflineNodes(), runtime.options.transport?.offlineNodeCheckInterval);
     checkOfflineNodesTimer.unref();
   }
 
@@ -606,7 +591,7 @@ export const createTransport = (runtime, adapter) => {
     updateLocalNodeTimer = setInterval(() => {
       const node = runtime.registry.nodeCollection.localNode;
       node.updateLocalInfo(true);
-    }, runtime.options.transport.localNodeUpdateInterval);
+    }, runtime.options.transport?.localNodeUpdateInterval);
 
     updateLocalNodeTimer.unref();
   }
@@ -641,7 +626,7 @@ export const createTransport = (runtime, adapter) => {
         return;
       }
 
-      if (now - (node.lastHeartbeatTime || 0) > runtime.options.transport.heartbeatTimeout) {
+      if (now - (node.lastHeartbeatTime || 0) > runtime.options.transport?.heartbeatTimeout) {
         runtime.registry.nodeDisconnected(node.id, true);
       }
     });
@@ -656,7 +641,7 @@ export const createTransport = (runtime, adapter) => {
         return;
       }
 
-      if ((now - node.offlineTime) > runtime.options.transport.maxOfflineTime) {
+      if ((now - node.offlineTime) > runtime.options.transport?.maxOfflineTime) {
         runtime.registry.removeNode(node.id);
       }
     });

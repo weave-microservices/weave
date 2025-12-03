@@ -112,5 +112,3 @@ export { defineService };
  * @function
  */
 export { defineAction };
-
-let broker = createBroker();
