@@ -1,9 +1,10 @@
 import { createNode } from "../helper/index.mts";
 import { describe, it, afterEach, mock } from "node:test";
 import assert from "node:assert/strict";
+import type { Broker } from "../../types/index.js";
 
 describe("Metrics Error Handling with Promise.allSettled()", () => {
-  let broker;
+  let broker: Broker;
 
   afterEach(async () => {
     if (broker && broker.runtime.state.isStarted) {
@@ -156,7 +157,7 @@ describe("Metrics Error Handling with Promise.allSettled()", () => {
       await broker.start();
 
       // Register a test metric
-      const metric = broker.runtime.metrics.register({
+      const metric = broker.runtime.metrics?.register({
         type: "counter",
         name: "test.counter",
         description: "Test counter",
