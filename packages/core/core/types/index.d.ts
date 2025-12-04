@@ -441,6 +441,9 @@ export interface ServiceCollection {
   list(params?: any): ServiceItem[];
 }
 
+export type WeaveAction = any;
+export type WeaveEvent = any;
+
 /**
  * Action collection interface
  */
@@ -448,6 +451,7 @@ export interface ActionCollection {
   get(actionName: string): any;
   add(node: Node, service: ServiceItem, action: any): void;
   remove(actionName: string, node: Node): void;
+  list(): WeaveAction[];
 }
 
 /**
@@ -457,6 +461,7 @@ export interface EventCollection {
   get(eventName: string): any;
   add(node: Node, service: ServiceItem, event: any): void;
   remove(eventName: string, node: Node): void;
+  list(): WeaveEvent[];
 }
 
 /**
@@ -984,6 +989,7 @@ export interface BrokerOptions {
 }
 
 export interface ActionContracts {}
+export interface EventContracts {}
 
 /**
  * Main Broker interface - the primary API
@@ -1031,7 +1037,11 @@ export interface Broker {
   ): Promise<any[]>;
 
   // Events
-  emit(eventName: string, payload?: any, options?: EventOptions): Promise<void>;
+  emit<K extends keyof EventContracts>(
+    eventName: K,
+    payload?: K extends keyof EventContracts ? EventContracts[K]["params"] : any,
+    options?: EventOptions,
+  ): Promise<void>;
   broadcast(eventName: string, payload?: any, options?: EventOptions): Promise<void>;
   broadcastLocal(eventName: string, payload?: any, options?: EventOptions): Promise<void>;
 
@@ -1119,6 +1129,9 @@ export namespace Cache {
  */
 export namespace TransportAdapters {
   export function resolve(adapter: string | object): any;
+  export function Dummy(options?: any): any;
+  export function TCP(options?: any): any;
+  export const BaseAdapter: any;
 }
 
 /**

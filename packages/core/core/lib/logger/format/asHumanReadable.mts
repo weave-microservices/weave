@@ -1,8 +1,9 @@
-import { green, magenta, red, yellow, gray, cyan } from "../utils/colorize.mts";
+import { green, magenta, red, yellow, gray, cyan, lightGray } from "../utils/colorize.mts";
 import os from "os";
 
-export const asHumanReadable = (runtime, originObj, message, number, time) => {
+export const asHumanReadable = (runtime: any, originObj: any, message: string, number: number, time: number) => {
   let logResult = "";
+
 
   const logLevelColors = {
     fatal: magenta,
@@ -13,25 +14,39 @@ export const asHumanReadable = (runtime, originObj, message, number, time) => {
     verbose: gray,
   };
 
-  const currentLabel = runtime.levels.labels[number];
-
+  const labelsObj = runtime.levels.labels;
+  const currentLabel = labelsObj[number];
+  const allLabels = Object.values(labelsObj) as string[];
+  const maxLabelWidth = Math.max(...allLabels.map((l) => l.toUpperCase().length));
+  const label = currentLabel?.toUpperCase() ?? "UNKNOWN";
+  const paddedLabel = label.padStart(maxLabelWidth, " ");
   const color = logLevelColors[currentLabel] || yellow;
-  // Log level label
-  logResult += color(currentLabel.toUpperCase());
 
-  // date time
-  logResult += " [" + new Date(time).toISOString() + "] ";
+  logResult += lightGray(new Date(time).toISOString()) + " ";
+  logResult += color(paddedLabel);
 
-  if (runtime.options.base.pid && runtime.options.base.hostname) {
-    logResult += ` (${runtime.options.base.pid} on ${runtime.options.base.hostname})`;
+  if (runtime.options.base?.pid && runtime.options.base?.hostname) {  
+    const labelParts: string[] = [];
+    if (runtime.options.base?.nodeId) {
+      labelParts.push(runtime.options.base.nodeId);
+    }
+    if (runtime.options.base?.svc) {
+      labelParts.push(runtime.options.base.svc);
+    }
+    // if (runtime.options.base?.pid) {
+    //   labelParts.push(runtime.options.base.pid);
+    // }
+    // if (runtime.options.base?.hostname) {
+    //   labelParts.push(runtime.options.base.hostname);
+    // }
+    logResult += lightGray(` ${labelParts.join("::")}`);
   }
 
   if (message) {
-    logResult += " " + color(message);
+    logResult += " " + message;
   }
 
-  if (Object.keys(originObj).length > 0) {
-    // logResult += gray(' Json:')
+  if (originObj && typeof originObj === "object" && Object.keys(originObj).length > 0) {
     logResult += os.EOL;
     logResult += gray(JSON.stringify(originObj, null, 2));
   }

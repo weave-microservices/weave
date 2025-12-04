@@ -15,3 +15,16 @@ export function findProjectRoot(startDir = process.cwd()): string {
     dir = parent;
   }
 }
+
+export async function formatIfAvailable(code: string): Promise<string> {
+  try {
+    const prettier = await import("prettier");
+    const config = await prettier.resolveConfig?.(process.cwd());
+    return prettier.format(code, {
+      ...config,
+      parser: "typescript",
+    });
+  } catch {
+    return code;
+  }
+}

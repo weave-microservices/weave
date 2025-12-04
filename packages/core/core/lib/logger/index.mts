@@ -31,8 +31,12 @@ const defaultOptions = {
   destination: process.stdout,
 };
 
-export const createLogger = (options) => {
-  options = Object.assign(defaultOptions, options);
+export const createLogger = (options: any) => {
+  // Deep clone to avoid shared state between logger instances
+  options = Object.assign({}, defaultOptions, options);
+  if (options.base) {
+    options.base = Object.assign({}, defaultOptions.base, options.base);
+  }
 
   const instance = {};
   const runtime = {

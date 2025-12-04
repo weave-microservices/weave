@@ -3,6 +3,7 @@
  * -----
  * Copyright 2021 Fachwerk
  */
+import type { Context } from "../../../types/index.js";
 import {
   CIRCUIT_CLOSED,
   CIRCUIT_HALF_OPENED,
@@ -123,7 +124,7 @@ export default (runtime) => {
     const options = Object.assign({}, runtime.options.circuitBreaker, action.circuitBreaker || {});
 
     if (options.enabled) {
-      return function curcuitBreakerMiddleware(context, serviceInjections) {
+      return function curcuitBreakerMiddleware(context: Context, serviceInjections) {
         const endpoint = context.endpoint;
         const item = getEndpointState(endpoint, options);
 

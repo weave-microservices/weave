@@ -15,7 +15,7 @@ import { errorHandler, fatalErrorHandler } from "./errorHandler.mts";
 import { uuid } from "@weave-js/utils";
 import packageJson from "../package.json" with { type: "json" };
 import pkg from "eventemitter2";
-import type { BrokerOptions, Runtime } from '../types/index.js';
+import type { BrokerOptions, Runtime } from "../types/index.js";
 const { EventEmitter2: EventEmitter } = pkg;
 const { version } = packageJson;
 

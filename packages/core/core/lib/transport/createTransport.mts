@@ -66,7 +66,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
   transport.connect = () => {
     return new Promise((resolve) => {
       transport.resolveConnect = resolve;
-      transport.log.info("Connecting to transport adapter...");
+      transport.log.debug("Connecting to transport adapter...");
 
       const doConnect = (isTryReconnect: boolean) => {
         const errorHandler = (error: Error) => {
@@ -75,13 +75,13 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
           }
 
           transport.log.warn("Connection failed");
-          transport.log.debug(error);
+          transport.log.error(error);
 
           transport.reconnectInProgress = true;
 
           if (!error.skipRetry) {
             setTimeout(() => {
-              transport.log.info("Reconnecting");
+              transport.log.debug("Reconnecting");
               doConnect(true);
             }, 5 * 1000);
           }
@@ -240,11 +240,10 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
     pending.requests.forEach((request, requestId) => {
       if (request.nodeId === nodeId) {
         pending.requests.delete(requestId);
+        request.reject(new WeaveError(`Remove pending requests for node ${nodeId}.`));
+        pending.requestStreams.delete(requestId);
+        pending.responseStreams.delete(requestId);
       }
-      request.reject(new WeaveError(`Remove pending requests for node ${nodeId}.`));
-
-      pending.requestStreams.delete(requestId);
-      pending.responseStreams.delete(requestId);
     });
   };
 

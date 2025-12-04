@@ -278,7 +278,7 @@ export const createBrokerInstance = (runtime: Runtime): Broker => {
       options.stopped.call(broker);
     }
 
-    log.info("The node was successfully shut down. Bye bye! 👋");
+    log.info(`The node "${options.nodeId}" was gracefully shut down.`);
 
     eventBus!.broadcastLocal("$broker.stopped");
 

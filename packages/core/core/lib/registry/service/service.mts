@@ -1,43 +1,12 @@
-/**
- * @typedef {import("../../../types").Runtime} Runtime
- * @typedef {import("../../../types").ServiceSchema} ServiceSchema
- * @typedef {import("../../../types").Service} Service
- * @typedef {import("../../../types").Context} Context
- */
-
 import { isFunction, clone, isObject, promisify } from "@weave-js/utils";
 import { WeaveError } from "../../errors.mts";
 import { parseAction } from "./parseAction.mts";
 import { parseEvent } from "./parseEvent.mts";
 import { reduceMixins } from "./reduceMixins.mts";
 import { createEventEndpoint } from "../eventEndpoint.mts";
-/**
- * Creates a service instance from a service schema definition
- *
- * This factory function handles the complete service lifecycle:
- * - Applies mixins and merges schemas
- * - Parses and validates actions and events
- * - Sets up service methods and lifecycle hooks
- * - Initializes service metadata and settings
- * - Creates action and event endpoints for the registry
- *
- * @param {Runtime} runtime - Weave runtime instance with broker reference
- * @param {ServiceSchema} schema - Service definition containing actions, events, and configuration
- * @returns {Service} Fully initialized service instance ready for registration
- * @throws {WeaveError} When schema is missing or invalid
- * @example
- * const service = createServiceFromSchema(runtime, {
- *   name: 'math',
- *   version: '1.0.0',
- *   actions: {
- *     add: {
- *       params: { a: 'number', b: 'number' },
- *       handler: (ctx) => ctx.data.a + ctx.data.b
- *     }
- *   }
- * });
- */
-export const createServiceFromSchema = (runtime, schema) => {
+import type { Runtime, ServiceSchema } from '../../../types/index.js';
+
+export const createServiceFromSchema = (runtime: Runtime, schema: ServiceSchema) => {
   // Check if a schema is given
   if (!schema) {
     runtime.handleError(new WeaveError("Schema is missing!"));
@@ -124,7 +93,7 @@ export const createServiceFromSchema = (runtime, schema) => {
   // Bind service methods to context
   if (isObject(schema.methods)) {
     Object.keys(schema.methods).map((name) => {
-      const method = schema.methods[name];
+      const method = schema.methods![name];
 
       // Reserved property names
       if (
@@ -158,7 +127,7 @@ export const createServiceFromSchema = (runtime, schema) => {
   // Bind and register service actions
   if (isObject(schema.actions)) {
     Object.keys(schema.actions).map((name) => {
-      const actionDefinition = schema.actions[name];
+      const actionDefinition = schema.actions![name];
 
       // skip actions that are set to false
       if (actionDefinition === false) return;
@@ -192,7 +161,7 @@ export const createServiceFromSchema = (runtime, schema) => {
   // Bind and register service events
   if (isObject(schema.events)) {
     Object.keys(schema.events).map((name) => {
-      const eventDefinition = schema.events[name];
+      const eventDefinition = schema.events![name];
       const innerEvent = parseEvent(runtime, service, clone(eventDefinition), name);
 
       serviceSpecification.events[name] = innerEvent;
