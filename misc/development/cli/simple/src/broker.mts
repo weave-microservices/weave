@@ -43,6 +43,9 @@ broker1.createService({
         type: "string",
       },
       handler(context) {
+        context.log?.
+        context.log?.info("Hello action called");
+        context.log?.debug("Processing request", { data: context.data });
         return context.data;
       },
     },
@@ -101,6 +104,9 @@ broker2.createService({
 
 await broker1.start();
 await broker2.start();
+
+// Local call to see the logger in action
+await broker1.call("test.hello", { name: "test", age: 123 });
 
 await broker2.call("test.hello", { name: "test", age: 123 });
 

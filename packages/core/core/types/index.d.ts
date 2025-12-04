@@ -126,6 +126,7 @@ export interface Context<T = any> {
   stream?: Stream;
   action?: any;
   startHighResolutionTime?: [number, number] | null;
+  log?: Logger;
 
   // Methods
   setData(data: T): void;

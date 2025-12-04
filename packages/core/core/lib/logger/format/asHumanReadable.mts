@@ -33,6 +33,9 @@ export const asHumanReadable = (runtime: any, originObj: any, message: string, n
     if (runtime.options.base?.svc) {
       labelParts.push(runtime.options.base.svc);
     }
+    if (runtime.options.base?.action) {
+      labelParts.push(runtime.options.base.action);
+    }
     // if (runtime.options.base?.pid) {
     //   labelParts.push(runtime.options.base.pid);
     // }
