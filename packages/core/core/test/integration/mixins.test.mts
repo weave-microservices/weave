@@ -1,25 +1,25 @@
-import ServiceHookMixin from './mixins/service-hook.mixin.mts';
-import hasServiceScope from './scope-checks/service.scope.mts';
-import nested1 from './mixins/nested1.mixin.mts';
-import { createNode } from '../helper/index.mts';
-import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
+import ServiceHookMixin from "./mixins/service-hook.mixin.mts";
+import hasServiceScope from "./scope-checks/service.scope.mts";
+import nested1 from "./mixins/nested1.mixin.mts";
+import { createNode } from "../helper/index.mts";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 
-describe('Service lifetime hooks within mixins', () => {
+describe("Service lifetime hooks within mixins", () => {
   it('should call lifecycle hook "created" with correct scope if there are nested hooks from a mixin.', async () => {
     const node1 = createNode({
-      nodeId: 'node1',
+      nodeId: "node1",
       logger: {
-        enabled: false
-      }
+        enabled: false,
+      },
     });
 
     node1.createService({
-      name: 'testService',
+      name: "testService",
       mixins: [ServiceHookMixin()],
-      created () {
+      created() {
         hasServiceScope(this);
-      }
+      },
     });
     await node1.start();
     await node1.stop();
@@ -27,15 +27,15 @@ describe('Service lifetime hooks within mixins', () => {
 
   it('should call lifecycle hook "started" with correct scope if there are nested hooks from a mixin.', async () => {
     const node1 = createNode({
-      nodeId: 'node1'
+      nodeId: "node1",
     });
 
     node1.createService({
-      name: 'testService',
+      name: "testService",
       mixins: [ServiceHookMixin()],
-      started () {
+      started() {
         hasServiceScope(this);
-      }
+      },
     });
     await node1.start();
     await node1.stop();
@@ -43,80 +43,80 @@ describe('Service lifetime hooks within mixins', () => {
 
   it('should call lifecycle hook "stopped" with correct scope if there are nested hooks from a mixin.', async () => {
     const node1 = createNode({
-      nodeId: 'node1',
+      nodeId: "node1",
       logger: {
-        enabled: false
-      }
+        enabled: false,
+      },
     });
 
     node1.createService({
-      name: 'testService',
+      name: "testService",
       mixins: [ServiceHookMixin()],
-      stopped () {
+      stopped() {
         hasServiceScope(this);
-      }
+      },
     });
     await node1.start();
     await node1.stop();
   });
 });
 
-describe('Service lifetime hooks error handling', () => {
-  it('should throw a error from a mixed started hook.', async () => {
+describe("Service lifetime hooks error handling", () => {
+  it("should throw a error from a mixed started hook.", async () => {
     const node1 = createNode({
-      nodeId: 'node1',
+      nodeId: "node1",
       logger: {
-        enabled: false
-      }
+        enabled: false,
+      },
     });
 
     node1.createService({
-      name: 'testService',
-      mixins: [ServiceHookMixin('started')],
-      started () {
+      name: "testService",
+      mixins: [ServiceHookMixin("started")],
+      started() {
         // return Promise.reject(new Error('sss'))
-      }
+      },
     });
 
     await assert.rejects(node1.start(), /Rejected hook from started/);
   });
 
-  it('should throw a error from a mixed stopped hook.', async () => {
+  it("should throw a error from a mixed stopped hook.", async () => {
     const node1 = createNode({
-      nodeId: 'node1',
+      nodeId: "node1",
       logger: {
-        enabled: false
-      }
+        enabled: false,
+      },
     });
 
     node1.createService({
-      name: 'testService',
-      mixins: [ServiceHookMixin('stopped')],
-      stopped () {
+      name: "testService",
+      mixins: [ServiceHookMixin("stopped")],
+      stopped() {
         // return Promise.reject(new Error('sss'))
-      }
+      },
     });
 
     await assert.rejects(
       node1.start().then(() => node1.stop()),
-      /Rejected hook from stopped/
+      /Rejected hook from stopped/,
     );
   });
 
-  it('should mix in nested mixins.', async () => {
+  it("should mix in nested mixins.", async () => {
     const node1 = createNode({
-      nodeId: 'node1',
+      nodeId: "node1",
       logger: {
-        enabled: false
-      }
+        enabled: false,
+      },
     });
 
     const service = node1.createService({
-      name: 'testService',
+      name: "testService",
       mixins: [nested1()],
-      stopped () {
+      stopped() {
         // return Promise.reject(new Error('sss'))
-      }
+      },
     });
 
     assert.notStrictEqual(service.actions.a, undefined);

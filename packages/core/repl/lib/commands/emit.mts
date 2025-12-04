@@ -1,12 +1,14 @@
-import convertArgs from '../utils/convert-args.mts';
+import convertArgs from "../utils/convert-args.mts";
 
 export default ({ vorpal, broker, cliUI }: any) => {
   vorpal
-    .command('emit <eventName>', 'Emit a event.')
+    .command("emit <eventName>", "Emit a event.")
     .autocomplete({
-      data () {
-        return [...new Set(broker.runtime.registry.eventCollection.list({}).map(item => item.name))];
-      }
+      data() {
+        return [
+          ...new Set(broker.runtime.registry.eventCollection.list({}).map((item) => item.name)),
+        ];
+      },
     })
     .allowUnknownOptions()
     .action((args: any, done: any) => {

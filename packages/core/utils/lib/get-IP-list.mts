@@ -1,4 +1,4 @@
-import os from 'node:os';
+import os from "node:os";
 
 /**
  * Get a list of IPv4 addresses from all network interfaces.
@@ -11,17 +11,17 @@ import os from 'node:os';
 export function getIpList(skipInternal: boolean = true): string[] {
   const interfaces = os.networkInterfaces();
   return Object.keys(interfaces)
-    .map(name => {
-      let IPs = interfaces[name]!
-        .filter((networkInterface) => {
-          const family = networkInterface.family;
-          return family === 'IPv4' || (family as unknown) === 4;
-        });
+    .map((name) => {
+      let IPs = interfaces[name]!.filter((networkInterface) => {
+        const family = networkInterface.family;
+        return family === "IPv4" || (family as unknown) === 4;
+      });
 
       if (skipInternal) {
         IPs = IPs.filter((networkInterface) => !networkInterface.internal);
       }
 
       return IPs.map((networkInterface) => networkInterface.address);
-    }).flat();
+    })
+    .flat();
 }

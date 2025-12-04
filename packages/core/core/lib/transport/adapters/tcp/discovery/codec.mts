@@ -1,10 +1,10 @@
-export default function createCodec (options) {
+export default function createCodec(options) {
   return {
-    encode (object) {
+    encode(object) {
       return Buffer.from(JSON.stringify(object));
     },
-    decode (buffer) {
+    decode(buffer) {
       return JSON.parse(buffer.toString());
-    }
+    },
   };
-};
+}

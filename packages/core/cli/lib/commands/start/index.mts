@@ -1,15 +1,16 @@
-import { createBroker } from '@weave-js/core';
-import repl from '@weave-js/repl';
-import { getConfig } from '../../utils/config.mts';
-import { createWatchMiddleware } from './createWatchMiddlewares.mts';
-import { loadServices, loadServicesFromFactory } from './loadServices.mts';
-import path from 'path';
-import fs from 'fs';
-import dotenv from 'dotenv';
+import { createBroker } from "@weave-js/core";
+import repl from "@weave-js/repl";
+import { getConfig } from "../../utils/config.mts";
+import { createWatchMiddleware } from "./createWatchMiddlewares.mts";
+import { loadServices, loadServicesFromFactory } from "./loadServices.mts";
+import path from "path";
+import fs from "fs";
+import dotenv from "dotenv";
 
 export const handler = async (args: any): Promise<void> => {
   if (args.dotenv) {
-    const dotEnvPath = typeof args.dotenv === 'string' ? args.dotenv : path.resolve(process.cwd(), '.env');
+    const dotEnvPath =
+      typeof args.dotenv === "string" ? args.dotenv : path.resolve(process.cwd(), ".env");
     dotenv.config({ path: dotEnvPath });
   }
 
@@ -28,11 +29,11 @@ export const handler = async (args: any): Promise<void> => {
         if (broker) {
           try {
             this.isRestarting = true;
-            broker.log.info('Stopping broker for restart...');
+            broker.log.info("Stopping broker for restart...");
             await this.broker.stop();
 
             // Reload config from file system
-            broker.log.info('Reloading configuration...');
+            broker.log.info("Reloading configuration...");
             const freshConfig = await getConfig(this.args);
 
             // Apply watch middleware if needed
@@ -40,11 +41,13 @@ export const handler = async (args: any): Promise<void> => {
               const additionalFiles: any[] = [];
 
               if (this.args.factory) {
-                const serviceFactoryPath = path.isAbsolute(this.args.factory) ? this.args.factory : path.resolve(process.cwd(), this.args.factory);
+                const serviceFactoryPath = path.isAbsolute(this.args.factory)
+                  ? this.args.factory
+                  : path.resolve(process.cwd(), this.args.factory);
                 if (fs.existsSync(serviceFactoryPath)) {
                   additionalFiles.push({
                     filename: serviceFactoryPath,
-                    changeScope: 'services'
+                    changeScope: "services",
                   });
                 }
               }
@@ -52,16 +55,18 @@ export const handler = async (args: any): Promise<void> => {
               const customMiddlewares = freshConfig.middlewares || [];
               freshConfig.middlewares = [
                 createWatchMiddleware(this, { additionalFiles }),
-                ...customMiddlewares
+                ...customMiddlewares,
               ];
             }
 
             if (this.args.silent) {
-              freshConfig.logger = freshConfig.logger ? Object.assign(freshConfig.logger, { enabled: false }) : { enabled: false };
+              freshConfig.logger = freshConfig.logger
+                ? Object.assign(freshConfig.logger, { enabled: false })
+                : { enabled: false };
             }
 
             // Create new broker with fresh config
-            broker.log.info('Creating new broker with updated configuration...');
+            broker.log.info("Creating new broker with updated configuration...");
             this.broker = createBroker(freshConfig);
 
             // Reload services
@@ -80,18 +85,18 @@ export const handler = async (args: any): Promise<void> => {
               repl(this.broker);
             }
 
-            this.broker.log.info('Broker restarted successfully with new configuration');
+            this.broker.log.info("Broker restarted successfully with new configuration");
 
             // Reset restart flag after a short delay to prevent rapid successive restarts
             setTimeout(() => {
               this.isRestarting = false;
             }, 1000);
           } catch (error) {
-            broker.log.error('Error while restarting broker', error);
+            broker.log.error("Error while restarting broker", error);
             this.isRestarting = false; // Reset flag on error
           }
         }
-      }
+      },
     };
 
     const config = await getConfig(args);
@@ -103,11 +108,13 @@ export const handler = async (args: any): Promise<void> => {
       }
 
       if (args.factory) {
-        const serviceFactoryPath = path.isAbsolute(args.factory) ? args.factory : path.resolve(process.cwd(), args.factory);
+        const serviceFactoryPath = path.isAbsolute(args.factory)
+          ? args.factory
+          : path.resolve(process.cwd(), args.factory);
         if (fs.existsSync(serviceFactoryPath)) {
           additionalFiles.push({
             filename: serviceFactoryPath,
-            changeScope: 'services'
+            changeScope: "services",
           });
         }
       }
@@ -115,12 +122,14 @@ export const handler = async (args: any): Promise<void> => {
       const customMiddlewares = config.middlewares || [];
       config.middlewares = [
         createWatchMiddleware(cliContext, { additionalFiles }),
-        ...customMiddlewares
+        ...customMiddlewares,
       ];
     }
 
     if (args.silent) {
-      config.logger = config.logger ? Object.assign(config.logger, { enabled: false }) : { enabled: false };
+      config.logger = config.logger
+        ? Object.assign(config.logger, { enabled: false })
+        : { enabled: false };
     }
 
     cliContext.broker = createBroker(config);

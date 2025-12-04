@@ -4,7 +4,7 @@
  * Author: Kevin Ries (kevin.ries@fachwerk.io)
  * -----
  * Copyright 2021 Fachwerk
-*/
+ */
 
 /**
  * @typedef {import('../../types.__js').Registry} Registry
@@ -12,12 +12,12 @@
  * @typedef {import('../../types.__js').Service} Service
  * @typedef {import('../../types.__js').Node} Node
  * @typedef {import('../../types.__js').EndpointCollection} EndpointCollection
-*/
+ */
 
-import { omit, match } from '@weave-js/utils';
-import { createEndpointList } from './endpointCollection.mts';
+import { omit, match } from "@weave-js/utils";
+import { createEndpointList } from "./endpointCollection.mts";
 
-const broadcastEvents = ['broadcast', 'localBroadcast'];
+const broadcastEvents = ["broadcast", "localBroadcast"];
 /**
  * Create event collection
  * @param {Registry} registry Registy reference
@@ -27,7 +27,8 @@ export const createEventCollection = (registry) => {
   const eventCollection = Object.create(null);
   const { runtime } = registry;
   const events = []; // todo: refactor to js Map
-  const getAllEventsByEventName = (eventName) => events.filter(list => match(eventName, list.name));
+  const getAllEventsByEventName = (eventName) =>
+    events.filter((list) => match(eventName, list.name));
 
   /**
    * Add node to collection
@@ -35,7 +36,7 @@ export const createEventCollection = (registry) => {
    * @param {Service} service Service
    * @param {any} event Event
    * @return {EndpointCollection} Endpoint collection
-  */
+   */
   eventCollection.add = (node, service, event) => {
     const groupName = event.group || service.name;
     let endpointList = eventCollection.get(event.name, groupName);
@@ -47,7 +48,9 @@ export const createEventCollection = (registry) => {
   };
 
   eventCollection.get = (eventName, groupName) => {
-    return events.find(endpointList => endpointList.name === eventName && endpointList.groupName === groupName);
+    return events.find(
+      (endpointList) => endpointList.name === eventName && endpointList.groupName === groupName,
+    );
   };
 
   eventCollection.remove = (node, eventName) => {
@@ -66,29 +69,31 @@ export const createEventCollection = (registry) => {
 
   eventCollection.getBalancedEndpoints = (eventName, groups) => {
     const result = [];
-    getAllEventsByEventName(eventName)
-      .forEach((endpointList) => {
-        if (groups == null || groups.length === 0 || groups.indexOf(endpointList.groupName) !== -1) {
-          const endpoint = endpointList.getNextAvailableEndpoint();
-          if (endpoint && endpoint.isAvailable()) {
-            result.push([endpoint, endpointList.groupName]);
-          }
+    getAllEventsByEventName(eventName).forEach((endpointList) => {
+      if (groups == null || groups.length === 0 || groups.indexOf(endpointList.groupName) !== -1) {
+        const endpoint = endpointList.getNextAvailableEndpoint();
+        if (endpoint && endpoint.isAvailable()) {
+          result.push([endpoint, endpointList.groupName]);
         }
-      });
+      }
+    });
     return result;
   };
 
   eventCollection.getAllEndpoints = (eventName) => {
     return getAllEventsByEventName(eventName)
-      .map(list => list.endpoints)
-      .map(endpoints => endpoints.filter(endpoint => endpoint.isAvailable()))
+      .map((list) => list.endpoints)
+      .map((endpoints) => endpoints.filter((endpoint) => endpoint.isAvailable()))
       .reduce((prev, curr) => prev.concat(curr));
   };
 
   eventCollection.getAllEndpointsUniqueNodes = (eventName, groups) => {
     let endpoints = getAllEventsByEventName(eventName)
-      .filter(endpointList => (groups == null || groups.length === 0 || groups.includes(endpointList.groupName)))
-      .map(endpointList => endpointList.endpoints);
+      .filter(
+        (endpointList) =>
+          groups == null || groups.length === 0 || groups.includes(endpointList.groupName),
+      )
+      .map((endpointList) => endpointList.endpoints);
 
     if (endpoints.length > 0) {
       endpoints = endpoints.reduce((prev, curr) => prev.concat(curr));
@@ -98,7 +103,7 @@ export const createEventCollection = (registry) => {
     const distinct = [];
 
     for (const i in endpoints) {
-      if (typeof (unique[endpoints[i].node.id]) === 'undefined') {
+      if (typeof unique[endpoints[i].node.id] === "undefined") {
         distinct.push(endpoints[i]);
       }
       unique[endpoints[i].node.id] = endpoints[i].node.id;
@@ -113,10 +118,13 @@ export const createEventCollection = (registry) => {
     const isBroadcast = broadcastEvents.includes(context.eventType);
 
     getAllEventsByEventName(context.eventName)
-      .filter(endpointList => (groups == null || groups.length === 0 || groups.includes(endpointList.groupName)))
-      .map(list => {
+      .filter(
+        (endpointList) =>
+          groups == null || groups.length === 0 || groups.includes(endpointList.groupName),
+      )
+      .map((list) => {
         if (isBroadcast) {
-          list.endpoints.map(endpoint => {
+          list.endpoints.map((endpoint) => {
             if (endpoint.isLocal && endpoint.action.handler) {
               promises.push(endpoint.action.handler(context));
             }
@@ -132,10 +140,14 @@ export const createEventCollection = (registry) => {
     return Promise.all(promises);
   };
 
-  eventCollection.list = ({ onlyLocals = false, skipInternals = false, withEndpoints = false } = {}) => {
+  eventCollection.list = ({
+    onlyLocals = false,
+    skipInternals = false,
+    withEndpoints = false,
+  } = {}) => {
     const result = [];
 
-    events.forEach(list => {
+    events.forEach((list) => {
       if (skipInternals && /^\$node/.test(list.name)) {
         return;
       }
@@ -149,21 +161,21 @@ export const createEventCollection = (registry) => {
         hasAvailable: list.hasAvailable(),
         groupName: list.groupName,
         hasLocal: list.hasLocal(),
-        count: list.count()
+        count: list.count(),
       };
 
       if (item.count > 0) {
         const endpoint = list.endpoints[0];
         if (endpoint) {
-          item.event = omit(endpoint.action, ['handler', 'service']);
+          item.event = omit(endpoint.action, ["handler", "service"]);
         }
       }
 
       if (withEndpoints) {
-        item.endpoints = list.endpoints.map(endpoint => {
+        item.endpoints = list.endpoints.map((endpoint) => {
           return {
             nodeId: endpoint.node.id,
-            state: endpoint.state
+            state: endpoint.state,
           };
         });
       }

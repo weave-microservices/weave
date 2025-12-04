@@ -1,7 +1,6 @@
-
-import { defaultsDeep } from '@weave-js/utils';
-import { createLogger as createDefaultLogger } from '../logger/index.mts';
-import type { Runtime } from '../../types/index.js';
+import { defaultsDeep } from "@weave-js/utils";
+import { createLogger as createDefaultLogger } from "../logger/index.mts";
+import type { Runtime } from "../../types/index.js";
 
 const DEFAULT_LOGGER_NAME = "WEAVE";
 
@@ -16,22 +15,24 @@ export const initLogger = (runtime: Runtime) => {
     const bindings = {
       nodeId: runtime.options.nodeId,
       moduleName,
-      ...additional
+      ...additional,
     };
 
-    if (typeof runtime.options.logger === 'function') {
+    if (typeof runtime.options.logger === "function") {
       return runtime.options.logger(bindings, runtime.options.logger);
     }
 
-    const loggerOptions = defaultsDeep({
-      base: {
-        ...bindings
-      }
-    }, runtime.options.logger);
+    const loggerOptions = defaultsDeep(
+      {
+        base: {
+          ...bindings,
+        },
+      },
+      runtime.options.logger,
+    );
 
     return createDefaultLogger(loggerOptions);
   };
-
 
   const createLogger = (moduleName: string, service?: object) => loggerFactory(moduleName, service);
 
@@ -43,6 +44,6 @@ export const initLogger = (runtime: Runtime) => {
 
   Object.assign(runtime, {
     createLogger,
-    log
+    log,
   });
 };

@@ -1,12 +1,12 @@
 export default {
-  name: 'malformed-action',
+  name: "malformed-action",
   actions: {
-    timeout: [{
-      handler: {
-        doIt (context) {
-
-        }
-      }
-    }]
-  }
+    timeout: [
+      {
+        handler: {
+          doIt(context) {},
+        },
+      },
+    ],
+  },
 };

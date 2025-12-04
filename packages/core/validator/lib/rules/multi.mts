@@ -16,7 +16,15 @@ export default function checkMulti(this: any, { schema }: any, path: any, contex
     `);
 
     const rule = this.getRuleFromSchema(schema.rules[i]);
-    code.push(this.compileRule(rule, context, path, 'var tempValue = context.func[##INDEX##](value, field, parent, errors, context)', 'tempValue'));
+    code.push(
+      this.compileRule(
+        rule,
+        context,
+        path,
+        "var tempValue = context.func[##INDEX##](value, field, parent, errors, context)",
+        "tempValue",
+      ),
+    );
 
     code.push(`
         if (errors.length === errorBefore) {
@@ -35,6 +43,6 @@ export default function checkMulti(this: any, { schema }: any, path: any, contex
   `);
 
   return {
-    code: code.join('\n')
+    code: code.join("\n"),
   };
 }

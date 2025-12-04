@@ -1,4 +1,3 @@
-
 /* istanbul ignore next */
 
 /**
@@ -33,7 +32,7 @@
  *     createUser: (name, email) => ({ id: 1, name, email })
  *   }
  * });
-*/
+ */
 export default function (serviceSchema) {
   return serviceSchema;
-};
+}

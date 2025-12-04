@@ -4,62 +4,61 @@
  * Copyright 2021 Fachwerk
  */
 
-import { match, defaultsDeep } from '@weave-js/utils';
-import { createCacheBase } from './base.mts';
-import { createLock } from '../lock.mts';
-import * as Constants from '../../metrics/constants.mts';
-import type { Runtime } from '../../../types/index.js';
+import { match, defaultsDeep } from "@weave-js/utils";
+import { createCacheBase } from "./base.mts";
+import { createLock } from "../lock.mts";
+import * as Constants from "../../metrics/constants.mts";
+import type { Runtime } from "../../../types/index.js";
 
 const defaultAdapterOptions = {
-  ttlCheckInterval: 3000
+  ttlCheckInterval: 3000,
 };
 
 /**
  * @typedef {Object} InMemoryAdapterOptions
  * @property {number=} ttlCheckInterval TTL check interval
-*/
+ */
 
 /**
  * @param {InMemoryAdapterOptions} adapterOptions Adapter options
  * @returns {any} CacheFactory
-*/
-export const createInMemoryCache = (adapterOptions = {}) => (runtime: Runtime, options = {}) => {
-  adapterOptions = defaultsDeep(adapterOptions, defaultAdapterOptions);
-  const base = createCacheBase('In-Memory', runtime, adapterOptions, options);
-  const storage = new Map();
-  const lock = createLock();
+ */
+export const createInMemoryCache =
+  (adapterOptions = {}) =>
+  (runtime: Runtime, options = {}) => {
+    adapterOptions = defaultsDeep(adapterOptions, defaultAdapterOptions);
+    const base = createCacheBase("In-Memory", runtime, adapterOptions, options);
+    const storage = new Map();
+    const lock = createLock();
 
-  const ttlTimerHandle = setInterval(() => {
-    checkTtl();
-  }, adapterOptions.ttlCheckInterval);
+    const ttlTimerHandle = setInterval(() => {
+      checkTtl();
+    }, adapterOptions.ttlCheckInterval);
 
-  ttlTimerHandle.unref();
+    ttlTimerHandle.unref();
 
-  runtime.bus.on('$transport.connected', () => {
-    base.log.debug('Transport adapter connected. Cache will be cleared.');
-    cache.clear();
-  });
-
-  const checkTtl = () => {
-    const now = Date.now();
-
-    storage.forEach((item, hashKey) => {
-      if (item.expire && item.expire < now) {
-        cache.log.debug(`Delete ${hashKey}`);
-        storage.delete(hashKey);
-      }
+    runtime.bus.on("$transport.connected", () => {
+      base.log.debug("Transport adapter connected. Cache will be cleared.");
+      cache.clear();
     });
-  };
 
-  const cache = Object.assign(
-    {},
-    base,
-    {
-      init () {
+    const checkTtl = () => {
+      const now = Date.now();
+
+      storage.forEach((item, hashKey) => {
+        if (item.expire && item.expire < now) {
+          cache.log.debug(`Delete ${hashKey}`);
+          storage.delete(hashKey);
+        }
+      });
+    };
+
+    const cache = Object.assign({}, base, {
+      init() {
         base.init();
         cache.isConnected = true;
       },
-      get (cacheKey: string) {
+      get(cacheKey: string) {
         base.log.debug(`Get ${cacheKey}`);
 
         if (base.metrics) {
@@ -88,7 +87,7 @@ export const createInMemoryCache = (adapterOptions = {}) => (runtime: Runtime, o
         }
         return Promise.resolve(null);
       },
-      set (hashKey: string, data: any, ttl: number) {
+      set(hashKey: string, data: any, ttl: number) {
         if (base.metrics) {
           base.metrics.increment(Constants.CACHE_SET_TOTAL);
         }
@@ -99,14 +98,14 @@ export const createInMemoryCache = (adapterOptions = {}) => (runtime: Runtime, o
 
         storage.set(hashKey, {
           data,
-          expire: ttl ? Date.now() + ttl : null
+          expire: ttl ? Date.now() + ttl : null,
         });
 
         base.log.debug(`Set ${hashKey}`);
 
         return Promise.resolve(data);
       },
-      remove (hashKey) {
+      remove(hashKey) {
         if (base.metrics) {
           base.metrics.increment(Constants.CACHE_DELETED_TOTAL);
         }
@@ -115,7 +114,7 @@ export const createInMemoryCache = (adapterOptions = {}) => (runtime: Runtime, o
 
         return Promise.resolve();
       },
-      clear (pattern: string = '**') {
+      clear(pattern: string = "**") {
         if (base.metrics) {
           base.metrics.increment(Constants.CACHE_DELETED_TOTAL);
         }
@@ -127,24 +126,23 @@ export const createInMemoryCache = (adapterOptions = {}) => (runtime: Runtime, o
         });
         return Promise.resolve();
       },
-      lock (key: string, ttl: number) {
+      lock(key: string, ttl: number) {
         return lock.acquire(key, ttl).then(() => {
           return () => lock.release(key);
         });
       },
-      tryAcquireLock (key: string, ttl: number) {
+      tryAcquireLock(key: string, ttl: number) {
         if (lock.isLocked(key)) {
-          return Promise.reject(new Error('Locked'));
+          return Promise.reject(new Error("Locked"));
         }
 
         return lock.acquire(key, ttl).then(() => {
           return () => lock.release(key);
         });
       },
-      async stop () {
+      async stop() {
         clearInterval(ttlTimerHandle);
-      }
+      },
     });
-  return cache;
-};
-
+    return cache;
+  };

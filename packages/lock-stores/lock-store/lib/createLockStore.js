@@ -1,5 +1,5 @@
-const EventEmitter = require('events');
-const { createInMemoryLockStoreAdapter } = require('./in-memory-adapter.js');
+const EventEmitter = require("events");
+const { createInMemoryLockStoreAdapter } = require("./in-memory-adapter.js");
 
 /**
  * Runtime instance state
@@ -10,13 +10,13 @@ const { createInMemoryLockStoreAdapter } = require('./in-memory-adapter.js');
  * @property {*} getAllEndpointsUniqueNodes getAllEndpointsUniqueNodes
  * @property {function(Context):Promise<any>} emitLocal emitLocal
  * @property {function():Array<any>} list list
-*/
+ */
 
 /**
  * Runtime instance state
  * @typedef {Object} UserOptions
  * @property {any} adapter - Services started flag.
-*/
+ */
 
 /**
  * Creates a lock store instance.
@@ -26,7 +26,7 @@ const { createInMemoryLockStoreAdapter } = require('./in-memory-adapter.js');
 const createLockStore = async (userOptions = {}) => {
   const options = {
     adapter: await createInMemoryLockStoreAdapter(),
-    ...userOptions
+    ...userOptions,
   };
 
   const eventBus = new EventEmitter();
@@ -44,7 +44,7 @@ const createLockStore = async (userOptions = {}) => {
   const acquire = async (key, expiresAt = Number.MAX_SAFE_INTEGER, metadata = {}) => {
     await options.adapter.removeExpiredLocks();
     if (await options.adapter.isLocked(key)) {
-      throw new Error('Failed to acquire lock.');
+      throw new Error("Failed to acquire lock.");
     }
 
     await options.adapter.lock(key, expiresAt, metadata);
@@ -76,7 +76,7 @@ const createLockStore = async (userOptions = {}) => {
 
     // The lock is already released
     if (!existingLock) {
-      throw new Error('Failed to renew lock.');
+      throw new Error("Failed to renew lock.");
     }
 
     await options.adapter.renew(key, expiresAt);

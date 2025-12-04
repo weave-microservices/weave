@@ -1,4 +1,4 @@
-import BaseAdapter from './base.mts';
+import BaseAdapter from "./base.mts";
 
 export default (options) => {
   const lastChanges = new Set();
@@ -15,10 +15,13 @@ export default (options) => {
   };
 
   adapter.init = (registry) => {
-    adapter.options = Object.assign({
-      eventName: '$metrics.changed',
-      interval: 5000
-    }, options);
+    adapter.options = Object.assign(
+      {
+        eventName: "$metrics.changed",
+        interval: 5000,
+      },
+      options,
+    );
 
     adapter.registry = registry;
 

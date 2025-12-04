@@ -1,14 +1,14 @@
 export default {
-  name: 'slow',
+  name: "slow",
   actions: {
     timeout: {
-      handler (context) {
+      handler(context) {
         return new Promise((resolve) => {
           setTimeout(() => {
-            resolve('yes');
+            resolve("yes");
           }, 1000);
         });
-      }
-    }
-  }
+      },
+    },
+  },
 };

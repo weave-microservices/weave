@@ -1,207 +1,205 @@
-import { createNode } from '../helper/index.mts';
-import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
+import { createNode } from "../helper/index.mts";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 
-describe('Test param validator', () => {
-  it('should fail with error and validation data.', (done) => {
+describe("Test param validator", () => {
+  it("should fail with error and validation data.", (done) => {
     const node1 = createNode({
-      nodeId: 'node1',
+      nodeId: "node1",
       logger: {
-        enabled: false
-      }
+        enabled: false,
+      },
     });
 
     node1.createService({
-      name: 'testService',
+      name: "testService",
       actions: {
         sayHello: {
           params: {
-            name: { type: 'string', minLength: 10 }
+            name: { type: "string", minLength: 10 },
           },
-          handler (context) {
+          handler(context) {
             return `Hello ${context.data.name}!`;
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     node1.start().then(() => {
-      node1.call('testService.sayHello', { name: 'Hans' })
-        .catch((error) => {
-          assert.strictEqual(error.name, 'WeaveParameterValidationError');
-          assert.strictEqual(error.message, 'Request parameter validation error');
-          done();
-        });
+      node1.call("testService.sayHello", { name: "Hans" }).catch((error) => {
+        assert.strictEqual(error.name, "WeaveParameterValidationError");
+        assert.strictEqual(error.message, "Request parameter validation error");
+        done();
+      });
     });
   });
 
-  it('should fail with error and validation data.', (done) => {
+  it("should fail with error and validation data.", (done) => {
     const node1 = createNode({
-      nodeId: 'node1',
+      nodeId: "node1",
       logger: {
-        enabled: false
-      }
+        enabled: false,
+      },
     });
 
     node1.createService({
-      name: 'testService',
+      name: "testService",
       actions: {
         sayHello: {
           params: {
-            name: 'string'
+            name: "string",
           },
-          handler (context) {
+          handler(context) {
             return `Hello ${context.data.name}!`;
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     node1.start().then(() => {
-      node1.call('testService.sayHello', { name: 1 })
-        .catch(error => {
-          assert.strictEqual(error.name, 'WeaveParameterValidationError');
-          assert.strictEqual(error.message, 'Request parameter validation error');
-          done();
-        });
+      node1.call("testService.sayHello", { name: 1 }).catch((error) => {
+        assert.strictEqual(error.name, "WeaveParameterValidationError");
+        assert.strictEqual(error.message, "Request parameter validation error");
+        done();
+      });
     });
   });
 });
 
-describe('Validator strict mode', () => {
+describe("Validator strict mode", () => {
   it('should remove invalid params on strict mode "remove" (global)', (done) => {
     const node1 = createNode({
-      nodeId: 'node_strict',
+      nodeId: "node_strict",
       logger: {
-        enabled: false
+        enabled: false,
       },
       validatorOptions: {
         strict: true,
-        strictMode: 'remove'
-      }
+        strictMode: "remove",
+      },
     });
 
     node1.createService({
-      name: 'testService',
+      name: "testService",
       actions: {
         sayHello: {
           params: {
-            name: { type: 'string' }
+            name: { type: "string" },
           },
-          handler (context) {
-            assert.strictEqual(context.data.name, 'Hans');
+          handler(context) {
+            assert.strictEqual(context.data.name, "Hans");
             assert.strictEqual(context.data.lastname, undefined);
             done();
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     node1.start().then(() => {
-      node1.call('testService.sayHello', { name: 'Hans', lastname: 'hans' });
+      node1.call("testService.sayHello", { name: "Hans", lastname: "hans" });
     });
   });
 
   it('should throw an error if ther are invalid params on strict mode "error" (global)', (done) => {
     const node1 = createNode({
-      nodeId: 'node_strict',
+      nodeId: "node_strict",
       logger: {
-        enabled: false
+        enabled: false,
       },
       validatorOptions: {
         strict: true,
-        strictMode: 'error'
-      }
+        strictMode: "error",
+      },
     });
 
     node1.createService({
-      name: 'testService',
+      name: "testService",
       actions: {
         sayHello: {
           params: {
-            name: { type: 'string' }
+            name: { type: "string" },
           },
-          handler () {
+          handler() {
             // nothing to do
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     node1.start().then(() => {
-      node1.call('testService.sayHello', { name: 'Hans', lastname: 'hans' })
-        .catch((error) => {
-          assert.strictEqual(error.data.length, 1);
-          const [validationError] = error.data;
+      node1.call("testService.sayHello", { name: "Hans", lastname: "hans" }).catch((error) => {
+        assert.strictEqual(error.data.length, 1);
+        const [validationError] = error.data;
 
-          assert.strictEqual(validationError.action, 'testService.sayHello');
-          assert.strictEqual(validationError.expected, 'name');
-          assert.strictEqual(validationError.field, '$root');
-          assert.strictEqual(validationError.message, 'The object "$root" contains forbidden keys: "lastname".');
-          assert.strictEqual(validationError.nodeId, 'node_strict');
-          assert.strictEqual(validationError.passed, 'lastname');
-          assert.strictEqual(validationError.type, 'objectStrict');
-          done();
-        });
+        assert.strictEqual(validationError.action, "testService.sayHello");
+        assert.strictEqual(validationError.expected, "name");
+        assert.strictEqual(validationError.field, "$root");
+        assert.strictEqual(
+          validationError.message,
+          'The object "$root" contains forbidden keys: "lastname".',
+        );
+        assert.strictEqual(validationError.nodeId, "node_strict");
+        assert.strictEqual(validationError.passed, "lastname");
+        assert.strictEqual(validationError.type, "objectStrict");
+        done();
+      });
     });
   });
 });
 
-describe('Response validator', () => {
-  it('Should validate responses (fails)', (done) => {
+describe("Response validator", () => {
+  it("Should validate responses (fails)", (done) => {
     const broker1 = createNode({
-      nodeId: 'node_strict',
+      nodeId: "node_strict",
       logger: {
-        enabled: false
+        enabled: false,
       },
       validatorOptions: {
         strict: true,
-        strictMode: 'error'
-      }
+        strictMode: "error",
+      },
     });
 
     broker1.createService({
-      name: 'testService',
+      name: "testService",
       actions: {
         sayHello: {
           params: {
-            name: { type: 'string' }
+            name: { type: "string" },
           },
           responseSchema: {
-            firstname: { type: 'string' },
-            lastname: { type: 'string' }
+            firstname: { type: "string" },
+            lastname: { type: "string" },
           },
-          handler (context) {
-            if (context.data.name === 'RightName') {
-              return { firstname: 'Right', lastname: 'Name' };
+          handler(context) {
+            if (context.data.name === "RightName") {
+              return { firstname: "Right", lastname: "Name" };
             }
             return {
-              text: 'Hello User!',
+              text: "Hello User!",
               user: {
                 firstname: context.data,
-                lastname: 'Wick'
-              }
+                lastname: "Wick",
+              },
             };
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     broker1.start().then(() => {
-      broker1.call('testService.sayHello', { name: 'Hans' })
-        .catch((error) => {
-          assert.strictEqual(error.data.length, 3);
-          const [validationError] = error.data;
+      broker1.call("testService.sayHello", { name: "Hans" }).catch((error) => {
+        assert.strictEqual(error.data.length, 3);
+        const [validationError] = error.data;
 
-          assert.strictEqual(validationError.action, 'testService.sayHello');
-          assert.strictEqual(validationError.field, 'firstname');
+        assert.strictEqual(validationError.action, "testService.sayHello");
+        assert.strictEqual(validationError.field, "firstname");
 
-          broker1.call('testService.sayHello', { name: 'RightName' })
-            .then((result) => {
-              assert.deepStrictEqual(result, { firstname: 'Right', lastname: 'Name' });
-              done();
-            });
+        broker1.call("testService.sayHello", { name: "RightName" }).then((result) => {
+          assert.deepStrictEqual(result, { firstname: "Right", lastname: "Name" });
+          done();
         });
+      });
     });
   });
 });

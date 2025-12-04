@@ -2,14 +2,9 @@
  * @typedef {import('../../types').ServiceSchema} ServiceSchema
  */
 
-import { clone,
-  compact,
-  deepMerge,
-  defaultsDeep,
-  flatten,
-  wrapInArray } from '@weave-js/utils';
+import { clone, compact, deepMerge, defaultsDeep, flatten, wrapInArray } from "@weave-js/utils";
 
-import { wrapHandler } from '../utils/wrap-handler.mts';
+import { wrapHandler } from "../utils/wrap-handler.mts";
 
 /**
  * Merge service settings with deep default merging
@@ -17,7 +12,7 @@ import { wrapHandler } from '../utils/wrap-handler.mts';
  * @param {Object} targetSchema Target schema settings
  * @returns {Object} Merged settings object
  */
-function mergeSettings (source, targetSchema) {
+function mergeSettings(source, targetSchema) {
   return defaultsDeep(source, targetSchema);
 }
 
@@ -27,7 +22,7 @@ function mergeSettings (source, targetSchema) {
  * @param {Object} targetSchema Target schema metadata
  * @returns {Object} Merged metadata object
  */
-function mergeMeta (source, targetSchema) {
+function mergeMeta(source, targetSchema) {
   return defaultsDeep(source, targetSchema);
 }
 
@@ -37,7 +32,7 @@ function mergeMeta (source, targetSchema) {
  * @param {Array} targetSchema Target schema array
  * @returns {Array} Flattened and compacted unique array
  */
-function mergeUniqueArrays (source, targetSchema) {
+function mergeUniqueArrays(source, targetSchema) {
   return compact(flatten([targetSchema, source]));
 }
 
@@ -47,8 +42,8 @@ function mergeUniqueArrays (source, targetSchema) {
  * @param {Object} targetSchema Target schema actions
  * @returns {Object} Merged actions object with wrapped handlers
  */
-function mergeActions (source, targetSchema) {
-  Object.keys(source).map(key => {
+function mergeActions(source, targetSchema) {
+  Object.keys(source).map((key) => {
     // prevent action merge
     if (source[key] === false && targetSchema[key]) {
       delete targetSchema[key];
@@ -70,12 +65,14 @@ function mergeActions (source, targetSchema) {
  * @param {Object} targetSchema Target schema events
  * @returns {Object} Merged events object with composed handlers
  */
-function mergeEvents (source, targetSchema) {
-  Object.keys(source).map(key => {
+function mergeEvents(source, targetSchema) {
+  Object.keys(source).map((key) => {
     const sourceEvent = wrapHandler(source[key]);
     const targetEvent = wrapHandler(targetSchema[key]);
 
-    let handler = compact(flatten([sourceEvent ? sourceEvent.handler : null, targetEvent ? targetEvent.handler : null]));
+    let handler = compact(
+      flatten([sourceEvent ? sourceEvent.handler : null, targetEvent ? targetEvent.handler : null]),
+    );
     if (handler.length === 1) {
       handler = handler[0];
     }
@@ -92,7 +89,7 @@ function mergeEvents (source, targetSchema) {
  * @param {Object} targetSchema Target schema methods
  * @returns {Object} Merged methods object
  */
-function mergeMethods (source, targetSchema) {
+function mergeMethods(source, targetSchema) {
   return Object.assign(source, targetSchema);
 }
 
@@ -102,13 +99,13 @@ function mergeMethods (source, targetSchema) {
  * @param {Object} target Target action hooks object
  * @returns {Object} Merged action hooks with combined arrays
  */
-function mergeActionHooks (source, target) {
-  Object.keys(source).map(hookName => {
+function mergeActionHooks(source, target) {
+  Object.keys(source).map((hookName) => {
     if (!target[hookName]) {
       target[hookName] = {};
     }
 
-    Object.keys(source[hookName]).map(actionName => {
+    Object.keys(source[hookName]).map((actionName) => {
       const sourceHookAction = wrapInArray(source[hookName][actionName]);
       const targetHookAction = wrapInArray(target[hookName][actionName]);
       target[hookName][actionName] = compact(flatten([sourceHookAction, targetHookAction]));
@@ -124,7 +121,7 @@ function mergeActionHooks (source, target) {
  * @param {Array|Function} targetSchema Target schema lifecycle hooks
  * @returns {Array} Flattened and compacted lifecycle hooks array
  */
-function mergeLifecicleHooks (source, targetSchema) {
+function mergeLifecicleHooks(source, targetSchema) {
   return compact(flatten([targetSchema, source]));
 }
 
@@ -144,31 +141,31 @@ function mergeLifecicleHooks (source, targetSchema) {
  * @param {ServiceSchema} targetSchema Target service schema to merge into
  * @returns {ServiceSchema} Merged service schema with combined properties
  */
-function mergeSchemas (mixin, targetSchema) {
+function mergeSchemas(mixin, targetSchema) {
   const mixinSchema = clone(mixin);
   const resultSchema = clone(targetSchema);
 
-  Object.keys(resultSchema).forEach(key => {
-    if (['name', 'version'].includes(key)) {
+  Object.keys(resultSchema).forEach((key) => {
+    if (["name", "version"].includes(key)) {
       // override value
       mixinSchema[key] = resultSchema[key];
-    } else if (key === 'dependencies') {
+    } else if (key === "dependencies") {
       mixinSchema[key] = mergeUniqueArrays(resultSchema[key], mixinSchema[key]);
-    } else if (key === 'mixins') {
+    } else if (key === "mixins") {
       mixinSchema[key] = mergeUniqueArrays(resultSchema[key], mixinSchema[key] || {});
-    } else if (key === 'settings') {
+    } else if (key === "settings") {
       mixinSchema[key] = mergeSettings(resultSchema[key], mixinSchema[key]);
-    } else if (key === 'meta') {
+    } else if (key === "meta") {
       mixinSchema[key] = mergeMeta(resultSchema[key], mixinSchema[key]);
-    } else if (key === 'actions') {
+    } else if (key === "actions") {
       mixinSchema[key] = mergeActions(resultSchema[key], mixinSchema[key] || {});
-    } else if (key === 'hooks') {
+    } else if (key === "hooks") {
       mixinSchema[key] = mergeActionHooks(resultSchema[key], mixinSchema[key] || {});
-    } else if (key === 'events') {
+    } else if (key === "events") {
       mixinSchema[key] = mergeEvents(resultSchema[key], mixinSchema[key] || {});
-    } else if (key === 'methods') {
+    } else if (key === "methods") {
       mixinSchema[key] = mergeMethods(resultSchema[key], mixinSchema[key] || {});
-    } else if (['afterSchemasMerged', 'created', 'started', 'stopped'].includes(key)) {
+    } else if (["afterSchemasMerged", "created", "started", "stopped"].includes(key)) {
       mixinSchema[key] = mergeLifecicleHooks(resultSchema[key], mixinSchema[key]);
     } else {
       // default action for properties

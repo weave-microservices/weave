@@ -1,4 +1,4 @@
-import { createBaseMetricType } from './base.mts';
+import { createBaseMetricType } from "./base.mts";
 
 export const createGauge = (registry, obj) => {
   const base = createBaseMetricType(registry, obj);
@@ -16,13 +16,12 @@ export const createGauge = (registry, obj) => {
   };
 
   base.generateSnapshot = () => {
-    return Array.from(base.values)
-      .map(([labelString, item]) => {
-        return {
-          value: item.value,
-          labels: item.labels
-        };
-      });
+    return Array.from(base.values).map(([labelString, item]) => {
+      return {
+        value: item.value,
+        labels: item.labels,
+      };
+    });
   };
 
   base.set = (value, labels, timestamp = Date.now()) => {
@@ -41,7 +40,7 @@ export const createGauge = (registry, obj) => {
       item = {
         labels,
         value,
-        timestamp
+        timestamp,
       };
 
       base.values.set(labelString, item);

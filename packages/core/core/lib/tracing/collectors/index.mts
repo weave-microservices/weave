@@ -12,11 +12,11 @@
  * @namespace TracingCollectors
  */
 
-import { isFunction } from '@weave-js/utils';
+import { isFunction } from "@weave-js/utils";
 
 const collectors = {
-  Event: await import('./event.mts'),
-  BaseCollector: await import('./base.mts')
+  Event: await import("./event.mts"),
+  BaseCollector: await import("./base.mts"),
 };
 
 /**
@@ -25,7 +25,9 @@ const collectors = {
  * @returns {import('../../../types').TracingCollector} The collector constructor or undefined if not found
  */
 const getByName = (name) => {
-  const n = Object.keys(collectors).find(collectorName => collectorName.toLowerCase() === name.toLowerCase());
+  const n = Object.keys(collectors).find(
+    (collectorName) => collectorName.toLowerCase() === name.toLowerCase(),
+  );
   return collectors[n];
 };
 
@@ -45,7 +47,7 @@ const getByName = (name) => {
  */
 export const resolveCollector = (runtime, collector) => {
   let CollectorClass;
-  if (typeof collector === 'string') {
+  if (typeof collector === "string") {
     CollectorClass = getByName(collector);
   }
 
@@ -53,12 +55,12 @@ export const resolveCollector = (runtime, collector) => {
     return collector(runtime);
   }
 
-  if (typeof collector === 'object') {
+  if (typeof collector === "object") {
     return collector;
   }
 
   if (!CollectorClass) {
-    runtime.handleError(new Error('Tracer not found'));
+    runtime.handleError(new Error("Tracer not found"));
   }
 
   return new CollectorClass(collector);

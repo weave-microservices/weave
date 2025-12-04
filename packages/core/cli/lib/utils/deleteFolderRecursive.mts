@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
 export const deleteFolderRecursive = (dirPath: string): void => {
   if (fs.existsSync(dirPath)) {

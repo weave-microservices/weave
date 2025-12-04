@@ -1,6 +1,6 @@
-const { testFunc } = require('../testlib');
+const { testFunc } = require("../testlib");
 
-exports.name = 'test-service';
+exports.name = "test-service";
 
 exports.started = function () {
   this.timer = setInterval(() => {
@@ -9,11 +9,10 @@ exports.started = function () {
 };
 
 exports.actions = {
-  hello (context) {
+  hello(context) {
     console.log(context.data);
     // Test that requestId appears in service logs
-    this.log.info('Testing requestId in logs', { data: context.data });
+    this.log.info("Testing requestId in logs", { data: context.data });
     return context.data;
-  }
+  },
 };
-

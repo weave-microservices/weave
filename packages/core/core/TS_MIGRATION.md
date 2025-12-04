@@ -20,6 +20,7 @@ Migration des Weave Core-Moduls von JavaScript zu TypeScript mit vollständiger 
 ## 1. Dateistruktur-Änderungen
 
 ### Umbenennungen
+
 - **188 Dateien** von `.js` → `.mts` (TypeScript Module)
 - Betroffen:
   - `lib/**/*.js` → `lib/**/*.mts` (alle Core-Module)
@@ -153,6 +154,7 @@ core/
 ```
 
 ### Entfernte Dependencies
+
 - Jest (ersetzt durch Node.js Test Runner)
 - Jest-spezifische Konfigurationen
 
@@ -181,15 +183,8 @@ core/
     "noEmit": true,
     "types": ["node"]
   },
-  "include": [
-    "lib/**/*.mts",
-    "test/**/*.mts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "coverage"
-  ]
+  "include": ["lib/**/*.mts", "test/**/*.mts"],
+  "exclude": ["node_modules", "dist", "coverage"]
 }
 ```
 
@@ -222,16 +217,18 @@ node --experimental-strip-types convert-to-esm.mts
 ### 5.1 Haupt-Export (lib/index.mts)
 
 **Alt (CommonJS):**
+
 ```javascript
-const { createBroker } = require('./broker');
+const { createBroker } = require("./broker");
 exports.createBroker = createBroker;
-exports.Errors = require('./errors');
+exports.Errors = require("./errors");
 ```
 
 **Neu (ES Modules):**
+
 ```typescript
-import { createBroker } from './broker/index.mts';
-import * as Errors from './errors.mts';
+import { createBroker } from "./broker/index.mts";
+import * as Errors from "./errors.mts";
 
 export { createBroker, Errors };
 ```
@@ -239,16 +236,18 @@ export { createBroker, Errors };
 ### 5.2 Broker-Instanz (lib/broker/index.mts)
 
 **Alt:**
+
 ```javascript
-const { isFunction } = require('@weave-js/utils');
+const { isFunction } = require("@weave-js/utils");
 exports.createBrokerInstance = (runtime) => {
   // ...
 };
 ```
 
 **Neu:**
+
 ```typescript
-import { isFunction } from '@weave-js/utils';
+import { isFunction } from "@weave-js/utils";
 
 export const createBrokerInstance = (runtime: any) => {
   // ...
@@ -258,6 +257,7 @@ export const createBrokerInstance = (runtime: any) => {
 ### 5.3 Runtime-Initialisierung
 
 Alle Runtime-Init-Module wurden konvertiert:
+
 - `initActionInvoker.mts`
 - `initCache.mts`
 - `initContextFactory.mts`
@@ -275,6 +275,7 @@ Alle Runtime-Init-Module wurden konvertiert:
 ### 5.4 Service Loading
 
 **Alt:**
+
 ```javascript
 broker.loadService = function (filename) {
   const schema = require(filePath);
@@ -283,6 +284,7 @@ broker.loadService = function (filename) {
 ```
 
 **Neu:**
+
 ```typescript
 broker.loadService = async function (filename: string) {
   const module = await import(filePath);
@@ -353,27 +355,27 @@ export interface Broker {
   validator: Validator;
   contextFactory: ContextFactory;
   log: Logger;
-  
+
   createLogger: (name: string) => Logger;
   getUUID: () => string;
   getNextActionEndpoint: (actionName: string, options?: any) => ActionEndpoint;
-  
+
   emit: (event: string, payload: any, options?: any) => Promise<void>;
   broadcast: (event: string, payload: any, options?: any) => Promise<void>;
   broadcastLocal: (event: string, payload: any) => void;
-  
+
   call: (actionName: string, params?: any, options?: any) => Promise<any>;
   multiCall: (actions: any[]) => Promise<any[]>;
-  
+
   waitForServices: (services: string[], timeout?: number) => Promise<void>;
   createService: (schema: ServiceSchema) => Service;
   loadService: (filename: string) => Promise<Service>;
   loadServices: (folder?: string, fileMask?: string) => Promise<number>;
-  
+
   start: () => Promise<void>;
   stop: () => Promise<void>;
   ping: (nodeId?: string, timeout?: number) => Promise<any>;
-  
+
   handleError: (error: Error) => void;
   fatalError: (message?: string, error?: Error, killProcess?: boolean) => void;
 }
@@ -389,15 +391,15 @@ export interface ServiceSchema {
   metadata?: any;
   mixins?: ServiceSchema[];
   dependencies?: string[];
-  
+
   actions?: Record<string, ActionSchema>;
   events?: Record<string, EventSchema>;
   methods?: Record<string, Function>;
-  
+
   created?: () => void;
   started?: () => Promise<void>;
   stopped?: () => Promise<void>;
-  
+
   [key: string]: any;
 }
 ```
@@ -412,11 +414,11 @@ Die API bleibt vollständig kompatibel:
 
 ```typescript
 // Funktioniert weiterhin
-import { createBroker } from '@weave-js/core';
+import { createBroker } from "@weave-js/core";
 
 const broker = createBroker({
-  nodeId: 'my-service',
-  logger: { level: 'info' }
+  nodeId: "my-service",
+  logger: { level: "info" },
 });
 
 await broker.start();
@@ -520,75 +522,70 @@ node --experimental-strip-types your-app.mts
 ### Basic Usage
 
 ```typescript
-import { createBroker } from '@weave-js/core';
+import { createBroker } from "@weave-js/core";
 
 const broker = createBroker({
-  nodeId: 'my-service',
+  nodeId: "my-service",
   logger: {
-    level: 'info',
-    enabled: true
+    level: "info",
+    enabled: true,
   },
   transport: {
-    adapter: 'TCP',
+    adapter: "TCP",
     options: {
-      port: 3000
-    }
-  }
+      port: 3000,
+    },
+  },
 });
 
 // Service erstellen
 broker.createService({
-  name: 'math',
+  name: "math",
   actions: {
     add: {
       params: {
-        a: 'number',
-        b: 'number'
+        a: "number",
+        b: "number",
       },
       handler(ctx) {
         return ctx.params.a + ctx.params.b;
-      }
-    }
-  }
+      },
+    },
+  },
 });
 
 await broker.start();
 
 // Action aufrufen
-const result = await broker.call('math.add', { a: 5, b: 3 });
+const result = await broker.call("math.add", { a: 5, b: 3 });
 console.log(result); // 8
 ```
 
 ### Mit TypeScript
 
 ```typescript
-import { 
-  createBroker, 
-  type BrokerOptions, 
-  type ServiceSchema,
-  type Broker
-} from '@weave-js/core';
+import { createBroker, type BrokerOptions, type ServiceSchema, type Broker } from "@weave-js/core";
 
 const options: BrokerOptions = {
-  nodeId: 'typed-service',
-  logger: { level: 'info' }
+  nodeId: "typed-service",
+  logger: { level: "info" },
 };
 
 const broker: Broker = createBroker(options);
 
 const mathService: ServiceSchema = {
-  name: 'math',
+  name: "math",
   actions: {
     add: {
       params: {
-        a: 'number',
-        b: 'number'
+        a: "number",
+        b: "number",
       },
       handler(ctx) {
         return ctx.params.a + ctx.params.b;
-      }
-    }
-  }
+      },
+    },
+  },
 };
 
 broker.createService(mathService);
@@ -630,7 +627,7 @@ await broker.start();
 
 - **Dateien konvertiert:** 188
 - **Zeilen Code:** ~15,000+
-- **Module:** 
+- **Module:**
   - Broker: 4 Dateien
   - Runtime: 13 Dateien
   - Registry: 15 Dateien
@@ -661,10 +658,10 @@ Service-Loading ist jetzt async:
 
 ```typescript
 // Alt
-const service = broker.loadService('./service.js');
+const service = broker.loadService("./service.js");
 
 // Neu
-const service = await broker.loadService('./service.mts');
+const service = await broker.loadService("./service.mts");
 ```
 
 ### 2. Glob Patterns
@@ -673,15 +670,16 @@ Glob-Patterns müssen für `.mts` Dateien angepasst werden:
 
 ```typescript
 // Alt
-broker.loadServices('./services', '*.service.js');
+broker.loadServices("./services", "*.service.js");
 
 // Neu
-broker.loadServices('./services', '*.service.mts');
+broker.loadServices("./services", "*.service.mts");
 ```
 
 ### 3. Type Definitions
 
 Einige externe Pakete haben keine TypeScript-Deklarationen:
+
 - `eventemitter2` - Funktioniert, aber mit `any` Typen
 - `glob` - Hat @types/glob verfügbar
 

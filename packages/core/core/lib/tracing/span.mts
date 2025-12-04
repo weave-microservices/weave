@@ -1,26 +1,26 @@
-import hrTime from './time.mts';
+import hrTime from "./time.mts";
 
-function defineReadonlyProperty (instance, propName, value, readOnly = false) {
+function defineReadonlyProperty(instance, propName, value, readOnly = false) {
   Object.defineProperty(instance, propName, {
     value,
     writable: !!readOnly,
-    enumerable: false
+    enumerable: false,
   });
 }
 
 // transform this factory function into a class
 export const Span = class Span {
-  constructor (tracer, name, options) {
-    defineReadonlyProperty(this, 'tracer', tracer, true);
+  constructor(tracer, name, options) {
+    defineReadonlyProperty(this, "tracer", tracer, true);
     // defineReadonlyProperty(this, 'logger', this.tracer.logger, true);
-    defineReadonlyProperty(this, 'options', options || {});
-    defineReadonlyProperty(this, 'meta', {});
+    defineReadonlyProperty(this, "options", options || {});
+    defineReadonlyProperty(this, "meta", {});
 
     this.name = name;
     this.id = options.id || tracer.runtime.generateUUID();
     this.traceId = options.traceId || this.id;
     this.parentId = options.parentId;
-    this.type = options.type || 'custom';
+    this.type = options.type || "custom";
     this.sampled = options.sampled || tracer.shouldSample();
     this.tags = {};
 
@@ -28,7 +28,7 @@ export const Span = class Span {
       this.service = {
         name: options.service.name,
         version: options.service.version,
-        fullyQualifiedName: options.service.fullyQualifiedName
+        fullyQualifiedName: options.service.fullyQualifiedName,
       };
     }
 
@@ -41,47 +41,47 @@ export const Span = class Span {
     }
   }
 
-  addTags (tags) {
+  addTags(tags) {
     Object.assign(this.tags, tags);
     return this;
   }
 
-  start (time?: number) {
+  start(time?: number) {
     this.startTime = time || hrTime();
     if (this.sampled) {
-      this.tracer.invokeCollectorMethod('startedSpan', [this]);
+      this.tracer.invokeCollectorMethod("startedSpan", [this]);
     }
     return this;
   }
 
-  startChildSpan (name, options) {
+  startChildSpan(name, options) {
     const parentOptions = {
       parentId: this.id,
       traceId: this.traceId,
       sampled: this.sampled,
-      service: this.service
+      service: this.service,
     };
     return this.tracer.startSpan(name, Object.assign(parentOptions, options));
   }
 
-  finish (time) {
+  finish(time) {
     this.finishTime = time || hrTime();
     this.duration = this.finishTime - this.startTime;
 
     this.tracer.log.debug(`Span "${this.id}" finished`);
 
     if (this.sampled) {
-      this.tracer.invokeCollectorMethod('finishedSpan', [this]);
+      this.tracer.invokeCollectorMethod("finishedSpan", [this]);
     }
 
     return this;
   }
 
-  isActive () {
+  isActive() {
     return this.finishTime !== null;
   }
 
-  setError (error) {
+  setError(error) {
     this.error = error;
     return this;
   }

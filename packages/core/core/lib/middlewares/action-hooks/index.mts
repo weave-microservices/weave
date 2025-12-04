@@ -4,36 +4,38 @@
  * Copyright 2021 Fachwerk
  */
 
-function callHook (hook, service, context, result) {
-  if (typeof hook === 'function') {
+function callHook(hook, service, context, result) {
+  if (typeof hook === "function") {
     return hook.call(service, context, result);
   } else if (Array.isArray(hook)) {
     return hook.reduce(
-      (promise, fn) => promise.then(res => fn.call(service, context, res)),
-      Promise.resolve(result));
+      (promise, fn) => promise.then((res) => fn.call(service, context, res)),
+      Promise.resolve(result),
+    );
   }
 }
 
-function callErrorHook (hook, service, context, error) {
-  if (typeof hook === 'function') {
+function callErrorHook(hook, service, context, error) {
+  if (typeof hook === "function") {
     return hook.call(service, context, error);
   } else if (Array.isArray(hook)) {
     return hook.reduce(
-      (promise, fn) => promise.catch(err => fn.call(service, context, err)),
-      Promise.reject(error));
+      (promise, fn) => promise.catch((err) => fn.call(service, context, err)),
+      Promise.reject(error),
+    );
   }
 }
 
-function sanitizeHooks (hooks, service) {
-  if (typeof hooks === 'string') {
-    hooks = hooks.split(' ');
+function sanitizeHooks(hooks, service) {
+  if (typeof hooks === "string") {
+    hooks = hooks.split(" ");
   }
 
   if (Array.isArray(hooks)) {
     return hooks.map((hook) => {
       // resolve the method name
-      if (typeof hook === 'string') {
-        return (service && typeof service[hook] === 'function') ? service[hook] : null;
+      if (typeof hook === "string") {
+        return service && typeof service[hook] === "function" ? service[hook] : null;
       }
       return hook;
     });
@@ -43,23 +45,34 @@ function sanitizeHooks (hooks, service) {
 
 const makeActionHookMiddleware = function (handler, action) {
   const name = action.shortName;
-  const hooks = (action.service && action.service.schema) ? action.service.schema.hooks : null;
+  const hooks = action.service && action.service.schema ? action.service.schema.hooks : null;
 
   if (hooks || action.hooks) {
     // Wildcard hooks
-    const beforeWildcardHook = hooks && hooks.before ? sanitizeHooks(hooks.before['*'], action.service) : null;
-    const afterWildcardHook = hooks && hooks.after ? sanitizeHooks(hooks.after['*'], action.service) : null;
-    const errorWildcardHook = hooks && hooks.error ? sanitizeHooks(hooks.error['*'], action.service) : null;
+    const beforeWildcardHook =
+      hooks && hooks.before ? sanitizeHooks(hooks.before["*"], action.service) : null;
+    const afterWildcardHook =
+      hooks && hooks.after ? sanitizeHooks(hooks.after["*"], action.service) : null;
+    const errorWildcardHook =
+      hooks && hooks.error ? sanitizeHooks(hooks.error["*"], action.service) : null;
 
     // Action name-related hooks
-    const beforeHook = hooks && hooks.before ? sanitizeHooks(hooks.before[name], action.service) : null;
-    const afterHook = hooks && hooks.after ? sanitizeHooks(hooks.after[name], action.service) : null;
-    const errorHook = hooks && hooks.error ? sanitizeHooks(hooks.error[name], action.service) : null;
+    const beforeHook =
+      hooks && hooks.before ? sanitizeHooks(hooks.before[name], action.service) : null;
+    const afterHook =
+      hooks && hooks.after ? sanitizeHooks(hooks.after[name], action.service) : null;
+    const errorHook =
+      hooks && hooks.error ? sanitizeHooks(hooks.error[name], action.service) : null;
 
     // Hooks in action definition
-    const actionBeforeHook = action.hooks && action.hooks.before ? sanitizeHooks(action.hooks.before, action.service) : null;
-    const actionAfterHook = action.hooks && action.hooks.after ? sanitizeHooks(action.hooks.after, action.service) : null;
-    const actionErrorHook = action.hooks && action.hooks.error ? sanitizeHooks(action.hooks.error, action.service) : null;
+    const actionBeforeHook =
+      action.hooks && action.hooks.before
+        ? sanitizeHooks(action.hooks.before, action.service)
+        : null;
+    const actionAfterHook =
+      action.hooks && action.hooks.after ? sanitizeHooks(action.hooks.after, action.service) : null;
+    const actionErrorHook =
+      action.hooks && action.hooks.error ? sanitizeHooks(action.hooks.error, action.service) : null;
 
     if (
       beforeWildcardHook ||
@@ -72,7 +85,7 @@ const makeActionHookMiddleware = function (handler, action) {
       actionAfterHook ||
       actionErrorHook
     ) {
-      return function actionHookMiddleware (context, serviceInjections) {
+      return function actionHookMiddleware(context, serviceInjections) {
         let promise = Promise.resolve();
 
         // before all hook
@@ -95,33 +108,43 @@ const makeActionHookMiddleware = function (handler, action) {
 
         // After hook in action definition
         if (actionAfterHook) {
-          promise = promise.then(result => callHook(actionAfterHook, action.service, context, result));
+          promise = promise.then((result) =>
+            callHook(actionAfterHook, action.service, context, result),
+          );
         }
 
         // After hook
         if (afterHook) {
-          promise = promise.then(result => callHook(afterHook, action.service, context, result));
+          promise = promise.then((result) => callHook(afterHook, action.service, context, result));
         }
 
         // After wildcard hook
         if (afterWildcardHook) {
-          promise = promise.then(result => callHook(afterWildcardHook, action.service, context, result));
+          promise = promise.then((result) =>
+            callHook(afterWildcardHook, action.service, context, result),
+          );
         }
 
         // Error hooks
         // Error hook in action definition
         if (actionErrorHook) {
-          promise = promise.catch(error => callErrorHook(actionErrorHook, action.service, context, error));
+          promise = promise.catch((error) =>
+            callErrorHook(actionErrorHook, action.service, context, error),
+          );
         }
 
         // Error hook
         if (errorHook) {
-          promise = promise.catch(error => callErrorHook(errorHook, action.service, context, error));
+          promise = promise.catch((error) =>
+            callErrorHook(errorHook, action.service, context, error),
+          );
         }
 
         // Error wildcard hook
         if (errorWildcardHook) {
-          promise = promise.catch(error => callErrorHook(errorWildcardHook, action.service, context, error));
+          promise = promise.catch((error) =>
+            callErrorHook(errorWildcardHook, action.service, context, error),
+          );
         }
 
         return promise;
@@ -133,6 +156,6 @@ const makeActionHookMiddleware = function (handler, action) {
 
 export default () => {
   return {
-    localAction: makeActionHookMiddleware
+    localAction: makeActionHookMiddleware,
   };
 };

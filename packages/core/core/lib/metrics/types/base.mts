@@ -1,34 +1,37 @@
 export const createBaseMetricType = (metricRegistry, obj) => {
-  const base = Object.assign({}, {
-    name: obj.name,
-    description: obj.description,
-    values: new Map(),
-    labels: obj.labels || [],
-    type: obj.type,
-    unit: obj.unit
-  });
+  const base = Object.assign(
+    {},
+    {
+      name: obj.name,
+      description: obj.description,
+      values: new Map(),
+      labels: obj.labels || [],
+      type: obj.type,
+      unit: obj.unit,
+    },
+  );
 
   base.stringifyLabels = (labels) => {
-    if (base.labels.length === 0 || labels === null || typeof labels !== 'object') {
-      return '';
+    if (base.labels.length === 0 || labels === null || typeof labels !== "object") {
+      return "";
     }
 
     const parts = [];
 
-    base.labels.forEach(labelName => {
+    base.labels.forEach((labelName) => {
       const value = labels[labelName];
-      if (typeof value === 'number') {
+      if (typeof value === "number") {
         parts.push(value);
-      } else if (typeof value === 'string') {
+      } else if (typeof value === "string") {
         parts.push(value);
-      } else if (typeof value === 'boolean') {
-        parts.push('' + value);
+      } else if (typeof value === "boolean") {
+        parts.push("" + value);
       } else {
-        parts.push('');
+        parts.push("");
       }
     });
 
-    return parts.join('|');
+    return parts.join("|");
   };
 
   base.get = (labels) => {
@@ -46,7 +49,7 @@ export const createBaseMetricType = (metricRegistry, obj) => {
       name: base.name,
       description: base.description,
       value: base.snapshot(),
-      unit: base.unit
+      unit: base.unit,
     };
   };
 

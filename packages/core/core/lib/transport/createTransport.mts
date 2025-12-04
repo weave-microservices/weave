@@ -1,10 +1,10 @@
-import { WeaveError, WeaveQueueSizeExceededError } from '../errors.mts';
-import { createMessage } from './createMessage.mts';
-import * as MessageTypes from './messageTypes.mts';
-import * as utils from '@weave-js/utils';
-import createMessageHandler from './messageHandlers.mts';
-import { errorPayloadFactory } from './errorPayloadFactory.mts';
-import type { Context, Runtime, TransportMessage  } from '../../types/index.js';
+import { WeaveError, WeaveQueueSizeExceededError } from "../errors.mts";
+import { createMessage } from "./createMessage.mts";
+import * as MessageTypes from "./messageTypes.mts";
+import * as utils from "@weave-js/utils";
+import createMessageHandler from "./messageHandlers.mts";
+import { errorPayloadFactory } from "./errorPayloadFactory.mts";
+import type { Context, Runtime, TransportMessage } from "../../types/index.js";
 
 /**
  * Creates a transport layer for network communication between Weave nodes
@@ -41,10 +41,10 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
     requestStreams: new Map(),
     responseStreams: new Map(),
     outboundResponseStreams: new Map(),
-    outboundRequestStreams: new Map()
+    outboundRequestStreams: new Map(),
   };
 
-  transport.log = createLogger('TRANSPORT');
+  transport.log = createLogger("TRANSPORT");
   transport.reconnectInProgress = false;
   transport.isConnected = false;
   transport.isDisconnecting = false;
@@ -54,19 +54,19 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
   transport.adapterName = adapter.name;
   transport.statistics = {
     received: {
-      packages: 0
+      packages: 0,
     },
     sent: {
-      packages: 0
-    }
+      packages: 0,
+    },
   };
 
   const getErrorPayload = errorPayloadFactory(runtime);
 
   transport.connect = () => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       transport.resolveConnect = resolve;
-      transport.log.info('Connecting to transport adapter...');
+      transport.log.info("Connecting to transport adapter...");
 
       const doConnect = (isTryReconnect: boolean) => {
         const errorHandler = (error: Error) => {
@@ -74,21 +74,19 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
             return;
           }
 
-          transport.log.warn('Connection failed');
+          transport.log.warn("Connection failed");
           transport.log.debug(error);
 
           transport.reconnectInProgress = true;
 
           if (!error.skipRetry) {
             setTimeout(() => {
-              transport.log.info('Reconnecting');
+              transport.log.info("Reconnecting");
               doConnect(true);
             }, 5 * 1000);
           }
         };
-        return adapter
-          .connect(isTryReconnect, errorHandler)
-          .catch(errorHandler);
+        return adapter.connect(isTryReconnect, errorHandler).catch(errorHandler);
       };
 
       doConnect(false);
@@ -100,12 +98,13 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
     transport.isConnected = false;
     transport.isReady = false;
 
-    runtime.eventBus.broadcastLocal('$transporter.disconnected', { isGraceful: true });
+    runtime.eventBus.broadcastLocal("$transporter.disconnected", { isGraceful: true });
 
     stopTimers();
 
     const message = createMessage(MessageTypes.MESSAGE_DISCONNECT);
-    return transport.send(message)
+    return transport
+      .send(message)
       .then(() => {
         adapter.close();
       })
@@ -125,7 +124,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
    * Send node information.
    * @param {*} sender sender node ID.
    * @returns {Promise} Promise
-  */
+   */
   transport.sendNodeInfo = async (sender: string) => {
     if (!transport.isConnected || !transport.isReady) {
       return Promise.resolve();
@@ -134,32 +133,36 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
     const info = runtime.registry.getLocalNodeInfo();
     const message = createMessage(MessageTypes.MESSAGE_INFO, sender, {
       ...info,
-      instanceId: runtime.state.instanceId
+      instanceId: runtime.state.instanceId,
     });
 
     return transport.send(message);
   };
 
   /**
-  * Send a message
-  * @param {TransportMessage} message Message to send
-  * @returns {Promise} Promise
-  */
+   * Send a message
+   * @param {TransportMessage} message Message to send
+   * @returns {Promise} Promise
+   */
   transport.send = async (message: TransportMessage) => {
     transport.statistics.sent.packages = transport.statistics.sent.packages + 1;
-    transport.log.verbose(`Send ${message.type.toUpperCase()} packet to ${message.targetNodeId || 'all nodes'}`);
+    transport.log.verbose(
+      `Send ${message.type.toUpperCase()} packet to ${message.targetNodeId || "all nodes"}`,
+    );
     return adapter.preSend(message);
   };
 
   transport.sendPing = (nodeId: string) => {
-    const pingMessage = createMessage(MessageTypes.MESSAGE_PING, nodeId, { dispatchTime: Date.now() });
+    const pingMessage = createMessage(MessageTypes.MESSAGE_PING, nodeId, {
+      dispatchTime: Date.now(),
+    });
     return transport.send(pingMessage);
   };
 
   /**
    * Send discovery message to all nodes.
    * @returns {void}
-  */
+   */
   transport.discoverNodes = () => {
     const discoveryMessage = createMessage(MessageTypes.MESSAGE_DISCOVERY);
     transport.send(discoveryMessage);
@@ -169,7 +172,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
    * Send discovery message to all nodes.
    * @param{string} target - Target node ID
    * @returns {Promise<void>} - Promise
-  */
+   */
   transport.discoverNode = async (target) => {
     const discoveryMessage = createMessage(MessageTypes.MESSAGE_DISCOVERY, target);
     return transport.send(discoveryMessage);
@@ -181,7 +184,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
    * @returns {Promise<void>} - Promise
    */
   transport.sendEvent = async (context: Context) => {
-    const isBroadcast = context.eventType === 'broadcast';
+    const isBroadcast = context.eventType === "broadcast";
 
     const payload = {
       data: context.data,
@@ -194,21 +197,30 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
       parentId: context.parentId,
       callerNodeId: context.callerNodeId,
       tracing: context.tracing,
-      isBroadcast
+      isBroadcast,
     };
 
-    const message = createMessage(MessageTypes.MESSAGE_EVENT, context.endpoint ? context.nodeId : null, payload);
+    const message = createMessage(
+      MessageTypes.MESSAGE_EVENT,
+      context.endpoint ? context.nodeId : null,
+      payload,
+    );
     return transport.send(message);
   };
 
-  transport.sendBroadcastEvent = (nodeId: string, eventName: string, data: any, groups: string[]) => {
+  transport.sendBroadcastEvent = (
+    nodeId: string,
+    eventName: string,
+    data: any,
+    groups: string[],
+  ) => {
     transport.log.verbose(`Send ${eventName} to ${nodeId}`);
 
     const payload = {
       data,
       eventName,
       groups,
-      isBroadcast: true
+      isBroadcast: true,
     };
 
     const message = createMessage(MessageTypes.MESSAGE_EVENT, nodeId, payload);
@@ -237,16 +249,19 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
   };
 
   transport.sendRequest = (context: Context) => {
-    const maxQueueSizeExceeded = runtime.options.transport?.maxQueueSize &&
+    const maxQueueSizeExceeded =
+      runtime.options.transport?.maxQueueSize &&
       runtime.options.transport?.maxQueueSize < pending.requests.size;
 
     if (maxQueueSizeExceeded) {
-      return Promise.reject(new WeaveQueueSizeExceededError({
-        action: context.action.name,
-        limit: runtime.options.transport?.maxQueueSize,
-        nodeId: context.nodeId,
-        size: pending.requests.size
-      }));
+      return Promise.reject(
+        new WeaveQueueSizeExceededError({
+          action: context.action.name,
+          limit: runtime.options.transport?.maxQueueSize,
+          nodeId: context.nodeId,
+          size: pending.requests.size,
+        }),
+      );
     }
 
     return new Promise((resolve, reject) => {
@@ -258,7 +273,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
         context,
         resolve,
         reject,
-        isStream
+        isStream,
       };
 
       transport.log.debug(`Send request for ${request.action} to node ${request.targetNodeId}.`);
@@ -277,7 +292,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
         parentId: context.parentId,
         callerNodeId: context.callerNodeId,
         tracing: context.tracing,
-        isStream
+        isStream,
       };
 
       // Handle object mode streams
@@ -297,7 +312,8 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
 
       const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload);
 
-      return transport.send(message)
+      return transport
+        .send(message)
         .then(() => {
           // send stream
           if (isStream) {
@@ -308,16 +324,20 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
               payload.meta.$isObjectModeStream = true;
             }
 
-            stream.on('data', data => {
+            stream.on("data", (data) => {
               stream.pause();
               const chunks = [];
 
               // The chunk is larger than maxBufferSize
-              if (data instanceof Buffer && runtime.options.transport.maxChunkSize > 0 && data.length > runtime.options.transport.maxChunkSize) {
+              if (
+                data instanceof Buffer &&
+                runtime.options.transport.maxChunkSize > 0 &&
+                data.length > runtime.options.transport.maxChunkSize
+              ) {
                 const length = data.length;
                 let i = 0;
                 while (i < length) {
-                  chunks.push(data.slice(i, i += runtime.options.transport.maxChunkSize));
+                  chunks.push(data.slice(i, (i += runtime.options.transport.maxChunkSize)));
                 }
               } else {
                 chunks.push(data);
@@ -331,7 +351,11 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
                 payloadCopy.isStream = true;
                 payload.data = null;
 
-                const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy);
+                const message = createMessage(
+                  MessageTypes.MESSAGE_REQUEST,
+                  context.nodeId,
+                  payloadCopy,
+                );
                 transport.send(message);
               }
 
@@ -340,7 +364,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
               return;
             });
 
-            stream.on('end', () => {
+            stream.on("end", () => {
               const payloadCopy = Object.assign({}, payload);
 
               payloadCopy.sequence = ++payload.sequence;
@@ -349,11 +373,15 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
 
               pending.outboundRequestStreams.delete(payload.id);
 
-              const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy);
+              const message = createMessage(
+                MessageTypes.MESSAGE_REQUEST,
+                context.nodeId,
+                payloadCopy,
+              );
               return transport.send(message);
             });
 
-            stream.on('error', (error) => {
+            stream.on("error", (error) => {
               const payloadCopy = Object.assign({}, payload);
               payloadCopy.sequence = ++payload.sequence;
               payloadCopy.chunk = null;
@@ -366,7 +394,11 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
 
               pending.outboundRequestStreams.delete(payload.id);
 
-              const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy);
+              const message = createMessage(
+                MessageTypes.MESSAGE_REQUEST,
+                context.nodeId,
+                payloadCopy,
+              );
               return transport.send(message);
             });
           }
@@ -385,7 +417,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
    * @param {Object} meta - Meta data
    * @param {WeaveError=} error - Error
    * @returns {Promise<void>} - Promise
-  */
+   */
   transport.sendResponse = (target, contextId, data, meta, error) => {
     const isStream = utils.isStream(data);
 
@@ -393,7 +425,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
       id: contextId,
       meta,
       data,
-      success: error == null
+      success: error == null,
     };
 
     if (error) {
@@ -417,17 +449,21 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
       }
 
       stream.pause();
-      transport.log.debug('Send new stream chunk to ', target);
+      transport.log.debug("Send new stream chunk to ", target);
 
-      stream.on('data', data => {
+      stream.on("data", (data) => {
         stream.pause();
         const chunks = [];
 
-        if (data instanceof Buffer && runtime.options.transport.maxChunkSize > 0 && data.length > runtime.options.transport.maxChunkSize) {
+        if (
+          data instanceof Buffer &&
+          runtime.options.transport.maxChunkSize > 0 &&
+          data.length > runtime.options.transport.maxChunkSize
+        ) {
           const length = data.length;
           let i = 0;
           while (i < length) {
-            chunks.push(data.slice(i, i += runtime.options.transport.maxChunkSize));
+            chunks.push(data.slice(i, (i += runtime.options.transport.maxChunkSize)));
           }
         } else {
           chunks.push(data);
@@ -448,7 +484,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
         return;
       });
 
-      stream.on('end', () => {
+      stream.on("end", () => {
         const payloadCopy = Object.assign({}, payload);
 
         payloadCopy.sequence = ++payload.sequence;
@@ -462,7 +498,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
         pending.outboundResponseStreams.delete(payload.id);
       });
 
-      stream.on('error', (error) => {
+      stream.on("error", (error) => {
         const payloadCopy = Object.assign({}, payload);
 
         payloadCopy.sequence = ++payload.sequence;
@@ -483,15 +519,19 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
 
       payload.data = null;
       const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payload);
-      return transport.send(message)
-        .then(() => stream.resume());
+      return transport.send(message).then(() => stream.resume());
     }
 
     const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payload);
     return transport.send(message);
   };
 
-  const onConnect = ({ wasReconnect = false, useHeartbeatTimer = true, useRemoteNodeCheckTimer = true, useOfflineCheckTimer = true }) =>
+  const onConnect = ({
+    wasReconnect = false,
+    useHeartbeatTimer = true,
+    useRemoteNodeCheckTimer = true,
+    useOfflineCheckTimer = true,
+  }) =>
     Promise.resolve()
       .then(() => {
         if (!wasReconnect) {
@@ -503,7 +543,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
       .then(() => {
         transport.isConnected = true;
 
-        runtime.eventBus.broadcastLocal('$transporter.connected', { wasReconnect });
+        runtime.eventBus.broadcastLocal("$transporter.connected", { wasReconnect });
 
         if (transport.resolveConnect) {
           transport.resolveConnect();
@@ -530,7 +570,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
     Promise.resolve()
       .then(() => {
         transport.isConnected = false;
-        runtime.bus.emit('$transporter.disconnected');
+        runtime.bus.emit("$transporter.disconnected");
       })
       .then(() => {
         stopTimers();
@@ -539,20 +579,23 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
 
   let messageHandler = createMessageHandler(runtime, transport);
 
-  messageHandler = middlewareHandler.wrapMethod('transportMessageHandler', messageHandler, transport);
+  messageHandler = middlewareHandler.wrapMethod(
+    "transportMessageHandler",
+    messageHandler,
+    transport,
+  );
 
-  adapter.init(runtime, transport)
-    .then(() => {
-      adapter.bus.on('$adapter.connected', onConnect);
-      adapter.bus.on('$adapter.disconnected', onDisconnect);
-      adapter.bus.on('$adapter.message', messageHandler);
-    });
+  adapter.init(runtime, transport).then(() => {
+    adapter.bus.on("$adapter.connected", onConnect);
+    adapter.bus.on("$adapter.disconnected", onDisconnect);
+    adapter.bus.on("$adapter.message", messageHandler);
+  });
 
-  transport.send = middlewareHandler.wrapMethod('transportSend', transport.send, transport);
+  transport.send = middlewareHandler.wrapMethod("transportSend", transport.send, transport);
 
   return transport;
 
-  function makeSubscriptions () {
+  function makeSubscriptions() {
     return Promise.all([
       adapter.subscribe(MessageTypes.MESSAGE_DISCOVERY),
       adapter.subscribe(MessageTypes.MESSAGE_DISCOVERY, nodeId),
@@ -568,26 +611,35 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
       adapter.subscribe(MessageTypes.MESSAGE_RESPONSE_STREAM_BACKPRESSURE, nodeId),
       adapter.subscribe(MessageTypes.MESSAGE_RESPONSE_STREAM_RESUME, nodeId),
       adapter.subscribe(MessageTypes.MESSAGE_REQUEST_STREAM_BACKPRESSURE, nodeId),
-      adapter.subscribe(MessageTypes.MESSAGE_REQUEST_STREAM_RESUME, nodeId)
+      adapter.subscribe(MessageTypes.MESSAGE_REQUEST_STREAM_RESUME, nodeId),
     ]);
   }
 
-  function startHeartbeatTimer () {
-    heartbeatTimer = setInterval(() => sendHeartbeat(), runtime.options.transport?.heartbeatInterval);
+  function startHeartbeatTimer() {
+    heartbeatTimer = setInterval(
+      () => sendHeartbeat(),
+      runtime.options.transport?.heartbeatInterval,
+    );
     heartbeatTimer.unref();
   }
 
-  function startRemoteNodeCheckTimer () {
-    checkNodesTimer = setInterval(() => checkRemoteNodes(), runtime.options.transport?.heartbeatTimeout);
+  function startRemoteNodeCheckTimer() {
+    checkNodesTimer = setInterval(
+      () => checkRemoteNodes(),
+      runtime.options.transport?.heartbeatTimeout,
+    );
     checkNodesTimer.unref();
   }
 
-  function startOfflineNodeCheckTimer () {
-    checkOfflineNodesTimer = setInterval(() => checkOfflineNodes(), runtime.options.transport?.offlineNodeCheckInterval);
+  function startOfflineNodeCheckTimer() {
+    checkOfflineNodesTimer = setInterval(
+      () => checkOfflineNodes(),
+      runtime.options.transport?.offlineNodeCheckInterval,
+    );
     checkOfflineNodesTimer.unref();
   }
 
-  function startUpdateLocalNodeTimer () {
+  function startUpdateLocalNodeTimer() {
     updateLocalNodeTimer = setInterval(() => {
       const node = runtime.registry.nodeCollection.localNode;
       node.updateLocalInfo(true);
@@ -596,14 +648,14 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
     updateLocalNodeTimer.unref();
   }
 
-  function stopTimers () {
+  function stopTimers() {
     clearInterval(heartbeatTimer);
     clearInterval(checkNodesTimer);
     clearInterval(checkOfflineNodesTimer);
     clearInterval(updateLocalNodeTimer);
   }
 
-  function sendHeartbeat () {
+  function sendHeartbeat() {
     const node = runtime.registry.nodeCollection.localNode;
     node.updateLocalInfo();
 
@@ -612,16 +664,16 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
     const payload = {
       cpu: node.cpu,
       cpuSequence: node.cpuSequence,
-      sequence: node.sequence
+      sequence: node.sequence,
     };
 
     const message = createMessage(MessageTypes.MESSAGE_HEARTBEAT, null, payload);
     transport.send(message);
   }
 
-  function checkRemoteNodes () {
+  function checkRemoteNodes() {
     const now = Date.now();
-    runtime.registry.nodeCollection.list({ withServices: true }).forEach(node => {
+    runtime.registry.nodeCollection.list({ withServices: true }).forEach((node) => {
       if (node.isLocal || !node.isAvailable) {
         return;
       }
@@ -632,16 +684,16 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
     });
   }
 
-  function checkOfflineNodes () {
+  function checkOfflineNodes() {
     const now = Date.now();
     const nodeList = runtime.registry.nodeCollection.list({});
 
-    nodeList.forEach(node => {
+    nodeList.forEach((node) => {
       if (node.isLocal || node.isAvailable) {
         return;
       }
 
-      if ((now - node.offlineTime) > runtime.options.transport?.maxOfflineTime) {
+      if (now - node.offlineTime > runtime.options.transport?.maxOfflineTime) {
         runtime.registry.removeNode(node.id);
       }
     });

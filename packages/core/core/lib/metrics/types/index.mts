@@ -1,11 +1,11 @@
 const types = {
-  Counter: (await import('./counter.mts')).createCounter,
-  Gauge: (await import('./gauge.mts')).createGauge,
-  Info: (await import('./info.mts')).createInfo
+  Counter: (await import("./counter.mts")).createCounter,
+  Gauge: (await import("./gauge.mts")).createGauge,
+  Info: (await import("./info.mts")).createInfo,
 };
 
-const getByName = name => {
-  const n = Object.keys(types).find(i => i.toLocaleLowerCase() === name.toLocaleLowerCase());
+const getByName = (name) => {
+  const n = Object.keys(types).find((i) => i.toLocaleLowerCase() === name.toLocaleLowerCase());
 
   if (n) {
     return types[n];
@@ -13,7 +13,7 @@ const getByName = name => {
 };
 
 export default {
-  resolve (type) {
+  resolve(type) {
     return getByName(type);
-  }
+  },
 };

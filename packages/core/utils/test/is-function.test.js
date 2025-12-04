@@ -1,7 +1,7 @@
-const utils = require('../lib');
+const utils = require("../lib");
 
-describe('IP List function', () => {
-  it('should flatten an array a single level deep (1)', () => {
+describe("IP List function", () => {
+  it("should flatten an array a single level deep (1)", () => {
     const func = function () {
       // function
     };
@@ -10,7 +10,7 @@ describe('IP List function', () => {
     expect(result).toBe(true);
   });
 
-  it('should flatten an array a single level deep (1)', () => {
+  it("should flatten an array a single level deep (1)", () => {
     const func = () => {
       // closure
     };
@@ -19,14 +19,14 @@ describe('IP List function', () => {
     expect(result).toBe(true);
   });
 
-  it('should flatten an array a single level deep (1)', () => {
+  it("should flatten an array a single level deep (1)", () => {
     const func = {};
     const result = utils.isFunction(func);
 
     expect(result).toBe(false);
   });
 
-  it('should work with async functions', () => {
+  it("should work with async functions", () => {
     const func = async () => {};
     const func2 = async function () {};
 

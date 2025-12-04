@@ -2,7 +2,8 @@ export default {
   required: 'The Field "{param}" is required.',
   string: 'The parameter "{param}" have to be a string.',
   stringMinLength: 'The parameter "{param}" must be at least {expected} characters long.',
-  stringMaxLength: 'The parameter "{param}" must be less than or equal to {expected} characters long.',
+  stringMaxLength:
+    'The parameter "{param}" must be less than or equal to {expected} characters long.',
   stringEqual: 'The parameter "{param}" must not be equal to {expected}.',
   stringContain: 'The parameter "{param}" have to contain {expected}.',
   stringBase64: 'The parameter "{param}" must be a base64 string.',
@@ -29,8 +30,9 @@ export default {
   arrayMaxLength: 'The parameter "{param}" may contain a maximum of {expected} elements.',
   arrayLength: 'The parameter "{param}" must contain {expected} elements.',
   arrayContains: 'The parameter "{param}"  must contain the item "{expected}".',
-  enumValues: 'The  value of the parameter "{param}" with the value "{passed}" does not match with any of the allowed values.',
-  objectStrict: 'The object "{param}" contains forbidden keys: "{passed}".'
+  enumValues:
+    'The  value of the parameter "{param}" with the value "{passed}" does not match with any of the allowed values.',
+  objectStrict: 'The object "{param}" contains forbidden keys: "{passed}".',
 } as const;
 
-export type Messages = typeof import('./messages.mts').default;
+export type Messages = typeof import("./messages.mts").default;

@@ -1,4 +1,3 @@
-describe('Zipkin trace exporter', () => {
-  it('should connect', () => {});
+describe("Zipkin trace exporter", () => {
+  it("should connect", () => {});
 });
-

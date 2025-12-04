@@ -22,18 +22,18 @@
  *
  * @namespace Middlewares
  */
-import ActionHooks from './action-hooks/index.mts';
-import Bulkhead from './bulkhead/index.mts';
-import Cache from './cache/index.mts';
-import CircuitBreaker from './circuit-breaker/index.mts';
-import ErrorHandler from './error-handler/index.mts';
-import Metrics from './metrics/index.mts';
-import Tracing from './tracing/index.mts';
-import Retry from './retry/index.mts';
-import Timeout from './timeout/index.mts';
-import ContextTracker from './context-tracker/index.mts';
-import Validator from './validator/index.mts';
-import ContractGenerator from './contract-generator/index.mts';
+import ActionHooks from "./action-hooks/index.mts";
+import Bulkhead from "./bulkhead/index.mts";
+import Cache from "./cache/index.mts";
+import CircuitBreaker from "./circuit-breaker/index.mts";
+import ErrorHandler from "./error-handler/index.mts";
+import Metrics from "./metrics/index.mts";
+import Tracing from "./tracing/index.mts";
+import Retry from "./retry/index.mts";
+import Timeout from "./timeout/index.mts";
+import ContextTracker from "./context-tracker/index.mts";
+import Validator from "./validator/index.mts";
+import ContractGenerator from "./contract-generator/index.mts";
 
 export {
   ActionHooks,

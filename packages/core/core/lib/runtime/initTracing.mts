@@ -1,25 +1,25 @@
-import { resolveCollector } from '../tracing/collectors/index.mts';
-import { Span } from '../tracing/span.mts';
-import type { Runtime, SpanOptions } from '../../types/index.js';
+import { resolveCollector } from "../tracing/collectors/index.mts";
+import { Span } from "../tracing/span.mts";
+import type { Runtime, SpanOptions } from "../../types/index.js";
 
 export const initTracer = (runtime: Runtime) => {
   const options = runtime.options.tracing;
-  const log = runtime.createLogger('TRACER');
+  const log = runtime.createLogger("TRACER");
 
   let collectors: any[] = [];
   let samplingCounter = 0;
 
-  Object.defineProperty(runtime, 'tracer', {
+  Object.defineProperty(runtime, "tracer", {
     value: {
       runtime,
       options,
       log,
-      async stop () {
+      async stop() {
         if (collectors.length > 0) {
-          return await Promise.all(collectors.map(collector => collector.stop()));
+          return await Promise.all(collectors.map((collector) => collector.stop()));
         }
       },
-      shouldSample () {
+      shouldSample() {
         if (options?.samplingRate === 0) {
           return false;
         }
@@ -35,10 +35,10 @@ export const initTracer = (runtime: Runtime) => {
 
         return false;
       },
-      invokeCollectorMethod (method:string, args: unknown) {
-        collectors.map(collector => collector[method].apply(collector, args));
+      invokeCollectorMethod(method: string, args: unknown) {
+        collectors.map((collector) => collector[method].apply(collector, args));
       },
-      startSpan (name: string, spanOptions: SpanOptions = {}) {
+      startSpan(name: string, spanOptions: SpanOptions = {}) {
         const parentOptions: SpanOptions = {};
 
         if (spanOptions.parentSpan) {
@@ -52,34 +52,33 @@ export const initTracer = (runtime: Runtime) => {
           name,
           Object.assign(
             {
-              type: 'custom',
-              defaultTags: options?.defaultTags
+              type: "custom",
+              defaultTags: options?.defaultTags,
             },
             parentOptions,
             spanOptions,
             {
-              parentSpan: undefined
-            }
-          )
+              parentSpan: undefined,
+            },
+          ),
         );
 
         span.start();
 
         return span;
-      }
-    }
+      },
+    },
   });
 
   if (options?.enabled) {
-    log.info('Tracer initialized.');
+    log.info("Tracer initialized.");
 
     if (options.collectors) {
-      collectors = options.collectors
-        .map(entry => {
-          const initCollector = resolveCollector(runtime, entry, this);
-          initCollector.init(runtime);
-          return initCollector;
-        });
+      collectors = options.collectors.map((entry) => {
+        const initCollector = resolveCollector(runtime, entry, this);
+        initCollector.init(runtime);
+        return initCollector;
+      });
     }
   }
 };

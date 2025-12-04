@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from "events";
 
 interface CacheOptions {
   ttl?: number;
@@ -24,14 +24,14 @@ class Cache extends EventEmitter {
   }
 
   put(key: string, val: any, ttl?: number): void {
-  if (key === undefined || val === undefined) {
-    return;
-  }
+    if (key === undefined || val === undefined) {
+      return;
+    }
 
-  if (!this._store[key] && this.size() >= this._capacity) {
-    this.emit('drop', key, val, ttl);
-    return;
-  }
+    if (!this._store[key] && this.size() >= this._capacity) {
+      this.emit("drop", key, val, ttl);
+      return;
+    }
 
     ttl = ttl === undefined ? this._ttl : Number(ttl);
 
@@ -42,12 +42,12 @@ class Cache extends EventEmitter {
       expire: now() + ttl,
       timeout: setTimeout(() => {
         this.del(key);
-      }, ttl)
+      }, ttl),
     };
     this._store[key].timeout.unref();
     this._size += 1;
 
-    this.emit('put', key, val, ttl);
+    this.emit("put", key, val, ttl);
   }
 
   get(key: string): any {
@@ -56,13 +56,13 @@ class Cache extends EventEmitter {
     if (rec) {
       if (!(rec.expire && rec.expire > now())) {
         this.del(key);
-        this.emit('miss', key);
+        this.emit("miss", key);
         rec = undefined as any;
       } else {
-        this.emit('hit', key, rec.val);
+        this.emit("hit", key, rec.val);
       }
     } else {
-      this.emit('miss', key);
+      this.emit("miss", key);
     }
 
     return rec && rec.val;
@@ -75,7 +75,7 @@ class Cache extends EventEmitter {
       clearTimeout(this._store[key].timeout);
       delete this._store[key];
       this._size -= 1;
-      this.emit('del', key, val);
+      this.emit("del", key, val);
 
       return val;
     }
@@ -98,7 +98,7 @@ class Cache extends EventEmitter {
   }
 
   setCapacity(capacity?: number): void {
-    if (typeof capacity === 'number' && capacity >= 0) {
+    if (typeof capacity === "number" && capacity >= 0) {
       this._capacity = capacity;
     }
   }

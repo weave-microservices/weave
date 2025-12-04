@@ -4,31 +4,31 @@
  * Copyright 2019 Fachwerk
  */
 
-import os from 'os';
-import { initBase } from './base.mts';
-import { asJson, asHumanReadable } from './format/index.mts';
-import { mappings } from './levels.mts';
-import { coreFixtures } from './tools.mts';
+import os from "os";
+import { initBase } from "./base.mts";
+import { asJson, asHumanReadable } from "./format/index.mts";
+import { mappings } from "./levels.mts";
+import { coreFixtures } from "./tools.mts";
 
 const { pid } = process;
 const hostname = os.hostname();
 
 const defaultOptions = {
   enabled: true,
-  level: 'info',
-  messageKey: 'message',
+  level: "info",
+  messageKey: "message",
   customLevels: null,
   base: {
     pid,
-    hostname
+    hostname,
   },
   hooks: {
-    logMethod: undefined
+    logMethod: undefined,
   },
   formatter: {
-    messageFormat: false
+    messageFormat: false,
   },
-  destination: process.stdout
+  destination: process.stdout,
 };
 
 export const createLogger = (options) => {
@@ -39,11 +39,11 @@ export const createLogger = (options) => {
     options,
     logMethods: {},
     destination: options.destination,
-    formatter: process.stdout.isTTY ? asHumanReadable : asJson
+    formatter: process.stdout.isTTY ? asHumanReadable : asJson,
   };
 
   if (options.enabled === false) {
-    options.level = 'silent';
+    options.level = "silent";
   }
 
   if (options.base !== null) {
@@ -54,7 +54,7 @@ export const createLogger = (options) => {
     }
   }
 
-  if (options.mixin && typeof options.mixin !== 'function') {
+  if (options.mixin && typeof options.mixin !== "function") {
     throw Error(`Unknown mixin type "${typeof options.mixin}" - expected "function"`);
   } else if (options.mixin) {
     runtime.mixin = options.mixin;
@@ -71,7 +71,7 @@ export const createLogger = (options) => {
 
   Object.assign(instance, {
     levels,
-    ...runtime.logMethods
+    ...runtime.logMethods,
   });
 
   return instance;

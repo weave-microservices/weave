@@ -1,7 +1,6 @@
-
 export default {
-  nodeId: 'weave-js-cli',
+  nodeId: "weave-js-cli",
   logger: {
-    level: 'debug'
-  }
+    level: "debug",
+  },
 };

@@ -4,18 +4,18 @@
  * Copyright 2021 Fachwerk
  */
 
-import { InboundTransformStream } from './InboundTransformStream.mts';
-import { WeaveError } from '../errors.mts';
-import { createContext } from '../broker/context.mts';
-import { createMessage } from './createMessage.mts';
-import * as MessageTypes from './messageTypes.mts';
-import { restoreError } from '../utils/restoreError.mts';
+import { InboundTransformStream } from "./InboundTransformStream.mts";
+import { WeaveError } from "../errors.mts";
+import { createContext } from "../broker/context.mts";
+import { createMessage } from "./createMessage.mts";
+import * as MessageTypes from "./messageTypes.mts";
+import { restoreError } from "../utils/restoreError.mts";
 
 /**
  * @typedef {import('../types.__js').Transport} Transport
  * @typedef {import('../types.__js').Runtime} Runtime
  * @typedef {import('../types.__js').TransportMessageHandler} TransportMessageHandler
-*/
+ */
 
 /**
  * @param {Runtime} runtime - Runtime reference
@@ -36,14 +36,14 @@ export default (runtime, transport) => {
 
     if (availableEndpointList == null || !availableEndpointList.hasLocal()) {
       transport.log.warn(`Service ${actionName} not found localy.`);
-      return Promise.reject('Service not found');
+      return Promise.reject("Service not found");
     }
 
     const endpoint = availableEndpointList.getNextLocalEndpoint();
 
     if (!endpoint) {
       transport.log.warn(`Service ${actionName} is not available localy.`);
-      return Promise.reject('Service not found');
+      return Promise.reject("Service not found");
     }
 
     const promise = endpoint.action.handler(context);
@@ -62,21 +62,22 @@ export default (runtime, transport) => {
 
     if (!stream) {
       isNew = true;
-      stream = new InboundTransformStream(
-        payload.sender,
-        payload.id, {
-          objectMode: payload.meta && payload.meta.$isObjectModeStream
-        }
-      );
+      stream = new InboundTransformStream(payload.sender, payload.id, {
+        objectMode: payload.meta && payload.meta.$isObjectModeStream,
+      });
 
       if (runtime.options.transport.streams.handleBackpressure) {
-        stream.on('backpressure', async ({ sender, requestId }) => {
-          const message = createMessage(MessageTypes.MESSAGE_REQUEST_STREAM_BACKPRESSURE, sender, { id: requestId });
+        stream.on("backpressure", async ({ sender, requestId }) => {
+          const message = createMessage(MessageTypes.MESSAGE_REQUEST_STREAM_BACKPRESSURE, sender, {
+            id: requestId,
+          });
           await transport.send(message);
         });
 
-        stream.on('resume_backpressure', async ({ sender, requestId }) => {
-          const message = createMessage(MessageTypes.MESSAGE_REQUEST_STREAM_RESUME, sender, { id: requestId });
+        stream.on("resume_backpressure", async ({ sender, requestId }) => {
+          const message = createMessage(MessageTypes.MESSAGE_REQUEST_STREAM_RESUME, sender, {
+            id: requestId,
+          });
           await transport.send(message);
         });
       }
@@ -87,7 +88,7 @@ export default (runtime, transport) => {
       transport.pending.requestStreams.set(payload.id, stream);
     }
 
-    if (payload.sequence > (stream.$prevSeq + 1)) {
+    if (payload.sequence > stream.$prevSeq + 1) {
       stream.$pool.set(payload.sequence, payload);
       return isNew ? stream : null;
     }
@@ -96,7 +97,7 @@ export default (runtime, transport) => {
 
     if (stream.$prevSeq > 0) {
       if (!payload.isStream) {
-        transport.log.debug('Stream ended', payload.sender);
+        transport.log.debug("Stream ended", payload.sender);
 
         // Todo: Handle errors
 
@@ -104,8 +105,10 @@ export default (runtime, transport) => {
         transport.pending.requestStreams.delete(payload.id);
         return null;
       } else {
-        transport.log.debug('Stream chunk received from ', payload.sender);
-        stream.write(payload.chunk.type === 'Buffer' ? Buffer.from(payload.chunk.data) : payload.chunk);
+        transport.log.debug("Stream chunk received from ", payload.sender);
+        stream.write(
+          payload.chunk.type === "Buffer" ? Buffer.from(payload.chunk.data) : payload.chunk,
+        );
       }
     }
 
@@ -130,23 +133,26 @@ export default (runtime, transport) => {
     }
 
     if (!stream) {
-      transport.log.debug(`New stream from node ${payload.sender} received. Seq: ${payload.sequence}`);
-
-      stream = new InboundTransformStream(
-        payload.sender,
-        payload.id, {
-          objectMode: payload.meta && payload.meta.$isObjectModeStream
-        }
+      transport.log.debug(
+        `New stream from node ${payload.sender} received. Seq: ${payload.sequence}`,
       );
 
+      stream = new InboundTransformStream(payload.sender, payload.id, {
+        objectMode: payload.meta && payload.meta.$isObjectModeStream,
+      });
+
       if (runtime.options.transport.streams.handleBackpressure) {
-        stream.on('backpressure', async ({ sender, requestId }) => {
-          const message = createMessage(MessageTypes.MESSAGE_RESPONSE_STREAM_BACKPRESSURE, sender, { id: requestId });
+        stream.on("backpressure", async ({ sender, requestId }) => {
+          const message = createMessage(MessageTypes.MESSAGE_RESPONSE_STREAM_BACKPRESSURE, sender, {
+            id: requestId,
+          });
           await transport.send(message);
         });
 
-        stream.on('resume_backpressure', async ({ sender, requestId }) => {
-          const message = createMessage(MessageTypes.MESSAGE_RESPONSE_STREAM_RESUME, sender, { id: requestId });
+        stream.on("resume_backpressure", async ({ sender, requestId }) => {
+          const message = createMessage(MessageTypes.MESSAGE_RESPONSE_STREAM_RESUME, sender, {
+            id: requestId,
+          });
           await transport.send(message);
         });
       }
@@ -158,8 +164,10 @@ export default (runtime, transport) => {
       request.resolve(stream);
     }
 
-    if (payload.sequence > (stream.$prevSeq + 1)) {
-      transport.log.debug(`Put the chunk into pool (size: ${stream.$pool.size}). Seq: ${payload.sequence}`);
+    if (payload.sequence > stream.$prevSeq + 1) {
+      transport.log.debug(
+        `Put the chunk into pool (size: ${stream.$pool.size}). Seq: ${payload.sequence}`,
+      );
 
       stream.$pool.set(payload.sequence, payload);
       return true;
@@ -169,7 +177,7 @@ export default (runtime, transport) => {
 
     if (stream.$prevSeq > 0) {
       if (!payload.isStream) {
-        transport.log.debug('Stream ended', payload.sender);
+        transport.log.debug("Stream ended", payload.sender);
 
         // Todo: Handle errors
 
@@ -177,8 +185,10 @@ export default (runtime, transport) => {
         transport.pending.responseStreams.delete(payload.id);
         return null;
       } else {
-        transport.log.debug('Stream chunk received from ', payload.sender);
-        stream.write(payload.chunk.type === 'Buffer' ? Buffer.from(payload.chunk.data) : payload.chunk);
+        transport.log.debug("Stream chunk received from ", payload.sender);
+        stream.write(
+          payload.chunk.type === "Buffer" ? Buffer.from(payload.chunk.data) : payload.chunk,
+        );
       }
     }
 
@@ -199,21 +209,21 @@ export default (runtime, transport) => {
    * Discovery handler
    * @param {any} payload - Payload
    * @returns {Promise} Promise
-  */
+   */
   const onDiscovery = (payload) => transport.sendNodeInfo(payload.sender);
 
   /**
    * Node info handler
    * @param {any} payload - Payload
    * @returns {Promise} Promise
-  */
+   */
   const onNodeInfos = (payload) => registry.processNodeInfo(payload);
 
   /**
    * Request handler
    * @param {any} payload - Payload
    * @returns {Promise} Promise
-  */
+   */
   const onRequest = (payload) => {
     const sender = payload.sender;
     try {
@@ -246,8 +256,8 @@ export default (runtime, transport) => {
       }
 
       return localRequestProxy(context)
-        .then(data => transport.sendResponse(sender, payload.id, data, context.meta, null))
-        .catch(error => transport.sendResponse(sender, payload.id, null, context.meta, error));
+        .then((data) => transport.sendResponse(sender, payload.id, data, context.meta, null))
+        .catch((error) => transport.sendResponse(sender, payload.id, null, context.meta, error));
     } catch (error) {
       return transport.sendResponse(sender, payload.id, null, payload.meta, error);
     }
@@ -257,7 +267,7 @@ export default (runtime, transport) => {
    * Response handler
    * @param {any} payload - Payload
    * @returns {Promise} Promise
-  */
+   */
   const onResponse = (payload) => {
     const id = payload.id;
     const request = transport.pending.requests.get(id);
@@ -291,11 +301,11 @@ export default (runtime, transport) => {
    * Ping handler
    * @param {any} payload - Payload
    * @returns {Promise} Promise
-  */
-  const onPing = payload => {
+   */
+  const onPing = (payload) => {
     const message = createMessage(MessageTypes.MESSAGE_PONG, payload.sender, {
       dispatchTime: payload.dispatchTime,
-      arrivalTime: Date.now()
+      arrivalTime: Date.now(),
     });
 
     return transport.send(message);
@@ -305,16 +315,16 @@ export default (runtime, transport) => {
    * Pong handler
    * @param {any} payload - Payload
    * @returns {void}
-  */
+   */
   const onPong = (payload) => {
     const now = Date.now();
     const elapsedTime = now - payload.dispatchTime;
     const timeDiff = Math.round(now - payload.arrivalTime - elapsedTime / 2);
 
-    runtime.eventBus.broadcastLocal('$node.pong', {
+    runtime.eventBus.broadcastLocal("$node.pong", {
       nodeId: payload.sender,
       elapsedTime,
-      timeDiff
+      timeDiff,
     });
   };
 
@@ -322,7 +332,7 @@ export default (runtime, transport) => {
    * Event handler
    * @param {any} payload - Payload
    * @returns {Promise} Promise
-  */
+   */
   const onEvent = (payload) => {
     runtime.log.debug(`Received event "${payload.eventName}"`);
 
@@ -349,7 +359,7 @@ export default (runtime, transport) => {
     }
 
     context.eventName = payload.eventName;
-    context.eventType = payload.isBroadcast ? 'broadcast' : 'emit';
+    context.eventType = payload.isBroadcast ? "broadcast" : "emit";
 
     return registry.eventCollection.emitLocal(context);
   };
@@ -358,7 +368,7 @@ export default (runtime, transport) => {
    * Disconnect handler
    * @param {any} payload - Payload
    * @returns {void}
-  */
+   */
   const onDisconnect = (payload) => {
     registry.nodeDisconnected(payload.sender, false);
   };
@@ -367,14 +377,14 @@ export default (runtime, transport) => {
    * Heartbeat handler
    * @param {any} payload - Payload
    * @returns {void}
-  */
+   */
   const onHeartbeat = (payload) => {
     transport.log.verbose(`Heartbeat from ${payload.sender}`);
     const node = registry.nodeCollection.get(payload.sender);
 
     if (node) {
       if (!node.isAvailable) {
-        transport.log.debug('Known node. Propably reconnected.');
+        transport.log.debug("Known node. Propably reconnected.");
         transport.discoverNode(payload.sender);
       } else {
         node.heartbeat(payload);
@@ -419,13 +429,13 @@ export default (runtime, transport) => {
   return (type, data) => {
     try {
       if (data === null) {
-        runtime.handleError(new WeaveError('Packet missing!'));
+        runtime.handleError(new WeaveError("Packet missing!"));
       }
 
       const payload = data.payload;
 
       if (!payload) {
-        runtime.handleError(new WeaveError('Message payload missing!'));
+        runtime.handleError(new WeaveError("Message payload missing!"));
       }
 
       // todo: check protocol version
@@ -433,57 +443,59 @@ export default (runtime, transport) => {
 
       if (payload.sender === runtime.nodeId) {
         if (type === MessageTypes.MESSAGE_INFO && payload.instanceId !== runtime.state.instanceId) {
-          runtime.fatalError(`Weave broker has detected a node ID conflict. "nodeId" of broker needs to be unique, but there is an broker with node ID "${runtime.nodeId}". Broker will be stopped.`);
+          runtime.fatalError(
+            `Weave broker has detected a node ID conflict. "nodeId" of broker needs to be unique, but there is an broker with node ID "${runtime.nodeId}". Broker will be stopped.`,
+          );
           return false;
         }
       }
 
       switch (type) {
-      case MessageTypes.MESSAGE_DISCOVERY:
-        onDiscovery(payload);
-        break;
-      case MessageTypes.MESSAGE_INFO:
-        onNodeInfos(payload);
-        break;
-      case MessageTypes.MESSAGE_REQUEST:
-        onRequest(payload);
-        break;
-      case MessageTypes.MESSAGE_RESPONSE:
-        onResponse(payload);
-        break;
-      case MessageTypes.MESSAGE_PING:
-        onPing(payload);
-        break;
-      case MessageTypes.MESSAGE_PONG:
-        onPong(payload);
-        break;
-      case MessageTypes.MESSAGE_DISCONNECT:
-        onDisconnect(payload);
-        break;
-      case MessageTypes.MESSAGE_HEARTBEAT:
-        onHeartbeat(payload);
-        break;
-      case MessageTypes.MESSAGE_EVENT:
-        onEvent(payload);
-        break;
-      case MessageTypes.MESSAGE_RESPONSE_STREAM_BACKPRESSURE:
-        onResponseStreamBackpressure(payload);
-        break;
-      case MessageTypes.MESSAGE_RESPONSE_STREAM_RESUME:
-        onResponseStreamResume(payload);
-        break;
-      case MessageTypes.MESSAGE_REQUEST_STREAM_BACKPRESSURE:
-        onRequestStreamBackpressure(payload);
-        break;
-      case MessageTypes.MESSAGE_REQUEST_STREAM_RESUME:
-        onRequestStreamResume(payload);
-        break;
+        case MessageTypes.MESSAGE_DISCOVERY:
+          onDiscovery(payload);
+          break;
+        case MessageTypes.MESSAGE_INFO:
+          onNodeInfos(payload);
+          break;
+        case MessageTypes.MESSAGE_REQUEST:
+          onRequest(payload);
+          break;
+        case MessageTypes.MESSAGE_RESPONSE:
+          onResponse(payload);
+          break;
+        case MessageTypes.MESSAGE_PING:
+          onPing(payload);
+          break;
+        case MessageTypes.MESSAGE_PONG:
+          onPong(payload);
+          break;
+        case MessageTypes.MESSAGE_DISCONNECT:
+          onDisconnect(payload);
+          break;
+        case MessageTypes.MESSAGE_HEARTBEAT:
+          onHeartbeat(payload);
+          break;
+        case MessageTypes.MESSAGE_EVENT:
+          onEvent(payload);
+          break;
+        case MessageTypes.MESSAGE_RESPONSE_STREAM_BACKPRESSURE:
+          onResponseStreamBackpressure(payload);
+          break;
+        case MessageTypes.MESSAGE_RESPONSE_STREAM_RESUME:
+          onResponseStreamResume(payload);
+          break;
+        case MessageTypes.MESSAGE_REQUEST_STREAM_BACKPRESSURE:
+          onRequestStreamBackpressure(payload);
+          break;
+        case MessageTypes.MESSAGE_REQUEST_STREAM_RESUME:
+          onRequestStreamResume(payload);
+          break;
       }
 
       return true;
     } catch (error) {
       transport.log.error(error, type, data);
-      runtime.eventBus.broadcastLocal('$transport.error', { error });
+      runtime.eventBus.broadcastLocal("$transport.error", { error });
     }
     return false;
   };

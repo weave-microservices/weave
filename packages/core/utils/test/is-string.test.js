@@ -1,7 +1,7 @@
-const utils = require('../lib');
+const utils = require("../lib");
 
-describe('String test', () => {
-  it('should fail', () => {
+describe("String test", () => {
+  it("should fail", () => {
     const func = function () {
       // function
     };
@@ -10,12 +10,12 @@ describe('String test', () => {
     expect(result).toBe(false);
   });
 
-  it('should succeed', () => {
-    const result = utils.isString('func');
+  it("should succeed", () => {
+    const result = utils.isString("func");
     expect(result).toBe(true);
   });
 
-  it('should flatten an array a single level deep (1)', () => {
+  it("should flatten an array a single level deep (1)", () => {
     const result = utils.isString(3);
     expect(result).toBe(false);
   });

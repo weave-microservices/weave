@@ -5,7 +5,7 @@
  * @version 0.14.0
  */
 
-import { escapeEvalString } from '../utils/escapeEvalString.mts';
+import { escapeEvalString } from "../utils/escapeEvalString.mts";
 
 /**
  * Regular expression pattern for validating Base64 encoded strings
@@ -32,7 +32,7 @@ export default function checkString(this: any, { schema, messages }: any) {
   let isSanitized = false;
   code.push(`
     if (typeof value !== 'string') {
-      ${this.makeErrorCode({ type: 'string', passed: 'value', messages })}
+      ${this.makeErrorCode({ type: "string", passed: "value", messages })}
       return value
     }
 
@@ -78,7 +78,7 @@ export default function checkString(this: any, { schema, messages }: any) {
   if (schema.minLength) {
     code.push(`
       if (length < ${schema.minLength}) {
-        ${this.makeErrorCode({ type: 'stringMinLength', passed: 'value', expected: schema.minLength, messages })}
+        ${this.makeErrorCode({ type: "stringMinLength", passed: "value", expected: schema.minLength, messages })}
         return value
       }
     `);
@@ -87,7 +87,7 @@ export default function checkString(this: any, { schema, messages }: any) {
   if (schema.maxLength) {
     code.push(`
       if (length > ${schema.maxLength}) {
-        ${this.makeErrorCode({ type: 'stringMaxLength', passed: 'value', expected: `"${schema.maxLength}"`, messages })}
+        ${this.makeErrorCode({ type: "stringMaxLength", passed: "value", expected: `"${schema.maxLength}"`, messages })}
         return value
       }
     `);
@@ -97,7 +97,7 @@ export default function checkString(this: any, { schema, messages }: any) {
     const escapedEqual = escapeEvalString(schema.equal);
     code.push(`
       if (value !== '${escapedEqual}') {
-        ${this.makeErrorCode({ type: 'stringEqual', passed: 'value', expected: `"${escapedEqual}"`, messages })}
+        ${this.makeErrorCode({ type: "stringEqual", passed: "value", expected: `"${escapedEqual}"`, messages })}
         return value
       }
     `);
@@ -106,7 +106,7 @@ export default function checkString(this: any, { schema, messages }: any) {
   if (schema.base64) {
     code.push(`
       if(!${BASE64_PATTERN.toString()}.test(value)) {
-        ${this.makeErrorCode({ type: 'stringBase64', passed: 'value', messages })}
+        ${this.makeErrorCode({ type: "stringBase64", passed: "value", messages })}
         return value
       }
     `);
@@ -115,7 +115,7 @@ export default function checkString(this: any, { schema, messages }: any) {
   if (schema.uuid) {
     code.push(`
       if(!${UUID_PATTERN.toString()}.test(value)) {
-        ${this.makeErrorCode({ type: 'stringUuid', passed: 'value', messages })}
+        ${this.makeErrorCode({ type: "stringUuid", passed: "value", messages })}
         return value
       }
     `);
@@ -124,7 +124,7 @@ export default function checkString(this: any, { schema, messages }: any) {
   if (schema.phone) {
     code.push(`
       if(!${PHONE_PATTERN.toString()}.test(value)) {
-        ${this.makeErrorCode({ type: 'stringPhone', passed: 'value', messages })}
+        ${this.makeErrorCode({ type: "stringPhone", passed: "value", messages })}
         return value
       }
     `);
@@ -133,7 +133,7 @@ export default function checkString(this: any, { schema, messages }: any) {
   if (schema.hex) {
     code.push(`
       if(!${HEX_PATTERN.toString()}.test(value)) {
-        ${this.makeErrorCode({ type: 'stringHex', passed: 'value', messages })}
+        ${this.makeErrorCode({ type: "stringHex", passed: "value", messages })}
         return value
       }
     `);
@@ -144,7 +144,7 @@ export default function checkString(this: any, { schema, messages }: any) {
     const escapedSource = escapeEvalString(pattern.source);
     code.push(`
       if(!${pattern.toString()}.test(value)) {
-        ${this.makeErrorCode({ type: 'stringPattern', passed: 'value', expected: `"${escapedSource}"`, messages })}
+        ${this.makeErrorCode({ type: "stringPattern", passed: "value", expected: `"${escapedSource}"`, messages })}
         return value
       }
     `);
@@ -156,6 +156,6 @@ export default function checkString(this: any, { schema, messages }: any) {
 
   return {
     isSanitized,
-    code: code.join('\n')
+    code: code.join("\n"),
   };
 }

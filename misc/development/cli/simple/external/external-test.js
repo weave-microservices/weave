@@ -1,3 +1,3 @@
 module.exports.makeSomething = () => {
-  return 'something made__';
+  return "something made__";
 };

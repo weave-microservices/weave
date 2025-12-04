@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+import crypto from "node:crypto";
 
 /**
  * Create a random string
@@ -6,5 +6,5 @@ import crypto from 'node:crypto';
  * @returns Random hex string
  */
 export function createRandomString(length: number = 12): string {
-  return crypto.randomBytes(length).toString('hex');
+  return crypto.randomBytes(length).toString("hex");
 }

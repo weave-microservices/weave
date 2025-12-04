@@ -5,7 +5,7 @@
  * @version 0.14.0
  */
 
-import { escapeEvalString } from '../utils/escapeEvalString.mts';
+import { escapeEvalString } from "../utils/escapeEvalString.mts";
 
 /**
  * Regular expression to match valid JavaScript identifiers for property access optimization
@@ -20,7 +20,7 @@ export default function checkObject(this: any, { schema, messages }: any, path: 
   // check for type
   code.push(`
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-      ${this.makeErrorCode({ type: 'object', passed: 'value', messages })}
+      ${this.makeErrorCode({ type: "object", passed: "value", messages })}
       return value;
     }
   `);
@@ -29,8 +29,8 @@ export default function checkObject(this: any, { schema, messages }: any, path: 
 
   // handle sub schemas
   if (subSchema) {
-    code.push('let parentObject = value');
-    code.push('let parentField = field');
+    code.push("let parentObject = value");
+    code.push("let parentField = field");
 
     const keys = Object.keys(subSchema);
     for (let i = 0; i < keys.length; i++) {
@@ -38,14 +38,22 @@ export default function checkObject(this: any, { schema, messages }: any, path: 
       const name = escapeEvalString(property);
       const safeSubName = identifierRegex.test(name) ? `.${name}` : `["${name}"]`;
       const safePropName = `parentObject${safeSubName}`;
-      const newPath = (path ? path + '.' : '') + property;
+      const newPath = (path ? path + "." : "") + property;
 
       code.push(`\n// Field: ${escapeEvalString(newPath)}`);
       code.push(`field = parentField ? parentField + '${safeSubName}' : '${name}';`);
       code.push(`value = ${safePropName};`);
 
       const rule = this.getRuleFromSchema(subSchema[property]);
-      code.push(this.compileRule(rule, context, newPath, `${safePropName} = context.func[##INDEX##](value, field, parentObject, errors, context)`, safePropName));
+      code.push(
+        this.compileRule(
+          rule,
+          context,
+          newPath,
+          `${safePropName} = context.func[##INDEX##](value, field, parentObject, errors, context)`,
+          safePropName,
+        ),
+      );
     }
 
     if (schema.strict) {
@@ -64,7 +72,7 @@ export default function checkObject(this: any, { schema, messages }: any, path: 
         if (invalidProperties.length > 0) {
       `);
 
-      if (context.options.strictMode === 'remove') {
+      if (context.options.strictMode === "remove") {
         code.push(`
           invalidProperties.forEach((propertyName) => {
             delete parentObject[propertyName]
@@ -72,10 +80,10 @@ export default function checkObject(this: any, { schema, messages }: any, path: 
         `);
       } else {
         code.push(`
-          ${this.makeErrorCode({ type: 'objectStrict', expected: `"${allowedProperties.join(', ')}"`, passed: 'invalidProperties.join(", ")', messages })}
+          ${this.makeErrorCode({ type: "objectStrict", expected: `"${allowedProperties.join(", ")}"`, passed: 'invalidProperties.join(", ")', messages })}
         `);
       }
-      code.push('}');
+      code.push("}");
     }
 
     code.push(`
@@ -88,6 +96,6 @@ export default function checkObject(this: any, { schema, messages }: any, path: 
   }
 
   return {
-    code: code.join('\n')
+    code: code.join("\n"),
   };
 }

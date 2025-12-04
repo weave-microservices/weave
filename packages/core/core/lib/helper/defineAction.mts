@@ -1,6 +1,6 @@
 /**
  * @import { ServiceActionSchema,TypeMap } from '@weave-js/core'
-*/
+ */
 
 /**
  * Helper function to define a service action with proper TypeScript inference
@@ -23,7 +23,7 @@
  *     return `Hello ${ctx.params.name}`;
  *   }
  * });
-*/
-export default function defineAction (actionDefinition) {
+ */
+export default function defineAction(actionDefinition) {
   return actionDefinition;
-};
+}

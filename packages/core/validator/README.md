@@ -24,17 +24,17 @@ npm install @weave-js/validator
 ## Quick Start
 
 ```javascript
-const ModelValidator = require('@weave-js/validator');
+const ModelValidator = require("@weave-js/validator");
 
 // Create validator instance
 const validator = ModelValidator();
 
 // Define schema
 const schema = {
-  name: { type: 'string', minLength: 2, maxLength: 50 },
-  email: { type: 'email' },
-  age: { type: 'number', min: 0, max: 120, integer: true },
-  isActive: { type: 'boolean', optional: true }
+  name: { type: "string", minLength: 2, maxLength: 50 },
+  email: { type: "email" },
+  age: { type: "number", min: 0, max: 120, integer: true },
+  isActive: { type: "boolean", optional: true },
 };
 
 // Compile validation function
@@ -42,10 +42,10 @@ const validate = validator.compile(schema);
 
 // Validate data
 const result = validate({
-  name: 'John Doe',
-  email: 'john@example.com',
+  name: "John Doe",
+  email: "john@example.com",
   age: 30,
-  isActive: true
+  isActive: true,
 });
 
 console.log(result); // true (if valid) or array of error objects
@@ -58,33 +58,33 @@ console.log(result); // true (if valid) or array of error objects
 ```javascript
 const stringSchema = {
   username: {
-    type: 'string',
+    type: "string",
     minLength: 3,
     maxLength: 20,
     trim: true,
-    lowercase: true
+    lowercase: true,
   },
   password: {
-    type: 'string',
+    type: "string",
     minLength: 8,
-    pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/
+    pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
   },
   userId: {
-    type: 'string',
-    uuid: true
+    type: "string",
+    uuid: true,
   },
   phone: {
-    type: 'string',
-    phone: true
+    type: "string",
+    phone: true,
   },
   apiKey: {
-    type: 'string',
-    hex: true
+    type: "string",
+    hex: true,
   },
   encodedData: {
-    type: 'string',
-    base64: true
-  }
+    type: "string",
+    base64: true,
+  },
 };
 ```
 
@@ -93,22 +93,22 @@ const stringSchema = {
 ```javascript
 const numberSchema = {
   price: {
-    type: 'number',
+    type: "number",
     min: 0,
-    positive: true
+    positive: true,
   },
   quantity: {
-    type: 'number',
+    type: "number",
     integer: true,
     min: 1,
-    max: 1000
+    max: 1000,
   },
   discount: {
-    type: 'number',
+    type: "number",
     min: 0,
     max: 100,
-    default: 0
-  }
+    default: 0,
+  },
 };
 ```
 
@@ -117,20 +117,20 @@ const numberSchema = {
 ```javascript
 const arraySchema = {
   tags: {
-    type: 'array',
+    type: "array",
     minLength: 1,
     maxLength: 10,
-    itemType: { type: 'string', minLength: 1 }
+    itemType: { type: "string", minLength: 1 },
   },
   scores: {
-    type: 'array',
+    type: "array",
     length: 5,
-    itemType: { type: 'number', min: 0, max: 100 }
+    itemType: { type: "number", min: 0, max: 100 },
   },
   categories: {
-    type: 'array',
-    contains: 'required-category'
-  }
+    type: "array",
+    contains: "required-category",
+  },
 };
 ```
 
@@ -139,20 +139,20 @@ const arraySchema = {
 ```javascript
 const objectSchema = {
   user: {
-    type: 'object',
+    type: "object",
     strict: true,
     properties: {
-      id: { type: 'string', uuid: true },
+      id: { type: "string", uuid: true },
       profile: {
-        type: 'object',
+        type: "object",
         properties: {
-          firstName: { type: 'string', minLength: 1 },
-          lastName: { type: 'string', minLength: 1 },
-          birthDate: { type: 'date' }
-        }
-      }
-    }
-  }
+          firstName: { type: "string", minLength: 1 },
+          lastName: { type: "string", minLength: 1 },
+          birthDate: { type: "date" },
+        },
+      },
+    },
+  },
 };
 ```
 
@@ -161,13 +161,13 @@ const objectSchema = {
 ```javascript
 const enumSchema = {
   status: {
-    type: 'enum',
-    values: ['pending', 'approved', 'rejected']
+    type: "enum",
+    values: ["pending", "approved", "rejected"],
   },
   priority: {
-    type: 'enum',
-    values: [1, 2, 3, 4, 5]
-  }
+    type: "enum",
+    values: [1, 2, 3, 4, 5],
+  },
 };
 ```
 
@@ -175,21 +175,15 @@ const enumSchema = {
 
 ```javascript
 const multiSchema = {
-  value: [
-    { type: 'string' },
-    { type: 'number' }
-  ]
+  value: [{ type: "string" }, { type: "number" }],
 };
 
 // Alternative syntax
 const multiSchema2 = {
   value: {
-    type: 'multi',
-    rules: [
-      { type: 'string' },
-      { type: 'number' }
-    ]
-  }
+    type: "multi",
+    rules: [{ type: "string" }, { type: "number" }],
+  },
 };
 ```
 
@@ -197,9 +191,9 @@ const multiSchema2 = {
 
 ```javascript
 const options = {
-  strict: true,           // Enable strict mode for objects
-  strictMode: 'remove',   // 'remove' | 'error'
-  root: false            // Validate root value directly
+  strict: true, // Enable strict mode for objects
+  strictMode: "remove", // 'remove' | 'error'
+  root: false, // Validate root value directly
 };
 
 const validate = validator.compile(schema, options);
@@ -216,30 +210,32 @@ const validate = validator.compile(schema, options);
 const validator = ModelValidator();
 
 // Add custom rule
-validator.addRule('creditCard', function({ schema, messages }) {
-  const code = [`
+validator.addRule("creditCard", function ({ schema, messages }) {
+  const code = [
+    `
     if (typeof value !== 'string') {
-      ${this.makeErrorCode({ type: 'string', passed: 'value', messages })}
+      ${this.makeErrorCode({ type: "string", passed: "value", messages })}
       return value;
     }
     
     // Luhn algorithm validation
     const digits = value.replace(/\D/g, '');
     if (digits.length < 13 || digits.length > 19) {
-      ${this.makeErrorCode({ type: 'creditCardInvalid', passed: 'value', messages })}
+      ${this.makeErrorCode({ type: "creditCardInvalid", passed: "value", messages })}
       return value;
     }
     
     // Additional Luhn validation logic here...
     return value;
-  `];
-  
-  return { code: code.join('\n') };
+  `,
+  ];
+
+  return { code: code.join("\n") };
 });
 
 // Use custom rule
 const schema = {
-  cardNumber: { type: 'creditCard' }
+  cardNumber: { type: "creditCard" },
 };
 ```
 
@@ -248,10 +244,10 @@ const schema = {
 Validation returns either `true` for success or an array of error objects:
 
 ```javascript
-const result = validate({ name: '' });
+const result = validate({ name: "" });
 
 if (result !== true) {
-  result.forEach(error => {
+  result.forEach((error) => {
     console.log(`Field: ${error.field}`);
     console.log(`Type: ${error.type}`);
     console.log(`Message: ${error.message}`);
@@ -267,9 +263,9 @@ if (result !== true) {
 
 ```javascript
 const schema = {
-  optionalField: { type: 'string', optional: true },
-  nullableField: { type: 'string', nullable: true },
-  withDefault: { type: 'number', default: 42 }
+  optionalField: { type: "string", optional: true },
+  nullableField: { type: "string", nullable: true },
+  withDefault: { type: "number", default: 42 },
 };
 ```
 
@@ -277,8 +273,8 @@ const schema = {
 
 ```javascript
 const schema = {
-  name: { type: 'string', trim: true, uppercase: true },
-  email: { type: 'string', trim: true, lowercase: true }
+  name: { type: "string", trim: true, uppercase: true },
+  email: { type: "string", trim: true, lowercase: true },
 };
 ```
 
@@ -287,29 +283,29 @@ const schema = {
 ```javascript
 const schema = {
   age: {
-    type: 'number',
+    type: "number",
     min: 18,
     messages: {
-      numberMin: 'You must be at least 18 years old'
-    }
-  }
+      numberMin: "You must be at least 18 years old",
+    },
+  },
 };
 ```
 
 ## TypeScript Usage
 
 ```typescript
-import ModelValidator, { Schema, ValidationResult } from '@weave-js/validator';
+import ModelValidator, { Schema, ValidationResult } from "@weave-js/validator";
 
 const validator = ModelValidator();
 
 const schema: Schema = {
-  name: { type: 'string', minLength: 1 },
-  age: { type: 'number', min: 0 }
+  name: { type: "string", minLength: 1 },
+  age: { type: "number", min: 0 },
 };
 
 const validate = validator.compile(schema);
-const result: ValidationResult = validate({ name: 'John', age: 30 });
+const result: ValidationResult = validate({ name: "John", age: 30 });
 ```
 
 ## Performance

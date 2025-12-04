@@ -1,29 +1,32 @@
-import path from 'path';
-import fs from 'fs';
-import { isString, dotSet } from '@weave-js/utils';
-import { getDefaultOptions } from '@weave-js/core/lib/broker/defaultOptions.js';
+import path from "path";
+import fs from "fs";
+import { isString, dotSet } from "@weave-js/utils";
+import { getDefaultOptions } from "@weave-js/core/lib/broker/defaultOptions.js";
 
-const defaultConfigFileName = 'weave.config.js';
-const defaultEnvPrefix = 'WV_';
-const dotSeperator = '__';
+const defaultConfigFileName = "weave.config.js";
+const defaultEnvPrefix = "WV_";
+const dotSeperator = "__";
 
 const overridePropertiesFromEnvVariables = (config: any): any => {
   Object.keys(process.env)
-    .filter(key => key.startsWith(defaultEnvPrefix))
-    .map(key => ({
+    .filter((key) => key.startsWith(defaultEnvPrefix))
+    .map((key) => ({
       key,
-      property: key.substr(defaultEnvPrefix.length)
+      property: key.substr(defaultEnvPrefix.length),
     }))
     .forEach((envObject) => {
       const dotted = envObject.property
         .split(dotSeperator)
-        .map(part => part.toLocaleLowerCase())
-        .map(part => {
-          return part.split('_')
+        .map((part) => part.toLocaleLowerCase())
+        .map((part) => {
+          return part
+            .split("_")
             .map((value, index) => {
               return index === 0 ? value : value[0].toUpperCase() + value.substring(1);
-            }).join('');
-        }).join('.');
+            })
+            .join("");
+        })
+        .join(".");
 
       dotSet(config, dotted, process.env[envObject.key]);
     });
@@ -34,7 +37,9 @@ export const getConfig = async (flags: any): Promise<any> => {
   const currentPath = process.cwd();
   let filePath;
   if (flags.config && isString(flags.config)) {
-    filePath = path.isAbsolute(flags.config) ? flags.config : path.resolve(process.cwd(), flags.config);
+    filePath = path.isAbsolute(flags.config)
+      ? flags.config
+      : path.resolve(process.cwd(), flags.config);
   }
 
   if (!filePath && fs.existsSync(path.resolve(currentPath, defaultConfigFileName))) {
@@ -51,14 +56,14 @@ export const getConfig = async (flags: any): Promise<any> => {
     const fileExtension = path.extname(filePath);
 
     switch (fileExtension) {
-    case '.json':
-    case '.js': {
-      const module = await import(filePath);
-      config = module.default || module;
-      break;
-    }
-    default:
-      throw new Error(`Not supported file extension: ${fileExtension}`);
+      case ".json":
+      case ".js": {
+        const module = await import(filePath);
+        config = module.default || module;
+        break;
+      }
+      default:
+        throw new Error(`Not supported file extension: ${fileExtension}`);
     }
   } else {
     config = getDefaultOptions();

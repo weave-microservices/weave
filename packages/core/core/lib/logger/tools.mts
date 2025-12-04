@@ -1,4 +1,4 @@
-import { format } from './utils/format.mts';
+import { format } from "./utils/format.mts";
 
 export const noop = () => {};
 
@@ -7,12 +7,12 @@ export const generateLogMethod = (runtime, level, hook) => {
     return log;
   }
 
-  return function hookWrappedLog (...args) {
+  return function hookWrappedLog(...args) {
     hook.call(runtime, args, log, level);
   };
 
-  function log (origin, ...n) {
-    if (typeof origin === 'object') {
+  function log(origin, ...n) {
+    if (typeof origin === "object") {
       let message = origin;
       let formatParams;
       if (message === null && n.length === 0) {

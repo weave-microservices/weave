@@ -6,10 +6,10 @@
 export function isStream(obj: unknown): boolean {
   return !!(
     obj &&
-    typeof obj === 'object' &&
-    'readable' in obj &&
+    typeof obj === "object" &&
+    "readable" in obj &&
     (obj as Record<string, unknown>).readable === true &&
-    typeof (obj as Record<string, unknown>).on === 'function' &&
-    typeof (obj as Record<string, unknown>).pipe === 'function'
+    typeof (obj as Record<string, unknown>).on === "function" &&
+    typeof (obj as Record<string, unknown>).pipe === "function"
   );
 }

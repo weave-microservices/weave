@@ -17,7 +17,7 @@
  * @namespace Metrics
  */
 
-import * as Constants from './constants.mts';
-import * as Exporter from './exporter/index.mts';
+import * as Constants from "./constants.mts";
+import * as Exporter from "./exporter/index.mts";
 
 export { Constants, Exporter };

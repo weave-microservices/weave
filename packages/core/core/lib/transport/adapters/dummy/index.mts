@@ -4,39 +4,39 @@
  * Copyright 2021 Fachwerk
  */
 
-import TransportBase from '../adapterBase.mts';
+import TransportBase from "../adapterBase.mts";
 import pkg from "eventemitter2";
 const { EventEmitter2 } = pkg;
 
 // create a global eventbus to pass messages between weave service brokers.
 global.bus = new EventEmitter2({
   wildcard: true,
-  maxListeners: 100
+  maxListeners: 100,
 });
 
 const DummyTransportAdapter = (adapterOptions = {}) => {
   const messageBus = global.bus;
 
   return Object.assign(TransportBase(adapterOptions), {
-    name: 'Dummy',
-    connect () {
-      this.bus.emit('$adapter.connected', false);
-      this.log.info('Dummy transport client connected.');
+    name: "Dummy",
+    connect() {
+      this.bus.emit("$adapter.connected", false);
+      this.log.info("Dummy transport client connected.");
       return Promise.resolve();
     },
-    close () {
+    close() {
       return Promise.resolve();
     },
-    send (message) {
+    send(message) {
       const data = this.serialize(message);
       const topic = this.getTopic(message.type, message.targetNodeId);
       messageBus.emit(topic, data);
       return Promise.resolve();
     },
-    subscribe (type, nodeId) {
+    subscribe(type, nodeId) {
       const topic = this.getTopic(type, nodeId);
-      messageBus.on(topic, message => this.incomingMessage(type, message));
-    }
+      messageBus.on(topic, (message) => this.incomingMessage(type, message));
+    },
   });
 };
 

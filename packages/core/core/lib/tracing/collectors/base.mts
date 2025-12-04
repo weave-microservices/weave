@@ -1,4 +1,4 @@
-import { isObject, pick } from '@weave-js/utils';
+import { isObject, pick } from "@weave-js/utils";
 
 /**
  * Create a base tracing collector
@@ -34,14 +34,14 @@ export const createBaseTracingCollector = (runtime) => {
    * @param {string?} path
    * @returns {object}
    */
-  baseTracingCollector.flattenTags = (obj, convertToString = false, path = '') => {
+  baseTracingCollector.flattenTags = (obj, convertToString = false, path = "") => {
     if (!obj) {
       return null;
     }
 
     return Object.keys(obj).reduce((res, k) => {
       const o = obj[k];
-      const pp = (path ? path + '.' : '') + k;
+      const pp = (path ? path + "." : "") + k;
 
       if (isObject(o)) {
         Object.assign(res, baseTracingCollector.flattenTags(o, convertToString, pp));

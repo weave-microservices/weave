@@ -1,7 +1,7 @@
-import net from 'net';
-import { EventEmitter } from 'events';
-import * as MessageTypes from '../../messageTypes.mts';
-import TCPMessageTypeHelper from './tcp-messagetypes.mts';
+import net from "net";
+import { EventEmitter } from "events";
+import * as MessageTypes from "../../messageTypes.mts";
+import TCPMessageTypeHelper from "./tcp-messagetypes.mts";
 
 export default (adapter) => {
   const self = Object.assign({}, EventEmitter.prototype);
@@ -9,7 +9,7 @@ export default (adapter) => {
   const messageTypeHelper = TCPMessageTypeHelper(MessageTypes);
   const headerSize = 6;
 
-  const connect = nodeId => {
+  const connect = (nodeId) => {
     const node = adapter.broker.registry.nodeCollection.get(nodeId);
     if (!node) {
       return Promise.reject(new Error(`Missing node info for '${nodeId}'!`));
@@ -28,15 +28,16 @@ export default (adapter) => {
 
           addSocket(nodeId, socket, true);
 
-          adapter.sendHello(nodeId)
+          adapter
+            .sendHello(nodeId)
             .then(() => resolve(socket))
-            .catch(error => reject(error));
+            .catch((error) => reject(error));
         });
 
-        socket.on('error', error => {
+        socket.on("error", (error) => {
           removeSocket(nodeId);
 
-          self.emit('error', error, nodeId);
+          self.emit("error", error, nodeId);
 
           if (error) {
             reject(error);
@@ -62,7 +63,7 @@ export default (adapter) => {
     sockets.set(nodeId, socket);
   };
 
-  const removeSocket = nodeId => {
+  const removeSocket = (nodeId) => {
     const socket = sockets.get(nodeId);
     if (socket && !socket.destroyed) {
       socket.destroy();
@@ -81,7 +82,7 @@ export default (adapter) => {
         }
         return connect(nodeId);
       })
-      .then(socket => {
+      .then((socket) => {
         return new Promise((resolve, reject) => {
           const header = Buffer.alloc(headerSize);
 
@@ -106,7 +107,7 @@ export default (adapter) => {
   };
 
   self.close = () => {
-    sockets.forEach(socket => {
+    sockets.forEach((socket) => {
       if (!socket.destroyed) {
         socket.destroy();
       }

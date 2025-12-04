@@ -1,16 +1,15 @@
-import { createBaseMetricType } from './base.mts';
+import { createBaseMetricType } from "./base.mts";
 
 export const createInfo = (metricRegistry, obj) => {
   const base = createBaseMetricType(metricRegistry, obj);
 
   base.generateSnapshot = () => {
-    return Array.from(base.values)
-      .map(([labelString, item]) => {
-        return {
-          value: item.value,
-          labels: item.labels
-        };
-      });
+    return Array.from(base.values).map(([labelString, item]) => {
+      return {
+        value: item.value,
+        labels: item.labels,
+      };
+    });
   };
 
   base.set = (value, labels, timestamp) => {
@@ -29,7 +28,7 @@ export const createInfo = (metricRegistry, obj) => {
       const item = {
         labels: labels,
         value: value,
-        timestamp: timestamp || Date.now()
+        timestamp: timestamp || Date.now(),
       };
 
       base.values.set(labelString, item);

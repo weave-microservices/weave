@@ -14,14 +14,6 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": [
-    "src",
-    "services/**/*.mts",
-    ".weave/types"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "coverage"
-  ]
+  "include": ["src", "services/**/*.mts", ".weave/types"],
+  "exclude": ["node_modules", "dist", "coverage"]
 }

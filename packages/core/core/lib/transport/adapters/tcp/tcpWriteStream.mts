@@ -1,10 +1,9 @@
-
-import { Writable } from 'stream';
-import * as MessageTypes from '../../messageTypes.mts';
-import TCPMessageTypeHelper from './tcp-messagetypes.mts';
+import { Writable } from "stream";
+import * as MessageTypes from "../../messageTypes.mts";
+import TCPMessageTypeHelper from "./tcp-messagetypes.mts";
 
 export default class TCPWriteStream extends Writable {
-  constructor (adapter, socket, maxPacketSize) {
+  constructor(adapter, socket, maxPacketSize) {
     super();
     this.buffer = null;
     this.adapter = adapter;
@@ -13,7 +12,7 @@ export default class TCPWriteStream extends Writable {
     this.maxPacketSize = maxPacketSize;
   }
 
-  _write (chunk, encoding, callback) {
+  _write(chunk, encoding, callback) {
     let packet = chunk;
 
     if (this.buffer && this.buffer.length > 0) {
@@ -28,13 +27,17 @@ export default class TCPWriteStream extends Writable {
       }
 
       if (packet.length > this.maxPacketSize) {
-        return callback(new Error(`Incoming packet is larger than the 'maxPacketSize' limit (${packet.length} > ${this.maxPacketSize})!`));
+        return callback(
+          new Error(
+            `Incoming packet is larger than the 'maxPacketSize' limit (${packet.length} > ${this.maxPacketSize})!`,
+          ),
+        );
       }
 
       const crc = packet[1] ^ packet[2] ^ packet[3] ^ packet[4] ^ packet[5];
 
       if (crc !== packet[0]) {
-        return callback(new Error('Invalid cyclic redundancy check.'));
+        return callback(new Error("Invalid cyclic redundancy check."));
       }
 
       const length = packet.readInt32BE(1);
@@ -42,7 +45,7 @@ export default class TCPWriteStream extends Writable {
         const message = packet.slice(6, length);
         const type = this.messageTypeHelper.getTypeByIndex(packet[5]); // resolveMessageType(packet[5])
 
-        this.emit('data', type, message, this.socket);
+        this.emit("data", type, message, this.socket);
         packet = packet.slice(length);
       } else {
         this.buffer = Buffer.from(packet);
@@ -51,4 +54,4 @@ export default class TCPWriteStream extends Writable {
     }
     callback();
   }
-};
+}

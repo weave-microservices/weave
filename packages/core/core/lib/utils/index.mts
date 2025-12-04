@@ -1,4 +1,3 @@
-
 /**
  * Utility functions for Weave framework internal operations
  *
@@ -15,7 +14,7 @@
  */
 
 exports = {
-  ...await import('./options'),
-  ...await import('./restoreError'),
-  ...await import('./wrap-handler')
+  ...(await import("./options")),
+  ...(await import("./restoreError")),
+  ...(await import("./wrap-handler")),
 };

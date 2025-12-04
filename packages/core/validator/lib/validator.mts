@@ -1,19 +1,19 @@
-import defaultMessages from './messages.mts';
-import { validateSchema, validateOptions } from './schemaValidator.mts';
+import defaultMessages from "./messages.mts";
+import { validateSchema, validateOptions } from "./schemaValidator.mts";
 
 // Import all rules
-import checkAny from './rules/any.mts';
-import checkArray from './rules/array.mts';
-import checkBoolean from './rules/boolean.mts';
-import checkDate from './rules/date.mts';
-import checkEmail from './rules/email.mts';
-import checkEnum from './rules/enum.mts';
-import checkForbidden from './rules/forbidden.mts';
-import checkMulti from './rules/multi.mts';
-import checkNumber from './rules/number.mts';
-import checkObject from './rules/object.mts';
-import checkString from './rules/string.mts';
-import checkUrl from './rules/url.mts';
+import checkAny from "./rules/any.mts";
+import checkArray from "./rules/array.mts";
+import checkBoolean from "./rules/boolean.mts";
+import checkDate from "./rules/date.mts";
+import checkEmail from "./rules/email.mts";
+import checkEnum from "./rules/enum.mts";
+import checkForbidden from "./rules/forbidden.mts";
+import checkMulti from "./rules/multi.mts";
+import checkNumber from "./rules/number.mts";
+import checkObject from "./rules/object.mts";
+import checkString from "./rules/string.mts";
+import checkUrl from "./rules/url.mts";
 
 /**
  * @fileoverview Weave Validator - High-performance schema validation library using code generation
@@ -29,7 +29,7 @@ export interface ValidationOptions {
   /** Enables strict mode */
   strict?: boolean;
   /** Set strict mode behavior: 'remove' removes extra properties, 'error' throws validation error */
-  strictMode?: 'remove' | 'error';
+  strictMode?: "remove" | "error";
   /** Validate a root value */
   root?: boolean;
   /** Whether to validate the schema structure before compilation */
@@ -61,7 +61,7 @@ export interface BaseSchema {
 }
 
 export interface StringSchema extends BaseSchema {
-  type?: 'string';
+  type?: "string";
   minLength?: number;
   maxLength?: number;
   equal?: string;
@@ -78,7 +78,7 @@ export interface StringSchema extends BaseSchema {
 }
 
 export interface NumberSchema extends BaseSchema {
-  type?: 'number';
+  type?: "number";
   min?: number;
   max?: number;
   equal?: number;
@@ -90,17 +90,17 @@ export interface NumberSchema extends BaseSchema {
 }
 
 export interface BooleanSchema extends BaseSchema {
-  type?: 'boolean';
+  type?: "boolean";
   convert?: boolean;
 }
 
 export interface DateSchema extends BaseSchema {
-  type?: 'date';
+  type?: "date";
   convert?: boolean;
 }
 
 export interface ArraySchema extends BaseSchema {
-  type?: 'array';
+  type?: "array";
   minLength?: number;
   maxLength?: number;
   length?: number;
@@ -109,58 +109,58 @@ export interface ArraySchema extends BaseSchema {
 }
 
 export interface ObjectSchema extends BaseSchema {
-  type?: 'object';
+  type?: "object";
   strict?: boolean;
   properties?: Record<string, Schema>;
   props?: Record<string, Schema>;
 }
 
 export interface EnumSchema extends BaseSchema {
-  type?: 'enum';
+  type?: "enum";
   values?: any[];
 }
 
 export interface EmailSchema extends BaseSchema {
-  type?: 'email';
+  type?: "email";
   mode?: string;
   normalize?: boolean;
 }
 
 export interface UrlSchema extends BaseSchema {
-  type?: 'url';
+  type?: "url";
 }
 
 export interface MultiSchema extends BaseSchema {
-  type?: 'multi';
+  type?: "multi";
   rules?: Schema[];
 }
 
 export interface AnySchema extends BaseSchema {
-  type?: 'any';
+  type?: "any";
 }
 
 export interface ForbiddenSchema extends BaseSchema {
-  type?: 'forbidden';
+  type?: "forbidden";
 }
 
 // Schema can be a specific schema type, a string shorthand, an array of schemas, or a generic object
-export type SchemaDefinition = 
-  | StringSchema 
-  | NumberSchema 
-  | BooleanSchema 
-  | DateSchema 
-  | ArraySchema 
-  | ObjectSchema 
-  | EnumSchema 
-  | EmailSchema 
-  | UrlSchema 
-  | MultiSchema 
-  | AnySchema 
+export type SchemaDefinition =
+  | StringSchema
+  | NumberSchema
+  | BooleanSchema
+  | DateSchema
+  | ArraySchema
+  | ObjectSchema
+  | EnumSchema
+  | EmailSchema
+  | UrlSchema
+  | MultiSchema
+  | AnySchema
   | ForbiddenSchema
   | BaseSchema;
 
 // Schema type that allows string shorthands, schema objects, arrays, and nested object schemas
-export type Schema = 
+export type Schema =
   | string // String shorthand like 'string', 'number', etc.
   | SchemaDefinition // Full schema definition
   | Schema[] // Array of schemas for multi-type validation
@@ -197,7 +197,7 @@ function ModelValidatorFactory(): ModelValidator {
     number: checkNumber,
     object: checkObject,
     string: checkString,
-    url: checkUrl
+    url: checkUrl,
   };
 
   const internal = {
@@ -207,13 +207,13 @@ function ModelValidatorFactory(): ModelValidator {
     makeErrorCode({ type, expected, field, passed, messages }: any): string {
       const error: any = {
         type: `'${type}'`,
-        message: `'${messages[type]}'`
+        message: `'${messages[type]}'`,
       };
 
       if (field) {
         error.field = `'${field}'`;
       } else {
-        error.field = 'field';
+        error.field = "field";
       }
 
       if (expected) {
@@ -226,8 +226,8 @@ function ModelValidatorFactory(): ModelValidator {
 
       // Error object to string
       const str = Object.keys(error)
-        .map(key => `${key}: ${error[key]}`)
-        .join(', ');
+        .map((key) => `${key}: ${error[key]}`)
+        .join(", ");
 
       // Push error object content to errors
       return `errors.push({ ${str} })`;
@@ -237,18 +237,18 @@ function ModelValidatorFactory(): ModelValidator {
      * Converts schema shorthand formats to standardized rule objects
      */
     getRuleFromSchema(schema: any): any {
-      if (typeof schema === 'string') {
+      if (typeof schema === "string") {
         schema = {
-          type: schema
+          type: schema,
         };
       } else if (Array.isArray(schema)) {
         if (schema.length === 0) {
-          throw new Error('Invalid schema.');
+          throw new Error("Invalid schema.");
         }
 
         schema = {
-          type: 'multi',
-          rules: schema
+          type: "multi",
+          rules: schema,
         };
 
         // todo: handle optionals
@@ -258,7 +258,7 @@ function ModelValidatorFactory(): ModelValidator {
       }
 
       if (!schema.type) {
-        throw new Error('Property type is missing.');
+        throw new Error("Property type is missing.");
       }
 
       const ruleGeneratorFunction = rules[schema.type];
@@ -270,7 +270,7 @@ function ModelValidatorFactory(): ModelValidator {
       return {
         schema,
         ruleGeneratorFunction,
-        messages: Object.assign({}, messages, schema.messages)
+        messages: Object.assign({}, messages, schema.messages),
       };
     },
 
@@ -280,7 +280,7 @@ function ModelValidatorFactory(): ModelValidator {
     compileRule(rule: any, context: any, path: any, innerSrc: string, sourceVar: string): string {
       const sourceCode = [];
 
-      if (rule.schema.type === 'object') {
+      if (rule.schema.type === "object") {
         rule.schema.strict = !!context.options.strict;
       }
 
@@ -296,32 +296,49 @@ function ModelValidatorFactory(): ModelValidator {
         const result = rule.ruleGeneratorFunction.call(internal, rule, path, context);
 
         if (result.code) {
-          context.func[rule.index] = new Function('value', 'field', 'parent', 'errors', 'context', result.code);
-          sourceCode.push(this.wrapSourceCode(rule, context, innerSrc.replace('##INDEX##', rule.index), sourceVar));
+          context.func[rule.index] = new Function(
+            "value",
+            "field",
+            "parent",
+            "errors",
+            "context",
+            result.code,
+          );
+          sourceCode.push(
+            this.wrapSourceCode(
+              rule,
+              context,
+              innerSrc.replace("##INDEX##", rule.index),
+              sourceVar,
+            ),
+          );
         } else {
           sourceCode.push(this.wrapSourceCode(rule, context));
         }
       }
 
-      return sourceCode.join('\n');
+      return sourceCode.join("\n");
     },
 
     /**
      * Main compilation method that transforms schemas into optimized validation functions
      */
     compile(schema: Schema, options: ValidationOptions = {}): ValidationFunction {
-      options = Object.assign({
-        strict: true,
-        strictMode: 'remove',
-        root: false,
-        validateSchema: false
-      }, options);
+      options = Object.assign(
+        {
+          strict: true,
+          strictMode: "remove",
+          root: false,
+          validateSchema: false,
+        },
+        options,
+      );
 
       // Validate options (if requested)
       if (options.validateSchema) {
         const optionErrors = validateOptions(options);
         if (optionErrors.length > 0) {
-          const errorMessages = optionErrors.map(e => `${e.path}: ${e.message}`).join('; ');
+          const errorMessages = optionErrors.map((e) => `${e.path}: ${e.message}`).join("; ");
           throw new Error(`Invalid validation options: ${errorMessages}`);
         }
 
@@ -331,17 +348,17 @@ function ModelValidatorFactory(): ModelValidator {
           schemaToValidate = schema;
         } else if (Array.isArray(schema)) {
           schemaToValidate = schema;
-        } else if (typeof schema === 'string') {
+        } else if (typeof schema === "string") {
           schemaToValidate = schema;
         } else {
           // For object schemas, validate each property individually
           const errors: any[] = [];
-          Object.keys(schema).forEach(key => {
+          Object.keys(schema).forEach((key) => {
             const propErrors = validateSchema((schema as any)[key], `.${key}`);
             errors.push(...propErrors);
           });
           if (errors.length > 0) {
-            const errorMessages = errors.map(e => `${e.path}: ${e.message}`).join('; ');
+            const errorMessages = errors.map((e) => `${e.path}: ${e.message}`).join("; ");
             throw new Error(`Invalid schema: ${errorMessages}`);
           }
           // Skip the general schema validation since we validated properties individually
@@ -350,19 +367,19 @@ function ModelValidatorFactory(): ModelValidator {
         if (schemaToValidate !== null) {
           const schemaErrors = validateSchema(schemaToValidate);
           if (schemaErrors.length > 0) {
-            const errorMessages = schemaErrors.map(e => `${e.path}: ${e.message}`).join('; ');
+            const errorMessages = schemaErrors.map((e) => `${e.path}: ${e.message}`).join("; ");
             throw new Error(`Invalid schema: ${errorMessages}`);
           }
         }
       }
 
-      if (typeof schema !== 'object' && typeof schema !== 'string' && !Array.isArray(schema)) {
-        throw new Error('Invalid Schema.');
+      if (typeof schema !== "object" && typeof schema !== "string" && !Array.isArray(schema)) {
+        throw new Error("Invalid Schema.");
       }
 
       // Special case: if root mode is false and schema is just a string, it's invalid for object validation
-      if (options.root === false && typeof schema === 'string') {
-        throw new Error('Invalid Schema.');
+      if (options.root === false && typeof schema === "string") {
+        throw new Error("Invalid Schema.");
       }
 
       const self = this;
@@ -373,16 +390,13 @@ function ModelValidatorFactory(): ModelValidator {
         rules: [] as any[],
         func: [] as any[],
         options: {
-          ...options
-        }
+          ...options,
+        },
       };
 
       cache.clear();
 
-      const code = [
-        'const errors = []',
-        'let field'
-      ];
+      const code = ["const errors = []", "let field"];
 
       // prepare schema
       if (options.root !== true) {
@@ -393,17 +407,25 @@ function ModelValidatorFactory(): ModelValidator {
         } else {
           const tempSchema = Object.assign({}, schema);
           schema = {
-            type: 'object',
+            type: "object",
             strict: context.options.strict || false,
-            props: tempSchema
+            props: tempSchema,
           } as any;
         }
       }
 
       const rule = internal.getRuleFromSchema(schema);
 
-      code.push(internal.compileRule(rule, context, null, 'context.func[##INDEX##](value, field, null, errors, context)', 'value'));
-      code.push('if (errors.length) {');
+      code.push(
+        internal.compileRule(
+          rule,
+          context,
+          null,
+          "context.func[##INDEX##](value, field, null, errors, context)",
+          "value",
+        ),
+      );
+      code.push("if (errors.length) {");
       code.push(`
         return errors.map(error => {
           if (error.message) {
@@ -416,11 +438,11 @@ function ModelValidatorFactory(): ModelValidator {
           return error
         })
       `);
-      code.push('}');
-      code.push('return true');
+      code.push("}");
+      code.push("return true");
 
-      const src = code.join('\n');
-      const checkFn = new Function('value', 'context', src);
+      const src = code.join("\n");
+      const checkFn = new Function("value", "context", src);
 
       return function (data: any): ValidationResult {
         (context as any).data = data;
@@ -433,16 +455,19 @@ function ModelValidatorFactory(): ModelValidator {
      */
     wrapSourceCode(rule: any, context: any, innerSrc?: string, resolveVar?: string): string {
       const code = [];
-      let handleValue = '';
-      let skipUndefinedValue = rule.schema.optional === true || rule.schema.type === 'forbidden';
-      const skipNullValue = rule.schema.optional === true || rule.schema.nullable === true || rule.schema.type === 'forbidden';
+      let handleValue = "";
+      let skipUndefinedValue = rule.schema.optional === true || rule.schema.type === "forbidden";
+      const skipNullValue =
+        rule.schema.optional === true ||
+        rule.schema.nullable === true ||
+        rule.schema.type === "forbidden";
 
       if (rule.schema.default != null) {
         let defaultValue;
         skipUndefinedValue = false;
 
         // handle dynamic default value
-        if (typeof rule.schema.default === 'function') {
+        if (typeof rule.schema.default === "function") {
           // Dynamic default not implemented in this version
         } else {
           defaultValue = JSON.stringify(rule.schema.default);
@@ -453,16 +478,20 @@ function ModelValidatorFactory(): ModelValidator {
           ${resolveVar} = value
         `;
       } else {
-        handleValue = this.makeErrorCode({ type: 'required', passed: 'value', messages: rule.messages });
+        handleValue = this.makeErrorCode({
+          type: "required",
+          passed: "value",
+          messages: rule.messages,
+        });
       }
       code.push(`
-        ${`if (value === undefined) { ${skipUndefinedValue ? '\n // allow undefined value\n' : handleValue} }`}
-        ${`else if (value === null) {  ${skipNullValue ? '\n // allow null value\n' : handleValue} }`}
-        ${innerSrc ? `else { ${innerSrc} }` : ''}
+        ${`if (value === undefined) { ${skipUndefinedValue ? "\n // allow undefined value\n" : handleValue} }`}
+        ${`else if (value === null) {  ${skipNullValue ? "\n // allow null value\n" : handleValue} }`}
+        ${innerSrc ? `else { ${innerSrc} }` : ""}
       `);
 
-      return code.join('\n');
-    }
+      return code.join("\n");
+    },
   };
 
   return {
@@ -483,11 +512,11 @@ function ModelValidatorFactory(): ModelValidator {
      * Adds a custom validation rule type to the validator
      */
     addRule(typeName: string, ruleFn: Function): void {
-      if (typeof ruleFn !== 'function') {
-        throw new Error('Rule must be a function.');
+      if (typeof ruleFn !== "function") {
+        throw new Error("Rule must be a function.");
       }
       rules[typeName] = ruleFn;
-    }
+    },
   };
 }
 

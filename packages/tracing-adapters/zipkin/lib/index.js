@@ -1,15 +1,18 @@
-const { createBaseTracingCollector } = require('@weave-js/core/lib/tracing/collectors/base');
-const fetch = require('node-fetch');
+const { createBaseTracingCollector } = require("@weave-js/core/lib/tracing/collectors/base");
+const fetch = require("node-fetch");
 
-const convertTime = (timestamp) => timestamp != null ? Math.round(timestamp * 1000) : null;
-const convertId = (id) => id ? id.replace(/-/g, '').substring(0, 16) : null;
+const convertTime = (timestamp) => (timestamp != null ? Math.round(timestamp * 1000) : null);
+const convertId = (id) => (id ? id.replace(/-/g, "").substring(0, 16) : null);
 
 const mergeDefaultOptions = (options) => {
-  return Object.assign({
-    host: process.env.ZIPKIN_URL || 'http://localhost:9411',
-    endpoint: '/api/v2/spans',
-    interval: 5000
-  }, options);
+  return Object.assign(
+    {
+      host: process.env.ZIPKIN_URL || "http://localhost:9411",
+      endpoint: "/api/v2/spans",
+      interval: 5000,
+    },
+    options,
+  );
 };
 
 /**
@@ -17,14 +20,15 @@ const mergeDefaultOptions = (options) => {
  * @property {string=} host Zipkin host
  * @property {string=} endpoint Zipkin endpoint
  * @property {number=} interval Push interval
-*/
+ */
 
 /**
  * Create a Zipkin collector adapter instance.
  * @param {ZipkinCollectorOptions} [options] Zipkin collector adapter options
  * @returns {Object} Collector
-*/
-exports.createZipkinExporter = (options = {}) =>
+ */
+exports.createZipkinExporter =
+  (options = {}) =>
   (runtime) => {
     const exporter = createBaseTracingCollector(runtime);
     const queue = [];
@@ -43,7 +47,7 @@ exports.createZipkinExporter = (options = {}) =>
     };
 
     const generatePayload = () => {
-      return queue.map(span => {
+      return queue.map((span) => {
         const serviceName = span.service ? span.service.fullyQualifiedName : null;
 
         const payload = {
@@ -51,7 +55,7 @@ exports.createZipkinExporter = (options = {}) =>
           traceId: convertId(span.traceId),
           parentId: convertId(span.parentId),
           name: span.name,
-          kind: 'SERVER',
+          kind: "SERVER",
           localEndpoint: { serviceName },
           remoteEndpoint: { serviceName },
           timestamp: convertTime(span.startTime),
@@ -59,36 +63,40 @@ exports.createZipkinExporter = (options = {}) =>
           annotations: [
             {
               timestamp: convertTime(span.startTime),
-              value: 'sr'
+              value: "sr",
             },
             {
               timestamp: convertTime(span.finishTime),
-              value: 'ss'
-            }
+              value: "ss",
+            },
           ],
           tags: {
             service: serviceName,
-            'span.type': span.type
-          }
+            "span.type": span.type,
+          },
         };
 
         if (span.error) {
           payload.tags.error = span.error.message;
           payload.annotations.push({
-            value: 'error',
+            value: "error",
             endpoint: {
               serviceName: serviceName,
-              ipv4: '',
-              port: 0
+              ipv4: "",
+              port: 0,
             },
-            timestamp: convertTime(span.finishTime)
+            timestamp: convertTime(span.finishTime),
           });
         }
 
         Object.assign(
           payload.tags,
           exporter.flattenTags(span.tags, true),
-          exporter.flattenTags(exporter.getErrorFields(span.error, exporter.options.errors.fields), true, 'error')
+          exporter.flattenTags(
+            exporter.getErrorFields(span.error, exporter.options.errors.fields),
+            true,
+            "error",
+          ),
         );
 
         return payload;
@@ -99,15 +107,15 @@ exports.createZipkinExporter = (options = {}) =>
       data = JSON.stringify(data);
 
       fetch(`${options.host}${options.endpoint}`, {
-        method: 'post',
+        method: "post",
         body: data,
         headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': data.length
-        }
+          "Content-Type": "application/json",
+          "Content-Length": data.length,
+        },
       })
-        .then(res => res.text())
-        .catch(err => {
+        .then((res) => res.text())
+        .catch((err) => {
           runtime.log.error(err);
         });
     };

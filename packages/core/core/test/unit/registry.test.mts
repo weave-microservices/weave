@@ -1,18 +1,18 @@
-import { Errors, TransportAdapters } from '../../lib/index.mts';
-import { createNode } from '../../lib/registry/node.mts';
-import { createRegistry } from '../../lib/registry/registry.mts';
-import { createNode as createBroker } from '../helper/index.mts';
-import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
+import { Errors, TransportAdapters } from "../../lib/index.mts";
+import { createNode } from "../../lib/registry/node.mts";
+import { createRegistry } from "../../lib/registry/registry.mts";
+import { createNode as createBroker } from "../helper/index.mts";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 
 const brokerSettings = {
   logger: {
-    enabled: false
-  }
+    enabled: false,
+  },
 };
 
-describe('Test Registry instance', () => {
-  it('should create registry instance', () => {
+describe("Test Registry instance", () => {
+  it("should create registry instance", () => {
     const broker = createBroker(brokerSettings);
     const registry = createRegistry(broker.runtime);
 
@@ -30,16 +30,16 @@ describe('Test Registry instance', () => {
 });
 
 describe('Test "registerLocalService"', () => {
-  it('should register a local service', async () => {
+  it("should register a local service", async () => {
     const broker = createBroker(brokerSettings);
     const registry = broker.registry;
 
     const service = {
-      name: 'test-service',
+      name: "test-service",
       version: 2,
       actions: {},
       events: {},
-      methods: {}
+      methods: {},
     };
 
     registry.registerLocalService(service);
@@ -50,31 +50,31 @@ describe('Test "registerLocalService"', () => {
 });
 
 describe('Test "registerRemoteServices"', () => {
-  it('should register remote services', async () => {
+  it("should register remote services", async () => {
     const broker1 = createBroker({
       ...brokerSettings,
       transport: {
-        adapter: TransportAdapters.Dummy()
-      }
+        adapter: TransportAdapters.Dummy(),
+      },
     });
     const broker2 = createBroker({
       ...brokerSettings,
-      nodeId: 'node2',
+      nodeId: "node2",
       transport: {
-        adapter: TransportAdapters.Dummy()
-      }
+        adapter: TransportAdapters.Dummy(),
+      },
     });
     const registry = broker1.registry;
-    const node = createNode('test-node');
+    const node = createNode("test-node");
 
     const service = {
-      name: 'test-service',
+      name: "test-service",
       version: 2,
       actions: {
-        'users.find' () {}
+        "users.find"() {},
       },
       events: {},
-      methods: {}
+      methods: {},
     };
 
     await Promise.all([broker1.start(), broker2.start()]);
@@ -85,7 +85,7 @@ describe('Test "registerRemoteServices"', () => {
 });
 
 describe('Test "getNextAvailableActionEndpoint"', () => {
-  it('should return the endpoint if the actionName is not a string', () => {
+  it("should return the endpoint if the actionName is not a string", () => {
     const broker = createBroker(brokerSettings);
     const registry = broker.registry;
     const endpoint = {};
@@ -93,11 +93,11 @@ describe('Test "getNextAvailableActionEndpoint"', () => {
     assert.strictEqual(registry.getNextAvailableActionEndpoint(endpoint), endpoint);
   });
 
-  it('should return error for non-existing action', () => {
+  it("should return error for non-existing action", () => {
     const broker = createBroker(brokerSettings);
     const registry = broker.registry;
 
-    const result = registry.getNextAvailableActionEndpoint('test-action', { nodeId: 'test-node' });
-    assert.strictEqual(result.constructor.name, 'WeaveServiceNotFoundError');
+    const result = registry.getNextAvailableActionEndpoint("test-action", { nodeId: "test-node" });
+    assert.strictEqual(result.constructor.name, "WeaveServiceNotFoundError");
   });
 });

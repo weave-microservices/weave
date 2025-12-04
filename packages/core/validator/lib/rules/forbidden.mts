@@ -13,7 +13,7 @@ export default function checkForbidden(this: any, { schema, messages }: any) {
     `);
   } else {
     code.push(`
-      ${this.makeErrorCode({ type: 'forbidden', passed: 'value', messages })}
+      ${this.makeErrorCode({ type: "forbidden", passed: "value", messages })}
     `);
   }
 
@@ -23,6 +23,6 @@ export default function checkForbidden(this: any, { schema, messages }: any) {
   `);
 
   return {
-    code: code.join('\n')
+    code: code.join("\n"),
   };
 }

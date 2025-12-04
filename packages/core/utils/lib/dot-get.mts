@@ -8,8 +8,10 @@
  * dotGet({name: 'John'}, 'name'); // 'John'
  */
 export function dotGet<T = unknown>(object: unknown, key: string): T | undefined {
-  if (key.includes('.')) {
-    return key.split('.').reduce((obj, i) => (obj as Record<string, unknown>)?.[i], object) as T | undefined;
+  if (key.includes(".")) {
+    return key.split(".").reduce((obj, i) => (obj as Record<string, unknown>)?.[i], object) as
+      | T
+      | undefined;
   }
 
   return (object as Record<string, unknown>)?.[key] as T | undefined;

@@ -2,30 +2,30 @@
  * Author: Kevin Ries (kevin.ries@fachwerk.io)
  * -----
  * Copyright 2021 Fachwerk
-*/
+ */
 
-import { safeCopy } from '@weave-js/utils';
-import type { 
-  Registry, 
-  Runtime, 
-  Node, 
-  ServiceItem, 
+import { safeCopy } from "@weave-js/utils";
+import type {
+  Registry,
+  Runtime,
+  Node,
+  ServiceItem,
   Endpoint,
   NodeCollection,
   ServiceCollection,
   ActionCollection,
   EventCollection,
-  NodeInfo
-} from '../../types/index.js';
+  NodeInfo,
+} from "../../types/index.js";
 
 // own packages
-import { createNodeCollection } from './collections/nodeCollection.mts';
-import { createServiceCollection } from './collections/serviceCollection.mts';
-import { createActionCollection } from './collections/actionCollection.mts';
-import { createEventCollection } from './collections/eventCollection.mts';
-import { createActionEndpoint } from './actionEndpoint.mts';
-import { createNode } from './node.mts';
-import { WeaveServiceNotFoundError, WeaveServiceNotAvailableError } from '../errors.mts';
+import { createNodeCollection } from "./collections/nodeCollection.mts";
+import { createServiceCollection } from "./collections/serviceCollection.mts";
+import { createActionCollection } from "./collections/actionCollection.mts";
+import { createEventCollection } from "./collections/eventCollection.mts";
+import { createActionEndpoint } from "./actionEndpoint.mts";
+import { createNode } from "./node.mts";
+import { WeaveServiceNotFoundError, WeaveServiceNotAvailableError } from "../errors.mts";
 
 const noop = () => {};
 
@@ -51,15 +51,15 @@ export const createRegistry = (runtime: Runtime): Registry => {
 
   const registry = {
     runtime,
-    log: runtime.createLogger('REGISTRY'),
+    log: runtime.createLogger("REGISTRY"),
     nodeCollection: undefined as unknown as NodeCollection,
     serviceCollection: undefined as unknown as ServiceCollection,
     actionCollection: undefined as unknown as ActionCollection,
     eventCollection: undefined as unknown as EventCollection,
     /**
-   * Initialize the registry
-   * @param runtime - Runtime
-   */
+     * Initialize the registry
+     * @param runtime - Runtime
+     */
     init(runtime: Runtime): void {
       // init collections
       this.nodeCollection = createNodeCollection(this) as NodeCollection;
@@ -68,7 +68,7 @@ export const createRegistry = (runtime: Runtime): Registry => {
       this.eventCollection = createEventCollection(this) as EventCollection;
 
       // register an event handler for "$broker.started".
-      runtime.bus.on('$broker.started', () => {
+      runtime.bus.on("$broker.started", () => {
         if (this.nodeCollection.localNode) {
           this.generateLocalNodeInfo(true);
         }
@@ -78,26 +78,41 @@ export const createRegistry = (runtime: Runtime): Registry => {
     // onRegisterRemoteAction: noop,
     checkActionVisibility(action: { visibility?: string }, node: Node): boolean {
       if (
-        typeof action.visibility === 'undefined' ||
-        action.visibility === 'public' ||
-        action.visibility === 'published'
+        typeof action.visibility === "undefined" ||
+        action.visibility === "public" ||
+        action.visibility === "published"
       ) {
         return true;
       }
 
       // Only callable from local services.
-      if (action.visibility === 'protected' && node.isLocal) {
+      if (action.visibility === "protected" && node.isLocal) {
         return true;
       }
 
       return false;
     },
     registerLocalService(serviceSpecification: ServiceItem): void {
-      if (!this.serviceCollection.has(serviceSpecification.name, serviceSpecification.version, runtime.nodeId)) {
-        const service = this.serviceCollection.add(this.nodeCollection.localNode, serviceSpecification.name, serviceSpecification.version, serviceSpecification.settings);
+      if (
+        !this.serviceCollection.has(
+          serviceSpecification.name,
+          serviceSpecification.version,
+          runtime.nodeId,
+        )
+      ) {
+        const service = this.serviceCollection.add(
+          this.nodeCollection.localNode,
+          serviceSpecification.name,
+          serviceSpecification.version,
+          serviceSpecification.settings,
+        );
 
         if (serviceSpecification.actions) {
-          this.registerActions(this.nodeCollection.localNode, service, serviceSpecification.actions);
+          this.registerActions(
+            this.nodeCollection.localNode,
+            service,
+            serviceSpecification.actions,
+          );
         }
 
         if (serviceSpecification.events) {
@@ -142,7 +157,7 @@ export const createRegistry = (runtime: Runtime): Registry => {
         }
 
         if (oldActions) {
-          Object.keys(oldActions).forEach(actionName => {
+          Object.keys(oldActions).forEach((actionName) => {
             if (!service.actions[actionName]) {
               this.actionCollection.remove(actionName, node);
             }
@@ -150,7 +165,7 @@ export const createRegistry = (runtime: Runtime): Registry => {
         }
 
         if (oldEvents) {
-          Object.keys(oldEvents).forEach(eventName => {
+          Object.keys(oldEvents).forEach((eventName) => {
             if (!service.actions[eventName]) {
               this.eventCollection.remove(eventName, node);
             }
@@ -181,19 +196,27 @@ export const createRegistry = (runtime: Runtime): Registry => {
 
       runtime.services.serviceChanged(false);
     },
-    registerEvents(node: Node, service: ServiceItem, events: Record<string, { handler: Function }>): void {
+    registerEvents(
+      node: Node,
+      service: ServiceItem,
+      events: Record<string, { handler: Function }>,
+    ): void {
       Object.keys(events).forEach((key) => {
         const event = events[key];
 
         if (node.isLocal) {
-          event.handler = middlewareHandler!.wrapHandler('localEvent', event.handler, event); // this.onRegisterLocalEvent(event)
+          event.handler = middlewareHandler!.wrapHandler("localEvent", event.handler, event); // this.onRegisterLocalEvent(event)
         }
 
         this.eventCollection.add(node, service, event);
         service.addEvent(event);
       });
     },
-    registerActions(node: Node, service: ServiceItem, actions: Record<string, { handler: Function; visibility?: string }>): void {
+    registerActions(
+      node: Node,
+      service: ServiceItem,
+      actions: Record<string, { handler: Function; visibility?: string }>,
+    ): void {
       Object.keys(actions).forEach((key) => {
         const action = actions[key];
 
@@ -202,7 +225,11 @@ export const createRegistry = (runtime: Runtime): Registry => {
         }
 
         if (!node.isLocal) {
-          action.handler = middlewareHandler!.wrapHandler('remoteAction', runtime.transport!.sendRequest.bind(runtime.transport), action);
+          action.handler = middlewareHandler!.wrapHandler(
+            "remoteAction",
+            runtime.transport!.sendRequest.bind(runtime.transport),
+            action,
+          );
         }
 
         this.actionCollection.add(node, service, action);
@@ -215,8 +242,13 @@ export const createRegistry = (runtime: Runtime): Registry => {
 
       // It must be a local service if there is no node ID.
       if (!nodeId) {
-        const serviceToRemove = this.nodeCollection.localNode.services.find(service => service.name === name);
-        this.nodeCollection.localNode.services.splice(this.nodeCollection.localNode.services.indexOf(serviceToRemove), 1);
+        const serviceToRemove = this.nodeCollection.localNode.services.find(
+          (service) => service.name === name,
+        );
+        this.nodeCollection.localNode.services.splice(
+          this.nodeCollection.localNode.services.indexOf(serviceToRemove),
+          1,
+        );
       }
 
       if (!nodeId || nodeId === runtime.nodeId) {
@@ -229,9 +261,12 @@ export const createRegistry = (runtime: Runtime): Registry => {
     hasService(serviceName: string, version?: string | number, nodeId?: string): boolean {
       return this.serviceCollection.has(serviceName, version, nodeId);
     },
-    getNextAvailableActionEndpoint(actionName: string | Endpoint, opts: any = {}): Endpoint | Error {
+    getNextAvailableActionEndpoint(
+      actionName: string | Endpoint,
+      opts: any = {},
+    ): Endpoint | Error {
       // Handle direct endpoint call.
-      if (typeof actionName !== 'string') {
+      if (typeof actionName !== "string") {
         return actionName;
       } else {
         // check if the action call is intended for a specific remote node
@@ -271,7 +306,11 @@ export const createRegistry = (runtime: Runtime): Registry => {
       }
       return null;
     },
-    getActionEndpoints(actionName: string): { getNextAvailableEndpoint: () => Endpoint | null; getByNodeId: (nodeId: string) => Endpoint | null; getNextLocalEndpoint: () => Endpoint | null } | null {
+    getActionEndpoints(actionName: string): {
+      getNextAvailableEndpoint: () => Endpoint | null;
+      getByNodeId: (nodeId: string) => Endpoint | null;
+      getNextLocalEndpoint: () => Endpoint | null;
+    } | null {
       return this.actionCollection.get(actionName);
     },
     createPrivateActionEndpoint(action: { service: ServiceItem }): Endpoint {
@@ -326,7 +365,7 @@ export const createRegistry = (runtime: Runtime): Registry => {
           withActions: true,
           withEvents: true,
           withNodeService: runtime.options.registry?.publishNodeService,
-          withSettings: true
+          withSettings: true,
         });
       } else {
         nodeInfo.services = [];
@@ -363,13 +402,13 @@ export const createRegistry = (runtime: Runtime): Registry => {
       }
 
       if (isNew) {
-        runtime.eventBus!.broadcastLocal('$node.connected', { node, isReconnected });
+        runtime.eventBus!.broadcastLocal("$node.connected", { node, isReconnected });
         this.log.info(`Node "${node.id}" connected!`);
       } else if (isReconnected) {
-        runtime.eventBus!.broadcastLocal('$node.connected', { node, isReconnected });
+        runtime.eventBus!.broadcastLocal("$node.connected", { node, isReconnected });
         this.log.info(`Node "${node.id}" reconnected!`);
       } else {
-        runtime.eventBus!.broadcastLocal('$node.updated', { node, isReconnected });
+        runtime.eventBus!.broadcastLocal("$node.updated", { node, isReconnected });
         this.log.info(`Node "${node.id}" updated!`);
       }
     },
@@ -378,15 +417,15 @@ export const createRegistry = (runtime: Runtime): Registry => {
       if (node && node.isAvailable) {
         this.deregisterServiceByNodeId(node.id);
         node.disconnected(isUnexpected);
-        runtime.eventBus!.broadcastLocal('$node.disconnected', { nodeId, isUnexpected });
-        this.log.warn(`Nodes "${node.id}"${isUnexpected ? ' unexpectedly' : ''} disconnected.`);
+        runtime.eventBus!.broadcastLocal("$node.disconnected", { nodeId, isUnexpected });
+        this.log.warn(`Nodes "${node.id}"${isUnexpected ? " unexpectedly" : ""} disconnected.`);
       }
     },
     removeNode(nodeId: string): void {
       this.nodeCollection.remove(nodeId);
-      runtime.eventBus!.broadcastLocal('$node.removed', { nodeId });
+      runtime.eventBus!.broadcastLocal("$node.removed", { nodeId });
       this.log.warn(`Node "${nodeId}" removed.`);
-    }
+    },
   };
 
   return registry;

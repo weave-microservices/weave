@@ -1,18 +1,20 @@
-import { createServiceCollection } from '../../../lib/registry/collections/serviceCollection.mts';
-import { createNode } from '../../../lib/registry/node.mts';
-import { createMockRegistry } from '../../helper/mock-registry.mts';
-import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
+import { createServiceCollection } from "../../../lib/registry/collections/serviceCollection.mts";
+import { createNode } from "../../../lib/registry/node.mts";
+import { createMockRegistry } from "../../helper/mock-registry.mts";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 
-describe('Service collection', () => {
-  it('should add and list services to a service collection', () => {
-    const serviceCollection = createServiceCollection(createMockRegistry({ runtimeOptions: { nodeId: 'test-node' }}));
-    const node = createNode('test-node');
-    serviceCollection.add(node, 'test-service', '1.0.0', {
-      $private: true
+describe("Service collection", () => {
+  it("should add and list services to a service collection", () => {
+    const serviceCollection = createServiceCollection(
+      createMockRegistry({ runtimeOptions: { nodeId: "test-node" } }),
+    );
+    const node = createNode("test-node");
+    serviceCollection.add(node, "test-service", "1.0.0", {
+      $private: true,
     });
 
-    serviceCollection.add(node, 'test-service2', '1.0.0', {});
+    serviceCollection.add(node, "test-service2", "1.0.0", {});
 
     const listWithoutPrivate = serviceCollection.list({});
     assert.strictEqual(listWithoutPrivate.length, 1);

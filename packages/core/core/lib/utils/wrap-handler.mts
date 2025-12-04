@@ -1,4 +1,4 @@
-import { isFunction } from '@weave-js/utils';
+import { isFunction } from "@weave-js/utils";
 
 /**
  * Wrap a function or handler object into a standardized handler format
@@ -19,4 +19,4 @@ import { isFunction } from '@weave-js/utils';
  * // Object input
  * wrapHandler({ handler: (ctx) => { ... }, cache: true }) // Returns: { handler: (ctx) => { ... }, cache: true }
  */
-export const wrapHandler = (action: any) => isFunction(action) ? { handler: action } : action;
+export const wrapHandler = (action: any) => (isFunction(action) ? { handler: action } : action);

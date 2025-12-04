@@ -4,10 +4,7 @@
  * @param fields - Fields to omit
  * @returns New object without omitted fields
  */
-export function omit<T extends object, K extends keyof T>(
-  obj: T,
-  fields: K[]
-): Omit<T, K> | null {
+export function omit<T extends object, K extends keyof T>(obj: T, fields: K[]): Omit<T, K> | null {
   if (obj === null) {
     return null;
   }

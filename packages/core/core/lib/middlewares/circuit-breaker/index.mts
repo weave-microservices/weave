@@ -3,22 +3,24 @@
  * -----
  * Copyright 2021 Fachwerk
  */
-import { CIRCUIT_CLOSED,
+import {
+  CIRCUIT_CLOSED,
   CIRCUIT_HALF_OPENED,
   CIRCUIT_HALF_OPEN_WAITING,
-  CIRCUIT_OPENED } from '../../constants.mts';
+  CIRCUIT_OPENED,
+} from "../../constants.mts";
 
 export default (runtime) => {
   const storage = new Map();
   let log = null;
   let circuitBreakerTimer = null;
 
-  function createWindowTimer (windowTime) {
+  function createWindowTimer(windowTime) {
     circuitBreakerTimer = setInterval(() => clearEndpointStore(), windowTime);
     circuitBreakerTimer.unref();
   }
 
-  function clearEndpointStore () {
+  function clearEndpointStore() {
     storage.forEach((item) => {
       if (item.callCounter === 0) {
         storage.delete(item.name);
@@ -30,7 +32,7 @@ export default (runtime) => {
     });
   }
 
-  function getEndpointState (endpoint, options) {
+  function getEndpointState(endpoint, options) {
     let item = storage.get(endpoint.name);
     if (!item) {
       item = {
@@ -39,7 +41,7 @@ export default (runtime) => {
         callCounter: 0,
         failureCouter: 0,
         state: CIRCUIT_CLOSED,
-        circuitBreakerTimer: null
+        circuitBreakerTimer: null,
       };
       storage.set(endpoint.name, item);
     }
@@ -47,7 +49,7 @@ export default (runtime) => {
     return item;
   }
 
-  function onSuccess (item, options) {
+  function onSuccess(item, options) {
     item.callCounter++;
 
     if (item.state === CIRCUIT_HALF_OPENED) {
@@ -57,28 +59,31 @@ export default (runtime) => {
     }
   }
 
-  function onFailure (item, options) {
+  function onFailure(item, options) {
     item.callCounter++;
     item.failureCouter++;
 
     checkThreshold(item, options);
   }
 
-  function checkThreshold (item, options) {
+  function checkThreshold(item, options) {
     if (item.failureCouter >= options.maxFailures) {
       openCircuitBreaker(item);
     }
   }
 
-  function openCircuitBreaker (item) {
+  function openCircuitBreaker(item) {
     item.state = CIRCUIT_OPENED;
     item.endpoint.state = false;
-    item.circuitBreakerTimer = setTimeout(() => halfOpenCircuitBreaker(item), item.options.halfOpenTimeout);
+    item.circuitBreakerTimer = setTimeout(
+      () => halfOpenCircuitBreaker(item),
+      item.options.halfOpenTimeout,
+    );
     item.circuitBreakerTimer.unref();
     log.debug(`Circuit breaker has been opened for endpoint '${item.endpoint.name}'`);
   }
 
-  function halfOpenCircuitBreaker (item) {
+  function halfOpenCircuitBreaker(item) {
     item.state = CIRCUIT_HALF_OPENED;
     item.endpoint.state = true;
 
@@ -90,14 +95,17 @@ export default (runtime) => {
     }
   }
 
-  function handleHalfOpen (item) {
+  function handleHalfOpen(item) {
     item.state = CIRCUIT_HALF_OPEN_WAITING;
     item.endpoint.state = false;
-    item.circuitBreakerTimer = setTimeout(() => halfOpenCircuitBreaker(item), item.options.halfOpenTimeout);
+    item.circuitBreakerTimer = setTimeout(
+      () => halfOpenCircuitBreaker(item),
+      item.options.halfOpenTimeout,
+    );
     item.circuitBreakerTimer.unref();
   }
 
-  function closeCircuitBreaker (item) {
+  function closeCircuitBreaker(item) {
     item.failureCouter = 0;
     item.callCounter = 0;
     item.state = CIRCUIT_CLOSED;
@@ -111,11 +119,11 @@ export default (runtime) => {
     log.debug(`Circuit breaker has been closed for endpoint '${item.endpoint.name}'`);
   }
 
-  function wrapCircuitBreakerMiddleware (handler, action) {
+  function wrapCircuitBreakerMiddleware(handler, action) {
     const options = Object.assign({}, runtime.options.circuitBreaker, action.circuitBreaker || {});
 
     if (options.enabled) {
-      return function curcuitBreakerMiddleware (context, serviceInjections) {
+      return function curcuitBreakerMiddleware(context, serviceInjections) {
         const endpoint = context.endpoint;
         const item = getEndpointState(endpoint, options);
 
@@ -125,13 +133,13 @@ export default (runtime) => {
         }
 
         return handler(context, serviceInjections)
-          .then(result => {
+          .then((result) => {
             const item = getEndpointState(endpoint, options);
             onSuccess(item, options);
 
             return result;
           })
-          .catch(error => {
+          .catch((error) => {
             if (item && (!error.nodeId || error.nodeId === context.nodeId)) {
               onFailure(item, options);
             }
@@ -144,14 +152,14 @@ export default (runtime) => {
   }
 
   return {
-    created () {
-      log = runtime.createLogger('circuit-breaker');
+    created() {
+      log = runtime.createLogger("circuit-breaker");
 
       if (runtime.options.metrics.enabled) {
         // todo: add circuit breaker metrics
       }
     },
-    started () {
+    started() {
       const { enabled, windowTime } = this.options.circuitBreaker;
       if (enabled) {
         createWindowTimer(windowTime);
@@ -159,8 +167,8 @@ export default (runtime) => {
     },
     localAction: wrapCircuitBreakerMiddleware,
     remoteAction: wrapCircuitBreakerMiddleware,
-    brokerStopped () {
+    brokerStopped() {
       clearInterval(circuitBreakerTimer);
-    }
+    },
   };
 };

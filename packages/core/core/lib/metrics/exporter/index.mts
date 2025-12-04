@@ -1,17 +1,17 @@
-import { isString, isFunction } from '@weave-js/utils';
-import { WeaveBrokerOptionsError } from '../../errors.mts';
+import { isString, isFunction } from "@weave-js/utils";
+import { WeaveBrokerOptionsError } from "../../errors.mts";
 
 const adapters = {
-  Base: await import('./base.mts'),
-  Event: await import('./event.mts')
+  Base: await import("./base.mts"),
+  Event: await import("./event.mts"),
 };
 
-const getByName = name => {
+const getByName = (name) => {
   if (!name) {
     return null;
   }
 
-  const n = Object.keys(adapters).find(n => n.toLowerCase() === name.toLowerCase());
+  const n = Object.keys(adapters).find((n) => n.toLowerCase() === name.toLowerCase());
 
   if (n) {
     return adapters[n];
@@ -20,7 +20,7 @@ const getByName = name => {
 
 export default {
   ...adapters,
-  resolve (options) {
+  resolve(options) {
     let cacheFactory;
 
     if (options === true) {
@@ -40,5 +40,5 @@ export default {
     if (cacheFactory) {
       return cacheFactory;
     }
-  }
+  },
 };

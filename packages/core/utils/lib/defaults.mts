@@ -1,4 +1,4 @@
-import { isObject } from './is-object.mts';
+import { isObject } from "./is-object.mts";
 
 /**
  * Merge settings with default options.

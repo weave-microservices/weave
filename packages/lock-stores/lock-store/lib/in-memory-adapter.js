@@ -1,25 +1,25 @@
 const createInMemoryLockStoreAdapter = async (userOptions = {}) => {
   const database = {
-    locks: []
+    locks: [],
   };
 
   let eventBus;
 
-  async function connect (lockStoreEventBus) {
+  async function connect(lockStoreEventBus) {
     eventBus = lockStoreEventBus;
   }
 
-  async function disconnect () {}
+  async function disconnect() {}
 
   const removeExpiredLocks = async () => {
-    database.locks = database.locks.filter(lock => {
+    database.locks = database.locks.filter((lock) => {
       if (lock.expiresAt >= Date.now()) {
         return true;
       } else {
-        eventBus.emit('lock-released', {
+        eventBus.emit("lock-released", {
           key: lock.key,
           expiresAt: lock.expiresAt,
-          metadata: lock.metadata
+          metadata: lock.metadata,
         });
         return false;
       }
@@ -28,11 +28,11 @@ const createInMemoryLockStoreAdapter = async (userOptions = {}) => {
 
   const lock = async (key, expiresAt, metadata) => {
     database.locks.push({ key, expiresAt, metadata });
-    eventBus.emit('lock-created', { key, expiresAt, metadata });
+    eventBus.emit("lock-created", { key, expiresAt, metadata });
   };
 
   const getLock = async (key) => {
-    return database.locks.find(lock => {
+    return database.locks.find((lock) => {
       return lock.key === key;
     });
   };
@@ -48,7 +48,7 @@ const createInMemoryLockStoreAdapter = async (userOptions = {}) => {
   const release = async (key) => {
     await removeExpiredLocks();
 
-    const index = database.locks.findIndex(lock => {
+    const index = database.locks.findIndex((lock) => {
       return lock.key === key;
     });
 
@@ -57,15 +57,15 @@ const createInMemoryLockStoreAdapter = async (userOptions = {}) => {
       return;
     }
 
-    const existingLock = database.locks.find(lock => {
+    const existingLock = database.locks.find((lock) => {
       return lock.key === key;
     });
 
     database.locks.splice(index, 1);
-    eventBus.emit('lock-released', {
+    eventBus.emit("lock-released", {
       key: existingLock.key,
       expiresAt: existingLock.expiresAt,
-      metadata: existingLock.metadata
+      metadata: existingLock.metadata,
     });
   };
 
@@ -78,15 +78,15 @@ const createInMemoryLockStoreAdapter = async (userOptions = {}) => {
   const renew = async (key, expiresAt) => {
     await removeExpiredLocks();
 
-    const existingLock = database.locks.find(lock => {
+    const existingLock = database.locks.find((lock) => {
       return lock.key === key;
     });
 
     existingLock.expiresAt = expiresAt;
-    eventBus.emit('lock-renewed', {
+    eventBus.emit("lock-renewed", {
       key: existingLock.key,
       expiresAt: existingLock.expiresAt,
-      metadata: existingLock.metadata
+      metadata: existingLock.metadata,
     });
   };
 
@@ -94,7 +94,17 @@ const createInMemoryLockStoreAdapter = async (userOptions = {}) => {
     database.locks = [];
   };
 
-  return { connect, disconnect, removeExpiredLocks, lock, isLocked, renew, release, getLock, flush };
+  return {
+    connect,
+    disconnect,
+    removeExpiredLocks,
+    lock,
+    isLocked,
+    renew,
+    release,
+    getLock,
+    flush,
+  };
 };
 
 module.exports = { createInMemoryLockStoreAdapter };

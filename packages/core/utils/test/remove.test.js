@@ -1,7 +1,7 @@
-const { remove } = require('../lib');
+const { remove } = require("../lib");
 
-describe('Remove', () => {
-  it('should return a property', () => {
+describe("Remove", () => {
+  it("should return a property", () => {
     const nums = [-1, 3, -3, -4, 5, 0, 7];
 
     const removedItems = remove(nums, function (n) {

@@ -1,8 +1,8 @@
-import { describe, it } from 'node:test';
-import { delay } from '../lib/delay.mts';
+import { describe, it } from "node:test";
+import { delay } from "../lib/delay.mts";
 
-describe('Delay function', () => {
-  it('should delay execution', async () => {
+describe("Delay function", () => {
+  it("should delay execution", async () => {
     const start = Date.now();
     await delay(100);
     const elapsed = Date.now() - start;

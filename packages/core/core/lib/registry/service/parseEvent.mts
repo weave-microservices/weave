@@ -1,6 +1,6 @@
-import { isFunction, clone, isObject, promisify } from '@weave-js/utils';
-import { wrapHandler } from '../../utils/wrap-handler.mts';
-import { WeaveError } from '../../errors.mts';
+import { isFunction, clone, isObject, promisify } from "@weave-js/utils";
+import { wrapHandler } from "../../utils/wrap-handler.mts";
+import { WeaveError } from "../../errors.mts";
 
 export const parseEvent = (runtime, service, eventDefinition, name) => {
   let event;
@@ -11,12 +11,16 @@ export const parseEvent = (runtime, service, eventDefinition, name) => {
   } else if (isObject(eventDefinition)) {
     event = clone(eventDefinition);
   } else {
-    runtime.handleError(new WeaveError(`Invalid event definition "${name}" on service "${service.name}".`));
+    runtime.handleError(
+      new WeaveError(`Invalid event definition "${name}" on service "${service.name}".`),
+    );
   }
 
   // Event handler has to be a function
   if (!isFunction(event.handler) && !Array.isArray(event.handler)) {
-    runtime.handleError(new WeaveError(`Missing event handler for "${name}" on service "${service.name}".`));
+    runtime.handleError(
+      new WeaveError(`Missing event handler for "${name}" on service "${service.name}".`),
+    );
   }
 
   event.service = service;
@@ -25,7 +29,7 @@ export const parseEvent = (runtime, service, eventDefinition, name) => {
   if (isFunction(event.handler)) {
     handler = promisify(event.handler.bind(service));
   } else if (Array.isArray(event.handler)) {
-    handler = event.handler.map(h => {
+    handler = event.handler.map((h) => {
       return promisify(h.bind(service));
     });
   }
@@ -37,7 +41,7 @@ export const parseEvent = (runtime, service, eventDefinition, name) => {
   if (isFunction(handler)) {
     event.handler = (context) => handler(context);
   } else if (Array.isArray(handler)) {
-    event.handler = (context) => Promise.all(handler.map(h => h(context)));
+    event.handler = (context) => Promise.all(handler.map((h) => h(context)));
   }
 
   event.service = service;

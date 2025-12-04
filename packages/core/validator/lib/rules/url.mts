@@ -5,14 +5,14 @@ export default function checkUrl(this: any, { messages }: any) {
 
   code.push(`
       if (typeof value !== 'string') {
-        ${this.makeErrorCode({ type: 'string', passed: 'value', messages })}
+        ${this.makeErrorCode({ type: "string", passed: "value", messages })}
         return value
       }
     `);
 
   code.push(`
       if (!${PATTERN.toString()}.test(value)) {
-        ${this.makeErrorCode({ type: 'url', passed: 'value', messages })}
+        ${this.makeErrorCode({ type: "url", passed: "value", messages })}
         return value
       }
     `);
@@ -22,6 +22,6 @@ export default function checkUrl(this: any, { messages }: any) {
     `);
 
   return {
-    code: code.join('\n')
+    code: code.join("\n"),
   };
 }

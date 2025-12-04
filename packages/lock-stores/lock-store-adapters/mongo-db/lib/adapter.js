@@ -1,10 +1,10 @@
-const { MongoClient } = require('mongodb');
+const { MongoClient } = require("mongodb");
 
 const createMongoDbLockStoreAdapter = async (userOptions = {}) => {
   const options = {
-    url: 'mongodb://localhost:27017/lock_store',
-    collectionName: 'lock_store',
-    ...userOptions
+    url: "mongodb://localhost:27017/lock_store",
+    collectionName: "lock_store",
+    ...userOptions,
   };
 
   let eventBus;
@@ -19,7 +19,7 @@ const createMongoDbLockStoreAdapter = async (userOptions = {}) => {
    * @param {MongoClient} client Mongo client ref
    * @returns {Promise<void>} Promise
    */
-  async function setupDatabase (client) {
+  async function setupDatabase(client) {
     const db = await client.db();
     const collectionsRaw = await db.listCollections();
     const collections = await collectionsRaw.toArray();
@@ -29,13 +29,13 @@ const createMongoDbLockStoreAdapter = async (userOptions = {}) => {
     }
   }
 
-  async function connect (lockStoreEventBus) {
+  async function connect(lockStoreEventBus) {
     try {
       eventBus = lockStoreEventBus;
 
       client = new MongoClient(options.url, {
         useNewUrlParser: true,
-        useUnifiedTopology: true
+        useUnifiedTopology: true,
       });
 
       await client.connect();
@@ -43,50 +43,54 @@ const createMongoDbLockStoreAdapter = async (userOptions = {}) => {
       const db = client.db();
       collection = db.collection(options.collectionName);
     } catch (error) {
-      console.log('error, try to reconnect');
+      console.log("error, try to reconnect");
       throw error;
       // await connect();
     }
   }
 
-  async function disconnect () {
+  async function disconnect() {
     try {
       await client.close();
     } catch (error) {
-      console.log('error while disconnect');
+      console.log("error while disconnect");
     }
   }
 
   const removeExpiredLocks = async () => {
-    const removableLocks = await collection.find({
-      expiresAt: {
-        $lt: Date.now()
-      }
-    }).toArray();
+    const removableLocks = await collection
+      .find({
+        expiresAt: {
+          $lt: Date.now(),
+        },
+      })
+      .toArray();
 
-    await Promise.all(removableLocks.map(async (lock) => {
-      await collection.deleteOne({ _id: lock._id });
-      eventBus.emit('lock-released', {
-        key: lock.key,
-        expiresAt: lock.expiresAt,
-        metadata: lock.metadata
-      });
-    }));
+    await Promise.all(
+      removableLocks.map(async (lock) => {
+        await collection.deleteOne({ _id: lock._id });
+        eventBus.emit("lock-released", {
+          key: lock.key,
+          expiresAt: lock.expiresAt,
+          metadata: lock.metadata,
+        });
+      }),
+    );
   };
 
   const lock = async (key, expiresAt = Number.MAX_SAFE_INTEGER, metadata) => {
     const isLocked = await collection.findOne({ key });
 
     if (isLocked) {
-      throw new Error('Failed to acquire lock.');
+      throw new Error("Failed to acquire lock.");
     }
 
     const lock = { key, expiresAt };
     await collection.insertOne(lock);
-    eventBus.emit('lock-created', {
+    eventBus.emit("lock-created", {
       key: lock.key,
       expiresAt: lock.expiresAt,
-      metadata: lock.metadata
+      metadata: lock.metadata,
     });
   };
 
@@ -101,14 +105,16 @@ const createMongoDbLockStoreAdapter = async (userOptions = {}) => {
 
   const release = async (key) => {
     const locks = await collection.find({ key }).toArray();
-    await Promise.all(locks.map(async (lock) => {
-      await collection.deleteOne({ _id: lock._id });
-      eventBus.emit('lock-released', {
-        key: lock.key,
-        expiresAt: lock.expiresAt,
-        metadata: lock.metadata
-      });
-    }));
+    await Promise.all(
+      locks.map(async (lock) => {
+        await collection.deleteOne({ _id: lock._id });
+        eventBus.emit("lock-released", {
+          key: lock.key,
+          expiresAt: lock.expiresAt,
+          metadata: lock.metadata,
+        });
+      }),
+    );
   };
 
   /**
@@ -119,29 +125,43 @@ const createMongoDbLockStoreAdapter = async (userOptions = {}) => {
    */
   const renew = async (key, expiresAt) => {
     const locks = await collection.find({ key }).toArray();
-    await Promise.all(locks.map(async (lock) => {
-      await collection.updateOne({ _id: lock._id }, { $set: { expiresAt }});
-      eventBus.emit('lock-renewed', {
-        key: lock.key,
-        expiresAt: lock.expiresAt,
-        metadata: lock.metadata
-      });
-    }));
+    await Promise.all(
+      locks.map(async (lock) => {
+        await collection.updateOne({ _id: lock._id }, { $set: { expiresAt } });
+        eventBus.emit("lock-renewed", {
+          key: lock.key,
+          expiresAt: lock.expiresAt,
+          metadata: lock.metadata,
+        });
+      }),
+    );
   };
 
   const flush = async () => {
     const locks = await collection.find({}).toArray();
-    await Promise.all(locks.map(async (lock) => {
-      await collection.deleteOne({ _id: lock._id });
-      eventBus.emit('lock-released', {
-        key: lock.key,
-        expiresAt: lock.expiresAt,
-        metadata: lock.metadata
-      });
-    }));
+    await Promise.all(
+      locks.map(async (lock) => {
+        await collection.deleteOne({ _id: lock._id });
+        eventBus.emit("lock-released", {
+          key: lock.key,
+          expiresAt: lock.expiresAt,
+          metadata: lock.metadata,
+        });
+      }),
+    );
   };
 
-  return { connect, disconnect, removeExpiredLocks, lock, getLock, isLocked, renew, release, flush };
+  return {
+    connect,
+    disconnect,
+    removeExpiredLocks,
+    lock,
+    getLock,
+    isLocked,
+    renew,
+    release,
+    flush,
+  };
 };
 
 module.exports = { createMongoDbLockStoreAdapter };

@@ -11,6 +11,6 @@
  */
 export function tagTester(name: string): (obj: unknown) => boolean {
   return (obj: unknown): boolean => {
-    return Object.prototype.toString.call(obj) === '[object ' + name + ']';
+    return Object.prototype.toString.call(obj) === "[object " + name + "]";
   };
 }

@@ -1,13 +1,13 @@
-import { WeaveError } from '../errors.mts';
-import { isStandardLevel, levelMethods } from './levels.mts';
-import { noop, generateLogMethod } from './tools.mts';
+import { WeaveError } from "../errors.mts";
+import { isStandardLevel, levelMethods } from "./levels.mts";
+import { noop, generateLogMethod } from "./tools.mts";
 
 export const initBase = (runtime) => {
   runtime.setLevel = (level) => {
     const { labels, values } = runtime.levels;
 
     // Handle number values for level
-    if (typeof level === 'number') {
+    if (typeof level === "number") {
       if (labels[level] === undefined) {
         throw new WeaveError(`Unknown level value: "${level}"`);
       }
@@ -19,7 +19,7 @@ export const initBase = (runtime) => {
       throw new WeaveError(`Unknown level: "${level}"`);
     }
 
-    const levelVal = runtime.levelValue = values[level];
+    const levelVal = (runtime.levelValue = values[level]);
     const useOnlyCustomLevelsVal = runtime.options.useOnlyCustomLevelsSym;
     const hook = runtime.options.hooks.logMethod;
 
@@ -28,7 +28,9 @@ export const initBase = (runtime) => {
         runtime.logMethods[key] = noop;
         continue;
       }
-      runtime.logMethods[key] = isStandardLevel(key, useOnlyCustomLevelsVal) ? levelMethods[key](runtime, hook) : generateLogMethod(runtime, values[key], hook);
+      runtime.logMethods[key] = isStandardLevel(key, useOnlyCustomLevelsVal)
+        ? levelMethods[key](runtime, hook)
+        : generateLogMethod(runtime, values[key], hook);
     }
   };
 
@@ -51,7 +53,7 @@ export const initBase = (runtime) => {
       if (isErrorObject) {
         object.stack = originObject.stack;
         if (!object.type) {
-          object.type = 'Error';
+          object.type = "Error";
         }
       }
     }

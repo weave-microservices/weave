@@ -3,7 +3,7 @@ export const createFakeRuntime = (options = {}) => {
     nodeId: options.nodeId,
     options,
     tracer: {
-      options: options.tracing || {}
-    }
+      options: options.tracing || {},
+    },
   };
 };

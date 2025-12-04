@@ -1,35 +1,33 @@
-import os from 'os';
-import { createNode } from '../../helper/index.mts';
-import Constants from '../../../lib/metrics/constants.mts';
-import { describe, it, before, after } from 'node:test';
-import assert from 'node:assert/strict';
+import os from "os";
+import { createNode } from "../../helper/index.mts";
+import Constants from "../../../lib/metrics/constants.mts";
+import { describe, it, before, after } from "node:test";
+import assert from "node:assert/strict";
 
 const defaultSettings = {
   logger: {
-    enabled: false
+    enabled: false,
   },
   metrics: {
-    enabled: true
-  }
+    enabled: true,
+  },
 };
 
-describe('Test broker metrics', () => {
-  const node = createNode(Object.assign({ nodeId: 'node-metrics', namespace: 'metrics' }, defaultSettings));
-  before(() => Promise.all([
-    node.start()
-  ]));
+describe("Test broker metrics", () => {
+  const node = createNode(
+    Object.assign({ nodeId: "node-metrics", namespace: "metrics" }, defaultSettings),
+  );
+  before(() => Promise.all([node.start()]));
 
-  after(() => Promise.all([
-    node.stop()
-  ]));
+  after(() => Promise.all([node.stop()]));
 
   const { metrics } = node.runtime;
 
-  it('should return broker metrics', () => {
-    expect(metrics.getMetric(Constants.WEAVE_ENVIRONMENT).value).toBe('Node.js');
+  it("should return broker metrics", () => {
+    expect(metrics.getMetric(Constants.WEAVE_ENVIRONMENT).value).toBe("Node.js");
     expect(metrics.getMetric(Constants.WEAVE_ENVIRONMENT_VERSION).value).toBe(process.version);
-    expect(metrics.getMetric(Constants.WEAVE_NAMESPACE).value).toBe('metrics');
-    expect(metrics.getMetric(Constants.WEAVE_NODE_ID).value).toBe('node-metrics');
+    expect(metrics.getMetric(Constants.WEAVE_NAMESPACE).value).toBe("metrics");
+    expect(metrics.getMetric(Constants.WEAVE_NODE_ID).value).toBe("node-metrics");
     expect(metrics.getMetric(Constants.WEAVE_VERSION).value).toBe(node.version);
 
     // Process metrics
@@ -49,20 +47,16 @@ describe('Test broker metrics', () => {
   });
 });
 
-describe('Test metric middleware', () => {
-  const node1 = createNode(Object.assign({ nodeId: 'node1' }, defaultSettings));
+describe("Test metric middleware", () => {
+  const node1 = createNode(Object.assign({ nodeId: "node1" }, defaultSettings));
 
-  before(() => Promise.all([
-    node1.start()
-  ]));
+  before(() => Promise.all([node1.start()]));
 
-  after(() => Promise.all([
-    node1.stop()
-  ]));
+  after(() => Promise.all([node1.stop()]));
 
-  it('should create a middleware', () => {
-    const metric = node1.runtime.metrics.getMetric('weave.requests.total');
-    assert.strictEqual(metric.description, 'Number of total requests.');
+  it("should create a middleware", () => {
+    const metric = node1.runtime.metrics.getMetric("weave.requests.total");
+    assert.strictEqual(metric.description, "Number of total requests.");
     assert.strictEqual(metric.value, 0);
   });
 });

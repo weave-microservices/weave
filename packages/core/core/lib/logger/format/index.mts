@@ -1,2 +1,2 @@
-export { asJson } from './asJson.mts';
-export { asHumanReadable } from './asHumanReadable.mts';
+export { asJson } from "./asJson.mts";
+export { asHumanReadable } from "./asHumanReadable.mts";

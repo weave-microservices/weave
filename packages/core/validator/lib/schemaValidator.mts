@@ -9,16 +9,26 @@
  * Valid schema type identifiers supported by the validator
  */
 const validTypes = [
-  'any', 'array', 'boolean', 'date', 'email', 'enum',
-  'forbidden', 'multi', 'number', 'object', 'string', 'url'
+  "any",
+  "array",
+  "boolean",
+  "date",
+  "email",
+  "enum",
+  "forbidden",
+  "multi",
+  "number",
+  "object",
+  "string",
+  "url",
 ] as const;
 
-type ValidType = typeof validTypes[number];
+type ValidType = (typeof validTypes)[number];
 
 /**
  * Valid strict mode values for validation options
  */
-const validStrictModes = ['remove', 'error'] as const;
+const validStrictModes = ["remove", "error"] as const;
 
 /**
  * Validation error object for schema validation
@@ -42,7 +52,7 @@ interface BaseSchemaObject {
  * String-specific schema properties
  */
 interface StringSchema extends BaseSchemaObject {
-  type: 'string';
+  type: "string";
   minLength?: number;
   maxLength?: number;
   trim?: boolean;
@@ -62,7 +72,7 @@ interface StringSchema extends BaseSchemaObject {
  * Number-specific schema properties
  */
 interface NumberSchema extends BaseSchemaObject {
-  type: 'number';
+  type: "number";
   min?: number;
   max?: number;
   equal?: number;
@@ -76,7 +86,7 @@ interface NumberSchema extends BaseSchemaObject {
  * Array-specific schema properties
  */
 interface ArraySchema extends BaseSchemaObject {
-  type: 'array';
+  type: "array";
   minLength?: number;
   maxLength?: number;
   length?: number;
@@ -87,7 +97,7 @@ interface ArraySchema extends BaseSchemaObject {
  * Object-specific schema properties
  */
 interface ObjectSchema extends BaseSchemaObject {
-  type: 'object';
+  type: "object";
   strict?: boolean;
   properties?: Record<string, ValidationSchema>;
   props?: Record<string, ValidationSchema>;
@@ -97,7 +107,7 @@ interface ObjectSchema extends BaseSchemaObject {
  * Enum-specific schema properties
  */
 interface EnumSchema extends BaseSchemaObject {
-  type: 'enum';
+  type: "enum";
   values: any[];
 }
 
@@ -105,7 +115,7 @@ interface EnumSchema extends BaseSchemaObject {
  * Multi-type schema properties (union schemas)
  */
 interface MultiSchema extends BaseSchemaObject {
-  type: 'multi';
+  type: "multi";
   rules: ValidationSchema[];
 }
 
@@ -113,13 +123,20 @@ interface MultiSchema extends BaseSchemaObject {
  * Other simple schema types
  */
 interface SimpleSchema extends BaseSchemaObject {
-  type: 'any' | 'boolean' | 'date' | 'email' | 'forbidden' | 'url';
+  type: "any" | "boolean" | "date" | "email" | "forbidden" | "url";
 }
 
 /**
  * Union of all possible schema object types
  */
-type SchemaObject = StringSchema | NumberSchema | ArraySchema | ObjectSchema | EnumSchema | MultiSchema | SimpleSchema;
+type SchemaObject =
+  | StringSchema
+  | NumberSchema
+  | ArraySchema
+  | ObjectSchema
+  | EnumSchema
+  | MultiSchema
+  | SimpleSchema;
 
 /**
  * Complete validation schema type definition
@@ -133,15 +150,18 @@ export type ValidationSchema = ValidType | SchemaObject | ValidationSchema[];
  * @param path - The current path in the schema (for error reporting)
  * @returns Array of validation errors (empty if valid)
  */
-export function validateSchema(schema: ValidationSchema, path: string = ''): SchemaValidationError[] {
+export function validateSchema(
+  schema: ValidationSchema,
+  path: string = "",
+): SchemaValidationError[] {
   const errors: SchemaValidationError[] = [];
 
-  if (typeof schema === 'string') {
+  if (typeof schema === "string") {
     // String shorthand
     if (!validTypes.includes(schema as any)) {
       errors.push({
         path,
-        message: `Invalid type "${schema}". Valid types: ${validTypes.join(', ')}`
+        message: `Invalid type "${schema}". Valid types: ${validTypes.join(", ")}`,
       });
     }
     return errors;
@@ -152,7 +172,7 @@ export function validateSchema(schema: ValidationSchema, path: string = ''): Sch
     if (schema.length === 0) {
       errors.push({
         path,
-        message: 'Multi-type schema array cannot be empty'
+        message: "Multi-type schema array cannot be empty",
       });
     } else {
       schema.forEach((subSchema, index) => {
@@ -162,10 +182,10 @@ export function validateSchema(schema: ValidationSchema, path: string = ''): Sch
     return errors;
   }
 
-  if (typeof schema !== 'object' || schema === null) {
+  if (typeof schema !== "object" || schema === null) {
     errors.push({
       path,
-      message: 'Schema must be an object, string, or array'
+      message: "Schema must be an object, string, or array",
     });
     return errors;
   }
@@ -177,56 +197,59 @@ export function validateSchema(schema: ValidationSchema, path: string = ''): Sch
   if (!schemaObj.type) {
     errors.push({
       path: `${path}.type`,
-      message: 'Schema must have a "type" property'
+      message: 'Schema must have a "type" property',
     });
   } else if (!validTypes.includes(schemaObj.type)) {
     errors.push({
       path: `${path}.type`,
-      message: `Invalid type "${schemaObj.type}". Valid types: ${validTypes.join(', ')}`
+      message: `Invalid type "${schemaObj.type}". Valid types: ${validTypes.join(", ")}`,
     });
   }
 
   // Type-specific validations
   switch (schemaObj.type) {
-  case 'string':
-    validateStringSchema(schemaObj, path, errors);
-    break;
-  case 'number':
-    validateNumberSchema(schemaObj, path, errors);
-    break;
-  case 'array':
-    validateArraySchema(schemaObj, path, errors);
-    break;
-  case 'object':
-    validateObjectSchema(schemaObj, path, errors);
-    break;
-  case 'enum':
-    validateEnumSchema(schemaObj, path, errors);
-    break;
-  case 'multi':
-    validateMultiSchema(schemaObj, path, errors);
-    break;
+    case "string":
+      validateStringSchema(schemaObj, path, errors);
+      break;
+    case "number":
+      validateNumberSchema(schemaObj, path, errors);
+      break;
+    case "array":
+      validateArraySchema(schemaObj, path, errors);
+      break;
+    case "object":
+      validateObjectSchema(schemaObj, path, errors);
+      break;
+    case "enum":
+      validateEnumSchema(schemaObj, path, errors);
+      break;
+    case "multi":
+      validateMultiSchema(schemaObj, path, errors);
+      break;
   }
 
   // Common validations
-  if (schemaObj.optional !== undefined && typeof schemaObj.optional !== 'boolean') {
+  if (schemaObj.optional !== undefined && typeof schemaObj.optional !== "boolean") {
     errors.push({
       path: `${path}.optional`,
-      message: 'Optional must be a boolean'
+      message: "Optional must be a boolean",
     });
   }
 
-  if (schemaObj.nullable !== undefined && typeof schemaObj.nullable !== 'boolean') {
+  if (schemaObj.nullable !== undefined && typeof schemaObj.nullable !== "boolean") {
     errors.push({
       path: `${path}.nullable`,
-      message: 'Nullable must be a boolean'
+      message: "Nullable must be a boolean",
     });
   }
 
-  if (schemaObj.messages !== undefined && (typeof schemaObj.messages !== 'object' || schemaObj.messages === null)) {
+  if (
+    schemaObj.messages !== undefined &&
+    (typeof schemaObj.messages !== "object" || schemaObj.messages === null)
+  ) {
     errors.push({
       path: `${path}.messages`,
-      message: 'Messages must be an object'
+      message: "Messages must be an object",
     });
   }
 
@@ -237,13 +260,13 @@ export function validateSchema(schema: ValidationSchema, path: string = ''): Sch
  * Validates string-specific schema properties
  */
 function validateStringSchema(schema: any, path: string, errors: SchemaValidationError[]): void {
-  const numericProps = ['minLength', 'maxLength'];
-  numericProps.forEach(prop => {
+  const numericProps = ["minLength", "maxLength"];
+  numericProps.forEach((prop) => {
     if (schema[prop] !== undefined) {
-      if (typeof schema[prop] !== 'number' || schema[prop] < 0 || !Number.isInteger(schema[prop])) {
+      if (typeof schema[prop] !== "number" || schema[prop] < 0 || !Number.isInteger(schema[prop])) {
         errors.push({
           path: `${path}.${prop}`,
-          message: `${prop} must be a non-negative integer`
+          message: `${prop} must be a non-negative integer`,
         });
       }
     }
@@ -253,33 +276,43 @@ function validateStringSchema(schema: any, path: string, errors: SchemaValidatio
     if (schema.minLength > schema.maxLength) {
       errors.push({
         path: `${path}.minLength`,
-        message: 'minLength cannot be greater than maxLength'
+        message: "minLength cannot be greater than maxLength",
       });
     }
   }
 
-  const booleanProps = ['trim', 'trimLeft', 'trimRight', 'uppercase', 'lowercase', 'base64', 'uuid', 'phone', 'hex'];
-  booleanProps.forEach(prop => {
-    if (schema[prop] !== undefined && typeof schema[prop] !== 'boolean') {
+  const booleanProps = [
+    "trim",
+    "trimLeft",
+    "trimRight",
+    "uppercase",
+    "lowercase",
+    "base64",
+    "uuid",
+    "phone",
+    "hex",
+  ];
+  booleanProps.forEach((prop) => {
+    if (schema[prop] !== undefined && typeof schema[prop] !== "boolean") {
       errors.push({
         path: `${path}.${prop}`,
-        message: `${prop} must be a boolean`
+        message: `${prop} must be a boolean`,
       });
     }
   });
 
-  if (schema.equal !== undefined && typeof schema.equal !== 'string') {
+  if (schema.equal !== undefined && typeof schema.equal !== "string") {
     errors.push({
       path: `${path}.equal`,
-      message: 'equal must be a string'
+      message: "equal must be a string",
     });
   }
 
   if (schema.pattern !== undefined) {
-    if (!(schema.pattern instanceof RegExp) && typeof schema.pattern !== 'string') {
+    if (!(schema.pattern instanceof RegExp) && typeof schema.pattern !== "string") {
       errors.push({
         path: `${path}.pattern`,
-        message: 'pattern must be a RegExp or string'
+        message: "pattern must be a RegExp or string",
       });
     }
   }
@@ -289,12 +322,12 @@ function validateStringSchema(schema: any, path: string, errors: SchemaValidatio
  * Validates number-specific schema properties
  */
 function validateNumberSchema(schema: any, path: string, errors: SchemaValidationError[]): void {
-  const numericProps = ['min', 'max', 'equal', 'notEqual'];
-  numericProps.forEach(prop => {
-    if (schema[prop] !== undefined && typeof schema[prop] !== 'number') {
+  const numericProps = ["min", "max", "equal", "notEqual"];
+  numericProps.forEach((prop) => {
+    if (schema[prop] !== undefined && typeof schema[prop] !== "number") {
       errors.push({
         path: `${path}.${prop}`,
-        message: `${prop} must be a number`
+        message: `${prop} must be a number`,
       });
     }
   });
@@ -303,17 +336,17 @@ function validateNumberSchema(schema: any, path: string, errors: SchemaValidatio
     if (schema.min > schema.max) {
       errors.push({
         path: `${path}.min`,
-        message: 'min cannot be greater than max'
+        message: "min cannot be greater than max",
       });
     }
   }
 
-  const booleanProps = ['integer', 'positive', 'negative'];
-  booleanProps.forEach(prop => {
-    if (schema[prop] !== undefined && typeof schema[prop] !== 'boolean') {
+  const booleanProps = ["integer", "positive", "negative"];
+  booleanProps.forEach((prop) => {
+    if (schema[prop] !== undefined && typeof schema[prop] !== "boolean") {
       errors.push({
         path: `${path}.${prop}`,
-        message: `${prop} must be a boolean`
+        message: `${prop} must be a boolean`,
       });
     }
   });
@@ -323,13 +356,13 @@ function validateNumberSchema(schema: any, path: string, errors: SchemaValidatio
  * Validates array-specific schema properties
  */
 function validateArraySchema(schema: any, path: string, errors: SchemaValidationError[]): void {
-  const numericProps = ['minLength', 'maxLength', 'length'];
-  numericProps.forEach(prop => {
+  const numericProps = ["minLength", "maxLength", "length"];
+  numericProps.forEach((prop) => {
     if (schema[prop] !== undefined) {
-      if (typeof schema[prop] !== 'number' || schema[prop] < 0 || !Number.isInteger(schema[prop])) {
+      if (typeof schema[prop] !== "number" || schema[prop] < 0 || !Number.isInteger(schema[prop])) {
         errors.push({
           path: `${path}.${prop}`,
-          message: `${prop} must be a non-negative integer`
+          message: `${prop} must be a non-negative integer`,
         });
       }
     }
@@ -344,33 +377,33 @@ function validateArraySchema(schema: any, path: string, errors: SchemaValidation
  * Validates object-specific schema properties
  */
 function validateObjectSchema(schema: any, path: string, errors: SchemaValidationError[]): void {
-  if (schema.strict !== undefined && typeof schema.strict !== 'boolean') {
+  if (schema.strict !== undefined && typeof schema.strict !== "boolean") {
     errors.push({
       path: `${path}.strict`,
-      message: 'strict must be a boolean'
+      message: "strict must be a boolean",
     });
   }
 
   // Check properties and props separately to handle null values correctly
   if (schema.properties !== undefined) {
-    if (typeof schema.properties !== 'object' || schema.properties === null) {
+    if (typeof schema.properties !== "object" || schema.properties === null) {
       errors.push({
         path: `${path}.properties`,
-        message: 'properties must be an object'
+        message: "properties must be an object",
       });
     } else {
-      Object.keys(schema.properties).forEach(key => {
+      Object.keys(schema.properties).forEach((key) => {
         errors.push(...validateSchema(schema.properties[key], `${path}.properties.${key}`));
       });
     }
   } else if (schema.props !== undefined) {
-    if (typeof schema.props !== 'object' || schema.props === null) {
+    if (typeof schema.props !== "object" || schema.props === null) {
       errors.push({
         path: `${path}.properties`,
-        message: 'properties must be an object'
+        message: "properties must be an object",
       });
     } else {
-      Object.keys(schema.props).forEach(key => {
+      Object.keys(schema.props).forEach((key) => {
         errors.push(...validateSchema(schema.props[key], `${path}.properties.${key}`));
       });
     }
@@ -384,12 +417,12 @@ function validateEnumSchema(schema: any, path: string, errors: SchemaValidationE
   if (!Array.isArray(schema.values)) {
     errors.push({
       path: `${path}.values`,
-      message: 'enum values must be an array'
+      message: "enum values must be an array",
     });
   } else if (schema.values.length === 0) {
     errors.push({
       path: `${path}.values`,
-      message: 'enum values array cannot be empty'
+      message: "enum values array cannot be empty",
     });
   }
 }
@@ -401,12 +434,12 @@ function validateMultiSchema(schema: any, path: string, errors: SchemaValidation
   if (!Array.isArray(schema.rules)) {
     errors.push({
       path: `${path}.rules`,
-      message: 'multi rules must be an array'
+      message: "multi rules must be an array",
     });
   } else if (schema.rules.length === 0) {
     errors.push({
       path: `${path}.rules`,
-      message: 'multi rules array cannot be empty'
+      message: "multi rules array cannot be empty",
     });
   } else {
     schema.rules.forEach((rule: any, index: number) => {
@@ -421,32 +454,32 @@ function validateMultiSchema(schema: any, path: string, errors: SchemaValidation
 export function validateOptions(options: any): SchemaValidationError[] {
   const errors: SchemaValidationError[] = [];
 
-  if (typeof options !== 'object' || options === null) {
+  if (typeof options !== "object" || options === null) {
     errors.push({
-      path: 'options',
-      message: 'Options must be an object'
+      path: "options",
+      message: "Options must be an object",
     });
     return errors;
   }
 
-  if (options.strict !== undefined && typeof options.strict !== 'boolean') {
+  if (options.strict !== undefined && typeof options.strict !== "boolean") {
     errors.push({
-      path: 'options.strict',
-      message: 'strict must be a boolean'
+      path: "options.strict",
+      message: "strict must be a boolean",
     });
   }
 
   if (options.strictMode !== undefined && !validStrictModes.includes(options.strictMode)) {
     errors.push({
-      path: 'options.strictMode',
-      message: `strictMode must be one of: ${validStrictModes.join(', ')}`
+      path: "options.strictMode",
+      message: `strictMode must be one of: ${validStrictModes.join(", ")}`,
     });
   }
 
-  if (options.root !== undefined && typeof options.root !== 'boolean') {
+  if (options.root !== undefined && typeof options.root !== "boolean") {
     errors.push({
-      path: 'options.root',
-      message: 'root must be a boolean'
+      path: "options.root",
+      message: "root must be a boolean",
     });
   }
 

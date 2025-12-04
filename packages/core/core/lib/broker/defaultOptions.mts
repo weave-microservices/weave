@@ -1,22 +1,22 @@
 /**
  * @typedef {import('../types.__js').BrokerOptions} BrokerOptions
-*/
+ */
 
 /*
  * Author: Kevin Ries (kevin.ries@fachwerk.io)
  * -----
  * Copyright 2021 Fachwerk
-*/
+ */
 
 /** @module weave */
-import os from 'os';
-import { createInMemoryCache } from '../cache/adapters/inMemory.mts';
-import { loadBalancingStrategy } from '../constants.mts';
+import os from "os";
+import { createInMemoryCache } from "../cache/adapters/inMemory.mts";
+import { loadBalancingStrategy } from "../constants.mts";
 
 /**
  * Returns the default options
  * @returns {BrokerOptions} Broker options
-*/
+ */
 export const getDefaultOptions = () => {
   // default options
   return {
@@ -25,25 +25,25 @@ export const getDefaultOptions = () => {
     bulkhead: {
       enabled: false,
       concurrentCalls: 15,
-      maxQueueSize: 150
+      maxQueueSize: 150,
     },
     cache: {
       enabled: false,
       adapter: createInMemoryCache(),
       ttl: 3000,
       lock: {
-        enabled: false
-      }
+        enabled: false,
+      },
     },
     circuitBreaker: {
       enabled: false,
       halfOpenTimeout: 10000,
       maxFailures: 3,
-      windowTime: 60000
+      windowTime: 60000,
     },
     contextTracking: {
       enabled: false,
-      shutdownTimeout: 5000
+      shutdownTimeout: 5000,
     },
     transport: {
       adapter: null,
@@ -55,8 +55,8 @@ export const getDefaultOptions = () => {
       maxOfflineTime: 1000 * 60 * 10,
       maxChunkSize: 256 * 1024,
       streams: {
-        handleBackpressure: true
-      }
+        handleBackpressure: true,
+      },
     },
     errorHandler: undefined,
     loadInternalMiddlewares: true,
@@ -65,16 +65,16 @@ export const getDefaultOptions = () => {
       collectCommonMetrics: true,
       collectInterval: 5000,
       adapters: [],
-      defaultBuckets: [1, 5, 10, 20, 25, 30, 40, 50, 100, 250, 500, 1000, 2500, 5000, 10000]
+      defaultBuckets: [1, 5, 10, 20, 25, 30, 40, 50, 100, 250, 500, 1000, 2500, 5000, 10000],
     },
     middlewares: [],
     logger: {
       enabled: true,
-      level: 'info',
+      level: "info",
       base: {
         pid: process.pid,
-        hostname: os.hostname()
-      }
+        hostname: os.hostname(),
+      },
     },
     tracing: {
       enabled: false,
@@ -84,34 +84,34 @@ export const getDefaultOptions = () => {
       actions: {
         data: false,
         response: false,
-        tags: {}
+        tags: {},
       },
       events: {
         data: false,
-        tags: {}
+        tags: {},
       },
       errors: {
-        fields: ['name', 'message', 'code', 'type', 'data'],
-        stackTrace: false
-      }
+        fields: ["name", "message", "code", "type", "data"],
+        stackTrace: false,
+      },
     },
-    namespace: '',
+    namespace: "",
     registry: {
       preferLocalActions: true,
       requestTimeout: 0,
       publishNodeService: false,
       maxCallLevel: 0,
-      loadBalancingStrategy: loadBalancingStrategy.ROUND_ROBIN
+      loadBalancingStrategy: loadBalancingStrategy.ROUND_ROBIN,
     },
     retryPolicy: {
       enabled: false,
       delay: 3000,
-      retries: 5
+      retries: 5,
     },
     validateActionParams: true,
     validatorOptions: {
       strict: true,
-      strictMode: 'remove' // 'error'
-    }
+      strictMode: "remove", // 'error'
+    },
   };
 };

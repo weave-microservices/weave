@@ -4,51 +4,50 @@
  * Copyright 2021 Fachwerk
  */
 
-import { match } from '@weave-js/utils';
-import { createCacheBase } from './base.mts';
-import { createLock } from '../lock.mts';
-import * as Constants from '../../metrics/constants.mts';
-import type { Runtime } from '../../../types/index.js';
+import { match } from "@weave-js/utils";
+import { createCacheBase } from "./base.mts";
+import { createLock } from "../lock.mts";
+import * as Constants from "../../metrics/constants.mts";
+import type { Runtime } from "../../../types/index.js";
 
-export const createInMemoryLruCache = (adapterOptions) => (runtime: Runtime, options = {}) => {
-  const name = 'In-Memory';
-  const base = createCacheBase(name, runtime, options);
-  const storage = new Map();
+export const createInMemoryLruCache =
+  (adapterOptions) =>
+  (runtime: Runtime, options = {}) => {
+    const name = "In-Memory";
+    const base = createCacheBase(name, runtime, options);
+    const storage = new Map();
 
-  const lock = createLock();
+    const lock = createLock();
 
-  const timer = setInterval(() => {
-    checkTtl();
-  }, 3000);
+    const timer = setInterval(() => {
+      checkTtl();
+    }, 3000);
 
-  timer.unref();
+    timer.unref();
 
-  runtime.bus.on('$transport.connected', () => {
-    base.log.debug('Transport adapter connected. Cache will be cleared.');
-    cache.clear();
-  });
-
-  const checkTtl = () => {
-    const now = Date.now();
-
-    storage.forEach((item, hashKey) => {
-      if (item.expire && item.expire < now) {
-        cache.log.debug(`Delete ${hashKey}`);
-        storage.delete(hashKey);
-      }
+    runtime.bus.on("$transport.connected", () => {
+      base.log.debug("Transport adapter connected. Cache will be cleared.");
+      cache.clear();
     });
-  };
 
-  const cache = Object.assign(
-    {},
-    base,
-    {
+    const checkTtl = () => {
+      const now = Date.now();
+
+      storage.forEach((item, hashKey) => {
+        if (item.expire && item.expire < now) {
+          cache.log.debug(`Delete ${hashKey}`);
+          storage.delete(hashKey);
+        }
+      });
+    };
+
+    const cache = Object.assign({}, base, {
       name,
-      init () {
+      init() {
         base.init();
         cache.isConnected = true;
       },
-      get (cacheKey) {
+      get(cacheKey) {
         base.log.debug(`Get ${cacheKey}`);
 
         if (base.metrics) {
@@ -77,7 +76,7 @@ export const createInMemoryLruCache = (adapterOptions) => (runtime: Runtime, opt
         }
         return Promise.resolve(null);
       },
-      set (hashKey, data, ttl) {
+      set(hashKey, data, ttl) {
         if (base.metrics) {
           base.metrics.increment(Constants.CACHE_SET_TOTAL);
         }
@@ -88,14 +87,14 @@ export const createInMemoryLruCache = (adapterOptions) => (runtime: Runtime, opt
 
         storage.set(hashKey, {
           data,
-          expire: ttl ? Date.now() + ttl : null
+          expire: ttl ? Date.now() + ttl : null,
         });
 
         base.log.debug(`Set ${hashKey}`);
 
         return Promise.resolve(data);
       },
-      remove (hashKey) {
+      remove(hashKey) {
         if (base.metrics) {
           base.metrics.increment(Constants.CACHE_DELETED_TOTAL);
         }
@@ -104,7 +103,7 @@ export const createInMemoryLruCache = (adapterOptions) => (runtime: Runtime, opt
 
         return Promise.resolve();
       },
-      clear (pattern = '**') {
+      clear(pattern = "**") {
         if (base.metrics) {
           base.metrics.increment(Constants.CACHE_DELETED_TOTAL);
         }
@@ -116,23 +115,23 @@ export const createInMemoryLruCache = (adapterOptions) => (runtime: Runtime, opt
         });
         return Promise.resolve();
       },
-      lock (key, ttl) {
+      lock(key, ttl) {
         return lock.acquire(key, ttl).then(() => {
           return () => lock.release(key);
         });
       },
-      tryAcquireLock (key, ttl) {
+      tryAcquireLock(key, ttl) {
         if (lock.isLocked(key)) {
-          return Promise.reject(new Error('Locked'));
+          return Promise.reject(new Error("Locked"));
         }
 
         return lock.acquire(key, ttl).then(() => {
           return () => lock.release(key);
         });
       },
-      stop () {
+      stop() {
         clearInterval(timer);
-      }
+      },
     });
-  return cache;
-};
+    return cache;
+  };

@@ -1,4 +1,4 @@
-import { isObject } from './is-object.mts';
+import { isObject } from "./is-object.mts";
 
 /**
  * Merge two objects shallowly, with arrays being concatenated.
@@ -15,7 +15,7 @@ export function merge<T extends object, S extends object>(target: T, source: S):
 
   const tempTarget = Object.assign({}, target) as any;
 
-  Object.keys(source).forEach(key => {
+  Object.keys(source).forEach((key) => {
     const targetValue = tempTarget[key];
     const sourceValue = (source as any)[key];
 
@@ -47,7 +47,7 @@ export function deepMerge<T = unknown>(...args: Partial<T>[]): T {
     for (const prop in obj) {
       if (obj.hasOwnProperty(prop)) {
         // If property is an object, merge properties
-        if (Object.prototype.toString.call(obj[prop]) === '[object Object]') {
+        if (Object.prototype.toString.call(obj[prop]) === "[object Object]") {
           newObj[prop] = deepMerge(newObj[prop] as Partial<unknown>, obj[prop] as Partial<unknown>);
         } else if (Array.isArray(newObj[prop]) && Array.isArray(obj[prop])) {
           newObj[prop] = (newObj[prop] as unknown[]).concat(obj[prop] as unknown[]);

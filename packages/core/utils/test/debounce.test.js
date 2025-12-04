@@ -1,7 +1,7 @@
-const utils = require('../lib');
-const lolex = require('@sinonjs/fake-timers');
+const utils = require("../lib");
+const lolex = require("@sinonjs/fake-timers");
 
-describe('Debounce', () => {
+describe("Debounce", () => {
   let clock;
   beforeEach(() => {
     clock = lolex.install();
@@ -11,7 +11,7 @@ describe('Debounce', () => {
     clock.uninstall();
   });
 
-  it('debounce an action call', () => {
+  it("debounce an action call", () => {
     const func = jest.fn();
     const debounceFunc = utils.debounce(func, 200);
 
@@ -30,7 +30,7 @@ describe('Debounce', () => {
     expect(func).toHaveBeenCalledTimes(1);
   });
 
-  it('debounce an action call, but call it immediately', () => {
+  it("debounce an action call, but call it immediately", () => {
     const func = jest.fn();
     const debounceFunc = utils.debounce(func, 200, true);
 

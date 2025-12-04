@@ -19,13 +19,6 @@
     "rootDir": ".",
     "types": ["node"]
   },
-  "include": [
-    "lib/**/*.mts",
-    "test/**/*.mts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "coverage"
-  ]
+  "include": ["lib/**/*.mts", "test/**/*.mts"],
+  "exclude": ["node_modules", "dist", "coverage"]
 }

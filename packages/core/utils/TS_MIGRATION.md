@@ -20,6 +20,7 @@ Migration des Weave Utils von JavaScript zu TypeScript mit vollständiger Typisi
 ## 1. Dateistruktur-Änderungen
 
 ### Umbenennungen
+
 - Alle `.js` Dateien → `.mts` (TypeScript Module)
 - Betroffen:
   - `lib/*.js` → `lib/*.mts`
@@ -27,6 +28,7 @@ Migration des Weave Utils von JavaScript zu TypeScript mit vollständiger Typisi
   - `test/**/*.js` → `test/**/*.mts`
 
 ### Dateien im lib-Verzeichnis
+
 - `bytes-to-size.js` → `bytes-to-size.mts`
 - `capitalize.js` → `capitalize.mts`
 - `clone.js` → `clone.mts`
@@ -81,9 +83,7 @@ Migration des Weave Utils von JavaScript zu TypeScript mit vollständiger Typisi
       "default": "./lib/index.mts"
     }
   },
-  "files": [
-    "lib"
-  ],
+  "files": ["lib"],
   "scripts": {
     "test": "node --test test/**/*.mts",
     "test:watch": "node --test --watch test/**/*.mts",
@@ -97,11 +97,13 @@ Migration des Weave Utils von JavaScript zu TypeScript mit vollständiger Typisi
 ```
 
 ### Entfernte Dependencies
+
 - Jest (ersetzt durch Node.js Test Runner)
 - Jest-spezifische Konfigurationen
 - `jest.config.js` wird entfernt
 
 ### Entfernte Dateien
+
 - `types.d.ts` (Typen sind jetzt direkt in den `.mts` Dateien)
 
 ---
@@ -129,19 +131,13 @@ Migration des Weave Utils von JavaScript zu TypeScript mit vollständiger Typisi
     "noEmit": true,
     "types": ["node"]
   },
-  "include": [
-    "lib/**/*.mts",
-    "test/**/*.mts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "coverage"
-  ]
+  "include": ["lib/**/*.mts", "test/**/*.mts"],
+  "exclude": ["node_modules", "dist", "coverage"]
 }
 ```
 
-**Wichtig:** 
+**Wichtig:**
+
 - `noEmit: true` - Keine Kompilierung, nur Type-Checking
 - Keine `outDir` oder Build-Konfiguration nötig
 - Node.js führt `.mts` Dateien direkt aus
@@ -163,8 +159,7 @@ export interface CPUUsage {
 export type DebounceCallback = (...args: any[]) => void;
 
 // Path Types (für dotGet/dotSet)
-type PathImpl<T, K extends keyof T> =
-  K extends string
+type PathImpl<T, K extends keyof T> = K extends string
   ? T[K] extends Record<string, any>
     ? T[K] extends ArrayLike<any>
       ? K | `${K}.${PathImpl<T[K], Exclude<keyof T[K], keyof any[]>>}`
@@ -200,6 +195,7 @@ export function match(pattern: string | RegExp, text: string): boolean;
 ### Von CommonJS zu ES Modules
 
 **Alt (CommonJS):**
+
 ```javascript
 exports.capitalize = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -207,6 +203,7 @@ exports.capitalize = (str) => {
 ```
 
 **Neu (ES Modules + TypeScript):**
+
 ```typescript
 export function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -216,19 +213,21 @@ export function capitalize(str: string): string {
 ### Index-Datei
 
 **Alt:**
+
 ```javascript
 module.exports = {
-  capitalize: require('./capitalize').capitalize,
-  clone: require('./clone').clone,
+  capitalize: require("./capitalize").capitalize,
+  clone: require("./clone").clone,
   // ...
 };
 ```
 
 **Neu:**
+
 ```typescript
-export { bytesToSize } from './bytes-to-size.mts';
-export { capitalize } from './capitalize.mts';
-export { clone } from './clone.mts';
+export { bytesToSize } from "./bytes-to-size.mts";
+export { capitalize } from "./capitalize.mts";
+export { clone } from "./clone.mts";
 // ...
 ```
 
@@ -245,21 +244,21 @@ export { clone } from './clone.mts';
 
 ```typescript
 // Alt (Jest)
-const utils = require('../lib');
+const utils = require("../lib");
 
-describe('Object clone method', () => {
-  it('should clone an object', () => {
+describe("Object clone method", () => {
+  it("should clone an object", () => {
     expect(source).toEqual(newObject);
   });
 });
 
 // Neu (Node.js Test Runner)
-import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
-import { clone } from '../lib/clone.mts';
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
+import { clone } from "../lib/clone.mts";
 
-describe('Object clone method', () => {
-  it('should clone an object', () => {
+describe("Object clone method", () => {
+  it("should clone an object", () => {
     assert.deepStrictEqual(source, newObject);
   });
 });
@@ -267,13 +266,13 @@ describe('Object clone method', () => {
 
 ### 6.3 Assertion-Mapping
 
-| Jest | Node.js assert/strict |
-|------|----------------------|
-| `expect(a).toBe(b)` | `assert.strictEqual(a, b)` |
-| `expect(a).toEqual(b)` | `assert.deepStrictEqual(a, b)` |
-| `expect(a).toBeTruthy()` | `assert.ok(a)` |
-| `expect(a).toBeFalsy()` | `assert.ok(!a)` |
-| `expect(fn).toThrow()` | `assert.throws(fn)` |
+| Jest                          | Node.js assert/strict           |
+| ----------------------------- | ------------------------------- |
+| `expect(a).toBe(b)`           | `assert.strictEqual(a, b)`      |
+| `expect(a).toEqual(b)`        | `assert.deepStrictEqual(a, b)`  |
+| `expect(a).toBeTruthy()`      | `assert.ok(a)`                  |
+| `expect(a).toBeFalsy()`       | `assert.ok(!a)`                 |
+| `expect(fn).toThrow()`        | `assert.throws(fn)`             |
 | `expect(arr).toContain(item)` | `assert.ok(arr.includes(item))` |
 
 ---
@@ -307,16 +306,9 @@ export function isPlainObject(obj: any): obj is Record<string, any>;
 Für `dotGet` und `dotSet` werden fortgeschrittene Template-Literal-Typen verwendet:
 
 ```typescript
-export function dotGet<T, P extends Path<T>>(
-  obj: T, 
-  path: P
-): PathValue<T, P> | undefined;
+export function dotGet<T, P extends Path<T>>(obj: T, path: P): PathValue<T, P> | undefined;
 
-export function dotSet<T>(
-  obj: T, 
-  path: string, 
-  value: any
-): void;
+export function dotSet<T>(obj: T, path: string, value: any): void;
 ```
 
 ---
@@ -329,11 +321,11 @@ Die API bleibt vollständig kompatibel:
 
 ```typescript
 // Funktioniert weiterhin
-import { clone, merge, capitalize } from '@weave-js/utils';
+import { clone, merge, capitalize } from "@weave-js/utils";
 
-const cloned = clone({ name: 'test' });
+const cloned = clone({ name: "test" });
 const merged = merge({ a: 1 }, { b: 2 });
-const capitalized = capitalize('hello');
+const capitalized = capitalize("hello");
 ```
 
 ### Interne Änderungen
@@ -464,24 +456,17 @@ node your-app.mts
 ### Basic Usage
 
 ```typescript
-import { 
-  clone, 
-  merge, 
-  capitalize,
-  isFunction,
-  dotGet,
-  dotSet 
-} from '@weave-js/utils';
+import { clone, merge, capitalize, isFunction, dotGet, dotSet } from "@weave-js/utils";
 
 // Clone
-const original = { name: 'test', nested: { value: 42 } };
+const original = { name: "test", nested: { value: 42 } };
 const cloned = clone(original);
 
 // Merge
 const merged = merge({ a: 1 }, { b: 2 }, { c: 3 });
 
 // Capitalize
-const capitalized = capitalize('hello'); // "Hello"
+const capitalized = capitalize("hello"); // "Hello"
 
 // Type Guards
 if (isFunction(someValue)) {
@@ -489,15 +474,15 @@ if (isFunction(someValue)) {
 }
 
 // Dot notation
-const user = { profile: { name: 'John' } };
-const name = dotGet(user, 'profile.name'); // "John"
-dotSet(user, 'profile.age', 30);
+const user = { profile: { name: "John" } };
+const name = dotGet(user, "profile.name"); // "John"
+dotSet(user, "profile.age", 30);
 ```
 
 ### Advanced Usage with Types
 
 ```typescript
-import { pick, omit, merge } from '@weave-js/utils';
+import { pick, omit, merge } from "@weave-js/utils";
 
 interface User {
   id: number;
@@ -508,22 +493,22 @@ interface User {
 
 const user: User = {
   id: 1,
-  name: 'John',
-  email: 'john@example.com',
-  password: 'secret'
+  name: "John",
+  email: "john@example.com",
+  password: "secret",
 };
 
 // Pick - Type-safe
-const publicUser = pick(user, ['id', 'name', 'email']);
+const publicUser = pick(user, ["id", "name", "email"]);
 // Type: Pick<User, 'id' | 'name' | 'email'>
 
 // Omit - Type-safe
-const userWithoutPassword = omit(user, ['password']);
+const userWithoutPassword = omit(user, ["password"]);
 // Type: Omit<User, 'password'>
 
 // Merge with type inference
-const defaults = { theme: 'dark', language: 'en' };
-const settings = { theme: 'light' };
+const defaults = { theme: "dark", language: "en" };
+const settings = { theme: "light" };
 const merged = merge(defaults, settings);
 ```
 

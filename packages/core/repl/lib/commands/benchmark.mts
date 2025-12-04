@@ -1,20 +1,22 @@
-import { timespanFromUnixTimes } from '@weave-js/utils';
-import createSpinner from '../utils/create-spinner.mts';
-import formatNumber from '../utils/format-number.mts';
+import { timespanFromUnixTimes } from "@weave-js/utils";
+import createSpinner from "../utils/create-spinner.mts";
+import formatNumber from "../utils/format-number.mts";
 
 export default ({ vorpal, broker, cliUI }: any) => {
   vorpal
-    .command('benchmark <action> [jsonParams]', 'Benchmark a service Endpoint.')
-    .option('--iterations <number>', 'Number of iterations')
-    .option('--time <seconds>', 'Time of bench (default 5)')
-    .option('--nodeId <nodeId>', 'Node ID (direct call)')
+    .command("benchmark <action> [jsonParams]", "Benchmark a service Endpoint.")
+    .option("--iterations <number>", "Number of iterations")
+    .option("--time <seconds>", "Time of bench (default 5)")
+    .option("--nodeId <nodeId>", "Node ID (direct call)")
     .autocomplete({
-      data () {
-        return [...new Set(broker.runtime.registry.actionCollection.list({}).map(item => item.name))];
-      }
+      data() {
+        return [
+          ...new Set(broker.runtime.registry.actionCollection.list({}).map((item) => item.name)),
+        ];
+      },
     })
     .action((args: any, done: any) => {
-      const spinner = createSpinner('🚀  Running benchmark... ');
+      const spinner = createSpinner("🚀  Running benchmark... ");
       const action = args.action;
 
       const callOptions = {};
@@ -31,7 +33,7 @@ export default ({ vorpal, broker, cliUI }: any) => {
         time = 5;
       }
 
-      if (typeof (args.jsonParams) === 'string') {
+      if (typeof args.jsonParams === "string") {
         try {
           payload = JSON.parse(args.jsonParams);
         } catch (error) {
@@ -56,17 +58,29 @@ export default ({ vorpal, broker, cliUI }: any) => {
       }, time * 1000);
 
       const printResult = (duration: number) => {
-        console.log(cliUI.successText('\nBenchmark results:\n'));
-        console.log(cliUI.infoText(`${formatNumber(responseCounter)} requests in ${timespanFromUnixTimes(duration)} ${duration}`));
+        console.log(cliUI.successText("\nBenchmark results:\n"));
+        console.log(
+          cliUI.infoText(
+            `${formatNumber(responseCounter)} requests in ${timespanFromUnixTimes(duration)} ${duration}`,
+          ),
+        );
 
         if (errorCounter > 0) {
-          console.log(cliUI.errorText(`${formatNumber(errorCounter)} error(s) ${formatNumber(errorCounter / responseCounter * 100)}%`));
+          console.log(
+            cliUI.errorText(
+              `${formatNumber(errorCounter)} error(s) ${formatNumber((errorCounter / responseCounter) * 100)}%`,
+            ),
+          );
         } else {
-          console.log(cliUI.neutralText('0 errors'));
+          console.log(cliUI.neutralText("0 errors"));
         }
 
-        console.log(`Requests per second: ${cliUI.highlightedText(formatNumber(responseCounter / duration * 1000))}`);
-        console.log(`	Average time: ${cliUI.highlightedText(timespanFromUnixTimes(sumTime / responseCounter))}`);
+        console.log(
+          `Requests per second: ${cliUI.highlightedText(formatNumber((responseCounter / duration) * 1000))}`,
+        );
+        console.log(
+          `	Average time: ${cliUI.highlightedText(timespanFromUnixTimes(sumTime / responseCounter))}`,
+        );
         console.log(`	Min time: ${cliUI.highlightedText(timespanFromUnixTimes(minTime))}`);
         console.log(`	Max time: ${cliUI.highlightedText(timespanFromUnixTimes(maxTime))}`);
       };
@@ -100,7 +114,7 @@ export default ({ vorpal, broker, cliUI }: any) => {
           return done();
         }
 
-        if (requestCounter % 10 * 1000) {
+        if ((requestCounter % 10) * 1000) {
           doRequest();
         } else {
           setImmediate(() => doRequest());
@@ -111,12 +125,13 @@ export default ({ vorpal, broker, cliUI }: any) => {
         requestCounter++;
         const startTime = process.hrtime();
 
-        return broker.call(action, payload, callOptions)
-          .then(result => {
+        return broker
+          .call(action, payload, callOptions)
+          .then((result) => {
             handleRequest(startTime);
             return result;
           })
-          .catch(error => {
+          .catch((error) => {
             handleRequest(startTime, error);
           });
       };

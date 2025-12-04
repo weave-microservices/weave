@@ -1,10 +1,10 @@
-import { createContext } from '../broker/context.mts';
-import type { ActionOptions, Endpoint, Runtime } from '../../types/index.js';
+import { createContext } from "../broker/context.mts";
+import type { ActionOptions, Endpoint, Runtime } from "../../types/index.js";
 
 export const initContextFactory = (runtime: Runtime) => {
-  Object.defineProperty(runtime, 'contextFactory', {
+  Object.defineProperty(runtime, "contextFactory", {
     value: {
-      create (endpoint: Endpoint, data: Record<string, any>, opts: ActionOptions = {}) {
+      create(endpoint: Endpoint, data: Record<string, any>, opts: ActionOptions = {}) {
         const context = createContext(runtime);
 
         if (endpoint) {
@@ -53,7 +53,7 @@ export const initContextFactory = (runtime: Runtime) => {
           context.tracing = opts.parentSpan.sampled;
         }
         return context;
-      }
-    }
+      },
+    },
   });
 };

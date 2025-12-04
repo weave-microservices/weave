@@ -4,27 +4,27 @@
  * Author: Kevin Ries (kevin.ries@fachwerk.io)
  * -----
  * Copyright 2021 Fachwerk
-*/
+ */
 
 /**
  * @typedef {import('../../types.__js').Registry} Registry
  * @typedef {import('../../types.__js').ServiceCollection} ServiceCollection
-*/
+ */
 
 // import { createEndpointCollection } from './endpoint-collection.mts';
-import { omit, remove } from '@weave-js/utils';
-import { createServiceItem } from '../serviceItem.mts';
+import { omit, remove } from "@weave-js/utils";
+import { createServiceItem } from "../serviceItem.mts";
 
 /**
  * Service collection factory
  * @param {Registry} registry Registry instance
  * @returns {ServiceCollection} Service collection
-*/
+ */
 export const createServiceCollection = (registry) => {
   /** @type {ServiceCollection} */
   const serviceCollection = Object.create(null);
   const { runtime } = registry;
-  const services = serviceCollection.services = [];
+  const services = (serviceCollection.services = []);
   const actions = new Map();
   // const options = broker.options
 
@@ -38,10 +38,11 @@ export const createServiceCollection = (registry) => {
     return item;
   };
 
-  serviceCollection.get = (nodeId, name, version) => services.find(svc => svc.equals(name, version, nodeId));
+  serviceCollection.get = (nodeId, name, version) =>
+    services.find((svc) => svc.equals(name, version, nodeId));
 
   serviceCollection.has = (name, version, nodeId) => {
-    return !!services.find(svc => svc.equals(name, version, nodeId));
+    return !!services.find((svc) => svc.equals(name, version, nodeId));
   };
 
   serviceCollection.remove = (nodeId, name, version) => {
@@ -50,12 +51,12 @@ export const createServiceCollection = (registry) => {
     if (service) {
       registry.actionCollection.removeByService(service);
       registry.eventCollection.removeByService(service);
-      remove(services, svc => svc === service);
+      remove(services, (svc) => svc === service);
     }
   };
 
   serviceCollection.removeAllByNodeId = (nodeId) => {
-    remove(services, service => {
+    remove(services, (service) => {
       if (service.node.id === nodeId) {
         registry.actionCollection.removeByService(service);
         registry.eventCollection.removeByService(service);
@@ -73,7 +74,7 @@ export const createServiceCollection = (registry) => {
       const item = {
         name: key,
         count: action.count(),
-        hasLocal: action.hasLocal()
+        hasLocal: action.hasLocal(),
       };
       result.push(item);
     });
@@ -86,7 +87,7 @@ export const createServiceCollection = (registry) => {
     withEvents = false,
     withNodeService = false,
     withSettings = false,
-    withPrivate = false
+    withPrivate = false,
   } = {}) => {
     const result = [];
     services.forEach((service) => {
@@ -109,7 +110,7 @@ export const createServiceCollection = (registry) => {
         nodeId: service.node.id,
         version: service.version,
         isAvailable: service.node.isAvailable,
-        isPrivate
+        isPrivate,
       };
 
       if (withSettings) {
@@ -118,18 +119,16 @@ export const createServiceCollection = (registry) => {
 
       if (withActions) {
         item.actions = {};
-        Object.values(service.actions)
-          .forEach(action => {
-            item.actions[action.name] = omit(action, ['handler', 'service']);
-          });
+        Object.values(service.actions).forEach((action) => {
+          item.actions[action.name] = omit(action, ["handler", "service"]);
+        });
       }
 
       if (withEvents) {
         item.events = {};
-        Object.values(service.events)
-          .forEach(event => {
-            item.events[event.name] = omit(event, ['service', 'handler']);
-          });
+        Object.values(service.events).forEach((event) => {
+          item.events[event.name] = omit(event, ["service", "handler"]);
+        });
       }
 
       result.push(item);

@@ -1,91 +1,101 @@
-import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
-import ModelValidator from '../../lib/validator.mts';
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
+import ModelValidator from "../../lib/validator.mts";
 
-describe('Object validator', () => {
-  it('should pass with object', () => {
+describe("Object validator", () => {
+  it("should pass with object", () => {
     const schema = {
       user: {
-        type: 'object', props: {
-          firstname: { type: 'string' },
-          lastname: { type: 'string' }
-        }
-      }
-    };
-
-    const parameters = { user: {
-      firstname: 'Kevin',
-      lastname: 'Ries'
-    }};
-
-    const validator = ModelValidator();
-    const validate = validator.compile(schema);
-    const result = validate(parameters);
-
-    assert.equal(result, true);
-  });
-
-  it('should validate a simple object', () => {
-    const schema = {
-      user: { type: 'object' }
-    };
-
-    const parameters = { user: {
-      firstname: 'Kevin',
-      lastname: 'Ries'
-    }};
-
-    const validator = ModelValidator();
-    const validate = validator.compile(schema);
-    const result = validate(parameters);
-
-    assert.equal(result, true);
-  });
-
-  it('should escape js string', () => {
-    const schema = {
-      user: { type: 'object', props: {
-        'first-name': { type: 'string' },
-        lastname: { type: 'string' }
-      }}
-    };
-
-    const parameters = { user: {
-      'first-name': 'Kevin',
-      lastname: 'Ries'
-    }};
-
-    const validator = ModelValidator();
-    const validate = validator.compile(schema);
-    const result = validate(parameters);
-
-    assert.equal(result, true);
-  });
-
-  it('should remove illegal properties in strict mode', () => {
-    const schema = {
-      user: {
-        type: 'object',
+        type: "object",
         props: {
-          'first-name': { type: 'string' },
-          lastname: { type: 'string' }
-        }
-      }
+          firstname: { type: "string" },
+          lastname: { type: "string" },
+        },
+      },
     };
 
     const parameters = {
       user: {
-        'first-name': 'Kevin',
-        lastname: 'Ries',
-        shouldBeRemoved: false
+        firstname: "Kevin",
+        lastname: "Ries",
       },
-      password: { type: 'string' }
+    };
+
+    const validator = ModelValidator();
+    const validate = validator.compile(schema);
+    const result = validate(parameters);
+
+    assert.equal(result, true);
+  });
+
+  it("should validate a simple object", () => {
+    const schema = {
+      user: { type: "object" },
+    };
+
+    const parameters = {
+      user: {
+        firstname: "Kevin",
+        lastname: "Ries",
+      },
+    };
+
+    const validator = ModelValidator();
+    const validate = validator.compile(schema);
+    const result = validate(parameters);
+
+    assert.equal(result, true);
+  });
+
+  it("should escape js string", () => {
+    const schema = {
+      user: {
+        type: "object",
+        props: {
+          "first-name": { type: "string" },
+          lastname: { type: "string" },
+        },
+      },
+    };
+
+    const parameters = {
+      user: {
+        "first-name": "Kevin",
+        lastname: "Ries",
+      },
+    };
+
+    const validator = ModelValidator();
+    const validate = validator.compile(schema);
+    const result = validate(parameters);
+
+    assert.equal(result, true);
+  });
+
+  it("should remove illegal properties in strict mode", () => {
+    const schema = {
+      user: {
+        type: "object",
+        props: {
+          "first-name": { type: "string" },
+          lastname: { type: "string" },
+        },
+      },
+    };
+
+    const parameters = {
+      user: {
+        "first-name": "Kevin",
+        lastname: "Ries",
+        shouldBeRemoved: false,
+      },
+      password: { type: "string" },
     };
 
     const validator = ModelValidator();
     const validate = validator.compile(schema, {
       strict: true,
-      strictMode: 'error'
+      strictMode: "error",
     });
 
     const result = validate(parameters);
@@ -95,22 +105,22 @@ describe('Object validator', () => {
     // todo: validate errors
   });
 
-  it('should remove no properties in strict mode if there is no schema definition', () => {
+  it("should remove no properties in strict mode if there is no schema definition", () => {
     const schema = {};
 
     const parameters = {
       user: {
-        'first-name': 'Kevin',
-        lastname: 'Ries',
-        shouldBeRemoved: false
+        "first-name": "Kevin",
+        lastname: "Ries",
+        shouldBeRemoved: false,
       },
-      password: { type: 'string' }
+      password: { type: "string" },
     };
 
     const validator = ModelValidator();
     const validate = validator.compile(schema, {
       strict: true,
-      strictMode: 'error'
+      strictMode: "error",
     });
 
     const result = validate(parameters);

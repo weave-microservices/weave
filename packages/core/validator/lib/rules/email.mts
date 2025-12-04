@@ -1,13 +1,13 @@
-import { EMAIL_PRECISE_PATTERN, EMAIL_BASIC_PATTERN } from '../patterns.mts';
+import { EMAIL_PRECISE_PATTERN, EMAIL_BASIC_PATTERN } from "../patterns.mts";
 
 export default function checkEmail(this: any, { schema, messages }: any) {
   const code = [];
-  const pattern = schema.mode === 'precise' ? EMAIL_PRECISE_PATTERN : EMAIL_BASIC_PATTERN;
+  const pattern = schema.mode === "precise" ? EMAIL_PRECISE_PATTERN : EMAIL_BASIC_PATTERN;
   let isSanitized;
 
   code.push(`
         if (typeof value !== 'string') {
-          ${this.makeErrorCode({ type: 'string', passed: 'value', messages })}
+          ${this.makeErrorCode({ type: "string", passed: "value", messages })}
           return value
         }
     `);
@@ -21,7 +21,7 @@ export default function checkEmail(this: any, { schema, messages }: any) {
 
   code.push(`
         if (!${pattern.toString()}.test(value)) {
-          ${this.makeErrorCode({ type: 'email', passed: 'value', messages })}
+          ${this.makeErrorCode({ type: "email", passed: "value", messages })}
           return value
         }
     `);
@@ -32,6 +32,6 @@ export default function checkEmail(this: any, { schema, messages }: any) {
 
   return {
     isSanitized,
-    code: code.join('\n')
+    code: code.join("\n"),
   };
 }

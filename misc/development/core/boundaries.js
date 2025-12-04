@@ -1,60 +1,59 @@
-import { createBroker, TransportAdapters, defineAction } from '../../../packages/core/core/lib/index.mts';
-import repl from '../../../packages/core/repl/lib/index.mts';
+import {
+  createBroker,
+  TransportAdapters,
+  defineAction,
+} from "../../../packages/core/core/lib/index.mts";
+import repl from "../../../packages/core/repl/lib/index.mts";
 
 const gwBroker = createBroker({
-  nodeId: 'gateway',
+  nodeId: "gateway",
   transport: {
-    adapter: TransportAdapters.Dummy()
-  }
+    adapter: TransportAdapters.Dummy(),
+  },
 });
 
 const workerBroker = createBroker({
-  nodeId: 'worker',
+  nodeId: "worker",
   transport: {
-    adapter: TransportAdapters.Dummy()
-  }
+    adapter: TransportAdapters.Dummy(),
+  },
 });
 
 workerBroker.createService({
-  name: 'greeter',
+  name: "greeter",
   actions: {
     sayHello: defineAction({
       params: {
-        test: { type: 'boolean' },
-        name: { type: 'boolean' },
-        email: { type: 'email' },
+        test: { type: "boolean" },
+        name: { type: "boolean" },
+        email: { type: "email" },
         settings: {
-          type: 'object', props: {
-            isActive: { type: 'boolean' }
-          }
+          type: "object",
+          props: {
+            isActive: { type: "boolean" },
+          },
         },
-        age: { type: 'number' }
+        age: { type: "number" },
       },
-      visibility: 'private',
-      handler (context) {
-        context.data;
-        return 'hello';
-      }
-    })
-  }
+      visibility: "private",
+      handler(context) {
+        return "hello";
+      },
+    }),
+  },
 });
 
 workerBroker.createService({
-  name: 'user',
+  name: "user",
   actions: {
     getUsers: {
-      visibility: 'private',
-      handler (context) {
-        return [
-          'manfred'
-        ];
-      }
-    }
-  }
+      visibility: "private",
+      handler(context) {
+        return ["manfred"];
+      },
+    },
+  },
 });
 
-await Promise.all([
-  gwBroker.start(),
-  workerBroker.start()
-])
+await Promise.all([gwBroker.start(), workerBroker.start()]);
 repl(gwBroker);

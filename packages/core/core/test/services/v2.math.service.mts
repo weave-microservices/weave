@@ -1,29 +1,29 @@
 export default {
-  name: 'math',
+  name: "math",
   version: 2,
   actions: {
     add: {
       cache: {
-        keys: ['a', 'b']
+        keys: ["a", "b"],
       },
       params: {
-        a: 'number',
-        b: 'number'
+        a: "number",
+        b: "number",
       },
-      handler (context) {
+      handler(context) {
         return Number(context.data.a) + Number(context.data.b);
-      }
+      },
     },
     round: {
       cache: {
-        keys: ['value']
+        keys: ["value"],
       },
       params: {
-        value: 'number'
+        value: "number",
       },
-      handler (context) {
+      handler(context) {
         return Math.round(context.data.value);
-      }
-    }
-  }
+      },
+    },
+  },
 };

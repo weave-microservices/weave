@@ -3,13 +3,13 @@
  * -----
  * Copyright 2021 Fachwerk
  */
-import { Constants } from '../../metrics/index.mts';
-import * as Errors from '../../errors.mts';
+import { Constants } from "../../metrics/index.mts";
+import * as Errors from "../../errors.mts";
 
 /**
  * @typedef {import('../../types.__js').Runtime} Runtime
  * @typedef {import('../../types.__js').Middleware} Middleware
-*/
+ */
 
 /**
  * Bulkhead middleware
@@ -32,29 +32,29 @@ export default (runtime) => {
 
         currentlyInFlight++;
         handler(item.context)
-          .then(result => {
+          .then((result) => {
             currentlyInFlight--;
             item.resolve(result);
             callNext();
           })
-          .catch(error => {
+          .catch((error) => {
             currentlyInFlight--;
             callNext();
             return item.reject(error);
           });
       };
 
-      return function bulkheadMiddleware (context, serviceInjections) {
+      return function bulkheadMiddleware(context, serviceInjections) {
         // Execute action immediately
         if (currentlyInFlight < bulkheadOptions.concurrentCalls) {
           currentlyInFlight++;
           return handler(context, serviceInjections)
-            .then(result => {
+            .then((result) => {
               currentlyInFlight--;
               callNext();
               return result;
             })
-            .catch(error => {
+            .catch((error) => {
               currentlyInFlight--;
               callNext();
               return Promise.reject(error);
@@ -63,11 +63,13 @@ export default (runtime) => {
 
         // Reject the action if the max queue size is reached.
         if (bulkheadOptions.maxQueueSize && bulkheadOptions.maxQueueSize < queue.length) {
-          return Promise.reject(new Errors.WeaveQueueSizeExceededError({
-            action: action.name,
-            limit: bulkheadOptions.maxQueueSize,
-            size: queue.length
-          }));
+          return Promise.reject(
+            new Errors.WeaveQueueSizeExceededError({
+              action: action.name,
+              limit: bulkheadOptions.maxQueueSize,
+              size: queue.length,
+            }),
+          );
         }
 
         // Queue the request
@@ -78,12 +80,16 @@ export default (runtime) => {
   };
 
   return {
-    created () {
+    created() {
       if (runtime.options.metrics.enabled) {
         // todo: add bulkhead metrics
-        runtime.metrics.register({ type: 'gauge', name: Constants.BULKHEAD_REQUESTS_IN_FLIGHT, description: 'Number of in flight requests.' });
+        runtime.metrics.register({
+          type: "gauge",
+          name: Constants.BULKHEAD_REQUESTS_IN_FLIGHT,
+          description: "Number of in flight requests.",
+        });
       }
     },
-    localAction: wrapBulkheadMiddleware
+    localAction: wrapBulkheadMiddleware,
   };
 };

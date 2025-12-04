@@ -1,7 +1,7 @@
 export default (broker, registry) => {
   return {
-    next (/* endpointList,context*/) {
-      broker.handleError(new Error('Method not implemented!'));
-    }
+    next(/* endpointList,context*/) {
+      broker.handleError(new Error("Method not implemented!"));
+    },
   };
 };

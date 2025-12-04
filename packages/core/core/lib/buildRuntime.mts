@@ -1,20 +1,20 @@
-import { initLogger } from './runtime/initLogger.mts';
-import { initMiddlewareHandler } from './runtime/initMiddlewareManager.mts';
-import { initRegistry } from './runtime/initRegistry.mts';
-import { initContextFactory } from './runtime/initContextFactory.mts';
-import { initEventbus } from './runtime/initEventbus.mts';
-import { initValidator } from './runtime/initValidator.mts';
-import { initTransport } from './runtime/initTransport.mts';
-import { initCache } from './runtime/initCache.mts';
-import { initActionInvoker } from './runtime/initActionInvoker.mts';
-import { initServiceManager } from './runtime/initServiceManager.mts';
-import { initMetrics } from './runtime/initMetrics.mts';
-import { initTracer } from './runtime/initTracing.mts';
-import { initUUIDFactory } from './runtime/initUuidFactory.mts';
-import { errorHandler, fatalErrorHandler } from './errorHandler.mts';
-import { uuid } from '@weave-js/utils';
-import packageJson from '../package.json' with { type: 'json' };
-import pkg from 'eventemitter2';
+import { initLogger } from "./runtime/initLogger.mts";
+import { initMiddlewareHandler } from "./runtime/initMiddlewareManager.mts";
+import { initRegistry } from "./runtime/initRegistry.mts";
+import { initContextFactory } from "./runtime/initContextFactory.mts";
+import { initEventbus } from "./runtime/initEventbus.mts";
+import { initValidator } from "./runtime/initValidator.mts";
+import { initTransport } from "./runtime/initTransport.mts";
+import { initCache } from "./runtime/initCache.mts";
+import { initActionInvoker } from "./runtime/initActionInvoker.mts";
+import { initServiceManager } from "./runtime/initServiceManager.mts";
+import { initMetrics } from "./runtime/initMetrics.mts";
+import { initTracer } from "./runtime/initTracing.mts";
+import { initUUIDFactory } from "./runtime/initUuidFactory.mts";
+import { errorHandler, fatalErrorHandler } from "./errorHandler.mts";
+import { uuid } from "@weave-js/utils";
+import packageJson from "../package.json" with { type: "json" };
+import pkg from "eventemitter2";
 const { EventEmitter2: EventEmitter } = pkg;
 const { version } = packageJson;
 
@@ -49,10 +49,8 @@ export const initRuntime = (options) => {
    */
   const bus = new EventEmitter({
     wildcard: true,
-    maxListeners: 1000
+    maxListeners: 1000,
   });
-
-
 
   /**
    * Core runtime object containing all initialized subsystems
@@ -65,10 +63,11 @@ export const initRuntime = (options) => {
     bus,
     state: {
       instanceId: uuid(),
-      isStarted: false
+      isStarted: false,
     },
     handleError: (error) => errorHandler(runtime, error),
-    fatalError: (message, error, killProcess) => fatalErrorHandler(runtime, message, error, killProcess)
+    fatalError: (message, error, killProcess) =>
+      fatalErrorHandler(runtime, message, error, killProcess),
   };
 
   initLogger(runtime);

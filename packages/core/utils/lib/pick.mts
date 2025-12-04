@@ -1,5 +1,5 @@
-import { dotGet } from './dot-get.mts';
-import { dotSet } from './dot-set.mts';
+import { dotGet } from "./dot-get.mts";
+import { dotSet } from "./dot-set.mts";
 
 /**
  * Pick properties from an object by their keys.
@@ -13,7 +13,7 @@ import { dotSet } from './dot-set.mts';
  */
 export function pick<T extends object, K extends keyof T>(
   object: T,
-  props: (K | string)[]
+  props: (K | string)[],
 ): Partial<T> {
   const picked: Record<string, unknown> = {};
 

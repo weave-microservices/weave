@@ -1,6 +1,6 @@
-import { isFunction, clone, isObject, promisify } from '@weave-js/utils';
-import { WeaveError } from '../../errors.mts';
-import { wrapHandler } from '../../utils/wrap-handler.mts';
+import { isFunction, clone, isObject, promisify } from "@weave-js/utils";
+import { WeaveError } from "../../errors.mts";
+import { wrapHandler } from "../../utils/wrap-handler.mts";
 
 /**
  *
@@ -19,17 +19,21 @@ export const parseAction = (runtime, service, actionDefinition, name) => {
   } else if (isObject(actionDefinition)) {
     action = clone(actionDefinition);
   } else {
-    runtime.handleError(new WeaveError(`Invalid action definition in "${name}" on service "${service.name}".`));
+    runtime.handleError(
+      new WeaveError(`Invalid action definition in "${name}" on service "${service.name}".`),
+    );
   }
 
   const handler = action.handler;
 
   // Action handler has to be a function
   if (!isFunction(handler)) {
-    runtime.handleError(new WeaveError(`Missing action handler in "${name}" on service "${service.name}".`));
+    runtime.handleError(
+      new WeaveError(`Missing action handler in "${name}" on service "${service.name}".`),
+    );
   }
 
-  action.name = service.name + '.' + (action.name || name);
+  action.name = service.name + "." + (action.name || name);
   action.shortName = name;
 
   // if this is a versioned service. The action name is prefixed with the version number.

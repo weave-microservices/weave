@@ -1,27 +1,26 @@
-
-import { defaultsDeep } from '@weave-js/utils';
-import TransportBase from '../adapterBase.mts';
-import Swim from './discovery/index.mts';
-import * as MessageTypes from '../../messageTypes.mts';
-import TCPReader from './tcpReader.mts';
-import TCPWriter from './tcpWriter.mts';
-import { createMessage } from '../../createMessage.mts';
+import { defaultsDeep } from "@weave-js/utils";
+import TransportBase from "../adapterBase.mts";
+import Swim from "./discovery/index.mts";
+import * as MessageTypes from "../../messageTypes.mts";
+import TCPReader from "./tcpReader.mts";
+import TCPWriter from "./tcpWriter.mts";
+import { createMessage } from "../../createMessage.mts";
 
 const defaultOptions = {
   port: null,
   discovery: {
     enabled: true,
-    type: 'udp4',
+    type: "udp4",
     udpMulticast: true,
-    multicastAddress: '239.0.0.0',
+    multicastAddress: "239.0.0.0",
     port: 54355,
-    udpReuseAddress: true
+    udpReuseAddress: true,
   },
   gossipTimerInterval: 2000,
-  maxPacketSize: 1024 * 1024 * 50
+  maxPacketSize: 1024 * 1024 * 50,
 };
 
-export default function SwimTransport (adapterOptions = {}) {
+export default function SwimTransport(adapterOptions = {}) {
   adapterOptions = defaultsDeep(adapterOptions, defaultOptions);
 
   const self = TransportBase(adapterOptions);
@@ -41,31 +40,39 @@ export default function SwimTransport (adapterOptions = {}) {
     await startDiscoveryServer(port);
     await startTimers();
 
-    self.log.info('TCP transport adapter started.');
+    self.log.info("TCP transport adapter started.");
 
     self.broker.registry.nodeCollection.localNode.port = port;
     self.broker.registry.generateLocalNodeInfo();
 
-    self.connected({ wasReconnect: false, useHeartbeatTimer: false, useRemoteNodeCheckTimer: false, useOfflineCheckTimer: true });
+    self.connected({
+      wasReconnect: false,
+      useHeartbeatTimer: false,
+      useRemoteNodeCheckTimer: false,
+      useOfflineCheckTimer: true,
+    });
 
     return Promise.resolve();
   };
 
   self.send = (message) => {
-    if (!message.targetNodeId || ![
-      MessageTypes.MESSAGE_PING,
-      MessageTypes.MESSAGE_PONG,
-      MessageTypes.MESSAGE_EVENT,
-      MessageTypes.MESSAGE_REQUEST,
-      MessageTypes.MESSAGE_RESPONSE,
-      MessageTypes.MESSAGE_GOSSIP_HELLO,
-      MessageTypes.MESSAGE_GOSSIP_REQUEST,
-      MessageTypes.MESSAGE_GOSSIP_RESPONSE,
-      MessageTypes.MESSAGE_RESPONSE_STREAM_BACKPRESSURE,
-      MessageTypes.MESSAGE_RESPONSE_STREAM_RESUME,
-      MessageTypes.MESSAGE_REQUEST_STREAM_BACKPRESSURE,
-      MessageTypes.MESSAGE_REQUEST_STREAM_RESUME
-    ].includes(message.type)) {
+    if (
+      !message.targetNodeId ||
+      ![
+        MessageTypes.MESSAGE_PING,
+        MessageTypes.MESSAGE_PONG,
+        MessageTypes.MESSAGE_EVENT,
+        MessageTypes.MESSAGE_REQUEST,
+        MessageTypes.MESSAGE_RESPONSE,
+        MessageTypes.MESSAGE_GOSSIP_HELLO,
+        MessageTypes.MESSAGE_GOSSIP_REQUEST,
+        MessageTypes.MESSAGE_GOSSIP_RESPONSE,
+        MessageTypes.MESSAGE_RESPONSE_STREAM_BACKPRESSURE,
+        MessageTypes.MESSAGE_RESPONSE_STREAM_RESUME,
+        MessageTypes.MESSAGE_REQUEST_STREAM_BACKPRESSURE,
+        MessageTypes.MESSAGE_REQUEST_STREAM_RESUME,
+      ].includes(message.type)
+    ) {
       if (message.type === MessageTypes.MESSAGE_DISCONNECT) {
         // send a disconnect message to all connected nodes
         return publishNodeDisconnect(message);
@@ -77,18 +84,18 @@ export default function SwimTransport (adapterOptions = {}) {
     return tcpWriter.send(message.targetNodeId, message.type, data);
   };
 
-  self.sendHello = nodeId => {
+  self.sendHello = (nodeId) => {
     const node = self.broker.registry.nodeCollection.get(nodeId);
 
     if (!node) {
-      return Promise.reject(new Error('Node not found.'));
+      return Promise.reject(new Error("Node not found."));
     }
 
     const localNode = self.broker.registry.nodeCollection.localNode;
 
     const message = createMessage(MessageTypes.MESSAGE_GOSSIP_HELLO, nodeId, {
       host: localNode.IPList[0],
-      port: localNode.port
+      port: localNode.port,
     });
 
     self.send(message);
@@ -114,19 +121,19 @@ export default function SwimTransport (adapterOptions = {}) {
   };
 
   // Send a disconnect message to all connected nodes.
-  function publishNodeDisconnect (message) {
+  function publishNodeDisconnect(message) {
     const nodes = self.broker.registry.nodeCollection.toArray();
     return Promise.all(
       nodes
-        .filter(node => node.isAvailable && !node.isLocal)
-        .map(node => {
+        .filter((node) => node.isAvailable && !node.isLocal)
+        .map((node) => {
           const data = self.serialize(message);
           return tcpWriter.send(node.id, message.type, data);
-        })
+        }),
     );
   }
 
-  function addDiscoveredNode (nodeId, host, port) {
+  function addDiscoveredNode(nodeId, host, port) {
     const node = self.broker.registry.nodeCollection.createNode(nodeId);
 
     node.isLocal = false;
@@ -143,19 +150,19 @@ export default function SwimTransport (adapterOptions = {}) {
 
   self.onIncomingMessage = (type, data, socket) => {
     switch (type) {
-    case MessageTypes.MESSAGE_GOSSIP_HELLO:
-      return onGossipHelloMessage(data, socket);
-    case MessageTypes.MESSAGE_GOSSIP_REQUEST:
-      return onGossipRequestMessage(data, socket);
-    case MessageTypes.MESSAGE_GOSSIP_RESPONSE:
-      return onGossipResponseMessage(data, socket);
-    default:
-      return self.incomingMessage(type, data);
+      case MessageTypes.MESSAGE_GOSSIP_HELLO:
+        return onGossipHelloMessage(data, socket);
+      case MessageTypes.MESSAGE_GOSSIP_REQUEST:
+        return onGossipRequestMessage(data, socket);
+      case MessageTypes.MESSAGE_GOSSIP_RESPONSE:
+        return onGossipResponseMessage(data, socket);
+      default:
+        return self.incomingMessage(type, data);
     }
   };
 
-  function startDiscoveryServer (port) {
-    self.swim.bus.on('message', ({ nodeId, host, port }) => {
+  function startDiscoveryServer(port) {
+    self.swim.bus.on("message", ({ nodeId, host, port }) => {
       if (nodeId && nodeId !== self.broker.nodeId) {
         let node = self.broker.registry.nodeCollection.get(nodeId);
         if (!node) {
@@ -173,19 +180,19 @@ export default function SwimTransport (adapterOptions = {}) {
     self.swim.start(port);
   }
 
-  function startTCPServer () {
+  function startTCPServer() {
     tcpReader = TCPReader(self, adapterOptions);
     tcpWriter = TCPWriter(self, adapterOptions);
 
-    tcpReader.on('message', onMessage);
+    tcpReader.on("message", onMessage);
 
-    tcpWriter.on('error', (error, nodeId) => {
-      self.log.debug('TCP client error on ', error);
+    tcpWriter.on("error", (error, nodeId) => {
+      self.log.debug("TCP client error on ", error);
       self.broker.registry.nodeDisconnected(nodeId, false);
     });
 
-    tcpWriter.on('end', nodeId => {
-      self.log.debug('TCP connection ended with');
+    tcpWriter.on("end", (nodeId) => {
+      self.log.debug("TCP connection ended with");
       self.broker.registry.nodeDisconnected(nodeId, false);
     });
 
@@ -197,12 +204,12 @@ export default function SwimTransport (adapterOptions = {}) {
     return tcpReader.listen();
   }
 
-  function startTimers () {
+  function startTimers() {
     gossipTimer = setInterval(() => sendGossipRequest(), adapterOptions.gossipTimerInterval);
     gossipTimer.unref();
   }
 
-  function sendGossipRequest () {
+  function sendGossipRequest() {
     const list = self.broker.registry.nodeCollection.toArray();
     if (!list || list.length === 0) {
       return;
@@ -210,13 +217,13 @@ export default function SwimTransport (adapterOptions = {}) {
 
     const payload = {
       online: {},
-      offline: {}
+      offline: {},
     };
 
     const onlineNodes = [];
     const offlineNodes = [];
 
-    list.forEach(node => {
+    list.forEach((node) => {
       if (node.isAvailable) {
         payload.online[node.id] = [node.sequence, node.cpuSequence || 0, node.cpu || 0];
 
@@ -248,14 +255,18 @@ export default function SwimTransport (adapterOptions = {}) {
     }
   }
 
-  function sendGossipRequestToRandomEndpoint (payload, nodes) {
+  function sendGossipRequestToRandomEndpoint(payload, nodes) {
     if (!nodes || nodes.length === 0) {
       return;
     }
 
     const destinationNode = nodes[Math.floor(Math.random() * nodes.length)];
     if (destinationNode) {
-      const message = createMessage(MessageTypes.MESSAGE_GOSSIP_REQUEST, destinationNode.id, payload);
+      const message = createMessage(
+        MessageTypes.MESSAGE_GOSSIP_REQUEST,
+        destinationNode.id,
+        payload,
+      );
 
       self.send(message).catch(() => {
         self.log.debug(`Unable to send gossip response to ${destinationNode.id}`);
@@ -263,7 +274,7 @@ export default function SwimTransport (adapterOptions = {}) {
     }
   }
 
-  function onGossipHelloMessage (packet, socket) {
+  function onGossipHelloMessage(packet, socket) {
     try {
       const message = self.deserialize(packet);
       const payload = message.payload;
@@ -274,12 +285,12 @@ export default function SwimTransport (adapterOptions = {}) {
         addDiscoveredNode(nodeId, payload.host, payload.port);
       }
     } catch (error) {
-      self.log.error('Invalid gossip hello message.', error.message);
+      self.log.error("Invalid gossip hello message.", error.message);
     }
   }
 
   // Handle incoming gossip request
-  function onGossipRequestMessage (data) {
+  function onGossipRequestMessage(data) {
     try {
       const message = self.deserialize(data);
       const payload = message.payload;
@@ -288,10 +299,10 @@ export default function SwimTransport (adapterOptions = {}) {
       // Init gossip response
       const response = {
         online: {},
-        offline: {}
+        offline: {},
       };
 
-      list.forEach(node => {
+      list.forEach((node) => {
         const online = payload.online ? payload.online[node.id] : null;
         const offline = payload.offline ? payload.offline[node.id] : null;
 
@@ -341,7 +352,7 @@ export default function SwimTransport (adapterOptions = {}) {
             if (cpuSequence > node.cpuSequence) {
               node.heartbeat({
                 cpu,
-                cpuSequence
+                cpuSequence,
               });
             } else if (cpuSequence < node.cpuSequence) {
               response.online[node.id] = [node.cpuSequence || 0, node.cpu || 0];
@@ -362,7 +373,11 @@ export default function SwimTransport (adapterOptions = {}) {
 
       if (response.online || response.offline) {
         const destinationNode = self.broker.registry.nodeCollection.get(payload.sender);
-        const message = createMessage(MessageTypes.MESSAGE_GOSSIP_RESPONSE, destinationNode.id, response);
+        const message = createMessage(
+          MessageTypes.MESSAGE_GOSSIP_RESPONSE,
+          destinationNode.id,
+          response,
+        );
         self.send(message).catch(() => {});
       }
     } catch (error) {
@@ -371,14 +386,14 @@ export default function SwimTransport (adapterOptions = {}) {
   }
 
   // Handle incoming gossip response
-  function onGossipResponseMessage (data, socket) {
+  function onGossipResponseMessage(data, socket) {
     try {
       const message = self.deserialize(data);
       const payload = message.payload;
 
       // Process online nodes
       if (payload.online) {
-        Object.keys(payload.online).forEach(nodeId => {
+        Object.keys(payload.online).forEach((nodeId) => {
           if (nodeId === self.broker.nodeId) {
             return;
           }
@@ -412,7 +427,7 @@ export default function SwimTransport (adapterOptions = {}) {
           if (node && node.isAvailable && cpuSequence && cpuSequence > node.cpuSequence) {
             node.heartbeat({
               cpu,
-              cpuSequence
+              cpuSequence,
             });
           }
         });
@@ -420,7 +435,7 @@ export default function SwimTransport (adapterOptions = {}) {
 
       // Offline nodes
       if (payload.offline) {
-        Object.keys(payload.offline).forEach(nodeId => {
+        Object.keys(payload.offline).forEach((nodeId) => {
           if (nodeId === self.broker.nodeId) return;
 
           const sequence = payload.offline[nodeId];
@@ -444,7 +459,7 @@ export default function SwimTransport (adapterOptions = {}) {
     }
   }
 
-  function onMessage (type, data, socket) {
+  function onMessage(type, data, socket) {
     try {
       self.onIncomingMessage(type, data, socket);
     } catch (error) {
@@ -453,4 +468,4 @@ export default function SwimTransport (adapterOptions = {}) {
   }
 
   return self;
-};
+}

@@ -1,16 +1,18 @@
-import { Writable } from 'stream';
+import { Writable } from "stream";
 export default class TestStream extends Writable {
-  constructor () {
+  constructor() {
     super();
     this.chunks = [];
   }
-  _write (chunk, encoding, done) {
+  _write(chunk, encoding, done) {
     // eslint-disable-next-line no-control-regex
-    const sanitizedString = chunk.toString().replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
+    const sanitizedString = chunk
+      .toString()
+      .replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, "");
     this.chunks.push(sanitizedString);
   }
 
-  getSnapshot () {
+  getSnapshot() {
     return this.chunks;
   }
-};
+}

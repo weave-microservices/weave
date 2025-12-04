@@ -1,19 +1,19 @@
-import { describe, it, beforeEach } from 'node:test';
-import assert from 'node:assert/strict';
-import ModelValidator from '../lib/validator.mts';
+import { describe, it, beforeEach } from "node:test";
+import assert from "node:assert/strict";
+import ModelValidator from "../lib/validator.mts";
 
-describe('Schema Validation Integration', () => {
+describe("Schema Validation Integration", () => {
   let validator: any;
 
   beforeEach(() => {
     validator = ModelValidator();
   });
 
-  describe('schema validation enabled', () => {
-    it('should validate schema when validateSchema option is true', () => {
+  describe("schema validation enabled", () => {
+    it("should validate schema when validateSchema option is true", () => {
       const validSchema = {
-        name: { type: 'string', minLength: 1 },
-        age: { type: 'number', min: 0 }
+        name: { type: "string", minLength: 1 },
+        age: { type: "number", min: 0 },
       };
 
       assert.doesNotThrow(() => {
@@ -21,10 +21,10 @@ describe('Schema Validation Integration', () => {
       });
     });
 
-    it('should throw error for invalid schema when validation is enabled', () => {
+    it("should throw error for invalid schema when validation is enabled", () => {
       const invalidSchema = {
-        name: { type: 'invalid' },
-        age: { type: 'number' }
+        name: { type: "invalid" },
+        age: { type: "number" },
       };
 
       assert.throws(() => {
@@ -32,52 +32,49 @@ describe('Schema Validation Integration', () => {
       }, /Invalid schema/);
     });
 
-    it('should throw error for invalid options when validation is enabled', () => {
+    it("should throw error for invalid options when validation is enabled", () => {
       const validSchema = {
-        name: { type: 'string' }
+        name: { type: "string" },
       };
 
       assert.throws(() => {
         validator.compile(validSchema, {
           validateSchema: true,
-          strictMode: 'invalid' as any
+          strictMode: "invalid" as any,
         });
       }, /Invalid validation options/);
     });
 
-    it('should validate complex nested schemas', () => {
+    it("should validate complex nested schemas", () => {
       const complexSchema = {
         user: {
-          type: 'object',
+          type: "object",
           properties: {
             profile: {
-              type: 'object',
+              type: "object",
               properties: {
-                name: { type: 'string', minLength: 1 },
+                name: { type: "string", minLength: 1 },
                 contacts: {
-                  type: 'array',
+                  type: "array",
                   itemType: {
-                    type: 'multi',
-                    rules: [
-                      { type: 'email' },
-                      { type: 'string', phone: true }
-                    ]
-                  }
-                }
-              }
+                    type: "multi",
+                    rules: [{ type: "email" }, { type: "string", phone: true }],
+                  },
+                },
+              },
             },
             preferences: {
-              type: 'object',
+              type: "object",
               properties: {
                 theme: {
-                  type: 'enum',
-                  values: ['light', 'dark']
+                  type: "enum",
+                  values: ["light", "dark"],
                 },
-                notifications: { type: 'boolean' }
-              }
-            }
-          }
-        }
+                notifications: { type: "boolean" },
+              },
+            },
+          },
+        },
       };
 
       assert.doesNotThrow(() => {
@@ -85,44 +82,44 @@ describe('Schema Validation Integration', () => {
       });
     });
 
-    it('should provide detailed error messages for nested schema errors', () => {
+    it("should provide detailed error messages for nested schema errors", () => {
       const invalidNestedSchema = {
         user: {
-          type: 'object',
+          type: "object",
           properties: {
             profile: {
-              type: 'object',
+              type: "object",
               properties: {
-                name: { type: 'string', minLength: -1 }, // invalid
-                age: { type: 'invalid' } // invalid type
-              }
-            }
-          }
-        }
+                name: { type: "string", minLength: -1 }, // invalid
+                age: { type: "invalid" }, // invalid type
+              },
+            },
+          },
+        },
       };
 
-      assert.throws(() => {
-        validator.compile(invalidNestedSchema, { validateSchema: true });
-      }, (err: Error) => {
-        assert.ok(err.message.includes('Invalid schema'));
-        assert.ok(err.message.includes('minLength'));
-        return true;
-      });
+      assert.throws(
+        () => {
+          validator.compile(invalidNestedSchema, { validateSchema: true });
+        },
+        (err: Error) => {
+          assert.ok(err.message.includes("Invalid schema"));
+          assert.ok(err.message.includes("minLength"));
+          return true;
+        },
+      );
     });
 
-    it('should validate root schemas', () => {
-      const rootSchema = { type: 'string', minLength: 1 };
+    it("should validate root schemas", () => {
+      const rootSchema = { type: "string", minLength: 1 };
 
       assert.doesNotThrow(() => {
         validator.compile(rootSchema, { validateSchema: true, root: true });
       });
     });
 
-    it('should validate array root schemas', () => {
-      const arraySchema = [
-        { type: 'string' },
-        { type: 'number' }
-      ];
+    it("should validate array root schemas", () => {
+      const arraySchema = [{ type: "string" }, { type: "number" }];
 
       assert.doesNotThrow(() => {
         validator.compile(arraySchema, { validateSchema: true, root: true });
@@ -130,10 +127,10 @@ describe('Schema Validation Integration', () => {
     });
   });
 
-  describe('schema validation disabled', () => {
-    it('should not validate schema when validateSchema option is false', () => {
+  describe("schema validation disabled", () => {
+    it("should not validate schema when validateSchema option is false", () => {
       const invalidSchema = {
-        name: { type: 'invalid' }
+        name: { type: "invalid" },
       };
 
       // Should not throw because validation is disabled by default
@@ -142,13 +139,13 @@ describe('Schema Validation Integration', () => {
       });
     });
 
-    it('should compile successfully with invalid schema when validation disabled', () => {
+    it("should compile successfully with invalid schema when validation disabled", () => {
       const schema = {
-        name: { type: 'string' }
+        name: { type: "string" },
       };
 
       const validate = validator.compile(schema);
-      assert.ok(typeof validate === 'function');
+      assert.ok(typeof validate === "function");
     });
   });
 });

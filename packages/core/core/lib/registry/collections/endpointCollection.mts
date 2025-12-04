@@ -12,10 +12,10 @@
  * @typedef {import('../../types.__js').Service} Service
  * @typedef {import('../../types.__js').Node} Node
  * @typedef {import('../../types.__js').EndpointCollection} EndpointCollection
-*/
+ */
 
-import { createActionEndpoint } from '../actionEndpoint.mts';
-import { loadBalancingStrategy } from '../../constants.mts';
+import { createActionEndpoint } from "../actionEndpoint.mts";
+import { loadBalancingStrategy } from "../../constants.mts";
 
 /**
  *
@@ -29,24 +29,24 @@ export const createEndpointList = (runtime, name, groupName) => {
   const endpointList = Object.create(null);
   const options = runtime.options;
   /** @type {Array} */
-  const list = endpointList.endpoints = [];
+  const list = (endpointList.endpoints = []);
 
   let counter = 0;
 
   endpointList.name = name;
   endpointList.groupName = groupName;
-  endpointList.isInternal = name.startsWith('$');
+  endpointList.isInternal = name.startsWith("$");
   endpointList.localEndpoints = [];
 
   const setLocalEndpoints = () => {
-    endpointList.localEndpoints = list.filter(endpoint => endpoint.isLocal);
+    endpointList.localEndpoints = list.filter((endpoint) => endpoint.isLocal);
   };
 
   /**
    * Select an Entpoint with the selected Load-Balancing-Strategy
    * @param {*} endpointList List of all available Endpoints
    * @returns {any} Endpoint
-  */
+   */
   const select = (endpointList) => {
     // Round robin
     if (options.registry.loadBalancingStrategy === loadBalancingStrategy.ROUND_ROBIN) {
@@ -62,8 +62,11 @@ export const createEndpointList = (runtime, name, groupName) => {
     }
   };
 
-  endpointList.add = (node, service, action) => { // todo: addaction
-    const foundEndpoint = list.find(endpoint => endpoint.node.id === node.id && endpoint.service.name === service.name);
+  endpointList.add = (node, service, action) => {
+    // todo: addaction
+    const foundEndpoint = list.find(
+      (endpoint) => endpoint.node.id === node.id && endpoint.service.name === service.name,
+    );
 
     if (foundEndpoint) {
       foundEndpoint.updateAction(action);
@@ -77,7 +80,7 @@ export const createEndpointList = (runtime, name, groupName) => {
     return true;
   };
 
-  endpointList.hasAvailable = () => list.find(endpoint => endpoint.isAvailable()) != null;
+  endpointList.hasAvailable = () => list.find((endpoint) => endpoint.isAvailable()) != null;
 
   endpointList.hasLocal = () => endpointList.localEndpoints.length > 0;
 
@@ -107,7 +110,7 @@ export const createEndpointList = (runtime, name, groupName) => {
       }
     }
 
-    const availableEndpoints = list.filter(endpoint => endpoint.isAvailable());
+    const availableEndpoints = list.filter((endpoint) => endpoint.isAvailable());
     if (availableEndpoints.length === 0) {
       return null;
     }
@@ -128,7 +131,9 @@ export const createEndpointList = (runtime, name, groupName) => {
       return null;
     }
 
-    const availableEndpoints = endpointList.localEndpoints.filter(endpoint => endpoint.isAvailable());
+    const availableEndpoints = endpointList.localEndpoints.filter((endpoint) =>
+      endpoint.isAvailable(),
+    );
     if (availableEndpoints.length === 0) {
       return null;
     }
@@ -138,16 +143,16 @@ export const createEndpointList = (runtime, name, groupName) => {
 
   endpointList.count = () => list.length;
 
-  endpointList.getByNodeId = (nodeId) => list.find(endpoint => endpoint.node.id === nodeId);
+  endpointList.getByNodeId = (nodeId) => list.find((endpoint) => endpoint.node.id === nodeId);
 
   endpointList.removeByNodeId = (nodeId) => {
-    const endpointToRemove = list.find(item => item.node.id === nodeId);
+    const endpointToRemove = list.find((item) => item.node.id === nodeId);
     list.splice(list.indexOf(endpointToRemove), 1);
     setLocalEndpoints();
   };
 
   endpointList.removeByService = (service) => {
-    const endpointToRemove = list.find(endpoint => endpoint.service === service);
+    const endpointToRemove = list.find((endpoint) => endpoint.service === service);
     if (endpointToRemove) {
       list.splice(list.indexOf(endpointToRemove), 1);
     }

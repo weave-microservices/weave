@@ -1,9 +1,10 @@
 const init = (x, y) => {
-  const regex = new RegExp(`\\x1b\\[${y}m`, 'g');
-  const open = `\x1b[${x}m`; const close = `\x1b[${y}m`;
+  const regex = new RegExp(`\\x1b\\[${y}m`, "g");
+  const open = `\x1b[${x}m`;
+  const close = `\x1b[${y}m`;
 
   return function (txt) {
-    return open + (~('' + txt).indexOf(close) ? txt.replace(regex, close + open) : txt) + close;
+    return open + (~("" + txt).indexOf(close) ? txt.replace(regex, close + open) : txt) + close;
   };
 };
 

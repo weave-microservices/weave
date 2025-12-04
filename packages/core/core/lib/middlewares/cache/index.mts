@@ -1,15 +1,15 @@
-import { isString, isFunction } from '@weave-js/utils';
+import { isString, isFunction } from "@weave-js/utils";
 
 export default (runtime) => {
   return {
     localAction: (handler, action) => {
       const cacheOptions = runtime.options.cache;
       const cacheActionOptions = {
-        enabled: !!action.cache
+        enabled: !!action.cache,
       };
 
       if (isString(action.cache)) {
-        cacheActionOptions.keys = action.cache.split(' ');
+        cacheActionOptions.keys = action.cache.split(" ");
       } else if (action.cache && Array.isArray(action.cache.keys)) {
         cacheActionOptions.keys = action.cache.keys;
       }
@@ -18,7 +18,7 @@ export default (runtime) => {
         const cache = runtime.cache;
         const isEnabledFunction = isFunction(action.cache.condition);
 
-        return function cacheMiddleware (context, serviceInjections) {
+        return function cacheMiddleware(context, serviceInjections) {
           // handle enabled function
           if (isEnabledFunction) {
             if (!action.cache.condition.call(null, context)) {
@@ -32,7 +32,7 @@ export default (runtime) => {
             action.name,
             context.data,
             context.meta,
-            cacheActionOptions.keys
+            cacheActionOptions.keys,
           );
 
           context.isCachedResult = false;
@@ -44,14 +44,13 @@ export default (runtime) => {
 
           // The cache adapter is not connected yet. In this case, we call the handler regular
           if (cache.isConnected === false) {
-            cache.log('Cache adapter is not connected yet. Call handler...');
+            cache.log("Cache adapter is not connected yet. Call handler...");
             return handler(context, serviceInjections);
           }
 
           if (cacheOptions.lock.enabled) {
             let cachePromise;
             if (cacheOptions.lock.staleTime && cache.getWithTTl) {
-
             } else {
               cachePromise = runtime.cache.get(cacheHashKey);
             }
@@ -64,7 +63,7 @@ export default (runtime) => {
               }
 
               return cache.lock(cacheHashKey).then((release) => {
-                return cache.get(cacheHashKey).then(cachedResult => {
+                return cache.get(cacheHashKey).then((cachedResult) => {
                   if (cachedResult !== null) {
                     // Found a cached value. Skip calling handler and return our value
                     context.isCachedResult = true;
@@ -73,15 +72,17 @@ export default (runtime) => {
                     });
                   }
 
-                  return handler(context).then((result) => {
-                    // Cache the value
-                    return cache.set(cacheHashKey, result, action.cache.ttl).then(() => {
-                      return result;
+                  return handler(context)
+                    .then((result) => {
+                      // Cache the value
+                      return cache.set(cacheHashKey, result, action.cache.ttl).then(() => {
+                        return result;
+                      });
+                    })
+                    .finally(() => {
+                      // Always release the lock
+                      release();
                     });
-                  }).finally(() => {
-                    // Always release the lock
-                    release();
-                  });
                 });
               });
             });
@@ -102,6 +103,6 @@ export default (runtime) => {
         };
       }
       return handler;
-    }
+    },
   };
 };

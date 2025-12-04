@@ -20,6 +20,7 @@ Migration des Weave Validators von JavaScript zu TypeScript mit vollständiger T
 ## 1. Dateistruktur-Änderungen
 
 ### Umbenennungen
+
 - Alle `.js` Dateien → `.mts` (TypeScript Module)
 - Betroffen:
   - `lib/validator.js` → `lib/validator.mts`
@@ -56,6 +57,7 @@ Migration des Weave Validators von JavaScript zu TypeScript mit vollständiger T
 ```
 
 ### Entfernte Dependencies
+
 - Jest (ersetzt durch Node.js Test Runner)
 - Jest-spezifische Konfigurationen
 
@@ -84,19 +86,13 @@ Migration des Weave Validators von JavaScript zu TypeScript mit vollständiger T
     "noEmit": true,
     "types": ["node"]
   },
-  "include": [
-    "lib/**/*.mts",
-    "test/**/*.mts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "coverage"
-  ]
+  "include": ["lib/**/*.mts", "test/**/*.mts"],
+  "exclude": ["node_modules", "dist", "coverage"]
 }
 ```
 
-**Wichtig:** 
+**Wichtig:**
+
 - `noEmit: true` - Keine Kompilierung, nur Type-Checking
 - Keine `outDir` oder Build-Konfiguration nötig
 - Node.js führt `.mts` Dateien direkt aus
@@ -110,7 +106,7 @@ Migration des Weave Validators von JavaScript zu TypeScript mit vollständiger T
 ```typescript
 export interface ValidationOptions {
   strict?: boolean;
-  strictMode?: 'remove' | 'error';
+  strictMode?: "remove" | "error";
   root?: boolean;
   validateSchema?: boolean;
 }
@@ -149,7 +145,7 @@ export interface BaseSchema {
 
 ```typescript
 export interface StringSchema extends BaseSchema {
-  type?: 'string';
+  type?: "string";
   minLength?: number;
   maxLength?: number;
   equal?: string;
@@ -166,7 +162,7 @@ export interface StringSchema extends BaseSchema {
 }
 
 export interface NumberSchema extends BaseSchema {
-  type?: 'number';
+  type?: "number";
   min?: number;
   max?: number;
   equal?: number;
@@ -178,17 +174,17 @@ export interface NumberSchema extends BaseSchema {
 }
 
 export interface BooleanSchema extends BaseSchema {
-  type?: 'boolean';
+  type?: "boolean";
   convert?: boolean;
 }
 
 export interface DateSchema extends BaseSchema {
-  type?: 'date';
+  type?: "date";
   convert?: boolean;
 }
 
 export interface ArraySchema extends BaseSchema {
-  type?: 'array';
+  type?: "array";
   minLength?: number;
   maxLength?: number;
   length?: number;
@@ -197,61 +193,61 @@ export interface ArraySchema extends BaseSchema {
 }
 
 export interface ObjectSchema extends BaseSchema {
-  type?: 'object';
+  type?: "object";
   strict?: boolean;
   properties?: Record<string, Schema>;
   props?: Record<string, Schema>;
 }
 
 export interface EnumSchema extends BaseSchema {
-  type?: 'enum';
+  type?: "enum";
   values?: any[];
 }
 
 export interface EmailSchema extends BaseSchema {
-  type?: 'email';
+  type?: "email";
   mode?: string;
   normalize?: boolean;
 }
 
 export interface UrlSchema extends BaseSchema {
-  type?: 'url';
+  type?: "url";
 }
 
 export interface MultiSchema extends BaseSchema {
-  type?: 'multi';
+  type?: "multi";
   rules?: Schema[];
 }
 
 export interface AnySchema extends BaseSchema {
-  type?: 'any';
+  type?: "any";
 }
 
 export interface ForbiddenSchema extends BaseSchema {
-  type?: 'forbidden';
+  type?: "forbidden";
 }
 ```
 
 ### 4.3 Schema-Union-Typ
 
 ```typescript
-export type SchemaDefinition = 
-  | StringSchema 
-  | NumberSchema 
-  | BooleanSchema 
-  | DateSchema 
-  | ArraySchema 
-  | ObjectSchema 
-  | EnumSchema 
-  | EmailSchema 
-  | UrlSchema 
-  | MultiSchema 
-  | AnySchema 
+export type SchemaDefinition =
+  | StringSchema
+  | NumberSchema
+  | BooleanSchema
+  | DateSchema
+  | ArraySchema
+  | ObjectSchema
+  | EnumSchema
+  | EmailSchema
+  | UrlSchema
+  | MultiSchema
+  | AnySchema
   | ForbiddenSchema
   | BaseSchema;
 
 // Rekursiver Schema-Typ
-export type Schema = 
+export type Schema =
   | string // String shorthand wie 'string', 'number', etc.
   | SchemaDefinition // Vollständige Schema-Definition
   | Schema[] // Array von Schemas für Multi-Type-Validierung
@@ -275,7 +271,7 @@ export interface ModelValidator {
 ### Neue Typ-Definitionen
 
 ```typescript
-type ValidType = typeof validTypes[number];
+type ValidType = (typeof validTypes)[number];
 
 interface BaseSchemaObject {
   type: ValidType;
@@ -286,7 +282,7 @@ interface BaseSchemaObject {
 
 // Spezifische Schema-Interfaces für Validierung
 interface StringSchema extends BaseSchemaObject {
-  type: 'string';
+  type: "string";
   minLength?: number;
   maxLength?: number;
   // ... weitere Properties
@@ -300,9 +296,12 @@ export type ValidationSchema = ValidType | SchemaObject | ValidationSchema[];
 ### Validierungs-Funktionen
 
 ```typescript
-export function validateSchema(schema: ValidationSchema, path: string = ''): SchemaValidationError[]
+export function validateSchema(
+  schema: ValidationSchema,
+  path: string = "",
+): SchemaValidationError[];
 
-export function validateOptions(options: any): SchemaValidationError[]
+export function validateOptions(options: any): SchemaValidationError[];
 ```
 
 ---
@@ -318,13 +317,13 @@ export function validateOptions(options: any): SchemaValidationError[]
 
 ```typescript
 // Alt (Jest)
-const assert = require('assert');
-const ModelValidator = require('../lib/validator');
+const assert = require("assert");
+const ModelValidator = require("../lib/validator");
 
 // Neu (Node.js Test Runner)
-import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
-import ModelValidator from '../lib/validator.mts';
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
+import ModelValidator from "../lib/validator.mts";
 ```
 
 ### 6.3 Typ-Assertions in Tests
@@ -333,16 +332,16 @@ Für Tests mit absichtlich ungültigen Schemas:
 
 ```typescript
 // Beispiel: Test mit ungültigem Schema
-const errors = validateSchema('invalid' as any);
+const errors = validateSchema("invalid" as any);
 const errors = validateSchema(null as any);
-const errors = validateSchema({ type: 'invalidType' } as any);
+const errors = validateSchema({ type: "invalidType" } as any);
 ```
 
 ### 6.4 Typ-Assertions für Runtime-Mutationen
 
 ```typescript
 // Bei convert-Option, die Typen zur Laufzeit ändert
-const parameters: { date: string | Date } = { date: '2020-02-24T15:17:51.908Z' };
+const parameters: { date: string | Date } = { date: "2020-02-24T15:17:51.908Z" };
 validator.compile(schema)(parameters);
 assert.ok(parameters.date instanceof Date);
 ```
@@ -368,14 +367,11 @@ assert.ok(parameters.date instanceof Date);
 ### 7.3 Rekursiver Schema-Typ
 
 ```typescript
-export type Schema = 
-  | string
-  | SchemaDefinition
-  | Schema[]
-  | { [key: string]: Schema };
+export type Schema = string | SchemaDefinition | Schema[] | { [key: string]: Schema };
 ```
 
 **Grund:** Unterstützt verschachtelte Objekt-Schemas wie:
+
 ```typescript
 {
   user: {
@@ -392,9 +388,13 @@ validate<T = any>(obj: T, schema: Schema): ValidationResult;
 ```
 
 **Vorteil:** Ermöglicht Type-Safety für das zu validierende Objekt:
+
 ```typescript
-interface User { name: string; age: number; }
-validator.validate<User>({ name: 'test', age: 25 }, schema);
+interface User {
+  name: string;
+  age: number;
+}
+validator.validate<User>({ name: "test", age: 25 }, schema);
 ```
 
 ---
@@ -436,8 +436,8 @@ Die API bleibt vollständig kompatibel:
 ```typescript
 // Funktioniert weiterhin
 const validator = ModelValidator();
-const validate = validator.compile({ name: { type: 'string' } });
-const result = validate({ name: 'test' });
+const validate = validator.compile({ name: { type: "string" } });
+const result = validate({ name: "test" });
 ```
 
 ### Interne Änderungen
@@ -549,17 +549,13 @@ node your-app.mts
 ### Verwendung mit TypeScript
 
 ```typescript
-import ModelValidator, { 
-  ValidationResult, 
-  ValidationError,
-  Schema 
-} from '@weave-js/validator';
+import ModelValidator, { ValidationResult, ValidationError, Schema } from "@weave-js/validator";
 
 // Schema definieren
 const userSchema: Schema = {
-  name: { type: 'string', minLength: 2 },
-  age: { type: 'number', min: 0, integer: true },
-  email: { type: 'email' }
+  name: { type: "string", minLength: 2 },
+  age: { type: "number", min: 0, integer: true },
+  email: { type: "email" },
 };
 
 // Validator erstellen
@@ -573,14 +569,14 @@ interface User {
   email: string;
 }
 
-const result = validate({ 
-  name: 'John', 
-  age: 30, 
-  email: 'john@example.com' 
+const result = validate({
+  name: "John",
+  age: 30,
+  email: "john@example.com",
 });
 
 if (result === true) {
-  console.log('Valid!');
+  console.log("Valid!");
 } else {
   result.forEach((error: ValidationError) => {
     console.error(`${error.field}: ${error.message}`);
@@ -591,12 +587,12 @@ if (result === true) {
 ### Custom Validator mit TypeScript
 
 ```typescript
-import ModelValidator from '@weave-js/validator';
+import ModelValidator from "@weave-js/validator";
 
 const validator = ModelValidator();
 
 // Custom Rule hinzufügen
-validator.addRule('custom', function(this: any, { schema, messages }: any) {
+validator.addRule("custom", function (this: any, { schema, messages }: any) {
   return {
     isSanitized: false,
     code: `
@@ -608,15 +604,15 @@ validator.addRule('custom', function(this: any, { schema, messages }: any) {
         });
       }
       return value;
-    `
+    `,
   };
 });
 
 // Verwenden
 const schema = {
-  field: { type: 'custom' }
+  field: { type: "custom" },
 };
 
 const validate = validator.compile(schema);
-const result = validate({ field: 'custom' });
+const result = validate({ field: "custom" });
 ```

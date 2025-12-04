@@ -4,9 +4,9 @@ export default function checkEnum(this: any, { schema, messages }: any) {
   return {
     code: `
       if (${enumString}.indexOf(value) === -1) {
-        ${this.makeErrorCode({ type: 'enumValues', passed: 'value', messages })}
+        ${this.makeErrorCode({ type: "enumValues", passed: "value", messages })}
       }
       return value
-    `
+    `,
   };
 }

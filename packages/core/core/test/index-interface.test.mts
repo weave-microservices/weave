@@ -1,9 +1,9 @@
-import Module from '../lib.mts';
-import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
+import Module from "../lib.mts";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 
-describe('Module interface', () => {
-  it('should have properties', () => {
+describe("Module interface", () => {
+  it("should have properties", () => {
     assert.notStrictEqual(Module.Cache, undefined);
     assert.notStrictEqual(Module.Constants, undefined);
     assert.notStrictEqual(Module.Errors, undefined);

@@ -4,27 +4,30 @@
  * Copyright 2021 Fachwerk
  */
 
-import { buildActionTags, buildEventTags, addResponseTags } from './tags.mts';
+import { buildActionTags, buildEventTags, addResponseTags } from "./tags.mts";
 
-function getSpanName (context, actionTracingOptions) {
+function getSpanName(context, actionTracingOptions) {
   let spanName = `action "${context.action.name}"`;
 
   try {
     if (actionTracingOptions.spanName) {
       switch (typeof actionTracingOptions.spanName) {
-      case 'string':
-        spanName = actionTracingOptions.spanName;
-        break;
-      case 'function':
-        spanName = actionTracingOptions.spanName.call(context.service, context);
-        break;
+        case "string":
+          spanName = actionTracingOptions.spanName;
+          break;
+        case "function":
+          spanName = actionTracingOptions.spanName.call(context.service, context);
+          break;
       }
     }
   } catch (error) {
-    context.service.log.warn({
-      requestId: context.requestId,
-      spanId: context.span.id
-    }, `Error while getting span name: ${error.message}`);
+    context.service.log.warn(
+      {
+        requestId: context.requestId,
+        spanId: context.span.id,
+      },
+      `Error while getting span name: ${error.message}`,
+    );
   }
 
   return spanName;
@@ -36,7 +39,7 @@ const wrapTracingLocalActionMiddleware = function (handler, action) {
   const actionTracingOptions = action.tracing || {};
 
   if (globalTracingOptions.enabled) {
-    return function tracingLocalMiddleware (context, serviceInjections) {
+    return function tracingLocalMiddleware(context, serviceInjections) {
       const tags = buildActionTags(context, globalTracingOptions, actionTracingOptions);
 
       const spanName = getSpanName(context, actionTracingOptions);
@@ -45,27 +48,33 @@ const wrapTracingLocalActionMiddleware = function (handler, action) {
         id: context.id,
         traceId: context.requestId,
         parentId: context.parentId,
-        type: 'action',
+        type: "action",
         service: context.service,
         tags,
-        sampled: context.tracing
+        sampled: context.tracing,
       });
 
       context.tracing = span.sampled;
 
       return handler(context, serviceInjections)
-        .then(result => {
+        .then((result) => {
           const tags = {
-            isCachedResult: context.isCachedResult
+            isCachedResult: context.isCachedResult,
           };
 
-          addResponseTags(context, tags, result, globalTracingOptions.actions, actionTracingOptions);
+          addResponseTags(
+            context,
+            tags,
+            result,
+            globalTracingOptions.actions,
+            actionTracingOptions,
+          );
 
           span.addTags(tags);
           context.finishSpan(span);
           return result;
         })
-        .catch(error => {
+        .catch((error) => {
           span.setError(error);
           context.finishSpan(span);
           return Promise.reject(error);
@@ -82,27 +91,27 @@ const wrapTracingLocalEventMiddleware = function (handler, event) {
   const eventTracingOptions = event.tracing || {};
 
   if (tracingOptions.enabled) {
-    return function metricsLocalMiddleware (context) {
+    return function metricsLocalMiddleware(context) {
       const tags = buildEventTags(context, tracingOptions, eventTracingOptions);
 
       const span = context.startSpan(`event "${context.eventName}"`, {
         id: context.id,
         traceId: context.requestId,
         parentId: context.parentId,
-        type: 'event',
+        type: "event",
         service,
         tags,
-        sampled: context.tracing
+        sampled: context.tracing,
       });
 
       context.tracing = span.sampled;
 
       return handler(context)
-        .then(result => {
+        .then((result) => {
           context.finishSpan(span);
           return result;
         })
-        .catch(error => {
+        .catch((error) => {
           span.setError(error);
           context.finishSpan(span);
           return Promise.reject(error);
@@ -115,6 +124,6 @@ const wrapTracingLocalEventMiddleware = function (handler, event) {
 export default () => {
   return {
     localAction: wrapTracingLocalActionMiddleware,
-    localEvent: wrapTracingLocalEventMiddleware
+    localEvent: wrapTracingLocalEventMiddleware,
   };
 };

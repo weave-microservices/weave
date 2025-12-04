@@ -1,4 +1,4 @@
-import { createBaseTracingCollector } from './base.mts';
+import { createBaseTracingCollector } from "./base.mts";
 
 /**
  * Merge options wirh default options.
@@ -6,13 +6,16 @@ import { createBaseTracingCollector } from './base.mts';
  * @returns {import('../../../types').TracingOptions}
  */
 const mergeDefaultOptions = (options) => {
-  return Object.assign({
-    interval: 5000,
-    eventName: '$tracing.trace.spans',
-    sendStartSpan: false,
-    sendFinishedSpan: true,
-    broadcast: false
-  }, options);
+  return Object.assign(
+    {
+      interval: 5000,
+      eventName: "$tracing.trace.spans",
+      sendStartSpan: false,
+      sendFinishedSpan: true,
+      broadcast: false,
+    },
+    options,
+  );
 };
 
 /**
@@ -32,23 +35,21 @@ export default (options) => (runtime, tracer) => {
   let timer;
 
   const generateTracingData = () => {
-    return Array
-      .from(queue)
-      .map(span => {
-        const newSpan = Object.assign({}, span);
+    return Array.from(queue).map((span) => {
+      const newSpan = Object.assign({}, span);
 
-        if (newSpan.error) {
-          newSpan.error = exporter.getErrorFields(newSpan.error, exporter.options.errors.fields);
-        }
+      if (newSpan.error) {
+        newSpan.error = exporter.getErrorFields(newSpan.error, exporter.options.errors.fields);
+      }
 
-        return newSpan;
-      });
+      return newSpan;
+    });
   };
 
   const flushQueue = () => {
     if (queue.length === 0) {
       return;
-    };
+    }
 
     const data = generateTracingData();
     queue.length = 0;
@@ -65,9 +66,7 @@ export default (options) => (runtime, tracer) => {
     timer.unref();
   }
 
-  exporter.init = (runtime) => {
-
-  };
+  exporter.init = (runtime) => {};
 
   exporter.startedSpan = (span) => {
     if (options.sendStartSpan) {

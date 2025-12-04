@@ -1,14 +1,14 @@
-import { it } from 'node:test';
+import { it } from "node:test";
 export default {
-  name: 'text',
+  name: "text",
   actions: {
     reverse: {
       params: {
-        text: 'string'
+        text: "string",
       },
-      handler (context) {
-        return context.text.split('').reverse();
-      }
-    }
-  }
+      handler(context) {
+        return context.text.split("").reverse();
+      },
+    },
+  },
 };

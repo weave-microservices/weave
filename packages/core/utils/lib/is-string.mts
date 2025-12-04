@@ -1,4 +1,4 @@
-import { tagTester } from './helper/tag-tester.mts';
+import { tagTester } from "./helper/tag-tester.mts";
 
 /**
  * Checks if a value is a string.
@@ -6,5 +6,5 @@ import { tagTester } from './helper/tag-tester.mts';
  * @returns True if value is a string
  */
 export function isString(obj: unknown): obj is string {
-  return tagTester('String')(obj);
+  return tagTester("String")(obj);
 }

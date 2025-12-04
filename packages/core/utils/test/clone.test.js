@@ -1,22 +1,22 @@
-const utils = require('../lib');
+const utils = require("../lib");
 
 class TestClass {
-  fire () {}
+  fire() {}
 }
 
-describe('Object clone method', () => {
-  it('should clone an object', () => {
+describe("Object clone method", () => {
+  it("should clone an object", () => {
     const source = {
-      name: 'test',
+      name: "test",
       actions: {
-        help () {}
+        help() {},
       },
       settings: new TestClass(),
-      arrs: [1, 2, 3, 4, 5]
+      arrs: [1, 2, 3, 4, 5],
     };
 
     const newObject = utils.clone(source);
     expect(source).toEqual(newObject);
-    expect(typeof source.settings.fire).toBe('function');
+    expect(typeof source.settings.fire).toBe("function");
   });
 });

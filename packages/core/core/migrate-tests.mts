@@ -2,7 +2,7 @@
 
 /**
  * Migration script to convert Jest tests to node:test
- * 
+ *
  * This script converts:
  * - jest.fn() -> manual counter/tracking variables
  * - expect().toBe() -> assert.strictEqual()
@@ -14,15 +14,15 @@
  * - done callbacks -> async/await
  */
 
-import { readFileSync, writeFileSync } from 'fs';
-import { glob } from 'glob';
+import { readFileSync, writeFileSync } from "fs";
+import { glob } from "glob";
 
-const testFiles = glob.sync('test/**/*.mts', { cwd: process.cwd() });
+const testFiles = glob.sync("test/**/*.mts", { cwd: process.cwd() });
 
 let totalChanges = 0;
 
 for (const file of testFiles) {
-  let content = readFileSync(file, 'utf-8');
+  let content = readFileSync(file, "utf-8");
   const originalContent = content;
   let fileChanges = 0;
 
@@ -34,43 +34,49 @@ for (const file of testFiles) {
 
   // Add node:test and node:assert imports if not present
   if (!content.includes("from 'node:test'") && !content.includes('from "node:test"')) {
-    const hasDescribe = content.includes('describe(');
-    const hasIt = content.includes('it(');
-    const hasBeforeEach = content.includes('beforeEach(');
-    const hasAfterEach = content.includes('afterEach(');
-    const hasBefore = content.includes('before(');
-    const hasAfter = content.includes('after(');
+    const hasDescribe = content.includes("describe(");
+    const hasIt = content.includes("it(");
+    const hasBeforeEach = content.includes("beforeEach(");
+    const hasAfterEach = content.includes("afterEach(");
+    const hasBefore = content.includes("before(");
+    const hasAfter = content.includes("after(");
 
     if (hasDescribe || hasIt) {
       const imports = [];
-      if (hasDescribe) imports.push('describe');
-      if (hasIt) imports.push('it');
-      if (hasBeforeEach) imports.push('beforeEach');
-      if (hasAfterEach) imports.push('afterEach');
-      if (hasBefore) imports.push('before');
-      if (hasAfter) imports.push('after');
+      if (hasDescribe) imports.push("describe");
+      if (hasIt) imports.push("it");
+      if (hasBeforeEach) imports.push("beforeEach");
+      if (hasAfterEach) imports.push("afterEach");
+      if (hasBefore) imports.push("before");
+      if (hasAfter) imports.push("after");
 
       const firstImportMatch = content.match(/^import .+;$/m);
       if (firstImportMatch) {
         const insertPos = firstImportMatch.index! + firstImportMatch[0].length;
-        content = content.slice(0, insertPos) + `\nimport { ${imports.join(', ')} } from 'node:test';` + content.slice(insertPos);
+        content =
+          content.slice(0, insertPos) +
+          `\nimport { ${imports.join(", ")} } from 'node:test';` +
+          content.slice(insertPos);
         fileChanges++;
       } else {
-        content = `import { ${imports.join(', ')} } from 'node:test';\n` + content;
+        content = `import { ${imports.join(", ")} } from 'node:test';\n` + content;
         fileChanges++;
       }
     }
   }
 
   if (!content.includes("from 'node:assert") && !content.includes('from "node:assert')) {
-    const hasExpect = content.includes('expect(');
-    const hasAssert = content.includes('assert.');
+    const hasExpect = content.includes("expect(");
+    const hasAssert = content.includes("assert.");
 
     if (hasExpect || hasAssert) {
       const firstImportMatch = content.match(/^import .+;$/m);
       if (firstImportMatch) {
         const insertPos = firstImportMatch.index! + firstImportMatch[0].length;
-        content = content.slice(0, insertPos) + `\nimport assert from 'node:assert/strict';` + content.slice(insertPos);
+        content =
+          content.slice(0, insertPos) +
+          `\nimport assert from 'node:assert/strict';` +
+          content.slice(insertPos);
         fileChanges++;
       } else {
         content = `import assert from 'node:assert/strict';\n` + content;
@@ -135,11 +141,14 @@ for (const file of testFiles) {
   });
 
   // Convert expect().toThrow()
-  content = content.replace(/expect\(([^)]+)\)\.toThrow\((['"`][^'"`]*['"`])\)/g, (match, fn, msg) => {
-    fileChanges++;
-    const regex = msg.replace(/^['"`]/, '/').replace(/['"`]$/, '/');
-    return `assert.throws(${fn}, ${regex})`;
-  });
+  content = content.replace(
+    /expect\(([^)]+)\)\.toThrow\((['"`][^'"`]*['"`])\)/g,
+    (match, fn, msg) => {
+      fileChanges++;
+      const regex = msg.replace(/^['"`]/, "/").replace(/['"`]$/, "/");
+      return `assert.throws(${fn}, ${regex})`;
+    },
+  );
 
   // Convert expect().toThrow() without message
   content = content.replace(/expect\(([^)]+)\)\.toThrow\(\)/g, (match, fn) => {
@@ -148,17 +157,23 @@ for (const file of testFiles) {
   });
 
   // Convert expect().toThrowError()
-  content = content.replace(/expect\(([^)]+)\)\.toThrowError\((['"`][^'"`]*['"`])\)/g, (match, fn, msg) => {
-    fileChanges++;
-    const regex = msg.replace(/^['"`]/, '/').replace(/['"`]$/, '/');
-    return `assert.throws(${fn}, ${regex})`;
-  });
+  content = content.replace(
+    /expect\(([^)]+)\)\.toThrowError\((['"`][^'"`]*['"`])\)/g,
+    (match, fn, msg) => {
+      fileChanges++;
+      const regex = msg.replace(/^['"`]/, "/").replace(/['"`]$/, "/");
+      return `assert.throws(${fn}, ${regex})`;
+    },
+  );
 
   // Convert expect().toHaveBeenCalledTimes()
-  content = content.replace(/expect\((\w+)\)\.toHaveBeenCalledTimes\((\d+)\)/g, (match, fn, times) => {
-    fileChanges++;
-    return `assert.strictEqual(${fn}CallCount, ${times})`;
-  });
+  content = content.replace(
+    /expect\((\w+)\)\.toHaveBeenCalledTimes\((\d+)\)/g,
+    (match, fn, times) => {
+      fileChanges++;
+      return `assert.strictEqual(${fn}CallCount, ${times})`;
+    },
+  );
 
   // Convert expect().toHaveBeenCalled()
   content = content.replace(/expect\((\w+)\)\.toHaveBeenCalled\(\)/g, (match, fn) => {
@@ -184,18 +199,20 @@ for (const file of testFiles) {
   });
 
   // Remove done() calls
-  content = content.replace(/\s+done\(\);/g, '');
+  content = content.replace(/\s+done\(\);/g, "");
 
   if (fileChanges > 0) {
-    writeFileSync(file, content, 'utf-8');
+    writeFileSync(file, content, "utf-8");
     console.log(`✓ ${file} - ${fileChanges} changes`);
     totalChanges += fileChanges;
   } else if (content !== originalContent) {
-    writeFileSync(file, content, 'utf-8');
+    writeFileSync(file, content, "utf-8");
     console.log(`✓ ${file} - formatting changes`);
   } else {
     console.log(`- ${file} - no changes needed`);
   }
 }
 
-console.log(`\n✓ Migration complete! Total changes: ${totalChanges} across ${testFiles.length} files`);
+console.log(
+  `\n✓ Migration complete! Total changes: ${totalChanges} across ${testFiles.length} files`,
+);

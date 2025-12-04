@@ -1,138 +1,135 @@
-import { isStream } from '@weave-js/utils';
-import { Readable, Writable } from 'stream';
-import { createNode } from '../../helper/index.mts';
-import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
+import { isStream } from "@weave-js/utils";
+import { Readable, Writable } from "stream";
+import { createNode } from "../../helper/index.mts";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 
-describe('Streaming', () => {
-  it('should return a requested stream', done => {
+describe("Streaming", () => {
+  it("should return a requested stream", (done) => {
     const broker1 = createNode({
-      nodeId: 'node1',
+      nodeId: "node1",
       logger: {
         enabled: false,
-        level: 'fatal'
+        level: "fatal",
       },
       transport: {
-        adapter: 'dummy'
-      }
+        adapter: "dummy",
+      },
     });
 
     const broker2 = createNode({
-      nodeId: 'node2',
+      nodeId: "node2",
       logger: {
         enabled: false,
-        level: 'fatal'
+        level: "fatal",
       },
       transport: {
-        adapter: 'dummy'
-      }
+        adapter: "dummy",
+      },
     });
 
     const testService = {
-      name: 'test',
+      name: "test",
       actions: {
-        getStream () {
+        getStream() {
           const stream = new Readable({
-            read () {}
+            read() {},
           });
 
           return stream;
-        }
-      }
+        },
+      },
     };
 
     broker1.createService(testService);
 
-    Promise.all([
-      broker1.start(),
-      broker2.start()
-    ])
-      .then(() => broker2.call('test.getStream'))
-      .then(res => {
+    Promise.all([broker1.start(), broker2.start()])
+      .then(() => broker2.call("test.getStream"))
+      .then((res) => {
         expect(isStream(res)).toBe(true);
-        return Promise.all([
-          broker1.stop(),
-          broker2.stop()
-        ]);
-      }).then(() => {
+        return Promise.all([broker1.stop(), broker2.stop()]);
+      })
+      .then(() => {
         done();
       });
   });
 
-  it('should return a requested stream', done => {
+  it("should return a requested stream", (done) => {
     const broker1 = createNode({
-      nodeId: 'node4',
+      nodeId: "node4",
       logger: {
         enabled: false,
-        level: 'fatal'
+        level: "fatal",
       },
       transport: {
-        adapter: 'dummy'
-      }
+        adapter: "dummy",
+      },
     });
 
     const broker2 = createNode({
-      nodeId: 'node5',
+      nodeId: "node5",
       logger: {
         enabled: false,
-        level: 'fatal'
+        level: "fatal",
       },
       transport: {
-        adapter: 'dummy'
-      }
+        adapter: "dummy",
+      },
     });
 
     const testService = {
-      name: 'test',
+      name: "test",
       actions: {
-        saveStream (context) {
+        saveStream(context) {
           const stream = context.stream;
           return new Promise((resolve) => {
             const chunks = [];
             const ws = new Writable({
               objectMode: true,
-              write (chunk, _, done) {
+              write(chunk, _, done) {
                 chunks.push(chunk);
                 done();
-              }
+              },
             });
 
-            ws.on('finish', () => {
-              resolve(chunks.map(c => c.counter).sort().join(','));
+            ws.on("finish", () => {
+              resolve(
+                chunks
+                  .map((c) => c.counter)
+                  .sort()
+                  .join(","),
+              );
             });
 
             stream.pipe(ws);
           });
-        }
-      }
+        },
+      },
     };
 
     broker1.createService(testService);
 
-    Promise.all([
-      broker1.start(),
-      broker2.start()
-    ])
-      .then(() => {
-        let counter = 6;
+    Promise.all([broker1.start(), broker2.start()]).then(() => {
+      let counter = 6;
 
-        const stream = new Readable({
-          objectMode: true,
-          read () {
-            if (counter < 10) {
-              this.push({ counter });
-            } else {
-              this.push(null);
-            }
-            counter++;
+      const stream = new Readable({
+        objectMode: true,
+        read() {
+          if (counter < 10) {
+            this.push({ counter });
+          } else {
+            this.push(null);
           }
-        });
-
-        return broker2.call('test.saveStream', { fileName: 'dog.jpeg' }, { stream })
-          .then(chunks => {
-            assert.strictEqual(chunks, '6,7,8,9');
-            done();
-          });
+          counter++;
+        },
       });
+
+      return broker2
+        .call("test.saveStream", { fileName: "dog.jpeg" }, { stream })
+        .then((chunks) => {
+          assert.strictEqual(chunks, "6,7,8,9");
+          done();
+        });
+    });
   });
 });

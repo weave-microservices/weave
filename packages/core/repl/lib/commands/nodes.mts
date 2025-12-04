@@ -1,43 +1,43 @@
-import { table } from 'table';
+import { table } from "table";
 
 export default ({ vorpal, broker, cliUI }: any) => {
-  vorpal
-    .command('nodes', 'List connected nodes')
-    .action((args: any, done: any) => {
-      const data = [];
+  vorpal.command("nodes", "List connected nodes").action((args: any, done: any) => {
+    const data = [];
+    data.push([
+      cliUI.tableHeaderText("Node ID"),
+      cliUI.tableHeaderText("Services"),
+      cliUI.tableHeaderText("Version"),
+      cliUI.tableHeaderText("Client"),
+      cliUI.tableHeaderText("IP"),
+      cliUI.tableHeaderText("State"),
+      cliUI.tableHeaderText("CPU"),
+    ]);
+
+    const nodes = broker.runtime.registry.nodeCollection.list({});
+
+    nodes.map((node: any) => {
+      let cpuLoad = "?";
+      if (node.cpu !== null) {
+        const width = 20;
+        const c = Math.round(node.cpu / (100 / width));
+        cpuLoad = ["["]
+          .concat(Array(c).fill("■"), Array(width - c).fill("."), ["] ", node.cpu.toFixed(0), "%"])
+          .join("");
+      }
+
       data.push([
-        cliUI.tableHeaderText('Node ID'),
-        cliUI.tableHeaderText('Services'),
-        cliUI.tableHeaderText('Version'),
-        cliUI.tableHeaderText('Client'),
-        cliUI.tableHeaderText('IP'),
-        cliUI.tableHeaderText('State'),
-        cliUI.tableHeaderText('CPU')
+        node.id === broker.runtime.nodeId ? `${node.id}(*)` : node.id,
+        node.services ? Object.keys(node.services).length : 0,
+        node.client.version,
+        node.client.type,
+        node.IPList[0],
+        node.isAvailable ? cliUI.successLabel(" ONLINE ") : cliUI.failureLabel(" OFFLINE "),
+        cpuLoad,
       ]);
-
-      const nodes = broker.runtime.registry.nodeCollection.list({});
-
-      nodes.map((node: any) => {
-        let cpuLoad = '?';
-        if (node.cpu !== null) {
-          const width = 20;
-          const c = Math.round(node.cpu / (100 / width));
-          cpuLoad = ['['].concat(Array(c).fill('■'), Array(width - c).fill('.'), ['] ', node.cpu.toFixed(0), '%']).join('');
-        }
-
-        data.push([
-          node.id === broker.runtime.nodeId ? `${node.id}(*)` : node.id,
-          node.services ? Object.keys(node.services).length : 0,
-          node.client.version,
-          node.client.type,
-          node.IPList[0],
-          node.isAvailable ? cliUI.successLabel(' ONLINE ') : cliUI.failureLabel(' OFFLINE '),
-          cpuLoad
-        ]);
-      });
-      const tableConf = {};
-
-      console.log(table(data, tableConf));
-      done();
     });
+    const tableConf = {};
+
+    console.log(table(data, tableConf));
+    done();
+  });
 };

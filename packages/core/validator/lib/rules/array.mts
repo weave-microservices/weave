@@ -6,7 +6,7 @@ export default function checkArray(this: any, { schema, messages }: any, path: a
 
   code.push(`
     if (!Array.isArray(value)) {
-      ${this.makeErrorCode({ type: 'array', actual: 'value', messages })}
+      ${this.makeErrorCode({ type: "array", actual: "value", messages })}
       return value
     }
 
@@ -16,7 +16,7 @@ export default function checkArray(this: any, { schema, messages }: any, path: a
   if (schema.minLength) {
     code.push(`
       if (length < ${schema.minLength}) {
-          ${this.makeErrorCode({ type: 'arrayMinLength', passed: 'value', expected: schema.minLength, messages })}
+          ${this.makeErrorCode({ type: "arrayMinLength", passed: "value", expected: schema.minLength, messages })}
       }
     `);
   }
@@ -24,7 +24,7 @@ export default function checkArray(this: any, { schema, messages }: any, path: a
   if (schema.maxLength) {
     code.push(`
       if (length > ${schema.maxLength}) {
-        ${this.makeErrorCode({ type: 'arrayMaxLength', passed: 'value', expected: schema.maxLength, messages })}
+        ${this.makeErrorCode({ type: "arrayMaxLength", passed: "value", expected: schema.maxLength, messages })}
       }
     `);
   }
@@ -32,7 +32,7 @@ export default function checkArray(this: any, { schema, messages }: any, path: a
   if (schema.length) {
     code.push(`
       if (length !== ${schema.length}) {
-        ${this.makeErrorCode({ type: 'arrayLength', passed: 'value', expected: schema.length, messages })}
+        ${this.makeErrorCode({ type: "arrayLength", passed: "value", expected: schema.length, messages })}
       }
     `);
   }
@@ -40,7 +40,7 @@ export default function checkArray(this: any, { schema, messages }: any, path: a
   if (schema.contains) {
     code.push(`
       if (value.indexOf(${JSON.stringify(schema.contains)}) === -1) {
-        ${this.makeErrorCode({ type: 'arrayContains', passed: 'value', expected: JSON.stringify(schema.contains), messages })}
+        ${this.makeErrorCode({ type: "arrayContains", passed: "value", expected: JSON.stringify(schema.contains), messages })}
       }
     `);
   }
@@ -53,7 +53,15 @@ export default function checkArray(this: any, { schema, messages }: any, path: a
     `);
 
     const rule = this.getRuleFromSchema(schema.itemType);
-    code.push(this.compileRule(rule, context, path, 'array[i] = context.func[##INDEX##](array[i], (parentField ? parentField : "") + "[" + i + "]", parent, errors, context)', 'array[i]'));
+    code.push(
+      this.compileRule(
+        rule,
+        context,
+        path,
+        'array[i] = context.func[##INDEX##](array[i], (parentField ? parentField : "") + "[" + i + "]", parent, errors, context)',
+        "array[i]",
+      ),
+    );
     code.push(`
       }
     `);
@@ -64,6 +72,6 @@ export default function checkArray(this: any, { schema, messages }: any, path: a
   `);
 
   return {
-    code: code.join('\n')
+    code: code.join("\n"),
   };
 }

@@ -1,7 +1,7 @@
-const asyncTag = '[object AsyncFunction]';
-const funcTag = '[object Function]';
-const genTag = '[object GeneratorFunction]';
-const proxyTag = '[object Proxy]';
+const asyncTag = "[object AsyncFunction]";
+const funcTag = "[object Function]";
+const genTag = "[object GeneratorFunction]";
+const proxyTag = "[object Proxy]";
 
 /**
  * Check if an object is a valid function.

@@ -1,18 +1,16 @@
-export default messagetypes => {
+export default (messagetypes) => {
   const messageTypeIndexes = {};
 
-  Object
-    .keys(messagetypes)
-    .forEach((messageType, index) => {
-      messageTypeIndexes[messagetypes[messageType]] = index;
-    });
+  Object.keys(messagetypes).forEach((messageType, index) => {
+    messageTypeIndexes[messagetypes[messageType]] = index;
+  });
 
   return {
-    getIndexByType (messageType) {
+    getIndexByType(messageType) {
       return messageTypeIndexes[messageType];
     },
-    getTypeByIndex (index) {
-      return Object.keys(messageTypeIndexes).find(key => messageTypeIndexes[key] === index);
-    }
+    getTypeByIndex(index) {
+      return Object.keys(messageTypeIndexes).find((key) => messageTypeIndexes[key] === index);
+    },
   };
 };

@@ -5,13 +5,15 @@
  */
 export function safeCopy<T>(object: T): T {
   const cache = new WeakSet();
-  return JSON.parse(JSON.stringify(object, (key, value) => {
-    if (typeof value === 'object' && value !== null) {
-      if (cache.has(value)) {
-        return;
+  return JSON.parse(
+    JSON.stringify(object, (key, value) => {
+      if (typeof value === "object" && value !== null) {
+        if (cache.has(value)) {
+          return;
+        }
+        cache.add(value);
       }
-      cache.add(value);
-    }
-    return value;
-  }));
+      return value;
+    }),
+  );
 }

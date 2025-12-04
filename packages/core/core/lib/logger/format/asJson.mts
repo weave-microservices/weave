@@ -1,10 +1,10 @@
-import os from 'os';
+import os from "os";
 
 export const asJson = (runtime, originObj, message, number, time) => {
   const data = {
     level: number,
     time,
-    ...runtime.fixtures
+    ...runtime.fixtures,
   };
 
   if (message !== undefined) {

@@ -5,7 +5,7 @@
  */
 export function clone<T>(obj: T): T {
   // in case of primitives
-  if (obj === null || typeof obj !== 'object') {
+  if (obj === null || typeof obj !== "object") {
     return obj;
   }
 

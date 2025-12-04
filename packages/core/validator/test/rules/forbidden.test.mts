@@ -1,15 +1,15 @@
-import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
-import ModelValidator from '../../lib/validator.mts';
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
+import ModelValidator from "../../lib/validator.mts";
 
-describe('forbidden value test', () => {
-  it('should throw an error if a forbidden value is passed', () => {
+describe("forbidden value test", () => {
+  it("should throw an error if a forbidden value is passed", () => {
     const schema = {
-      id: { type: 'forbidden' },
-      name: { type: 'string' }
+      id: { type: "forbidden" },
+      name: { type: "string" },
     };
 
-    const parameters = { id: '1234', name: 'kevin ries' };
+    const parameters = { id: "1234", name: "kevin ries" };
     const validator = ModelValidator();
     const validate = validator.compile(schema);
     const result = validate(parameters);
@@ -19,13 +19,13 @@ describe('forbidden value test', () => {
     assert.equal(result[0].message, 'The parameter "id" is forbidden.');
   });
 
-  it('should remove a forbidden value', () => {
+  it("should remove a forbidden value", () => {
     const schema = {
-      id: { type: 'forbidden', remove: true },
-      name: { type: 'string' }
+      id: { type: "forbidden", remove: true },
+      name: { type: "string" },
     };
 
-    const parameters = { id: '1234', name: 'kevin ries' };
+    const parameters = { id: "1234", name: "kevin ries" };
     const validator = ModelValidator();
     const validate = validator.compile(schema);
     const result = validate(parameters);

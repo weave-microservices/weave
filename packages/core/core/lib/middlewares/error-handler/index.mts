@@ -4,35 +4,38 @@
  * Copyright 2021 Fachwerk
  */
 
-import { WeaveError } from '../../errors.mts';
+import { WeaveError } from "../../errors.mts";
 
 export default (runtime) => {
   const wrapErrorHandlerMiddleware = function (handler) {
-    return function errorHandlerMiddleware (context, serviceInjections) {
-      return handler(context, serviceInjections)
-        .catch((error) => {
-          if (!(error instanceof Error)) {
-            error = new WeaveError(error);
-          }
+    return function errorHandlerMiddleware(context, serviceInjections) {
+      return handler(context, serviceInjections).catch((error) => {
+        if (!(error instanceof Error)) {
+          error = new WeaveError(error);
+        }
 
-          if (runtime.nodeId !== context.nodeId) {
-            runtime.transport.removePendingRequestsById(context.id);
-          }
+        if (runtime.nodeId !== context.nodeId) {
+          runtime.transport.removePendingRequestsById(context.id);
+        }
 
-          Object.defineProperty(error, 'context', {
-            value: context,
-            writable: true,
-            enumerable: false
-          });
-
-          runtime.log.debug(`The action "${context.action.name}" was rejected`, { requestId: context.requestId }, error);
-          return runtime.handleError(error);
+        Object.defineProperty(error, "context", {
+          value: context,
+          writable: true,
+          enumerable: false,
         });
+
+        runtime.log.debug(
+          `The action "${context.action.name}" was rejected`,
+          { requestId: context.requestId },
+          error,
+        );
+        return runtime.handleError(error);
+      });
     };
   };
 
   const wrapEventErrorHandlerMiddleware = function (handler) {
-    return function errorHandlerMiddleware (context, serviceInjections) {
+    return function errorHandlerMiddleware(context, serviceInjections) {
       return handler(context, serviceInjections)
         .catch((error) => {
           if (!(error instanceof Error)) {
@@ -43,13 +46,17 @@ export default (runtime) => {
             runtime.transport.removePendingRequestsById(context.id);
           }
 
-          Object.defineProperty(error, 'context', {
+          Object.defineProperty(error, "context", {
             value: context,
             writable: true,
-            enumerable: false
+            enumerable: false,
           });
 
-          runtime.log.debug(`The event "${context.eventName}" was rejected`, { requestId: context.requestId }, error);
+          runtime.log.debug(
+            `The event "${context.eventName}" was rejected`,
+            { requestId: context.requestId },
+            error,
+          );
           return runtime.handleError(error);
         })
         .catch((error) => {
@@ -62,6 +69,6 @@ export default (runtime) => {
   return {
     localAction: wrapErrorHandlerMiddleware,
     remoteAction: wrapErrorHandlerMiddleware,
-    localEvent: wrapEventErrorHandlerMiddleware
+    localEvent: wrapEventErrorHandlerMiddleware,
   };
 };

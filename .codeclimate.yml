@@ -27,7 +27,7 @@ plugins:
     enabled: false
     config:
       languages:
-      - javascript
+        - javascript
   eslint:
     enabled: false
     channel: "eslint-6"
@@ -35,4 +35,4 @@ plugins:
     enabled: true
 
 exclude_paths:
-- test/
+  - test/

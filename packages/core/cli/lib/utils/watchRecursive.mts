@@ -1,8 +1,8 @@
-import os from 'os';
-import fs from 'fs';
-import path from 'path';
-import Cache from './ttlCache.mts';
-const isLinux = os.platform() === 'linux'; // native recursive watching not supported here
+import os from "os";
+import fs from "fs";
+import path from "path";
+import Cache from "./ttlCache.mts";
+const isLinux = os.platform() === "linux"; // native recursive watching not supported here
 const watchDirectory = isLinux ? watchFallback : watchRecursive;
 
 export default watch;
@@ -65,7 +65,7 @@ function watchFallback(directory: string, onchange: (filename: string) => void):
   const queued: string[] = [];
   const prevs = new Cache({ ttl: 2e3, capacity: 30 });
 
-  visit('.', function () {
+  visit(".", function () {
     loaded = true;
   });
 
@@ -123,7 +123,7 @@ function watchFallback(directory: string, onchange: (filename: string) => void):
         }
       });
 
-      w.on('error', noop);
+      w.on("error", noop);
       watching[dir] = w;
 
       fs.readdir(dir, function (err, list) {
@@ -131,7 +131,7 @@ function watchFallback(directory: string, onchange: (filename: string) => void):
 
         loop();
 
-        function loop () {
+        function loop() {
           if (!list.length) {
             return cb();
           }
@@ -149,7 +149,8 @@ function noop(): void {}
 
 function same(a: fs.Stats | null, b: fs.Stats | null): boolean {
   if (!a || !b) return false;
-  return a.dev === b.dev &&
+  return (
+    a.dev === b.dev &&
     a.mode === b.mode &&
     a.nlink === b.nlink &&
     a.uid === b.uid &&
@@ -161,5 +162,6 @@ function same(a: fs.Stats | null, b: fs.Stats | null): boolean {
     // a.blocks === b.blocks && DONT TEST - is a lying value
     a.atime.getTime() === b.atime.getTime() &&
     a.mtime.getTime() === b.mtime.getTime() &&
-    a.ctime.getTime() === b.ctime.getTime();
+    a.ctime.getTime() === b.ctime.getTime()
+  );
 }

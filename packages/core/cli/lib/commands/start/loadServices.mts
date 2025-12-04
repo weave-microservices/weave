@@ -1,11 +1,13 @@
-import path from 'path';
-import fs from 'fs';
-import { isFunction } from '@weave-js/utils';
+import path from "path";
+import fs from "fs";
+import { isFunction } from "@weave-js/utils";
 
 export const loadServices = async (broker: any, param: string): Promise<void> => {
-  const servicePathsParams = param.split(',');
+  const servicePathsParams = param.split(",");
   for (const servicePathParam of servicePathsParams) {
-    const servicePath = path.isAbsolute(servicePathParam) ? servicePathParam : path.resolve(process.cwd(), servicePathParam);
+    const servicePath = path.isAbsolute(servicePathParam)
+      ? servicePathParam
+      : path.resolve(process.cwd(), servicePathParam);
 
     if (!fs.existsSync(servicePath)) {
       broker.handleError(new Error(`Path not found: ${servicePath}`));
@@ -14,16 +16,20 @@ export const loadServices = async (broker: any, param: string): Promise<void> =>
     const isDir = fs.lstatSync(servicePath).isDirectory();
 
     if (isDir) {
-      const folderContainsManifestFile = fs.existsSync(path.join(servicePath, 'index.js'));
+      const folderContainsManifestFile = fs.existsSync(path.join(servicePath, "index.js"));
       if (folderContainsManifestFile) {
-        const module = await import(path.join(servicePath, 'index.js'));
+        const module = await import(path.join(servicePath, "index.js"));
         const serviceFactory = module.default || module;
         if (isFunction(serviceFactory)) {
           serviceFactory(broker);
-          broker.log.warn(`An index.js file was found in the "${servicePath}" folder. Since it is not a service loader function, it was ignored.`);
+          broker.log.warn(
+            `An index.js file was found in the "${servicePath}" folder. Since it is not a service loader function, it was ignored.`,
+          );
           return;
         } else {
-          broker.log.warn(`An index.js file was found in the "${servicePath}" folder. Since it is not a service loader function, it was ignored.`);
+          broker.log.warn(
+            `An index.js file was found in the "${servicePath}" folder. Since it is not a service loader function, it was ignored.`,
+          );
         }
       }
 
@@ -41,13 +47,13 @@ export const loadServicesFromFactory = async (broker: any, param: string): Promi
     const serviceFactory = module.default || module;
 
     if (!serviceFactory) {
-      throw new Error('Service factory not found.');
+      throw new Error("Service factory not found.");
     }
 
     if (isFunction(serviceFactory)) {
       serviceFactory(broker);
     } else {
-      throw new Error('Service factory is not a function.');
+      throw new Error("Service factory is not a function.");
     }
   } catch (error) {
     console.error(error);

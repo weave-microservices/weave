@@ -1,7 +1,14 @@
-import { uuid, isFunction, isStream, isStreamObjectMode } from '@weave-js/utils';
-import { WeaveMaxCallLevelError, WeaveError } from '../errors.mts';
-import type { Runtime, Context, Span, Endpoint, ActionOptions, EventOptions } from '../../types/index.js';
-import type { Stream } from 'stream';
+import { uuid, isFunction, isStream, isStreamObjectMode } from "@weave-js/utils";
+import { WeaveMaxCallLevelError, WeaveError } from "../errors.mts";
+import type {
+  Runtime,
+  Context,
+  Span,
+  Endpoint,
+  ActionOptions,
+  EventOptions,
+} from "../../types/index.js";
+import type { Stream } from "stream";
 
 export const createContext = <T = any,>(runtime: Runtime): Context<T> => {
   const spanStack: Span[] = [];
@@ -33,7 +40,7 @@ export const createContext = <T = any,>(runtime: Runtime): Context<T> => {
         }
         this.stream = stream;
       } else {
-        throw new WeaveError('No valid stream.');
+        throw new WeaveError("No valid stream.");
       }
     },
     setEndpoint(endpoint: Endpoint): void {
@@ -50,13 +57,28 @@ export const createContext = <T = any,>(runtime: Runtime): Context<T> => {
       (options as Record<string, unknown>).parentContext = this;
       return runtime.eventBus!.broadcast(eventName, payload, options);
     },
-    call<TParams = any, TResult = any>(actionName: string, params?: TParams, options: ActionOptions = {}): Promise<TResult> {
+    call<TParams = any, TResult = any>(
+      actionName: string,
+      params?: TParams,
+      options: ActionOptions = {},
+    ): Promise<TResult> {
       (options as any).parentContext = this;
-      if (runtime.options.registry?.maxCallLevel && runtime.options.registry.maxCallLevel > 0 && this.level >= runtime.options.registry.maxCallLevel) {
-        return Promise.reject(new WeaveMaxCallLevelError({ nodeId: runtime.nodeId, maxCallLevel: runtime.options.registry.maxCallLevel }));
+      if (
+        runtime.options.registry?.maxCallLevel &&
+        runtime.options.registry.maxCallLevel > 0 &&
+        this.level >= runtime.options.registry.maxCallLevel
+      ) {
+        return Promise.reject(
+          new WeaveMaxCallLevelError({
+            nodeId: runtime.nodeId,
+            maxCallLevel: runtime.options.registry.maxCallLevel,
+          }),
+        );
       }
 
-      const p = runtime.actionInvoker.call(actionName, params, options) as Promise<TResult> & { context?: Context };
+      const p = runtime.actionInvoker.call(actionName, params, options) as Promise<TResult> & {
+        context?: Context;
+      };
 
       return p.then((result: TResult) => {
         if (p.context) {
@@ -68,9 +90,13 @@ export const createContext = <T = any,>(runtime: Runtime): Context<T> => {
     startSpan(name?: string, options?: Record<string, unknown>): Span {
       let span: Span;
       if (this.span) {
-        span = (this.span as Span & { startChildSpan: (name?: string, options?: Record<string, unknown>) => Span }).startChildSpan(name, options);
+        span = (
+          this.span as Span & {
+            startChildSpan: (name?: string, options?: Record<string, unknown>) => Span;
+          }
+        ).startChildSpan(name, options);
       } else {
-        span = runtime.tracer!.startSpan(name || 'span', options);
+        span = runtime.tracer!.startSpan(name || "span", options);
       }
       spanStack.push(span);
       this.span = span;
@@ -91,13 +117,13 @@ export const createContext = <T = any,>(runtime: Runtime): Context<T> => {
         this.span = spanStack[spanStack.length - 1];
       } else {
         /* istanbul ignore next */
-        this.service?.log?.warn('This span is not assigned to this context', span);
+        this.service?.log?.warn("This span is not assigned to this context", span);
       }
     },
     /**
      * Copy the current context.
      * @returns New copied context
-    */
+     */
     copy(): Context<T> {
       const contextCopy = createContext<T>(runtime);
 
@@ -117,7 +143,7 @@ export const createContext = <T = any,>(runtime: Runtime): Context<T> => {
       contextCopy.isCachedResult = this.isCachedResult;
 
       return contextCopy;
-    }
+    },
   };
 
   // Generate context Id
@@ -137,4 +163,3 @@ export const createContext = <T = any,>(runtime: Runtime): Context<T> => {
 
   return context;
 };
-

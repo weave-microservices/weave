@@ -1,17 +1,17 @@
-import { Stream, Writable } from 'stream';
-import { EventEmitter } from 'events';
+import { Stream, Writable } from "stream";
+import { EventEmitter } from "events";
 
 // ===== UTILITY TYPES =====
 
 /**
  * Log level type definition
  */
-export type LogLevel = 'verbose' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
+export type LogLevel = "verbose" | "debug" | "info" | "warn" | "error" | "fatal";
 
 /**
  * Service action visibility levels
  */
-export type ServiceActionVisibility = 'published' | 'public' | 'protected' | 'private';
+export type ServiceActionVisibility = "published" | "public" | "protected" | "private";
 
 /**
  * Type mapping for parameter validation
@@ -33,7 +33,7 @@ export interface TypeMap {
  * Utility type to convert parameter schemas to actual types
  */
 export type ParamsToType<TParams extends Record<string, { type: keyof TypeMap }>> = {
-  [K in keyof TParams]: TypeMap[TParams[K]['type']];
+  [K in keyof TParams]: TypeMap[TParams[K]["type"]];
 };
 
 // ===== CORE INTERFACES =====
@@ -54,7 +54,7 @@ export interface Span {
 }
 
 export interface SpanOptions {
-  parentSpan?: Span,
+  parentSpan?: Span;
   parentId?: string;
   traceId?: string;
   sampled?: boolean;
@@ -126,10 +126,14 @@ export interface Context<T = any> {
   stream?: Stream;
   action?: any;
   startHighResolutionTime?: [number, number] | null;
-  
+
   // Methods
   setData(data: T): void;
-  call<TParams = unknown, TResult = unknown>(actionName: string, params?: TParams, options?: ActionOptions): Promise<TResult>;
+  call<TParams = unknown, TResult = unknown>(
+    actionName: string,
+    params?: TParams,
+    options?: ActionOptions,
+  ): Promise<TResult>;
   emit(eventName: string, payload?: unknown, options?: EventOptions): Promise<void>;
   broadcast(eventName: string, payload?: unknown, options?: EventOptions): Promise<void>;
   startSpan(name?: string, options?: Record<string, unknown>): Span;
@@ -151,7 +155,7 @@ export interface Logger {
   info(message: string | object, ...args: any[]): void;
   debug(message: string | object, ...args: any[]): void;
   verbose(message: string | object, ...args: any[]): void;
-  
+
   // Utility methods
   child(bindings: object): Logger;
   level: string;
@@ -168,7 +172,7 @@ export interface LoggerOptions {
   base?: Record<string, any>;
   destination?: Writable;
   colors?: boolean;
-  formatter?: 'json' | 'human' | ((data: any) => string);
+  formatter?: "json" | "human" | ((data: any) => string);
 }
 
 /**
@@ -213,7 +217,9 @@ export interface ServiceActionParamSchema<T extends keyof TypeMap = keyof TypeMa
 /**
  * Service action schema definition
  */
-export interface ServiceActionSchema<TParams extends Record<string, ServiceActionParamSchema> = any> {
+export interface ServiceActionSchema<
+  TParams extends Record<string, ServiceActionParamSchema> = any,
+> {
   params?: TParams;
   visibility?: ServiceActionVisibility;
   cache?: boolean | object;
@@ -274,7 +280,7 @@ export interface ServiceSchema {
   actions?: Record<string, ServiceActionSchema | ServiceActionHandler | boolean>;
   events?: Record<string, ServiceEvent | ServiceActionHandler>;
   methods?: Record<string, ServiceMethodDefinition>;
-  
+
   // Lifecycle methods
   created?(this: Service): void | Promise<void>;
   started?(this: Service): void | Promise<void>;
@@ -299,7 +305,7 @@ export interface Service {
   actions: Record<string, (data: object, options?: ActionOptions) => any>;
   events: Record<string, (context: Context) => any>;
   methods: Record<string, Function>;
-  
+
   // Lifecycle methods
   start(): Promise<void>;
   stop(): Promise<void>;
@@ -350,7 +356,7 @@ export interface ServiceItem {
   events?: Record<string, any>;
   settings?: ServiceSettings;
   metadata?: object;
-  
+
   // Methods
   update(service: ServiceItem): void;
   addAction(action: any): void;
@@ -376,7 +382,7 @@ export interface Node {
   sequence: number;
   events?: string[];
   IPList: string[];
-  
+
   // Methods
   update(info: NodeInfo, isLocal?: boolean): boolean;
   updateLocalInfo(isLocal?: boolean): void;
@@ -394,7 +400,7 @@ export interface Endpoint {
   isLocal: boolean;
   state: boolean;
   name: string;
-  
+
   // Methods
   updateAction(): void;
   isAvailable(): boolean;
@@ -459,51 +465,51 @@ export interface EventCollection {
 export interface Registry {
   runtime: Runtime;
   log: Logger;
-  
+
   // Collections
   nodeCollection: NodeCollection;
   serviceCollection: ServiceCollection;
   actionCollection: ActionCollection;
   eventCollection: EventCollection;
-  
+
   // Lifecycle
   init(runtime: Runtime): void;
-  
+
   // Service registration
   registerLocalService(serviceItem: ServiceItem): void;
   registerRemoteServices(node: Node, services: ServiceItem[]): void;
   registerActions(node: Node, service: ServiceItem, actions: Record<string, any>): void;
   registerEvents(node: Node, service: ServiceItem, events: Record<string, any>): void;
-  
+
   // Service deregistration
   deregisterService(serviceName: string, version?: string | number, nodeId?: string): void;
   deregisterServiceByNodeId(nodeId: string): void;
-  
+
   // Service queries
   hasService(serviceName: string, version?: string | number, nodeId?: string): boolean;
-  
+
   // Action endpoints
   getNextAvailableActionEndpoint(actionName: string | Endpoint, opts?: any): Endpoint | Error;
   getActionEndpointByNodeId(actionName: string, nodeId: string): Endpoint | null;
   getActionEndpoints(actionName: string): any;
   getLocalActionEndpoint(actionName: string): Endpoint | undefined;
   createPrivateActionEndpoint(action: any): Endpoint;
-  
+
   // Action visibility
   checkActionVisibility(action: any, node: Node): boolean;
   // onRegisterLocalAction: () => void;
   // onRegisterRemoteAction: () => void;
-  
+
   // Node info
   getNodeInfo(nodeId: string): NodeInfo | null;
   getLocalNodeInfo(forceGenerateInfo?: boolean): NodeInfo;
   generateLocalNodeInfo(incrementSequence?: boolean): NodeInfo;
   processNodeInfo(payload: any): void;
-  
+
   // Node lifecycle
   nodeDisconnected(nodeId: string, isUnexpected?: boolean): void;
   removeNode(nodeId: string): void;
-  
+
   // Utility
   getActionList?(filterParams?: any): any[];
 }
@@ -563,7 +569,7 @@ export interface Transport {
   isReady: boolean;
   pending: PendingStore;
   adapterName: string;
-  
+
   // Methods
   connect(): Promise<void>;
   disconnect(): Promise<void>;
@@ -571,11 +577,17 @@ export interface Transport {
   send(message: TransportMessage): Promise<void>;
   sendRequest(context: Context): Promise<unknown>;
   request(context: Context): Promise<unknown>;
-  response(nodeId: string, action: string, params: object, meta: object, error?: Error): Promise<void>;
+  response(
+    nodeId: string,
+    action: string,
+    params: object,
+    meta: object,
+    error?: Error,
+  ): Promise<void>;
   createMessage(nodeId: string, action: string, params: object): TransportMessage;
   removePendingRequestsById(id: string): void;
   removePendingRequestsByNodeId(nodeId: string): void;
-  
+
   // Transport-specific methods
   sendNodeInfo?(): Promise<void>;
   sendPing(nodeId: string): Promise<void>;
@@ -583,7 +595,7 @@ export interface Transport {
   discoverNodes?(): Promise<void>;
   sendEvent?(): Promise<void>;
   sendBroadcastEvent?(): Promise<void>;
-  
+
   statistics?: Record<string, unknown>;
 }
 
@@ -609,7 +621,7 @@ export interface Cache {
   name?: string;
   options: CacheOptions;
   log: Logger;
-  
+
   // Methods
   init(): void;
   set(key: string, value: any, ttl?: number): Promise<void>;
@@ -626,7 +638,7 @@ export interface Cache {
 /**
  * Metric types
  */
-export type MetricType = 'counter' | 'gauge' | 'histogram' | 'info';
+export type MetricType = "counter" | "gauge" | "histogram" | "info";
 
 /**
  * Base metric interface
@@ -637,7 +649,7 @@ export interface BaseMetric {
   description?: string;
   unit?: string;
   labels?: Record<string, string>;
-  
+
   // Methods
   set?(value: number, labels?: Record<string, string>): void;
   increment?(value?: number, labels?: Record<string, string>): void;
@@ -662,7 +674,7 @@ export interface MetricsOptions {
  */
 export interface MetricRegistry {
   options: MetricsOptions;
-  
+
   // Methods
   init(): void;
   register(metric: BaseMetric): void;
@@ -697,7 +709,7 @@ export interface TracingOptions {
  */
 export interface Tracer {
   options: TracingOptions;
-  
+
   // Methods
   init(): void;
   startSpan(name: string, parentSpan?: Span): Span;
@@ -738,7 +750,7 @@ export type MiddlewareServiceLifecycleHook = (service: Service) => void | Promis
 export interface Middleware {
   name?: string;
   priority?: number;
-  
+
   // Lifecycle hooks
   created?: MiddlewareLifecycleHook;
   started?: MiddlewareLifecycleHook;
@@ -749,14 +761,14 @@ export interface Middleware {
   // Service lifecycle hooks
   serviceStarted?: MiddlewareServiceLifecycleHook;
   serviceStopping?: MiddlewareServiceLifecycleHook;
-  
+
   // Action handler wrappers
   localAction?: ActionHandlerWrapper;
   remoteAction?: ActionHandlerWrapper;
-  
+
   // Event handler wrappers
   localEvent?: EventHandlerWrapper;
-  
+
   // Method wrappers
   call?: MethodWrapper;
   multiCall?: MethodWrapper;
@@ -767,7 +779,7 @@ export interface Middleware {
   loadService?: MethodWrapper;
   loadServices?: MethodWrapper;
   ping?: MethodWrapper;
-  
+
   // Custom hooks
   [key: string]: any;
 }
@@ -827,7 +839,7 @@ export interface ContextTrackingOptions {
  */
 export interface ValidatorOptions {
   strict?: boolean;
-  strictMode?: 'remove' | 'error';
+  strictMode?: "remove" | "error";
 }
 
 // ===== CORE INTERFACES =====
@@ -838,7 +850,7 @@ export interface ValidatorOptions {
 export interface ServiceManager {
   services: Map<string, Service>;
   serviceList: Service[];
-  
+
   // Methods
   createService(schema: ServiceSchema): Service;
   registerService(service: Service): void;
@@ -870,8 +882,14 @@ export interface EventBus {
  * Action invoker interface
  */
 export interface ActionInvoker {
-  call<TParams = any, TResult = any>(actionName: string, params?: TParams, options?: ActionOptions): Promise<TResult>;
-  multiCall(calls: Array<{ action: string; params?: any; options?: ActionOptions }>): Promise<any[]>;
+  call<TParams = any, TResult = any>(
+    actionName: string,
+    params?: TParams,
+    options?: ActionOptions,
+  ): Promise<TResult>;
+  multiCall(
+    calls: Array<{ action: string; params?: any; options?: ActionOptions }>,
+  ): Promise<any[]>;
 }
 
 /**
@@ -900,7 +918,7 @@ export interface Runtime {
   options: BrokerOptions;
   bus: EventEmitter;
   state: RuntimeInstanceState;
-  
+
   // Core components
   actionInvoker: ActionInvoker;
   eventBus: EventBus;
@@ -914,13 +932,13 @@ export interface Runtime {
   cache?: Cache;
   metrics?: MetricRegistry;
   tracer?: Tracer;
-  
+
   // Utilities
   log: Logger;
   createLogger: (topic: string, data?: any) => Logger;
   getUUID?: () => string;
   generateUUID: () => string;
-  
+
   // Error handling
   handleError: (error: Error) => void;
   fatalError: (message?: string, error?: Error, killProcess?: boolean) => void;
@@ -932,7 +950,7 @@ export interface Runtime {
 export interface BrokerOptions {
   nodeId?: string;
   namespace?: string;
-  
+
   // Feature options
   bulkhead?: BulkheadOptions;
   cache?: CacheOptions;
@@ -944,21 +962,21 @@ export interface BrokerOptions {
   transport?: TransportOptions;
   tracing?: TracingOptions;
   logger?: LoggerOptions | LoggerFactoryFunction;
-  
+
   // Validation
   validateActionParams?: boolean;
   validatorOptions?: ValidatorOptions;
-  
+
   // Middleware
   loadInternalMiddlewares?: boolean;
   middlewares?: Middleware[];
-  
+
   // Lifecycle hooks
   errorHandler?: (error: Error) => void;
   uuidFactory?: (runtime: Runtime) => string;
   waitForServiceInterval?: number;
   beforeRegisterMiddlewares?: () => string;
-  
+
   // Service lifecycle
   created?(this: Broker): void | Promise<void>;
   started?(this: Broker): void | Promise<void>;
@@ -966,7 +984,6 @@ export interface BrokerOptions {
 }
 
 export interface ActionContracts {}
-
 
 /**
  * Main Broker interface - the primary API
@@ -978,7 +995,7 @@ export interface Broker {
   bus: EventEmitter;
   version: string;
   options: BrokerOptions;
-  
+
   // Core components access
   metrics?: MetricRegistry;
   validator: any;
@@ -988,41 +1005,46 @@ export interface Broker {
   tracer?: Tracer;
   transport?: Transport;
   log: Logger;
-  
+
   // Lifecycle methods
   start(): Promise<void>;
   stop(): Promise<void>;
-  
+
   // Service management
   createService(schema: ServiceSchema): Service;
   loadService(path: string): Service;
   loadServices(path?: string, pattern?: string): number;
-  
+
   // Action calls
   call<K extends keyof ActionContracts>(
     action: K,
     params: K extends keyof ActionContracts ? ActionContracts[K]["params"] : any,
-    options?: ActionOptions
+    options?: ActionOptions,
   ): Promise<K extends keyof ActionContracts ? ActionContracts[K]["response"] : any>;
   call<K extends string>(
     action: Exclude<K, keyof ActionContracts>,
     params?: any,
-    options?: ActionOptions
+    options?: ActionOptions,
   ): Promise<any>;
-  multiCall(calls: Array<{ action: string; params?: any; options?: ActionOptions }>): Promise<any[]>;
-  
+  multiCall(
+    calls: Array<{ action: string; params?: any; options?: ActionOptions }>,
+  ): Promise<any[]>;
+
   // Events
   emit(eventName: string, payload?: any, options?: EventOptions): Promise<void>;
   broadcast(eventName: string, payload?: any, options?: EventOptions): Promise<void>;
   broadcastLocal(eventName: string, payload?: any, options?: EventOptions): Promise<void>;
-  
+
   // Utilities
   createLogger(topic: string, data?: any): Logger;
   getUUID(): string;
   waitForServices(services: string[] | string, timeout?: number): Promise<void>;
-  ping(nodeId?: string, timeout?: number): Promise<PingResult | Record<string, PingResult | null> | null>;
+  ping(
+    nodeId?: string,
+    timeout?: number,
+  ): Promise<PingResult | Record<string, PingResult | null> | null>;
   getNextActionEndpoint(actionName: string, options?: any): Endpoint | Error;
-  
+
   // Error handling
   handleError(error: Error): void;
   fatalError(message?: string, error?: Error, killProcess?: boolean): void;
@@ -1111,7 +1133,7 @@ export namespace TracingAdapters {
  */
 export function defineService<T extends ServiceSchema>(schema: T): T;
 export function defineAction<TParams extends Record<string, ServiceActionParamSchema>>(
-  action: ServiceActionSchema<TParams>
+  action: ServiceActionSchema<TParams>,
 ): ServiceActionSchema<TParams>;
 export function defineBrokerOptions<T extends BrokerOptions>(options: T): T;
 
@@ -1122,10 +1144,10 @@ export namespace Errors {
   export {
     WeaveError,
     WeaveMaxCallLevelError,
-    WeaveParameterValidationError, 
+    WeaveParameterValidationError,
     WeaveServiceNotFoundError,
     WeaveRequestTimeoutError,
     WeaveRetryableError,
-    WeaveActionNotFoundError
+    WeaveActionNotFoundError,
   };
 }

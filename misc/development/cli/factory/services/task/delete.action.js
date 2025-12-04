@@ -1,7 +1,7 @@
 module.exports = {
   deleteTask: {
-    handler (context) {
-      return 'hello from delete task';
-    }
-  }
+    handler(context) {
+      return "hello from delete task";
+    },
+  },
 };

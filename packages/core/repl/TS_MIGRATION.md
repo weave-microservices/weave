@@ -19,6 +19,7 @@ Migration des Weave REPL von JavaScript zu TypeScript mit vollständiger Typisie
 ## 1. Dateistruktur-Änderungen
 
 ### Umbenennungen
+
 - Alle `.js` Dateien → `.mts` (TypeScript Module)
 - Betroffen:
   - `lib/index.js` → `lib/index.mts`
@@ -29,9 +30,11 @@ Migration des Weave REPL von JavaScript zu TypeScript mit vollständiger Typisie
 ### Dateiübersicht
 
 **Hauptdatei:**
+
 - `lib/index.mts` - REPL Haupteinstiegspunkt
 
 **Commands:**
+
 - `lib/commands/actions.mts` - Aktionen auflisten
 - `lib/commands/benchmark.mts` - Service Endpoint benchmarken
 - `lib/commands/broadcast.mts` - Event broadcasten
@@ -46,9 +49,11 @@ Migration des Weave REPL von JavaScript zu TypeScript mit vollständiger Typisie
 - `lib/commands/services.mts` - Services auflisten
 
 **Helper:**
+
 - `lib/helper/invoke-action.mts` - Action-Aufruf-Helper
 
 **Utils:**
+
 - `lib/utils/cli-ui.mts` - CLI UI Funktionen
 - `lib/utils/convert-args.mts` - Argument-Konvertierung
 - `lib/utils/create-spinner.mts` - Spinner-Erstellung
@@ -89,6 +94,7 @@ Migration des Weave REPL von JavaScript zu TypeScript mit vollständiger Typisie
 ```
 
 ### Hinzugefügte Dependencies
+
 - `@types/node` - Node.js Type-Definitionen
 - `typescript` - TypeScript Compiler (für IDE-Unterstützung)
 
@@ -117,18 +123,13 @@ Migration des Weave REPL von JavaScript zu TypeScript mit vollständiger Typisie
     "noEmit": true,
     "types": ["node"]
   },
-  "include": [
-    "lib/**/*.mts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "coverage"
-  ]
+  "include": ["lib/**/*.mts"],
+  "exclude": ["node_modules", "dist", "coverage"]
 }
 ```
 
-**Wichtig:** 
+**Wichtig:**
+
 - `noEmit: true` - Keine Kompilierung, nur Type-Checking
 - Keine `outDir` oder Build-Konfiguration nötig
 - Node.js führt `.mts` Dateien direkt aus
@@ -152,20 +153,20 @@ export interface CommandContext {
 Alle CLI UI Funktionen sind vollständig typisiert:
 
 ```typescript
-export function tableHeaderText (text: string): string;
-export function successLabel (text: string): string;
-export function failureLabel (text: string): string;
-export function infoLabel (text: string): string;
-export function text (text: string): string;
-export function highlightedText (text: string): string;
-export function infoText (text: string): string;
-export function successText (text: string): string;
-export function neutralText (text: string): string;
-export function whiteText (text: string): string;
-export function warningText (text: string): string;
-export function errorText (text: string): string;
-export function printHeader (name: string, length?: number): void;
-export function printIntended (caption: string, value?: any): void;
+export function tableHeaderText(text: string): string;
+export function successLabel(text: string): string;
+export function failureLabel(text: string): string;
+export function infoLabel(text: string): string;
+export function text(text: string): string;
+export function highlightedText(text: string): string;
+export function infoText(text: string): string;
+export function successText(text: string): string;
+export function neutralText(text: string): string;
+export function whiteText(text: string): string;
+export function warningText(text: string): string;
+export function errorText(text: string): string;
+export function printHeader(name: string, length?: number): void;
+export function printIntended(caption: string, value?: any): void;
 export { createSpinner };
 ```
 
@@ -173,13 +174,13 @@ export { createSpinner };
 
 ```typescript
 // convert-args.mts
-export default function convertArgs (args: any): any;
+export default function convertArgs(args: any): any;
 
 // format-number.mts
-export default function formatNumber (value: number, decimals?: number, sign?: boolean): string;
+export default function formatNumber(value: number, decimals?: number, sign?: boolean): string;
 
 // create-spinner.mts
-export default function createSpinner (text: string, type?: string);
+export default function createSpinner(text: string, type?: string);
 ```
 
 ### 4.4 Command Funktionen
@@ -199,9 +200,10 @@ export default ({ vorpal, broker, cliUI }: any) => {
 ### Von CommonJS zu ES Modules
 
 **Alt (CommonJS):**
+
 ```javascript
-const { table } = require('table');
-const cliUI = require('./utils/cli-ui');
+const { table } = require("table");
+const cliUI = require("./utils/cli-ui");
 
 module.exports = ({ vorpal, broker, cliUI }) => {
   // ...
@@ -209,9 +211,10 @@ module.exports = ({ vorpal, broker, cliUI }) => {
 ```
 
 **Neu (ES Modules):**
+
 ```typescript
-import { table } from 'table';
-import * as cliUI from './utils/cli-ui.mts';
+import { table } from "table";
+import * as cliUI from "./utils/cli-ui.mts";
 
 export default ({ vorpal, broker, cliUI }: any) => {
   // ...
@@ -242,7 +245,7 @@ export default ({ vorpal, broker, cliUI }: any) => {
 Da Vorpal keine TypeScript-Typen hat und eine ältere Library ist, verwenden wir `any` für Vorpal-bezogene Typen:
 
 ```typescript
-function cleanupExistingCommands (vorpal: any): void {
+function cleanupExistingCommands(vorpal: any): void {
   // ...
 }
 ```
@@ -279,7 +282,7 @@ Die API bleibt vollständig kompatibel:
 
 ```typescript
 // Funktioniert weiterhin
-import weaveRepl from '@weave-js/repl';
+import weaveRepl from "@weave-js/repl";
 
 weaveRepl(broker);
 ```
@@ -367,6 +370,7 @@ node --experimental-strip-types your-app.mts
 ### 11.1 Fehlende Type-Definitionen
 
 Einige Dependencies haben keine TypeScript-Typen:
+
 - `vorpal` - Keine @types verfügbar
 - `clui` - Keine @types verfügbar
 
@@ -407,11 +411,11 @@ Einige Lint-Warnungen sind zu erwarten aufgrund fehlender Type-Definitionen für
 ### Basis-Verwendung
 
 ```typescript
-import { Weave } from '@weave-js/core';
-import weaveRepl from '@weave-js/repl';
+import { Weave } from "@weave-js/core";
+import weaveRepl from "@weave-js/repl";
 
 const broker = Weave({
-  nodeId: 'node-1'
+  nodeId: "node-1",
 });
 
 // REPL starten
@@ -421,21 +425,19 @@ weaveRepl(broker);
 ### Mit Custom Commands
 
 ```typescript
-import { Weave } from '@weave-js/core';
-import weaveRepl, { CommandContext } from '@weave-js/repl';
+import { Weave } from "@weave-js/core";
+import weaveRepl, { CommandContext } from "@weave-js/repl";
 
 const broker = Weave({
-  nodeId: 'node-1'
+  nodeId: "node-1",
 });
 
 // Custom Command
 const myCommand = ({ vorpal, broker, cliUI }: CommandContext) => {
-  vorpal
-    .command('hello', 'Say hello')
-    .action((args: any, done: any) => {
-      console.log(cliUI.successText('Hello from custom command!'));
-      done();
-    });
+  vorpal.command("hello", "Say hello").action((args: any, done: any) => {
+    console.log(cliUI.successText("Hello from custom command!"));
+    done();
+  });
 };
 
 // REPL mit Custom Command starten

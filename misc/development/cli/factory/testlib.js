@@ -1,3 +1,3 @@
 exports.testFunc = () => {
-  return 'test';
+  return "test";
 };

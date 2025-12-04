@@ -1,4 +1,4 @@
-import * as errors from '../errors.mts';
+import * as errors from "../errors.mts";
 
 /**
  * Restore a Weave error from a serialized error payload
@@ -31,37 +31,37 @@ export const restoreError = (errorPayload) => {
 
   if (ErrorClass) {
     switch (errorPayload.name) {
-    case 'WeaveError':
-    case 'WeaveRetryableError': {
-      const { message, ...options } = errorPayload;
-      error = new ErrorClass(message, options);
-      break;
-    }
+      case "WeaveError":
+      case "WeaveRetryableError": {
+        const { message, ...options } = errorPayload;
+        error = new ErrorClass(message, options);
+        break;
+      }
 
-    case 'WeaveParameterValidationError':
-    case 'WeaveBrokerOptionsError': {
-      const { message, data } = errorPayload;
-      error = new ErrorClass(message, data);
-      break;
-    }
-    case 'WeaveServiceNotFoundError':
-    case 'WeaveServiceNotAvailableError':
-    case 'WeaveQueueSizeExceededError':
-    case 'WeaveMaxCallLevelError': {
-      const { data } = errorPayload;
-      error = new ErrorClass(data);
-      break;
-    }
-    case 'WeaveRequestTimeoutError': {
-      const { data } = errorPayload;
-      error = new ErrorClass(data.actionName, data.nodeId, data.timeout);
-      break;
-    }
-    case 'WeaveGracefulStopTimeoutError': {
-      const { data } = errorPayload;
-      error = new ErrorClass(data.service);
-      break;
-    }
+      case "WeaveParameterValidationError":
+      case "WeaveBrokerOptionsError": {
+        const { message, data } = errorPayload;
+        error = new ErrorClass(message, data);
+        break;
+      }
+      case "WeaveServiceNotFoundError":
+      case "WeaveServiceNotAvailableError":
+      case "WeaveQueueSizeExceededError":
+      case "WeaveMaxCallLevelError": {
+        const { data } = errorPayload;
+        error = new ErrorClass(data);
+        break;
+      }
+      case "WeaveRequestTimeoutError": {
+        const { data } = errorPayload;
+        error = new ErrorClass(data.actionName, data.nodeId, data.timeout);
+        break;
+      }
+      case "WeaveGracefulStopTimeoutError": {
+        const { data } = errorPayload;
+        error = new ErrorClass(data.service);
+        break;
+      }
     }
   } else {
     error = new Error(errorPayload.message);

@@ -1,11 +1,16 @@
 /**
  * @typedef {import("../../types.__js").Context} Context
  * @typedef {import("../../types.__js").TracingOptions} TracingOptions
-*/
+ */
 
-import { isFunction, dotGet, isObject } from '@weave-js/utils';
+import { isFunction, dotGet, isObject } from "@weave-js/utils";
 
-function addPreHandleTagsFromDefinition (context, tags, globalTracingActionOptions, actionTracingOptions) {
+function addPreHandleTagsFromDefinition(
+  context,
+  tags,
+  globalTracingActionOptions,
+  actionTracingOptions,
+) {
   const globalActionTags = globalTracingActionOptions.tags;
   let actionTags;
   if (isFunction(actionTracingOptions.tags)) {
@@ -13,12 +18,19 @@ function addPreHandleTagsFromDefinition (context, tags, globalTracingActionOptio
   } else if (!actionTracingOptions.tags && isFunction(globalActionTags)) {
     actionTags = globalActionTags;
   } else {
-    actionTags = { data: globalTracingActionOptions.data, ...globalActionTags, ...actionTracingOptions.tags };
+    actionTags = {
+      data: globalTracingActionOptions.data,
+      ...globalActionTags,
+      ...actionTracingOptions.tags,
+    };
   }
 
   if (isObject(actionTags)) {
     if (actionTags.data === true) {
-      tags.data = context.data !== null && isObject(context.data) ? Object.assign({}, context.data) : context.data;
+      tags.data =
+        context.data !== null && isObject(context.data)
+          ? Object.assign({}, context.data)
+          : context.data;
     } else if (Array.isArray(actionTags.data)) {
       tags.data = actionTags.data.reduce((acc, current) => {
         try {
@@ -26,10 +38,13 @@ function addPreHandleTagsFromDefinition (context, tags, globalTracingActionOptio
         } catch (error) {
           const spanId = context.span ? context.span.id : undefined;
 
-          context.service.log.warn({
-            requestId: context.requestId,
-            spanId
-          }, `Unable to get value for tag "${current}" from data`);
+          context.service.log.warn(
+            {
+              requestId: context.requestId,
+              spanId,
+            },
+            `Unable to get value for tag "${current}" from data`,
+          );
           acc[current] = undefined;
         }
         return acc;
@@ -37,7 +52,10 @@ function addPreHandleTagsFromDefinition (context, tags, globalTracingActionOptio
     }
 
     if (actionTags.meta === true) {
-      tags.meta = context.meta !== null && isObject(context.meta) ? Object.assign({}, context.meta) : context.meta;
+      tags.meta =
+        context.meta !== null && isObject(context.meta)
+          ? Object.assign({}, context.meta)
+          : context.meta;
     } else if (Array.isArray(actionTags.meta)) {
       tags.meta = actionTags.meta.reduce((acc, current) => {
         try {
@@ -45,10 +63,13 @@ function addPreHandleTagsFromDefinition (context, tags, globalTracingActionOptio
         } catch (error) {
           const spanId = context.span ? context.span.id : undefined;
 
-          context.service.log.warn({
-            requestId: context.requestId,
-            spanId
-          }, `Unable to get value for tag "${current}" from metadata`);
+          context.service.log.warn(
+            {
+              requestId: context.requestId,
+              spanId,
+            },
+            `Unable to get value for tag "${current}" from metadata`,
+          );
           acc[current] = undefined;
         }
         return acc;
@@ -63,25 +84,35 @@ function addPreHandleTagsFromDefinition (context, tags, globalTracingActionOptio
  * Build span tags object
  * @param {Context} context - Context
  * @returns {object} Tags
-*/
+ */
 export const buildActionTags = (context, globalTracingOptions, actionTracingOptions) => {
   const tags = {
     requestLevel: context.level,
-    action: context.action ? { name: context.action.name, shortName: context.action.shortName } : null,
+    action: context.action
+      ? { name: context.action.name, shortName: context.action.shortName }
+      : null,
     isRemoteCall: !!context.callerNodeId,
     nodeId: context.nodeId,
-    requestId: context.requestId
+    requestId: context.requestId,
   };
 
   try {
-    addPreHandleTagsFromDefinition(context, tags, globalTracingOptions.actions, actionTracingOptions);
+    addPreHandleTagsFromDefinition(
+      context,
+      tags,
+      globalTracingOptions.actions,
+      actionTracingOptions,
+    );
   } catch (error) {
     const spanId = context.span ? context.span.id : undefined;
 
-    context.service.log.warn({
-      requestId: context.requestId,
-      spanId
-    }, `Error while building action tags: ${error.message}`);
+    context.service.log.warn(
+      {
+        requestId: context.requestId,
+        spanId,
+      },
+      `Error while building action tags: ${error.message}`,
+    );
   }
 
   return tags;
@@ -91,7 +122,7 @@ export const buildActionTags = (context, globalTracingOptions, actionTracingOpti
  * Build span tags object
  * @param {Context} context - Context
  * @returns {object} Tags
-*/
+ */
 export const buildEventTags = (context, globalTracingOptions, eventTracingOptions) => {
   const tags = {
     requestLevel: context.level,
@@ -99,7 +130,7 @@ export const buildEventTags = (context, globalTracingOptions, eventTracingOption
     eventType: context.eventType,
     isRemoteCall: !!context.callerNodeId,
     nodeId: context.nodeId,
-    requestId: context.requestId
+    requestId: context.requestId,
   };
 
   try {
@@ -107,18 +138,31 @@ export const buildEventTags = (context, globalTracingOptions, eventTracingOption
   } catch (error) {
     const spanId = context.span ? context.span.id : undefined;
 
-    context.service.log.warn({
-      requestId: context.requestId,
-      spanId
-    }, `Error while building event tags: ${error.message}`);
+    context.service.log.warn(
+      {
+        requestId: context.requestId,
+        spanId,
+      },
+      `Error while building event tags: ${error.message}`,
+    );
   }
 
   return tags;
 };
 
-export const addResponseTags = (context, tags, result, globalTracingActionOptions, actionTracingOptions) => {
+export const addResponseTags = (
+  context,
+  tags,
+  result,
+  globalTracingActionOptions,
+  actionTracingOptions,
+) => {
   const globalActionTags = globalTracingActionOptions.tags;
-  const actionTags = { response: globalTracingActionOptions.response, ...globalActionTags, ...actionTracingOptions.tags };
+  const actionTags = {
+    response: globalTracingActionOptions.response,
+    ...globalActionTags,
+    ...actionTracingOptions.tags,
+  };
 
   if (actionTags.response === true) {
     tags.response = result !== null && isObject(result) ? Object.assign({}, result) : result;
@@ -129,10 +173,13 @@ export const addResponseTags = (context, tags, result, globalTracingActionOption
       } catch (error) {
         const spanId = context.span ? context.span.id : undefined;
 
-        context.service.log.warn({
-          requestId: context.requestId,
-          spanId
-        }, `Unable to get response tag "${current}" from result`);
+        context.service.log.warn(
+          {
+            requestId: context.requestId,
+            spanId,
+          },
+          `Unable to get response tag "${current}" from result`,
+        );
         acc[current] = undefined;
       }
       return acc;

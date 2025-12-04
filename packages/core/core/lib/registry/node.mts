@@ -6,26 +6,26 @@
 
 /**
  * @typedef {import('../types.__js').Node} Node
-*/
+ */
 
-import { cpuUsage } from '@weave-js/utils';
+import { cpuUsage } from "@weave-js/utils";
 
 /**
  * Node factory
  * @param {string} nodeId Node id
  * @returns {Node} Node instance
-*/
+ */
 export const createNode = (nodeId) => {
   /**
    * @type {Node}
-  */
+   */
   return {
     id: nodeId,
     info: null,
     isLocal: false,
     client: {
       type: null,
-      version: null
+      version: null,
     },
     cpu: null,
     cpuSequence: null,
@@ -37,7 +37,7 @@ export const createNode = (nodeId) => {
     sequence: 0,
     events: null,
     IPList: [],
-    update (payload, isReconnected) {
+    update(payload, isReconnected) {
       const newSequence = payload.sequence || 1;
 
       this.services = payload.services;
@@ -46,7 +46,7 @@ export const createNode = (nodeId) => {
       this.IPList = payload.IPList || [];
       this.info = payload;
 
-      if ((newSequence > this.sequence) || isReconnected === true) {
+      if (newSequence > this.sequence || isReconnected === true) {
         this.sequence = newSequence;
         this.offlineTime = null;
 
@@ -54,8 +54,8 @@ export const createNode = (nodeId) => {
       }
       return false;
     },
-    updateLocalInfo () {
-      cpuUsage().then(result => {
+    updateLocalInfo() {
+      cpuUsage().then((result) => {
         const newVal = Math.round(result.avg);
 
         if (this.cpu !== newVal) {
@@ -64,7 +64,7 @@ export const createNode = (nodeId) => {
         }
       });
     },
-    heartbeat (payload) {
+    heartbeat(payload) {
       if (!this.isAvailable) {
         this.isAvailable = true;
         this.offlineTime = null;
@@ -77,7 +77,7 @@ export const createNode = (nodeId) => {
 
       this.lastHeartbeatTime = Date.now();
     },
-    disconnected (isUnexpected = false) {
+    disconnected(isUnexpected = false) {
       if (this.isAvailable) {
         this.offlineTime = Date.now();
         this.sequence++;
@@ -85,6 +85,6 @@ export const createNode = (nodeId) => {
       }
 
       this.isAvailable = false;
-    }
+    },
   };
 };

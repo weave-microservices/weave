@@ -4,7 +4,7 @@
  * Copyright 2021 Fachwerk
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from "events";
 
 /**
  * @typedef {Object} AdapterBase
@@ -15,15 +15,15 @@ import { EventEmitter } from 'events';
  * @property {number} interruptCounter Interruption counter.
  * @property {number} repeatAttemptCounter Repeat attempt counter
  * @property {function(Object, Object, Object):Promise<any>} init Repeat attempt counter
-*/
+ */
 
 /**
  * Create a adapter base object.
  * @param {Object} [options] - Adapter options
  * @returns {AdapterBase} Adapter base object
-*/
+ */
 const createTransportBase = (options = {}) => {
-  let prefix = 'weave';
+  let prefix = "weave";
 
   return {
     name: null,
@@ -32,7 +32,7 @@ const createTransportBase = (options = {}) => {
     isConnected: false,
     interruptCounter: 0,
     repeatAttemptCounter: 0,
-    init (broker, transport, messageHandler) {
+    init(broker, transport, messageHandler) {
       this.broker = broker;
       this.transport = transport;
       this.log = transport.log;
@@ -48,7 +48,7 @@ const createTransportBase = (options = {}) => {
 
       return Promise.resolve();
     },
-    subscribe () {
+    subscribe() {
       return Promise.resolve();
     },
     /**
@@ -58,29 +58,29 @@ const createTransportBase = (options = {}) => {
      * @param {*} connectionEventParams Connection event
      * @param {boolean} [startHeartbeatTimers=true] Start timers for this adapter
      * @returns {void}
-    */
-    connected (connectionEventParams = {}) {
-      this.bus.emit('$adapter.connected', connectionEventParams);
+     */
+    connected(connectionEventParams = {}) {
+      this.bus.emit("$adapter.connected", connectionEventParams);
     },
-    disconnected () {
-      this.bus.emit('$adapter.disconnected');
+    disconnected() {
+      this.bus.emit("$adapter.disconnected");
     },
-    getTopic (cmd, nodeId) {
-      const topic = prefix + '.' + cmd + (nodeId ? '.' + nodeId : '');
+    getTopic(cmd, nodeId) {
+      const topic = prefix + "." + cmd + (nodeId ? "." + nodeId : "");
       return topic;
     },
-    preSend (packet) {
+    preSend(packet) {
       return this.send(packet);
     },
-    send (/* message*/) {
+    send(/* message*/) {
       this.broker.handleError(new Error('Method "send" not implemented.'));
     },
-    incomingMessage (messageType, message) {
+    incomingMessage(messageType, message) {
       const data = this.deserialize(message);
       this.updateStatisticReceived(message.length);
-      this.bus.emit('$adapter.message', messageType, data);
+      this.bus.emit("$adapter.message", messageType, data);
     },
-    serialize (packet) {
+    serialize(packet) {
       try {
         packet.payload.sender = this.broker.nodeId;
         return Buffer.from(JSON.stringify(packet));
@@ -88,19 +88,19 @@ const createTransportBase = (options = {}) => {
         this.broker.handleError(error);
       }
     },
-    deserialize (packet) {
+    deserialize(packet) {
       try {
         return JSON.parse(packet);
       } catch (error) {
         this.broker.handleError(error);
       }
     },
-    updateStatisticReceived (length) {
+    updateStatisticReceived(length) {
       this.transport.statistics.received.packages += length;
     },
-    updateStatisticSent (length) {
+    updateStatisticSent(length) {
       this.transport.statistics.sent.packages += length;
-    }
+    },
   };
 };
 

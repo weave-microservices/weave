@@ -17,7 +17,7 @@ export default function checkDate(this: any, { schema, messages }: any) {
 
   code.push(`
     if (!(value instanceof Date) || isNaN(value.getTime())) {
-        ${this.makeErrorCode({ type: 'date', passed: 'initialValue', messages })}
+        ${this.makeErrorCode({ type: "date", passed: "initialValue", messages })}
         return value
     }
   `);
@@ -28,6 +28,6 @@ export default function checkDate(this: any, { schema, messages }: any) {
 
   return {
     isSanitized,
-    code: code.join('\n')
+    code: code.join("\n"),
   };
 }

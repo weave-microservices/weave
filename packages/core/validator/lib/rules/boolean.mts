@@ -17,7 +17,7 @@ export default function checkBoolean(this: any, { schema, messages }: any) {
 
   code.push(`
     if (typeof value !== 'boolean') {
-      ${this.makeErrorCode({ type: 'boolean', passed: 'value', messages })}
+      ${this.makeErrorCode({ type: "boolean", passed: "value", messages })}
       return value
     }
   `);
@@ -28,6 +28,6 @@ export default function checkBoolean(this: any, { schema, messages }: any) {
 
   return {
     sanitized,
-    code: code.join('\n')
+    code: code.join("\n"),
   };
 }

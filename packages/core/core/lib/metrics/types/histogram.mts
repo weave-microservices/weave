@@ -1,4 +1,4 @@
-import { createBaseMetricType } from './base.mts';
+import { createBaseMetricType } from "./base.mts";
 
 export const createHistogram = (registry, obj) => {
   const base = createBaseMetricType(registry, obj);
@@ -18,7 +18,6 @@ export const createHistogram = (registry, obj) => {
     const item = base.values.get(labelString);
 
     if (!value) {
-
     }
 
     base.set(labels, (item ? item.value : 0) + value);
@@ -31,13 +30,12 @@ export const createHistogram = (registry, obj) => {
   };
 
   base.generateSnapshot = () => {
-    return Array.from(base.values)
-      .map(([labelString, item]) => {
-        return {
-          value: item.value,
-          labels: item.labels
-        };
-      });
+    return Array.from(base.values).map(([labelString, item]) => {
+      return {
+        value: item.value,
+        labels: item.labels,
+      };
+    });
   };
 
   base.set = (labels, value, timestamp) => {
@@ -54,7 +52,7 @@ export const createHistogram = (registry, obj) => {
     } else {
       const item = {
         labels: labels,
-        value: value
+        value: value,
       };
 
       base.values.set(labelString, item);
@@ -64,4 +62,3 @@ export const createHistogram = (registry, obj) => {
 
   return base;
 };
-

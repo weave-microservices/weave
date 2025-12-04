@@ -1,9 +1,9 @@
-import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
-import { isString } from '../lib/is-string.mts';
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
+import { isString } from "../lib/is-string.mts";
 
-describe('String test', () => {
-  it('should fail for function', () => {
+describe("String test", () => {
+  it("should fail for function", () => {
     const func = function () {
       // function
     };
@@ -12,12 +12,12 @@ describe('String test', () => {
     assert.strictEqual(result, false);
   });
 
-  it('should succeed for string', () => {
-    const result = isString('func');
+  it("should succeed for string", () => {
+    const result = isString("func");
     assert.strictEqual(result, true);
   });
 
-  it('should fail for number', () => {
+  it("should fail for number", () => {
     const result = isString(3);
     assert.strictEqual(result, false);
   });

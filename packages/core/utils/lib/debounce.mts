@@ -11,7 +11,11 @@ export type DebounceCallback = (...args: unknown[]) => void;
  * const debouncedSave = debounce(saveData, 300);
  * debouncedSave(); // Will execute saveData after 300ms of no additional calls
  */
-export function debounce(func: DebounceCallback, wait: number, immediate: boolean = false): DebounceCallback {
+export function debounce(
+  func: DebounceCallback,
+  wait: number,
+  immediate: boolean = false,
+): DebounceCallback {
   let timeout: NodeJS.Timeout | null;
 
   return function (this: unknown, ...args: unknown[]) {

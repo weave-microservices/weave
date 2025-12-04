@@ -1,11 +1,10 @@
-import { mergeSchemas } from '../../utils/options.mts';
-import { wrapInArray } from '@weave-js/utils';
+import { mergeSchemas } from "../../utils/options.mts";
+import { wrapInArray } from "@weave-js/utils";
 
 export const reduceMixins = (service: any, schema: any) => {
   const mixins = wrapInArray(schema.mixins);
   if (mixins.length > 0) {
-    const mixedSchema = Array
-      .from(mixins)
+    const mixedSchema = Array.from(mixins)
       .reverse()
       .reduce((s, mixin) => {
         if (mixin.mixins) {

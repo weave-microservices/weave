@@ -1,22 +1,22 @@
-const utils = require('../lib');
+const utils = require("../lib");
 
-describe('Omit', () => {
-  it('should return a property', () => {
+describe("Omit", () => {
+  it("should return a property", () => {
     const source = {
-      name: 'test',
+      name: "test",
       settings: {
         a: 100,
         endpoints: {
           http: true,
           tcp: false,
-          ws: [1, 2, 3]
-        }
-      }
+          ws: [1, 2, 3],
+        },
+      },
     };
 
-    expect(utils.omit(null, ['settings'])).toBe(null);
-    expect(utils.omit(source, ['settings'])).toEqual({
-      name: 'test'
+    expect(utils.omit(null, ["settings"])).toBe(null);
+    expect(utils.omit(source, ["settings"])).toEqual({
+      name: "test",
     });
   });
 });

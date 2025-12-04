@@ -3,19 +3,19 @@
  * -----
  * Copyright 2019 Fachwerk
  */
-import { parse } from 'url';
-import getAdapterByName from './getAdapterByName.mts';
+import { parse } from "url";
+import getAdapterByName from "./getAdapterByName.mts";
 
-function fromURI (uri, handleError) {
+function fromURI(uri, handleError) {
   try {
-    if (typeof uri !== 'string') {
-      throw new Error('URI needs to be a string.');
+    if (typeof uri !== "string") {
+      throw new Error("URI needs to be a string.");
     }
 
     const urlObject = parse(uri);
 
     if (!urlObject.protocol) {
-      throw new Error('Protocol is missing.');
+      throw new Error("Protocol is missing.");
     }
 
     const name = urlObject.protocol.slice(0, -1).toLowerCase();
@@ -23,7 +23,7 @@ function fromURI (uri, handleError) {
     const AdapterFactory = getAdapterByName(name);
 
     if (!AdapterFactory) {
-      throw new Error('No adapter found.');
+      throw new Error("No adapter found.");
     }
 
     let config = null;
@@ -32,7 +32,7 @@ function fromURI (uri, handleError) {
     }
     return AdapterFactory(config);
   } catch (error) {
-    if (typeof handleError === 'function') {
+    if (typeof handleError === "function") {
       handleError(error);
       return null;
     }

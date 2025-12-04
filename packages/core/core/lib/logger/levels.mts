@@ -1,4 +1,4 @@
-import { generateLogMethod } from './tools.mts';
+import { generateLogMethod } from "./tools.mts";
 
 const levels = {
   verbose: 60,
@@ -6,7 +6,7 @@ const levels = {
   info: 40,
   warn: 30,
   error: 20,
-  fatal: 10
+  fatal: 10,
 };
 
 // wrap log methods
@@ -28,7 +28,7 @@ const levelMethods = {
   warn: (runtime, hook) => generateLogMethod(runtime, levels.warn, hook),
   info: (runtime, hook) => generateLogMethod(runtime, levels.info, hook),
   debug: (runtime, hook) => generateLogMethod(runtime, levels.debug, hook),
-  verbose: (runtime, hook) => generateLogMethod(runtime, levels.verbose, hook)
+  verbose: (runtime, hook) => generateLogMethod(runtime, levels.verbose, hook),
 };
 
 export { levelMethods };
@@ -39,23 +39,24 @@ const numbers = Object.keys(levels).reduce((o, k) => {
 }, {});
 
 export const mappings = (customLevels = null, useOnlyCustomLevels = false) => {
-  const customNums = customLevels ? Object.keys(customLevels).reduce((o, k) => {
-    o[customLevels[k]] = k;
-    return o;
-  }, {})
+  const customNums = customLevels
+    ? Object.keys(customLevels).reduce((o, k) => {
+        o[customLevels[k]] = k;
+        return o;
+      }, {})
     : null;
 
   const labels = Object.assign(
-    Object.create(Object.prototype, { Infinity: { value: 'silent' }}),
+    Object.create(Object.prototype, { Infinity: { value: "silent" } }),
     useOnlyCustomLevels ? null : numbers,
-    customNums
+    customNums,
   );
 
   // Merge log levels with "silent" log level.
   const values = Object.assign(
-    Object.create(Object.prototype, { silent: { value: 0 }}),
+    Object.create(Object.prototype, { silent: { value: 0 } }),
     useOnlyCustomLevels ? null : levels,
-    customLevels
+    customLevels,
   );
 
   return { labels, values };
@@ -67,14 +68,14 @@ export const isStandardLevel = (level, useOnlyCustomLevels) => {
   }
 
   switch (level) {
-  case 'fatal':
-  case 'error':
-  case 'warn':
-  case 'info':
-  case 'debug':
-  case 'verbose':
-    return true;
-  default:
-    return false;
+    case "fatal":
+    case "error":
+    case "warn":
+    case "info":
+    case "debug":
+    case "verbose":
+      return true;
+    default:
+      return false;
   }
 };

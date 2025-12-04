@@ -21,14 +21,14 @@ export default function checkNumber(this: any, { schema, messages }: any) {
 
   code.push(`
     if (typeof value !== 'number' || isNaN(value) || !isFinite(value)) {
-      ${this.makeErrorCode({ type: 'number', passed: 'value', messages })}
+      ${this.makeErrorCode({ type: "number", passed: "value", messages })}
     }
   `);
 
   if (schema.min) {
     code.push(`
       if (value < ${schema.min}) {
-        ${this.makeErrorCode({ type: 'numberMin', passed: 'value', expected: schema.min, messages })}
+        ${this.makeErrorCode({ type: "numberMin", passed: "value", expected: schema.min, messages })}
       }
     `);
   }
@@ -36,7 +36,7 @@ export default function checkNumber(this: any, { schema, messages }: any) {
   if (schema.max) {
     code.push(`
       if (value > ${schema.max}) {
-        ${this.makeErrorCode({ type: 'numberMax', passed: 'value', expected: schema.max, messages })}
+        ${this.makeErrorCode({ type: "numberMax", passed: "value", expected: schema.max, messages })}
       }
     `);
   }
@@ -44,7 +44,7 @@ export default function checkNumber(this: any, { schema, messages }: any) {
   if (schema.equal) {
     code.push(`
       if (value !== ${schema.equal}) {
-        ${this.makeErrorCode({ type: 'numberEqual', passed: 'value', expected: schema.equal, messages })}
+        ${this.makeErrorCode({ type: "numberEqual", passed: "value", expected: schema.equal, messages })}
       }
     `);
   }
@@ -52,7 +52,7 @@ export default function checkNumber(this: any, { schema, messages }: any) {
   if (schema.notEqual) {
     code.push(`
       if (value === ${schema.notEqual}) {
-        ${this.makeErrorCode({ type: 'numberNotEqual', passed: 'value', expected: schema.notEqual, messages })}
+        ${this.makeErrorCode({ type: "numberNotEqual", passed: "value", expected: schema.notEqual, messages })}
       }
     `);
   }
@@ -60,7 +60,7 @@ export default function checkNumber(this: any, { schema, messages }: any) {
   if (schema.integer) {
     code.push(`
       if (value % 1 !== 0) {
-        ${this.makeErrorCode({ type: 'numberInteger', passed: 'value', messages })}
+        ${this.makeErrorCode({ type: "numberInteger", passed: "value", messages })}
       }
     `);
   }
@@ -68,7 +68,7 @@ export default function checkNumber(this: any, { schema, messages }: any) {
   if (schema.positive) {
     code.push(`
       if (value <= 0) {
-        ${this.makeErrorCode({ type: 'numberPositive', passed: 'value', messages })}
+        ${this.makeErrorCode({ type: "numberPositive", passed: "value", messages })}
       }
     `);
   }
@@ -76,7 +76,7 @@ export default function checkNumber(this: any, { schema, messages }: any) {
   if (schema.negative) {
     code.push(`
       if (value >= 0) {
-        ${this.makeErrorCode({ type: 'numberNegative', passed: 'value', messages })}
+        ${this.makeErrorCode({ type: "numberNegative", passed: "value", messages })}
       }
     `);
   }
@@ -87,6 +87,6 @@ export default function checkNumber(this: any, { schema, messages }: any) {
 
   return {
     sanitized,
-    code: code.join('\n')
+    code: code.join("\n"),
   };
 }

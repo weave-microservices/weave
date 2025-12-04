@@ -1,63 +1,66 @@
-import { createBroker, TransportAdapters, CacheAdapters } from '../../../packages/core/core/lib/index.mts';
-import repl from '../../../packages/core/repl/lib/index.mts';
+import {
+  createBroker,
+  TransportAdapters,
+  CacheAdapters,
+} from "../../../packages/core/core/lib/index.mts";
+import repl from "../../../packages/core/repl/lib/index.mts";
 
 const gwBroker = createBroker({
-  nodeId: 'gateway',
+  nodeId: "gateway",
   transport: {
-    adapter: TransportAdapters.Dummy()
-  }
+    adapter: TransportAdapters.Dummy(),
+  },
 });
 
 const workerBroker = createBroker({
-  nodeId: 'worker',
+  nodeId: "worker",
   logger: {
-    level: 'debug'
+    level: "debug",
   },
   cache: {
     enabled: true,
-    adapter: CacheAdapters.createInMemoryCache()
+    adapter: CacheAdapters.createInMemoryCache(),
   },
   transport: {
-    adapter: TransportAdapters.Dummy()
-  }
+    adapter: TransportAdapters.Dummy(),
+  },
 });
 
 workerBroker.createService({
-  name: 'greeter',
+  name: "greeter",
   actions: {
     hello: {
       cache: {
-        keys: [':user.id']
+        keys: [":user.id"],
       },
-      handler (context) {
-        return new Promise(resolve => {
+      handler(context) {
+        return new Promise((resolve) => {
           setTimeout(() => {
-            resolve('hello' + context.meta.user.id);
+            resolve("hello" + context.meta.user.id);
           }, 500);
         });
-      }
-    }
-  }
+      },
+    },
+  },
 });
 
 workerBroker.createService({
-  name: 'user',
+  name: "user",
   actions: {
     getUsers: {
-      handler (context) {
-        return context.call('greeter.hello', null, { meta: {
-          user: {
-            id: '123'
-          }
-        }});
-      }
-    }
-  }
+      handler(context) {
+        return context.call("greeter.hello", null, {
+          meta: {
+            user: {
+              id: "123",
+            },
+          },
+        });
+      },
+    },
+  },
 });
 
-Promise.all([
-  gwBroker.start(),
-  workerBroker.start()
-]).then(() => {
+Promise.all([gwBroker.start(), workerBroker.start()]).then(() => {
   repl(gwBroker);
 });

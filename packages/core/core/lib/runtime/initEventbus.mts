@@ -1,4 +1,4 @@
-import type { ActionOptions, Endpoint, Runtime } from '../../types/index.js';
+import type { ActionOptions, Endpoint, Runtime } from "../../types/index.js";
 
 export const initEventbus = (runtime: Runtime) => {
   const { options: brokerOptions, bus, registry, contextFactory } = runtime;
@@ -9,7 +9,7 @@ export const initEventbus = (runtime: Runtime) => {
    * @param {any} payload - Payload
    * @param {*} [options=null] - Groups
    * @returns {Promise<any>} - Result
-  */
+   */
   const emit = async (eventName: string, payload: object, options) => {
     if (Array.isArray(options)) {
       options = { groups: options };
@@ -24,7 +24,7 @@ export const initEventbus = (runtime: Runtime) => {
     // todo: create an event context object
     const context = contextFactory.create(null, payload, options);
 
-    context.eventType = 'emit';
+    context.eventType = "emit";
     context.eventName = eventName;
     context.eventGroups = options.groups;
 
@@ -44,7 +44,7 @@ export const initEventbus = (runtime: Runtime) => {
           } else {
             groupedEndpoints[endpoint.node.id] = {
               endpoint,
-              groups: [groupName]
+              groups: [groupName],
             };
           }
         }
@@ -52,21 +52,20 @@ export const initEventbus = (runtime: Runtime) => {
     });
 
     if (runtime.transport) {
-      Object.values(groupedEndpoints)
-        .forEach(groupedEndpoint => {
-          const newContext = context.copy();
-          newContext.setEndpoint(groupedEndpoint.endpoint);
-          newContext.eventGroups = groupedEndpoint.groups;
-          promises.push(runtime.transport.sendEvent(newContext));
-        });
+      Object.values(groupedEndpoints).forEach((groupedEndpoint) => {
+        const newContext = context.copy();
+        newContext.setEndpoint(groupedEndpoint.endpoint);
+        newContext.eventGroups = groupedEndpoint.groups;
+        promises.push(runtime.transport.sendEvent(newContext));
+      });
     }
 
     // Use allSettled to ensure all events are attempted even if some fail
     const results = await Promise.allSettled(promises);
 
-    const failures = results.filter(result => result.status === 'rejected');
+    const failures = results.filter((result) => result.status === "rejected");
     if (failures.length > 0) {
-      failures.forEach(failure => {
+      failures.forEach((failure) => {
         runtime.log.warn(failure.reason, `Failed to emit event "${eventName}" to remote service`);
       });
     }
@@ -75,12 +74,12 @@ export const initEventbus = (runtime: Runtime) => {
   };
 
   /**
-  * Send a broadcasted event to all local services.
-  * @param {String} eventName Name of the event
-  * @param {any} payload Payload
-  * @param {*} [options=null] Options
-  * @returns {Promise<any>} Promise
-  */
+   * Send a broadcasted event to all local services.
+   * @param {String} eventName Name of the event
+   * @param {any} payload Payload
+   * @param {*} [options=null] Options
+   * @returns {Promise<any>} Promise
+   */
   const broadcastLocal = (eventName, payload, options) => {
     if (Array.isArray(options)) {
       options = { groups: options };
@@ -89,7 +88,7 @@ export const initEventbus = (runtime: Runtime) => {
     }
 
     const context = contextFactory.create(null, payload, options);
-    context.eventType = 'broadcastLocal';
+    context.eventType = "broadcastLocal";
     context.eventName = eventName;
 
     if (/^\$/.test(eventName)) {
@@ -100,12 +99,12 @@ export const initEventbus = (runtime: Runtime) => {
   };
 
   /**
-  * Send a broadcasted event to all services.
-  * @param {String} eventName Name of the event
-  * @param {any} payload Payload
-  * @param {*} [options=null] Groups
-  * @returns {Promise<any>} Promise
-  */
+   * Send a broadcasted event to all services.
+   * @param {String} eventName Name of the event
+   * @param {any} payload Payload
+   * @param {*} [options=null] Groups
+   * @returns {Promise<any>} Promise
+   */
   const broadcast = async (eventName, payload, options) => {
     if (Array.isArray(options)) {
       options = { groups: options };
@@ -118,14 +117,17 @@ export const initEventbus = (runtime: Runtime) => {
     if (runtime.transport) {
       // todo: create an event context object
       const context = contextFactory.create(null, payload, options);
-      context.eventType = 'broadcast';
+      context.eventType = "broadcast";
       context.eventName = eventName;
       context.eventGroups = options.groups;
 
       if (!/^\$/.test(eventName)) {
-        const endpoints = registry.eventCollection.getAllEndpointsUniqueNodes(eventName, options.groups);
+        const endpoints = registry.eventCollection.getAllEndpointsUniqueNodes(
+          eventName,
+          options.groups,
+        );
 
-        endpoints.map(endpoint => {
+        endpoints.map((endpoint) => {
           if (endpoint.node.id !== brokerOptions.nodeId) {
             const newContext = context.copy();
             newContext.setEndpoint(endpoint);
@@ -140,21 +142,24 @@ export const initEventbus = (runtime: Runtime) => {
     // Use allSettled to ensure all broadcasts are attempted even if some fail
     const results = await Promise.allSettled(promises);
 
-    const failures = results.filter(result => result.status === 'rejected');
+    const failures = results.filter((result) => result.status === "rejected");
     if (failures.length > 0) {
-      failures.forEach(failure => {
-        runtime.log.warn(failure.reason, `Failed to broadcast event "${eventName}" to remote service`);
+      failures.forEach((failure) => {
+        runtime.log.warn(
+          failure.reason,
+          `Failed to broadcast event "${eventName}" to remote service`,
+        );
       });
     }
 
     return results;
   };
 
-  Object.defineProperty(runtime, 'eventBus', {
+  Object.defineProperty(runtime, "eventBus", {
     value: {
       emit,
       broadcast,
-      broadcastLocal
-    }
+      broadcastLocal,
+    },
   });
 };

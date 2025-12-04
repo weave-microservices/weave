@@ -1,11 +1,11 @@
-import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
-import ModelValidator from '../../lib/validator.mts';
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
+import ModelValidator from "../../lib/validator.mts";
 
-describe('Boolean validator', () => {
-  it('boolean validator (valid)', () => {
+describe("Boolean validator", () => {
+  it("boolean validator (valid)", () => {
     const schema = {
-      isActive: { type: 'boolean' }
+      isActive: { type: "boolean" },
     };
 
     const parameters = { isActive: true };
@@ -16,12 +16,12 @@ describe('Boolean validator', () => {
     assert.equal(result, true);
   });
 
-  it('boolean validator convert true (valid)', () => {
+  it("boolean validator convert true (valid)", () => {
     const schema = {
-      isActive: { type: 'boolean', convert: true }
+      isActive: { type: "boolean", convert: true },
     };
 
-    const parameters = { isActive: 'true' };
+    const parameters = { isActive: "true" };
     const validator = ModelValidator();
     const validate = validator.compile(schema);
     const result = validate(parameters);
@@ -29,12 +29,12 @@ describe('Boolean validator', () => {
     assert.equal(result, true);
   });
 
-  it('boolean validator convert false (valid)', () => {
+  it("boolean validator convert false (valid)", () => {
     const schema = {
-      isActive: { type: 'boolean', convert: true }
+      isActive: { type: "boolean", convert: true },
     };
 
-    const parameters = { isActive: 'false' };
+    const parameters = { isActive: "false" };
     const validator = ModelValidator();
     const validate = validator.compile(schema);
     const result = validate(parameters);
@@ -42,12 +42,12 @@ describe('Boolean validator', () => {
     assert.equal(result, true);
   });
 
-  it('boolean validator convert true (valid)', () => {
+  it("boolean validator convert true (valid)", () => {
     const schema = {
-      isActive: { type: 'boolean', convert: true }
+      isActive: { type: "boolean", convert: true },
     };
 
-    const parameters = { isActive: 'true' };
+    const parameters = { isActive: "true" };
     const validator = ModelValidator();
     const validate = validator.compile(schema);
     const result = validate(parameters);
@@ -55,12 +55,12 @@ describe('Boolean validator', () => {
     assert.equal(result, true);
   });
 
-  it('boolean validator convert false (valid)', () => {
+  it("boolean validator convert false (valid)", () => {
     const schema = {
-      isActive: { type: 'boolean', convert: true }
+      isActive: { type: "boolean", convert: true },
     };
 
-    const parameters = { isActive: 'false' };
+    const parameters = { isActive: "false" };
     const validator = ModelValidator();
     const validate = validator.compile(schema);
     const result = validate(parameters);
@@ -68,9 +68,9 @@ describe('Boolean validator', () => {
     assert.equal(result, true);
   });
 
-  it('boolean validator convert 1 (valid)', () => {
+  it("boolean validator convert 1 (valid)", () => {
     const schema = {
-      isActive: { type: 'boolean', convert: true }
+      isActive: { type: "boolean", convert: true },
     };
 
     const parameters = { isActive: 1 };
@@ -82,9 +82,9 @@ describe('Boolean validator', () => {
     assert.equal(parameters.isActive, true);
   });
 
-  it('boolean validator convert 0 (valid)', () => {
+  it("boolean validator convert 0 (valid)", () => {
     const schema = {
-      isActive: { type: 'boolean', convert: true }
+      isActive: { type: "boolean", convert: true },
     };
 
     const parameters = { isActive: 0 };
@@ -96,12 +96,12 @@ describe('Boolean validator', () => {
     assert.equal(parameters.isActive, false);
   });
 
-  it('boolean validator convert 1 (invalid)', () => {
+  it("boolean validator convert 1 (invalid)", () => {
     const schema = {
-      isActive: { type: 'boolean', convert: true }
+      isActive: { type: "boolean", convert: true },
     };
 
-    const parameters = { isActive: '1' };
+    const parameters = { isActive: "1" };
     const validator = ModelValidator();
     const validate = validator.compile(schema);
     const result = validate(parameters);

@@ -1,8 +1,8 @@
-import { green, magenta, red, yellow, gray, cyan } from '../utils/colorize.mts';
-import os from 'os';
+import { green, magenta, red, yellow, gray, cyan } from "../utils/colorize.mts";
+import os from "os";
 
 export const asHumanReadable = (runtime, originObj, message, number, time) => {
-  let logResult = '';
+  let logResult = "";
 
   const logLevelColors = {
     fatal: magenta,
@@ -10,7 +10,7 @@ export const asHumanReadable = (runtime, originObj, message, number, time) => {
     warn: yellow,
     info: green,
     debug: cyan,
-    verbose: gray
+    verbose: gray,
   };
 
   const currentLabel = runtime.levels.labels[number];
@@ -20,14 +20,14 @@ export const asHumanReadable = (runtime, originObj, message, number, time) => {
   logResult += color(currentLabel.toUpperCase());
 
   // date time
-  logResult += ' [' + new Date(time).toISOString() + '] ';
+  logResult += " [" + new Date(time).toISOString() + "] ";
 
   if (runtime.options.base.pid && runtime.options.base.hostname) {
     logResult += ` (${runtime.options.base.pid} on ${runtime.options.base.hostname})`;
   }
 
   if (message) {
-    logResult += ' ' + color(message);
+    logResult += " " + color(message);
   }
 
   if (Object.keys(originObj).length > 0) {

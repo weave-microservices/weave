@@ -1,6 +1,6 @@
-import net from 'net';
-import { EventEmitter } from 'events';
-import TCPWriteStream from './tcpWriteStream.mts';
+import net from "net";
+import { EventEmitter } from "events";
+import TCPWriteStream from "./tcpWriteStream.mts";
 
 export default (adapter, options) => {
   const self = Object.assign({}, EventEmitter.prototype);
@@ -11,10 +11,10 @@ export default (adapter, options) => {
 
   self.listen = () => {
     return new Promise((resolve, reject) => {
-      server = net.createServer(socket => onTCPClientConnected(socket));
+      server = net.createServer((socket) => onTCPClientConnected(socket));
 
-      server.on('error', error => {
-        adapter.log.error('TCP server error', error);
+      server.on("error", (error) => {
+        adapter.log.error("TCP server error", error);
         reject(error);
       });
 
@@ -30,37 +30,37 @@ export default (adapter, options) => {
   self.close = () => {
     if (server && self.isConnected) {
       server.close();
-      sockets.forEach(socket => socket.destroy());
+      sockets.forEach((socket) => socket.destroy());
       sockets = [];
     }
   };
 
-  function onTCPClientConnected (socket) {
+  function onTCPClientConnected(socket) {
     sockets.push(socket);
 
     const parser = new TCPWriteStream(adapter, socket, options.maxPacketSize);
     socket.pipe(parser);
 
-    parser.on('error', error => {
-      adapter.log.warn('Packet parser error!', error);
+    parser.on("error", (error) => {
+      adapter.log.warn("Packet parser error!", error);
       closeSocket(socket);
     });
 
-    parser.on('data', (type, message) => {
-      self.emit('message', type, message);
+    parser.on("data", (type, message) => {
+      self.emit("message", type, message);
     });
 
-    socket.on('error', error => {
-      adapter.log.warn('TCP connection error!', error);
+    socket.on("error", (error) => {
+      adapter.log.warn("TCP connection error!", error);
       closeSocket(socket);
     });
 
-    socket.on('close', (isError) => {
+    socket.on("close", (isError) => {
       closeSocket(socket);
     });
   }
 
-  function closeSocket (socket) {
+  function closeSocket(socket) {
     socket.destroy();
     sockets.splice(sockets.indexOf(socket), 1);
   }

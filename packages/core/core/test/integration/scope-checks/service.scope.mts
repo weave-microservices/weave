@@ -1,4 +1,4 @@
-import assert from 'node:assert/strict';
+import assert from "node:assert/strict";
 
 export default (scope: any) => {
   assert.notStrictEqual(scope.broker, undefined);

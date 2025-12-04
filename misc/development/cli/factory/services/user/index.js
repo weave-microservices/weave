@@ -1,9 +1,8 @@
-
-const addUser = require('./add.action');
+const addUser = require("./add.action");
 
 module.exports = {
-  name: 'user',
+  name: "user",
   actions: {
-    ...addUser
-  }
+    ...addUser,
+  },
 };

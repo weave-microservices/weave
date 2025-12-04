@@ -4,31 +4,31 @@
  * Author: Kevin Ries (kevin.ries@fachwerk.io)
  * -----
  * Copyright 2021 Fachwerk
-*/
+ */
 
 /**
  * @typedef {import('../../types.__js').Registry} Registry
  * @typedef {import('../../types.__js').ServiceActionCollection} ServiceActionCollection
-*/
-import { omit } from '@weave-js/utils';
-import { createEndpointList } from './endpointCollection.mts';
+ */
+import { omit } from "@weave-js/utils";
+import { createEndpointList } from "./endpointCollection.mts";
 
 /**
  * Configuration object for weave service broker.
  * @typedef {Object} ActionCollection
  * @property {Function} add Enable metric middleware. (default = false)
  * @property {Array<String|Object>} adapters Array of metric adapters.
-*/
+ */
 
 /**
  * Create an action collection.
  * @param {Registry} registry Reference to the registry.
  * @returns {ServiceActionCollection} Action collection
-*/
+ */
 export const createActionCollection = (registry) => {
   /**
    * @type {ServiceActionCollection}
-  */
+   */
   const actionCollection = Object.create(null);
   const { runtime } = registry;
   const actions = new Map();
@@ -47,7 +47,7 @@ export const createActionCollection = (registry) => {
   };
 
   actionCollection.removeByService = (service) => {
-    actions.forEach(list => {
+    actions.forEach((list) => {
       list.removeByService(service);
     });
   };
@@ -63,11 +63,11 @@ export const createActionCollection = (registry) => {
   actionCollection.list = ({
     onlyLocals = false,
     skipInternals = false,
-    withEndpoints = false
+    withEndpoints = false,
   } = {}) => {
     const result = [];
 
-    actions.forEach(action => {
+    actions.forEach((action) => {
       if (skipInternals && /^\$node/.test(action.name)) {
         return;
       }
@@ -81,13 +81,13 @@ export const createActionCollection = (registry) => {
         name: action.name,
         hasAvailable: action.hasAvailable(),
         hasLocal: action.hasLocal(),
-        count: action.count()
+        count: action.count(),
       };
 
       if (item.count > 0) {
         const endpoint = action.endpoints[0];
         if (endpoint) {
-          item.action = omit(endpoint.action, ['handler', 'service']);
+          item.action = omit(endpoint.action, ["handler", "service"]);
         }
       }
 
@@ -96,10 +96,10 @@ export const createActionCollection = (registry) => {
       }
 
       if (withEndpoints) {
-        item.endpoints = action.endpoints.map(endpoint => {
+        item.endpoints = action.endpoints.map((endpoint) => {
           return {
             nodeId: endpoint.node.id,
-            state: endpoint.state
+            state: endpoint.state,
           };
         });
       }

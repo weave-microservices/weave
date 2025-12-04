@@ -1,38 +1,38 @@
-import { WeaveError } from '../../../lib/errors.mts';
-import { TransportAdapters } from '../../../lib/index.mts';
-import Constants from '../../../lib/metrics/constants.mts';
-import { createNode } from '../../helper/index.mts';
-import { describe, it, beforeEach, afterEach } from 'node:test';
-import assert from 'node:assert/strict';
+import { WeaveError } from "../../../lib/errors.mts";
+import { TransportAdapters } from "../../../lib/index.mts";
+import Constants from "../../../lib/metrics/constants.mts";
+import { createNode } from "../../helper/index.mts";
+import { describe, it, beforeEach, afterEach } from "node:test";
+import assert from "node:assert/strict";
 
-describe('Metric middleware', () => {
+describe("Metric middleware", () => {
   let broker;
 
   beforeEach(() => {
     broker = createNode({
-      nodeId: 'node-metrics1',
+      nodeId: "node-metrics1",
       logger: {
-        enabled: false
+        enabled: false,
       },
       metrics: {
-        enabled: true
-      }
+        enabled: true,
+      },
     });
 
     broker.createService({
-      name: 'test-service',
+      name: "test-service",
       actions: {
-        testAction () {
-          return new Promise(resolve => {
+        testAction() {
+          return new Promise((resolve) => {
             setTimeout(() => {
-              resolve('hello');
+              resolve("hello");
             }, 2000);
           });
         },
-        throwError () {
-          throw new Error('not found');
-        }
-      }
+        throwError() {
+          throw new Error("not found");
+        },
+      },
     });
 
     return broker.start();
@@ -40,9 +40,9 @@ describe('Metric middleware', () => {
 
   afterEach(() => broker.stop());
 
-  it('should update the request metrics', (done) => {
+  it("should update the request metrics", (done) => {
     const metrics = broker.runtime.metrics;
-    const p = broker.call('test-service.testAction');
+    const p = broker.call("test-service.testAction");
 
     expect(metrics.getMetric(Constants.REQUESTS_IN_FLIGHT).value).toBe(1);
 
@@ -53,9 +53,9 @@ describe('Metric middleware', () => {
     });
   });
 
-  it('should update the request metrics on Error', (done) => {
+  it("should update the request metrics on Error", (done) => {
     const metrics = broker.runtime.metrics;
-    const p = broker.call('test-service.throwError');
+    const p = broker.call("test-service.throwError");
 
     expect(metrics.getMetric(Constants.REQUESTS_IN_FLIGHT).value).toBe(1);
 
@@ -75,38 +75,38 @@ describe('Metric middleware', () => {
   // })
 });
 
-describe('Metric middleware [cache]', () => {
+describe("Metric middleware [cache]", () => {
   let broker;
 
   beforeEach(() => {
     broker = createNode({
-      nodeId: 'node-metrics2',
+      nodeId: "node-metrics2",
       logger: {
-        enabled: false
+        enabled: false,
       },
       metrics: {
-        enabled: true
+        enabled: true,
       },
       cache: {
-        enabled: true
-      }
+        enabled: true,
+      },
     });
 
     broker.createService({
-      name: 'test-service',
+      name: "test-service",
       actions: {
         testAction: {
           params: {
-            name: 'string'
+            name: "string",
           },
           cache: {
-            keys: ['name']
+            keys: ["name"],
           },
-          handler (context) {
+          handler(context) {
             return context.data.name;
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     return broker.start();
@@ -114,7 +114,7 @@ describe('Metric middleware [cache]', () => {
 
   afterEach(() => broker.stop());
 
-  it('should register metrics', async () => {
+  it("should register metrics", async () => {
     const metrics = broker.runtime.metrics;
 
     expect(metrics.getMetric(Constants.CACHE_GET_TOTAL).value).toBe(0);
@@ -124,77 +124,71 @@ describe('Metric middleware [cache]', () => {
     expect(metrics.getMetric(Constants.CACHE_DELETED_TOTAL).value).toBe(0);
     expect(metrics.getMetric(Constants.CACHE_CLEANED_TOTAL).value).toBe(0);
 
-    await broker.call('test-service.testAction', { name: 'Kevin' });
-    await broker.call('test-service.testAction', { name: 'Kevin' });
+    await broker.call("test-service.testAction", { name: "Kevin" });
+    await broker.call("test-service.testAction", { name: "Kevin" });
 
     expect(metrics.getMetric(Constants.CACHE_GET_TOTAL).value).toBe(2);
     expect(metrics.getMetric(Constants.CACHE_FOUND_TOTAL).value).toBe(1);
   });
 });
 
-describe('Metric middleware between remote nodes', () => {
+describe("Metric middleware between remote nodes", () => {
   let broker1;
   let broker2;
 
   beforeEach(() => {
     broker1 = createNode({
-      nodeId: 'node-metrics3',
+      nodeId: "node-metrics3",
       logger: {
-        enabled: false
+        enabled: false,
       },
       metrics: {
-        enabled: true
+        enabled: true,
       },
       transport: {
-        adapter: TransportAdapters.Dummy()
-      }
+        adapter: TransportAdapters.Dummy(),
+      },
     });
 
     broker2 = createNode({
-      nodeId: 'node-metrics4',
+      nodeId: "node-metrics4",
       logger: {
-        enabled: false
+        enabled: false,
       },
       metrics: {
-        enabled: true
+        enabled: true,
       },
       transport: {
-        adapter: TransportAdapters.Dummy()
-      }
+        adapter: TransportAdapters.Dummy(),
+      },
     });
 
     broker2.createService({
-      name: 'test-service',
+      name: "test-service",
       actions: {
         testAction: {
           params: {
-            name: 'string'
+            name: "string",
           },
-          handler (context) {
+          handler(context) {
             return context.data.name;
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
-    return Promise.all([
-      broker1.start(),
-      broker2.start()
-    ]);
+    return Promise.all([broker1.start(), broker2.start()]);
   });
 
-  afterEach(() => Promise.all([
-    broker1.stop(),
-    broker2.stop()
-  ]));
+  afterEach(() => Promise.all([broker1.stop(), broker2.stop()]));
 
-  it('should register metrics', async () => {
+  it("should register metrics", async () => {
     const metrics1 = broker1.runtime.metrics;
     const metrics2 = broker2.runtime.metrics;
 
-    await broker1.call('test-service.testAction', { name: 'Kevin' });
-    await broker1.call('test-service.testAction', { name: 'Kevin' });
-    await broker1.call('test-service.testAction', { name: 'Kevin' });
+    await broker1.call("test-service.testAction", { name: "Kevin" });
+    await broker1.call("test-service.testAction", { name: "Kevin" });
+    await broker1.call("test-service.testAction", { name: "Kevin" });
 
     expect(metrics1.getMetric(Constants.REQUESTS_TOTAL).value).toBe(3);
     expect(metrics1.getMetric(Constants.REQUESTS_IN_FLIGHT).value).toBe(0);
@@ -204,51 +198,49 @@ describe('Metric middleware between remote nodes', () => {
   });
 });
 
-describe('Metric adapters validation', () => {
-  it('should register metrics', async () => {
+describe("Metric adapters validation", () => {
+  it("should register metrics", async () => {
     try {
       const broker1 = createNode({
-        nodeId: 'node-metrics5',
+        nodeId: "node-metrics5",
         logger: {
-          enabled: false
+          enabled: false,
         },
         metrics: {
           enabled: true,
-          adapters: {} // <- need to be an array of objects
+          adapters: {}, // <- need to be an array of objects
         },
         transport: {
-          adapter: TransportAdapters.Dummy()
-        }
+          adapter: TransportAdapters.Dummy(),
+        },
       });
       await broker1.start();
     } catch (error) {
       assert.ok(error instanceof WeaveError);
-      assert.strictEqual(error.message, 'Metic adapter needs to be an Array.');
+      assert.strictEqual(error.message, "Metic adapter needs to be an Array.");
     }
   });
 
-  it('should init metric adapter.', async () => {
+  it("should init metric adapter.", async () => {
     const mockMetricInitFunction = jest.fn();
     const mockMetricAdapter = () => {
       return {
-        init: mockMetricInitFunction
+        init: mockMetricInitFunction,
       };
     };
 
     const broker1 = createNode({
-      nodeId: 'node-metrics6',
+      nodeId: "node-metrics6",
       logger: {
-        enabled: false
+        enabled: false,
       },
       metrics: {
         enabled: true,
-        adapters: [
-          mockMetricAdapter()
-        ]
+        adapters: [mockMetricAdapter()],
       },
       transport: {
-        adapter: TransportAdapters.Dummy()
-      }
+        adapter: TransportAdapters.Dummy(),
+      },
     });
     await broker1.start();
 

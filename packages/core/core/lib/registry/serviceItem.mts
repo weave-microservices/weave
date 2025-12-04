@@ -3,12 +3,12 @@
  * -----
  * Copyright 2021 Fachwerk
  */
-'use strict';
+"use strict";
 
 /**
  * @typedef {import("../types.__js").ServiceItem} ServiceItem
  * @typedef {import("../types.__js").Node} Node
-*/
+ */
 
 /**
  * Service item factory
@@ -18,11 +18,11 @@
  * @param {object} settings version
  * @param {boolean} isLocal Is local node
  * @returns {ServiceItem} Node instance
-*/
+ */
 export const createServiceItem = (node, name, version, settings, isLocal) => {
   /**
    * @type {ServiceItem}
-  */
+   */
   const serviceItem = Object.create(null);
 
   serviceItem.name = name;
@@ -42,7 +42,11 @@ export const createServiceItem = (node, name, version, settings, isLocal) => {
   };
 
   serviceItem.equals = (name, version, nodeId) => {
-    return serviceItem.name === name && serviceItem.version === version && (nodeId == null || serviceItem.node.id === nodeId);
+    return (
+      serviceItem.name === name &&
+      serviceItem.version === version &&
+      (nodeId == null || serviceItem.node.id === nodeId)
+    );
   };
 
   serviceItem.update = (service) => {

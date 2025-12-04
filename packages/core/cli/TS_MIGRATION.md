@@ -19,6 +19,7 @@ Migration des Weave CLI von JavaScript zu TypeScript mit vollständiger Typisier
 ## 1. Dateistruktur-Änderungen
 
 ### Umbenennungen
+
 - Alle `.js` Dateien → `.mts` (TypeScript Module)
 - Betroffen:
   - `bin/weave.js` → `bin/weave.mts`
@@ -99,6 +100,7 @@ cli/
 ```
 
 ### Neue Dependencies
+
 - `@types/node`: TypeScript-Typen für Node.js
 - `typescript`: TypeScript Compiler (nur für IDE-Unterstützung)
 
@@ -127,19 +129,13 @@ cli/
     "noEmit": true,
     "types": ["node"]
   },
-  "include": [
-    "lib/**/*.mts",
-    "bin/**/*.mts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "coverage"
-  ]
+  "include": ["lib/**/*.mts", "bin/**/*.mts"],
+  "exclude": ["node_modules", "dist", "coverage"]
 }
 ```
 
-**Wichtig:** 
+**Wichtig:**
+
 - `noEmit: true` - Keine Kompilierung, nur Type-Checking
 - Keine `outDir` oder Build-Konfiguration nötig
 - Node.js führt `.mts` Dateien direkt aus
@@ -226,12 +222,12 @@ class Cache extends EventEmitter {
     this.setCapacity(opts.capacity);
   }
 
-  put(key: string, val: any, ttl?: number): void { }
-  get(key: string): any { }
-  del(key: string): any { }
-  clear(): void { }
-  size(accurate?: boolean): number { }
-  setCapacity(capacity?: number): void { }
+  put(key: string, val: any, ttl?: number): void {}
+  get(key: string): any {}
+  del(key: string): any {}
+  clear(): void {}
+  size(accurate?: boolean): number {}
+  setCapacity(capacity?: number): void {}
 }
 
 export default Cache;
@@ -244,30 +240,32 @@ export default Cache;
 ### Von CommonJS zu ES Modules
 
 **Alt (CommonJS):**
+
 ```javascript
-const { createBroker } = require('@weave-js/core');
-const repl = require('@weave-js/repl');
-const path = require('path');
+const { createBroker } = require("@weave-js/core");
+const repl = require("@weave-js/repl");
+const path = require("path");
 
 module.exports = { handler };
 ```
 
 **Neu (ES Modules):**
+
 ```typescript
-import { createBroker } from '@weave-js/core';
-import repl from '@weave-js/repl';
-import path from 'path';
+import { createBroker } from "@weave-js/core";
+import repl from "@weave-js/repl";
+import path from "path";
 
 export const handler = async (args: any): Promise<void> => {
   // Implementation
 };
 ```
 
-### __dirname und __filename in ES Modules
+### **dirname und **filename in ES Modules
 
 ```typescript
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -276,7 +274,7 @@ const __dirname = dirname(__filename);
 ### JSON Imports
 
 ```typescript
-import pkg from '../package.json' with { type: 'json' };
+import pkg from "../package.json" with { type: "json" };
 ```
 
 ### Dynamic Imports
@@ -311,7 +309,7 @@ Service-Loading-Funktionen sind jetzt async:
 ```typescript
 export const loadServices = async (broker: any, param: string): Promise<void> => {
   // ...
-  const module = await import(path.join(servicePath, 'index.js'));
+  const module = await import(path.join(servicePath, "index.js"));
   const serviceFactory = module.default || module;
   // ...
 };
@@ -445,6 +443,7 @@ weave start -r
 ### 11.1 Type Declarations für externe Pakete
 
 Einige Pakete haben keine TypeScript-Deklarationen:
+
 - `mkdirp` - Funktioniert, aber ohne Typen
 - `user-home` - Funktioniert, aber ohne Typen
 
@@ -518,33 +517,33 @@ weave create middleware myMiddleware
 ### Programmatische Verwendung
 
 ```typescript
-import { handler as startHandler } from '@weave-js/cli/lib/commands/start/index.mts';
-import { handler as createHandler } from '@weave-js/cli/lib/commands/create/index.mts';
+import { handler as startHandler } from "@weave-js/cli/lib/commands/start/index.mts";
+import { handler as createHandler } from "@weave-js/cli/lib/commands/create/index.mts";
 
 // Broker starten
 await startHandler({
   repl: true,
   watch: true,
-  services: './services'
+  services: "./services",
 });
 
 // Service erstellen
-await createHandler('service', 'myService', {
-  suffix: 'service'
+await createHandler("service", "myService", {
+  suffix: "service",
 });
 ```
 
 ### Custom Watch Middleware
 
 ```typescript
-import { createWatchMiddleware } from '@weave-js/cli/lib/commands/start/createWatchMiddlewares.mts';
+import { createWatchMiddleware } from "@weave-js/cli/lib/commands/start/createWatchMiddlewares.mts";
 
 const middleware = createWatchMiddleware(cliContext, {
   additionalFiles: [
     {
-      filename: './custom-config.js',
-      changeScope: 'broker'
-    }
-  ]
+      filename: "./custom-config.js",
+      changeScope: "broker",
+    },
+  ],
 });
 ```

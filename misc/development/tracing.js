@@ -1,11 +1,11 @@
-const { createBroker } = require('../../packages/core/core/lib');
-const repl = require('../../packages/core/repl/lib/index');
-const { createZipkinExporter } = require('../../packages/tracing-adapters/zipkin/lib/index');
+const { createBroker } = require("../../packages/core/core/lib");
+const repl = require("../../packages/core/repl/lib/index");
+const { createZipkinExporter } = require("../../packages/tracing-adapters/zipkin/lib/index");
 
 const app = createBroker({
-  nodeId: 'trace',
+  nodeId: "trace",
   logger: {
-    enabled: true
+    enabled: true,
   },
   // cache: {
   //   enabled: false,
@@ -13,81 +13,79 @@ const app = createBroker({
   // },
   tracing: {
     enabled: false,
-    collectors: [
-      createZipkinExporter()
-    ],
+    collectors: [createZipkinExporter()],
     defaultTags: {
-      environment: 'development'
+      environment: "development",
     },
     samplingRate: 1,
     actions: {
       meta: true,
       tags: {
-        'default-action-tag': 'default-action-tag-value'
-      }
-    }
-  }
+        "default-action-tag": "default-action-tag-value",
+      },
+    },
+  },
 });
 
 app.createService({
-  name: 'test',
+  name: "test",
   actions: {
     hello: {
       tracing: {
-        spanName: 'Keven'
+        spanName: "Keven",
       },
-      async handler (context) {
-        const span1 = context.startSpan('do some fancy stuff');
+      async handler(context) {
+        const span1 = context.startSpan("do some fancy stuff");
         await new Promise((resolve) => {
           setTimeout(async () => {
             resolve();
           }, 20);
         });
 
-        await context.call('greater.hello');
+        await context.call("greater.hello");
         context.finishSpan(span1);
 
-        context.emit('hello.sent');
+        context.emit("hello.sent");
         return false;
-      }
+      },
     },
     withData: {
       params: {
-        name: 'string'
+        name: "string",
       },
       tracing: {
         tags: {
-          response: true
-        }
+          response: true,
+        },
       },
-      async handler (context) {
+      async handler(context) {
         console.log(context.data.name);
         return context.data.name;
-      }
+      },
     },
     withDataNestedResponse: {
       params: {
-        name: 'string'
+        name: "string",
       },
       tracing: {
         tags: {
-          response: ['timestamps', 'name', 'user._id'],
-          meta: true
-        }
+          response: ["timestamps", "name", "user._id"],
+          meta: true,
+        },
       },
-      async handler (context) {
+      async handler(context) {
         console.log(context.data.name);
         return {
           name: context.data.name,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         };
-      }
-    }
-  }
+      },
+    },
+  },
 });
 
 app.createService({
-  name: 'greater',
+  name: "greater",
   actions: {
     hello: {
       // tracing: {
@@ -95,36 +93,36 @@ app.createService({
       //     response: true
       //   }
       // },
-      handler (context) {
-        return 'text from test2';
-      }
+      handler(context) {
+        return "text from test2";
+      },
     },
     goodbye: {
       cache: {
-        ttl: 10000
+        ttl: 10000,
       },
-      async handler (context) {
+      async handler(context) {
         // const span = await context.startSpan('do some fancy stuff')
         return new Promise((resolve) => {
           setTimeout(async () => {
             // await context.finishSpan(span)
-            resolve('nothing');
+            resolve("nothing");
           }, 2000);
         });
-      }
+      },
     },
-    error (context) {
-      throw new Error('hier ist was faul!!!!');
-    }
+    error(context) {
+      throw new Error("hier ist was faul!!!!");
+    },
   },
   events: {
-    async 'hello.sent' (context) {
-      await context.call('greater.goodbye');
+    async "hello.sent"(context) {
+      await context.call("greater.goodbye");
 
-      const span2 = context.startSpan('calling here API', {
+      const span2 = context.startSpan("calling here API", {
         tags: {
-          query: 'Las Vegas'
-        }
+          query: "Las Vegas",
+        },
       });
       await new Promise((resolve) => {
         setTimeout(async () => {
@@ -134,10 +132,8 @@ app.createService({
       context.finishSpan(span2);
 
       await this.actions.hello({}, { parentContext: context });
-    }
-  }
+    },
+  },
 });
 
-app.start()
-  .then(() => repl(app));
-
+app.start().then(() => repl(app));

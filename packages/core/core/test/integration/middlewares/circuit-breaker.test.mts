@@ -1,58 +1,58 @@
-import { TransportAdapters } from '../../../lib/index.mts';
-import { WeaveError } from '../../../lib/errors.mts';
-import { createNode } from '../../helper/index.mts';
-import { describe, it, before, after } from 'node:test';
-import assert from 'node:assert/strict';
+import { TransportAdapters } from "../../../lib/index.mts";
+import { WeaveError } from "../../../lib/errors.mts";
+import { createNode } from "../../helper/index.mts";
+import { describe, it, before, after } from "node:test";
+import assert from "node:assert/strict";
 
-describe('Test circuit breaker', () => {
+describe("Test circuit breaker", () => {
   const node1 = createNode({
-    nodeId: 'node1',
+    nodeId: "node1",
     logger: {
       enabled: false,
-      level: 'fatal'
+      level: "fatal",
     },
     transport: {
-      adapter: TransportAdapters.Dummy()
+      adapter: TransportAdapters.Dummy(),
     },
     circuitBreaker: {
       enabled: true,
       failureOnError: true,
       failureOnTimeout: true,
-      maxFailures: 3
-    }
+      maxFailures: 3,
+    },
   });
 
   const node2 = createNode({
-    nodeId: 'node2',
+    nodeId: "node2",
     logger: {
-      enabled: false
+      enabled: false,
     },
     transport: {
-      adapter: TransportAdapters.Dummy()
-    }
+      adapter: TransportAdapters.Dummy(),
+    },
   });
 
   node2.createService({
-    name: 'test',
+    name: "test",
     actions: {
-      good () {
-        return 'Everthing is fine.';
+      good() {
+        return "Everthing is fine.";
       },
-      bad (context) {
+      bad(context) {
         if (context.data.error !== true) {
-          return Promise.reject(new WeaveError('No Permission'));
+          return Promise.reject(new WeaveError("No Permission"));
         } else {
-          return 'ok';
+          return "ok";
         }
       },
-      ugly () {
+      ugly() {
         return new Promise((resolve) => {
           setTimeout(() => {
-            return resolve('OK');
+            return resolve("OK");
           }, 2000);
         });
-      }
-    }
+      },
+    },
   });
 
   before(async () => {
@@ -65,54 +65,58 @@ describe('Test circuit breaker', () => {
     await node2.stop();
   });
 
-  it('Should call test.good 5 times without problems', () => {
-    return node1.call('test.good')
-      .then(() => node1.call('test.good'))
-      .then(() => node1.call('test.good'))
-      .then(() => node1.call('test.good'))
-      .then(() => node1.call('test.good'))
-      .then(() => node1.call('test.good'))
-      .then(res => assert.strictEqual(res, 'Everthing is fine.'));
+  it("Should call test.good 5 times without problems", () => {
+    return node1
+      .call("test.good")
+      .then(() => node1.call("test.good"))
+      .then(() => node1.call("test.good"))
+      .then(() => node1.call("test.good"))
+      .then(() => node1.call("test.good"))
+      .then(() => node1.call("test.good"))
+      .then((res) => assert.strictEqual(res, "Everthing is fine."));
   });
 
-  it('Should throw error', () => {
-    return node1.call('test.bad')
-      .catch(error => {
-        assert.strictEqual(error.name, 'WeaveError');
-        return node1.call('test.bad');
+  it("Should throw error", () => {
+    return node1
+      .call("test.bad")
+      .catch((error) => {
+        assert.strictEqual(error.name, "WeaveError");
+        return node1.call("test.bad");
       })
-      .catch(error => {
-        assert.strictEqual(error.name, 'WeaveError');
-        return node1.call('test.bad');
+      .catch((error) => {
+        assert.strictEqual(error.name, "WeaveError");
+        return node1.call("test.bad");
       })
-      .catch(error => {
-        assert.strictEqual(error.name, 'WeaveError');
-        return node1.call('test.bad');
+      .catch((error) => {
+        assert.strictEqual(error.name, "WeaveError");
+        return node1.call("test.bad");
       })
-      .catch(error => {
-        assert.strictEqual(error.name, 'WeaveServiceNotAvailableError');
-        return 'ok';
+      .catch((error) => {
+        assert.strictEqual(error.name, "WeaveServiceNotAvailableError");
+        return "ok";
       })
-      .then(result => assert.strictEqual(result, 'ok'));
+      .then((result) => assert.strictEqual(result, "ok"));
   });
 
-  it('Should switch from half open to open', async () => {
-    await new Promise(resolve => setTimeout(resolve, 11000));
-    return node1.call('test.bad')
-      .catch(error => {
-        assert.strictEqual(error.name, 'WeaveError');
-        return node1.call('test.bad');
+  it("Should switch from half open to open", async () => {
+    await new Promise((resolve) => setTimeout(resolve, 11000));
+    return node1
+      .call("test.bad")
+      .catch((error) => {
+        assert.strictEqual(error.name, "WeaveError");
+        return node1.call("test.bad");
       })
-      .catch(error => {
-        assert.strictEqual(error.name, 'WeaveServiceNotAvailableError');
-        return 'ok';
+      .catch((error) => {
+        assert.strictEqual(error.name, "WeaveServiceNotAvailableError");
+        return "ok";
       })
-      .then(result => assert.strictEqual(result, 'ok'));
+      .then((result) => assert.strictEqual(result, "ok"));
   });
 
-  it('Should switch from half-open to close', async () => {
-    await new Promise(resolve => setTimeout(resolve, 11000));
-    return node1.call('test.bad', { error: true })
-      .then(result => assert.strictEqual(result, 'ok'));
+  it("Should switch from half-open to close", async () => {
+    await new Promise((resolve) => setTimeout(resolve, 11000));
+    return node1
+      .call("test.bad", { error: true })
+      .then((result) => assert.strictEqual(result, "ok"));
   });
 });

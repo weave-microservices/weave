@@ -1,6 +1,6 @@
-import { createNode } from '../../../lib/registry/node.mts';
-import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
+import { createNode } from "../../../lib/registry/node.mts";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 
 const createMockPayload = () => {
   return {
@@ -8,21 +8,21 @@ const createMockPayload = () => {
     services: [],
     events: [],
     client: {
-      type: 'node.js',
-      version: '0.1'
+      type: "node.js",
+      version: "0.1",
     },
     IPList: [],
     info: {},
     cpu: 20,
-    cpuSequence: 2
+    cpuSequence: 2,
   };
 };
 
-describe('Node instance', () => {
-  it('should create a node instance', () => {
-    const node = createNode('test-node');
+describe("Node instance", () => {
+  it("should create a node instance", () => {
+    const node = createNode("test-node");
 
-    assert.strictEqual(node.id, 'test-node');
+    assert.strictEqual(node.id, "test-node");
     assert.strictEqual(node.isAvailable, true);
     assert.strictEqual(node.isLocal, false);
     assert.strictEqual(node.info, null);
@@ -35,16 +35,16 @@ describe('Node instance', () => {
   });
 });
 
-describe('Node lifetime', () => {
-  const node = createNode('test-node');
+describe("Node lifetime", () => {
+  const node = createNode("test-node");
   let lastHeartbeat;
 
-  it('should create a node instance', () => {
+  it("should create a node instance", () => {
     assert.strictEqual(node.isAvailable, true);
     lastHeartbeat = node.lastHeartbeatTime;
   });
 
-  it('should handle heartbeat', () => {
+  it("should handle heartbeat", () => {
     const payload = createMockPayload();
     node.heartbeat(payload);
     assert.ok(node.lastHeartbeatTime > lastHeartbeat);
@@ -52,14 +52,14 @@ describe('Node lifetime', () => {
     assert.strictEqual(node.cpuSequence, 2);
   });
 
-  it('should handle disconnect and set unavailable', () => {
+  it("should handle disconnect and set unavailable", () => {
     node.disconnected();
     assert.ok(node.offlineTime > 0);
     assert.strictEqual(node.isAvailable, false);
     assert.strictEqual(node.sequence, 1);
   });
 
-  it('should set node available after a new heartbeat package', () => {
+  it("should set node available after a new heartbeat package", () => {
     const payload = createMockPayload();
     node.heartbeat(payload);
     assert.strictEqual(node.offlineTime, null);

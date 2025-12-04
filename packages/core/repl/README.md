@@ -11,25 +11,25 @@ npm install @weave-js/repl
 ## Usage
 
 ```js
-const { Weave } = require('@weave-js/core')
+const { Weave } = require("@weave-js/core");
 
 const broker = Weave({
-    logger: {
-        level: 'debug'
-    }
-})
-
-broker.createService({
-    name: 'math',
-    actions: {
-        add(context) {
-            return Number(context.data.a) + Number(context.data.b)
-        }
-    }
+  logger: {
+    level: "debug",
+  },
 });
 
-await broker.start()
-await broker.repl()
+broker.createService({
+  name: "math",
+  actions: {
+    add(context) {
+      return Number(context.data.a) + Number(context.data.b);
+    },
+  },
+});
+
+await broker.start();
+await broker.repl();
 ```
 
 ## Documentation

@@ -1,7 +1,7 @@
-import { WeaveGracefulStopTimeoutError } from '../../errors.mts';
+import { WeaveGracefulStopTimeoutError } from "../../errors.mts";
 
 export default (runtime) => {
-  function addContext (context) {
+  function addContext(context) {
     if (context.service) {
       // local actions
       context.service._trackedContexts.push(context);
@@ -11,7 +11,7 @@ export default (runtime) => {
     }
   }
 
-  function removeContext (context) {
+  function removeContext(context) {
     if (context.service) {
       // local actions
       const index = context.service._trackedContexts.indexOf(context);
@@ -26,9 +26,12 @@ export default (runtime) => {
     }
   }
 
-  function wrapContextTrackerMiddleware (actionHandler) {
-    return function ContextTrackerMiddleware (context, serviceInjections) {
-      const isTracked = context.options.track === true ? context.options.track : runtime.options.contextTracking.enabled;
+  function wrapContextTrackerMiddleware(actionHandler) {
+    return function ContextTrackerMiddleware(context, serviceInjections) {
+      const isTracked =
+        context.options.track === true
+          ? context.options.track
+          : runtime.options.contextTracking.enabled;
 
       if (!isTracked) {
         return actionHandler(context, serviceInjections);
@@ -37,11 +40,11 @@ export default (runtime) => {
       addContext(context);
 
       return actionHandler(context, serviceInjections)
-        .then(result => {
+        .then((result) => {
           removeContext(context);
           return result;
         })
-        .catch(error => {
+        .catch((error) => {
           removeContext(context);
           throw error;
         });
@@ -90,25 +93,34 @@ export default (runtime) => {
   };
 
   return {
-    created () {
+    created() {
       // init context-store
       runtime.state.trackedContexts = [];
     },
-    serviceStarting (service) {
+    serviceStarting(service) {
       service._trackedContexts = [];
     },
 
     // Before a local service stopping
-    serviceStopping (service) {
-      return waitingForActiveContexts(service._trackedContexts, service.log, service.settings.$shutdownTimeout || service.broker.options.contextTracking.shutdownTimeout, service);
+    serviceStopping(service) {
+      return waitingForActiveContexts(
+        service._trackedContexts,
+        service.log,
+        service.settings.$shutdownTimeout || service.broker.options.contextTracking.shutdownTimeout,
+        service,
+      );
     },
 
     // Before broker stopping
-    stopping () {
-      return waitingForActiveContexts(runtime.state.trackedContexts, runtime.log, runtime.options.contextTracking.shutdownTimeout);
+    stopping() {
+      return waitingForActiveContexts(
+        runtime.state.trackedContexts,
+        runtime.log,
+        runtime.options.contextTracking.shutdownTimeout,
+      );
     },
     localAction: wrapContextTrackerMiddleware,
     remoteAction: wrapContextTrackerMiddleware,
-    localEvent: wrapContextTrackerMiddleware
+    localEvent: wrapContextTrackerMiddleware,
   };
 };

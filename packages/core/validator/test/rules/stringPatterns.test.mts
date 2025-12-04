@@ -1,23 +1,23 @@
-import { describe, it, beforeEach } from 'node:test';
-import assert from 'node:assert/strict';
-import ModelValidator from '../../lib/validator.mts';
+import { describe, it, beforeEach } from "node:test";
+import assert from "node:assert/strict";
+import ModelValidator from "../../lib/validator.mts";
 
-describe('String Pattern Validations', () => {
+describe("String Pattern Validations", () => {
   let validator: any;
 
   beforeEach(() => {
     validator = ModelValidator();
   });
 
-  describe('UUID validation', () => {
-    it('should validate valid UUIDs', () => {
-      const schema = { id: { type: 'string', uuid: true }};
+  describe("UUID validation", () => {
+    it("should validate valid UUIDs", () => {
+      const schema = { id: { type: "string", uuid: true } };
       const validate = validator.compile(schema);
 
       const validUUIDs = [
-        '123e4567-e89b-12d3-a456-426614174000',
-        'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-        '550e8400-e29b-41d4-a716-446655440000'
+        "123e4567-e89b-12d3-a456-426614174000",
+        "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+        "550e8400-e29b-41d4-a716-446655440000",
       ];
 
       validUUIDs.forEach((uuid: string) => {
@@ -26,36 +26,31 @@ describe('String Pattern Validations', () => {
       });
     });
 
-    it('should reject invalid UUIDs', () => {
-      const schema = { id: { type: 'string', uuid: true }};
+    it("should reject invalid UUIDs", () => {
+      const schema = { id: { type: "string", uuid: true } };
       const validate = validator.compile(schema);
 
       const invalidUUIDs = [
-        'not-a-uuid',
-        '123e4567-e89b-12d3-a456',
-        '123e4567-e89b-12d3-a456-42661417400g',
-        ''
+        "not-a-uuid",
+        "123e4567-e89b-12d3-a456",
+        "123e4567-e89b-12d3-a456-42661417400g",
+        "",
       ];
 
       invalidUUIDs.forEach((uuid: string) => {
         const result = validate({ id: uuid });
         assert.ok(Array.isArray(result));
-        assert.equal(result[0].type, 'stringUuid');
+        assert.equal(result[0].type, "stringUuid");
       });
     });
   });
 
-  describe('Phone validation', () => {
-    it('should validate valid phone numbers', () => {
-      const schema = { phone: { type: 'string', phone: true }};
+  describe("Phone validation", () => {
+    it("should validate valid phone numbers", () => {
+      const schema = { phone: { type: "string", phone: true } };
       const validate = validator.compile(schema);
 
-      const validPhones = [
-        '+1234567890',
-        '+49301234567',
-        '1234567890',
-        '+12345678901234'
-      ];
+      const validPhones = ["+1234567890", "+49301234567", "1234567890", "+12345678901234"];
 
       validPhones.forEach((phone: string) => {
         const result = validate({ phone });
@@ -63,36 +58,31 @@ describe('String Pattern Validations', () => {
       });
     });
 
-    it('should reject invalid phone numbers', () => {
-      const schema = { phone: { type: 'string', phone: true }};
+    it("should reject invalid phone numbers", () => {
+      const schema = { phone: { type: "string", phone: true } };
       const validate = validator.compile(schema);
 
       const invalidPhones = [
-        '+0123456789', // starts with 0
-        'abc123',
-        '',
-        '+123456789012345678' // too long
+        "+0123456789", // starts with 0
+        "abc123",
+        "",
+        "+123456789012345678", // too long
       ];
 
       invalidPhones.forEach((phone: string) => {
         const result = validate({ phone });
         assert.ok(Array.isArray(result));
-        assert.equal(result[0].type, 'stringPhone');
+        assert.equal(result[0].type, "stringPhone");
       });
     });
   });
 
-  describe('Hex validation', () => {
-    it('should validate valid hex strings', () => {
-      const schema = { hex: { type: 'string', hex: true }};
+  describe("Hex validation", () => {
+    it("should validate valid hex strings", () => {
+      const schema = { hex: { type: "string", hex: true } };
       const validate = validator.compile(schema);
 
-      const validHex = [
-        'abcdef',
-        'ABCDEF',
-        '123456',
-        '0123456789abcdefABCDEF'
-      ];
+      const validHex = ["abcdef", "ABCDEF", "123456", "0123456789abcdefABCDEF"];
 
       validHex.forEach((hex: string) => {
         const result = validate({ hex });
@@ -100,77 +90,68 @@ describe('String Pattern Validations', () => {
       });
     });
 
-    it('should reject invalid hex strings', () => {
-      const schema = { hex: { type: 'string', hex: true }};
+    it("should reject invalid hex strings", () => {
+      const schema = { hex: { type: "string", hex: true } };
       const validate = validator.compile(schema);
 
-      const invalidHex = [
-        'xyz',
-        'abcdefg',
-        '',
-        '123 456'
-      ];
+      const invalidHex = ["xyz", "abcdefg", "", "123 456"];
 
       invalidHex.forEach((hex: string) => {
         const result = validate({ hex });
         assert.ok(Array.isArray(result));
-        assert.equal(result[0].type, 'stringHex');
+        assert.equal(result[0].type, "stringHex");
       });
     });
   });
 
-  describe('Pattern validation', () => {
-    it('should validate with RegExp pattern', () => {
+  describe("Pattern validation", () => {
+    it("should validate with RegExp pattern", () => {
       const schema = {
         password: {
-          type: 'string',
-          pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
-        }
+          type: "string",
+          pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
+        },
       };
       const validate = validator.compile(schema);
 
-      const result = validate({ password: 'Password123' });
+      const result = validate({ password: "Password123" });
       assert.equal(result, true);
     });
 
-    it('should validate with string pattern', () => {
+    it("should validate with string pattern", () => {
       const schema = {
         code: {
-          type: 'string',
-          pattern: '^[A-Z]{3}[0-9]{3}$'
-        }
+          type: "string",
+          pattern: "^[A-Z]{3}[0-9]{3}$",
+        },
       };
       const validate = validator.compile(schema);
 
-      const result = validate({ code: 'ABC123' });
+      const result = validate({ code: "ABC123" });
       assert.equal(result, true);
     });
 
-    it('should reject invalid patterns', () => {
+    it("should reject invalid patterns", () => {
       const schema = {
         code: {
-          type: 'string',
-          pattern: '^[A-Z]{3}[0-9]{3}$'
-        }
+          type: "string",
+          pattern: "^[A-Z]{3}[0-9]{3}$",
+        },
       };
       const validate = validator.compile(schema);
 
-      const result = validate({ code: 'abc123' });
+      const result = validate({ code: "abc123" });
       assert.ok(Array.isArray(result));
-      assert.equal(result[0].type, 'stringPattern');
+      assert.equal(result[0].type, "stringPattern");
     });
   });
 
-  describe('Base64 validation', () => {
-    it('should validate valid base64 strings', () => {
-      const schema = { data: { type: 'string', base64: true }};
+  describe("Base64 validation", () => {
+    it("should validate valid base64 strings", () => {
+      const schema = { data: { type: "string", base64: true } };
       const validate = validator.compile(schema);
 
-      const validBase64 = [
-        'SGVsbG8gV29ybGQ=',
-        'VGVzdA==',
-        'YWJjZGVmZ2hpams='
-      ];
+      const validBase64 = ["SGVsbG8gV29ybGQ=", "VGVzdA==", "YWJjZGVmZ2hpams="];
 
       validBase64.forEach((b64: string) => {
         const result = validate({ data: b64 });
@@ -178,19 +159,19 @@ describe('String Pattern Validations', () => {
       });
     });
 
-    it('should reject invalid base64 strings', () => {
-      const schema = { data: { type: 'string', base64: true }};
+    it("should reject invalid base64 strings", () => {
+      const schema = { data: { type: "string", base64: true } };
       const validate = validator.compile(schema);
 
       const invalidBase64 = [
-        'Invalid base64!',
-        'SGVsbG8gV29ybGQ!' // invalid character
+        "Invalid base64!",
+        "SGVsbG8gV29ybGQ!", // invalid character
       ];
 
       invalidBase64.forEach((b64: string) => {
         const result = validate({ data: b64 });
         assert.ok(Array.isArray(result));
-        assert.equal(result[0].type, 'stringBase64');
+        assert.equal(result[0].type, "stringBase64");
       });
     });
   });

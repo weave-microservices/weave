@@ -4,7 +4,7 @@
  * @typedef {import("../types.__js").Node} Node
  * @typedef {import("../types.__js").Service} Service
  * @typedef {import("../types.__js").ServiceAction} ServiceAction
-*/
+ */
 
 /*
  * Author: Kevin Ries (kevin.ries@fachwerk.io)
@@ -19,18 +19,18 @@
  * @param {Service} service service
  * @param {ServiceAction} action action
  * @returns {Endpoint} Endpoint
-*/
+ */
 export const createActionEndpoint = (runtime, node, service, action) => {
   /**
    * @type {Endpoint}
-  */
+   */
   const endpoint = {
     node,
     service,
     action,
     isLocal: node.id === runtime.nodeId,
     state: true,
-    name: `${node.id}:${action.name}`
+    name: `${node.id}:${action.name}`,
   };
 
   endpoint.updateAction = (newAction) => {

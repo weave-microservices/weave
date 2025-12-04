@@ -1,9 +1,9 @@
-import messageTypes from '../../../lib/transport/messageTypes.mts';
-import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
+import messageTypes from "../../../lib/transport/messageTypes.mts";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 
-describe('Message types', () => {
-  it('should return defined message types', () => {
+describe("Message types", () => {
+  it("should return defined message types", () => {
     assert.notStrictEqual(messageTypes.MESSAGE_DISCONNECT, undefined);
     assert.notStrictEqual(messageTypes.MESSAGE_DISCOVERY, undefined);
     assert.notStrictEqual(messageTypes.MESSAGE_EVENT, undefined);
