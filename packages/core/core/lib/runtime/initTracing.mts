@@ -71,7 +71,7 @@ export const initTracer = (runtime: Runtime) => {
   });
 
   if (options?.enabled) {
-    log.info("Tracer initialized.");
+    log.debug("Tracer initialized.");
 
     if (options.collectors) {
       collectors = options.collectors.map((entry) => {

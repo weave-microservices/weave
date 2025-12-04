@@ -21,7 +21,7 @@ const DummyTransportAdapter = (adapterOptions = {}) => {
     name: "Dummy",
     connect() {
       this.bus.emit("$adapter.connected", false);
-      this.log.info("Dummy transport client connected.");
+      this.log.debug("Dummy transport client connected.");
       return Promise.resolve();
     },
     close() {

@@ -16,7 +16,7 @@ export const fatalErrorHandler = (runtime, message, error, killProcess = true) =
   if (killProcess) {
     // Graceful shutdown instead of immediate process.exit
     if (broker && runtime.state && runtime.state.isStarted) {
-      log.warn("Attempting graceful shutdown due to fatal error...");
+      log.warn("Attempting graceful shutdown due to fatal error");
 
       // Set a timeout to prevent hanging indefinitely
       const shutdownTimeout = setTimeout(() => {

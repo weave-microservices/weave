@@ -136,8 +136,8 @@ export const createBrokerInstance = (runtime: Runtime): Broker => {
   ): number {
     const serviceFiles = globSync(path.join(folder, fileMask));
 
-    log.info(`Searching services in folder '${folder}' with name pattern '${fileMask}'.`);
-    log.info(`${serviceFiles.length} services found.`);
+    log.debug(`Searching services in folder '${folder}' with name pattern '${fileMask}'.`);
+    log.debug(`${serviceFiles.length} services found.`);
 
     serviceFiles.forEach((fileName) => broker.loadService(fileName));
     return serviceFiles.length;
@@ -221,7 +221,7 @@ export const createBrokerInstance = (runtime: Runtime): Broker => {
    */
   broker.stop = async function (): Promise<void> {
     runtime.state.isStarted = false;
-    log.info("Shutting down the node...");
+    log.info("Shutting down the node");
 
     await middlewareHandler!.callHandlersAsync("stopping", [runtime], true);
 
@@ -257,17 +257,17 @@ export const createBrokerInstance = (runtime: Runtime): Broker => {
       await transport.disconnect();
     }
 
-    if (runtime.cache) {
+    if (runtime.cache && runtime.options.cache?.enabled) {
       log.debug("Stopping caching adapters.");
       await runtime.cache.stop();
     }
 
-    if (runtime.metrics) {
+    if (runtime.metrics && runtime.options.metrics?.enabled) {
       log.debug("Stopping metrics.");
       await runtime.metrics.stop();
-    }
+    } 
 
-    if (runtime.tracer) {
+    if (runtime.tracer && runtime.options.tracing?.enabled) {
       log.debug("Stopping tracing adapters.");
       await runtime.tracer.stop();
     }

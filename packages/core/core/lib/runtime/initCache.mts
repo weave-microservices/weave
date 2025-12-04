@@ -10,7 +10,7 @@ export const initCache = (runtime: Runtime) => {
 
     const cache = runtime.options.cache.adapter(runtime, runtime.options.cache);
 
-    runtime.log.info(`Cache: ${cache.name}`);
+    runtime.log.debug(`Cache: ${cache.name}`);
 
     Object.defineProperty(runtime, "cache", {
       value: cache,

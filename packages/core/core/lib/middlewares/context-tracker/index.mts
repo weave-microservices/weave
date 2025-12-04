@@ -77,7 +77,7 @@ export default (runtime) => {
           resolve();
         } else {
           if (isFirstCheck) {
-            log.info(`Waiting for ${contextList.length} open Contexts...`);
+            log.info(`Waiting for ${contextList.length} open Contexts`);
             isFirstCheck = false;
           }
         }

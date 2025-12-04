@@ -34,7 +34,7 @@ export const initBase = (runtime) => {
     }
   };
 
-  runtime.write = (originObject, message, number) => {
+  runtime.write = (originObject: any, message: string, number: number) => {
     const isErrorObject = originObject instanceof Error;
     const mixin = runtime.mixin;
     const time = Date.now();

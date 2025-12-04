@@ -1,4 +1,4 @@
-import { green, magenta, red, yellow, gray, cyan, lightGray } from "../utils/colorize.mts";
+import { green, magenta, red, yellow, gray, cyan, lightGray, colorizeJson } from "../utils/colorize.mts";
 import os from "os";
 
 export const asHumanReadable = (runtime: any, originObj: any, message: string, number: number, time: number) => {
@@ -48,7 +48,7 @@ export const asHumanReadable = (runtime: any, originObj: any, message: string, n
 
   if (originObj && typeof originObj === "object" && Object.keys(originObj).length > 0) {
     logResult += os.EOL;
-    logResult += gray(JSON.stringify(originObj, null, 2));
+    logResult += colorizeJson(originObj);
   }
 
   logResult += os.EOL;

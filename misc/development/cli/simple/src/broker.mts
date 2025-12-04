@@ -2,6 +2,9 @@ import { createBroker, TransportAdapters } from "@weave-js/core";
 
 const broker1 = createBroker({
   nodeId: "node1",
+  logger: {
+    level: "debug",
+  },
   transport: {
     adapter: TransportAdapters.Dummy(),
   },
@@ -9,6 +12,9 @@ const broker1 = createBroker({
 
 const broker2 = createBroker({
   nodeId: "node2",
+  logger: {
+    level: "debug",
+  },
   transport: {
     adapter: TransportAdapters.Dummy(),
   },

@@ -60,7 +60,7 @@ export const initServiceManager = (runtime) => {
           const serviceCheck = () => {
             const count = serviceNames.filter((serviceName) => registry.hasService(serviceName));
 
-            log.warn(`${count.length} services of ${serviceNames.length} available. Waiting...`);
+            log.warn(`${count.length} services of ${serviceNames.length} available. Waiting`);
 
             if (count.length === serviceNames.length) {
               return resolve();
@@ -94,7 +94,7 @@ export const initServiceManager = (runtime) => {
 
           registry.deregisterService(service.name, service.version);
           serviceList.splice(serviceList.indexOf(service), 1);
-          log.info(`Service "${service.name}" was deregistered.`);
+          log.debug(`Service "${service.name}" was deregistered.`);
           serviceChanged(true);
         } catch (error) {
           log.error(error, `Unable to stop service "${service.name}"`);

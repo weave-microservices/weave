@@ -66,7 +66,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
   transport.connect = () => {
     return new Promise((resolve) => {
       transport.resolveConnect = resolve;
-      transport.log.debug("Connecting to transport adapter...");
+      transport.log.debug("Connecting to transport adapter");
 
       const doConnect = (isTryReconnect: boolean) => {
         const errorHandler = (error: Error) => {

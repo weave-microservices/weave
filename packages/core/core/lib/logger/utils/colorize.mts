@@ -71,3 +71,19 @@ export const bgBrightBlue = init(104, 49);
 export const bgBrightMagenta = init(105, 49);
 export const bgBrightCyan = init(106, 49);
 export const bgBrightWhite = init(107, 49);
+
+export function colorizeJson(obj: unknown): string {
+  const json = JSON.stringify(obj, null, 2);
+
+  return json.replace(
+    /"(.*?)"(?=\s*:)|"([^"]*)"|(\b\d+(\.\d+)?\b)|\b(true|false|null)\b/g,
+    (match, key, str, num, _, bool) => {
+      if (key) return cyan(`"${key}"`); 
+      if (str) return green(`"${str}"`);
+      if (num) return yellow(num);
+      if (bool === "true" || bool === "false") return magenta(bool); 
+      if (bool === "null") return gray("null");
+      return match;
+    }
+  );
+}

@@ -124,9 +124,9 @@ export const createRegistry = (runtime: Runtime): Registry => {
         this.generateLocalNodeInfo(runtime.state.isStarted);
 
         if (serviceSpecification.version) {
-          this.log.info(`Service '${service.name}' (v${serviceSpecification.version}) registered.`);
+          this.log.debug(`Service '${service.name}' (v${serviceSpecification.version}) registered.`);
         } else {
-          this.log.info(`Service '${service.name}' registered.`);
+          this.log.debug(`Service '${service.name}' registered.`);
         }
 
         runtime.services.serviceChanged(true);
@@ -409,7 +409,7 @@ export const createRegistry = (runtime: Runtime): Registry => {
         this.log.info(`Node "${node.id}" reconnected!`);
       } else {
         runtime.eventBus!.broadcastLocal("$node.updated", { node, isReconnected });
-        this.log.info(`Node "${node.id}" updated!`);
+        this.log.debug(`Node "${node.id}" updated!`);
       }
     },
     nodeDisconnected(nodeId: string, isUnexpected?: boolean): void {

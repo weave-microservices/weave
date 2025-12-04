@@ -241,7 +241,7 @@ export const createServiceFromSchema = (runtime: Runtime, schema: ServiceSchema)
 
   // stop method for service
   service.stop = () => {
-    service.log.info(`Stopping service "${service.fullyQualifiedName}"...`);
+    service.log.debug(`Stopping service "${service.fullyQualifiedName}"`);
     return Promise.resolve()
       .then(() => {
         return runtime.middlewareHandler.callHandlersAsync("serviceStopping", [service]);
@@ -260,7 +260,7 @@ export const createServiceFromSchema = (runtime: Runtime, schema: ServiceSchema)
       .then(() =>
         runtime.middlewareHandler.callHandlersAsync("serviceStopped", [service], { reverse: true }),
       )
-      .then(() => service.log.info(`Service "${service.name}" stopped`));
+      .then(() => service.log.debug(`Service "${service.name}" stopped`));
   };
 
   runtime.middlewareHandler.callHandlersSync("serviceCreated", [service, schema]);
