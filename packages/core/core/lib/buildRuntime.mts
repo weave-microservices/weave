@@ -15,48 +15,17 @@ import { errorHandler, fatalErrorHandler } from "./errorHandler.mts";
 import { uuid } from "@weave-js/utils";
 import packageJson from "../package.json" with { type: "json" };
 import pkg from "eventemitter2";
+import type { BrokerOptions, Runtime } from '../types/index.js';
 const { EventEmitter2: EventEmitter } = pkg;
 const { version } = packageJson;
 
-/**
- * Initializes and builds the complete Weave runtime with all core components
- *
- * The runtime contains all the core subsystems needed for a Weave broker:
- * - Logger: Configurable logging system
- * - Middleware: Request/response processing pipeline
- * - Registry: Service discovery and load balancing
- * - Context Factory: Request context creation
- * - Event Bus: Pub/sub messaging system
- * - Transport: Network communication layer
- * - Cache: Distributed caching
- * - Metrics: Performance monitoring
- * - Tracing: Distributed tracing
- *
- * @param {import('../types').BrokerOptions} options - Broker configuration options
- * @returns {import('../types').Runtime} Fully initialized runtime instance
- * @example
- * const runtime = initRuntime({
- *   nodeId: 'my-service',
- *   logger: { level: 'info' },
- *   transport: { adapter: 'TCP' }
- * });
- */
-export const initRuntime = (options) => {
-  /**
-   * Internal event bus for broker communication
-   * Supports wildcard patterns and high listener count for complex service topologies
-   * @type {EventEmitter}
-   */
+export const initRuntime = (options: BrokerOptions) => {
   const bus = new EventEmitter({
     wildcard: true,
     maxListeners: 1000,
   });
 
-  /**
-   * Core runtime object containing all initialized subsystems
-   * @type {import('../types').Runtime}
-   */
-  const runtime = {
+  const runtime: Partial<Runtime> = {
     nodeId: options.nodeId,
     version,
     options,
@@ -65,8 +34,8 @@ export const initRuntime = (options) => {
       instanceId: uuid(),
       isStarted: false,
     },
-    handleError: (error) => errorHandler(runtime, error),
-    fatalError: (message, error, killProcess) =>
+    handleError: (error: Error) => errorHandler(runtime, error),
+    fatalError: (message: string, error: Error, killProcess: boolean) =>
       fatalErrorHandler(runtime, message, error, killProcess),
   };
 

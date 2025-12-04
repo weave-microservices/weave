@@ -1,5 +1,5 @@
 node_modules
-
+.weave
 lerna-debug.log
 .DS_Store
 packages/core/node_modules
