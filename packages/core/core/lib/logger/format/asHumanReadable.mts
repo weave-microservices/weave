@@ -1,9 +1,23 @@
-import { green, magenta, red, yellow, gray, cyan, lightGray, colorizeJson } from "../utils/colorize.mts";
+import {
+  green,
+  magenta,
+  red,
+  yellow,
+  gray,
+  cyan,
+  lightGray,
+  colorizeJson,
+} from "../utils/colorize.mts";
 import os from "os";
 
-export const asHumanReadable = (runtime: any, originObj: any, message: string, number: number, time: number) => {
+export const asHumanReadable = (
+  runtime: any,
+  originObj: any,
+  message: string,
+  number: number,
+  time: number,
+) => {
   let logResult = "";
-
 
   const logLevelColors = {
     fatal: magenta,
@@ -25,7 +39,7 @@ export const asHumanReadable = (runtime: any, originObj: any, message: string, n
   logResult += lightGray(new Date(time).toISOString()) + " ";
   logResult += color(paddedLabel);
 
-  if (runtime.options.base?.pid && runtime.options.base?.hostname) {  
+  if (runtime.options.base?.pid && runtime.options.base?.hostname) {
     const labelParts: string[] = [];
     if (runtime.options.base?.nodeId) {
       labelParts.push(runtime.options.base.nodeId);

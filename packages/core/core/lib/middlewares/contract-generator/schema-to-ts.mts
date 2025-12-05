@@ -30,9 +30,12 @@ function ruleToTs(rule: any, indent = 0): string {
 
     case "object": {
       const props: Record<string, string> = {};
-      for (const [key, value] of Object.entries(rule.properties)) {
-        props[key] = ruleToTs(value, indent + 1);
+      if (rule.props) {
+        for (const [key, value] of Object.entries(rule.props)) {
+          props[key] = ruleToTs(value, indent + 1);
+        }
       }
+
       return renderObject(props, indent);
     }
 

@@ -78,12 +78,12 @@ export function colorizeJson(obj: unknown): string {
   return json.replace(
     /"(.*?)"(?=\s*:)|"([^"]*)"|(\b\d+(\.\d+)?\b)|\b(true|false|null)\b/g,
     (match, key, str, num, _, bool) => {
-      if (key) return cyan(`"${key}"`); 
+      if (key) return cyan(`"${key}"`);
       if (str) return green(`"${str}"`);
       if (num) return yellow(num);
-      if (bool === "true" || bool === "false") return magenta(bool); 
+      if (bool === "true" || bool === "false") return magenta(bool);
       if (bool === "null") return gray("null");
       return match;
-    }
+    },
   );
 }

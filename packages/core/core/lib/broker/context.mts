@@ -48,13 +48,10 @@ export const createContext = <T = any,>(runtime: Runtime): Context<T> => {
       this.endpoint = endpoint;
       this.action = endpoint.action;
       this.service = endpoint.action.service;
-      
-      // Create a context-specific logger with action information
-      if (endpoint.action && endpoint.action.name) {
-        this.log = runtime.createLogger("ACTION", {
-          svc: endpoint.action.service?.name,
-          action: endpoint.action.name,
-        });
+
+      // Use the cached logger from the action
+      if (endpoint.action && endpoint.action.log) {
+        this.log = endpoint.action.log;
       }
     },
     emit(eventName: string, payload?: unknown, options: EventOptions = {}): Promise<void> {

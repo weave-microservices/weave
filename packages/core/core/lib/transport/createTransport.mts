@@ -236,8 +236,10 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
   };
 
   transport.removePendingRequestsByNodeId = (nodeId: string) => {
-    transport.log.debug(`Remove pending requests for node ${nodeId}.`);
+
+    
     pending.requests.forEach((request, requestId) => {
+      transport.log.debug(`Remove pending requests for node ${nodeId}. ${requestId}`);
       if (request.nodeId === nodeId) {
         pending.requests.delete(requestId);
         request.reject(new WeaveError(`Remove pending requests for node ${nodeId}.`));
@@ -310,7 +312,6 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
       }
 
       const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload);
-
       return transport
         .send(message)
         .then(() => {
@@ -419,7 +420,6 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
    */
   transport.sendResponse = (target, contextId, data, meta, error) => {
     const isStream = utils.isStream(data);
-
     const payload = {
       id: contextId,
       meta,

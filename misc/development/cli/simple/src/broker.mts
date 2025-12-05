@@ -6,7 +6,7 @@ const broker1 = createBroker({
     level: "debug",
   },
   transport: {
-    adapter: TransportAdapters.Dummy(),
+    adapter: TransportAdapters.TCP(),
   },
 });
 
@@ -16,7 +16,7 @@ const broker2 = createBroker({
     level: "debug",
   },
   transport: {
-    adapter: TransportAdapters.Dummy(),
+    adapter: TransportAdapters.TCP(),
   },
 });
 
@@ -24,29 +24,20 @@ broker1.createService({
   name: "test",
   events: {
     saidHello: {
-      params: {
-        name: "string",
-        age: { type: "number" },
-      },
       handler(context) {
-        console.log("sdas");
+        context.log?.info("Hello event calle 🤘");
       },
     },
   },
   actions: {
     hello: {
       params: {
-        name: "string",
+        name: { type: "string" },
         age: { type: "number" },
       },
-      responseSchema: {
-        type: "string",
-      },
       handler(context) {
-        context.log?.
-        context.log?.info("Hello action called");
-        context.log?.debug("Processing request", { data: context.data });
-        return context.data;
+       
+        return "from hello";
       },
     },
   },
@@ -73,7 +64,6 @@ broker1.createService({
   },
 });
 
-
 broker2.createService({
   name: "internal",
   actions: {
@@ -82,12 +72,12 @@ broker2.createService({
         email: { type: "string" },
         settings: {
           type: "object",
-          properties: {
+          props: {
             enabled: { type: "boolean" },
             timeout: { type: "number" },
             internalSettings: {
               type: "object",
-              properties: {
+              props: {
                 enabled: { type: "boolean" },
                 timeout: { type: "number" },
               },
@@ -105,11 +95,27 @@ broker2.createService({
 await broker1.start();
 await broker2.start();
 
-// Local call to see the logger in action
-await broker1.call("test.hello", { name: "test", age: 123 });
+await broker1.waitForServices(["internal"]);
+await broker2.waitForServices(["test"]);
 
-await broker2.call("test.hello", { name: "test", age: 123 });
+try {
+  // Local call to see the logger in action
+  broker1.emit("saidHello", { name: "test", age: 1 });
+  const result = await broker1.call("test.hello", { name: "test", age: 123 });
+  console.log(result);
 
-await broker2.call("external.makeSomething", { email: "test", settings: { enabled: true, timeout: 123 } });
-await broker1.call("internal.makeSomethingInternal", { email: "test", settings: { enabled: true, timeout: 123, internalSettings: { enabled: true, timeout: 123 } } });
-broker1.emit("saidHello", { name: "test", age: "123" });
+  const result2 = await broker2.call("test.hello", { name: "test", age: 123 });
+  console.log("test.hello fired", result2);
+  await broker2.call("external.makeSomething", {
+    email: "test",
+    settings: { enabled: true, timeout: 123 },
+  });
+  await broker1.call("internal.makeSomethingInternal", {
+    email: "test",
+    settings: { enabled: true, timeout: 123, internalSettings: { enabled: true, timeout: 123 } },
+  });
+  await broker1.stop();
+  await broker2.stop();
+} catch (e) {
+  console.log(e);
+}

@@ -265,7 +265,7 @@ export const createBrokerInstance = (runtime: Runtime): Broker => {
     if (runtime.metrics && runtime.options.metrics?.enabled) {
       log.debug("Stopping metrics.");
       await runtime.metrics.stop();
-    } 
+    }
 
     if (runtime.tracer && runtime.options.tracing?.enabled) {
       log.debug("Stopping tracing adapters.");

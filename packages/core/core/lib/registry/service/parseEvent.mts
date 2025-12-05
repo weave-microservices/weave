@@ -1,9 +1,15 @@
 import { isFunction, clone, isObject, promisify } from "@weave-js/utils";
 import { wrapHandler } from "../../utils/wrap-handler.mts";
 import { WeaveError } from "../../errors.mts";
+import type { Context, Runtime, Service, ServiceEventSchema } from "../../../types/index.js";
 
-export const parseEvent = (runtime, service, eventDefinition, name) => {
-  let event;
+export const parseEvent = (
+  runtime: Runtime,
+  service: Service,
+  eventDefinition: ServiceEventSchema,
+  name: string,
+) => {
+  let event: any;
 
   // if the handler is a method (short form), we wrap the method in our handler object.
   if (isFunction(eventDefinition)) {
@@ -39,12 +45,18 @@ export const parseEvent = (runtime, service, eventDefinition, name) => {
   }
 
   if (isFunction(handler)) {
-    event.handler = (context) => handler(context);
+    event.handler = (context: Context) => handler(context);
   } else if (Array.isArray(handler)) {
-    event.handler = (context) => Promise.all(handler.map((h) => h(context)));
+    event.handler = (context: Context) => Promise.all(handler.map((h) => h(context)));
   }
 
   event.service = service;
+
+  // Create and cache a logger for this event
+  event.log = runtime.createLogger("EVENT", {
+    svc: service.name,
+    event: event.name,
+  });
 
   return event;
 };

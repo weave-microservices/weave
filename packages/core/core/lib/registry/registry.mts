@@ -124,7 +124,9 @@ export const createRegistry = (runtime: Runtime): Registry => {
         this.generateLocalNodeInfo(runtime.state.isStarted);
 
         if (serviceSpecification.version) {
-          this.log.debug(`Service '${service.name}' (v${serviceSpecification.version}) registered.`);
+          this.log.debug(
+            `Service '${service.name}' (v${serviceSpecification.version}) registered.`,
+          );
         } else {
           this.log.debug(`Service '${service.name}' registered.`);
         }
@@ -230,6 +232,8 @@ export const createRegistry = (runtime: Runtime): Registry => {
             runtime.transport!.sendRequest.bind(runtime.transport),
             action,
           );
+        } else {
+          action.handler = middlewareHandler.wrapHandler("localAction", action.handler, action);
         }
 
         this.actionCollection.add(node, service, action);

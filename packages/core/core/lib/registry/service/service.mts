@@ -4,7 +4,7 @@ import { parseAction } from "./parseAction.mts";
 import { parseEvent } from "./parseEvent.mts";
 import { reduceMixins } from "./reduceMixins.mts";
 import { createEventEndpoint } from "../eventEndpoint.mts";
-import type { Runtime, ServiceSchema } from '../../../types/index.js';
+import type { Runtime, ServiceSchema } from "../../../types/index.js";
 
 export const createServiceFromSchema = (runtime: Runtime, schema: ServiceSchema) => {
   // Check if a schema is given

@@ -1,16 +1,14 @@
 import { isFunction, clone, isObject, promisify } from "@weave-js/utils";
 import { WeaveError } from "../../errors.mts";
 import { wrapHandler } from "../../utils/wrap-handler.mts";
+import type { Runtime, Service, ServiceActionSchema } from "../../../types/index.js";
 
-/**
- *
- * @param {import('../../../types').Runtime} runtime Runtime
- * @param {import('../../../types').Service} service Service
- * @param {import('../../../types').ServiceActionSchema} actionDefinition Action definition
- * @param {string} name
- * @returns {import('../../../types').ServiceActionDefinition}
- */
-export const parseAction = (runtime, service, actionDefinition, name) => {
+export const parseAction = (
+  runtime: Runtime,
+  service: Service,
+  actionDefinition: ServiceActionSchema,
+  name: string,
+) => {
   let action = actionDefinition;
 
   // if the handler is a method (short form), we wrap the method in our handler object.
@@ -44,6 +42,12 @@ export const parseAction = (runtime, service, actionDefinition, name) => {
   action.service = service;
   action.version = service.version;
   action.handler = promisify(handler.bind(service));
+
+  // Create and cache a logger for this action
+  action.log = runtime.createLogger("ACTION", {
+    svc: service.name,
+    action: action.name,
+  });
 
   return action;
 };

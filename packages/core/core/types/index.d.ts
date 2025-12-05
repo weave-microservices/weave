@@ -150,12 +150,12 @@ export interface Context<T = any> {
  * Logger instance interface
  */
 export interface Logger {
-  fatal(message: string | object, ...args: any[]): void;
-  error(message: string | object, ...args: any[]): void;
-  warn(message: string | object, ...args: any[]): void;
-  info(message: string | object, ...args: any[]): void;
-  debug(message: string | object, ...args: any[]): void;
-  verbose(message: string | object, ...args: any[]): void;
+  fatal(message: string | object, meta?: Record<string, any> | string): void;
+  error(message: string | object, meta?: Record<string, any> | string): void;
+  warn(message: string | object, meta?: Record<string, any> | string): void;
+  info(message: string | object, meta?: Record<string, any> | string): void;
+  debug(message: string | object, meta?: Record<string, any> | string): void;
+  verbose(message: string | object, meta?: Record<string, any> | string): void;
 
   // Utility methods
   child(bindings: object): Logger;
@@ -200,7 +200,7 @@ export interface ServiceSettings {
 }
 
 /**
- * Service action parameter schema
+ * Service action parameter schema (full object notation)
  */
 export interface ServiceActionParamSchema<T extends keyof TypeMap = keyof TypeMap> {
   type: T;
@@ -212,6 +212,8 @@ export interface ServiceActionParamSchema<T extends keyof TypeMap = keyof TypeMa
   pattern?: string | RegExp;
   enum?: TypeMap[T][];
   custom?: (value: any, errors: any[]) => boolean;
+  properties?: Record<string, ServiceActionParamSchema | keyof TypeMap>;
+  items?: ServiceActionParamSchema | keyof TypeMap;
   [key: string]: any;
 }
 
@@ -219,9 +221,10 @@ export interface ServiceActionParamSchema<T extends keyof TypeMap = keyof TypeMa
  * Service action schema definition
  */
 export interface ServiceActionSchema<
-  TParams extends Record<string, ServiceActionParamSchema> = any,
+  TParams extends Record<string, ServiceActionParamSchema | keyof TypeMap> = any,
 > {
   params?: TParams;
+  responseSchema?: ServiceActionParamSchema | keyof TypeMap;
   visibility?: ServiceActionVisibility;
   cache?: boolean | object;
   timeout?: number;
@@ -240,12 +243,24 @@ export interface ServiceActionSchema<
 export type ServiceActionHandler = (this: Service, context: Context) => Promise<any> | any;
 
 /**
- * Service event definition
+ * Service event handler function (short form)
+ */
+export type ServiceEventHandler = (this: Service, context: Context) => Promise<any> | any;
+
+/**
+ * Service event definition (object form)
  */
 export interface ServiceEvent {
   group?: string;
-  handler: (this: Service, context: Context) => Promise<any> | any;
+  params?: Record<string, ServiceActionParamSchema | keyof TypeMap>;
+  handler: ServiceEventHandler | ServiceEventHandler[];
+  [key: string]: any;
 }
+
+/**
+ * Service event schema - supports both function and object definitions
+ */
+export type ServiceEventSchema = ServiceEventHandler | ServiceEvent;
 
 /**
  * Service method definition
@@ -279,7 +294,7 @@ export interface ServiceSchema {
   meta?: Record<string, any>;
   hooks?: ServiceHooks;
   actions?: Record<string, ServiceActionSchema | ServiceActionHandler | boolean>;
-  events?: Record<string, ServiceEvent | ServiceActionHandler>;
+  events?: Record<string, ServiceEventSchema>;
   methods?: Record<string, ServiceMethodDefinition>;
 
   // Lifecycle methods

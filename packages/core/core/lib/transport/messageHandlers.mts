@@ -31,7 +31,6 @@ export default (runtime, transport) => {
 
   const localRequestProxy = (context) => {
     const actionName = context.action.name;
-
     const availableEndpointList = registry.getActionEndpoints(actionName);
 
     if (availableEndpointList == null || !availableEndpointList.hasLocal()) {
@@ -219,17 +218,12 @@ export default (runtime, transport) => {
    */
   const onNodeInfos = (payload) => registry.processNodeInfo(payload);
 
-  /**
-   * Request handler
-   * @param {any} payload - Payload
-   * @returns {Promise} Promise
-   */
-  const onRequest = (payload) => {
+  const onRequest = (payload: any): Promise<any> => {
     const sender = payload.sender;
+    
     try {
       let stream;
-
-      if (payload.isStream !== undefined) {
+      if (payload.isStream) {
         stream = handleIncomingRequestStream(payload);
         if (!stream) {
           return Promise.resolve();
@@ -263,12 +257,7 @@ export default (runtime, transport) => {
     }
   };
 
-  /**
-   * Response handler
-   * @param {any} payload - Payload
-   * @returns {Promise} Promise
-   */
-  const onResponse = (payload) => {
+  const onResponse = (payload: any) => {
     const id = payload.id;
     const request = transport.pending.requests.get(id);
 
