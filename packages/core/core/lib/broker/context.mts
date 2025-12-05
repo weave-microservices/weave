@@ -8,7 +8,7 @@ import type {
   ActionOptions,
   EventOptions,
 } from "../../types/index.js";
-import type { Stream } from "stream";
+import type { Readable } from "stream";
 
 export const createContext = <T = any,>(runtime: Runtime): Context<T> => {
   const spanStack: Span[] = [];
@@ -33,7 +33,7 @@ export const createContext = <T = any,>(runtime: Runtime): Context<T> => {
     setData(newParams: T): void {
       this.data = newParams || ({} as T);
     },
-    setStream(stream: Stream): void {
+    setStream(stream: Readable): void {
       if (isStream(stream)) {
         if (isStreamObjectMode(context.options.stream)) {
           this.meta.$isObjectModeStream = true;

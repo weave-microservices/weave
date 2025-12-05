@@ -12,12 +12,9 @@
 import os from "os";
 import { createInMemoryCache } from "../cache/adapters/inMemory.mts";
 import { loadBalancingStrategy } from "../constants.mts";
+import type { BrokerOptions } from "../../types/index.d.ts";
 
-/**
- * Returns the default options
- * @returns {BrokerOptions} Broker options
- */
-export const getDefaultOptions = () => {
+export const getDefaultOptions = (): BrokerOptions => {
   // default options
   return {
     // If no node id is set - create one.
@@ -46,7 +43,7 @@ export const getDefaultOptions = () => {
       shutdownTimeout: 5000,
     },
     transport: {
-      adapter: null,
+      adapter: undefined,
       maxQueueSize: 80000,
       heartbeatInterval: 5 * 1000,
       localNodeUpdateInterval: 5 * 1000,
@@ -54,6 +51,7 @@ export const getDefaultOptions = () => {
       offlineNodeCheckInterval: 30 * 1000,
       maxOfflineTime: 1000 * 60 * 10,
       maxChunkSize: 256 * 1024,
+      reconnectDisabled: false,
       streams: {
         handleBackpressure: true,
       },

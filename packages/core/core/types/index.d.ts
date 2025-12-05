@@ -1,4 +1,4 @@
-import { Stream, Writable } from "stream";
+import { Stream, Readable, Writable } from "stream";
 import { EventEmitter } from "events";
 
 // ===== UTILITY TYPES =====
@@ -79,7 +79,7 @@ export interface ActionOptions {
   context?: Context;
   parentContext?: Context;
   meta?: ContextMetaObject;
-  stream?: Stream;
+  stream?: Readable;
   timeout?: number;
   retryCount?: number;
   custom?: Record<string, any>;
@@ -123,7 +123,7 @@ export interface Context<T = any> {
   stopTime: number;
   metrics?: any;
   service?: any;
-  stream?: Stream;
+  stream?: Readable;
   action?: any;
   startHighResolutionTime?: [number, number] | null;
   log?: Logger;
@@ -140,7 +140,7 @@ export interface Context<T = any> {
   startSpan(name?: string, options?: Record<string, unknown>): Span;
   finishSpan(span?: Span, time?: number): void;
   copy(): Context<T>;
-  setStream(stream: Stream): void;
+  setStream(stream: Readable): void;
   setEndpoint(endpoint: Endpoint): void;
 }
 
@@ -538,13 +538,138 @@ export interface Registry {
 // ===== TRANSPORT INTERFACES =====
 
 /**
+ * Base transport message payload
+ */
+export interface TransportMessagePayload {
+  sender?: string;
+  [key: string]: any;
+}
+
+/**
+ * Request message payload
+ */
+export interface RequestPayload extends TransportMessagePayload {
+  id: string;
+  action: string;
+  data: any;
+  timeout?: number;
+  meta?: ContextMetaObject;
+  level: number;
+  metrics?: any;
+  requestId?: string;
+  parentId?: string;
+  callerNodeId?: string;
+  tracing: boolean;
+  isStream: boolean;
+  sequence?: number;
+  chunk?: any;
+  success?: boolean;
+  error?: any;
+}
+
+/**
+ * Response message payload
+ */
+export interface ResponsePayload extends TransportMessagePayload {
+  id: string;
+  meta?: ContextMetaObject;
+  data: any;
+  success: boolean;
+  error?: any;
+  isStream?: boolean;
+  sequence?: number;
+  chunk?: any;
+}
+
+/**
+ * Event message payload
+ */
+export interface EventPayload extends TransportMessagePayload {
+  data: any;
+  eventName: string;
+  groups?: string[];
+  meta?: ContextMetaObject;
+  level?: number;
+  metrics?: any;
+  requestId?: string;
+  parentId?: string;
+  callerNodeId?: string;
+  tracing?: boolean;
+  isBroadcast: boolean;
+}
+
+/**
+ * Heartbeat message payload
+ */
+export interface HeartbeatPayload extends TransportMessagePayload {
+  cpu?: number;
+  cpuSequence?: number;
+  sequence: number;
+}
+
+/**
+ * Ping message payload
+ */
+export interface PingPayload extends TransportMessagePayload {
+  dispatchTime: number;
+}
+
+/**
+ * Info message payload
+ */
+export interface InfoPayload extends TransportMessagePayload, NodeInfo {
+  instanceId: string;
+}
+
+/**
  * Transport message
  */
-export interface TransportMessage {
+export interface TransportMessage<T extends TransportMessagePayload = TransportMessagePayload> {
   type: string;
   targetNodeId: string;
-  payload: object;
+  payload: T;
   meta?: object;
+}
+
+/**
+ * Transport adapter interface
+ */
+export interface TransportAdapter {
+  name: string;
+  bus: EventEmitter;
+  broker?: Runtime | Broker;
+  transport?: Transport;
+  log?: Logger;
+  messageHandler?: any;
+  isConnected: boolean;
+  interruptCounter: number;
+  repeatAttemptCounter: number;
+  afterInit?: () => void | Promise<void>;
+
+  // Core methods
+  init(runtime: Runtime | Broker, transport: Transport, messageHandler?: any): Promise<void>;
+  connect(isTryReconnect: boolean, errorHandler: (error: Error) => void): Promise<void>;
+  close(): Promise<void>;
+  subscribe(messageType: string, nodeId?: string): Promise<void>;
+  send(message: TransportMessage): Promise<void>;
+  preSend(message: TransportMessage): Promise<void>;
+
+  // Message handling
+  incomingMessage(messageType: string, message: any): void;
+  serialize(packet: TransportMessage): Buffer;
+  deserialize(packet: Buffer | string): TransportMessage;
+
+  // Utility methods
+  connected(connectionEventParams?: {
+    wasReconnect?: boolean;
+    useHeartbeatTimer?: boolean;
+    useRemoteNodeCheckTimer?: boolean;
+    useOfflineCheckTimer?: boolean;
+  }): void;
+  disconnected(): void;
+  getTopic(cmd: string, nodeId?: string): string;
+  updateStatisticReceived(length: number): void;
+  updateStatisticSent(length: number): void;
 }
 
 /**
@@ -575,6 +700,7 @@ export interface TransportOptions {
   offlineNodeCheckInterval?: number;
   maxOfflineTime?: number;
   maxChunkSize?: number;
+  reconnectDisabled?: boolean;
   streams?: {
     handleBackpressure?: boolean;
   };

@@ -36,7 +36,6 @@ broker1.createService({
         age: { type: "number" },
       },
       handler(context) {
-       
         return "from hello";
       },
     },

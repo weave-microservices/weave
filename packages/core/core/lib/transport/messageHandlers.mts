@@ -220,7 +220,7 @@ export default (runtime, transport) => {
 
   const onRequest = (payload: any): Promise<any> => {
     const sender = payload.sender;
-    
+
     try {
       let stream;
       if (payload.isStream) {

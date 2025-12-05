@@ -8,7 +8,7 @@ import * as MessageTypes from "./messageTypes.mts";
  * @param {object} payload - The message payload
  * @returns {object} - The message object
  */
-export const createMessage = (type: string, targetNodeId: string, payload: object) => {
+export const createMessage = (type: string, targetNodeId?: string, payload?: object) => {
   return {
     type: type || MessageTypes.MESSAGE_UNKNOWN,
     targetNodeId,

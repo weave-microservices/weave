@@ -4,36 +4,27 @@ import * as MessageTypes from "./messageTypes.mts";
 import * as utils from "@weave-js/utils";
 import createMessageHandler from "./messageHandlers.mts";
 import { errorPayloadFactory } from "./errorPayloadFactory.mts";
-import type { Context, Runtime, TransportMessage } from "../../types/index.js";
+import type {
+  Context,
+  Runtime,
+  TransportMessage,
+  TransportAdapter,
+  RequestPayload,
+  ResponsePayload,
+  EventPayload,
+  HeartbeatPayload,
+  PingPayload,
+  InfoPayload,
+} from "../../types/index.js";
 
-/**
- * Creates a transport layer for network communication between Weave nodes
- *
- * The transport handles:
- * - Network connections between nodes
- * - Message serialization and deserialization
- * - Request/response lifecycle management
- * - Stream handling for large payloads
- * - Heartbeat and node discovery
- * - Connection reconnection and error recovery
- * - Load balancing and routing
- *
- * @param {Runtime} runtime - Weave runtime instance
- * @param {any} adapter - Transport adapter implementation (TCP, NATS, Redis, etc.)
- * @returns {Transport} Configured transport instance with messaging capabilities
- * @example
- * import tcpAdapter from './adapters/tcp.mts';
- * const transport = createTransport(runtime, tcpAdapter);
- * await transport.connect();
- */
-export const createTransport = (runtime: Runtime, adapter: any) => {
+export const createTransport = (runtime: Runtime, adapter: TransportAdapter) => {
   const transport = Object.create(null);
   const { nodeId, middlewareHandler, createLogger } = runtime;
 
-  let heartbeatTimer;
-  let checkNodesTimer;
-  let checkOfflineNodesTimer;
-  let updateLocalNodeTimer;
+  let heartbeatTimer: NodeJS.Timeout;
+  let checkNodesTimer: NodeJS.Timeout;
+  let checkOfflineNodesTimer: NodeJS.Timeout;
+  let updateLocalNodeTimer: NodeJS.Timeout;
 
   // Pending action store
   const pending = {
@@ -79,12 +70,14 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
 
           transport.reconnectInProgress = true;
 
-          if (!error.skipRetry) {
-            setTimeout(() => {
-              transport.log.debug("Reconnecting");
-              doConnect(true);
-            }, 5 * 1000);
+          if (runtime.options.transport?.reconnectDisabled) {
+            return;
           }
+
+          setTimeout(() => {
+            transport.log.debug("Reconnecting");
+            doConnect(true);
+          }, 5 * 1000);
         };
         return adapter.connect(isTryReconnect, errorHandler).catch(errorHandler);
       };
@@ -168,12 +161,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
     transport.send(discoveryMessage);
   };
 
-  /**
-   * Send discovery message to all nodes.
-   * @param{string} target - Target node ID
-   * @returns {Promise<void>} - Promise
-   */
-  transport.discoverNode = async (target) => {
+  transport.discoverNode = async (target: string) => {
     const discoveryMessage = createMessage(MessageTypes.MESSAGE_DISCOVERY, target);
     return transport.send(discoveryMessage);
   };
@@ -202,7 +190,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
 
     const message = createMessage(
       MessageTypes.MESSAGE_EVENT,
-      context.endpoint ? context.nodeId : null,
+      context.endpoint ? context.nodeId : undefined,
       payload,
     );
     return transport.send(message);
@@ -236,8 +224,6 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
   };
 
   transport.removePendingRequestsByNodeId = (nodeId: string) => {
-
-    
     pending.requests.forEach((request, requestId) => {
       transport.log.debug(`Remove pending requests for node ${nodeId}. ${requestId}`);
       if (request.nodeId === nodeId) {
@@ -281,8 +267,8 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
 
       pending.requests.set(context.id, request);
 
-      const payload = {
-        id: context.id,
+      const payload: RequestPayload = {
+        id: context.id!,
         action: context.action.name,
         data: context.data,
         timeout: context.options.timeout,
@@ -317,7 +303,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
         .then(() => {
           // send stream
           if (isStream) {
-            const stream = context.options.stream;
+            const stream = context.options.stream!;
             payload.meta = {};
 
             if (utils.isStreamObjectMode(context.options.stream)) {
@@ -329,15 +315,16 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
               const chunks = [];
 
               // The chunk is larger than maxBufferSize
+              const maxChunkSize = runtime.options.transport?.maxChunkSize ?? 0;
               if (
                 data instanceof Buffer &&
-                runtime.options.transport.maxChunkSize > 0 &&
-                data.length > runtime.options.transport.maxChunkSize
+                maxChunkSize > 0 &&
+                data.length > maxChunkSize
               ) {
                 const length = data.length;
                 let i = 0;
                 while (i < length) {
-                  chunks.push(data.slice(i, (i += runtime.options.transport.maxChunkSize)));
+                  chunks.push(data.slice(i, (i += maxChunkSize)));
                 }
               } else {
                 chunks.push(data);
@@ -346,7 +333,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
               // Send chunks from chunk buffer
               for (const chunk of chunks) {
                 const payloadCopy = Object.assign({}, payload);
-                payloadCopy.sequence = ++payload.sequence;
+                payloadCopy.sequence = ++payload.sequence!;
                 payloadCopy.chunk = chunk;
                 payloadCopy.isStream = true;
                 payload.data = null;
@@ -367,7 +354,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
             stream.on("end", () => {
               const payloadCopy = Object.assign({}, payload);
 
-              payloadCopy.sequence = ++payload.sequence;
+              payloadCopy.sequence = ++payload.sequence!;
               payloadCopy.chunk = null;
               payloadCopy.isStream = false;
 
@@ -381,9 +368,9 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
               return transport.send(message);
             });
 
-            stream.on("error", (error) => {
+            stream.on("error", (error: Error) => {
               const payloadCopy = Object.assign({}, payload);
-              payloadCopy.sequence = ++payload.sequence;
+              payloadCopy.sequence = ++payload.sequence!;
               payloadCopy.chunk = null;
               payloadCopy.isStream = false;
 
@@ -403,7 +390,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
             });
           }
         })
-        .catch((error) => {
+        .catch((error: Error) => {
           reject(error);
         });
     });
@@ -418,9 +405,15 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
    * @param {WeaveError=} error - Error
    * @returns {Promise<void>} - Promise
    */
-  transport.sendResponse = (target, contextId, data, meta, error) => {
+  transport.sendResponse = (
+    target: string,
+    contextId: string,
+    data: any,
+    meta: any,
+    error?: WeaveError,
+  ) => {
     const isStream = utils.isStream(data);
-    const payload = {
+    const payload: ResponsePayload = {
       id: contextId,
       meta,
       data,
@@ -450,19 +443,20 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
       stream.pause();
       transport.log.debug("Send new stream chunk to ", target);
 
-      stream.on("data", (data) => {
+      stream.on("data", (data: Buffer) => {
         stream.pause();
         const chunks = [];
 
+        const maxChunkSize = runtime.options.transport?.maxChunkSize ?? 0;
         if (
           data instanceof Buffer &&
-          runtime.options.transport.maxChunkSize > 0 &&
-          data.length > runtime.options.transport.maxChunkSize
+          maxChunkSize > 0 &&
+          data.length > maxChunkSize
         ) {
           const length = data.length;
           let i = 0;
           while (i < length) {
-            chunks.push(data.slice(i, (i += runtime.options.transport.maxChunkSize)));
+            chunks.push(data.slice(i, (i += maxChunkSize)));
           }
         } else {
           chunks.push(data);
@@ -470,7 +464,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
 
         for (const chunk of chunks) {
           const payloadCopy = Object.assign({}, payload);
-          payloadCopy.sequence = ++payload.sequence;
+          payloadCopy.sequence = ++payload.sequence!;
 
           payloadCopy.chunk = chunk;
           transport.log.debug(`Send Stream chunk to ${target}`);
@@ -486,7 +480,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
       stream.on("end", () => {
         const payloadCopy = Object.assign({}, payload);
 
-        payloadCopy.sequence = ++payload.sequence;
+        payloadCopy.sequence = ++payload.sequence!;
         payloadCopy.chunk = null;
         payloadCopy.isStream = false;
 
@@ -497,10 +491,10 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
         pending.outboundResponseStreams.delete(payload.id);
       });
 
-      stream.on("error", (error) => {
+      stream.on("error", (error: Error) => {
         const payloadCopy = Object.assign({}, payload);
 
-        payloadCopy.sequence = ++payload.sequence;
+        payloadCopy.sequence = ++payload.sequence!;
         payloadCopy.isStream = false;
         payloadCopy.chunk = null;
 
@@ -666,7 +660,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
       sequence: node.sequence,
     };
 
-    const message = createMessage(MessageTypes.MESSAGE_HEARTBEAT, null, payload);
+    const message = createMessage(MessageTypes.MESSAGE_HEARTBEAT, undefined, payload);
     transport.send(message);
   }
 
@@ -677,7 +671,10 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
         return;
       }
 
-      if (now - (node.lastHeartbeatTime || 0) > runtime.options.transport?.heartbeatTimeout) {
+      if (
+        now - (node.lastHeartbeatTime || 0) >
+        (runtime.options.transport?.heartbeatTimeout ?? 0)
+      ) {
         runtime.registry.nodeDisconnected(node.id, true);
       }
     });
@@ -692,7 +689,7 @@ export const createTransport = (runtime: Runtime, adapter: any) => {
         return;
       }
 
-      if (now - node.offlineTime > runtime.options.transport?.maxOfflineTime) {
+      if (now - node.offlineTime > (runtime.options.transport?.maxOfflineTime ?? 0)) {
         runtime.registry.removeNode(node.id);
       }
     });
