@@ -8,8 +8,9 @@ import { WeaveBrokerOptionsError } from "../../errors.mts";
 import fromURI from "./fromURI.mts";
 import getAdapterByName from "./getAdapterByName.mts";
 import adapters from "./adapters.mts";
+import type { Runtime, TransportOptions } from '../../../types/index.js';
 
-const resolve = (broker, options) => {
+const resolve = (runtime: Runtime, options: TransportOptions) => {
   if (typeof options === "object") {
     if (typeof options.adapter === "string") {
       const Adapter = getAdapterByName(options.adapter);
@@ -17,7 +18,7 @@ const resolve = (broker, options) => {
       if (Adapter) {
         return Adapter(options.options);
       } else {
-        broker.handleError(
+        runtime.handleError(
           new WeaveBrokerOptionsError(`Invalid transport settings: ${options.adapter}`),
         );
       }

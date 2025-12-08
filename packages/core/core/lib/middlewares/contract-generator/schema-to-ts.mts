@@ -15,7 +15,7 @@ function ruleToTs(rule: any, indent = 0): string {
   if (typeof rule === "string") {
     return rule;
   }
-
+    
   switch (rule.type) {
     case "string":
     case "number":

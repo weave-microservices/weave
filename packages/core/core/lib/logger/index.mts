@@ -5,15 +5,52 @@
  */
 
 import os from "os";
+import type { Writable } from "stream";
 import { initBase } from "./base.mts";
 import { asJson, asHumanReadable } from "./format/index.mts";
 import { mappings } from "./levels.mts";
 import { coreFixtures } from "./tools.mts";
+import type { Logger, LoggerOptions, LogLevel } from "../../types/index.js";
 
 const { pid } = process;
 const hostname = os.hostname();
 
-const defaultOptions = {
+interface LoggerInternalOptions {
+  enabled?: boolean;
+  level?: LogLevel | string;
+  messageKey: string;
+  customLevels: Record<string, number> | null;
+  base?: Record<string, any> | null;
+  name?: string;
+  hooks: {
+    logMethod?: (args: any[], log: Function, level: number) => void;
+  };
+  formatter: {
+    messageFormat: boolean | string;
+  };
+  destination: Writable;
+  mixin?: (obj: any) => any;
+  useOnlyCustomLevelsSym?: boolean;
+  formatOptions?: any;
+}
+
+interface LoggerRuntime {
+  options: LoggerInternalOptions;
+  logMethods: Record<string, Function>;
+  destination: Writable;
+  formatter: (runtime: LoggerRuntime, object: any, message: string, level: number, time: number) => string;
+  fixtures?: any;
+  mixin?: (obj: any) => any;
+  levels: {
+    labels: Record<number, string>;
+    values: Record<string, number>;
+  };
+  levelValue?: number;
+  setLevel?: (level: LogLevel | string | number) => void;
+  write?: (originObject: any, message: string, level: number) => void;
+}
+
+const defaultOptions: LoggerInternalOptions = {
   enabled: true,
   level: "info",
   messageKey: "message",
@@ -31,50 +68,51 @@ const defaultOptions = {
   destination: process.stdout,
 };
 
-export const createLogger = (options: any) => {
+export const createLogger = (options?: LoggerOptions): Logger => {
   // Deep clone to avoid shared state between logger instances
-  options = Object.assign({}, defaultOptions, options);
-  if (options.base) {
-    options.base = Object.assign({}, defaultOptions.base, options.base);
+  const mergedOptions: LoggerInternalOptions = Object.assign({}, defaultOptions, options);
+  if (mergedOptions.base && options?.base) {
+    mergedOptions.base = Object.assign({}, defaultOptions.base, options.base);
   }
 
-  const instance = {};
-  const runtime = {
-    options,
+  const instance = {} as Logger;
+  const runtime: LoggerRuntime = {
+    options: mergedOptions,
     logMethods: {},
-    destination: options.destination,
+    destination: mergedOptions.destination,
     formatter: process.stdout.isTTY ? asHumanReadable : asJson,
+    levels: { labels: {}, values: {} },
   };
 
-  if (options.enabled === false) {
-    options.level = "silent";
+  if (mergedOptions.enabled === false) {
+    mergedOptions.level = "silent";
   }
 
-  if (options.base !== null) {
-    if (options.name === undefined) {
-      runtime.fixtures = coreFixtures(options.base);
+  if (mergedOptions.base !== null && mergedOptions.base !== undefined) {
+    if (mergedOptions.name === undefined) {
+      runtime.fixtures = coreFixtures(mergedOptions.base);
     } else {
-      runtime.fixtures = coreFixtures(Object.assign({}, options.base, { name: options.name }));
+      runtime.fixtures = coreFixtures(Object.assign({}, mergedOptions.base, { name: mergedOptions.name }));
     }
   }
 
-  if (options.mixin && typeof options.mixin !== "function") {
-    throw Error(`Unknown mixin type "${typeof options.mixin}" - expected "function"`);
-  } else if (options.mixin) {
-    runtime.mixin = options.mixin;
+  if (mergedOptions.mixin && typeof mergedOptions.mixin !== "function") {
+    throw Error(`Unknown mixin type "${typeof mergedOptions.mixin}" - expected "function"`);
+  } else if (mergedOptions.mixin) {
+    runtime.mixin = mergedOptions.mixin;
   }
 
-  const levels = mappings(options.customLevels);
+  const levels = mappings(mergedOptions.customLevels);
 
   // merge levels in logger runtime
-  Object.assign(runtime, { levels });
+  runtime.levels = levels;
 
   initBase(runtime);
 
-  runtime.setLevel(options.level);
+  runtime.setLevel!(mergedOptions.level!);
 
   Object.assign(instance, {
-    levels,
+    level: mergedOptions.level,
     ...runtime.logMethods,
   });
 

@@ -6,7 +6,7 @@ import { EventEmitter } from "events";
 /**
  * Log level type definition
  */
-export type LogLevel = "verbose" | "debug" | "info" | "warn" | "error" | "fatal";
+export type LogLevel = "verbose" | "debug" | "info" | "warn" | "error" | "fatal" | "silent";
 
 /**
  * Service action visibility levels
@@ -163,14 +163,14 @@ export interface Logger {
 }
 
 /**
- * Logger configuration options
  */
 export interface LoggerOptions {
   enabled?: boolean;
   level?: LogLevel;
   messageKey?: string;
-  customLevels?: Record<string, number>;
-  base?: Record<string, any>;
+  customLevels?: Record<string, number> | null;
+  base?: Record<string, any> | null;
+  name?: string;
   destination?: Writable;
   colors?: boolean;
   formatter?: "json" | "human" | ((data: any) => string);
@@ -620,6 +620,19 @@ export interface PingPayload extends TransportMessagePayload {
 export interface InfoPayload extends TransportMessagePayload, NodeInfo {
   instanceId: string;
 }
+
+/**
+ * Info message payload
+ */
+export interface ErrorPayload {
+  name: string;
+  message: string;
+  nodeId: string;
+  code: number;
+  stack?: string;
+  data: any;
+}
+
 
 /**
  * Transport message

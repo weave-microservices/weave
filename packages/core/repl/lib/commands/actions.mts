@@ -1,12 +1,12 @@
-import { table } from "table";
+import { table, TableUserConfig } from "table";
 
 export default ({ vorpal, broker, cliUI }: any) => {
   vorpal
     .command("actions", "List actions")
     .option("-l, --local", "Show only local actions.")
     .action((args: any, done: any) => {
-      const tableConf = {};
-      const data = [];
+      const tableConf: TableUserConfig = {};
+      const data: string[][] = [];
 
       data.push([
         "Action",

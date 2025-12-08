@@ -12,7 +12,7 @@ broker.createService({
   actions: {
     hello: {
       params: {
-        name: "string",
+        name: { type: "string", optional: true },
       },
       handler(context) {
         context.data;

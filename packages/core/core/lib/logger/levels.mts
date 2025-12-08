@@ -38,9 +38,9 @@ const numbers = Object.keys(levels).reduce((o, k) => {
   return o;
 }, {});
 
-export const mappings = (customLevels = null, useOnlyCustomLevels = false) => {
+export const mappings = (customLevels: Record<string, number> | null = null, useOnlyCustomLevels = false) => {
   const customNums = customLevels
-    ? Object.keys(customLevels).reduce((o, k) => {
+    ? Object.keys(customLevels).reduce((o: Record<number, string>, k) => {
         o[customLevels[k]] = k;
         return o;
       }, {})
