@@ -4,21 +4,13 @@
  * Copyright 2021 Fachwerk
  */
 
-/**
- * @typedef {import('../types.__js').Node} Node
- */
-
 import { cpuUsage } from "@weave-js/utils";
+import type { Node, NodeHeartbeatPayload, NodeUpdatePayload } from "../../types/index.js";
 
 /**
  * Node factory
- * @param {string} nodeId Node id
- * @returns {Node} Node instance
  */
-export const createNode = (nodeId) => {
-  /**
-   * @type {Node}
-   */
+export const createNode = (nodeId: string): Node => {
   return {
     id: nodeId,
     info: null,
@@ -37,14 +29,14 @@ export const createNode = (nodeId) => {
     sequence: 0,
     events: null,
     IPList: [],
-    update(payload, isReconnected) {
-      const newSequence = payload.sequence || 1;
+    update(payload: NodeUpdatePayload, isReconnected?: boolean): boolean {
+      const newSequence = payload.sequence ?? 1;
 
-      this.services = payload.services;
-      this.events = payload.events;
-      this.client = payload.client || {};
-      this.IPList = payload.IPList || [];
-      this.info = payload;
+      this.services = payload.services ?? [];
+      this.events = payload.events ?? null;
+      this.client = payload.client ?? { type: null, version: null };
+      this.IPList = payload.IPList ?? [];
+      this.info = payload as Node["info"];
 
       if (newSequence > this.sequence || isReconnected === true) {
         this.sequence = newSequence;
@@ -54,30 +46,30 @@ export const createNode = (nodeId) => {
       }
       return false;
     },
-    updateLocalInfo() {
-      cpuUsage().then((result) => {
+    updateLocalInfo(): void {
+      cpuUsage().then((result: { avg: number }) => {
         const newVal = Math.round(result.avg);
 
         if (this.cpu !== newVal) {
           this.cpu = Math.round(result.avg);
-          this.cpuSequence++;
+          this.cpuSequence = (this.cpuSequence ?? 0) + 1;
         }
       });
     },
-    heartbeat(payload) {
+    heartbeat(payload: NodeHeartbeatPayload): void {
       if (!this.isAvailable) {
         this.isAvailable = true;
         this.offlineTime = null;
       }
 
-      if (payload.cpu !== null) {
+      if (payload.cpu !== null && payload.cpu !== undefined) {
         this.cpu = payload.cpu;
-        this.cpuSequence = payload.cpuSequence || 1;
+        this.cpuSequence = payload.cpuSequence ?? 1;
       }
 
       this.lastHeartbeatTime = Date.now();
     },
-    disconnected(isUnexpected = false) {
+    disconnected(isUnexpected = false): void {
       if (this.isAvailable) {
         this.offlineTime = Date.now();
         this.sequence++;

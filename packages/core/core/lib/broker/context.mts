@@ -101,7 +101,8 @@ export const createContext = <T = any,>(runtime: Runtime): Context<T> => {
           }
         ).startChildSpan(name, options);
       } else {
-        span = runtime.tracer!.startSpan(name || "span", options);
+        const parentSpan = options?.parentSpan as Span | undefined;
+        span = runtime.tracer!.startSpan(name || "span", parentSpan);
       }
       spanStack.push(span);
       this.span = span;

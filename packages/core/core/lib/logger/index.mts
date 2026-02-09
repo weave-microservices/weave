@@ -34,20 +34,24 @@ interface LoggerInternalOptions {
   formatOptions?: any;
 }
 
-interface LoggerRuntime {
+/**
+ * Logger context - internal state of the logger instance.
+ * Previously named "runtime" but renamed to avoid confusion with Broker Runtime.
+ */
+export interface LoggerContext {
   options: LoggerInternalOptions;
-  logMethods: Record<string, Function>;
+  logMethods: Record<string, (...args: unknown[]) => void>;
   destination: Writable;
-  formatter: (runtime: LoggerRuntime, object: any, message: string, level: number, time: number) => string;
-  fixtures?: any;
-  mixin?: (obj: any) => any;
+  formatter: (ctx: LoggerContext, object: Record<string, unknown> | null, message: string, level: number, time: number) => string;
+  fixtures?: Record<string, unknown>;
+  mixin?: (obj: Record<string, unknown>) => Record<string, unknown>;
   levels: {
     labels: Record<number, string>;
     values: Record<string, number>;
   };
   levelValue?: number;
   setLevel?: (level: LogLevel | string | number) => void;
-  write?: (originObject: any, message: string, level: number) => void;
+  write?: (originObject: unknown, message: string, level: number) => void;
 }
 
 const defaultOptions: LoggerInternalOptions = {
@@ -76,7 +80,7 @@ export const createLogger = (options?: LoggerOptions): Logger => {
   }
 
   const instance = {} as Logger;
-  const runtime: LoggerRuntime = {
+  const ctx: LoggerContext = {
     options: mergedOptions,
     logMethods: {},
     destination: mergedOptions.destination,
@@ -90,30 +94,30 @@ export const createLogger = (options?: LoggerOptions): Logger => {
 
   if (mergedOptions.base !== null && mergedOptions.base !== undefined) {
     if (mergedOptions.name === undefined) {
-      runtime.fixtures = coreFixtures(mergedOptions.base);
+      ctx.fixtures = coreFixtures(mergedOptions.base);
     } else {
-      runtime.fixtures = coreFixtures(Object.assign({}, mergedOptions.base, { name: mergedOptions.name }));
+      ctx.fixtures = coreFixtures(Object.assign({}, mergedOptions.base, { name: mergedOptions.name }));
     }
   }
 
   if (mergedOptions.mixin && typeof mergedOptions.mixin !== "function") {
     throw Error(`Unknown mixin type "${typeof mergedOptions.mixin}" - expected "function"`);
   } else if (mergedOptions.mixin) {
-    runtime.mixin = mergedOptions.mixin;
+    ctx.mixin = mergedOptions.mixin;
   }
 
   const levels = mappings(mergedOptions.customLevels);
 
-  // merge levels in logger runtime
-  runtime.levels = levels;
+  // merge levels in logger context
+  ctx.levels = levels;
 
-  initBase(runtime);
+  initBase(ctx);
 
-  runtime.setLevel!(mergedOptions.level!);
+  ctx.setLevel!(mergedOptions.level!);
 
   Object.assign(instance, {
     level: mergedOptions.level,
-    ...runtime.logMethods,
+    ...ctx.logMethods,
   });
 
   return instance;

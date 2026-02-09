@@ -10,22 +10,25 @@ import { createLock } from "../lock.mts";
 import * as Constants from "../../metrics/constants.mts";
 import type { Runtime } from "../../../types/index.js";
 
-const defaultAdapterOptions = {
+interface InMemoryAdapterOptions {
+  ttlCheckInterval?: number;
+}
+
+interface InMemoryCacheOptions {
+  ttl?: number;
+}
+
+const defaultAdapterOptions: InMemoryAdapterOptions = {
   ttlCheckInterval: 3000,
 };
-
-/**
- * @typedef {Object} InMemoryAdapterOptions
- * @property {number=} ttlCheckInterval TTL check interval
- */
 
 /**
  * @param {InMemoryAdapterOptions} adapterOptions Adapter options
  * @returns {any} CacheFactory
  */
 export const createInMemoryCache =
-  (adapterOptions = {}) =>
-  (runtime: Runtime, options = {}) => {
+  (adapterOptions: InMemoryAdapterOptions = {}) =>
+  (runtime: Runtime, options: InMemoryCacheOptions = {}) => {
     adapterOptions = defaultsDeep(adapterOptions, defaultAdapterOptions);
     const base = createCacheBase("In-Memory", runtime, adapterOptions, options);
     const storage = new Map();
@@ -87,7 +90,7 @@ export const createInMemoryCache =
         }
         return Promise.resolve(null);
       },
-      set(hashKey: string, data: any, ttl: number) {
+      set(hashKey: string, data: any, ttl?: number) {
         if (base.metrics) {
           base.metrics.increment(Constants.CACHE_SET_TOTAL);
         }
@@ -105,7 +108,7 @@ export const createInMemoryCache =
 
         return Promise.resolve(data);
       },
-      remove(hashKey) {
+      remove(hashKey: string) {
         if (base.metrics) {
           base.metrics.increment(Constants.CACHE_DELETED_TOTAL);
         }

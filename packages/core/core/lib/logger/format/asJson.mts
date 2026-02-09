@@ -1,23 +1,41 @@
 import os from "os";
+import type { LoggerContext } from "../index.mts";
 
-export const asJson = (runtime, originObj, message, number, time) => {
-  const data = {
-    level: number,
+/**
+ * Format log output as JSON for non-TTY environments.
+ * @param ctx - Logger context
+ * @param originObj - Original log object
+ * @param message - Log message
+ * @param level - Numeric log level
+ * @param time - Timestamp
+ * @returns JSON formatted log string
+ */
+export const asJson = (
+  ctx: LoggerContext,
+  originObj: Record<string, unknown> | null,
+  message: string,
+  level: number,
+  time: number,
+): string => {
+  const data: Record<string, unknown> = {
+    level,
     time,
-    ...runtime.fixtures,
+    ...ctx.fixtures,
   };
 
   if (message !== undefined) {
-    data[runtime.options.messageKey] = message;
+    data[ctx.options.messageKey] = message;
   }
 
-  const doesNotHaveOwnProperty = originObj.hasOwnProperty === undefined;
+  if (originObj) {
+    const doesNotHaveOwnProperty = originObj.hasOwnProperty === undefined;
 
-  let value;
-  for (const key in originObj) {
-    value = originObj[key];
-    if ((doesNotHaveOwnProperty || originObj.hasOwnProperty(key)) && value !== undefined) {
-      data[key] = value;
+    let value: unknown;
+    for (const key in originObj) {
+      value = originObj[key];
+      if ((doesNotHaveOwnProperty || Object.prototype.hasOwnProperty.call(originObj, key)) && value !== undefined) {
+        data[key] = value;
+      }
     }
   }
 

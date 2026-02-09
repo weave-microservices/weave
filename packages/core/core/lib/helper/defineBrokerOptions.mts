@@ -27,6 +27,8 @@
  *   }
  * });
  */
-export default function (options) {
+import type { BrokerOptions } from "../../types/index.js";
+
+export default function defineBrokerOptions(options: BrokerOptions): BrokerOptions {
   return options;
 }

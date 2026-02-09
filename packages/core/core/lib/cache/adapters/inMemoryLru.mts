@@ -10,11 +10,19 @@ import { createLock } from "../lock.mts";
 import * as Constants from "../../metrics/constants.mts";
 import type { Runtime } from "../../../types/index.js";
 
+interface InMemoryLruAdapterOptions {
+  ttlCheckInterval?: number;
+}
+
+interface InMemoryLruCacheOptions {
+  ttl?: number;
+}
+
 export const createInMemoryLruCache =
-  (adapterOptions) =>
-  (runtime: Runtime, options = {}) => {
+  (adapterOptions: InMemoryLruAdapterOptions = {}) =>
+  (runtime: Runtime, options: InMemoryLruCacheOptions = {}) => {
     const name = "In-Memory";
-    const base = createCacheBase(name, runtime, options);
+    const base = createCacheBase(name, runtime, adapterOptions, options);
     const storage = new Map();
 
     const lock = createLock();
@@ -47,7 +55,7 @@ export const createInMemoryLruCache =
         base.init();
         cache.isConnected = true;
       },
-      get(cacheKey) {
+      get(cacheKey: string) {
         base.log.debug(`Get ${cacheKey}`);
 
         if (base.metrics) {
@@ -76,7 +84,7 @@ export const createInMemoryLruCache =
         }
         return Promise.resolve(null);
       },
-      set(hashKey, data, ttl) {
+      set(hashKey: string, data: any, ttl?: number) {
         if (base.metrics) {
           base.metrics.increment(Constants.CACHE_SET_TOTAL);
         }
@@ -94,7 +102,7 @@ export const createInMemoryLruCache =
 
         return Promise.resolve(data);
       },
-      remove(hashKey) {
+      remove(hashKey: string) {
         if (base.metrics) {
           base.metrics.increment(Constants.CACHE_DELETED_TOTAL);
         }
@@ -115,12 +123,12 @@ export const createInMemoryLruCache =
         });
         return Promise.resolve();
       },
-      lock(key, ttl) {
+      lock(key: string, ttl: number) {
         return lock.acquire(key, ttl).then(() => {
           return () => lock.release(key);
         });
       },
-      tryAcquireLock(key, ttl) {
+      tryAcquireLock(key: string, ttl: number) {
         if (lock.isLocked(key)) {
           return Promise.reject(new Error("Locked"));
         }

@@ -1,6 +1,16 @@
 import { generateLogMethod } from "./tools.mts";
+import type { LoggerContext } from "./index.mts";
 
-const levels = {
+/**
+ * Log hook function type
+ */
+type LogHook = ((args: unknown[], log: (...args: unknown[]) => void, level: number) => void) | undefined;
+
+/**
+ * Standard log levels with their numeric values.
+ * Lower numbers = higher priority.
+ */
+const levels: Record<string, number> = {
   verbose: 60,
   debug: 50,
   info: 40,
@@ -9,12 +19,15 @@ const levels = {
   fatal: 10,
 };
 
-// wrap log methods
-const levelMethods = {
-  fatal: (runtime, hook) => {
-    const logFatal = generateLogMethod(runtime, levels.fatal, hook);
-    return function (...args) {
-      logFatal.call(runtime, ...args);
+/**
+ * Level method factory functions.
+ * Each creates a log method for the specified level.
+ */
+const levelMethods: Record<string, (ctx: LoggerContext, hook: LogHook) => (...args: unknown[]) => void> = {
+  fatal: (ctx: LoggerContext, hook: LogHook) => {
+    const logFatal = generateLogMethod(ctx, levels.fatal, hook);
+    return function (...args: unknown[]): void {
+      logFatal.call(ctx, ...args);
       // if (typeof stream.flushSync === 'function') {
       //   try {
       //     stream.flushSync()
@@ -24,19 +37,22 @@ const levelMethods = {
       // }
     };
   },
-  error: (runtime, hook) => generateLogMethod(runtime, levels.error, hook),
-  warn: (runtime, hook) => generateLogMethod(runtime, levels.warn, hook),
-  info: (runtime, hook) => generateLogMethod(runtime, levels.info, hook),
-  debug: (runtime, hook) => generateLogMethod(runtime, levels.debug, hook),
-  verbose: (runtime, hook) => generateLogMethod(runtime, levels.verbose, hook),
+  error: (ctx: LoggerContext, hook: LogHook) => generateLogMethod(ctx, levels.error, hook),
+  warn: (ctx: LoggerContext, hook: LogHook) => generateLogMethod(ctx, levels.warn, hook),
+  info: (ctx: LoggerContext, hook: LogHook) => generateLogMethod(ctx, levels.info, hook),
+  debug: (ctx: LoggerContext, hook: LogHook) => generateLogMethod(ctx, levels.debug, hook),
+  verbose: (ctx: LoggerContext, hook: LogHook) => generateLogMethod(ctx, levels.verbose, hook),
 };
 
 export { levelMethods };
 
-const numbers = Object.keys(levels).reduce((o, k) => {
-  o[levels[k]] = k;
-  return o;
-}, {});
+const numbers: Record<number, string> = Object.keys(levels).reduce(
+  (o: Record<number, string>, k: string) => {
+    o[levels[k]] = k;
+    return o;
+  },
+  {},
+);
 
 export const mappings = (customLevels: Record<string, number> | null = null, useOnlyCustomLevels = false) => {
   const customNums = customLevels
@@ -62,7 +78,13 @@ export const mappings = (customLevels: Record<string, number> | null = null, use
   return { labels, values };
 };
 
-export const isStandardLevel = (level, useOnlyCustomLevels) => {
+/**
+ * Check if a level is a standard log level.
+ * @param level - Level name to check
+ * @param useOnlyCustomLevels - Whether to only use custom levels
+ * @returns true if the level is a standard level
+ */
+export const isStandardLevel = (level: string, useOnlyCustomLevels?: boolean): boolean => {
   if (useOnlyCustomLevels) {
     return false;
   }

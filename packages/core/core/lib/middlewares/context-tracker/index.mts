@@ -1,7 +1,8 @@
 import { WeaveGracefulStopTimeoutError } from "../../errors.mts";
+import type { ActionHandler, Context, Logger, Middleware, Runtime, Service, ServiceInjection } from "../../../types/index.js";
 
-export default (runtime) => {
-  function addContext(context) {
+export default (runtime: Runtime): Middleware => {
+  function addContext(context: Context): void {
     if (context.service) {
       // local actions
       context.service._trackedContexts.push(context);
@@ -11,7 +12,7 @@ export default (runtime) => {
     }
   }
 
-  function removeContext(context) {
+  function removeContext(context: Context): void {
     if (context.service) {
       // local actions
       const index = context.service._trackedContexts.indexOf(context);
@@ -26,12 +27,12 @@ export default (runtime) => {
     }
   }
 
-  function wrapContextTrackerMiddleware(actionHandler) {
-    return function ContextTrackerMiddleware(context, serviceInjections) {
+  function wrapContextTrackerMiddleware(actionHandler: ActionHandler): ActionHandler {
+    return function ContextTrackerMiddleware(context: Context, serviceInjections: ServiceInjection): Promise<unknown> {
       const isTracked =
         context.options.track === true
           ? context.options.track
-          : runtime.options.contextTracking.enabled;
+          : runtime.options.contextTracking?.enabled;
 
       if (!isTracked) {
         return actionHandler(context, serviceInjections);
@@ -40,18 +41,23 @@ export default (runtime) => {
       addContext(context);
 
       return actionHandler(context, serviceInjections)
-        .then((result) => {
+        .then((result: unknown) => {
           removeContext(context);
           return result;
         })
-        .catch((error) => {
+        .catch((error: unknown) => {
           removeContext(context);
           throw error;
         });
     };
   }
 
-  const waitingForActiveContexts = (contextList, log, shutdownTimeout, service) => {
+  function waitingForActiveContexts(
+    contextList: Context[],
+    log: Logger,
+    shutdownTimeout: number,
+    service?: Service,
+  ): Promise<void> {
     return new Promise((resolve) => {
       if (contextList.length === 0) {
         resolve();
@@ -61,14 +67,14 @@ export default (runtime) => {
       let isTimedOut = false;
       const timeout = setTimeout(() => {
         isTimedOut = true;
-        log.error(new WeaveGracefulStopTimeoutError(service));
+        log.error(new WeaveGracefulStopTimeoutError(service as Service));
         resolve();
       }, shutdownTimeout);
 
       let isFirstCheck = true;
-      let checkInterval;
+      let checkInterval: ReturnType<typeof setInterval> | undefined;
 
-      const checkContexts = () => {
+      const checkContexts = (): void => {
         if (contextList.length === 0) {
           clearTimeout(timeout);
           if (checkInterval) {
@@ -90,33 +96,37 @@ export default (runtime) => {
       }
       setImmediate(checkContexts);
     });
-  };
+  }
 
   return {
-    created() {
+    created(): void {
       // init context-store
       runtime.state.trackedContexts = [];
     },
-    serviceStarting(service) {
+    serviceStarting(service: Service): void {
       service._trackedContexts = [];
     },
 
     // Before a local service stopping
-    serviceStopping(service) {
+    serviceStopping(service: Service): Promise<void> {
+      const shutdownTimeout =
+        service.settings.$shutdownTimeout ??
+        service.broker.options.contextTracking?.shutdownTimeout ??
+        0;
       return waitingForActiveContexts(
         service._trackedContexts,
         service.log,
-        service.settings.$shutdownTimeout || service.broker.options.contextTracking.shutdownTimeout,
+        shutdownTimeout,
         service,
       );
     },
 
     // Before broker stopping
-    stopping() {
+    stopping(): Promise<void> {
       return waitingForActiveContexts(
         runtime.state.trackedContexts,
         runtime.log,
-        runtime.options.contextTracking.shutdownTimeout,
+        runtime.options.contextTracking?.shutdownTimeout ?? 0,
       );
     },
     localAction: wrapContextTrackerMiddleware,

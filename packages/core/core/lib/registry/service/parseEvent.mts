@@ -1,7 +1,7 @@
 import { isFunction, clone, isObject, promisify } from "@weave-js/utils";
 import { wrapHandler } from "../../utils/wrap-handler.mts";
 import { WeaveError } from "../../errors.mts";
-import type { Context, Runtime, Service, ServiceEventSchema } from "../../../types/index.js";
+import type { Context, Runtime, Service, ServiceEventSchema, ServiceInjection } from "../../../types/index.js";
 
 export const parseEvent = (
   runtime: Runtime,
@@ -31,11 +31,11 @@ export const parseEvent = (
 
   event.service = service;
 
-  let handler;
+  let handler: ((...args: unknown[]) => Promise<unknown>) | ((...args: unknown[]) => Promise<unknown>)[] | undefined;
   if (isFunction(event.handler)) {
     handler = promisify(event.handler.bind(service));
   } else if (Array.isArray(event.handler)) {
-    handler = event.handler.map((h) => {
+    handler = event.handler.map((h: (...args: unknown[]) => unknown) => {
       return promisify(h.bind(service));
     });
   }
@@ -45,9 +45,9 @@ export const parseEvent = (
   }
 
   if (isFunction(handler)) {
-    event.handler = (context: Context) => handler(context);
+    event.handler = (context: Context, injection?: ServiceInjection) => handler(context, injection);
   } else if (Array.isArray(handler)) {
-    event.handler = (context: Context) => Promise.all(handler.map((h) => h(context)));
+    event.handler = (context: Context, injection?: ServiceInjection) => Promise.all(handler.map((h) => h(context, injection)));
   }
 
   event.service = service;

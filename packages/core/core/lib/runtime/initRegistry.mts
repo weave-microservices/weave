@@ -1,20 +1,18 @@
-// @ts-check
 /*
  * Author: Kevin Ries (kevin.ries@fachwerk.io)
  * -----
  * Copyright 2021 Fachwerk
  */
-/**
- * @typedef {import('../types.__js').Runtime} Runtime
- */
+
 import { createRegistry } from "../registry/registry.mts";
+import type { Runtime } from "../../types/index.js";
 
 /**
- * Injects registy in runtime
- * @param {Runtime} runtime Runtime
- * @returns {void}
+ * Injects registry in runtime
+ * @param runtime Runtime
+ * @returns void
  */
-export const initRegistry = (runtime) => {
+export const initRegistry = (runtime: Runtime): void => {
   const registry = createRegistry(runtime);
 
   registry.init(runtime);

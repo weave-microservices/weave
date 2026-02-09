@@ -8,48 +8,89 @@ import { defaultsDeep } from "@weave-js/utils";
 import { ExtendableError } from "./ExtendableError.mts";
 
 /**
- * @typedef {object} ErrorOptions
- * @property {string} code Error code
- * @property {boolean} retryable Retryable error
- * @property {*} data Error data
- * @property {string} name Error name
+ * Options for WeaveError and its subclasses
  */
+export interface WeaveErrorOptions {
+  /** Error code */
+  code?: string;
+  /** Whether the error is retryable */
+  retryable?: boolean;
+  /** Additional error data */
+  data?: unknown;
+}
+
+/**
+ * Data for service-related errors
+ */
+export interface ServiceErrorData {
+  actionName?: string;
+  nodeId?: string;
+}
+
+/**
+ * Data for timeout errors
+ */
+export interface TimeoutErrorData {
+  actionName: string;
+  nodeId?: string;
+  timeout: number;
+}
+
+/**
+ * Data for max call level errors
+ */
+export interface MaxCallLevelErrorData {
+  maxCallLevel: number;
+  nodeId: string;
+}
+
+/**
+ * Service info for graceful stop errors
+ */
+export interface ServiceInfo {
+  name: string;
+  version?: string | number;
+}
 
 export class WeaveError extends ExtendableError {
+  code: string;
+  data?: unknown;
+  retryable: boolean;
+
   /**
-   * Create a new WeaveRetryableError
-   * @param {string} message Error message
-   * @param {ErrorOptions} options? Error options
+   * Create a new WeaveError
+   * @param message Error message
+   * @param options Error options
    */
-  constructor(message, options = {}) {
+  constructor(message: string, options: WeaveErrorOptions = {}) {
     options = defaultsDeep(options, {
       code: "WEAVE_ERROR",
       retryable: false,
     });
 
-    super(message, options);
+    super(message);
     this.name = this.constructor.name;
     this.code = options.code || "WEAVE_ERROR";
     this.data = options.data;
-    this.retryable = false;
+    this.retryable = options.retryable || false;
   }
 }
 
 export class WeaveRetryableError extends WeaveError {
   /**
    * Create a new WeaveRetryableError
-   * @param {string} message Error message
-   * @param {ErrorOptions} options Error options
+   * @param message Error message
+   * @param options Error options
    */
-  constructor(message, options = { code: "WEAVE_RETRYABLE_ERROR", retryable: true }) {
+  constructor(message: string, options: WeaveErrorOptions = { code: "WEAVE_RETRYABLE_ERROR", retryable: true }) {
     super(message, options);
     this.retryable = true;
   }
 }
 
 export class WeaveServiceNotFoundError extends WeaveRetryableError {
-  constructor(data = {}) {
-    let message;
+  constructor(data: ServiceErrorData = {}) {
+    let message: string;
 
     if (data.actionName && data.nodeId) {
       message = `Service "${data.actionName}" not found on node "${data.nodeId}".`;
@@ -65,8 +106,8 @@ export class WeaveServiceNotFoundError extends WeaveRetryableError {
 
 export class WeaveServiceNotAvailableError extends WeaveRetryableError {
   // 503
-  constructor(data = {}) {
-    let message;
+  constructor(data: ServiceErrorData = {}) {
+    let message: string;
     if (data.nodeId) {
       message = `Service "${data.actionName}" not available on node "${data.nodeId}".`;
     } else if (data.actionName) {
@@ -81,8 +122,8 @@ export class WeaveServiceNotAvailableError extends WeaveRetryableError {
 
 export class WeaveRequestTimeoutError extends WeaveRetryableError {
   // 504
-  constructor(actionName, nodeId, timeout) {
-    const data = {
+  constructor(actionName: string, nodeId: string | undefined, timeout: number) {
+    const data: TimeoutErrorData = {
       actionName,
       nodeId,
       timeout,
@@ -95,20 +136,20 @@ export class WeaveRequestTimeoutError extends WeaveRetryableError {
 
 export class WeaveParameterValidationError extends WeaveError {
   // 422
-  constructor(message, data) {
+  constructor(message: string, data?: unknown) {
     super(message, { code: "WEAVE_PARAMETER_VALIDATION_ERROR", data });
   }
 }
 
 export class WeaveBrokerOptionsError extends WeaveError {
-  constructor(message, data) {
+  constructor(message: string, data?: unknown) {
     super(message, { code: "WEAVE_BROKER_OPTIONS_ERROR", data });
   }
 }
 
 export class WeaveQueueSizeExceededError extends WeaveError {
   // 429
-  constructor(data) {
+  constructor(data?: unknown) {
     super("Queue size limit was exceeded. Request rejected.", {
       code: "WEAVE_QUEUE_SIZE_EXCEEDED_ERROR",
       data,
@@ -117,7 +158,7 @@ export class WeaveQueueSizeExceededError extends WeaveError {
 }
 
 export class WeaveMaxCallLevelError extends WeaveError {
-  constructor(data) {
+  constructor(data: MaxCallLevelErrorData) {
     super(`Request level has reached the limit ${data.maxCallLevel} on node "${data.nodeId}".`, {
       code: "WEAVE_MAX_CALL_LEVEL_ERROR",
       data,
@@ -126,7 +167,7 @@ export class WeaveMaxCallLevelError extends WeaveError {
 }
 
 export class WeaveGracefulStopTimeoutError extends WeaveError {
-  constructor(service) {
+  constructor(service: ServiceInfo) {
     const data = {
       name: service.name,
       version: service.version,

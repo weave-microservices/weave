@@ -1,6 +1,48 @@
 import hrTime from "./time.mts";
+import type { Logger, Runtime, Service, Span as SpanInterface, Tracer, TracingOptions } from "../../types/index.js";
 
-function defineReadonlyProperty(instance, propName, value, readOnly = false) {
+/**
+ * Internal tracer interface used by Span
+ */
+interface InternalTracer {
+  runtime: Runtime;
+  options: TracingOptions | undefined;
+  log: Logger;
+  shouldSample(): boolean;
+  invokeCollectorMethod(method: string, args: unknown[]): void;
+  startSpan(name: string, options?: SpanOptionsInternal): SpanInterface;
+  stop(): Promise<void>;
+}
+
+/**
+ * Service info for span
+ */
+interface SpanServiceInfo {
+  name: string;
+  version?: string | number;
+  fullyQualifiedName: string;
+}
+
+/**
+ * Internal span options
+ */
+interface SpanOptionsInternal {
+  id?: string;
+  traceId?: string;
+  parentId?: string;
+  type?: string;
+  sampled?: boolean;
+  service?: Service | SpanServiceInfo;
+  tags?: Record<string, unknown>;
+  defaultTags?: Record<string, unknown>;
+}
+
+function defineReadonlyProperty<T>(
+  instance: object,
+  propName: string,
+  value: T,
+  readOnly: boolean = false,
+): void {
   Object.defineProperty(instance, propName, {
     value,
     writable: !!readOnly,
@@ -8,11 +50,31 @@ function defineReadonlyProperty(instance, propName, value, readOnly = false) {
   });
 }
 
-// transform this factory function into a class
-export const Span = class Span {
-  constructor(tracer, name, options) {
+/**
+ * Span class for distributed tracing
+ */
+export class Span implements SpanInterface {
+  // Public properties from SpanInterface
+  public name: string;
+  public id: string;
+  public traceId: string;
+  public parentId?: string;
+  public type: string;
+  public sampled: boolean;
+  public tags: Record<string, unknown>;
+  public service?: SpanServiceInfo;
+  public startTime?: number;
+  public finishTime?: number;
+  public duration?: number;
+  public error?: Error;
+
+  // Private/internal properties (defined via defineReadonlyProperty)
+  private readonly tracer!: InternalTracer;
+  private readonly options!: SpanOptionsInternal;
+  private readonly meta!: Record<string, unknown>;
+
+  constructor(tracer: InternalTracer, name: string, options: SpanOptionsInternal = {}) {
     defineReadonlyProperty(this, "tracer", tracer, true);
-    // defineReadonlyProperty(this, 'logger', this.tracer.logger, true);
     defineReadonlyProperty(this, "options", options || {});
     defineReadonlyProperty(this, "meta", {});
 
@@ -21,7 +83,7 @@ export const Span = class Span {
     this.traceId = options.traceId || this.id;
     this.parentId = options.parentId;
     this.type = options.type || "custom";
-    this.sampled = options.sampled || tracer.shouldSample();
+    this.sampled = options.sampled ?? tracer.shouldSample();
     this.tags = {};
 
     if (options.service) {
@@ -41,12 +103,12 @@ export const Span = class Span {
     }
   }
 
-  addTags(tags) {
+  addTags(tags: Record<string, unknown>): this {
     Object.assign(this.tags, tags);
     return this;
   }
 
-  start(time?: number) {
+  start(time?: number): this {
     this.startTime = time || hrTime();
     if (this.sampled) {
       this.tracer.invokeCollectorMethod("startedSpan", [this]);
@@ -54,8 +116,8 @@ export const Span = class Span {
     return this;
   }
 
-  startChildSpan(name, options) {
-    const parentOptions = {
+  startChildSpan(name: string, options: SpanOptionsInternal = {}): SpanInterface {
+    const parentOptions: SpanOptionsInternal = {
       parentId: this.id,
       traceId: this.traceId,
       sampled: this.sampled,
@@ -64,9 +126,9 @@ export const Span = class Span {
     return this.tracer.startSpan(name, Object.assign(parentOptions, options));
   }
 
-  finish(time) {
+  finish(time?: number): this {
     this.finishTime = time || hrTime();
-    this.duration = this.finishTime - this.startTime;
+    this.duration = this.finishTime - (this.startTime || 0);
 
     this.tracer.log.debug(`Span "${this.id}" finished`);
 
@@ -77,15 +139,15 @@ export const Span = class Span {
     return this;
   }
 
-  isActive() {
+  isActive(): boolean {
     return this.finishTime !== null;
   }
 
-  setError(error) {
+  setError(error: Error): this {
     this.error = error;
     return this;
   }
-};
+}
 
 // export const createSpan = (tracer, name, options) => {
 //   const span = Object.assign({}, {

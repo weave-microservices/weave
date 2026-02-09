@@ -1,56 +1,117 @@
-export const createBaseMetricType = (metricRegistry, obj) => {
-  const base = Object.assign(
-    {},
-    {
-      name: obj.name,
-      description: obj.description,
-      values: new Map(),
-      labels: obj.labels || [],
-      type: obj.type,
-      unit: obj.unit,
-    },
-  );
+import type { MetricType, MetricRegistry } from "../../../types/index.js";
 
-  base.stringifyLabels = (labels) => {
-    if (base.labels.length === 0 || labels === null || typeof labels !== "object") {
-      return "";
-    }
+/**
+ * Metric value item stored in the values map
+ */
+export interface MetricValueItem {
+  value: number;
+  labels: Record<string, string> | null;
+  timestamp?: number;
+}
 
-    const parts = [];
+/**
+ * Metric snapshot item
+ */
+export interface MetricSnapshotItem {
+  value: number;
+  labels: Record<string, string> | null;
+}
 
-    base.labels.forEach((labelName) => {
-      const value = labels[labelName];
-      if (typeof value === "number") {
-        parts.push(value);
-      } else if (typeof value === "string") {
-        parts.push(value);
-      } else if (typeof value === "boolean") {
-        parts.push("" + value);
-      } else {
-        parts.push("");
+/**
+ * Options for creating a metric
+ */
+export interface MetricCreateOptions {
+  name: string;
+  description?: string;
+  type: MetricType;
+  unit?: string;
+  labels?: string[];
+  buckets?: number[];
+}
+
+/**
+ * Base metric type interface
+ */
+export interface BaseMetricInstance {
+  name: string;
+  description?: string;
+  values: Map<string, MetricValueItem>;
+  labels: string[];
+  type: MetricType;
+  unit?: string;
+  value?: number;
+  buckets?: number[];
+  stringifyLabels(labels: Record<string, string> | null): string;
+  get(labels: Record<string, string> | null): MetricValueItem | undefined;
+  snapshot(): MetricSnapshotItem[];
+  toObject(): {
+    type: MetricType;
+    name: string;
+    description?: string;
+    value: MetricSnapshotItem[];
+    unit?: string;
+  };
+  generateSnapshot(): MetricSnapshotItem[];
+  set?(value: number, labels: Record<string, string> | null, timestamp?: number): MetricValueItem | undefined;
+  increment?(labels: Record<string, string> | null, value?: number, timestamp?: number): void;
+  decrement?(labels: Record<string, string> | null, value?: number, timestamp?: number): void;
+  observe?(value: number, labels: Record<string, string> | null, timestamp?: number): void;
+}
+
+export const createBaseMetricType = (metricRegistry: MetricRegistry, obj: MetricCreateOptions): BaseMetricInstance => {
+  const base: BaseMetricInstance = {
+    name: obj.name,
+    description: obj.description,
+    values: new Map<string, MetricValueItem>(),
+    labels: obj.labels || [],
+    type: obj.type,
+    unit: obj.unit,
+
+    stringifyLabels(labels: Record<string, string> | null): string {
+      if (this.labels.length === 0 || labels === null || typeof labels !== "object") {
+        return "";
       }
-    });
 
-    return parts.join("|");
-  };
+      const parts: (string | number)[] = [];
 
-  base.get = (labels) => {
-    const labelString = base.stringifyLabels(labels);
-    return base.values.get(labelString);
-  };
+      this.labels.forEach((labelName: string) => {
+        const value = labels[labelName];
+        if (typeof value === "number") {
+          parts.push(value);
+        } else if (typeof value === "string") {
+          parts.push(value);
+        } else if (typeof value === "boolean") {
+          parts.push("" + value);
+        } else {
+          parts.push("");
+        }
+      });
 
-  base.snapshot = () => {
-    return base.generateSnapshot();
-  };
+      return parts.join("|");
+    },
 
-  base.toObject = () => {
-    return {
-      type: base.type,
-      name: base.name,
-      description: base.description,
-      value: base.snapshot(),
-      unit: base.unit,
-    };
+    get(labels: Record<string, string> | null): MetricValueItem | undefined {
+      const labelString = this.stringifyLabels(labels);
+      return this.values.get(labelString);
+    },
+
+    snapshot(): MetricSnapshotItem[] {
+      return this.generateSnapshot();
+    },
+
+    toObject() {
+      return {
+        type: this.type,
+        name: this.name,
+        description: this.description,
+        value: this.snapshot(),
+        unit: this.unit,
+      };
+    },
+
+    generateSnapshot(): MetricSnapshotItem[] {
+      return [];
+    },
   };
 
   return base;

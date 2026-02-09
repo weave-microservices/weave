@@ -376,7 +376,7 @@ export const createTransport = (runtime: Runtime, adapter: TransportAdapter) => 
 
               if (error) {
                 payloadCopy.success = false;
-                payloadCopy.error = getErrorPayload(error);
+                payloadCopy.error = getErrorPayload(error as WeaveError);
               }
 
               pending.outboundRequestStreams.delete(payload.id);
@@ -500,7 +500,7 @@ export const createTransport = (runtime: Runtime, adapter: TransportAdapter) => 
 
         if (error) {
           payloadCopy.success = false;
-          payloadCopy.error = getErrorPayload(error);
+          payloadCopy.error = getErrorPayload(error as WeaveError);
         }
 
         transport.log.debug(`Send closing chunk to ${target}`);
@@ -635,7 +635,7 @@ export const createTransport = (runtime: Runtime, adapter: TransportAdapter) => 
   function startUpdateLocalNodeTimer() {
     updateLocalNodeTimer = setInterval(() => {
       const node = runtime.registry.nodeCollection.localNode;
-      node.updateLocalInfo(true);
+      node.updateLocalInfo();
     }, runtime.options.transport?.localNodeUpdateInterval);
 
     updateLocalNodeTimer.unref();
@@ -689,7 +689,7 @@ export const createTransport = (runtime: Runtime, adapter: TransportAdapter) => 
         return;
       }
 
-      if (now - node.offlineTime > (runtime.options.transport?.maxOfflineTime ?? 0)) {
+      if (now - (node.offlineTime ?? 0) > (runtime.options.transport?.maxOfflineTime ?? 0)) {
         runtime.registry.removeNode(node.id);
       }
     });

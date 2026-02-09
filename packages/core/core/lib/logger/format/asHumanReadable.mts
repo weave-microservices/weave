@@ -9,27 +9,45 @@ import {
   colorizeJson,
 } from "../utils/colorize.mts";
 import os from "os";
+import type { LoggerContext } from "../index.mts";
 
+/**
+ * Color function type for log levels
+ */
+type ColorFunction = (txt: string) => string;
+
+/**
+ * Log level color mapping
+ */
+const logLevelColors: Record<string, ColorFunction> = {
+  fatal: magenta,
+  error: red,
+  warn: yellow,
+  info: green,
+  debug: cyan,
+  verbose: gray,
+};
+
+/**
+ * Format log output as human-readable colored text for TTY.
+ * @param ctx - Logger context
+ * @param originObj - Original log object
+ * @param message - Log message
+ * @param level - Numeric log level
+ * @param time - Timestamp
+ * @returns Formatted log string
+ */
 export const asHumanReadable = (
-  runtime: any,
-  originObj: any,
+  ctx: LoggerContext,
+  originObj: Record<string, unknown> | null,
   message: string,
-  number: number,
+  level: number,
   time: number,
-) => {
+): string => {
   let logResult = "";
 
-  const logLevelColors = {
-    fatal: magenta,
-    error: red,
-    warn: yellow,
-    info: green,
-    debug: cyan,
-    verbose: gray,
-  };
-
-  const labelsObj = runtime.levels.labels;
-  const currentLabel = labelsObj[number];
+  const labelsObj = ctx.levels.labels;
+  const currentLabel = labelsObj[level];
   const allLabels = Object.values(labelsObj) as string[];
   const maxLabelWidth = Math.max(...allLabels.map((l) => l.toUpperCase().length));
   const label = currentLabel?.toUpperCase() ?? "UNKNOWN";
@@ -39,22 +57,22 @@ export const asHumanReadable = (
   logResult += lightGray(new Date(time).toISOString()) + " ";
   logResult += color(paddedLabel);
 
-  if (runtime.options.base?.pid && runtime.options.base?.hostname) {
+  if (ctx.options.base?.pid && ctx.options.base?.hostname) {
     const labelParts: string[] = [];
-    if (runtime.options.base?.nodeId) {
-      labelParts.push(runtime.options.base.nodeId);
+    if (ctx.options.base?.nodeId) {
+      labelParts.push(String(ctx.options.base.nodeId));
     }
-    if (runtime.options.base?.svc) {
-      labelParts.push(runtime.options.base.svc);
+    if (ctx.options.base?.svc) {
+      labelParts.push(String(ctx.options.base.svc));
     }
-    if (runtime.options.base?.action) {
-      labelParts.push(runtime.options.base.action);
+    if (ctx.options.base?.action) {
+      labelParts.push(String(ctx.options.base.action));
     }
-    // if (runtime.options.base?.pid) {
-    //   labelParts.push(runtime.options.base.pid);
+    // if (ctx.options.base?.pid) {
+    //   labelParts.push(ctx.options.base.pid);
     // }
-    // if (runtime.options.base?.hostname) {
-    //   labelParts.push(runtime.options.base.hostname);
+    // if (ctx.options.base?.hostname) {
+    //   labelParts.push(ctx.options.base.hostname);
     // }
     logResult += lightGray(` ${labelParts.join("::")}`);
   }

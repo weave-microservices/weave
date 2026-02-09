@@ -1,35 +1,54 @@
-// @ts-check
-
 /*
  * Author: Kevin Ries (kevin.ries@fachwerk.io)
  * -----
  * Copyright 2021 Fachwerk
  */
 
-/**
- * @typedef {import('../../types.__js').Runtime} Runtime
- * @typedef {import('../../types.__js').EventCollection} EventCollection
- * @typedef {import('../../types.__js').Service} Service
- * @typedef {import('../../types.__js').Node} Node
- * @typedef {import('../../types.__js').EndpointCollection} EndpointCollection
- */
-
 import { createActionEndpoint } from "../actionEndpoint.mts";
 import { loadBalancingStrategy } from "../../constants.mts";
+import type {
+  Endpoint,
+  Node,
+  Runtime,
+  ServiceItem,
+  WeaveAction,
+} from "../../../types/index.js";
 
 /**
- *
- * @param {Runtime} runtime Runtime instance
- * @param {string} name name
- * @param {string=} groupName Group name
- * @returns {EndpointCollection} EndpointCollection
+ * Endpoint collection interface
  */
-export const createEndpointList = (runtime, name, groupName) => {
-  /** @type {EndpointCollection} */
-  const endpointList = Object.create(null);
+interface EndpointCollection {
+  name: string;
+  groupName: string | undefined;
+  isInternal: boolean;
+  localEndpoints: Endpoint[];
+  endpoints: Endpoint[];
+  add(node: Node, service: ServiceItem, action: WeaveAction): boolean;
+  hasAvailable(): boolean;
+  hasLocal(): boolean;
+  getNextAvailableEndpoint(): Endpoint | null;
+  getNextLocalEndpoint(): Endpoint | null;
+  count(): number;
+  getByNodeId(nodeId: string): Endpoint | undefined;
+  removeByNodeId(nodeId: string): void;
+  removeByService(service: ServiceItem): void;
+}
+
+/**
+ * Create endpoint list
+ * @param runtime Runtime instance
+ * @param name name
+ * @param groupName Group name
+ * @returns EndpointCollection
+ */
+export const createEndpointList = (
+  runtime: Runtime,
+  name: string,
+  groupName?: string,
+): EndpointCollection => {
+  const endpointList: EndpointCollection = Object.create(null);
   const options = runtime.options;
-  /** @type {Array} */
-  const list = (endpointList.endpoints = []);
+  const list: Endpoint[] = (endpointList.endpoints = []);
 
   let counter = 0;
 
@@ -38,34 +57,35 @@ export const createEndpointList = (runtime, name, groupName) => {
   endpointList.isInternal = name.startsWith("$");
   endpointList.localEndpoints = [];
 
-  const setLocalEndpoints = () => {
-    endpointList.localEndpoints = list.filter((endpoint) => endpoint.isLocal);
+  const setLocalEndpoints = (): void => {
+    endpointList.localEndpoints = list.filter((endpoint: Endpoint) => endpoint.isLocal);
   };
 
   /**
    * Select an Entpoint with the selected Load-Balancing-Strategy
-   * @param {*} endpointList List of all available Endpoints
-   * @returns {any} Endpoint
+   * @param endpointList List of all available Endpoints
+   * @returns Endpoint
    */
-  const select = (endpointList) => {
+  const select = (endpointList: Endpoint[]): Endpoint => {
     // Round robin
-    if (options.registry.loadBalancingStrategy === loadBalancingStrategy.ROUND_ROBIN) {
+    if (options.registry?.loadBalancingStrategy === loadBalancingStrategy.ROUND_ROBIN) {
       if (counter >= endpointList.length) {
         counter = 0;
       }
       const res = endpointList[counter++];
       return res;
     } else {
-      const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
+      const randomInt = (min: number, max: number): number =>
+        Math.floor(Math.random() * (max - min + 1) + min);
       return endpointList[randomInt(0, endpointList.length - 1)];
       // todo: implement random load balancer
     }
   };
 
-  endpointList.add = (node, service, action) => {
+  endpointList.add = (node: Node, service: ServiceItem, action: WeaveAction): boolean => {
     // todo: addaction
     const foundEndpoint = list.find(
-      (endpoint) => endpoint.node.id === node.id && endpoint.service.name === service.name,
+      (endpoint: Endpoint) => endpoint.node.id === node.id && endpoint.service.name === service.name,
     );
 
     if (foundEndpoint) {
@@ -80,11 +100,12 @@ export const createEndpointList = (runtime, name, groupName) => {
     return true;
   };
 
-  endpointList.hasAvailable = () => list.find((endpoint) => endpoint.isAvailable()) != null;
+  endpointList.hasAvailable = (): boolean =>
+    list.find((endpoint: Endpoint) => endpoint.isAvailable()) != null;
 
-  endpointList.hasLocal = () => endpointList.localEndpoints.length > 0;
+  endpointList.hasLocal = (): boolean => endpointList.localEndpoints.length > 0;
 
-  endpointList.getNextAvailableEndpoint = () => {
+  endpointList.getNextAvailableEndpoint = (): Endpoint | null => {
     if (list.length === 0) {
       return null;
     }
@@ -103,14 +124,14 @@ export const createEndpointList = (runtime, name, groupName) => {
       return null;
     }
 
-    if (options.registry.preferLocalActions && endpointList.hasLocal()) {
+    if (options.registry?.preferLocalActions && endpointList.hasLocal()) {
       const endpoint = endpointList.getNextLocalEndpoint();
       if (endpoint && endpoint.isAvailable()) {
         return endpoint;
       }
     }
 
-    const availableEndpoints = list.filter((endpoint) => endpoint.isAvailable());
+    const availableEndpoints = list.filter((endpoint: Endpoint) => endpoint.isAvailable());
     if (availableEndpoints.length === 0) {
       return null;
     }
@@ -118,7 +139,7 @@ export const createEndpointList = (runtime, name, groupName) => {
     return select(availableEndpoints);
   };
 
-  endpointList.getNextLocalEndpoint = () => {
+  endpointList.getNextLocalEndpoint = (): Endpoint | null => {
     if (endpointList.localEndpoints.length === 0) {
       return null;
     }
@@ -131,7 +152,7 @@ export const createEndpointList = (runtime, name, groupName) => {
       return null;
     }
 
-    const availableEndpoints = endpointList.localEndpoints.filter((endpoint) =>
+    const availableEndpoints = endpointList.localEndpoints.filter((endpoint: Endpoint) =>
       endpoint.isAvailable(),
     );
     if (availableEndpoints.length === 0) {
@@ -141,18 +162,21 @@ export const createEndpointList = (runtime, name, groupName) => {
     return select(availableEndpoints);
   };
 
-  endpointList.count = () => list.length;
+  endpointList.count = (): number => list.length;
 
-  endpointList.getByNodeId = (nodeId) => list.find((endpoint) => endpoint.node.id === nodeId);
+  endpointList.getByNodeId = (nodeId: string): Endpoint | undefined =>
+    list.find((endpoint: Endpoint) => endpoint.node.id === nodeId);
 
-  endpointList.removeByNodeId = (nodeId) => {
-    const endpointToRemove = list.find((item) => item.node.id === nodeId);
-    list.splice(list.indexOf(endpointToRemove), 1);
+  endpointList.removeByNodeId = (nodeId: string): void => {
+    const endpointToRemove = list.find((item: Endpoint) => item.node.id === nodeId);
+    if (endpointToRemove) {
+      list.splice(list.indexOf(endpointToRemove), 1);
+    }
     setLocalEndpoints();
   };
 
-  endpointList.removeByService = (service) => {
-    const endpointToRemove = list.find((endpoint) => endpoint.service === service);
+  endpointList.removeByService = (service: ServiceItem): void => {
+    const endpointToRemove = list.find((endpoint: Endpoint) => endpoint.service === service);
     if (endpointToRemove) {
       list.splice(list.indexOf(endpointToRemove), 1);
     }

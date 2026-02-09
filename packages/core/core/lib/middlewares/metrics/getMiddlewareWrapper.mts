@@ -1,26 +1,31 @@
 import { Constants } from "../../metrics/index.mts";
+import type { ActionHandler, Context, Runtime, ServiceInjection, WeaveAction } from "../../../types/index.js";
 
-export const getMiddlewareWrapper = (runtime) =>
-  function (type, action, handler) {
+type ActionType = "local" | "remote";
+
+type MiddlewareWrapperFunction = (type: ActionType, action: WeaveAction, handler: ActionHandler) => ActionHandler;
+
+export const getMiddlewareWrapper = (runtime: Runtime): MiddlewareWrapperFunction =>
+  function (type: ActionType, action: WeaveAction, handler: ActionHandler): ActionHandler {
     const serviceName = action.service ? action.service.fullyQualifiedName : null;
     const actionName = action.name;
 
-    return function metricMiddleware(context, serviceInjections) {
+    return function metricMiddleware(context: Context, serviceInjections: ServiceInjection): Promise<any> {
       const callerNodeId = context.callerNodeId;
 
-      runtime.metrics.increment(Constants.REQUESTS_TOTAL, {
+      runtime.metrics!.increment(Constants.REQUESTS_TOTAL, {
         type,
         serviceName,
         actionName,
         callerNodeId,
       });
-      runtime.metrics.increment(Constants.REQUESTS_IN_FLIGHT, {
+      runtime.metrics!.increment(Constants.REQUESTS_IN_FLIGHT, {
         type,
         serviceName,
         actionName,
         callerNodeId,
       });
-      const requestEnd = runtime.metrics.timer(Constants.REQUESTS_TIME, {
+      const requestEnd = runtime.metrics!.timer(Constants.REQUESTS_TIME, {
         type,
         serviceName,
         actionName,
@@ -28,9 +33,9 @@ export const getMiddlewareWrapper = (runtime) =>
       });
 
       return handler(context, serviceInjections)
-        .then((result) => {
+        .then((result: unknown) => {
           requestEnd();
-          runtime.metrics.decrement(Constants.REQUESTS_IN_FLIGHT, {
+          runtime.metrics!.decrement(Constants.REQUESTS_IN_FLIGHT, {
             type,
             serviceName,
             actionName,
@@ -38,15 +43,15 @@ export const getMiddlewareWrapper = (runtime) =>
           });
           return result;
         })
-        .catch((error) => {
+        .catch((error: Error) => {
           requestEnd();
-          runtime.metrics.decrement(Constants.REQUESTS_IN_FLIGHT, {
+          runtime.metrics!.decrement(Constants.REQUESTS_IN_FLIGHT, {
             type,
             serviceName,
             actionName,
             callerNodeId,
           });
-          runtime.metrics.increment(Constants.REQUESTS_ERRORS_TOTAL);
+          runtime.metrics!.increment(Constants.REQUESTS_ERRORS_TOTAL);
           runtime.handleError(error);
         });
     };

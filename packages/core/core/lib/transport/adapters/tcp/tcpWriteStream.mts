@@ -1,9 +1,22 @@
 import { Writable } from "stream";
+import type { Socket } from "net";
 import * as MessageTypes from "../../messageTypes.mts";
 import TCPMessageTypeHelper from "./tcp-messagetypes.mts";
+import type { TransportAdapter } from "../../../../types/index.js";
+
+interface TCPMessageTypeHelperInstance {
+  getTypeByIndex(index: number): string | undefined;
+  getIndexByType(type: string): number;
+}
 
 export default class TCPWriteStream extends Writable {
-  constructor(adapter, socket, maxPacketSize) {
+  buffer: Buffer | null;
+  adapter: TransportAdapter;
+  socket: Socket;
+  messageTypeHelper: TCPMessageTypeHelperInstance;
+  maxPacketSize: number;
+
+  constructor(adapter: TransportAdapter, socket: Socket, maxPacketSize: number) {
     super();
     this.buffer = null;
     this.adapter = adapter;
@@ -12,7 +25,7 @@ export default class TCPWriteStream extends Writable {
     this.maxPacketSize = maxPacketSize;
   }
 
-  _write(chunk, encoding, callback) {
+  _write(chunk: Buffer, encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
     let packet = chunk;
 
     if (this.buffer && this.buffer.length > 0) {

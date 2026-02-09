@@ -3,13 +3,13 @@
  * @param callback - Function to promisify
  * @returns Promisified function
  */
-export function promisify<T extends (...args: unknown[]) => unknown>(
-  callback: T,
-): (...args: Parameters<T>) => Promise<ReturnType<T>> {
-  return function makePromisedFunction(this: unknown, ...args: unknown[]): Promise<ReturnType<T>> {
+export function promisify<TArgs extends any[], TReturn>(
+  callback: (...args: TArgs) => TReturn,
+): (...args: TArgs) => Promise<Awaited<TReturn>> {
+  return function makePromisedFunction(...args: TArgs): Promise<Awaited<TReturn>> {
     return new Promise((resolve, reject) => {
       try {
-        return resolve(callback.apply(this, args) as ReturnType<T>);
+        return resolve(callback(...args) as Awaited<TReturn>);
       } catch (error) {
         return reject(error);
       }

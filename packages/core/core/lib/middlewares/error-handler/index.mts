@@ -5,17 +5,16 @@
  */
 
 import { WeaveError } from "../../errors.mts";
+import type { ActionHandler, Context, EventHandler, Middleware, Runtime, ServiceInjection } from "../../../types/index.js";
 
-export default (runtime) => {
-  const wrapErrorHandlerMiddleware = function (handler) {
-    return function errorHandlerMiddleware(context, serviceInjections) {
-      return handler(context, serviceInjections).catch((error) => {
-        if (!(error instanceof Error)) {
-          error = new WeaveError(error);
-        }
+export default (runtime: Runtime): Middleware => {
+  const wrapErrorHandlerMiddleware = function (handler: ActionHandler): ActionHandler {
+    return function errorHandlerMiddleware(context: Context, serviceInjections: ServiceInjection): Promise<unknown> {
+      return handler(context, serviceInjections).catch((err: unknown) => {
+        const error = err instanceof Error ? err : new WeaveError(String(err));
 
-        if (runtime.nodeId !== context.nodeId) {
-          runtime.transport.removePendingRequestsById(context.id);
+        if (runtime.nodeId !== context.nodeId && context.id) {
+          runtime.transport?.removePendingRequestsById(context.id);
         }
 
         Object.defineProperty(error, "context", {
@@ -24,26 +23,24 @@ export default (runtime) => {
           enumerable: false,
         });
 
-        runtime.log.debug(
-          `The action "${context.action.name}" was rejected`,
-          { requestId: context.requestId },
+        runtime.log.debug(`The action "${context.action?.name}" was rejected`, {
+          requestId: context.requestId,
           error,
-        );
+        });
         return runtime.handleError(error);
       });
     };
   };
 
-  const wrapEventErrorHandlerMiddleware = function (handler) {
-    return function errorHandlerMiddleware(context, serviceInjections) {
+  const wrapEventErrorHandlerMiddleware = function (handler: EventHandler): EventHandler {
+    return function errorHandlerMiddleware(context: Context, serviceInjections: ServiceInjection): Promise<void> {
       return handler(context, serviceInjections)
-        .catch((error) => {
-          if (!(error instanceof Error)) {
-            error = new WeaveError(error.message, { cause: error });
-          }
+        .catch((err: unknown) => {
+          const error =
+            err instanceof Error ? err : new WeaveError((err as { message?: string })?.message ?? String(err));
 
-          if (runtime.nodeId !== context.nodeId) {
-            runtime.transport.removePendingRequestsById(context.id);
+          if (runtime.nodeId !== context.nodeId && context.id) {
+            runtime.transport?.removePendingRequestsById(context.id);
           }
 
           Object.defineProperty(error, "context", {
@@ -52,16 +49,15 @@ export default (runtime) => {
             enumerable: false,
           });
 
-          runtime.log.debug(
-            `The event "${context.eventName}" was rejected`,
-            { requestId: context.requestId },
+          runtime.log.debug(`The event "${context.eventName}" was rejected`, {
+            requestId: context.requestId,
             error,
-          );
+          });
           return runtime.handleError(error);
         })
-        .catch((error) => {
+        .catch((err: unknown) => {
           // we just log the error because we don't want to crash the event loop
-          runtime.log.error(error);
+          runtime.log.error(err as Error);
         });
     };
   };

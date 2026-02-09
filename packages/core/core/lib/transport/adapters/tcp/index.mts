@@ -41,7 +41,7 @@ class TCPTransportAdapter extends BaseTransportAdapter {
   protected async afterInit(): Promise<void> {
     this.#nodes = this.broker.registry.nodeCollection;
     this.#registry = this.broker.registry;
-    this.#swim = Swim(this, this.#options);
+    this.#swim = Swim(this as any, this.#options);
   }
 
   async connect(): Promise<void> {
@@ -124,9 +124,9 @@ class TCPTransportAdapter extends BaseTransportAdapter {
   }
 
   // Send a disconnect message to all connected nodes.
-  #publishNodeDisconnect(message: any): Promise<void[]> {
+  async #publishNodeDisconnect(message: any): Promise<void> {
     const nodes = this.broker.registry.nodeCollection.toArray();
-    return Promise.all(
+    await Promise.all(
       nodes
         .filter((node: any) => node.isAvailable && !node.isLocal)
         .map((node: any) => {
@@ -184,8 +184,8 @@ class TCPTransportAdapter extends BaseTransportAdapter {
   }
 
   #startTCPServer(): Promise<number> {
-    this.#tcpReader = TCPReader(this, this.#options);
-    this.#tcpWriter = TCPWriter(this, this.#options);
+    this.#tcpReader = TCPReader(this as any, this.#options);
+    this.#tcpWriter = TCPWriter(this as any);
 
     this.#tcpReader.on("message", this.#onMessage.bind(this));
 
@@ -275,8 +275,16 @@ class TCPTransportAdapter extends BaseTransportAdapter {
   #onGossipHelloMessage(packet: any, socket: any): void {
     try {
       const message = this.deserialize(packet);
+      if (!message) {
+        this.log.error("Invalid gossip hello message: failed to deserialize");
+        return;
+      }
       const payload = message.payload;
       const nodeId = payload.sender;
+      if (!nodeId) {
+        this.log.error("Invalid gossip hello message: missing sender");
+        return;
+      }
       const node = this.broker.registry.nodeCollection.get(nodeId);
 
       if (!node) {
@@ -288,9 +296,13 @@ class TCPTransportAdapter extends BaseTransportAdapter {
   }
 
   // Handle incoming gossip request
-  #onGossipRequestMessage(data: any): void {
+  #onGossipRequestMessage(data: any, _socket?: any): void {
     try {
       const message = this.deserialize(data);
+      if (!message) {
+        this.log.error("Invalid gossip request message: failed to deserialize");
+        return;
+      }
       const payload = message.payload;
       const list = this.broker.registry.nodeCollection.toArray();
 
@@ -304,7 +316,9 @@ class TCPTransportAdapter extends BaseTransportAdapter {
         const online = payload.online ? payload.online[node.id] : null;
         const offline = payload.offline ? payload.offline[node.id] : null;
 
-        let sequence: number, cpuSequence: number, cpu: number;
+        let sequence: number | undefined;
+        let cpuSequence: number | undefined;
+        let cpu: number | undefined;
 
         if (offline) {
           sequence = offline;
@@ -313,7 +327,7 @@ class TCPTransportAdapter extends BaseTransportAdapter {
         }
 
         // Local node information are newer
-        if (!sequence || sequence < node.sequence) {
+        if (sequence === undefined || sequence < node.sequence) {
           // our node info is newer than the
           if (node.isAvailable) {
             const nodeInfo = this.broker.registry.getNodeInfo(node.id);
@@ -346,12 +360,12 @@ class TCPTransportAdapter extends BaseTransportAdapter {
         } else if (online) {
           // Remote node said we are online
           if (node.isAvailable) {
-            if (cpuSequence > node.cpuSequence) {
+            if (cpuSequence !== undefined && cpuSequence > node.cpuSequence) {
               node.heartbeat({
                 cpu,
                 cpuSequence,
               });
-            } else if (cpuSequence < node.cpuSequence) {
+            } else if (cpuSequence !== undefined && cpuSequence < node.cpuSequence) {
               response.online[node.id] = [node.cpuSequence || 0, node.cpu || 0];
             }
           } else {
@@ -369,16 +383,21 @@ class TCPTransportAdapter extends BaseTransportAdapter {
       }
 
       if (response.online || response.offline) {
+        if (!payload.sender) {
+          return;
+        }
         const destinationNode = this.broker.registry.nodeCollection.get(payload.sender);
-        const message = createMessage(
-          MessageTypes.MESSAGE_GOSSIP_RESPONSE,
-          destinationNode.id,
-          response,
-        );
-        this.send(message).catch(() => {});
+        if (destinationNode) {
+          const message = createMessage(
+            MessageTypes.MESSAGE_GOSSIP_RESPONSE,
+            destinationNode.id,
+            response,
+          );
+          this.send(message).catch(() => {});
+        }
       }
-    } catch (error) {
-      this.log.error(error);
+    } catch (error: unknown) {
+      this.log.error((error as Error).message || String(error));
     }
   }
 
@@ -386,6 +405,10 @@ class TCPTransportAdapter extends BaseTransportAdapter {
   #onGossipResponseMessage(data: any, socket: any): void {
     try {
       const message = this.deserialize(data);
+      if (!message) {
+        this.log.error("Invalid gossip response message: failed to deserialize");
+        return;
+      }
       const payload = message.payload;
 
       // Process online nodes
@@ -402,8 +425,8 @@ class TCPTransportAdapter extends BaseTransportAdapter {
           }
 
           let info: any;
-          let cpuSequence: number;
-          let cpu: number;
+          let cpuSequence: number | undefined;
+          let cpu: number | undefined;
 
           if (item.length === 1) {
             [info] = item;
@@ -421,7 +444,7 @@ class TCPTransportAdapter extends BaseTransportAdapter {
             this.broker.registry.processNodeInfo(info);
           }
 
-          if (node && node.isAvailable && cpuSequence && cpuSequence > node.cpuSequence) {
+          if (node && node.isAvailable && cpuSequence !== undefined && cpuSequence > (node.cpuSequence || 0)) {
             node.heartbeat({
               cpu,
               cpuSequence,
@@ -451,8 +474,8 @@ class TCPTransportAdapter extends BaseTransportAdapter {
           }
         });
       }
-    } catch (error) {
-      this.log.error(error);
+    } catch (error: unknown) {
+      this.log.error((error as Error).message || String(error));
     }
   }
 

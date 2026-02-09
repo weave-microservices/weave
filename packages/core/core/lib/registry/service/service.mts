@@ -4,24 +4,30 @@ import { parseAction } from "./parseAction.mts";
 import { parseEvent } from "./parseEvent.mts";
 import { reduceMixins } from "./reduceMixins.mts";
 import { createEventEndpoint } from "../eventEndpoint.mts";
-import type { Runtime, ServiceSchema } from "../../../types/index.js";
+import type {
+  ActionOptions,
+  Runtime,
+  Service,
+  ServiceActionSchema,
+  ServiceItem,
+  ServiceSchema,
+  WeaveAction,
+  WeaveEvent,
+} from "../../../types/index.js";
 
-export const createServiceFromSchema = (runtime: Runtime, schema: ServiceSchema) => {
+export const createServiceFromSchema = (runtime: Runtime, schema: ServiceSchema): Service => {
   // Check if a schema is given
   if (!schema) {
     runtime.handleError(new WeaveError("Schema is missing!"));
   }
 
-  /**
-   * @type {Service}
-   */
-  const service = Object.create(null);
+  const service = Object.create(null) as Service;
 
   // Set reference to the runtime.
   service.runtime = runtime;
 
   // Set reference to the broker instance.
-  service.broker = runtime.broker;
+  service.broker = runtime.broker!;
 
   // Apply all mixins (including children)
   if (schema.mixins) {
@@ -30,12 +36,13 @@ export const createServiceFromSchema = (runtime: Runtime, schema: ServiceSchema)
 
   // Call "afterSchemasMerged" service lifecycle hook(s)
   if (schema.afterSchemasMerged) {
+    const earlyInjection = { service, runtime };
     if (isFunction(schema.afterSchemasMerged)) {
-      schema.afterSchemasMerged.call(service, schema);
+      schema.afterSchemasMerged.call(service, schema, earlyInjection);
     } else if (Array.isArray(schema.afterSchemasMerged)) {
       Promise.all(
         schema.afterSchemasMerged.map((afterSchemasMerged) =>
-          afterSchemasMerged.call(service, schema),
+          afterSchemasMerged.call(service, schema, earlyInjection),
         ),
       );
     }
@@ -80,7 +87,15 @@ export const createServiceFromSchema = (runtime: Runtime, schema: ServiceSchema)
   service.events = {};
 
   // Create the service registry item
-  const serviceSpecification = {
+  const serviceSpecification: {
+    name: string;
+    fullyQualifiedName: string;
+    settings: Record<string, unknown>;
+    meta: Record<string, unknown> | undefined;
+    version: string | number | undefined;
+    actions: Record<string, WeaveAction>;
+    events: Record<string, WeaveEvent>;
+  } = {
     name: service.name,
     fullyQualifiedName: service.fullyQualifiedName,
     settings: service.settings,
@@ -132,7 +147,12 @@ export const createServiceFromSchema = (runtime: Runtime, schema: ServiceSchema)
       // skip actions that are set to false
       if (actionDefinition === false) return;
 
-      const innerAction = parseAction(runtime, service, clone(actionDefinition), name);
+      const innerAction = parseAction(
+        runtime,
+        service,
+        clone(actionDefinition as ServiceActionSchema),
+        name,
+      );
       serviceSpecification.actions[innerAction.name] = innerAction;
 
       const wrappedAction = runtime.middlewareHandler.wrapHandler(
@@ -141,8 +161,8 @@ export const createServiceFromSchema = (runtime: Runtime, schema: ServiceSchema)
         innerAction,
       );
 
-      // Make the action accessable via this.actions["actionName"]
-      service.actions[name] = (data, options) => {
+      // Make the action accessible via this.actions["actionName"]
+      service.actions[name] = (data: object, options?: ActionOptions) => {
         let context;
         // reuse context
         if (options && options.context) {
@@ -153,7 +173,7 @@ export const createServiceFromSchema = (runtime: Runtime, schema: ServiceSchema)
           context = runtime.contextFactory.create(endpoint, data, options || {});
         }
 
-        return wrappedAction(context, { service, runtime, errors: {} });
+        return wrappedAction.call(service, context, { service, runtime, errors: {} });
       };
     });
   }
@@ -174,7 +194,7 @@ export const createServiceFromSchema = (runtime: Runtime, schema: ServiceSchema)
       );
 
       // Add local event handler
-      service.events[name] = (data, options) => {
+      service.events[name] = (data: object, options?: ActionOptions) => {
         let context;
         if (options && options.context) {
           context = options.context;
@@ -191,19 +211,24 @@ export const createServiceFromSchema = (runtime: Runtime, schema: ServiceSchema)
           context = runtime.contextFactory.create(endpoint, data, options || {});
         }
 
-        return wrappedEvent(context);
+        return wrappedEvent.call(service, context, {
+          service: innerEvent.service,
+          runtime,
+          errors: {},
+        });
       };
     });
   }
 
   // Call "created" service lifecycle hook(s)
+  const injection = { service, runtime };
   if (schema.created) {
     if (isFunction(schema.created)) {
-      schema.created.call(service);
+      schema.created.call(service, injection);
     }
 
     if (Array.isArray(schema.created)) {
-      Promise.all(schema.created.map((createdHook) => createdHook.call(service)));
+      Promise.all(schema.created.map((createdHook) => createdHook.call(service, injection)));
     }
   }
 
@@ -226,16 +251,18 @@ export const createServiceFromSchema = (runtime: Runtime, schema: ServiceSchema)
       })
       .then(() => {
         if (isFunction(schema.started)) {
-          return promisify(schema.started.bind(service))();
+          return promisify(schema.started.bind(service))(injection);
         }
 
         if (Array.isArray(schema.started)) {
           return schema.started
             .map((hook) => promisify(hook.bind(service)))
-            .reduce((p, hook) => p.then(hook), Promise.resolve());
+            .reduce((p, hook) => p.then(() => hook(injection)), Promise.resolve());
         }
       })
-      .then(() => runtime.registry.registerLocalService(serviceSpecification))
+      .then(() =>
+        runtime.registry.registerLocalService(serviceSpecification as unknown as ServiceItem),
+      )
       .then(() => runtime.middlewareHandler.callHandlersAsync("serviceStarted", [service]));
   };
 
@@ -248,17 +275,17 @@ export const createServiceFromSchema = (runtime: Runtime, schema: ServiceSchema)
       })
       .then(() => {
         if (isFunction(schema.stopped)) {
-          return promisify(schema.stopped.bind(service))();
+          return promisify(schema.stopped.bind(service))(injection);
         }
 
         if (Array.isArray(schema.stopped)) {
           return schema.stopped
             .map((hook) => promisify(hook.bind(service)))
-            .reduce((p, hook) => p.then(hook), Promise.resolve());
+            .reduce((p, hook) => p.then(() => hook(injection)), Promise.resolve());
         }
       })
       .then(() =>
-        runtime.middlewareHandler.callHandlersAsync("serviceStopped", [service], { reverse: true }),
+        runtime.middlewareHandler.callHandlersAsync("serviceStopped", [service], true),
       )
       .then(() => service.log.debug(`Service "${service.name}" stopped`));
   };

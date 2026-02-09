@@ -7,7 +7,7 @@ import { dotGet } from "@weave-js/utils";
  * @param {string} key key
  * @returns {any} Result
  */
-const getPropertyFromDataOrMetadata = (data, metadata, key) => {
+const getPropertyFromDataOrMetadata = (data: any, metadata: object, key: string): any => {
   if (key.startsWith(":")) {
     key = key.replace(":", "");
     return dotGet(metadata, key);

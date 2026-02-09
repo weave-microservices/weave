@@ -9,7 +9,7 @@ import * as Constants from "../../metrics/constants.mts";
 import * as Errors from "../../errors.mts";
 import { default as getCacheKeyByObject } from "../getCacheKeyByObject.mts";
 import { default as getPropertyFromDataOrMetadata } from "../getPropertyFromDataOrMetadata.mts";
-import type { Runtime } from "../../../types/index.js";
+import type { Logger, MetricRegistry, Runtime } from "../../../types/index.js";
 
 function generateHash(key: string) {
   return crypto.createHash("sha1").update(key).digest("base64");
@@ -34,7 +34,21 @@ export const createCacheBase = (
     throw new Errors.WeaveError("Name must be a string.");
   }
 
-  const cache = {
+  const cache: {
+    name: string;
+    isConnected: boolean;
+    runtime: Runtime;
+    options: any;
+    metrics?: MetricRegistry;
+    log: Logger;
+    init(): void;
+    set(hashKey?: string, result?: any, ttl?: number): void;
+    get(hashKey?: string): void;
+    remove(hashKey?: string): void;
+    clear(): void;
+    stop(): Promise<void>;
+    getCachingKey(actionName: string, data: any, metadata: object, keys?: Array<string>): string;
+  } = {
     name,
     isConnected: false,
     runtime,
@@ -44,6 +58,7 @@ export const createCacheBase = (
       },
       options,
     ),
+    metrics: undefined,
     init() {
       if (runtime.metrics) {
         this.metrics = runtime.metrics;

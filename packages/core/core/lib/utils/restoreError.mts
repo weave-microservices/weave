@@ -1,6 +1,33 @@
 import * as errors from "../errors.mts";
 
 /**
+ * Serialized error payload from network transport
+ */
+interface ErrorPayload {
+  name: keyof typeof errors | string;
+  message: string;
+  data?: {
+    actionName?: string;
+    nodeId?: string;
+    timeout?: number;
+    service?: { name: string; version?: string };
+    [key: string]: unknown;
+  };
+  stack?: string;
+  code?: string;
+  nodeId?: string;
+}
+
+/**
+ * Extended Error interface with additional properties
+ */
+interface ExtendedError extends Error {
+  nodeId?: string;
+  code?: string;
+  data?: unknown;
+}
+
+/**
  * Restore a Weave error from a serialized error payload
  *
  * Reconstructs proper error instances from serialized error data received
@@ -16,18 +43,12 @@ import * as errors from "../errors.mts";
  * - WeaveRequestTimeoutError: Timeout-specific errors with action/node context
  * - WeaveGracefulStopTimeoutError: Shutdown timeout errors
  *
- * @param {Object} errorPayload Serialized error payload from network transport
- * @param {string} errorPayload.name Error class name
- * @param {string} errorPayload.message Error message
- * @param {Object} [errorPayload.data] Error-specific data
- * @param {string} [errorPayload.stack] Original stack trace
- * @param {string} [errorPayload.code] Error code
- * @param {string} [errorPayload.nodeId] Node ID where error occurred
+ * @param {ErrorPayload} errorPayload Serialized error payload from network transport
  * @returns {Error} Restored error instance with proper type and properties
  */
-export const restoreError = (errorPayload) => {
-  const ErrorClass = errors[errorPayload.name];
-  let error;
+export const restoreError = (errorPayload: ErrorPayload): Error => {
+  const ErrorClass = errors[errorPayload.name as keyof typeof errors] as (new (...args: unknown[]) => Error) | undefined;
+  let error: ExtendedError | undefined;
 
   if (ErrorClass) {
     switch (errorPayload.name) {
@@ -54,17 +75,19 @@ export const restoreError = (errorPayload) => {
       }
       case "WeaveRequestTimeoutError": {
         const { data } = errorPayload;
-        error = new ErrorClass(data.actionName, data.nodeId, data.timeout);
+        error = new ErrorClass(data?.actionName, data?.nodeId, data?.timeout);
         break;
       }
       case "WeaveGracefulStopTimeoutError": {
         const { data } = errorPayload;
-        error = new ErrorClass(data.service);
+        error = new ErrorClass(data?.service);
         break;
       }
     }
-  } else {
-    error = new Error(errorPayload.message);
+  }
+
+  if (!error) {
+    error = new Error(errorPayload.message) as ExtendedError;
 
     error.name = errorPayload.name;
 

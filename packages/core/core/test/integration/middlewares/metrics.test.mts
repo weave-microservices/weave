@@ -1,12 +1,13 @@
 import { WeaveError } from "../../../lib/errors.mts";
 import { TransportAdapters } from "../../../lib/index.mts";
-import Constants from "../../../lib/metrics/constants.mts";
+import * as Constants from "../../../lib/metrics/constants.mts";
 import { createNode } from "../../helper/index.mts";
-import { describe, it, beforeEach, afterEach } from "node:test";
+import { describe, it, beforeEach, afterEach, mock } from "node:test";
 import assert from "node:assert/strict";
+import type { Broker, Context } from "../../../types/index.js";
 
 describe("Metric middleware", () => {
-  let broker;
+  let broker: Broker;
 
   beforeEach(() => {
     broker = createNode({
@@ -40,29 +41,29 @@ describe("Metric middleware", () => {
 
   afterEach(() => broker.stop());
 
-  it("should update the request metrics", (done) => {
+  it("should update the request metrics", (done: (err?: Error) => void) => {
     const metrics = broker.runtime.metrics;
     const p = broker.call("test-service.testAction");
 
-    expect(metrics.getMetric(Constants.REQUESTS_IN_FLIGHT).value).toBe(1);
+    assert.strictEqual(metrics?.getMetric(Constants.REQUESTS_IN_FLIGHT)?.value, 1);
 
     p.then(() => {
-      expect(metrics.getMetric(Constants.REQUESTS_TOTAL).value).toBe(1);
-      expect(metrics.getMetric(Constants.REQUESTS_TIME).value).toBeGreaterThan(2000);
+      assert.strictEqual(metrics?.getMetric(Constants.REQUESTS_TOTAL)?.value, 1);
+      assert.ok((metrics?.getMetric(Constants.REQUESTS_TIME)?.value ?? 0) > 2000);
       done();
     });
   });
 
-  it("should update the request metrics on Error", (done) => {
+  it("should update the request metrics on Error", (done: (err?: Error) => void) => {
     const metrics = broker.runtime.metrics;
     const p = broker.call("test-service.throwError");
 
-    expect(metrics.getMetric(Constants.REQUESTS_IN_FLIGHT).value).toBe(1);
+    assert.strictEqual(metrics?.getMetric(Constants.REQUESTS_IN_FLIGHT)?.value, 1);
 
-    p.catch((_) => {
-      expect(metrics.getMetric(Constants.REQUESTS_TOTAL).value).toBe(1);
-      expect(metrics.getMetric(Constants.REQUESTS_TIME).value).toBeGreaterThan(0);
-      expect(metrics.getMetric(Constants.REQUESTS_ERRORS_TOTAL).value).toBe(1);
+    p.catch((_: unknown) => {
+      assert.strictEqual(metrics?.getMetric(Constants.REQUESTS_TOTAL)?.value, 1);
+      assert.ok((metrics?.getMetric(Constants.REQUESTS_TIME)?.value ?? 0) > 0);
+      assert.strictEqual(metrics?.getMetric(Constants.REQUESTS_ERRORS_TOTAL)?.value, 1);
       done();
     });
   });
@@ -76,7 +77,7 @@ describe("Metric middleware", () => {
 });
 
 describe("Metric middleware [cache]", () => {
-  let broker;
+  let broker: Broker;
 
   beforeEach(() => {
     broker = createNode({
@@ -102,7 +103,7 @@ describe("Metric middleware [cache]", () => {
           cache: {
             keys: ["name"],
           },
-          handler(context) {
+          handler(context: Context<{ name: string }>) {
             return context.data.name;
           },
         },
@@ -117,24 +118,24 @@ describe("Metric middleware [cache]", () => {
   it("should register metrics", async () => {
     const metrics = broker.runtime.metrics;
 
-    expect(metrics.getMetric(Constants.CACHE_GET_TOTAL).value).toBe(0);
-    expect(metrics.getMetric(Constants.CACHE_SET_TOTAL).value).toBe(0);
-    expect(metrics.getMetric(Constants.CACHE_FOUND_TOTAL).value).toBe(0);
-    expect(metrics.getMetric(Constants.CACHE_EXPIRED_TOTAL).value).toBe(0);
-    expect(metrics.getMetric(Constants.CACHE_DELETED_TOTAL).value).toBe(0);
-    expect(metrics.getMetric(Constants.CACHE_CLEANED_TOTAL).value).toBe(0);
+    assert.strictEqual(metrics?.getMetric(Constants.CACHE_GET_TOTAL)?.value, 0);
+    assert.strictEqual(metrics?.getMetric(Constants.CACHE_SET_TOTAL)?.value, 0);
+    assert.strictEqual(metrics?.getMetric(Constants.CACHE_FOUND_TOTAL)?.value, 0);
+    assert.strictEqual(metrics?.getMetric(Constants.CACHE_EXPIRED_TOTAL)?.value, 0);
+    assert.strictEqual(metrics?.getMetric(Constants.CACHE_DELETED_TOTAL)?.value, 0);
+    assert.strictEqual(metrics?.getMetric(Constants.CACHE_CLEANED_TOTAL)?.value, 0);
 
     await broker.call("test-service.testAction", { name: "Kevin" });
     await broker.call("test-service.testAction", { name: "Kevin" });
 
-    expect(metrics.getMetric(Constants.CACHE_GET_TOTAL).value).toBe(2);
-    expect(metrics.getMetric(Constants.CACHE_FOUND_TOTAL).value).toBe(1);
+    assert.strictEqual(metrics?.getMetric(Constants.CACHE_GET_TOTAL)?.value, 2);
+    assert.strictEqual(metrics?.getMetric(Constants.CACHE_FOUND_TOTAL)?.value, 1);
   });
 });
 
 describe("Metric middleware between remote nodes", () => {
-  let broker1;
-  let broker2;
+  let broker1: Broker;
+  let broker2: Broker;
 
   beforeEach(() => {
     broker1 = createNode({
@@ -170,7 +171,7 @@ describe("Metric middleware between remote nodes", () => {
           params: {
             name: "string",
           },
-          handler(context) {
+          handler(context: Context<{ name: string }>) {
             return context.data.name;
           },
         },
@@ -190,11 +191,11 @@ describe("Metric middleware between remote nodes", () => {
     await broker1.call("test-service.testAction", { name: "Kevin" });
     await broker1.call("test-service.testAction", { name: "Kevin" });
 
-    expect(metrics1.getMetric(Constants.REQUESTS_TOTAL).value).toBe(3);
-    expect(metrics1.getMetric(Constants.REQUESTS_IN_FLIGHT).value).toBe(0);
+    assert.strictEqual(metrics1?.getMetric(Constants.REQUESTS_TOTAL)?.value, 3);
+    assert.strictEqual(metrics1?.getMetric(Constants.REQUESTS_IN_FLIGHT)?.value, 0);
 
-    expect(metrics2.getMetric(Constants.REQUESTS_TOTAL).value).toBe(3);
-    expect(metrics2.getMetric(Constants.REQUESTS_IN_FLIGHT).value).toBe(0);
+    assert.strictEqual(metrics2?.getMetric(Constants.REQUESTS_TOTAL)?.value, 3);
+    assert.strictEqual(metrics2?.getMetric(Constants.REQUESTS_IN_FLIGHT)?.value, 0);
   });
 });
 
@@ -222,7 +223,7 @@ describe("Metric adapters validation", () => {
   });
 
   it("should init metric adapter.", async () => {
-    const mockMetricInitFunction = jest.fn();
+    const mockMetricInitFunction = mock.fn();
     const mockMetricAdapter = () => {
       return {
         init: mockMetricInitFunction,
@@ -244,6 +245,6 @@ describe("Metric adapters validation", () => {
     });
     await broker1.start();
 
-    expect(mockMetricInitFunction).toBeCalledTimes(1);
+    assert.strictEqual(mockMetricInitFunction.mock.calls.length, 1);
   });
 });

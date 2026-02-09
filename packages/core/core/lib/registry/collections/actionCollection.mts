@@ -1,58 +1,89 @@
-// @ts-check
-
 /*
  * Author: Kevin Ries (kevin.ries@fachwerk.io)
  * -----
  * Copyright 2021 Fachwerk
  */
 
-/**
- * @typedef {import('../../types.__js').Registry} Registry
- * @typedef {import('../../types.__js').ServiceActionCollection} ServiceActionCollection
- */
 import { omit } from "@weave-js/utils";
 import { createEndpointList } from "./endpointCollection.mts";
+import type {
+  ActionCollection,
+  Endpoint,
+  Node,
+  Registry,
+  ServiceItem,
+  WeaveAction,
+} from "../../../types/index.js";
 
 /**
- * Configuration object for weave service broker.
- * @typedef {Object} ActionCollection
- * @property {Function} add Enable metric middleware. (default = false)
- * @property {Array<String|Object>} adapters Array of metric adapters.
+ * Action list item interface
  */
+interface ActionListItem {
+  name: string;
+  hasAvailable: boolean;
+  hasLocal: boolean;
+  count: number;
+  action?: Omit<WeaveAction, "handler" | "service">;
+  endpoints?: Array<{
+    nodeId: string;
+    state: boolean;
+  }>;
+}
+
+/**
+ * Action list options interface
+ */
+interface ActionListOptions {
+  onlyLocals?: boolean;
+  skipInternals?: boolean;
+  withEndpoints?: boolean;
+}
+
+/**
+ * Endpoint list interface
+ */
+interface EndpointList {
+  name: string;
+  endpoints: Endpoint[];
+  add(node: Node, service: ServiceItem, action: WeaveAction): boolean;
+  removeByNodeId(nodeId: string): void;
+  removeByService(service: ServiceItem): void;
+  getNextAvailableEndpoint(): Endpoint | null;
+  hasAvailable(): boolean;
+  hasLocal(): boolean;
+  count(): number;
+}
 
 /**
  * Create an action collection.
- * @param {Registry} registry Reference to the registry.
- * @returns {ServiceActionCollection} Action collection
+ * @param registry Reference to the registry.
+ * @returns Action collection
  */
-export const createActionCollection = (registry) => {
-  /**
-   * @type {ServiceActionCollection}
-   */
-  const actionCollection = Object.create(null);
+export const createActionCollection = (registry: Registry): ActionCollection => {
+  const actionCollection: ActionCollection = Object.create(null);
   const { runtime } = registry;
-  const actions = new Map();
+  const actions = new Map<string, EndpointList>();
 
-  actionCollection.add = (node, service, action) => {
+  actionCollection.add = (node: Node, service: ServiceItem, action: WeaveAction): void => {
     let endPointList = actions.get(action.name);
     if (!endPointList) {
-      endPointList = createEndpointList(runtime, action.name);
+      endPointList = createEndpointList(runtime, action.name) as EndpointList;
       actions.set(action.name, endPointList);
     }
-    return endPointList.add(node, service, action);
+    endPointList.add(node, service, action);
   };
 
-  actionCollection.get = (actionName) => {
+  actionCollection.get = (actionName: string): EndpointList | undefined => {
     return actions.get(actionName);
   };
 
-  actionCollection.removeByService = (service) => {
-    actions.forEach((list) => {
+  actionCollection.removeByService = (service: ServiceItem): void => {
+    actions.forEach((list: EndpointList) => {
       list.removeByService(service);
     });
   };
 
-  actionCollection.remove = (actionName, node) => {
+  actionCollection.remove = (actionName: string, node: Node): void => {
     // todo: switch property order
     const endpoints = actions.get(actionName);
     if (endpoints) {
@@ -64,10 +95,10 @@ export const createActionCollection = (registry) => {
     onlyLocals = false,
     skipInternals = false,
     withEndpoints = false,
-  } = {}) => {
-    const result = [];
+  }: ActionListOptions = {}): WeaveAction[] => {
+    const result: ActionListItem[] = [];
 
-    actions.forEach((action) => {
+    actions.forEach((action: EndpointList) => {
       if (skipInternals && /^\$node/.test(action.name)) {
         return;
       }
@@ -77,7 +108,7 @@ export const createActionCollection = (registry) => {
       }
 
       // todo: don't create an new object
-      const item = {
+      const item: ActionListItem = {
         name: action.name,
         hasAvailable: action.hasAvailable(),
         hasLocal: action.hasLocal(),
@@ -87,7 +118,7 @@ export const createActionCollection = (registry) => {
       if (item.count > 0) {
         const endpoint = action.endpoints[0];
         if (endpoint) {
-          item.action = omit(endpoint.action, ["handler", "service"]);
+          item.action = omit(endpoint.action, ["handler", "service"]) as Omit<WeaveAction, "handler" | "service">;
         }
       }
 
@@ -96,7 +127,7 @@ export const createActionCollection = (registry) => {
       }
 
       if (withEndpoints) {
-        item.endpoints = action.endpoints.map((endpoint) => {
+        item.endpoints = action.endpoints.map((endpoint: Endpoint) => {
           return {
             nodeId: endpoint.node.id,
             state: endpoint.state,
@@ -106,7 +137,7 @@ export const createActionCollection = (registry) => {
 
       result.push(item);
     });
-    return result;
+    return result as unknown as WeaveAction[];
   };
 
   return actionCollection;

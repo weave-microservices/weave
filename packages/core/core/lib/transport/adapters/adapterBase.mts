@@ -5,7 +5,29 @@
  */
 
 import { EventEmitter } from "events";
-import type { Broker, Transport, Logger } from "../../../types/index.js";
+import type { Broker, Transport, Logger, TransportMessage, TransportMessageHandler } from "../../../types/index.js";
+
+/**
+ * Transport statistics structure
+ */
+interface TransportStatistics {
+  received: {
+    packages: number;
+  };
+  sent: {
+    packages: number;
+  };
+}
+
+/**
+ * Connection event parameters
+ */
+interface ConnectionEventParams {
+  wasReconnect?: boolean;
+  useHeartbeatTimer?: boolean;
+  useRemoteNodeCheckTimer?: boolean;
+  useOfflineCheckTimer?: boolean;
+}
 
 /**
  * Abstract base class for transport adapters
@@ -22,13 +44,13 @@ export abstract class BaseTransportAdapter {
   protected broker!: Broker;
   protected transport!: Transport;
   protected log!: Logger;
-  protected messageHandler!: any;
+  protected messageHandler!: TransportMessageHandler;
   protected prefix: string = "weave";
 
   /**
    * Initialize the adapter with broker and transport instances
    */
-  async init(broker: Broker, transport: Transport, messageHandler: any): Promise<void> {
+  async init(broker: Broker, transport: Transport, messageHandler: TransportMessageHandler): Promise<void> {
     this.broker = broker;
     this.transport = transport;
     this.log = transport.log;
@@ -67,7 +89,7 @@ export abstract class BaseTransportAdapter {
    * Send a message
    * Must be implemented by subclasses
    */
-  abstract send(message: any): Promise<void>;
+  abstract send(message: TransportMessage): Promise<void>;
 
   /**
    * Close the adapter connection
@@ -78,7 +100,7 @@ export abstract class BaseTransportAdapter {
   /**
    * Connection handler - emits connected event
    */
-  protected connected(connectionEventParams: any = {}): void {
+  protected connected(connectionEventParams: ConnectionEventParams = {}): void {
     this.bus.emit("$adapter.connected", connectionEventParams);
   }
 
@@ -99,7 +121,7 @@ export abstract class BaseTransportAdapter {
   /**
    * Pre-send hook
    */
-  preSend(packet: any): Promise<void> {
+  preSend(packet: TransportMessage): Promise<void> {
     return this.send(packet);
   }
 
@@ -115,12 +137,12 @@ export abstract class BaseTransportAdapter {
   /**
    * Serialize a packet to Buffer
    */
-  protected serialize(packet: any): Buffer {
+  protected serialize(packet: TransportMessage): Buffer {
     try {
       packet.payload.sender = this.broker.nodeId;
       return Buffer.from(JSON.stringify(packet));
     } catch (error) {
-      this.broker.handleError(error);
+      this.broker.handleError(error as Error);
       return Buffer.from("");
     }
   }
@@ -128,11 +150,11 @@ export abstract class BaseTransportAdapter {
   /**
    * Deserialize a packet from Buffer or string
    */
-  protected deserialize(packet: string | Buffer): any {
+  protected deserialize(packet: string | Buffer): TransportMessage | null {
     try {
-      return JSON.parse(packet.toString());
+      return JSON.parse(packet.toString()) as TransportMessage;
     } catch (error) {
-      this.broker.handleError(error);
+      this.broker.handleError(error as Error);
       return null;
     }
   }
@@ -141,14 +163,20 @@ export abstract class BaseTransportAdapter {
    * Update received statistics
    */
   protected updateStatisticReceived(length: number): void {
-    this.transport.statistics.received.packages += length;
+    const statistics = this.transport.statistics as unknown as TransportStatistics | undefined;
+    if (statistics) {
+      statistics.received.packages += length;
+    }
   }
 
   /**
    * Update sent statistics
    */
   protected updateStatisticSent(length: number): void {
-    this.transport.statistics.sent.packages += length;
+    const statistics = this.transport.statistics as unknown as TransportStatistics | undefined;
+    if (statistics) {
+      statistics.sent.packages += length;
+    }
   }
 }
 
@@ -156,7 +184,7 @@ export abstract class BaseTransportAdapter {
  * Legacy factory function for backward compatibility
  * @deprecated Use BaseTransportAdapter class directly
  */
-const createTransportBase = (options = {}): any => {
+const createTransportBase = (_options: Record<string, unknown> = {}): never => {
   // This is kept for backward compatibility but should not be used
   // All new adapters should extend BaseTransportAdapter class
   throw new Error("createTransportBase is deprecated. Extend BaseTransportAdapter class instead.");

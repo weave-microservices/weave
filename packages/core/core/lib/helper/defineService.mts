@@ -33,6 +33,8 @@
  *   }
  * });
  */
-export default function (serviceSchema) {
+import type { ServiceSchema } from "../../types/index.js";
+
+export default function defineService<T extends ServiceSchema>(serviceSchema: T): T {
   return serviceSchema;
 }

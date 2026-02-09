@@ -6,12 +6,13 @@
 
 import { promiseTimeout } from "@weave-js/utils";
 import { WeaveRequestTimeoutError } from "../../errors.mts";
+import type { ActionHandler, Context, Middleware, Runtime, ServiceInjection } from "../../../types/index.js";
 
-const wrapTimeoutMiddleware = function (handler) {
+const wrapTimeoutMiddleware = function (this: Runtime, handler: ActionHandler): ActionHandler {
   const self = this;
   const registryOptions = self.options.registry || {};
 
-  return function timeoutMiddleware(context, serviceInjections) {
+  return function timeoutMiddleware(context: Context, serviceInjections: ServiceInjection) {
     if (typeof context.options.timeout === "undefined" || registryOptions.requestTimeout) {
       context.options.timeout = registryOptions.requestTimeout || 0;
     }
@@ -39,7 +40,7 @@ const wrapTimeoutMiddleware = function (handler) {
   };
 };
 
-export default () => {
+export default (): Middleware => {
   return {
     localAction: wrapTimeoutMiddleware,
     remoteAction: wrapTimeoutMiddleware,

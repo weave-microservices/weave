@@ -1,13 +1,22 @@
-export const errorHandler = ({ options }, error) => {
-  if (options.errorHandler) {
-    return options.errorHandler.call(null, error);
+import type { Runtime } from "../types/index.js";
+import type { LoggerOptions } from "../types/index.js";
+
+export const errorHandler = (runtime: Runtime, error: Error): void => {
+  if (runtime.options.errorHandler) {
+    return runtime.options.errorHandler.call(null, error);
   }
   throw error;
 };
 
-export const fatalErrorHandler = (runtime, message, error, killProcess = true) => {
+export const fatalErrorHandler = (
+  runtime: Runtime,
+  message?: string,
+  error?: Error,
+  killProcess: boolean = true,
+): void => {
   const { options, log, broker } = runtime;
-  if (options.logger.enabled) {
+  const loggerOptions = options.logger as LoggerOptions | undefined;
+  if (loggerOptions?.enabled) {
     log.fatal({ error }, message);
   } else {
     console.error(message, error);

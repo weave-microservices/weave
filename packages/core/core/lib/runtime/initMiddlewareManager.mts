@@ -1,12 +1,18 @@
-export const initMiddlewareHandler = (runtime) => {
-  const list = [];
+import type { WeaveAction, WeaveEvent } from "../../types/internal.js";
+import type { Middleware } from "../../types/index.js";
+import type { Runtime } from "../../types/index.js";
+
+type MiddlewareFactory = (runtime: Runtime) => Middleware;
+
+export const initMiddlewareHandler = (runtime: Runtime): void => {
+  const list: Middleware[] = [];
 
   Object.defineProperty(runtime, "middlewareHandler", {
     value: {
-      count() {
+      count(): number {
         return list.length;
       },
-      add(middleware) {
+      add(middleware: Middleware | MiddlewareFactory | null | undefined): void {
         if (!middleware) {
           return;
         }
@@ -17,23 +23,31 @@ export const initMiddlewareHandler = (runtime) => {
 
         list.push(middleware);
       },
-      wrapMethod(methodName, handler, bindTo = runtime) {
+      wrapMethod<T extends (...args: unknown[]) => unknown>(
+        methodName: string,
+        handler: T,
+        bindTo: unknown = runtime,
+      ): T {
         if (list.length) {
           const middlewareList = list.filter((middleware) => !!middleware[methodName]);
           if (middlewareList.length) {
             handler = middlewareList.reduce(
               (next, middleware) => middleware[methodName].call(runtime, next),
               handler.bind(bindTo),
-            );
+            ) as T;
           }
         }
         return handler;
       },
-      wrapHandler(methodName, handler, definition) {
+      wrapHandler<T extends (...args: unknown[]) => unknown>(
+        methodName: string,
+        handler: T,
+        definition?: WeaveAction | WeaveEvent,
+      ): T {
         if (list.length) {
-          handler = list.reduce((handler, middleware) => {
+          handler = list.reduce((handler: T, middleware: Middleware) => {
             if (typeof middleware[methodName] === "function") {
-              return middleware[methodName].call(runtime, handler, definition);
+              return middleware[methodName].call(runtime, handler, definition) as T;
             } else {
               return handler;
             }
@@ -41,28 +55,28 @@ export const initMiddlewareHandler = (runtime) => {
         }
         return handler;
       },
-      callHandlersAsync(methodName, args, reverse = false) {
+      callHandlersAsync(methodName: string, args: unknown[], reverse: boolean = false): Promise<void> {
         const middlewareList = reverse ? Array.from(list).reverse() : list;
         const momentousHandlers = middlewareList
           .filter((middleware) => typeof middleware[methodName] === "function")
-          .map((middleware) => middleware[methodName]);
+          .map((middleware) => middleware[methodName] as (...args: unknown[]) => unknown);
 
         if (momentousHandlers.length) {
           return momentousHandlers.reduce(
-            (p, func) => p.then(() => func.apply(runtime, args)),
+            (p: Promise<void>, func) => p.then(() => func.apply(runtime, args)) as Promise<void>,
             Promise.resolve(),
           );
         }
 
         return Promise.resolve();
       },
-      callHandlersSync(methodName, args, reverse = false) {
+      callHandlersSync(methodName: string, args: unknown[], reverse: boolean = false): void {
         if (list.length) {
           const middlewareList = reverse ? Array.from(list).reverse() : list;
 
           middlewareList
             .filter((middleware) => typeof middleware[methodName] === "function")
-            .map((middleware) => middleware[methodName])
+            .map((middleware) => middleware[methodName] as (...args: unknown[]) => unknown)
             .forEach((handler) => handler.apply(runtime, args));
         }
       },

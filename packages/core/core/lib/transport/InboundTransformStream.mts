@@ -1,11 +1,28 @@
-import { Transform } from "stream";
+import { Transform, Writable } from "stream";
+import type { TransformCallback, TransformOptions } from "stream";
 
-const pushWithBackpressure = (stream, chunks, encoding, callback = null, $index = 0) => {
+interface BackpressureEventData {
+  sender: string;
+  requestId: string;
+}
+
+// Internal Node.js readable state interface (simplified)
+interface ReadableStateInternal {
+  pipes?: Writable | Writable[];
+}
+
+const pushWithBackpressure = (
+  stream: InboundTransformStream,
+  chunks: any,
+  encoding?: BufferEncoding | ((err?: Error | null) => void),
+  callback: ((err?: Error | null) => void) | null = null,
+  $index: number = 0,
+): InboundTransformStream => {
   if (!(stream instanceof Transform)) {
     throw new TypeError('Argument "stream" must be an instance of Duplex');
   }
 
-  chunks = [].concat(chunks).filter((x) => x !== undefined);
+  chunks = [].concat(chunks).filter((x: any) => x !== undefined);
 
   if (typeof encoding === "function") {
     callback = encoding;
@@ -17,17 +34,20 @@ const pushWithBackpressure = (stream, chunks, encoding, callback = null, $index 
       callback();
     }
     return stream;
-  } else if (!stream.push(chunks[$index], ...[encoding].filter(Boolean))) {
+  } else if (!stream.push(chunks[$index], ...[encoding].filter(Boolean) as BufferEncoding[])) {
     stream.emit("backpressure", {
       sender: stream.sender,
       requestId: stream.requestId,
     });
 
-    const pipedStreams = [].concat((stream._readableState || {}).pipes || stream).filter(Boolean);
+    // Access internal Node.js readable state (not officially typed)
+    const readableState = (stream as any)._readableState as ReadableStateInternal | undefined;
+    const pipes = readableState?.pipes;
+    const pipedStreams: Writable[] = ([] as any[]).concat(pipes || stream).filter(Boolean);
 
     let listenerCalled = false;
 
-    const drainListener = () => {
+    const drainListener = (): void => {
       stream.emit("resume_backpressure", {
         sender: stream.sender,
         requestId: stream.requestId,
@@ -39,15 +59,15 @@ const pushWithBackpressure = (stream, chunks, encoding, callback = null, $index 
 
       listenerCalled = true;
 
-      for (const stream of pipedStreams) {
-        stream.removeListener("drain", drainListener);
+      for (const pipedStream of pipedStreams) {
+        pipedStream.removeListener("drain", drainListener);
       }
 
       pushWithBackpressure(stream, chunks, encoding, callback, $index + 1);
     };
 
-    for (const stream of pipedStreams) {
-      stream.once("drain", drainListener);
+    for (const pipedStream of pipedStreams) {
+      pipedStream.once("drain", drainListener);
     }
 
     return stream;
@@ -56,17 +76,24 @@ const pushWithBackpressure = (stream, chunks, encoding, callback = null, $index 
 };
 
 export class InboundTransformStream extends Transform {
-  constructor(sender, requestId, options) {
+  sender: string;
+  requestId: string;
+  $prevSeq: number;
+  $pool: Map<number, any>;
+
+  constructor(sender: string, requestId: string, options?: TransformOptions) {
     super(options);
     this.sender = sender;
     this.requestId = requestId;
+    this.$prevSeq = -1;
+    this.$pool = new Map();
   }
 
-  _transform(chunk, encoding, callback) {
+  _transform(chunk: any, encoding: BufferEncoding, callback: TransformCallback): void {
     pushWithBackpressure(this, chunk, encoding, callback);
   }
 
-  _flush(callback) {
-    return callback();
+  _flush(callback: TransformCallback): void {
+    callback();
   }
 }

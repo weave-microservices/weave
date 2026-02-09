@@ -1,10 +1,34 @@
-/**
- * @typedef {import('../types.__js').Runtime} Runtime
- */
 import os from "os";
 import * as Constants from "./constants.mts";
+import type { Runtime, MetricType } from "../../types/index.js";
 
-const getUserInfo = () => {
+/**
+ * Metric instance with chainable set method as used in this module.
+ * Labels parameter is optional in practice (defaults to null at runtime).
+ */
+interface ChainableMetric {
+  set(value: string | number | undefined, labels?: Record<string, string> | null, timestamp?: number): void;
+}
+
+/**
+ * Options for creating a metric
+ */
+interface MetricOptions {
+  name: string;
+  type: MetricType;
+  description?: string;
+}
+
+/**
+ * Internal metrics registry interface as used in this module.
+ * The public MetricRegistry interface doesn't accurately reflect the actual implementation.
+ */
+interface InternalMetricRegistry {
+  register(obj: MetricOptions): ChainableMetric;
+  set(name: string, value: string | number, labels?: Record<string, string> | null, timestamp?: number): void;
+}
+
+const getUserInfo = (): Partial<os.UserInfo<string>> => {
   try {
     return os.userInfo();
   } catch (e) {
@@ -16,8 +40,9 @@ const getUserInfo = () => {
  * @param  {Runtime} runtime Runtime reference
  * @returns {void}
  */
-export const registerCommonMetrics = (runtime) => {
-  const { metrics } = runtime;
+export const registerCommonMetrics = (runtime: Runtime): void => {
+  // This function is only called when metrics is enabled, so we can assert it exists
+  const metrics = runtime.metrics as unknown as InternalMetricRegistry;
 
   // Process metrics
   metrics
@@ -117,8 +142,9 @@ export const registerCommonMetrics = (runtime) => {
  * @param  {Runtime} runtime Runtime reference
  * @returns {void}
  */
-export const updateCommonMetrics = (runtime) => {
-  const { metrics } = runtime;
+export const updateCommonMetrics = (runtime: Runtime): void => {
+  // This function is only called when metrics is enabled, so we can assert it exists
+  const metrics = runtime.metrics as unknown as InternalMetricRegistry;
 
   metrics.set(Constants.PROCESS_UPTIME, process.uptime());
   const freeMemory = os.freemem();

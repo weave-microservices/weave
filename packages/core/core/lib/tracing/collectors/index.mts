@@ -13,22 +13,28 @@
  */
 
 import { isFunction } from "@weave-js/utils";
+import type { Runtime } from "../../../types/index.js";
 
 const collectors = {
   Event: await import("./event.mts"),
   BaseCollector: await import("./base.mts"),
-};
+} as const;
+
+type CollectorName = keyof typeof collectors;
 
 /**
  * Get a tracing collector by name (case-insensitive lookup)
  * @param {string} name Tracing collector name (e.g., 'Event', 'BaseCollector')
- * @returns {import('../../../types').TracingCollector} The collector constructor or undefined if not found
+ * @returns The collector constructor or undefined if not found
  */
-const getByName = (name) => {
+const getByName = (name: string): (typeof collectors)[CollectorName] | undefined => {
   const n = Object.keys(collectors).find(
     (collectorName) => collectorName.toLowerCase() === name.toLowerCase(),
-  );
-  return collectors[n];
+  ) as CollectorName | undefined;
+  if (n) {
+    return collectors[n];
+  }
+  return undefined;
 };
 
 /**
@@ -40,19 +46,19 @@ const getByName = (name) => {
  * - Object: Returns object directly as collector instance
  * - Constructor: Instantiates with new operator
  *
- * @param {import('../../../types').Runtime} runtime Runtime instance for collector initialization
- * @param {string | Function | Object | import('../../../types').TracingCollector} collector Tracing collector specification
- * @returns {import('../../../types').TracingCollector} Resolved collector instance
+ * @param runtime Runtime instance for collector initialization
+ * @param collector Tracing collector specification
+ * @returns Resolved collector instance
  * @throws {Error} When collector cannot be resolved or is not found
  */
-export const resolveCollector = (runtime, collector) => {
-  let CollectorClass;
+export const resolveCollector = (runtime: Runtime, collector: string | ((...args: unknown[]) => unknown) | object): unknown => {
+  let CollectorClass: (typeof collectors)[CollectorName] | undefined;
   if (typeof collector === "string") {
     CollectorClass = getByName(collector);
   }
 
   if (isFunction(collector)) {
-    return collector(runtime);
+    return (collector as (runtime: Runtime) => unknown)(runtime);
   }
 
   if (typeof collector === "object") {
@@ -63,11 +69,9 @@ export const resolveCollector = (runtime, collector) => {
     runtime.handleError(new Error("Tracer not found"));
   }
 
-  return new CollectorClass(collector);
+  return CollectorClass;
 };
 
 export const Base = collectors.BaseCollector;
-
-export const Console = collectors.Console;
 
 export const Event = collectors.Event;

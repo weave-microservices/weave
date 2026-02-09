@@ -5,99 +5,101 @@
  */
 import { Constants } from "../../metrics/index.mts";
 import { getMiddlewareWrapper } from "./getMiddlewareWrapper.mts";
+import type { ActionHandler, Middleware, Runtime, WeaveAction } from "../../../types/index.js";
 
-export default (runtime) => {
+export default (runtime: Runtime): Middleware => {
   const wrapMetricMiddleware = getMiddlewareWrapper(runtime);
+  const metrics = runtime.metrics!;
 
   return {
-    created() {
+    created(): void {
       // Request metrics
-      runtime.metrics.register({
+      metrics.register({
         type: "counter",
         name: Constants.REQUESTS_TOTAL,
         description: "Number of total requests.",
       });
-      runtime.metrics.register({
+      metrics.register({
         type: "gauge",
         name: Constants.REQUESTS_IN_FLIGHT,
         description: "Number of running requests.",
       });
-      runtime.metrics.register({
+      metrics.register({
         type: "counter",
         name: Constants.REQUESTS_ERRORS_TOTAL,
         description: "Number of failed requests.",
       });
-      runtime.metrics.register({
+      metrics.register({
         type: "gauge",
         name: Constants.REQUESTS_TIME,
         description: "Request times in milliseconds",
       });
 
       // Event metrics
-      runtime.metrics.register({
+      metrics.register({
         type: "counter",
         name: Constants.EVENT_TOTAL_EMITS,
         description: "Number of total emitted events.",
       });
-      runtime.metrics.register({
+      metrics.register({
         type: "counter",
         name: Constants.EVENT_TOTAL_BROADCASTS,
         description: "Number of total broadcasted events.",
       });
-      runtime.metrics.register({
+      metrics.register({
         type: "counter",
         name: Constants.EVENT_TOTAL_BROADCASTS_LOCAL,
         description: "Number of total local broadcasted events.",
       });
-      runtime.metrics.register({
+      metrics.register({
         type: "counter",
         name: Constants.EVENT_TOTAL_RECEIVED,
         description: "Number of total received events.",
       });
 
       // Transport metrics
-      runtime.metrics.register({
+      metrics.register({
         type: "gauge",
         name: Constants.TRANSPORT_IN_FLIGHT_STREAMS,
         description: "Number of in flight streams.",
       });
-      runtime.metrics.register({
+      metrics.register({
         type: "counter",
         name: Constants.TRANSPORTER_PACKETS_SENT,
         description: "Number of in flight streams.",
       });
-      runtime.metrics.register({
+      metrics.register({
         type: "counter",
         name: Constants.TRANSPORTER_PACKETS_RECEIVED,
         description: "Number of in flight streams.",
       });
-      runtime.metrics.register({
+      metrics.register({
         type: "gauge",
         name: Constants.TRANSPORT_IN_FLIGHT_STREAMS,
         description: "Number of in flight streams.",
       });
     },
-    localAction(next, action) {
+    localAction(next: ActionHandler, action: WeaveAction): ActionHandler {
       return wrapMetricMiddleware("local", action, next);
     },
-    remoteAction(next, action) {
+    remoteAction(next: ActionHandler, action: WeaveAction): ActionHandler {
       return wrapMetricMiddleware("remote", action, next);
     },
-    emit(next) {
-      return (event, payload) => {
-        runtime.metrics.increment(Constants.EVENT_TOTAL_EMITS);
+    emit(next: (event: string, payload: unknown) => void): (event: string, payload: unknown) => void {
+      return (event: string, payload: unknown): void => {
+        metrics.increment(Constants.EVENT_TOTAL_EMITS);
         return next(event, payload);
       };
     },
-    broadcast(next) {
-      return (event, payload) => {
-        runtime.metrics.increment(Constants.EVENT_TOTAL_BROADCASTS);
+    broadcast(next: (event: string, payload: unknown) => void): (event: string, payload: unknown) => void {
+      return (event: string, payload: unknown): void => {
+        metrics.increment(Constants.EVENT_TOTAL_BROADCASTS);
         return next(event, payload);
       };
     },
-    broadcastLocal(next) {
-      return (event, payload) => {
-        runtime.metrics.increment(Constants.EVENT_TOTAL_BROADCASTS_LOCAL);
+    broadcastLocal(next: (event: string, payload: unknown) => void): (event: string, payload: unknown) => void {
+      return (event: string, payload: unknown): void => {
+        metrics.increment(Constants.EVENT_TOTAL_BROADCASTS_LOCAL);
         return next(event, payload);
       };
     },

@@ -1,33 +1,48 @@
-import net from "net";
+import net, { Server, Socket } from "net";
+import type { AddressInfo } from "net";
 import { EventEmitter } from "events";
 import TCPWriteStream from "./tcpWriteStream.mts";
+import type { TransportAdapter } from "../../../../types/index.js";
 
-export default (adapter, options) => {
-  const self = Object.assign({}, EventEmitter.prototype);
-  let sockets = [];
-  let server;
+interface TCPReaderOptions {
+  maxPacketSize: number;
+  port?: number;
+}
 
-  self.isConnected = false;
+interface TCPReader extends EventEmitter {
+  isConnected: boolean;
+  listen(): Promise<number>;
+  close(): void;
+}
 
-  self.listen = () => {
+export default (adapter: TransportAdapter, options: TCPReaderOptions): TCPReader => {
+  const self = Object.assign(new EventEmitter(), {
+    isConnected: false,
+  }) as TCPReader;
+
+  let sockets: Socket[] = [];
+  let server: Server | null = null;
+
+  self.listen = (): Promise<number> => {
     return new Promise((resolve, reject) => {
-      server = net.createServer((socket) => onTCPClientConnected(socket));
+      server = net.createServer((socket: Socket) => onTCPClientConnected(socket));
 
-      server.on("error", (error) => {
-        adapter.log.error("TCP server error", error);
+      server.on("error", (error: Error) => {
+        adapter.log?.error("TCP server error", error.message);
         reject(error);
       });
 
       server.listen(options, () => {
-        const port = server.address().port;
+        const address = server?.address() as AddressInfo;
+        const port = address.port;
         self.isConnected = true;
-        adapter.log.info(`TCP server is listening on port ${port}`);
+        adapter.log?.info(`TCP server is listening on port ${port}`);
         resolve(port);
       });
     });
   };
 
-  self.close = () => {
+  self.close = (): void => {
     if (server && self.isConnected) {
       server.close();
       sockets.forEach((socket) => socket.destroy());
@@ -35,32 +50,32 @@ export default (adapter, options) => {
     }
   };
 
-  function onTCPClientConnected(socket) {
+  function onTCPClientConnected(socket: Socket): void {
     sockets.push(socket);
 
     const parser = new TCPWriteStream(adapter, socket, options.maxPacketSize);
     socket.pipe(parser);
 
-    parser.on("error", (error) => {
-      adapter.log.warn("Packet parser error!", error);
+    parser.on("error", (error: Error) => {
+      adapter.log?.warn("Packet parser error!", error.message);
       closeSocket(socket);
     });
 
-    parser.on("data", (type, message) => {
+    parser.on("data", (type: string, message: any) => {
       self.emit("message", type, message);
     });
 
-    socket.on("error", (error) => {
-      adapter.log.warn("TCP connection error!", error);
+    socket.on("error", (error: Error) => {
+      adapter.log?.warn("TCP connection error!", error.message);
       closeSocket(socket);
     });
 
-    socket.on("close", (isError) => {
+    socket.on("close", (_isError: boolean) => {
       closeSocket(socket);
     });
   }
 
-  function closeSocket(socket) {
+  function closeSocket(socket: Socket): void {
     socket.destroy();
     sockets.splice(sockets.indexOf(socket), 1);
   }

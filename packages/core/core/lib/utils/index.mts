@@ -13,8 +13,6 @@
  * @namespace Utils
  */
 
-exports = {
-  ...(await import("./options")),
-  ...(await import("./restoreError")),
-  ...(await import("./wrap-handler")),
-};
+export * from "./options.mts";
+export * from "./restoreError.mts";
+export * from "./wrap-handler.mts";

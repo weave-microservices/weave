@@ -24,7 +24,8 @@ broker1.createService({
   name: "test",
   events: {
     saidHello: {
-      handler(context) {
+      handler(context, { service }) {
+        service.log.error("what the fuckl!!!!");
         context.log?.info("Hello event calle 🤘");
       },
     },
@@ -56,7 +57,7 @@ broker1.createService({
           },
         },
       },
-      handler(context) {
+      handler(context, {service}) {
         return "require('./external/external-test').makeSomething()";
       },
     },

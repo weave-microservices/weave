@@ -1,17 +1,15 @@
-/**
- * @typedef {import('../types.__js').TransportAdapter} TransportAdapter
- **/
-
 import { createTransport } from "../transport/createTransport.mts";
 import TransportAdapters from "../transport/adapters/index.mts";
-import type { Runtime } from '../../types/index.js';
+import type { Runtime, TransportAdapter } from "../../types/index.js";
 
-export const initTransport = (runtime: Runtime) => {
+export const initTransport = (runtime: Runtime): void => {
   if (runtime.options.transport?.adapter) {
     const adapter = TransportAdapters.resolve(runtime, runtime.options.transport);
 
-    Object.defineProperty(runtime, "transport", {
-      value: createTransport(runtime, adapter),
-    });
+    if (adapter) {
+      Object.defineProperty(runtime, "transport", {
+        value: createTransport(runtime, adapter as TransportAdapter),
+      });
+    }
   }
 };

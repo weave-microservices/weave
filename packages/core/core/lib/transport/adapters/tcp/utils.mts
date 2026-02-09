@@ -1,23 +1,31 @@
 import os from "os";
 
-function getBroadcastAddress({ address, netmask }) {
+interface NetworkAddressInfo {
+  address: string;
+  netmask: string;
+}
+
+function getBroadcastAddress({ address, netmask }: NetworkAddressInfo): string {
   const addressBytes = address.split(".").map(Number);
   const netmaskBytes = netmask.split(".").map(Number);
-  const subnetBytes = netmaskBytes.map((_, index) => addressBytes[index] & netmaskBytes[index]);
+  const subnetBytes = netmaskBytes.map((_: number, index: number) => addressBytes[index] & netmaskBytes[index]);
   const broadcastBytes = netmaskBytes.map(
-    (_, index) => subnetBytes[index] | (~netmaskBytes[index] + 256),
+    (_: number, index: number) => subnetBytes[index] | (~netmaskBytes[index] + 256),
   );
   return broadcastBytes.map(String).join(".");
 }
 
-export const getBroadcastAddresses = () => {
-  const list = [];
+export const getBroadcastAddresses = (): string[] => {
+  const list: string[] = [];
   const interfaces = os.networkInterfaces();
   for (const iface in interfaces) {
-    for (const i in interfaces[iface]) {
-      const f = interfaces[iface][i];
-      if (f.family === "IPv4") {
-        list.push(getBroadcastAddress(f));
+    const ifaceList = interfaces[iface];
+    if (ifaceList) {
+      for (let i = 0; i < ifaceList.length; i++) {
+        const f = ifaceList[i];
+        if (f.family === "IPv4") {
+          list.push(getBroadcastAddress(f));
+        }
       }
     }
   }

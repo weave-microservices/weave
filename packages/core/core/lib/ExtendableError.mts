@@ -1,5 +1,5 @@
 class ExtendableError extends Error {
-  constructor(message: string = "", options) {
+  constructor(message: string = "", options?: ErrorOptions) {
     super(message, options);
 
     Object.defineProperty(this, "name", {

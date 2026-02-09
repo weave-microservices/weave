@@ -1,46 +1,48 @@
 import { createNode } from "../helper/index.mts";
 import { describe, it, beforeEach, afterEach, before, after } from "node:test";
 import assert from "node:assert/strict";
+import type { Broker, Context, Service, ServiceSchema } from "../../types/index.js";
 
-const isContext = () => {
+const isContext = (): boolean => {
   return true;
 };
 
-let flow = [];
-const MixedService = {
+let flow: string[] = [];
+const MixedService: ServiceSchema = {
+  name: "mixed",
   events: {
-    "user.created"() {
+    "user.created"(this: Service) {
       flow.push(`${this.broker.nodeId}-${this.name}-mixed.created`);
     },
   },
 };
 
-const UserService = {
+const UserService: ServiceSchema = {
   name: "user",
   mixins: [MixedService],
   events: {
-    "user.created"() {
+    "user.created"(this: Service) {
       flow.push(`${this.broker.nodeId}-${this.name}-user.created`);
     },
-    "$local.user.event"() {
+    "$local.user.event"(this: Service) {
       flow.push(`${this.broker.nodeId}-${this.name}-local.user.event`);
     },
   },
 };
 
-const PaymentService = {
+const PaymentService: ServiceSchema = {
   name: "payment",
   events: {
-    "user.created"() {
+    "user.created"(this: Service) {
       flow.push(`${this.broker.nodeId}-${this.name}-user.created`);
     },
   },
 };
 
-const NotificationService = {
+const NotificationService: ServiceSchema = {
   name: "notification",
   events: {
-    "user.*"() {
+    "user.*"(this: Service) {
       flow.push(`${this.broker.nodeId}-${this.name}-user.created`);
     },
     // 'user.created' () {
@@ -49,20 +51,20 @@ const NotificationService = {
   },
 };
 
-const OtherService = {
+const OtherService: ServiceSchema = {
   name: "other",
   events: {
-    "other.thing"() {
+    "other.thing"(this: Service) {
       flow.push(`${this.broker.nodeId}-${this.name}-other.thing`);
     },
-    "failed-event"() {
+    "failed-event"(this: Service) {
       flow.push(`${this.broker.nodeId}-${this.name}-failed-event`);
       throw new Error("This is a failed event");
     },
   },
 };
 
-const createNodes = (ns: string) => {
+const createNodes = (ns: string): Broker[] => {
   const settings = {
     transport: {
       adapter: "dummy",
@@ -170,12 +172,12 @@ describe("Event flow(remote)", () => {
   });
 
   it("should emit a event with group.", () => {
-    master.emit("user.created", null, ["user"]);
+    master.emit("user.created", null, { groups: ["user"] });
     assert.deepStrictEqual(flow, ["user-1-user-user.created", "user-1-user-mixed.created"]);
   });
 
   it("should emit a event with multiple groups.", () => {
-    master.emit("user.created", null, ["user", "notification"]);
+    master.emit("user.created", null, { groups: ["user", "notification"] });
     assert.deepStrictEqual(flow, [
       "user-2-user-user.created",
       "user-2-user-mixed.created",
@@ -214,7 +216,7 @@ describe("Broadcast events", () => {
   });
 
   it("should broadcast a event to services grouped by name.", () => {
-    master.broadcast("user.created", null, ["user"]);
+    master.broadcast("user.created", null, { groups: ["user"] });
     assert.deepStrictEqual(flow, [
       "user-1-user-user.created",
       "user-1-user-mixed.created",
@@ -226,7 +228,7 @@ describe("Broadcast events", () => {
   });
 
   it("should broadcast a event to services grouped by name.", () => {
-    master.broadcast("user.created", null, ["user", "payment"]);
+    master.broadcast("user.created", null, { groups: ["user", "payment"] });
     assert.deepStrictEqual(flow, [
       "user-1-user-user.created",
       "user-1-user-mixed.created",
@@ -242,14 +244,14 @@ describe("Broadcast events", () => {
 });
 
 describe("Remote events", () => {
-  let broker1;
-  let broker2;
+  let broker1: Broker;
+  let broker2: Broker;
   let testEventS1CallCount = 0;
   let testEventS2CallCount = 0;
-  const testEventS1 = () => {
+  const testEventS1 = (): void => {
     testEventS1CallCount++;
   };
-  const testEventS2 = () => {
+  const testEventS2 = (): void => {
     testEventS2CallCount++;
   };
 
@@ -305,8 +307,8 @@ describe("Remote events", () => {
 
 describe("Event context", () => {
   let fakeEventCallCount = 0;
-  let fakeEventLastContext: any = null;
-  const fakeEvent = (context) => {
+  let fakeEventLastContext: Context | null = null;
+  const fakeEvent = (context: Context): Context => {
     fakeEventCallCount++;
     fakeEventLastContext = context;
     return context;
@@ -349,8 +351,8 @@ describe("Event context", () => {
 
 describe("Event parameter validation", () => {
   let fakeEventCallCount2 = 0;
-  let fakeEventLastContext2: any = null;
-  const fakeEvent = (context) => {
+  let fakeEventLastContext2: Context | null = null;
+  const fakeEvent = (context: Context): Context => {
     fakeEventCallCount2++;
     fakeEventLastContext2 = context;
     return context;
@@ -406,7 +408,7 @@ describe("Local service events", () => {
 
   it("should emit local events", async () => {
     let fakeEventCallCount3 = 0;
-    const fakeEvent = (context) => {
+    const fakeEvent = (context: Context): Context => {
       fakeEventCallCount3++;
       return context;
     };
@@ -443,7 +445,7 @@ describe("Event acknowledgement", () => {
 });
 
 describe("Event error handling", () => {
-  const nodes = createNodes(["test-event-error-handling"]);
+  const nodes = createNodes("test-event-error-handling");
 
   before(() => Promise.all(nodes.map((node) => node.start())));
   after(() => Promise.all(nodes.map((node) => node.stop())));
@@ -453,7 +455,7 @@ describe("Event error handling", () => {
     try {
       await node.emit("failed-event");
     } catch (error) {
-      assert.strictEqual(error.message, "This is a failed event");
+      assert.strictEqual((error as Error).message, "This is a failed event");
     }
   });
 });

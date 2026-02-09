@@ -1,27 +1,34 @@
 import { isString, isFunction } from "@weave-js/utils";
+import type { ActionCacheOptions, ActionHandler, Cache, Context, Middleware, Runtime, ServiceInjection, WeaveAction } from "../../../types/index.js";
 
-export default (runtime) => {
+interface CacheActionOptions {
+  enabled: boolean;
+  keys?: string[];
+}
+
+export default (runtime: Runtime): Middleware => {
   return {
-    localAction: (handler, action) => {
+    localAction: (handler: ActionHandler, action: WeaveAction): ActionHandler => {
       const cacheOptions = runtime.options.cache;
-      const cacheActionOptions = {
+      const cacheActionOptions: CacheActionOptions = {
         enabled: !!action.cache,
       };
 
       if (isString(action.cache)) {
         cacheActionOptions.keys = action.cache.split(" ");
-      } else if (action.cache && Array.isArray(action.cache.keys)) {
-        cacheActionOptions.keys = action.cache.keys;
+      } else if (action.cache && typeof action.cache === "object" && Array.isArray((action.cache as ActionCacheOptions).keys)) {
+        cacheActionOptions.keys = (action.cache as ActionCacheOptions).keys;
       }
 
-      if (cacheActionOptions.enabled) {
-        const cache = runtime.cache;
-        const isEnabledFunction = isFunction(action.cache.condition);
+      if (cacheActionOptions.enabled && runtime.cache) {
+        const cache: Cache = runtime.cache;
+        const actionCacheConfig = action.cache as ActionCacheOptions | undefined;
+        const isEnabledFunction = actionCacheConfig && isFunction(actionCacheConfig.condition);
 
-        return function cacheMiddleware(context, serviceInjections) {
+        return function cacheMiddleware(context: Context, serviceInjections: ServiceInjection): Promise<any> {
           // handle enabled function
-          if (isEnabledFunction) {
-            if (!action.cache.condition.call(null, context)) {
+          if (isEnabledFunction && actionCacheConfig?.condition) {
+            if (!actionCacheConfig.condition.call(null, context)) {
               // Enabled function returns "false". Cache is disabled.
               return handler(context, serviceInjections);
             }
@@ -44,15 +51,17 @@ export default (runtime) => {
 
           // The cache adapter is not connected yet. In this case, we call the handler regular
           if (cache.isConnected === false) {
-            cache.log("Cache adapter is not connected yet. Call handler...");
+            cache.log.debug("Cache adapter is not connected yet. Call handler...");
             return handler(context, serviceInjections);
           }
 
-          if (cacheOptions.lock.enabled) {
-            let cachePromise;
+          if (cacheOptions?.lock?.enabled) {
+            let cachePromise: Promise<any>;
             if (cacheOptions.lock.staleTime && cache.getWithTTl) {
+              // TODO: implement stale time handling
+              cachePromise = cache.get(cacheHashKey);
             } else {
-              cachePromise = runtime.cache.get(cacheHashKey);
+              cachePromise = cache.get(cacheHashKey);
             }
 
             return cachePromise.then((cachedResult) => {
@@ -72,10 +81,10 @@ export default (runtime) => {
                     });
                   }
 
-                  return handler(context)
+                  return handler(context, serviceInjections)
                     .then((result) => {
                       // Cache the value
-                      return cache.set(cacheHashKey, result, action.cache.ttl).then(() => {
+                      return cache.set(cacheHashKey, result, actionCacheConfig?.ttl).then(() => {
                         return result;
                       });
                     })
@@ -89,14 +98,14 @@ export default (runtime) => {
           }
 
           // Not using cache lock
-          return runtime.cache.get(cacheHashKey).then((cachedResult) => {
+          return cache.get(cacheHashKey).then((cachedResult) => {
             if (cachedResult !== null) {
               context.isCachedResult = true;
               return cachedResult;
             }
 
             return handler(context, serviceInjections).then((result) => {
-              runtime.cache.set(cacheHashKey, result, action.cache.ttl);
+              cache.set(cacheHashKey, result, actionCacheConfig?.ttl);
               return result;
             });
           });

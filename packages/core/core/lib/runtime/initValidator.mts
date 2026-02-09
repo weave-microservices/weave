@@ -5,12 +5,13 @@
  */
 
 import ObjectValidator from "@weave-js/validator";
+import type { Runtime } from "../../types/index.js";
 
 /**
  * Init validator and attach it to our runtime object.
- * @param {import('../../types').Runtime} runtime Runtime object.
+ * @param runtime Runtime object.
  */
-export const initValidator = (runtime) => {
+export const initValidator = (runtime: Runtime): void => {
   const validator = ObjectValidator();
 
   Object.defineProperty(runtime, "validator", {

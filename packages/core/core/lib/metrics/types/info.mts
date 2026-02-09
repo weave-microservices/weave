@@ -1,10 +1,19 @@
-import { createBaseMetricType } from "./base.mts";
+import { createBaseMetricType, type BaseMetricInstance, type MetricCreateOptions, type MetricSnapshotItem, type MetricValueItem } from "./base.mts";
+import type { MetricRegistry } from "../../../types/index.js";
 
-export const createInfo = (metricRegistry, obj) => {
-  const base = createBaseMetricType(metricRegistry, obj);
+/**
+ * Info metric instance interface
+ */
+export interface InfoMetricInstance extends BaseMetricInstance {
+  value?: number;
+  set(value: number, labels: Record<string, string> | null, timestamp?: number): MetricValueItem | undefined;
+}
 
-  base.generateSnapshot = () => {
-    return Array.from(base.values).map(([labelString, item]) => {
+export const createInfo = (metricRegistry: MetricRegistry, obj: MetricCreateOptions): InfoMetricInstance => {
+  const base = createBaseMetricType(metricRegistry, obj) as InfoMetricInstance;
+
+  base.generateSnapshot = (): MetricSnapshotItem[] => {
+    return Array.from(base.values).map(([_labelString, item]: [string, MetricValueItem]) => {
       return {
         value: item.value,
         labels: item.labels,
@@ -12,28 +21,29 @@ export const createInfo = (metricRegistry, obj) => {
     });
   };
 
-  base.set = (value, labels, timestamp) => {
+  base.set = (value: number, labels: Record<string, string> | null, timestamp?: number): MetricValueItem | undefined => {
     const labelString = base.stringifyLabels(labels);
-    const item = base.values.get(labelString);
+    const existingItem = base.values.get(labelString);
 
     base.value = value;
 
-    if (item) {
-      if (item.value !== value) {
-        item.labels = labels;
-        item.value = value;
-        item.timestamp = timestamp || Date.now();
+    if (existingItem) {
+      if (existingItem.value !== value) {
+        existingItem.labels = labels;
+        existingItem.value = value;
+        existingItem.timestamp = timestamp || Date.now();
       }
+      return existingItem;
     } else {
-      const item = {
+      const newItem: MetricValueItem = {
         labels: labels,
         value: value,
         timestamp: timestamp || Date.now(),
       };
 
-      base.values.set(labelString, item);
+      base.values.set(labelString, newItem);
+      return newItem;
     }
-    return item;
   };
 
   return base;

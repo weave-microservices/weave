@@ -27,8 +27,6 @@ import { createActionEndpoint } from "./actionEndpoint.mts";
 import { createNode } from "./node.mts";
 import { WeaveServiceNotFoundError, WeaveServiceNotAvailableError } from "../errors.mts";
 
-const noop = () => {};
-
 /**
  * Creates a service registry for managing distributed services and nodes
  *
@@ -160,7 +158,7 @@ export const createRegistry = (runtime: Runtime): Registry => {
 
         if (oldActions) {
           Object.keys(oldActions).forEach((actionName) => {
-            if (!service.actions[actionName]) {
+            if (!service.actions?.[actionName]) {
               this.actionCollection.remove(actionName, node);
             }
           });
@@ -168,7 +166,7 @@ export const createRegistry = (runtime: Runtime): Registry => {
 
         if (oldEvents) {
           Object.keys(oldEvents).forEach((eventName) => {
-            if (!service.actions[eventName]) {
+            if (!service.events?.[eventName]) {
               this.eventCollection.remove(eventName, node);
             }
           });
@@ -249,10 +247,12 @@ export const createRegistry = (runtime: Runtime): Registry => {
         const serviceToRemove = this.nodeCollection.localNode.services.find(
           (service) => service.name === name,
         );
-        this.nodeCollection.localNode.services.splice(
-          this.nodeCollection.localNode.services.indexOf(serviceToRemove),
-          1,
-        );
+        if (serviceToRemove) {
+          this.nodeCollection.localNode.services.splice(
+            this.nodeCollection.localNode.services.indexOf(serviceToRemove),
+            1,
+          );
+        }
       }
 
       if (!nodeId || nodeId === runtime.nodeId) {
@@ -357,7 +357,7 @@ export const createRegistry = (runtime: Runtime): Registry => {
     },
     generateLocalNodeInfo(incrementSequence: boolean = false): NodeInfo {
       const { client, IPList, sequence } = this.nodeCollection.localNode;
-      const nodeInfo = { client, IPList, sequence };
+      const nodeInfo: Record<string, unknown> = { client, IPList, sequence };
 
       if (incrementSequence) {
         this.nodeCollection.localNode.sequence++;
@@ -374,8 +374,8 @@ export const createRegistry = (runtime: Runtime): Registry => {
       } else {
         nodeInfo.services = [];
       }
-      this.nodeCollection.localNode.info = safeCopy(nodeInfo);
-      return this.nodeCollection.localNode.info;
+      this.nodeCollection.localNode.info = safeCopy(nodeInfo) as NodeInfo;
+      return this.nodeCollection.localNode.info!;
     },
     processNodeInfo(payload: { sender: string; [key: string]: unknown }): void {
       const nodeId: string = payload.sender;

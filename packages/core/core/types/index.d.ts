@@ -1,5 +1,60 @@
-import { Stream, Readable, Writable } from "stream";
+/*
+ * Author: Kevin Ries (kevin.ries@fachwerk.io)
+ * -----
+ * Copyright 2021 Fachwerk
+ *
+ * PUBLIC API TYPES
+ *
+ * This file contains all types that are part of the public API.
+ * For internal types, see ./internal.d.ts
+ */
+
+import { Readable, Writable } from "stream";
 import { EventEmitter } from "events";
+
+// Re-export internal types that middleware authors and internal code need
+export type {
+  Runtime,
+  RuntimeInstanceState,
+  Endpoint,
+  ServiceItem,
+  WeaveAction,
+  WeaveEvent,
+  RegistryOptions,
+  TransportOptions,
+  // Registry types
+  Registry,
+  Node,
+  NodeInfo,
+  NodeClient,
+  NodeCollection,
+  ServiceCollection,
+  ActionCollection,
+  EventCollection,
+  NodeUpdatePayload,
+  NodeHeartbeatPayload,
+  // Runtime types
+  ServiceManager,
+  ContextFactory,
+  EventBus,
+  ActionInvoker,
+  PingResult,
+  GroupedEndpoint,
+  // Transport types
+  Transport,
+  TransportAdapter,
+  TransportMessage,
+  TransportMessagePayload,
+  TransportMessageHandler,
+  PendingStore,
+  RequestPayload,
+  ResponsePayload,
+  EventPayload,
+  HeartbeatPayload,
+  PingPayload,
+  InfoPayload,
+  ErrorPayload,
+} from "./internal.js";
 
 // ===== UTILITY TYPES =====
 
@@ -36,7 +91,7 @@ export type ParamsToType<TParams extends Record<string, { type: keyof TypeMap }>
   [K in keyof TParams]: TypeMap[TParams[K]["type"]];
 };
 
-// ===== CORE INTERFACES =====
+// ===== TRACING TYPES =====
 
 /**
  * Unique identifier for spans in tracing
@@ -51,6 +106,10 @@ export interface Span {
   finishTime?: number;
   tags?: Record<string, any>;
   logs?: Array<{ timestamp: number; fields: Record<string, any> }>;
+
+  // Methods
+  addTags(tags: Record<string, unknown>): void;
+  setError(error: Error): void;
 }
 
 export interface SpanOptions {
@@ -59,6 +118,8 @@ export interface SpanOptions {
   traceId?: string;
   sampled?: boolean;
 }
+
+// ===== CONTEXT TYPES =====
 
 /**
  * Context metadata object
@@ -82,10 +143,12 @@ export interface ActionOptions {
   stream?: Readable;
   timeout?: number;
   retryCount?: number;
+  retries?: number;
   custom?: Record<string, any>;
   requestId?: string;
   parentSpan?: Span;
   nodeId?: string;
+  track?: boolean;
 }
 
 /**
@@ -98,6 +161,15 @@ export interface EventOptions {
 }
 
 /**
+ * Service injection object passed to action/event handlers
+ */
+export interface ServiceInjection {
+  service: Service;
+  runtime: import("./internal.js").Runtime;
+  errors?: Record<string, any>;
+}
+
+/**
  * Request context passed to actions and events
  */
 export interface Context<T = any> {
@@ -107,7 +179,7 @@ export interface Context<T = any> {
   callerNodeId?: string;
   parentContext?: Context;
   parentId?: string;
-  endpoint?: Endpoint;
+  endpoint?: import("./internal.js").Endpoint;
   data: T;
   meta: ContextMetaObject;
   level: number;
@@ -141,10 +213,10 @@ export interface Context<T = any> {
   finishSpan(span?: Span, time?: number): void;
   copy(): Context<T>;
   setStream(stream: Readable): void;
-  setEndpoint(endpoint: Endpoint): void;
+  setEndpoint(endpoint: import("./internal.js").Endpoint): void;
 }
 
-// ===== LOGGER INTERFACES =====
+// ===== LOGGER TYPES =====
 
 /**
  * Logger instance interface
@@ -163,6 +235,7 @@ export interface Logger {
 }
 
 /**
+ * Logger options
  */
 export interface LoggerOptions {
   enabled?: boolean;
@@ -190,7 +263,7 @@ export interface LoggerFactoryBindings {
  */
 export type LoggerFactoryFunction = (bindings: LoggerFactoryBindings, level?: LogLevel) => Logger;
 
-// ===== SERVICE INTERFACES =====
+// ===== SERVICE TYPES =====
 
 /**
  * Service settings interface
@@ -226,26 +299,26 @@ export interface ServiceActionSchema<
   params?: TParams;
   responseSchema?: ServiceActionParamSchema | keyof TypeMap;
   visibility?: ServiceActionVisibility;
-  cache?: boolean | object;
+  cache?: boolean | string | ActionCacheOptions;
   timeout?: number;
   retries?: number;
   bulkhead?: object;
   circuitBreaker?: object;
   tracing?: boolean | object;
   metrics?: boolean | object;
-  handler: (this: Service, context: Context<ParamsToType<TParams>>) => Promise<any> | any;
+  handler: (this: Service, context: Context<ParamsToType<TParams>>, injection: ServiceInjection) => Promise<any> | any;
   [key: string]: any;
 }
 
 /**
  * Service action handler function
  */
-export type ServiceActionHandler = (this: Service, context: Context) => Promise<any> | any;
+export type ServiceActionHandler = (this: Service, context: Context, injection: ServiceInjection) => Promise<any> | any;
 
 /**
  * Service event handler function (short form)
  */
-export type ServiceEventHandler = (this: Service, context: Context) => Promise<any> | any;
+export type ServiceEventHandler = (this: Service, context: Context, injection: ServiceInjection) => Promise<any> | any;
 
 /**
  * Service event definition (object form)
@@ -283,6 +356,12 @@ export interface ServiceHooks {
 }
 
 /**
+ * Service lifecycle hook types
+ */
+export type ServiceLifecycleHook = (this: Service, injection?: ServiceInjection) => void | Promise<void>;
+export type ServiceAfterSchemasMergedHook = (this: Service, schema?: ServiceSchema, injection?: ServiceInjection) => void | Promise<void>;
+
+/**
  * Service schema definition
  */
 export interface ServiceSchema {
@@ -297,11 +376,11 @@ export interface ServiceSchema {
   events?: Record<string, ServiceEventSchema>;
   methods?: Record<string, ServiceMethodDefinition>;
 
-  // Lifecycle methods
-  created?(this: Service): void | Promise<void>;
-  started?(this: Service): void | Promise<void>;
-  stopped?(this: Service): void | Promise<void>;
-  afterSchemasMerged?(this: Service): void | Promise<void>;
+  // Lifecycle methods (can be single function or array of functions)
+  created?: ServiceLifecycleHook | ServiceLifecycleHook[];
+  started?: ServiceLifecycleHook | ServiceLifecycleHook[];
+  stopped?: ServiceLifecycleHook | ServiceLifecycleHook[];
+  afterSchemasMerged?: ServiceAfterSchemasMergedHook | ServiceAfterSchemasMergedHook[];
 }
 
 /**
@@ -309,457 +388,29 @@ export interface ServiceSchema {
  */
 export interface Service {
   filename?: string;
-  runtime: Runtime;
+  runtime: import("./internal.js").Runtime;
   broker: Broker;
   log: Logger;
   version?: string | number;
   name: string;
-  meta?: object;
+  meta?: Record<string, any>;
   fullyQualifiedName: string;
   schema: ServiceSchema;
   settings: ServiceSettings;
   actions: Record<string, (data: object, options?: ActionOptions) => any>;
-  events: Record<string, (context: Context) => any>;
+  events: Record<string, (data: object, options?: ActionOptions) => any>;
   methods: Record<string, Function>;
+  _trackedContexts: Context[];
 
   // Lifecycle methods
   start(): Promise<void>;
   stop(): Promise<void>;
-}
 
-// ===== REGISTRY INTERFACES =====
-
-/**
- * Node information
- */
-export interface NodeInfo {
-  nodeId: string;
-  instanceId: string;
-  hostname: string;
-  ipList: string[];
-  port?: number;
-  version: string;
-  uptime: number;
-  cpu?: number;
-  memory?: {
-    rss: number;
-    heapTotal: number;
-    heapUsed: number;
-  };
+  // Dynamic methods added via schema.methods
   [key: string]: any;
 }
 
-/**
- * Node client interface
- */
-export interface NodeClient {
-  nodeId: string;
-  available: boolean;
-  lastHeartbeatTime: number;
-  [key: string]: any;
-}
-
-/**
- * Service item in registry
- */
-export interface ServiceItem {
-  name: string;
-  version?: string | number;
-  fullName: string;
-  nodeId: string;
-  node?: Node;
-  actions?: Record<string, any>;
-  events?: Record<string, any>;
-  settings?: ServiceSettings;
-  metadata?: object;
-
-  // Methods
-  update(service: ServiceItem): void;
-  addAction(action: any): void;
-  addEvent(event: any): void;
-  equals(name: string, version?: string | number): boolean;
-}
-
-/**
- * Node in the registry
- */
-export interface Node {
-  id: string;
-  info: NodeInfo;
-  isLocal: boolean;
-  client: NodeClient;
-  cpu?: number;
-  cpuSequence?: number;
-  lastHeartbeatTime: number;
-  offlineTime: number;
-  isAvailable: boolean;
-  wasDisconnectedUnexpectedly: boolean;
-  services: ServiceItem[];
-  sequence: number;
-  events?: string[];
-  IPList: string[];
-
-  // Methods
-  update(info: NodeInfo, isLocal?: boolean): boolean;
-  updateLocalInfo(isLocal?: boolean): void;
-  heartbeat(info: NodeInfo): void;
-  disconnected(isLocal?: boolean): void;
-}
-
-/**
- * Service action endpoint
- */
-export interface Endpoint {
-  node: Node;
-  service: ServiceItem;
-  action: any;
-  isLocal: boolean;
-  state: boolean;
-  name: string;
-
-  // Methods
-  updateAction(): void;
-  isAvailable(): boolean;
-}
-
-/**
- * Registry configuration options
- */
-export interface RegistryOptions {
-  preferLocalActions?: boolean;
-  publishNodeService?: boolean;
-  requestTimeout?: number;
-  maxCallLevel?: number;
-  loadBalancingStrategy?: string | object;
-}
-
-/**
- * Node collection interface
- */
-export interface NodeCollection {
-  localNode: Node;
-  get(nodeId: string): Node | undefined;
-  add(nodeId: string, node: Node): void;
-  remove(nodeId: string): void;
-  list(params?: any): Node[];
-}
-
-/**
- * Service collection interface
- */
-export interface ServiceCollection {
-  services: Set<ServiceItem>;
-  has(name: string, version?: string | number, nodeId?: string): boolean;
-  get(nodeId: string, name: string, version?: string | number): ServiceItem | undefined;
-  add(node: Node, name: string, version?: string | number, settings?: any): ServiceItem;
-  remove(nodeId: string, name: string, version?: string | number): void;
-  removeAllByNodeId(nodeId: string): void;
-  list(params?: any): ServiceItem[];
-}
-
-export type WeaveAction = any;
-export type WeaveEvent = any;
-
-/**
- * Action collection interface
- */
-export interface ActionCollection {
-  get(actionName: string): any;
-  add(node: Node, service: ServiceItem, action: any): void;
-  remove(actionName: string, node: Node): void;
-  list(): WeaveAction[];
-}
-
-/**
- * Event collection interface
- */
-export interface EventCollection {
-  get(eventName: string): any;
-  add(node: Node, service: ServiceItem, event: any): void;
-  remove(eventName: string, node: Node): void;
-  list(): WeaveEvent[];
-}
-
-/**
- * Registry interface
- */
-export interface Registry {
-  runtime: Runtime;
-  log: Logger;
-
-  // Collections
-  nodeCollection: NodeCollection;
-  serviceCollection: ServiceCollection;
-  actionCollection: ActionCollection;
-  eventCollection: EventCollection;
-
-  // Lifecycle
-  init(runtime: Runtime): void;
-
-  // Service registration
-  registerLocalService(serviceItem: ServiceItem): void;
-  registerRemoteServices(node: Node, services: ServiceItem[]): void;
-  registerActions(node: Node, service: ServiceItem, actions: Record<string, any>): void;
-  registerEvents(node: Node, service: ServiceItem, events: Record<string, any>): void;
-
-  // Service deregistration
-  deregisterService(serviceName: string, version?: string | number, nodeId?: string): void;
-  deregisterServiceByNodeId(nodeId: string): void;
-
-  // Service queries
-  hasService(serviceName: string, version?: string | number, nodeId?: string): boolean;
-
-  // Action endpoints
-  getNextAvailableActionEndpoint(actionName: string | Endpoint, opts?: any): Endpoint | Error;
-  getActionEndpointByNodeId(actionName: string, nodeId: string): Endpoint | null;
-  getActionEndpoints(actionName: string): any;
-  getLocalActionEndpoint(actionName: string): Endpoint | undefined;
-  createPrivateActionEndpoint(action: any): Endpoint;
-
-  // Action visibility
-  checkActionVisibility(action: any, node: Node): boolean;
-  // onRegisterLocalAction: () => void;
-  // onRegisterRemoteAction: () => void;
-
-  // Node info
-  getNodeInfo(nodeId: string): NodeInfo | null;
-  getLocalNodeInfo(forceGenerateInfo?: boolean): NodeInfo;
-  generateLocalNodeInfo(incrementSequence?: boolean): NodeInfo;
-  processNodeInfo(payload: any): void;
-
-  // Node lifecycle
-  nodeDisconnected(nodeId: string, isUnexpected?: boolean): void;
-  removeNode(nodeId: string): void;
-
-  // Utility
-  getActionList?(filterParams?: any): any[];
-}
-
-// ===== TRANSPORT INTERFACES =====
-
-/**
- * Base transport message payload
- */
-export interface TransportMessagePayload {
-  sender?: string;
-  [key: string]: any;
-}
-
-/**
- * Request message payload
- */
-export interface RequestPayload extends TransportMessagePayload {
-  id: string;
-  action: string;
-  data: any;
-  timeout?: number;
-  meta?: ContextMetaObject;
-  level: number;
-  metrics?: any;
-  requestId?: string;
-  parentId?: string;
-  callerNodeId?: string;
-  tracing: boolean;
-  isStream: boolean;
-  sequence?: number;
-  chunk?: any;
-  success?: boolean;
-  error?: any;
-}
-
-/**
- * Response message payload
- */
-export interface ResponsePayload extends TransportMessagePayload {
-  id: string;
-  meta?: ContextMetaObject;
-  data: any;
-  success: boolean;
-  error?: any;
-  isStream?: boolean;
-  sequence?: number;
-  chunk?: any;
-}
-
-/**
- * Event message payload
- */
-export interface EventPayload extends TransportMessagePayload {
-  data: any;
-  eventName: string;
-  groups?: string[];
-  meta?: ContextMetaObject;
-  level?: number;
-  metrics?: any;
-  requestId?: string;
-  parentId?: string;
-  callerNodeId?: string;
-  tracing?: boolean;
-  isBroadcast: boolean;
-}
-
-/**
- * Heartbeat message payload
- */
-export interface HeartbeatPayload extends TransportMessagePayload {
-  cpu?: number;
-  cpuSequence?: number;
-  sequence: number;
-}
-
-/**
- * Ping message payload
- */
-export interface PingPayload extends TransportMessagePayload {
-  dispatchTime: number;
-}
-
-/**
- * Info message payload
- */
-export interface InfoPayload extends TransportMessagePayload, NodeInfo {
-  instanceId: string;
-}
-
-/**
- * Info message payload
- */
-export interface ErrorPayload {
-  name: string;
-  message: string;
-  nodeId: string;
-  code: number;
-  stack?: string;
-  data: any;
-}
-
-
-/**
- * Transport message
- */
-export interface TransportMessage<T extends TransportMessagePayload = TransportMessagePayload> {
-  type: string;
-  targetNodeId: string;
-  payload: T;
-  meta?: object;
-}
-
-/**
- * Transport adapter interface
- */
-export interface TransportAdapter {
-  name: string;
-  bus: EventEmitter;
-  broker?: Runtime | Broker;
-  transport?: Transport;
-  log?: Logger;
-  messageHandler?: any;
-  isConnected: boolean;
-  interruptCounter: number;
-  repeatAttemptCounter: number;
-  afterInit?: () => void | Promise<void>;
-
-  // Core methods
-  init(runtime: Runtime | Broker, transport: Transport, messageHandler?: any): Promise<void>;
-  connect(isTryReconnect: boolean, errorHandler: (error: Error) => void): Promise<void>;
-  close(): Promise<void>;
-  subscribe(messageType: string, nodeId?: string): Promise<void>;
-  send(message: TransportMessage): Promise<void>;
-  preSend(message: TransportMessage): Promise<void>;
-
-  // Message handling
-  incomingMessage(messageType: string, message: any): void;
-  serialize(packet: TransportMessage): Buffer;
-  deserialize(packet: Buffer | string): TransportMessage;
-
-  // Utility methods
-  connected(connectionEventParams?: {
-    wasReconnect?: boolean;
-    useHeartbeatTimer?: boolean;
-    useRemoteNodeCheckTimer?: boolean;
-    useOfflineCheckTimer?: boolean;
-  }): void;
-  disconnected(): void;
-  getTopic(cmd: string, nodeId?: string): string;
-  updateStatisticReceived(length: number): void;
-  updateStatisticSent(length: number): void;
-}
-
-/**
- * Transport message handler
- */
-export type TransportMessageHandler = (type: string, data: object) => void;
-
-/**
- * Pending store for tracking requests
- */
-export interface PendingStore {
-  [requestId: string]: {
-    resolve: (value: any) => void;
-    reject: (error: Error) => void;
-    timeout?: NodeJS.Timeout;
-  };
-}
-
-/**
- * Transport configuration options
- */
-export interface TransportOptions {
-  adapter?: string | object;
-  maxQueueSize?: number;
-  heartbeatInterval?: number;
-  heartbeatTimeout?: number;
-  localNodeUpdateInterval?: number;
-  offlineNodeCheckInterval?: number;
-  maxOfflineTime?: number;
-  maxChunkSize?: number;
-  reconnectDisabled?: boolean;
-  streams?: {
-    handleBackpressure?: boolean;
-  };
-}
-
-/**
- * Transport interface
- */
-export interface Transport {
-  broker: Broker;
-  log: Logger;
-  isConnected: boolean;
-  isReady: boolean;
-  pending: PendingStore;
-  adapterName: string;
-
-  // Methods
-  connect(): Promise<void>;
-  disconnect(): Promise<void>;
-  setReady(): Promise<void>;
-  send(message: TransportMessage): Promise<void>;
-  sendRequest(context: Context): Promise<unknown>;
-  request(context: Context): Promise<unknown>;
-  response(
-    nodeId: string,
-    action: string,
-    params: object,
-    meta: object,
-    error?: Error,
-  ): Promise<void>;
-  createMessage(nodeId: string, action: string, params: object): TransportMessage;
-  removePendingRequestsById(id: string): void;
-  removePendingRequestsByNodeId(nodeId: string): void;
-
-  // Transport-specific methods
-  sendNodeInfo?(): Promise<void>;
-  sendPing(nodeId: string): Promise<void>;
-  discoverNode?(nodeId: string): Promise<void>;
-  discoverNodes?(): Promise<void>;
-  sendEvent?(): Promise<void>;
-  sendBroadcastEvent?(): Promise<void>;
-
-  statistics?: Record<string, unknown>;
-}
-
-// ===== CACHE INTERFACES =====
+// ===== CACHE TYPES =====
 
 /**
  * Cache configuration options
@@ -771,7 +422,17 @@ export interface CacheOptions {
   lock?: {
     enabled?: boolean;
     ttl?: number;
+    staleTime?: number;
   };
+}
+
+/**
+ * Action-level cache options
+ */
+export interface ActionCacheOptions {
+  keys?: string[];
+  ttl?: number;
+  condition?: (context: Context) => boolean;
 }
 
 /**
@@ -781,19 +442,22 @@ export interface Cache {
   name?: string;
   options: CacheOptions;
   log: Logger;
+  isConnected: boolean;
 
   // Methods
   init(): void;
   set(key: string, value: any, ttl?: number): Promise<void>;
   get(key: string): Promise<any>;
+  getWithTTl?(key: string): Promise<{ data: any; ttl: number } | null>;
   remove(key: string): Promise<boolean>;
   clear(): Promise<void>;
-  getCachingKey(actionName: string, params: any, meta: any): string;
+  getCachingKey(actionName: string, params: any, meta: any, keys?: string[]): string;
+  lock(key: string): Promise<() => Promise<void>>;
   createMiddleware(): Middleware;
   stop(): Promise<void>;
 }
 
-// ===== METRICS INTERFACES =====
+// ===== METRICS TYPES =====
 
 /**
  * Metric types
@@ -840,24 +504,46 @@ export interface MetricRegistry {
   register(metric: BaseMetric): void;
   unregister(name: string): void;
   get(name: string): BaseMetric | undefined;
+  getMetric(name: string): BaseMetric | undefined;
   list(): BaseMetric[];
-  increment(name: string, value?: number, labels?: Record<string, string>): void;
-  decrement(name: string, value?: number, labels?: Record<string, string>): void;
-  set(name: string, value: number, labels?: Record<string, string>): void;
-  observe(name: string, value: number, labels?: Record<string, string>): void;
+  increment(name: string, labels?: Record<string, unknown> | null, value?: number, timestamp?: number): void;
+  decrement(name: string, labels?: Record<string, unknown> | null, value?: number, timestamp?: number): void;
+  set(name: string, value: number, labels?: Record<string, unknown> | null, timestamp?: number): void;
+  observe(name: string, value: number, labels?: Record<string, unknown>): void;
+  timer(name: string, labels?: Record<string, unknown> | null, timestamp?: number): () => number;
   stop(): Promise<void>;
 }
 
-// ===== TRACING INTERFACES =====
+// ===== TRACING OPTIONS =====
 
 /**
  * Tracing configuration options
  */
+export interface TracingTagsOptions {
+  data?: boolean | string[];
+  meta?: boolean | string[];
+  response?: boolean | string[];
+  tags?: Record<string, unknown> | ((context: Context) => Record<string, unknown>);
+}
+
+export interface ActionTracingOptions {
+  enabled?: boolean;
+  tags?: Record<string, unknown> | ((context: Context) => Record<string, unknown>);
+  spanName?: string | ((context: Context) => string);
+}
+
+export interface EventTracingOptions {
+  enabled?: boolean;
+  tags?: Record<string, unknown> | ((context: Context) => Record<string, unknown>);
+}
+
 export interface TracingOptions {
   enabled?: boolean;
   samplingRate?: number;
   collectors?: Array<string | object>;
   defaultTags?: Record<string, string>;
+  actions?: TracingTagsOptions;
+  events?: TracingTagsOptions;
   errors?: {
     fields?: string[];
     stackTrace?: boolean;
@@ -877,27 +563,37 @@ export interface Tracer {
   stop(): Promise<void>;
 }
 
-// ===== MIDDLEWARE INTERFACES =====
+// ===== MIDDLEWARE TYPES =====
+
+/**
+ * Action handler function type
+ */
+export type ActionHandler = (context: Context, injection: ServiceInjection) => Promise<any>;
+
+/**
+ * Event handler function type
+ */
+export type EventHandler = (context: Context, injection: ServiceInjection) => Promise<any>;
 
 /**
  * Action handler wrapper function
  */
-export type ActionHandlerWrapper = <T extends Function>(handler: T, action: any) => T;
+export type ActionHandlerWrapper = (handler: ActionHandler, action: import("./internal.js").WeaveAction) => ActionHandler;
 
 /**
  * Event handler wrapper function
  */
-export type EventHandlerWrapper = <T extends Function>(handler: T, event: any) => T;
+export type EventHandlerWrapper = (handler: EventHandler, event: import("./internal.js").WeaveEvent) => EventHandler;
 
 /**
  * Method wrapper function
  */
-export type MethodWrapper = <T extends Function>(handler: T) => T;
+export type MethodWrapper = (handler: (...args: any[]) => any) => (...args: any[]) => any;
 
 /**
  * Middleware lifecycle hook
  */
-export type MiddlewareLifecycleHook = (runtime?: Runtime) => void | Promise<void>;
+export type MiddlewareLifecycleHook = (runtime?: import("./internal.js").Runtime) => void | Promise<void>;
 
 /**
  * Middleware service lifecycle hook
@@ -918,6 +614,7 @@ export interface Middleware {
   stopped?: MiddlewareLifecycleHook;
   stopping?: MiddlewareLifecycleHook;
   serviceChanged?: MiddlewareLifecycleHook;
+
   // Service lifecycle hooks
   serviceStarted?: MiddlewareServiceLifecycleHook;
   serviceStopping?: MiddlewareServiceLifecycleHook;
@@ -948,7 +645,7 @@ export interface Middleware {
  * Middleware handler manager
  */
 export interface MiddlewareHandler {
-  add(middleware: Middleware | ((runtime: Runtime) => Middleware)): void;
+  add(middleware: Middleware | ((runtime: import("./internal.js").Runtime) => Middleware)): void;
   count(): number;
   callHandlersSync(hook: string, args: unknown[], reverse?: boolean): void;
   callHandlersAsync(hook: string, args: unknown[], reverse?: boolean): Promise<void>;
@@ -1002,107 +699,7 @@ export interface ValidatorOptions {
   strictMode?: "remove" | "error";
 }
 
-// ===== CORE INTERFACES =====
-
-/**
- * Service manager interface
- */
-export interface ServiceManager {
-  services: Map<string, Service>;
-  serviceList: Service[];
-
-  // Methods
-  createService(schema: ServiceSchema): Service;
-  registerService(service: Service): void;
-  unregisterService(serviceName: string): void;
-  startServices(): Promise<void>;
-  stopServices(): Promise<void>;
-  waitForServices(services: string | string[], timeout?: number): Promise<void>;
-  serviceChanged(localService: boolean): void;
-}
-
-/**
- * Context factory interface
- */
-export interface ContextFactory {
-  create(endpoint: Endpoint | null, data: any, options?: ActionOptions): Context;
-  createFromService(service: Service, data: any, options?: ActionOptions): Context;
-}
-
-/**
- * Event bus interface
- */
-export interface EventBus {
-  emit(eventName: string, payload?: any, options?: EventOptions): Promise<void>;
-  broadcast(eventName: string, payload?: any, options?: EventOptions): Promise<void>;
-  broadcastLocal(eventName: string, payload?: any, options?: EventOptions): void;
-}
-
-/**
- * Action invoker interface
- */
-export interface ActionInvoker {
-  call<TParams = any, TResult = any>(
-    actionName: string,
-    params?: TParams,
-    options?: ActionOptions,
-  ): Promise<TResult>;
-  multiCall(
-    calls: Array<{ action: string; params?: any; options?: ActionOptions }>,
-  ): Promise<any[]>;
-}
-
-/**
- * Runtime instance state
- */
-export interface RuntimeInstanceState {
-  isStarted: boolean;
-  instanceId: string;
-}
-
-/**
- * Ping result
- */
-export interface PingResult {
-  nodeId: string;
-  time: number;
-  [key: string]: any;
-}
-
-/**
- * Runtime interface - core system runtime
- */
-export interface Runtime {
-  nodeId: string;
-  version: string;
-  options: BrokerOptions;
-  bus: EventEmitter;
-  state: RuntimeInstanceState;
-
-  // Core components
-  actionInvoker: ActionInvoker;
-  eventBus: EventBus;
-  broker?: Broker;
-  middlewareHandler: MiddlewareHandler;
-  validator?: any;
-  services: ServiceManager;
-  contextFactory: ContextFactory;
-  registry: Registry;
-  transport?: Transport;
-  cache?: Cache;
-  metrics?: MetricRegistry;
-  tracer?: Tracer;
-
-  // Utilities
-  log: Logger;
-  createLogger: (topic: string, data?: any) => Logger;
-  getUUID?: () => string;
-  generateUUID: () => string;
-
-  // Error handling
-  handleError: (error: Error) => void;
-  fatalError: (message?: string, error?: Error, killProcess?: boolean) => void;
-}
+// ===== BROKER TYPES =====
 
 /**
  * Main broker configuration options
@@ -1117,9 +714,9 @@ export interface BrokerOptions {
   circuitBreaker?: CircuitBreakerOptions;
   contextTracking?: ContextTrackingOptions;
   metrics?: MetricsOptions;
-  registry?: RegistryOptions;
+  registry?: import("./internal.js").RegistryOptions;
   retryPolicy?: RetryPolicyOptions;
-  transport?: TransportOptions;
+  transport?: import("./internal.js").TransportOptions;
   tracing?: TracingOptions;
   logger?: LoggerOptions | LoggerFactoryFunction;
 
@@ -1133,7 +730,7 @@ export interface BrokerOptions {
 
   // Lifecycle hooks
   errorHandler?: (error: Error) => void;
-  uuidFactory?: (runtime: Runtime) => string;
+  uuidFactory?: (runtime: import("./internal.js").Runtime) => string;
   waitForServiceInterval?: number;
   beforeRegisterMiddlewares?: () => string;
 
@@ -1143,7 +740,14 @@ export interface BrokerOptions {
   stopped?(this: Broker): void | Promise<void>;
 }
 
+/**
+ * Action contracts for type-safe calls (augment this interface)
+ */
 export interface ActionContracts {}
+
+/**
+ * Event contracts for type-safe events (augment this interface)
+ */
 export interface EventContracts {}
 
 /**
@@ -1152,7 +756,7 @@ export interface EventContracts {}
 export interface Broker {
   nodeId: string;
   namespace?: string;
-  runtime: Runtime;
+  runtime: import("./internal.js").Runtime;
   bus: EventEmitter;
   version: string;
   options: BrokerOptions;
@@ -1160,11 +764,11 @@ export interface Broker {
   // Core components access
   metrics?: MetricRegistry;
   validator: any;
-  contextFactory: ContextFactory;
-  registry: Registry;
+  contextFactory: import("./internal.js").ContextFactory;
+  registry: import("./internal.js").Registry;
   cache?: Cache;
   tracer?: Tracer;
-  transport?: Transport;
+  transport?: import("./internal.js").Transport;
   log: Logger;
 
   // Lifecycle methods
@@ -1207,8 +811,8 @@ export interface Broker {
   ping(
     nodeId?: string,
     timeout?: number,
-  ): Promise<PingResult | Record<string, PingResult | null> | null>;
-  getNextActionEndpoint(actionName: string, options?: any): Endpoint | Error;
+  ): Promise<import("./internal.js").PingResult | Record<string, import("./internal.js").PingResult | null> | null>;
+  getNextActionEndpoint(actionName: string, options?: any): import("./internal.js").Endpoint | Error;
 
   // Error handling
   handleError(error: Error): void;

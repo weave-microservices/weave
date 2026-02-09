@@ -5,19 +5,20 @@ import { isObject, isString } from "@weave-js/utils";
  * @param {any} value Value
  * @returns {string} Cache key
  */
-const getCacheKeyByObject = (value) => {
+const getCacheKeyByObject = (value: any): string => {
   if (Array.isArray(value)) {
-    return "[" + value.map((object) => getCacheKeyByObject(object)).join(",") + "]";
+    return "[" + value.map((object: any) => getCacheKeyByObject(object)).join(",") + "]";
   } else if (isObject(value)) {
     if (value instanceof Date) {
       return value.toISOString();
     }
 
+    const obj = value as Record<string, unknown>;
     return (
       "{" +
-      Object.keys(value)
+      Object.keys(obj)
         .map((key) => {
-          return [key, getCacheKeyByObject(value[key])].join(":");
+          return [key, getCacheKeyByObject(obj[key])].join(":");
         })
         .join(",") +
       "}"

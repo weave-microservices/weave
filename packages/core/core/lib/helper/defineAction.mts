@@ -24,6 +24,8 @@
  *   }
  * });
  */
-export default function defineAction(actionDefinition) {
+import type { ServiceActionSchema } from "../../types/index.js";
+
+export default function defineAction<T extends ServiceActionSchema>(actionDefinition: T): T {
   return actionDefinition;
 }

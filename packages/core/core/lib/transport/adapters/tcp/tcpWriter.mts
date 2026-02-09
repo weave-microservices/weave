@@ -1,16 +1,36 @@
-import net from "net";
+import net, { Socket } from "net";
 import { EventEmitter } from "events";
 import * as MessageTypes from "../../messageTypes.mts";
 import TCPMessageTypeHelper from "./tcp-messagetypes.mts";
+import type { TransportAdapter } from "../../../../types/index.js";
 
-export default (adapter) => {
-  const self = Object.assign({}, EventEmitter.prototype);
-  const sockets = new Map();
-  const messageTypeHelper = TCPMessageTypeHelper(MessageTypes);
+interface TCPMessageTypeHelperInstance {
+  getTypeByIndex(index: number): string | undefined;
+  getIndexByType(type: string): number;
+}
+
+interface ExtendedSocket extends Socket {
+  nodeId?: string;
+  lastUsage?: number;
+}
+
+interface TCPWriter extends EventEmitter {
+  send(nodeId: string, type: string, data: Buffer): Promise<void>;
+  close(): void;
+}
+
+interface TCPAdapterWithSendHello extends TransportAdapter {
+  sendHello(nodeId: string): Promise<void>;
+}
+
+export default (adapter: TCPAdapterWithSendHello): TCPWriter => {
+  const self = Object.assign(new EventEmitter(), {}) as TCPWriter;
+  const sockets = new Map<string, ExtendedSocket>();
+  const messageTypeHelper: TCPMessageTypeHelperInstance = TCPMessageTypeHelper(MessageTypes);
   const headerSize = 6;
 
-  const connect = (nodeId) => {
-    const node = adapter.broker.registry.nodeCollection.get(nodeId);
+  const connect = (nodeId: string): Promise<ExtendedSocket> => {
+    const node = adapter.broker?.registry.nodeCollection.get(nodeId);
     if (!node) {
       return Promise.reject(new Error(`Missing node info for '${nodeId}'!`));
     }
@@ -18,9 +38,13 @@ export default (adapter) => {
     const host = node.IPList[0];
     const port = node.port;
 
+    if (port === undefined) {
+      return Promise.reject(new Error(`Missing port for node '${nodeId}'!`));
+    }
+
     return new Promise((resolve, reject) => {
       try {
-        const socket = net.connect({ host, port }, () => {
+        const socket: ExtendedSocket = net.connect({ host, port }, () => {
           // send hello
           socket.setNoDelay(true);
           socket.nodeId = nodeId;
@@ -31,10 +55,10 @@ export default (adapter) => {
           adapter
             .sendHello(nodeId)
             .then(() => resolve(socket))
-            .catch((error) => reject(error));
+            .catch((error: Error) => reject(error));
         });
 
-        socket.on("error", (error) => {
+        socket.on("error", (error: Error) => {
           removeSocket(nodeId);
 
           self.emit("error", error, nodeId);
@@ -53,7 +77,7 @@ export default (adapter) => {
     });
   };
 
-  const addSocket = (nodeId, socket, force) => {
+  const addSocket = (nodeId: string, socket: ExtendedSocket, force: boolean): void => {
     const s = sockets.get(nodeId);
 
     if (!force && s && !s.destroyed) {
@@ -63,7 +87,7 @@ export default (adapter) => {
     sockets.set(nodeId, socket);
   };
 
-  const removeSocket = (nodeId) => {
+  const removeSocket = (nodeId: string): void => {
     const socket = sockets.get(nodeId);
     if (socket && !socket.destroyed) {
       socket.destroy();
@@ -72,7 +96,7 @@ export default (adapter) => {
     sockets.delete(nodeId);
   };
 
-  self.send = (nodeId, type, data) => {
+  self.send = (nodeId: string, type: string, data: Buffer): Promise<void> => {
     return Promise.resolve()
       .then(() => {
         const socket = sockets.get(nodeId);
@@ -83,7 +107,7 @@ export default (adapter) => {
         return connect(nodeId);
       })
       .then((socket) => {
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
           const header = Buffer.alloc(headerSize);
 
           header.writeInt32BE(data.length + headerSize, 1);
@@ -106,7 +130,7 @@ export default (adapter) => {
       });
   };
 
-  self.close = () => {
+  self.close = (): void => {
     sockets.forEach((socket) => {
       if (!socket.destroyed) {
         socket.destroy();

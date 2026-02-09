@@ -10,26 +10,34 @@ import { createContext } from "../broker/context.mts";
 import { createMessage } from "./createMessage.mts";
 import * as MessageTypes from "./messageTypes.mts";
 import { restoreError } from "../utils/restoreError.mts";
+import type {
+  Runtime,
+  Transport,
+  TransportMessage,
+  TransportMessageHandler,
+  RequestPayload,
+  ResponsePayload,
+  EventPayload,
+  HeartbeatPayload,
+  PingPayload,
+  InfoPayload,
+  Context,
+} from "../../types/index.js";
 
 /**
- * @typedef {import('../types.__js').Transport} Transport
- * @typedef {import('../types.__js').Runtime} Runtime
- * @typedef {import('../types.__js').TransportMessageHandler} TransportMessageHandler
+ * Creates message handlers for transport layer
+ * @param runtime - Runtime reference
+ * @param transport - Transport reference
+ * @returns Message handler function
  */
-
-/**
- * @param {Runtime} runtime - Runtime reference
- * @param {Transport} transport - Transport refence
- * @returns {TransportMessageHandler} - Message handler
- */
-export default (runtime, transport) => {
+export default (runtime: Runtime, transport: Transport): TransportMessageHandler => {
   const registry = runtime.registry;
 
-  const getRequestTimeout = (payload) => {
-    return payload.timeout || runtime.options.registry.requestTimeout || 0;
+  const getRequestTimeout = (payload: RequestPayload): number => {
+    return payload.timeout || runtime.options.registry?.requestTimeout || 0;
   };
 
-  const localRequestProxy = (context) => {
+  const localRequestProxy = (context: Context): Promise<unknown> => {
     const actionName = context.action.name;
     const availableEndpointList = registry.getActionEndpoints(actionName);
 
@@ -45,15 +53,21 @@ export default (runtime, transport) => {
       return Promise.reject("Service not found");
     }
 
-    const promise = endpoint.action.handler(context);
+    const promise = endpoint.action.handler(context, {
+      service: endpoint.action.service,
+      runtime,
+      errors: {},
+    }) as Promise<unknown> & { context?: Context };
     promise.context = context;
 
     return promise;
   };
 
-  const handleIncomingRequestStream = (payload) => {
+  const handleIncomingRequestStream = (payload: RequestPayload): InboundTransformStream | false | null => {
     let stream = transport.pending.requestStreams.get(payload.id);
     let isNew = false;
+    const sender = payload.sender || "";
+    const sequence = payload.sequence ?? 0;
 
     if (!payload.isStream && !stream) {
       return false;
@@ -61,19 +75,19 @@ export default (runtime, transport) => {
 
     if (!stream) {
       isNew = true;
-      stream = new InboundTransformStream(payload.sender, payload.id, {
+      stream = new InboundTransformStream(sender, payload.id, {
         objectMode: payload.meta && payload.meta.$isObjectModeStream,
       });
 
-      if (runtime.options.transport.streams.handleBackpressure) {
-        stream.on("backpressure", async ({ sender, requestId }) => {
+      if (runtime.options.transport?.streams?.handleBackpressure) {
+        stream.on("backpressure", async ({ sender, requestId }: { sender: string; requestId: string }) => {
           const message = createMessage(MessageTypes.MESSAGE_REQUEST_STREAM_BACKPRESSURE, sender, {
             id: requestId,
           });
           await transport.send(message);
         });
 
-        stream.on("resume_backpressure", async ({ sender, requestId }) => {
+        stream.on("resume_backpressure", async ({ sender, requestId }: { sender: string; requestId: string }) => {
           const message = createMessage(MessageTypes.MESSAGE_REQUEST_STREAM_RESUME, sender, {
             id: requestId,
           });
@@ -81,18 +95,15 @@ export default (runtime, transport) => {
         });
       }
 
-      stream.$prevSeq = -1;
-      stream.$pool = new Map();
-
       transport.pending.requestStreams.set(payload.id, stream);
     }
 
-    if (payload.sequence > stream.$prevSeq + 1) {
-      stream.$pool.set(payload.sequence, payload);
+    if (sequence > stream.$prevSeq + 1) {
+      stream.$pool.set(sequence, payload);
       return isNew ? stream : null;
     }
 
-    stream.$prevSeq = payload.sequence;
+    stream.$prevSeq = sequence;
 
     if (stream.$prevSeq > 0) {
       if (!payload.isStream) {
@@ -124,8 +135,17 @@ export default (runtime, transport) => {
     return isNew ? stream : null;
   };
 
-  const handleIncomingResponseStream = (payload, request) => {
+  interface PendingRequest {
+    resolve: (value: unknown) => void;
+    reject: (error: Error) => void;
+    context: Context;
+    timeout?: NodeJS.Timeout;
+  }
+
+  const handleIncomingResponseStream = (payload: ResponsePayload, request: PendingRequest): boolean | null => {
     let stream = transport.pending.responseStreams.get(payload.id);
+    const sender = payload.sender || "";
+    const sequence = payload.sequence ?? 0;
 
     if (!stream && !payload.isStream) {
       return false;
@@ -133,22 +153,22 @@ export default (runtime, transport) => {
 
     if (!stream) {
       transport.log.debug(
-        `New stream from node ${payload.sender} received. Seq: ${payload.sequence}`,
+        `New stream from node ${sender} received. Seq: ${sequence}`,
       );
 
-      stream = new InboundTransformStream(payload.sender, payload.id, {
+      stream = new InboundTransformStream(sender, payload.id, {
         objectMode: payload.meta && payload.meta.$isObjectModeStream,
       });
 
-      if (runtime.options.transport.streams.handleBackpressure) {
-        stream.on("backpressure", async ({ sender, requestId }) => {
+      if (runtime.options.transport?.streams?.handleBackpressure) {
+        stream.on("backpressure", async ({ sender, requestId }: { sender: string; requestId: string }) => {
           const message = createMessage(MessageTypes.MESSAGE_RESPONSE_STREAM_BACKPRESSURE, sender, {
             id: requestId,
           });
           await transport.send(message);
         });
 
-        stream.on("resume_backpressure", async ({ sender, requestId }) => {
+        stream.on("resume_backpressure", async ({ sender, requestId }: { sender: string; requestId: string }) => {
           const message = createMessage(MessageTypes.MESSAGE_RESPONSE_STREAM_RESUME, sender, {
             id: requestId,
           });
@@ -156,23 +176,20 @@ export default (runtime, transport) => {
         });
       }
 
-      stream.$prevSeq = -1;
-      stream.$pool = new Map();
-
       transport.pending.responseStreams.set(payload.id, stream);
       request.resolve(stream);
     }
 
-    if (payload.sequence > stream.$prevSeq + 1) {
+    if (sequence > stream.$prevSeq + 1) {
       transport.log.debug(
-        `Put the chunk into pool (size: ${stream.$pool.size}). Seq: ${payload.sequence}`,
+        `Put the chunk into pool (size: ${stream.$pool.size}). Seq: ${sequence}`,
       );
 
-      stream.$pool.set(payload.sequence, payload);
+      stream.$pool.set(sequence, payload);
       return true;
     }
 
-    stream.$prevSeq = payload.sequence;
+    stream.$prevSeq = sequence;
 
     if (stream.$prevSeq > 0) {
       if (!payload.isStream) {
@@ -204,22 +221,22 @@ export default (runtime, transport) => {
     return true;
   };
 
+  interface DiscoveryPayload {
+    sender: string;
+  }
+
   /**
    * Discovery handler
-   * @param {any} payload - Payload
-   * @returns {Promise} Promise
    */
-  const onDiscovery = (payload) => transport.sendNodeInfo(payload.sender);
+  const onDiscovery = (payload: DiscoveryPayload): Promise<void> | undefined => transport.sendNodeInfo?.(payload.sender);
 
   /**
    * Node info handler
-   * @param {any} payload - Payload
-   * @returns {Promise} Promise
    */
-  const onNodeInfos = (payload) => registry.processNodeInfo(payload);
+  const onNodeInfos = (payload: InfoPayload): void => registry.processNodeInfo(payload);
 
-  const onRequest = (payload: any): Promise<any> => {
-    const sender = payload.sender;
+  const onRequest = (payload: RequestPayload): Promise<void> => {
+    const sender = payload.sender || "";
 
     try {
       let stream;
@@ -233,7 +250,9 @@ export default (runtime, transport) => {
       const endpoint = registry.getLocalActionEndpoint(payload.action);
       const context = createContext(runtime);
 
-      context.setEndpoint(endpoint);
+      if (endpoint) {
+        context.setEndpoint(endpoint);
+      }
       context.id = payload.id;
       context.setData(payload.data);
       context.parentId = payload.parentId;
@@ -241,7 +260,7 @@ export default (runtime, transport) => {
       context.meta = payload.meta || {};
       context.metrics = payload.metrics;
       context.level = payload.level;
-      context.callerNodeId = payload.sender;
+      context.callerNodeId = sender;
       context.tracing = payload.tracing;
       context.options.timeout = getRequestTimeout(payload);
 
@@ -251,18 +270,18 @@ export default (runtime, transport) => {
 
       return localRequestProxy(context)
         .then((data) => transport.sendResponse(sender, payload.id, data, context.meta, null))
-        .catch((error) => transport.sendResponse(sender, payload.id, null, context.meta, error));
-    } catch (error) {
-      return transport.sendResponse(sender, payload.id, null, payload.meta, error);
+        .catch((error: Error) => transport.sendResponse(sender, payload.id, null, context.meta, error));
+    } catch (error: unknown) {
+      return transport.sendResponse(sender, payload.id, null, payload.meta || {}, error as Error);
     }
   };
 
-  const onResponse = (payload: any) => {
+  const onResponse = (payload: ResponsePayload): void => {
     const id = payload.id;
-    const request = transport.pending.requests.get(id);
+    const request = transport.pending.requests.get(id) as PendingRequest | undefined;
 
     if (!request) {
-      return Promise.resolve();
+      return;
     }
 
     Object.assign(request.context.meta, payload.meta);
@@ -276,7 +295,7 @@ export default (runtime, transport) => {
     transport.pending.requests.delete(payload.id);
 
     if (!payload.success) {
-      const error = restoreError(payload.error);
+      const error = restoreError(payload.error) as Error & { nodeId?: string };
 
       error.nodeId = error.nodeId || payload.sender;
 
@@ -288,11 +307,10 @@ export default (runtime, transport) => {
 
   /**
    * Ping handler
-   * @param {any} payload - Payload
-   * @returns {Promise} Promise
    */
-  const onPing = (payload) => {
-    const message = createMessage(MessageTypes.MESSAGE_PONG, payload.sender, {
+  const onPing = (payload: PingPayload): Promise<void> => {
+    const sender = payload.sender || "";
+    const message = createMessage(MessageTypes.MESSAGE_PONG, sender, {
       dispatchTime: payload.dispatchTime,
       arrivalTime: Date.now(),
     });
@@ -300,12 +318,16 @@ export default (runtime, transport) => {
     return transport.send(message);
   };
 
+  interface PongPayload {
+    sender: string;
+    dispatchTime: number;
+    arrivalTime: number;
+  }
+
   /**
    * Pong handler
-   * @param {any} payload - Payload
-   * @returns {void}
    */
-  const onPong = (payload) => {
+  const onPong = (payload: PongPayload): void => {
     const now = Date.now();
     const elapsedTime = now - payload.dispatchTime;
     const timeDiff = Math.round(now - payload.arrivalTime - elapsedTime / 2);
@@ -317,12 +339,15 @@ export default (runtime, transport) => {
     });
   };
 
+  interface ExtendedEventPayload extends EventPayload {
+    id?: string;
+    timeout?: number;
+  }
+
   /**
    * Event handler
-   * @param {any} payload - Payload
-   * @returns {Promise} Promise
    */
-  const onEvent = (payload) => {
+  const onEvent = (payload: ExtendedEventPayload): Promise<void> | undefined => {
     runtime.log.debug(`Received event "${payload.eventName}"`);
 
     if (!runtime.state.isStarted) {
@@ -339,7 +364,7 @@ export default (runtime, transport) => {
     context.requestId = payload.requestId;
     context.meta = payload.meta || {};
     context.metrics = payload.metrics;
-    context.level = payload.level;
+    context.level = payload.level ?? 1;
     context.callerNodeId = payload.sender;
     context.tracing = !!payload.tracing;
 
@@ -353,37 +378,42 @@ export default (runtime, transport) => {
     return registry.eventCollection.emitLocal(context);
   };
 
+  interface DisconnectPayload {
+    sender: string;
+  }
+
   /**
    * Disconnect handler
-   * @param {any} payload - Payload
-   * @returns {void}
    */
-  const onDisconnect = (payload) => {
+  const onDisconnect = (payload: DisconnectPayload): void => {
     registry.nodeDisconnected(payload.sender, false);
   };
 
   /**
    * Heartbeat handler
-   * @param {any} payload - Payload
-   * @returns {void}
    */
-  const onHeartbeat = (payload) => {
-    transport.log.verbose(`Heartbeat from ${payload.sender}`);
-    const node = registry.nodeCollection.get(payload.sender);
+  const onHeartbeat = (payload: HeartbeatPayload): void => {
+    const sender = payload.sender || "";
+    transport.log.verbose(`Heartbeat from ${sender}`);
+    const node = registry.nodeCollection.get(sender);
 
     if (node) {
       if (!node.isAvailable) {
         transport.log.debug("Known node. Propably reconnected.");
-        transport.discoverNode(payload.sender);
+        transport.discoverNode?.(sender);
       } else {
         node.heartbeat(payload);
       }
     } else {
-      transport.discoverNode(payload.sender);
+      transport.discoverNode?.(sender);
     }
   };
 
-  const onResponseStreamBackpressure = (payload) => {
+  interface StreamBackpressurePayload {
+    id: string;
+  }
+
+  const onResponseStreamBackpressure = (payload: StreamBackpressurePayload): void => {
     const stream = transport.pending.outboundResponseStreams.get(payload.id);
 
     if (stream) {
@@ -391,7 +421,7 @@ export default (runtime, transport) => {
     }
   };
 
-  const onResponseStreamResume = (payload) => {
+  const onResponseStreamResume = (payload: StreamBackpressurePayload): void => {
     const stream = transport.pending.outboundResponseStreams.get(payload.id);
 
     if (stream) {
@@ -399,7 +429,7 @@ export default (runtime, transport) => {
     }
   };
 
-  const onRequestStreamBackpressure = (payload) => {
+  const onRequestStreamBackpressure = (payload: StreamBackpressurePayload): void => {
     const stream = transport.pending.outboundRequestStreams.get(payload.id);
 
     if (stream) {
@@ -407,7 +437,7 @@ export default (runtime, transport) => {
     }
   };
 
-  const onRequestStreamResume = (payload) => {
+  const onRequestStreamResume = (payload: StreamBackpressurePayload): void => {
     const stream = transport.pending.outboundRequestStreams.get(payload.id);
 
     if (stream) {
@@ -415,10 +445,11 @@ export default (runtime, transport) => {
     }
   };
 
-  return (type, data) => {
+  return (type: string, data: TransportMessage | null): boolean => {
     try {
       if (data === null) {
         runtime.handleError(new WeaveError("Packet missing!"));
+        return false;
       }
 
       const payload = data.payload;
@@ -441,49 +472,49 @@ export default (runtime, transport) => {
 
       switch (type) {
         case MessageTypes.MESSAGE_DISCOVERY:
-          onDiscovery(payload);
+          onDiscovery(payload as DiscoveryPayload);
           break;
         case MessageTypes.MESSAGE_INFO:
-          onNodeInfos(payload);
+          onNodeInfos(payload as InfoPayload);
           break;
         case MessageTypes.MESSAGE_REQUEST:
-          onRequest(payload);
+          onRequest(payload as RequestPayload);
           break;
         case MessageTypes.MESSAGE_RESPONSE:
-          onResponse(payload);
+          onResponse(payload as ResponsePayload);
           break;
         case MessageTypes.MESSAGE_PING:
-          onPing(payload);
+          onPing(payload as PingPayload);
           break;
         case MessageTypes.MESSAGE_PONG:
-          onPong(payload);
+          onPong(payload as PongPayload);
           break;
         case MessageTypes.MESSAGE_DISCONNECT:
-          onDisconnect(payload);
+          onDisconnect(payload as DisconnectPayload);
           break;
         case MessageTypes.MESSAGE_HEARTBEAT:
-          onHeartbeat(payload);
+          onHeartbeat(payload as HeartbeatPayload);
           break;
         case MessageTypes.MESSAGE_EVENT:
-          onEvent(payload);
+          onEvent(payload as ExtendedEventPayload);
           break;
         case MessageTypes.MESSAGE_RESPONSE_STREAM_BACKPRESSURE:
-          onResponseStreamBackpressure(payload);
+          onResponseStreamBackpressure(payload as StreamBackpressurePayload);
           break;
         case MessageTypes.MESSAGE_RESPONSE_STREAM_RESUME:
-          onResponseStreamResume(payload);
+          onResponseStreamResume(payload as StreamBackpressurePayload);
           break;
         case MessageTypes.MESSAGE_REQUEST_STREAM_BACKPRESSURE:
-          onRequestStreamBackpressure(payload);
+          onRequestStreamBackpressure(payload as StreamBackpressurePayload);
           break;
         case MessageTypes.MESSAGE_REQUEST_STREAM_RESUME:
-          onRequestStreamResume(payload);
+          onRequestStreamResume(payload as StreamBackpressurePayload);
           break;
       }
 
       return true;
-    } catch (error) {
-      transport.log.error(error, type, data);
+    } catch (error: unknown) {
+      transport.log.error((error as Error).message || String(error), type);
       runtime.eventBus.broadcastLocal("$transport.error", { error });
     }
     return false;

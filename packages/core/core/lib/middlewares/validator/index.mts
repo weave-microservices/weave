@@ -6,23 +6,24 @@
 
 import { WeaveParameterValidationError } from "../../errors.mts";
 import { capitalize } from "@weave-js/utils";
+import type {
+  ActionHandler,
+  Context,
+  EventHandler,
+  Middleware,
+  Runtime,
+  ServiceInjection,
+  WeaveAction,
+  WeaveEvent,
+} from "../../../types/index.js";
+import type { ValidationError, ValidationFunction, ValidationOptions } from "@weave-js/validator";
 
-/**
- * @typedef {import('../../types.__js').Runtime} Runtime
- * @typedef {import('../../types.__js').Middleware} Middleware
- **/
-
-/**
- * Create validator middleware
- * @param {Runtime} runtime - Runtime reference
- * @returns {Middleware} - Validator middleware
- */
-export default (runtime) => {
+export default (runtime: Runtime): Middleware => {
   const validator = runtime.validator;
 
-  const processErrors = (context, type, results) => {
+  const processErrors = (context: Context, type: string, results: ValidationError[]): Promise<never> => {
     const errors = results.map((data) =>
-      Object.assign(data, { nodeId: context.nodeId, action: context.action.name }),
+      Object.assign(data, { nodeId: context.nodeId, action: context.action?.name }),
     );
     return Promise.reject(
       new WeaveParameterValidationError(`${capitalize(type)} parameter validation error`, errors),
@@ -30,15 +31,17 @@ export default (runtime) => {
   };
 
   return {
-    localAction(handler, action) {
-      const parameterOptions = Object.assign(
+    localAction(handler: ActionHandler, action: WeaveAction): ActionHandler {
+      const parameterOptions: ValidationOptions = Object.assign(
+        {},
         runtime.options.validatorOptions,
         action.validatorOptions,
       );
 
       // validate request schema
-      let validateRequestSchema;
-      let validateResponseSchema;
+      let validateRequestSchema: ValidationFunction | undefined;
+      let validateResponseSchema: ValidationFunction | undefined;
+
       if (action.params && typeof action.params === "object") {
         validateRequestSchema = validator.compile(action.params, parameterOptions);
       }
@@ -47,17 +50,17 @@ export default (runtime) => {
         validateResponseSchema = validator.compile(action.responseSchema, parameterOptions);
       }
 
-      if (!validateRequestSchema && !validateRequestSchema) {
+      if (!validateRequestSchema && !validateResponseSchema) {
         return handler;
       }
 
-      return (context, serviceInjections) => {
+      return (context: Context, serviceInjections: ServiceInjection): Promise<unknown> => {
         const requestSchemaResult = validateRequestSchema
           ? validateRequestSchema(context.data)
           : true;
 
         if (requestSchemaResult === true) {
-          return handler(context, serviceInjections).then((result) => {
+          return handler(context, serviceInjections).then((result: unknown) => {
             if (validateResponseSchema) {
               const responseSchemaResult = validateResponseSchema(result);
               if (responseSchemaResult === true) {
@@ -73,26 +76,27 @@ export default (runtime) => {
         }
       };
     },
-    localEvent(handler, event) {
+    localEvent(handler: EventHandler, event: WeaveEvent): EventHandler {
       if (event.params && typeof event.params === "object") {
-        const parameterOptions = Object.assign(
+        const parameterOptions: ValidationOptions = Object.assign(
+          {},
           runtime.options.validatorOptions,
           event.validatorOptions,
         );
 
-        const validate = validator.compile(event.params, parameterOptions);
+        const validate: ValidationFunction = validator.compile(event.params, parameterOptions);
 
-        return (context, serviceInjections) => {
-          let result = validate(context.data);
+        return (context: Context, serviceInjections: ServiceInjection): Promise<unknown> => {
+          const result = validate(context.data);
 
           if (result === true) {
             return handler(context, serviceInjections);
           } else {
-            result = result.map((data) =>
+            const errors = result.map((data: ValidationError) =>
               Object.assign(data, { nodeId: context.nodeId, event: context.eventName }),
             );
             return Promise.reject(
-              new WeaveParameterValidationError("Parameter validation error", result),
+              new WeaveParameterValidationError("Parameter validation error", errors),
             );
           }
         };

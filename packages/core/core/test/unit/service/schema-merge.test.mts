@@ -1,14 +1,15 @@
 import { mergeSchemas } from "../../../lib/utils/options.mts";
-import { describe, it } from "node:test";
+import { describe, it, mock } from "node:test";
 import assert from "node:assert/strict";
+import type { Context, ServiceSchema, ServiceEvent } from "../../../types/index.js";
 
 class TestClass {
-  send() {
-    return jest.fn();
+  send(): () => void {
+    return mock.fn();
   }
 }
 
-const mixin = {
+const mixin: ServiceSchema = {
   name: "service2",
   meta: {
     $official: true,
@@ -31,11 +32,11 @@ const mixin = {
     me1() {},
     me2() {},
   },
-  created: jest.fn(),
-  started: jest.fn(),
+  created: mock.fn(),
+  started: mock.fn(),
 };
 
-const service1 = {
+const service1: ServiceSchema = {
   name: "service1",
   meta: {
     $official: true,
@@ -51,10 +52,10 @@ const service1 = {
   },
   hooks: {
     before: {
-      a1: () => {},
+      a1: (_context: Context) => _context,
     },
     after: {
-      a3: () => {},
+      a3: (_context: Context, response: unknown) => response,
     },
   },
   actions: {
@@ -67,13 +68,13 @@ const service1 = {
   methods: {
     privateMethod1() {},
   },
-  afterSchemasMerged: jest.fn(),
-  created: jest.fn(),
-  started: jest.fn(),
-  stopped: jest.fn(),
+  afterSchemasMerged: mock.fn(),
+  created: mock.fn(),
+  started: mock.fn(),
+  stopped: mock.fn(),
 };
 
-const service2 = {
+const service2: ServiceSchema & { adapter: TestClass } = {
   name: "service2",
   mixins: [mixin],
   meta: {
@@ -91,10 +92,13 @@ const service2 = {
   },
   hooks: {
     before: {
-      a2: () => {},
+      a2: (_context: Context) => _context,
     },
     after: {
-      a3: [() => {}, () => {}],
+      a3: [
+        (_context: Context, response: unknown) => response,
+        (_context: Context, response: unknown) => response,
+      ],
     },
   },
   actions: {
@@ -105,9 +109,9 @@ const service2 = {
     e1() {},
     e2() {},
   },
-  afterSchemasMerged: jest.fn(),
-  created: jest.fn(),
-  started: jest.fn(),
+  afterSchemasMerged: mock.fn(),
+  created: mock.fn(),
+  started: mock.fn(),
 };
 
 describe("Service schema merging", () => {
@@ -121,85 +125,85 @@ describe("Service schema merging", () => {
     assert.ok(Array.isArray(mergedService.created));
     assert.ok(Array.isArray(mergedService.started));
     assert.ok(Array.isArray(mergedService.stopped));
-    assert.strictEqual(mergedService.afterSchemasMerged.length, 2);
-    assert.strictEqual(mergedService.created.length, 2);
-    assert.strictEqual(mergedService.started.length, 2);
-    assert.strictEqual(mergedService.stopped.length, 1);
+    assert.strictEqual((mergedService.afterSchemasMerged as unknown[]).length, 2);
+    assert.strictEqual((mergedService.created as unknown[]).length, 2);
+    assert.strictEqual((mergedService.started as unknown[]).length, 2);
+    assert.strictEqual((mergedService.stopped as unknown[]).length, 1);
   });
 
   it("shoud merge settings", () => {
     const mergedService = mergeSchemas(service2, service1);
     assert.ok(Array.isArray(mergedService.started));
-    assert.strictEqual(mergedService.started.length, 2);
+    assert.strictEqual((mergedService.started as unknown[]).length, 2);
   });
 
   it("shoud merge settings", () => {
     const mergedService = mergeSchemas(service2, service1);
-    assert.strictEqual(mergedService.settings.queueSize, 4);
-    assert.strictEqual(mergedService.started.length, 2);
+    assert.strictEqual(mergedService.settings!.queueSize, 4);
+    assert.strictEqual((mergedService.started as unknown[]).length, 2);
   });
 
   it("shoud merge meta", () => {
     const mergedService = mergeSchemas(service2, service1);
-    assert.strictEqual(mergedService.meta.$official, true);
-    assert.strictEqual(mergedService.meta.distributor, "name");
-    assert.strictEqual(mergedService.meta.packageName, "test");
+    assert.strictEqual(mergedService.meta!.$official, true);
+    assert.strictEqual(mergedService.meta!.distributor, "name");
+    assert.strictEqual(mergedService.meta!.packageName, "test");
   });
 
   it("shoud merge actions", () => {
     const mergedService = mergeSchemas(service2, service1);
     assert.notStrictEqual(mergedService.actions, undefined);
-    assert.notStrictEqual(mergedService.actions.a1, undefined);
-    assert.notStrictEqual(mergedService.actions.a2, undefined);
-    expect(mergedService.actions.a3).not.toBeDefined();
+    assert.notStrictEqual(mergedService.actions!.a1, undefined);
+    assert.notStrictEqual(mergedService.actions!.a2, undefined);
+    assert.strictEqual(mergedService.actions!.a3, undefined);
   });
 
   it("shoud merge events", () => {
     const mergedService = mergeSchemas(service2, service1);
     assert.notStrictEqual(mergedService.actions, undefined);
-    assert.notStrictEqual(mergedService.events.e1, undefined);
-    assert.ok(Array.isArray(mergedService.events.e1.handler));
-    assert.notStrictEqual(mergedService.events.e2, undefined);
+    assert.notStrictEqual(mergedService.events!.e1, undefined);
+    assert.ok(Array.isArray((mergedService.events!.e1 as ServiceEvent).handler));
+    assert.notStrictEqual(mergedService.events!.e2, undefined);
   });
 
   it("shoud merge methods", () => {
     const mergedService = mergeSchemas(service2, service1);
     assert.notStrictEqual(mergedService.methods, undefined);
-    assert.notStrictEqual(mergedService.methods.privateMethod1, undefined);
+    assert.notStrictEqual(mergedService.methods!.privateMethod1, undefined);
   });
 });
 
 describe("Hooks", () => {
   it("should merge schema hooks", () => {
     const mergedService = mergeSchemas(service2, service1);
-    assert.notStrictEqual(mergedService.hooks.before, undefined);
-    assert.notStrictEqual(mergedService.hooks.before.a1, undefined);
-    assert.notStrictEqual(mergedService.hooks.before.a2, undefined);
-    assert.notStrictEqual(mergedService.hooks.after.a3, undefined);
-    assert.strictEqual(mergedService.hooks.after.a3.length, 3);
-    assert.notStrictEqual(mergedService.settings.prototype.send, undefined);
-    assert.strictEqual(typeof mergedService.settings.prototype.send, "function");
+    assert.notStrictEqual(mergedService.hooks!.before, undefined);
+    assert.notStrictEqual(mergedService.hooks!.before!.a1, undefined);
+    assert.notStrictEqual(mergedService.hooks!.before!.a2, undefined);
+    assert.notStrictEqual(mergedService.hooks!.after!.a3, undefined);
+    assert.strictEqual((mergedService.hooks!.after!.a3 as unknown[]).length, 3);
+    assert.notStrictEqual(mergedService.settings!.prototype.send, undefined);
+    assert.strictEqual(typeof mergedService.settings!.prototype.send, "function");
   });
 });
 
 describe("dependencies", () => {
   it("should merge dependencies", () => {
-    const service1 = {
+    const depService1: ServiceSchema = {
       name: "name1",
       dependencies: ["service3", "service2"],
     };
 
-    const service2 = {
+    const depService2: ServiceSchema = {
       name: "name2",
       dependencies: ["service1", "service3"],
     };
 
-    const service3 = {
+    const depService3: ServiceSchema = {
       name: "name3",
       dependencies: ["service1", "service2"],
     };
 
-    const mergedSchema = mergeSchemas(service1, mergeSchemas(service3, service2));
-    assert.strictEqual(mergedSchema.dependencies.length, 6);
+    const mergedSchema = mergeSchemas(depService1, mergeSchemas(depService3, depService2));
+    assert.strictEqual(mergedSchema.dependencies!.length, 6);
   });
 });

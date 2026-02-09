@@ -1,22 +1,19 @@
 import { createServiceFromSchema } from "../registry/service/service.mts";
 import { WeaveError } from "../errors.mts";
+import type { Runtime, Service, ServiceSchema } from "../../types/index.js";
 
-/**
- *
- * @param {import('../../types/index.js').Runtime} runtime
- */
-export const initServiceManager = (runtime) => {
+export const initServiceManager = (runtime: Runtime): void => {
   const { options, log, eventBus, transport, state, registry, handleError, middlewareHandler } =
     runtime;
 
   // Internal service list
-  const serviceList = [];
+  const serviceList: Service[] = [];
 
-  const serviceChanged = (isLocalService = false) => {
+  const serviceChanged = (isLocalService: boolean = false): void => {
     eventBus.broadcastLocal("$services.changed", { isLocalService });
     middlewareHandler.callHandlersAsync("serviceChanged", [isLocalService]);
     if (state.isStarted && isLocalService && transport) {
-      transport.sendNodeInfo();
+      transport.sendNodeInfo?.();
     }
   };
 
@@ -24,7 +21,7 @@ export const initServiceManager = (runtime) => {
     value: {
       serviceList,
       serviceChanged,
-      createService(schema) {
+      createService(schema: ServiceSchema): Service | undefined {
         try {
           const newService = createServiceFromSchema(runtime, schema);
 
@@ -36,8 +33,8 @@ export const initServiceManager = (runtime) => {
 
           return newService;
         } catch (error) {
-          log.error(error);
-          handleError(error);
+          log.error(error as Error);
+          handleError(error as Error);
         }
       },
       /**
@@ -47,23 +44,24 @@ export const initServiceManager = (runtime) => {
        * @param {Number} interval Time in Miliseconds to check for services.
        * @returns {Promise} Promise
        */
-      waitForServices(serviceNames, timeout, interval = 500) {
+      waitForServices(serviceNames: string | string[], timeout: number, interval: number = 500): Promise<void> {
         if (!Array.isArray(serviceNames)) {
           serviceNames = [serviceNames];
         }
 
         const startTimestamp = Date.now();
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
           // todo: add timout for service waiter
-          log.warn(`Waiting for services '${serviceNames.join(",")}'`);
+          log.warn(`Waiting for services '${(serviceNames as string[]).join(",")}'`);
 
-          const serviceCheck = () => {
-            const count = serviceNames.filter((serviceName) => registry.hasService(serviceName));
+          const serviceCheck = (): void => {
+            const count = (serviceNames as string[]).filter((serviceName: string) => registry.hasService(serviceName));
 
-            log.warn(`${count.length} services of ${serviceNames.length} available. Waiting`);
+            log.warn(`${count.length} services of ${(serviceNames as string[]).length} available. Waiting`);
 
-            if (count.length === serviceNames.length) {
-              return resolve();
+            if (count.length === (serviceNames as string[]).length) {
+              resolve();
+              return;
             }
 
             if (timeout && Date.now() - startTimestamp > timeout) {
@@ -77,7 +75,7 @@ export const initServiceManager = (runtime) => {
               );
             }
 
-            options.waitForServiceInterval = setTimeout(serviceCheck, interval);
+            (options as Record<string, unknown>).waitForServiceInterval = setTimeout(serviceCheck, interval);
           };
 
           serviceCheck();
@@ -88,7 +86,7 @@ export const initServiceManager = (runtime) => {
        * @param {Service} service Service
        * @returns {Promise<any>} result
        */
-      async destroyService(service) {
+      async destroyService(service: Service): Promise<void> {
         try {
           await service.stop();
 
@@ -97,7 +95,7 @@ export const initServiceManager = (runtime) => {
           log.debug(`Service "${service.name}" was deregistered.`);
           serviceChanged(true);
         } catch (error) {
-          log.error(error, `Unable to stop service "${service.name}"`);
+          log.error(error as Error, `Unable to stop service "${service.name}"`);
         }
       },
     },

@@ -19,25 +19,28 @@ import type { BrokerOptions, Runtime } from "../types/index.js";
 const { EventEmitter2: EventEmitter } = pkg;
 const { version } = packageJson;
 
-export const initRuntime = (options: BrokerOptions) => {
+export const initRuntime = (options: BrokerOptions): Runtime => {
   const bus = new EventEmitter({
     wildcard: true,
     maxListeners: 1000,
   });
 
-  const runtime: Partial<Runtime> = {
-    nodeId: options.nodeId,
+  // Build runtime incrementally - cast through unknown to allow incremental property assignment
+  // The init functions will add the remaining required properties
+  const runtime = {
+    nodeId: options.nodeId!,
     version,
     options,
     bus,
     state: {
       instanceId: uuid(),
       isStarted: false,
+      trackedContexts: [],
     },
     handleError: (error: Error) => errorHandler(runtime, error),
-    fatalError: (message: string, error: Error, killProcess: boolean) =>
+    fatalError: (message?: string, error?: Error, killProcess?: boolean) =>
       fatalErrorHandler(runtime, message, error, killProcess),
-  };
+  } as unknown as Runtime;
 
   initLogger(runtime);
   initUUIDFactory(runtime);

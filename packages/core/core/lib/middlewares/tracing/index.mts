@@ -5,9 +5,10 @@
  */
 
 import { buildActionTags, buildEventTags, addResponseTags } from "./tags.mts";
+import type { ActionHandler, ActionTracingOptions, Context, EventHandler, Middleware, Runtime, ServiceInjection, WeaveAction, WeaveEvent } from "../../../types/index.js";
 
-function getSpanName(context, actionTracingOptions) {
-  let spanName = `action "${context.action.name}"`;
+function getSpanName(context: Context, actionTracingOptions: ActionTracingOptions): string {
+  let spanName = `action "${context.action?.name}"`;
 
   try {
     if (actionTracingOptions.spanName) {
@@ -21,25 +22,25 @@ function getSpanName(context, actionTracingOptions) {
       }
     }
   } catch (error) {
-    context.service.log.warn(
+    context.service?.log.warn(
       {
         requestId: context.requestId,
-        spanId: context.span.id,
+        spanId: context.span?.id,
       },
-      `Error while getting span name: ${error.message}`,
+      `Error while getting span name: ${(error as Error).message}`,
     );
   }
 
   return spanName;
 }
 
-const wrapTracingLocalActionMiddleware = function (handler, action) {
+const wrapTracingLocalActionMiddleware = function (this: Runtime, handler: ActionHandler, action: WeaveAction): ActionHandler {
   const broker = this;
   const globalTracingOptions = broker.options.tracing || {};
   const actionTracingOptions = action.tracing || {};
 
   if (globalTracingOptions.enabled) {
-    return function tracingLocalMiddleware(context, serviceInjections) {
+    return function tracingLocalMiddleware(context: Context, serviceInjections: ServiceInjection) {
       const tags = buildActionTags(context, globalTracingOptions, actionTracingOptions);
 
       const spanName = getSpanName(context, actionTracingOptions);
@@ -84,14 +85,14 @@ const wrapTracingLocalActionMiddleware = function (handler, action) {
   return handler;
 };
 
-const wrapTracingLocalEventMiddleware = function (handler, event) {
+const wrapTracingLocalEventMiddleware = function (this: Runtime, handler: EventHandler, event: WeaveEvent): EventHandler {
   const broker = this;
   const service = event.service;
   const tracingOptions = broker.options.tracing || {};
   const eventTracingOptions = event.tracing || {};
 
   if (tracingOptions.enabled) {
-    return function metricsLocalMiddleware(context) {
+    return function tracingLocalEventMiddleware(context: Context, serviceInjections: ServiceInjection): Promise<any> {
       const tags = buildEventTags(context, tracingOptions, eventTracingOptions);
 
       const span = context.startSpan(`event "${context.eventName}"`, {
@@ -106,7 +107,7 @@ const wrapTracingLocalEventMiddleware = function (handler, event) {
 
       context.tracing = span.sampled;
 
-      return handler(context)
+      return handler(context, serviceInjections)
         .then((result) => {
           context.finishSpan(span);
           return result;
@@ -121,7 +122,7 @@ const wrapTracingLocalEventMiddleware = function (handler, event) {
   return handler;
 };
 
-export default () => {
+export default (): Middleware => {
   return {
     localAction: wrapTracingLocalActionMiddleware,
     localEvent: wrapTracingLocalEventMiddleware,
