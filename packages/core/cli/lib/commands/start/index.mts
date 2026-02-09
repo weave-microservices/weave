@@ -1,4 +1,4 @@
-import { createBroker } from "@weave-js/core";
+import { Broker, createBroker } from "@weave-js/core";
 import repl from "@weave-js/repl";
 import { getConfig } from "../../utils/config.mts";
 import { createWatchMiddleware } from "./createWatchMiddlewares.mts";
@@ -6,6 +6,14 @@ import { loadServices, loadServicesFromFactory } from "./loadServices.mts";
 import path from "path";
 import fs from "fs";
 import dotenv from "dotenv";
+
+
+export type CLIContext = {
+  broker: Broker;
+  args: any;
+  isRestarting: boolean;
+  restartBroker: () => Promise<void>;
+};
 
 export const handler = async (args: any): Promise<void> => {
   if (args.dotenv) {
@@ -15,7 +23,7 @@ export const handler = async (args: any): Promise<void> => {
   }
 
   try {
-    const cliContext: any = {
+    const cliContext: CLIContext = {
       broker: null,
       args: args, // Store args for config reloading
       isRestarting: false, // Flag to prevent restart loops

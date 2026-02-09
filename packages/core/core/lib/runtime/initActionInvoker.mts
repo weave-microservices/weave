@@ -49,7 +49,7 @@ export const initActionInvoker = (runtime: Runtime) => {
    * @param {Array<Action>} actions Array of actions.
    * @returns {Promise} Promise
    */
-  const multiCall = (actions) => {
+  const multiCall = (actions: Array<any>) => {
     if (Array.isArray(actions)) {
       return Promise.all(actions.map((item) => call(item.actionName, item.params, item.options)));
     } else {

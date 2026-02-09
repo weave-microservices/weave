@@ -4,7 +4,7 @@
  * Copyright 2021 Fachwerk
  */
 
-function callHook(hook, service, context, result) {
+function callHook(hook, service, context, result?: any) {
   if (typeof hook === "function") {
     return hook.call(service, context, result);
   } else if (Array.isArray(hook)) {

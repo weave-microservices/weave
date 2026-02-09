@@ -101,6 +101,8 @@ try {
   // Local call to see the logger in action
   broker1.emit("saidHello", { name: "test", age: 1 });
   const result = await broker1.call("test.hello", { name: "test", age: 123 });
+
+  await broker1.call("test.hello", {  })
   console.log(result);
 
   const result2 = await broker2.call("test.hello", { name: "test", age: 123 });

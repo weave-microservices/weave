@@ -4,40 +4,59 @@
  * Copyright 2021 Fachwerk
  */
 
-import TransportBase from "../adapterBase.mts";
+import { BaseTransportAdapter } from "../adapterBase.mts";
 import pkg from "eventemitter2";
 const { EventEmitter2 } = pkg;
 
-// create a global eventbus to pass messages between weave service brokers.
-global.bus = new EventEmitter2({
-  wildcard: true,
-  maxListeners: 100,
-});
-
-const DummyTransportAdapter = (adapterOptions = {}) => {
-  const messageBus = global.bus;
-
-  return Object.assign(TransportBase(adapterOptions), {
-    name: "Dummy",
-    connect() {
-      this.bus.emit("$adapter.connected", false);
-      this.log.debug("Dummy transport client connected.");
-      return Promise.resolve();
-    },
-    close() {
-      return Promise.resolve();
-    },
-    send(message) {
-      const data = this.serialize(message);
-      const topic = this.getTopic(message.type, message.targetNodeId);
-      messageBus.emit(topic, data);
-      return Promise.resolve();
-    },
-    subscribe(type, nodeId) {
-      const topic = this.getTopic(type, nodeId);
-      messageBus.on(topic, (message) => this.incomingMessage(type, message));
-    },
+// Create a global eventbus to pass messages between weave service brokers.
+// @ts-ignore - global augmentation
+if (!global.bus) {
+  // @ts-ignore
+  global.bus = new EventEmitter2({
+    wildcard: true,
+    maxListeners: 100,
   });
-};
+}
 
-export default DummyTransportAdapter;
+/**
+ * Dummy transport adapter for in-process communication
+ * Uses a global event bus to pass messages between brokers
+ */
+class DummyTransportAdapter extends BaseTransportAdapter {
+  // @ts-ignore - global augmentation
+  #messageBus = global.bus;
+
+  constructor() {
+    super();
+    this.name = "Dummy";
+  }
+
+  async connect(): Promise<void> {
+    this.bus.emit("$adapter.connected", false);
+    this.log.debug("Dummy transport client connected.");
+  }
+
+  async close(): Promise<void> {
+    // Nothing to clean up
+  }
+
+  async send(message: any): Promise<void> {
+    const data = this.serialize(message);
+    const topic = this.getTopic(message.type, message.targetNodeId);
+    this.#messageBus.emit(topic, data);
+  }
+
+  subscribe(type: string, nodeId?: string): Promise<void> {
+    const topic = this.getTopic(type, nodeId);
+    this.#messageBus.on(topic, (message: any) => this.incomingMessage(type, message));
+    return Promise.resolve();
+  }
+}
+
+/**
+ * Factory function for creating Dummy adapter instances
+ * Maintains backward compatibility with existing code
+ */
+export default function createDummyAdapter(adapterOptions: any = {}): DummyTransportAdapter {
+  return new DummyTransportAdapter();
+}

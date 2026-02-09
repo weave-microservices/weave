@@ -2,7 +2,7 @@ import {
   createBroker,
   TransportAdapters,
   defineAction,
-} from "../../../packages/core/core/lib/index.mts";
+} from "@weave-js/core/lib/index.mts";
 import repl from "../../../packages/core/repl/lib/index.mts";
 
 const gwBroker = createBroker({

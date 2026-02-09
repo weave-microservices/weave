@@ -5,103 +5,161 @@
  */
 
 import { EventEmitter } from "events";
+import type { Broker, Transport, Logger } from "../../../types/index.js";
 
 /**
- * @typedef {Object} AdapterBase
- * @property {string} name Name
- * @property {EventEmitter} bus Event bus.
- * @property {function():Promise<any>} afterInit After init callback.
- * @property {boolean} isConnected Is connected state.
- * @property {number} interruptCounter Interruption counter.
- * @property {number} repeatAttemptCounter Repeat attempt counter
- * @property {function(Object, Object, Object):Promise<any>} init Repeat attempt counter
+ * Abstract base class for transport adapters
+ * Provides common functionality for all transport implementations
  */
+export abstract class BaseTransportAdapter {
+  name: string = "";
+  bus: EventEmitter = new EventEmitter();
+  isConnected: boolean = false;
+  interruptionCount: number = 0;
+  repeatAttemptCounter: number = 0;
+
+  // Protected properties - set during init
+  protected broker!: Broker;
+  protected transport!: Transport;
+  protected log!: Logger;
+  protected messageHandler!: any;
+  protected prefix: string = "weave";
+
+  /**
+   * Initialize the adapter with broker and transport instances
+   */
+  async init(broker: Broker, transport: Transport, messageHandler: any): Promise<void> {
+    this.broker = broker;
+    this.transport = transport;
+    this.log = transport.log;
+    this.messageHandler = messageHandler;
+
+    if (broker.options.namespace) {
+      this.prefix = `${this.prefix}-${broker.options.namespace}`;
+    }
+
+    await this.afterInit();
+  }
+
+  /**
+   * Hook called after initialization
+   * Override in subclasses for custom initialization logic
+   */
+  protected async afterInit(): Promise<void> {
+    // Override in subclasses if needed
+  }
+
+  /**
+   * Connect to the transport
+   * Must be implemented by subclasses
+   */
+  abstract connect(): Promise<void>;
+
+  /**
+   * Subscribe to a topic
+   * Override in subclasses if needed
+   */
+  subscribe(type: string, nodeId?: string): Promise<void> {
+    return Promise.resolve();
+  }
+
+  /**
+   * Send a message
+   * Must be implemented by subclasses
+   */
+  abstract send(message: any): Promise<void>;
+
+  /**
+   * Close the adapter connection
+   * Must be implemented by subclasses
+   */
+  abstract close(): Promise<void>;
+
+  /**
+   * Connection handler - emits connected event
+   */
+  protected connected(connectionEventParams: any = {}): void {
+    this.bus.emit("$adapter.connected", connectionEventParams);
+  }
+
+  /**
+   * Disconnection handler - emits disconnected event
+   */
+  protected disconnected(): void {
+    this.bus.emit("$adapter.disconnected");
+  }
+
+  /**
+   * Get topic name for a command and optional node ID
+   */
+  protected getTopic(cmd: string, nodeId?: string): string {
+    return this.prefix + "." + cmd + (nodeId ? "." + nodeId : "");
+  }
+
+  /**
+   * Pre-send hook
+   */
+  preSend(packet: any): Promise<void> {
+    return this.send(packet);
+  }
+
+  /**
+   * Handle incoming message
+   */
+  protected incomingMessage(messageType: string, message: string | Buffer): void {
+    const data = this.deserialize(message);
+    this.updateStatisticReceived(message.length);
+    this.bus.emit("$adapter.message", messageType, data);
+  }
+
+  /**
+   * Serialize a packet to Buffer
+   */
+  protected serialize(packet: any): Buffer {
+    try {
+      packet.payload.sender = this.broker.nodeId;
+      return Buffer.from(JSON.stringify(packet));
+    } catch (error) {
+      this.broker.handleError(error);
+      return Buffer.from("");
+    }
+  }
+
+  /**
+   * Deserialize a packet from Buffer or string
+   */
+  protected deserialize(packet: string | Buffer): any {
+    try {
+      return JSON.parse(packet.toString());
+    } catch (error) {
+      this.broker.handleError(error);
+      return null;
+    }
+  }
+
+  /**
+   * Update received statistics
+   */
+  protected updateStatisticReceived(length: number): void {
+    this.transport.statistics.received.packages += length;
+  }
+
+  /**
+   * Update sent statistics
+   */
+  protected updateStatisticSent(length: number): void {
+    this.transport.statistics.sent.packages += length;
+  }
+}
 
 /**
- * Create a adapter base object.
- * @param {Object} [options] - Adapter options
- * @returns {AdapterBase} Adapter base object
+ * Legacy factory function for backward compatibility
+ * @deprecated Use BaseTransportAdapter class directly
  */
-const createTransportBase = (options = {}) => {
-  let prefix = "weave";
-
-  return {
-    name: null,
-    bus: new EventEmitter(),
-    afterInit: null,
-    isConnected: false,
-    interruptCounter: 0,
-    repeatAttemptCounter: 0,
-    init(broker, transport, messageHandler) {
-      this.broker = broker;
-      this.transport = transport;
-      this.log = transport.log;
-      this.messageHandler = messageHandler;
-
-      if (broker.options.namespace) {
-        prefix = `${prefix}-${broker.options.namespace}`;
-      }
-
-      if (this.afterInit) {
-        this.afterInit();
-      }
-
-      return Promise.resolve();
-    },
-    subscribe() {
-      return Promise.resolve();
-    },
-    /**
-     *
-     * Connection handler
-     * @instance
-     * @param {*} connectionEventParams Connection event
-     * @param {boolean} [startHeartbeatTimers=true] Start timers for this adapter
-     * @returns {void}
-     */
-    connected(connectionEventParams = {}) {
-      this.bus.emit("$adapter.connected", connectionEventParams);
-    },
-    disconnected() {
-      this.bus.emit("$adapter.disconnected");
-    },
-    getTopic(cmd, nodeId) {
-      const topic = prefix + "." + cmd + (nodeId ? "." + nodeId : "");
-      return topic;
-    },
-    preSend(packet) {
-      return this.send(packet);
-    },
-    send(/* message*/) {
-      this.broker.handleError(new Error('Method "send" not implemented.'));
-    },
-    incomingMessage(messageType, message) {
-      const data = this.deserialize(message);
-      this.updateStatisticReceived(message.length);
-      this.bus.emit("$adapter.message", messageType, data);
-    },
-    serialize(packet) {
-      try {
-        packet.payload.sender = this.broker.nodeId;
-        return Buffer.from(JSON.stringify(packet));
-      } catch (error) {
-        this.broker.handleError(error);
-      }
-    },
-    deserialize(packet) {
-      try {
-        return JSON.parse(packet);
-      } catch (error) {
-        this.broker.handleError(error);
-      }
-    },
-    updateStatisticReceived(length) {
-      this.transport.statistics.received.packages += length;
-    },
-    updateStatisticSent(length) {
-      this.transport.statistics.sent.packages += length;
-    },
-  };
+const createTransportBase = (options = {}): any => {
+  // This is kept for backward compatibility but should not be used
+  // All new adapters should extend BaseTransportAdapter class
+  throw new Error("createTransportBase is deprecated. Extend BaseTransportAdapter class instead.");
 };
 
 export default createTransportBase;

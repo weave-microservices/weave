@@ -79,7 +79,7 @@ export const createCacheBase = (
      * @param {Array<string>=} keys Key array
      * @returns {string} Result key string
      */
-    getCachingKey(actionName, data, metadata, keys) {
+    getCachingKey(actionName: string, data: any, metadata: object, keys?:Array<string>) {
       if (data || metadata) {
         const prefix = actionName + ".";
 
