@@ -1,8 +1,13 @@
 import os from "os";
 import { createNode } from "../../helper/index.mts";
-import Constants from "../../../lib/metrics/constants.mts";
+import * as Constants from "../../../lib/metrics/constants.mts";
 import { describe, it, before, after } from "node:test";
 import assert from "node:assert/strict";
+
+interface MetricWithValue {
+  value?: unknown;
+  description?: string;
+}
 
 const defaultSettings = {
   logger: {
@@ -21,29 +26,25 @@ describe("Test broker metrics", () => {
 
   after(() => Promise.all([node.stop()]));
 
-  const { metrics } = node.runtime;
-
   it("should return broker metrics", () => {
-    expect(metrics.getMetric(Constants.WEAVE_ENVIRONMENT).value).toBe("Node.js");
-    expect(metrics.getMetric(Constants.WEAVE_ENVIRONMENT_VERSION).value).toBe(process.version);
-    expect(metrics.getMetric(Constants.WEAVE_NAMESPACE).value).toBe("metrics");
-    expect(metrics.getMetric(Constants.WEAVE_NODE_ID).value).toBe("node-metrics");
-    expect(metrics.getMetric(Constants.WEAVE_VERSION).value).toBe(node.version);
+    const metrics = node.runtime.metrics!;
+    assert.strictEqual((metrics.getMetric(Constants.WEAVE_ENVIRONMENT) as MetricWithValue).value, "Node.js");
+    assert.strictEqual((metrics.getMetric(Constants.WEAVE_ENVIRONMENT_VERSION) as MetricWithValue).value, process.version);
+    assert.strictEqual((metrics.getMetric(Constants.WEAVE_NAMESPACE) as MetricWithValue).value, "metrics");
+    assert.strictEqual((metrics.getMetric(Constants.WEAVE_NODE_ID) as MetricWithValue).value, "node-metrics");
+    assert.strictEqual((metrics.getMetric(Constants.WEAVE_VERSION) as MetricWithValue).value, node.version);
 
     // Process metrics
-    expect(metrics.getMetric(Constants.PROCESS_PID).value).toBe(process.pid);
-    expect(metrics.getMetric(Constants.PROCESS_PPID).value).toBe(process.ppid);
-    expect(metrics.getMetric(Constants.PROCESS_UPTIME).value).toBeLessThan(process.uptime());
+    assert.strictEqual((metrics.getMetric(Constants.PROCESS_PID) as MetricWithValue).value, process.pid);
+    assert.strictEqual((metrics.getMetric(Constants.PROCESS_PPID) as MetricWithValue).value, process.ppid);
+    assert.ok((metrics.getMetric(Constants.PROCESS_UPTIME) as MetricWithValue).value as number < process.uptime());
 
     // OS Metrics
-    expect(metrics.getMetric(Constants.OS_HOSTNAME).value).toBe(os.hostname());
-    expect(metrics.getMetric(Constants.OS_TYPE).value).toBe(os.type());
-    expect(metrics.getMetric(Constants.OS_RELEASE).value).toBe(os.release());
-    expect(metrics.getMetric(Constants.OS_ARCH).value).toBe(os.arch());
-    expect(metrics.getMetric(Constants.OS_PLATTFORM).value).toBe(os.platform());
-    // expect(metrics.getMetric(Constants.OS_MEMORY_FREE).value)
-    // expect(metrics.getMetric(Constants.OS_MEMORY_USED).value).toBe(os.hostname())
-    // expect(metrics.getMetric(Constants.OS_MEMORY_TOTAL).value).toBe(os.hostname())
+    assert.strictEqual((metrics.getMetric(Constants.OS_HOSTNAME) as MetricWithValue).value, os.hostname());
+    assert.strictEqual((metrics.getMetric(Constants.OS_TYPE) as MetricWithValue).value, os.type());
+    assert.strictEqual((metrics.getMetric(Constants.OS_RELEASE) as MetricWithValue).value, os.release());
+    assert.strictEqual((metrics.getMetric(Constants.OS_ARCH) as MetricWithValue).value, os.arch());
+    assert.strictEqual((metrics.getMetric(Constants.OS_PLATTFORM) as MetricWithValue).value, os.platform());
   });
 });
 
@@ -55,7 +56,7 @@ describe("Test metric middleware", () => {
   after(() => Promise.all([node1.stop()]));
 
   it("should create a middleware", () => {
-    const metric = node1.runtime.metrics.getMetric("weave.requests.total");
+    const metric = node1.runtime.metrics!.getMetric("weave.requests.total") as MetricWithValue;
     assert.strictEqual(metric.description, "Number of total requests.");
     assert.strictEqual(metric.value, 0);
   });

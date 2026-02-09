@@ -217,6 +217,7 @@ describe("Service actions", () => {
     });
 
     assert.throws(
+      // @ts-expect-error - intentionally passing malformed service schema for testing
       () => node1.createService(malformedActionService),
       /Missing action handler in "timeout" on service "malformed-action"/,
     );
@@ -233,6 +234,7 @@ describe("Protected service actions", () => {
     });
 
     assert.throws(
+      // @ts-expect-error - intentionally passing malformed service schema for testing
       () => node1.createService(malformedActionService),
       /Missing action handler in "timeout" on service "malformed-action"/,
     );
@@ -251,10 +253,9 @@ describe("Versioned Services", () => {
     node1.createService(MathV2);
 
     await node1.start();
-    assert.strictEqual(
-      node1.registry.serviceCollection.services.find((service) => service.name === "math").version,
-      2,
-    );
+    const services = [...node1.registry.serviceCollection.services];
+    const mathService = services.find((service) => service.name === "math");
+    assert.strictEqual(mathService?.version, 2);
     await node1.stop();
   });
 });
@@ -269,6 +270,7 @@ describe("Errors on service creation", () => {
     });
 
     const createService = () =>
+      // @ts-expect-error - intentionally passing schema without name for testing
       node1.createService({
         actions: {
           a1() {},
@@ -289,6 +291,7 @@ describe("Errors on service creation", () => {
     });
 
     const createService = () =>
+      // @ts-expect-error - intentionally passing schema without name for testing
       node1.createService({
         actions: {
           a1() {},

@@ -158,6 +158,7 @@ export interface EventOptions {
   groups?: string[];
   nodeId?: string;
   broadcast?: boolean;
+  ack?: boolean;
 }
 
 /**
@@ -341,17 +342,31 @@ export type ServiceEventSchema = ServiceEventHandler | ServiceEvent;
 export type ServiceMethodDefinition = (this: Service, ...args: any[]) => any;
 
 /**
+ * Hook function types
+ */
+export type BeforeHookFunction = (context: Context) => Promise<Context> | Context | void | Promise<void>;
+export type AfterHookFunction = (context: Context, response: any) => Promise<any> | any;
+export type ErrorHookFunction = (context: Context, error: Error) => Promise<void> | void;
+
+/**
+ * Hook definition types - can be a function, method name string, or array of both
+ */
+export type BeforeHookDefinition = BeforeHookFunction | string | (BeforeHookFunction | string)[];
+export type AfterHookDefinition = AfterHookFunction | string | (AfterHookFunction | string)[];
+export type ErrorHookDefinition = ErrorHookFunction | string | (ErrorHookFunction | string)[];
+
+/**
  * Service lifecycle hooks
  */
 export interface ServiceHooks {
   before?: {
-    [actionName: string]: (context: Context) => Promise<Context> | Context;
+    [actionName: string]: BeforeHookDefinition;
   };
   after?: {
-    [actionName: string]: (context: Context, response: any) => Promise<any> | any;
+    [actionName: string]: AfterHookDefinition;
   };
   error?: {
-    [actionName: string]: (context: Context, error: Error) => Promise<void> | void;
+    [actionName: string]: ErrorHookDefinition;
   };
 }
 
@@ -368,13 +383,15 @@ export interface ServiceSchema {
   name: string;
   version?: string | number;
   dependencies?: string[];
-  mixins?: ServiceSchema[] | ServiceSchema;
+  mixins?: Partial<ServiceSchema>[] | Partial<ServiceSchema>;
   settings?: ServiceSettings;
   meta?: Record<string, any>;
   hooks?: ServiceHooks;
   actions?: Record<string, ServiceActionSchema | ServiceActionHandler | boolean>;
   events?: Record<string, ServiceEventSchema>;
   methods?: Record<string, ServiceMethodDefinition>;
+  /** Whether this service is critical - if true, failure to start will prevent broker startup */
+  critical?: boolean;
 
   // Lifecycle methods (can be single function or array of functions)
   created?: ServiceLifecycleHook | ServiceLifecycleHook[];
@@ -670,6 +687,8 @@ export interface CircuitBreakerOptions {
   halfOpenTimeout?: number;
   maxFailures?: number;
   windowTime?: number;
+  failureOnError?: boolean;
+  failureOnTimeout?: boolean;
 }
 
 /**
@@ -776,8 +795,8 @@ export interface Broker {
   stop(): Promise<void>;
 
   // Service management
-  createService(schema: ServiceSchema): Service;
-  loadService(path: string): Service;
+  createService(schema: ServiceSchema): Service | undefined;
+  loadService(path: string): Service | undefined;
   loadServices(path?: string, pattern?: string): number;
 
   // Action calls
@@ -799,6 +818,11 @@ export interface Broker {
   emit<K extends keyof EventContracts>(
     eventName: K,
     payload?: K extends keyof EventContracts ? EventContracts[K]["params"] : any,
+    options?: EventOptions,
+  ): Promise<void>;
+  emit<K extends string>(
+    eventName: Exclude<K, keyof EventContracts>,
+    payload?: any,
     options?: EventOptions,
   ): Promise<void>;
   broadcast(eventName: string, payload?: any, options?: EventOptions): Promise<void>;

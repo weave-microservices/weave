@@ -24,7 +24,7 @@ describe("Test context tracking", () => {
     await broker.start();
     broker.call("pusher1.push");
     await broker.stop();
-    assert.strictEqual(service._trackedContexts.length, 0);
+    assert.strictEqual(service!._trackedContexts.length, 0);
   });
 
   it("should throw an error if one or more services can`t stopped gracefully.", async () => {

@@ -1,82 +1,85 @@
 import { createNode } from "../../helper/index.mts";
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import type { Runtime, Service, Middleware, ActionHandler, WeaveAction } from "../../../types/index.js";
 
-const createMiddlewareWithFlow = (flowArray) => {
+const createMiddlewareWithFlow = (flowArray: string[]): Middleware => {
   return {
-    created(broker) {
+    created(_runtime?: Runtime) {
       flowArray.push("created");
     },
-    starting(broker) {
+    starting(_runtime?: Runtime) {
       flowArray.push("starting");
     },
-    started(broker) {
+    started(_runtime?: Runtime) {
       flowArray.push("started");
     },
-    serviceStarting(service, schema) {
+    serviceStarting(service: Service) {
       flowArray.push("serviceStarting:" + service.name);
     },
-    serviceStarted(service, schema) {
+    serviceStarted(service: Service) {
       flowArray.push("serviceStarted:" + service.name);
     },
-    serviceStopping(service, schema) {
+    serviceStopping(service: Service) {
       flowArray.push("serviceStopping:" + service.name);
     },
-    serviceStopped(service, schema) {
+    serviceStopped(_service: Service) {
       flowArray.push("serviceStopped");
     },
-    localAction(next, action) {
+    localAction(handler: ActionHandler, action: WeaveAction) {
       flowArray.push("localAction:" + action.name);
+      return handler;
     },
-    remoteAction(next, action) {
+    remoteAction(handler: ActionHandler, _action: WeaveAction) {
       flowArray.push("remoteAction");
+      return handler;
     },
-    emit(next) {
+    emit(next: Function) {
       flowArray.push("emit");
-      return function () {
-        return next(...arguments);
+      return function (this: unknown, ...args: unknown[]) {
+        return next.apply(this, args);
       };
     },
-    broadcast(next) {
+    broadcast(next: Function) {
       flowArray.push("broadcast");
-      return function () {
-        return next(...arguments);
+      return function (this: unknown, ...args: unknown[]) {
+        return next.apply(this, args);
       };
     },
-    broadcastLocal(next) {
+    broadcastLocal(next: Function) {
       flowArray.push("broadcastLocal");
-      return function () {
-        return next(...arguments);
+      return function (this: unknown, ...args: unknown[]) {
+        return next.apply(this, args);
       };
     },
-    call(next) {
+    call(next: Function) {
       flowArray.push("call");
-      return function () {
-        return next(...arguments);
+      return function (this: unknown, ...args: unknown[]) {
+        return next.apply(this, args);
       };
     },
-    multiCall(next) {
+    multiCall(next: Function) {
       flowArray.push("multiCall");
-      return function () {
-        return next(...arguments);
+      return function (this: unknown, ...args: unknown[]) {
+        return next.apply(this, args);
       };
     },
-    createService(next) {
+    createService(next: Function) {
       flowArray.push("createService");
-      return function () {
-        return next(...arguments);
+      return function (this: unknown, ...args: unknown[]) {
+        return next.apply(this, args);
       };
     },
-    loadService(next) {
+    loadService(next: Function) {
       flowArray.push("loadService");
-      return function () {
-        return next(...arguments);
+      return function (this: unknown, ...args: unknown[]) {
+        return next.apply(this, args);
       };
     },
-    loadServices(next) {
+    loadServices(next: Function) {
       flowArray.push("loadServices");
-      return function () {
-        return next(...arguments);
+      return function (this: unknown, ...args: unknown[]) {
+        return next.apply(this, args);
       };
     },
   };
@@ -84,13 +87,14 @@ const createMiddlewareWithFlow = (flowArray) => {
 
 describe("Test middlewares", () => {
   it("should fire middleware hooks in always the same order", async () => {
-    const flow = [];
+    const flow: string[] = [];
     const broker = createNode({
       middlewares: [createMiddlewareWithFlow(flow)],
     });
 
     await broker.start();
-    expect(flow.join("-")).toBe(
+    assert.strictEqual(
+      flow.join("-"),
       "call-multiCall-emit-broadcast-broadcastLocal-createService-loadService-loadServices-created-starting-started",
     );
   });
@@ -103,10 +107,12 @@ describe("Test middlewares", () => {
       },
       middlewares: [
         {
-          created(runtime) {
-            runtime.getNodeId = () => {
-              return `The node ID is "${runtime.nodeId}"`;
-            };
+          created(runtime?: Runtime & { getNodeId?: () => string }) {
+            if (runtime) {
+              runtime.getNodeId = () => {
+                return `The node ID is "${runtime.nodeId}"`;
+              };
+            }
           },
         },
       ],
@@ -116,7 +122,7 @@ describe("Test middlewares", () => {
       name: "testService",
       actions: {
         getId() {
-          return this.runtime.getNodeId();
+          return (this.runtime as Runtime & { getNodeId: () => string }).getNodeId();
         },
       },
     });

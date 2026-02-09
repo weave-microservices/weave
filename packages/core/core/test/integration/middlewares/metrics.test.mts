@@ -4,7 +4,8 @@ import * as Constants from "../../../lib/metrics/constants.mts";
 import { createNode } from "../../helper/index.mts";
 import { describe, it, beforeEach, afterEach, mock } from "node:test";
 import assert from "node:assert/strict";
-import type { Broker, Context } from "../../../types/index.js";
+import type { Broker } from "../../../types/index.js";
+import type { BaseMetricInstance } from "../../../lib/metrics/types/base.mts";
 
 describe("Metric middleware", () => {
   let broker: Broker;
@@ -41,29 +42,29 @@ describe("Metric middleware", () => {
 
   afterEach(() => broker.stop());
 
-  it("should update the request metrics", (done: (err?: Error) => void) => {
+  it("should update the request metrics", (_t, done) => {
     const metrics = broker.runtime.metrics;
     const p = broker.call("test-service.testAction");
 
-    assert.strictEqual(metrics?.getMetric(Constants.REQUESTS_IN_FLIGHT)?.value, 1);
+    assert.strictEqual((metrics?.getMetric(Constants.REQUESTS_IN_FLIGHT) as BaseMetricInstance | undefined)?.value, 1);
 
     p.then(() => {
-      assert.strictEqual(metrics?.getMetric(Constants.REQUESTS_TOTAL)?.value, 1);
-      assert.ok((metrics?.getMetric(Constants.REQUESTS_TIME)?.value ?? 0) > 2000);
+      assert.strictEqual((metrics?.getMetric(Constants.REQUESTS_TOTAL) as BaseMetricInstance | undefined)?.value, 1);
+      assert.ok(((metrics?.getMetric(Constants.REQUESTS_TIME) as BaseMetricInstance | undefined)?.value ?? 0) > 2000);
       done();
     });
   });
 
-  it("should update the request metrics on Error", (done: (err?: Error) => void) => {
+  it("should update the request metrics on Error", (_t, done) => {
     const metrics = broker.runtime.metrics;
     const p = broker.call("test-service.throwError");
 
-    assert.strictEqual(metrics?.getMetric(Constants.REQUESTS_IN_FLIGHT)?.value, 1);
+    assert.strictEqual((metrics?.getMetric(Constants.REQUESTS_IN_FLIGHT) as BaseMetricInstance | undefined)?.value, 1);
 
     p.catch((_: unknown) => {
-      assert.strictEqual(metrics?.getMetric(Constants.REQUESTS_TOTAL)?.value, 1);
-      assert.ok((metrics?.getMetric(Constants.REQUESTS_TIME)?.value ?? 0) > 0);
-      assert.strictEqual(metrics?.getMetric(Constants.REQUESTS_ERRORS_TOTAL)?.value, 1);
+      assert.strictEqual((metrics?.getMetric(Constants.REQUESTS_TOTAL) as BaseMetricInstance | undefined)?.value, 1);
+      assert.ok(((metrics?.getMetric(Constants.REQUESTS_TIME) as BaseMetricInstance | undefined)?.value ?? 0) > 0);
+      assert.strictEqual((metrics?.getMetric(Constants.REQUESTS_ERRORS_TOTAL) as BaseMetricInstance | undefined)?.value, 1);
       done();
     });
   });
@@ -103,8 +104,8 @@ describe("Metric middleware [cache]", () => {
           cache: {
             keys: ["name"],
           },
-          handler(context: Context<{ name: string }>) {
-            return context.data.name;
+          handler(context) {
+            return (context.data as { name: string }).name;
           },
         },
       },
@@ -118,18 +119,18 @@ describe("Metric middleware [cache]", () => {
   it("should register metrics", async () => {
     const metrics = broker.runtime.metrics;
 
-    assert.strictEqual(metrics?.getMetric(Constants.CACHE_GET_TOTAL)?.value, 0);
-    assert.strictEqual(metrics?.getMetric(Constants.CACHE_SET_TOTAL)?.value, 0);
-    assert.strictEqual(metrics?.getMetric(Constants.CACHE_FOUND_TOTAL)?.value, 0);
-    assert.strictEqual(metrics?.getMetric(Constants.CACHE_EXPIRED_TOTAL)?.value, 0);
-    assert.strictEqual(metrics?.getMetric(Constants.CACHE_DELETED_TOTAL)?.value, 0);
-    assert.strictEqual(metrics?.getMetric(Constants.CACHE_CLEANED_TOTAL)?.value, 0);
+    assert.strictEqual((metrics?.getMetric(Constants.CACHE_GET_TOTAL) as BaseMetricInstance | undefined)?.value, 0);
+    assert.strictEqual((metrics?.getMetric(Constants.CACHE_SET_TOTAL) as BaseMetricInstance | undefined)?.value, 0);
+    assert.strictEqual((metrics?.getMetric(Constants.CACHE_FOUND_TOTAL) as BaseMetricInstance | undefined)?.value, 0);
+    assert.strictEqual((metrics?.getMetric(Constants.CACHE_EXPIRED_TOTAL) as BaseMetricInstance | undefined)?.value, 0);
+    assert.strictEqual((metrics?.getMetric(Constants.CACHE_DELETED_TOTAL) as BaseMetricInstance | undefined)?.value, 0);
+    assert.strictEqual((metrics?.getMetric(Constants.CACHE_CLEANED_TOTAL) as BaseMetricInstance | undefined)?.value, 0);
 
     await broker.call("test-service.testAction", { name: "Kevin" });
     await broker.call("test-service.testAction", { name: "Kevin" });
 
-    assert.strictEqual(metrics?.getMetric(Constants.CACHE_GET_TOTAL)?.value, 2);
-    assert.strictEqual(metrics?.getMetric(Constants.CACHE_FOUND_TOTAL)?.value, 1);
+    assert.strictEqual((metrics?.getMetric(Constants.CACHE_GET_TOTAL) as BaseMetricInstance | undefined)?.value, 2);
+    assert.strictEqual((metrics?.getMetric(Constants.CACHE_FOUND_TOTAL) as BaseMetricInstance | undefined)?.value, 1);
   });
 });
 
@@ -171,8 +172,8 @@ describe("Metric middleware between remote nodes", () => {
           params: {
             name: "string",
           },
-          handler(context: Context<{ name: string }>) {
-            return context.data.name;
+          handler(context) {
+            return (context.data as { name: string }).name;
           },
         },
       },
@@ -191,11 +192,11 @@ describe("Metric middleware between remote nodes", () => {
     await broker1.call("test-service.testAction", { name: "Kevin" });
     await broker1.call("test-service.testAction", { name: "Kevin" });
 
-    assert.strictEqual(metrics1?.getMetric(Constants.REQUESTS_TOTAL)?.value, 3);
-    assert.strictEqual(metrics1?.getMetric(Constants.REQUESTS_IN_FLIGHT)?.value, 0);
+    assert.strictEqual((metrics1?.getMetric(Constants.REQUESTS_TOTAL) as BaseMetricInstance | undefined)?.value, 3);
+    assert.strictEqual((metrics1?.getMetric(Constants.REQUESTS_IN_FLIGHT) as BaseMetricInstance | undefined)?.value, 0);
 
-    assert.strictEqual(metrics2?.getMetric(Constants.REQUESTS_TOTAL)?.value, 3);
-    assert.strictEqual(metrics2?.getMetric(Constants.REQUESTS_IN_FLIGHT)?.value, 0);
+    assert.strictEqual((metrics2?.getMetric(Constants.REQUESTS_TOTAL) as BaseMetricInstance | undefined)?.value, 3);
+    assert.strictEqual((metrics2?.getMetric(Constants.REQUESTS_IN_FLIGHT) as BaseMetricInstance | undefined)?.value, 0);
   });
 });
 
@@ -209,7 +210,7 @@ describe("Metric adapters validation", () => {
         },
         metrics: {
           enabled: true,
-          adapters: {}, // <- need to be an array of objects
+          adapters: {} as unknown as Array<string | object>, // <- need to be an array of objects
         },
         transport: {
           adapter: TransportAdapters.Dummy(),

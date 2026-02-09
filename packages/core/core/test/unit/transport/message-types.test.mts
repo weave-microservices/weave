@@ -1,4 +1,4 @@
-import messageTypes from "../../../lib/transport/messageTypes.mts";
+import * as messageTypes from "../../../lib/transport/messageTypes.mts";
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 

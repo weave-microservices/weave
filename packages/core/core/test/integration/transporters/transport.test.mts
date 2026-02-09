@@ -2,9 +2,10 @@ import { createNode } from "../../helper/index.mts";
 import MathService from "../../services/math.service.mts";
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import type { ServiceSchema } from "../../../types/index.js";
 
 describe("Transport", () => {
-  it("should return results of all connected nodes.", (done) => {
+  it("should return results of all connected nodes.", (_t, done) => {
     const broker1 = createNode({
       nodeId: "node1",
       logger: {
@@ -27,7 +28,7 @@ describe("Transport", () => {
       },
     });
 
-    broker1.createService(MathService);
+    broker1.createService(MathService as unknown as ServiceSchema);
 
     Promise.all([broker1.start(), broker2.start()])
       .then(() => broker1.waitForServices(["math"]))

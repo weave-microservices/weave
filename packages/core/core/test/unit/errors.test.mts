@@ -1,8 +1,14 @@
 import * as Errors from "../../lib/errors.mts";
 import { ExtendableError } from "../../lib/ExtendableError.mts";
-import { restoreError } from "../../lib/utils/restoreError.mts";
+import { restoreError, type ErrorPayload } from "../../lib/utils/restoreError.mts";
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+
+interface TestError extends Error {
+  code?: string;
+  data?: unknown;
+  retryable?: boolean;
+}
 
 describe("Test errors", () => {
   it("Default weave error", () => {
@@ -411,7 +417,7 @@ describe("Error restoring", () => {
       message: "Rate limit exceeded.",
     };
 
-    const error = restoreError(rawErrorMessage);
+    const error = restoreError(rawErrorMessage) as TestError;
 
     assert.ok(error instanceof Error);
     assert.strictEqual(error.message, "Rate limit exceeded.");

@@ -3,7 +3,7 @@ import { describe, it, beforeEach, afterEach, before, after } from "node:test";
 import assert from "node:assert/strict";
 import type { Broker, Context, Service, ServiceSchema } from "../../types/index.js";
 
-const isContext = (): boolean => {
+const isContext = (_context: Context | null): boolean => {
   return true;
 };
 

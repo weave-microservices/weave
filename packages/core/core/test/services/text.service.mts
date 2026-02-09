@@ -1,4 +1,5 @@
-import { it } from "node:test";
+import type { Context } from "../../types/index.js";
+
 export default {
   name: "text",
   actions: {
@@ -6,8 +7,9 @@ export default {
       params: {
         text: "string",
       },
-      handler(context) {
-        return context.text.split("").reverse();
+      handler(context: Context) {
+        const data = context.data as { text: string };
+        return data.text.split("").reverse();
       },
     },
   },

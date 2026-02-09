@@ -1,9 +1,10 @@
-import { Errors, TransportAdapters } from "../../lib/index.mts";
+import { TransportAdapters } from "../../lib/index.mts";
 import { createNode } from "../../lib/registry/node.mts";
 import { createRegistry } from "../../lib/registry/registry.mts";
 import { createNode as createBroker } from "../helper/index.mts";
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import type { ServiceItem, Endpoint } from "../../types/index.js";
 
 const brokerSettings = {
   logger: {
@@ -42,7 +43,7 @@ describe('Test "registerLocalService"', () => {
       methods: {},
     };
 
-    registry.registerLocalService(service);
+    registry.registerLocalService(service as unknown as ServiceItem);
 
     assert.strictEqual(registry.nodeCollection.localNode.services.length, 1);
     await broker.stop();
@@ -78,7 +79,7 @@ describe('Test "registerRemoteServices"', () => {
     };
 
     await Promise.all([broker1.start(), broker2.start()]);
-    registry.registerRemoteServices(node, [service]);
+    registry.registerRemoteServices(node, [service as unknown as ServiceItem]);
 
     await Promise.all([broker1.stop(), broker2.stop()]);
   });
@@ -88,7 +89,7 @@ describe('Test "getNextAvailableActionEndpoint"', () => {
   it("should return the endpoint if the actionName is not a string", () => {
     const broker = createBroker(brokerSettings);
     const registry = broker.registry;
-    const endpoint = {};
+    const endpoint = {} as Endpoint;
 
     assert.strictEqual(registry.getNextAvailableActionEndpoint(endpoint), endpoint);
   });

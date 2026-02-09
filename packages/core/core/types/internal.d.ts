@@ -534,17 +534,18 @@ export interface RuntimeInstanceState {
  * @internal
  */
 export interface ServiceManager {
-  services: Map<string, Service>;
+  services?: Map<string, Service>;
   serviceList: Service[];
 
   // Methods
-  createService(schema: ServiceSchema): Service;
-  registerService(service: Service): void;
-  unregisterService(serviceName: string): void;
-  startServices(): Promise<void>;
-  stopServices(): Promise<void>;
-  waitForServices(services: string | string[], timeout?: number): Promise<void>;
-  serviceChanged(localService: boolean): void;
+  createService(schema: ServiceSchema): Service | undefined;
+  registerService?(service: Service): void;
+  unregisterService?(serviceName: string): void;
+  startServices?(): Promise<void>;
+  stopServices?(): Promise<void>;
+  waitForServices(services: string | string[], timeout?: number, interval?: number): Promise<void>;
+  serviceChanged(localService?: boolean): void;
+  destroyService(service: Service): Promise<void>;
 }
 
 /**

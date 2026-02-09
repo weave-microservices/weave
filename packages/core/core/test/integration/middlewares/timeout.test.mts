@@ -1,10 +1,10 @@
 import { createNode } from "../../helper/index.mts";
 import { describe, it, beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
+import type { Broker } from "../../../types/index.js";
 
-// @ts-nocheck
 describe("Timeout middleware", () => {
-  let broker;
+  let broker: Broker;
 
   beforeEach(() => {
     broker = createNode({
@@ -52,7 +52,7 @@ describe("Timeout middleware", () => {
 
   afterEach(() => broker.stop());
 
-  it("should throw an timeout after for distributed action calls", (done) => {
+  it("should throw an timeout after for distributed action calls", (_t, done) => {
     broker
       .call("test-service.act1")
       .then(() => {

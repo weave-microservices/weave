@@ -1,4 +1,4 @@
-import Module from "../lib.mts";
+import * as Module from "../lib/index.mts";
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 

@@ -1,4 +1,6 @@
-export default (rejectedMethodName) => {
+import type { ServiceSchema } from "../../../types/index.js";
+
+export default (rejectedMethodName?: string): Partial<ServiceSchema> => {
   const error = !rejectedMethodName ? null : new Error("Rejected hook from " + rejectedMethodName);
   return {
     created() {

@@ -3,9 +3,10 @@ import { Readable, Writable } from "stream";
 import { createNode } from "../../helper/index.mts";
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import type { Context } from "../../../types/index.js";
 
 describe("Streaming", () => {
-  it("should return a requested stream", (done) => {
+  it("should return a requested stream", async () => {
     const broker1 = createNode({
       nodeId: "node1",
       logger: {
@@ -43,18 +44,13 @@ describe("Streaming", () => {
 
     broker1.createService(testService);
 
-    Promise.all([broker1.start(), broker2.start()])
-      .then(() => broker2.call("test.getStream"))
-      .then((res) => {
-        expect(isStream(res)).toBe(true);
-        return Promise.all([broker1.stop(), broker2.stop()]);
-      })
-      .then(() => {
-        done();
-      });
+    await Promise.all([broker1.start(), broker2.start()]);
+    const res = await broker2.call("test.getStream");
+    assert.strictEqual(isStream(res), true);
+    await Promise.all([broker1.stop(), broker2.stop()]);
   });
 
-  it("should return a requested stream", (done) => {
+  it("should save a stream", async () => {
     const broker1 = createNode({
       nodeId: "node4",
       logger: {
@@ -80,15 +76,15 @@ describe("Streaming", () => {
     const testService = {
       name: "test",
       actions: {
-        saveStream(context) {
+        saveStream(context: Context) {
           const stream = context.stream;
           return new Promise((resolve) => {
-            const chunks = [];
+            const chunks: { counter: number }[] = [];
             const ws = new Writable({
               objectMode: true,
-              write(chunk, _, done) {
+              write(chunk, _, callback) {
                 chunks.push(chunk);
-                done();
+                callback();
               },
             });
 
@@ -101,7 +97,7 @@ describe("Streaming", () => {
               );
             });
 
-            stream.pipe(ws);
+            stream?.pipe(ws);
           });
         },
       },
@@ -109,27 +105,24 @@ describe("Streaming", () => {
 
     broker1.createService(testService);
 
-    Promise.all([broker1.start(), broker2.start()]).then(() => {
-      let counter = 6;
+    await Promise.all([broker1.start(), broker2.start()]);
 
-      const stream = new Readable({
-        objectMode: true,
-        read() {
-          if (counter < 10) {
-            this.push({ counter });
-          } else {
-            this.push(null);
-          }
-          counter++;
-        },
-      });
+    let counter = 6;
 
-      return broker2
-        .call("test.saveStream", { fileName: "dog.jpeg" }, { stream })
-        .then((chunks) => {
-          assert.strictEqual(chunks, "6,7,8,9");
-          done();
-        });
+    const stream = new Readable({
+      objectMode: true,
+      read() {
+        if (counter < 10) {
+          this.push({ counter });
+        } else {
+          this.push(null);
+        }
+        counter++;
+      },
     });
+
+    const result = await broker2.call("test.saveStream", { fileName: "dog.jpeg" }, { stream });
+    assert.strictEqual(result, "6,7,8,9");
+    await Promise.all([broker1.stop(), broker2.stop()]);
   });
 });

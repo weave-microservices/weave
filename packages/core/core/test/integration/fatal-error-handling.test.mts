@@ -1,28 +1,25 @@
 import { createNode } from "../helper/index.mts";
 import { describe, it, beforeEach, afterEach, mock } from "node:test";
 import assert from "node:assert/strict";
+import type { Broker } from "../../types/index.js";
 
 describe("Fatal Error Handling", () => {
-  let broker;
-  let exitMock;
-  let originalSetTimeout;
+  let broker: Broker;
+  let exitMock: ReturnType<typeof mock.method>;
+  let originalSetTimeout: typeof setTimeout;
 
   beforeEach(() => {
-    exitMock = mock.method(process, "exit", (code) => code);
+    exitMock = mock.method(process, "exit", (code: number) => code as never);
     originalSetTimeout = global.setTimeout;
   });
 
   afterEach(async () => {
     exitMock.mock.restore();
     global.setTimeout = originalSetTimeout;
-    if (broker && broker.runtime && broker.runtime.state && broker.runtime.state.isStarted) {
-      // Restore any mocked stop method before cleanup
-      if (broker.stop.mock) {
-        broker.stop.mock.restore();
-      }
+    if (broker?.runtime?.state?.isStarted) {
       await broker.stop().catch(() => {});
     }
-  }, 15000);
+  });
 
   describe("Graceful shutdown on fatal errors", () => {
     it("should attempt graceful shutdown when broker is started", async () => {
@@ -69,20 +66,20 @@ describe("Fatal Error Handling", () => {
       await broker.start();
 
       // Mock setTimeout to prevent actual timeout from firing
-      let timeoutCallback;
-      global.setTimeout = ((callback, delay) => {
+      let timeoutCallback: (() => void) | undefined;
+      global.setTimeout = ((callback: () => void, delay: number) => {
         if (delay === 10000) {
           timeoutCallback = callback;
-          return "mocked-timeout" as any;
+          return "mocked-timeout" as unknown as ReturnType<typeof setTimeout>;
         }
         return originalSetTimeout(callback, delay);
-      }) as any;
+      }) as typeof setTimeout;
 
       // Mock broker.stop to hang indefinitely after start
       const stopSpy = mock.method(
         broker,
         "stop",
-        () => new Promise(() => {}), // Never resolves
+        () => new Promise<void>(() => {}), // Never resolves
       );
 
       broker.fatalError("Test fatal error with timeout", new Error("Fatal test error"));
@@ -98,7 +95,7 @@ describe("Fatal Error Handling", () => {
         assert.strictEqual(exitMock.mock.calls.length, 1);
         assert.strictEqual(exitMock.mock.calls[0].arguments[0], 1);
       }
-    }, 10000);
+    });
 
     it("should handle broker stop rejection during graceful shutdown", async () => {
       broker = createNode({
@@ -129,7 +126,7 @@ describe("Fatal Error Handling", () => {
       await broker.start();
 
       // Simulate missing runtime state
-      delete broker.runtime.state;
+      (broker.runtime as { state?: unknown }).state = undefined;
 
       broker.fatalError("Test fatal error without state", new Error("Fatal test error"));
 
@@ -144,7 +141,7 @@ describe("Fatal Error Handling", () => {
       });
 
       // Remove broker reference to simulate error condition
-      delete broker.runtime.broker;
+      (broker.runtime as { broker?: unknown }).broker = undefined;
 
       broker.fatalError("Test fatal error without broker", new Error("Fatal test error"));
 
@@ -163,11 +160,9 @@ describe("Fatal Error Handling", () => {
         },
       });
 
-      // Mock the logger
-      broker.runtime.log.fatal = mock.fn();
-      broker.runtime.log.warn = mock.fn();
-      broker.runtime.log.error = mock.fn();
-      broker.runtime.log.info = mock.fn();
+      // Mock the logger methods
+      const fatalMock = mock.fn();
+      (broker.runtime.log as unknown as { fatal: typeof fatalMock }).fatal = fatalMock;
 
       const stopSpy = mock.method(broker, "stop", () => Promise.resolve());
 
@@ -179,14 +174,11 @@ describe("Fatal Error Handling", () => {
       // Wait for async logging
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      assert.strictEqual(broker.runtime.log.fatal.mock.calls.length, 1);
-      assert.deepStrictEqual(broker.runtime.log.fatal.mock.calls[0].arguments[0], {
+      assert.strictEqual(fatalMock.mock.calls.length, 1);
+      assert.deepStrictEqual(fatalMock.mock.calls[0].arguments[0], {
         error: testError,
       });
-      assert.strictEqual(
-        broker.runtime.log.fatal.mock.calls[0].arguments[1],
-        "Fatal error occurred",
-      );
+      assert.strictEqual(fatalMock.mock.calls[0].arguments[1], "Fatal error occurred");
       assert.strictEqual(stopSpy.mock.calls.length, 1);
       assert.strictEqual(exitMock.mock.calls.length, 1);
       assert.strictEqual(exitMock.mock.calls[0].arguments[0], 1);

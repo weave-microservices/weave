@@ -1,29 +1,33 @@
 import parseURI from "../../../lib/transport/adapters/fromURI.mts";
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+
 describe("URI parser", () => {
   it("should throw an error if the given value is not a string", () => {
+    // @ts-expect-error Testing invalid input type
     const call = () => parseURI([]);
-    expect(call).toThrowError("URI needs to be a string.");
+    assert.throws(call, { message: "URI needs to be a string." });
   });
 
   it("should throw an error if an unknown adapter is given.", () => {
     const call = () => parseURI("invalidAdapter://lcoalhost:27017");
-    expect(call).toThrowError("No adapter found.");
+    assert.throws(call, { message: "No adapter found." });
   });
 
   it("should throw an error if an unknown adapter is given.", () => {
     const call = () => parseURI("lcoalhost");
-    expect(call).toThrowError("Protocol is missing.");
+    assert.throws(call, { message: "Protocol is missing." });
   });
 
   it("should return an dummy adapter.", () => {
-    const call = () => parseURI("dummy://lcoalhost:27017")();
-    assert.strictEqual(typeof call, "function");
+    const adapter = parseURI("dummy://lcoalhost:27017");
+    assert.ok(adapter !== null);
+    assert.strictEqual(typeof adapter, "object");
   });
 
   it("should return an TCP adapter.", () => {
-    const call = () => parseURI("tcp://lcoalhost:27017")();
-    assert.strictEqual(typeof call, "function");
+    const adapter = parseURI("tcp://lcoalhost:27017");
+    assert.ok(adapter !== null);
+    assert.strictEqual(typeof adapter, "object");
   });
 });

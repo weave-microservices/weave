@@ -1,4 +1,4 @@
-const ansiRegex = ({ onlyFirst = false } = {}) => {
+const ansiRegex = ({ onlyFirst = false } = {}): RegExp => {
   const pattern = [
     "[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:[a-zA-Z\\d]*(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)",
     "(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-ntqry=><~]))",
@@ -7,7 +7,7 @@ const ansiRegex = ({ onlyFirst = false } = {}) => {
   return new RegExp(pattern, onlyFirst ? undefined : "g");
 };
 
-export const stripAnsi = (string) => {
+export const stripAnsi = (string: string): string => {
   if (typeof string !== "string") {
     throw new TypeError(`Expected a \`string\`, got \`${typeof string}\``);
   }

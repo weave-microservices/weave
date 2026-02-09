@@ -1,10 +1,11 @@
 import { createCacheBase } from "../../../lib/cache/adapters/base.mts";
-import cacheMiddleware from "../../../lib/middlewares/cache.mts";
+import cacheMiddleware from "../../../lib/middlewares/cache/index.mts";
 import { createFakeRuntime } from "../../helper/runtime.mts";
 import { createNode } from "../../helper/index.mts";
 import { WeaveError } from "../../../lib/errors.mts";
-import { describe, it } from "node:test";
+import { describe, it, mock } from "node:test";
 import assert from "node:assert/strict";
+import type { Runtime } from "../../../types/index.js";
 
 describe("Test cache base errors", () => {
   const broker = createNode({
@@ -15,10 +16,10 @@ describe("Test cache base errors", () => {
 
   it("should throw an error if the cache name is not a string.", () => {
     try {
-      createCacheBase(broker, {});
+      createCacheBase(null as unknown as string, broker.runtime, {}, {});
     } catch (error) {
       assert.strictEqual(error instanceof WeaveError, true);
-      assert.strictEqual(error.message, "Name must be a string.");
+      assert.strictEqual((error as Error).message, "Name must be a string.");
     }
   });
 });
@@ -29,15 +30,15 @@ describe("Test cache hash creation", () => {
       enabled: false,
     },
   });
-  const cacheBase = createCacheBase("a-name", broker, {});
+  const cacheBase = createCacheBase("a-name", broker.runtime, {}, {});
 
   it("should return the action name if no parameter was passed,", () => {
-    const hash = cacheBase.getCachingKey("testAction");
+    const hash = cacheBase.getCachingKey("testAction", null, {});
     assert.deepStrictEqual(hash, "testAction");
   });
 
   it("should return the hashed value for the request.", () => {
-    const hash = cacheBase.getCachingKey("testAction", { a: 3, b: 2, c: "3" });
+    const hash = cacheBase.getCachingKey("testAction", { a: 3, b: 2, c: "3" }, {});
     assert.deepStrictEqual(hash, "testAction.oL5syHSbxJsftXqJ7IaaqzuwmMU=");
     assert.strictEqual(hash.length, 39);
   });
@@ -61,16 +62,18 @@ describe("Test cache hash creation", () => {
 });
 
 describe("Test cache middleware", () => {
-  const handler = jest.fn(() => Promise.resolve("hooray!!!"));
+  const handler = mock.fn(() => Promise.resolve("hooray!!!"));
   const service = {};
 
   it("should be defined", () => {
-    const action = {
-      name: "math.add",
-      handler,
-      service,
-    };
-    const middleware = cacheMiddleware(handler, action);
+    const runtime = createFakeRuntime({
+      cache: {
+        lock: {
+          enabled: false,
+        },
+      },
+    });
+    const middleware = cacheMiddleware(runtime as unknown as Runtime);
     assert.notStrictEqual(middleware, undefined);
   });
 
@@ -88,7 +91,7 @@ describe("Test cache middleware", () => {
       },
     });
 
-    const newHandler = cacheMiddleware(runtime).localAction(handler, action);
+    const newHandler = cacheMiddleware(runtime as unknown as Runtime).localAction!(handler as any, action as any);
     assert.strictEqual(newHandler, handler);
   });
 
@@ -101,7 +104,21 @@ describe("Test cache middleware", () => {
       handler,
       service,
     };
-    const newHandler = cacheMiddleware(handler, action);
-    expect(newHandler).not.toBe(handler);
+    const runtime = createFakeRuntime({
+      cache: {
+        lock: {
+          enabled: false,
+        },
+      },
+    });
+    // Add a cache property to runtime so the middleware wraps the handler
+    (runtime as any).cache = {
+      getCachingKey: mock.fn(() => "testKey"),
+      get: mock.fn(() => Promise.resolve(null)),
+      set: mock.fn(() => Promise.resolve()),
+      isConnected: true,
+    };
+    const newHandler = cacheMiddleware(runtime as unknown as Runtime).localAction!(handler as any, action as any);
+    assert.notStrictEqual(newHandler, handler);
   });
 });

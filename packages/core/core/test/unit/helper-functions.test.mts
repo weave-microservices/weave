@@ -3,6 +3,7 @@ import defineBrokerOptions from "../../lib/helper/defineBrokerOptions.mts";
 import defineService from "../../lib/helper/defineService.mts";
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import type { BrokerOptions } from "../../types/index.js";
 
 describe("Helper Functions", () => {
   describe("defineAction", () => {
@@ -65,13 +66,13 @@ describe("Helper Functions", () => {
         metrics: {
           enabled: true,
         },
-      };
+      } as BrokerOptions;
 
       const result = defineBrokerOptions(options);
       assert.strictEqual(result, options);
       assert.strictEqual(result.namespace, "test");
-      assert.strictEqual(result.logger.level, "debug");
-      assert.strictEqual(result.transport.options.port, 4222);
+      assert.strictEqual((result.logger as { level: string }).level, "debug");
+      assert.strictEqual((result.transport as { options: { port: number } }).options.port, 4222);
     });
   });
 

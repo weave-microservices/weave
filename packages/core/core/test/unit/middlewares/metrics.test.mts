@@ -1,10 +1,11 @@
 // import utils from '../../../lib/utils.mts';
 
-import Middleware from "../../../lib/middlewares/metrics.mts";
+import Middleware from "../../../lib/middlewares/metrics/index.mts";
 import { createNode } from "../../helper/index.mts";
+import type { BrokerOptions } from "../../../types/index.js";
 // import Context from '../../../lib/broker/context.mts';
 
-const config = {
+const config: BrokerOptions = {
   logger: {
     enabled: false,
     level: "fatal",

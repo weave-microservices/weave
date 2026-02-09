@@ -3,9 +3,10 @@ import { createNode } from "../../helper/index.mts";
 import LocalService from "../../services/local.service.mts";
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import type { ServiceSchema } from "../../../types/index.js";
 
 describe("Connected services", () => {
-  it("should return results of all connected nodes.", (done) => {
+  it("should return results of all connected nodes.", (_t, done) => {
     const broker1 = createNode({
       nodeId: "node1",
       logger: {
@@ -28,7 +29,7 @@ describe("Connected services", () => {
       },
     });
 
-    broker1.createService(LocalService);
+    broker1.createService(LocalService as unknown as ServiceSchema);
 
     Promise.all([broker1.start(), broker2.start()])
       .then(() => broker1.waitForServices(["local"]))

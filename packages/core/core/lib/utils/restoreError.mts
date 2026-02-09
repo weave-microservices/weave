@@ -3,14 +3,14 @@ import * as errors from "../errors.mts";
 /**
  * Serialized error payload from network transport
  */
-interface ErrorPayload {
+export interface ErrorPayload {
   name: keyof typeof errors | string;
-  message: string;
+  message?: string;
   data?: {
     actionName?: string;
     nodeId?: string;
     timeout?: number;
-    service?: { name: string; version?: string };
+    service?: string | { name: string; version?: string | number };
     [key: string]: unknown;
   };
   stack?: string;

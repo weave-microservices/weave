@@ -1,3 +1,5 @@
+import type { Context } from "../../types/index.js";
+
 export default {
   name: "math",
   actions: {
@@ -9,8 +11,9 @@ export default {
         a: "number",
         b: "number",
       },
-      handler(context) {
-        return Number(context.data.a) + Number(context.data.b);
+      handler(context: Context) {
+        const data = context.data as { a: number; b: number };
+        return Number(data.a) + Number(data.b);
       },
     },
     round: {
@@ -20,8 +23,9 @@ export default {
       params: {
         value: "number",
       },
-      handler(context) {
-        return Math.round(context.data.value);
+      handler(context: Context) {
+        const data = context.data as { value: number };
+        return Math.round(data.value);
       },
     },
   },

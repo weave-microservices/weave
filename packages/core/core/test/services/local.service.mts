@@ -1,5 +1,5 @@
 import { WeaveError } from "../../lib/errors.mts";
-import { it } from "node:test";
+import type { Context } from "../../types/index.js";
 
 export default {
   name: "local",
@@ -9,8 +9,9 @@ export default {
       params: {
         text: "string",
       },
-      handler(context) {
-        return context.data.text.split("").reverse().join("");
+      handler(context: Context) {
+        const data = context.data as { text: string };
+        return data.text.split("").reverse().join("");
       },
     },
     faulty: {

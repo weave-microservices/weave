@@ -1,13 +1,14 @@
-import lolex from "@sinonjs/fake-timers";
+import lolex, { type InstalledClock } from "@sinonjs/fake-timers";
 import { WeaveError } from "../../lib/errors.mts";
 import { createNode } from "../helper/index.mts";
 import pkg from "../../package.json" with { type: "json" };
 import os from "os";
 import { describe, it, before, after, mock } from "node:test";
 import assert from "node:assert/strict";
+import type { BrokerOptions } from "../../types/index.js";
 
 describe("Test weave logger integration.", () => {
-  let clock;
+  let clock: InstalledClock;
   before(() => {
     clock = lolex.install();
   });
@@ -35,9 +36,9 @@ describe("Test weave logger integration.", () => {
     const broker = createNode({
       logger: {
         enabled: false,
-        level: 40,
+        level: 40 as unknown,
       },
-    });
+    } as BrokerOptions);
 
     assert.notStrictEqual(broker.log.info, undefined);
     assert.notStrictEqual(broker.log.debug, undefined);
@@ -47,7 +48,7 @@ describe("Test weave logger integration.", () => {
   });
 
   it("should use the logMethod hook", () => {
-    const doneHookFn = mock.fn((args, method) => {
+    const doneHookFn = mock.fn((args: unknown[], method: Function) => {
       return method(...args);
     });
 
@@ -60,7 +61,7 @@ describe("Test weave logger integration.", () => {
           logMethod: doneHookFn,
         },
       },
-    });
+    } as BrokerOptions);
 
     return broker
       .start()
@@ -78,9 +79,9 @@ describe("Test weave logger integration.", () => {
         nodeId: "node1",
         logger: {
           enabled: true,
-          level: "unknown!!!",
+          level: "unknown!!!" as unknown,
         },
-      });
+      } as BrokerOptions);
     } catch (error) {
       assert.ok(error instanceof WeaveError);
       assert.strictEqual(error.message, 'Unknown level: "unknown!!!"');
@@ -93,9 +94,9 @@ describe("Test weave logger integration.", () => {
         nodeId: "node1",
         logger: {
           enabled: true,
-          level: 110,
+          level: 110 as unknown,
         },
-      });
+      } as BrokerOptions);
     } catch (error) {
       assert.ok(error instanceof WeaveError);
       assert.strictEqual(error.message, 'Unknown level value: "110"');
@@ -103,19 +104,19 @@ describe("Test weave logger integration.", () => {
   });
 
   it("should log error objects", () => {
-    const logMethod = mock.fn((args, method) => {
+    const logMethod = mock.fn((args: unknown[], method: Function) => {
       return method(...args);
     });
     const broker = createNode({
       nodeId: "node1",
       logger: {
         enabled: true,
-        level: 60,
+        level: 60 as unknown,
         hooks: {
           logMethod,
         },
       },
-    });
+    } as BrokerOptions);
 
     return broker.start().then(() => {
       broker.log.info(new Error("Error message text."));
@@ -125,7 +126,7 @@ describe("Test weave logger integration.", () => {
 });
 
 describe("Test logger transporter streams.", () => {
-  let clock;
+  let clock: InstalledClock;
   before(() => {
     clock = lolex.install();
   });

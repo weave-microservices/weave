@@ -2,6 +2,7 @@ import { Readable } from "stream";
 import { createNode } from "../helper/index.mts";
 import { describe, it, beforeEach, afterEach, before, after } from "node:test";
 import assert from "node:assert/strict";
+import type { Broker } from "../../types/index.js";
 
 describe("Test broker lifecycle", () => {
   it("should create a broker and call the started/stopped hook.", async () => {
@@ -200,10 +201,10 @@ describe("Ping", () => {
 
     await Promise.all([broker1.start(), broker2.start()]);
     const res = await broker1.ping();
-    assert.notStrictEqual(res["node-ping4"], undefined);
-    assert.notStrictEqual(res["node-ping4"].timeDiff, undefined);
-    assert.ok(res["node-ping4"].elapsedTime < 5);
-    assert.strictEqual(res["node-ping4"].nodeId, "node-ping4");
+    assert.notStrictEqual(res!["node-ping4"], undefined);
+    assert.notStrictEqual(res!["node-ping4"]!.timeDiff, undefined);
+    assert.ok(res!["node-ping4"]!.elapsedTime < 5);
+    assert.strictEqual(res!["node-ping4"]!.nodeId, "node-ping4");
     await Promise.all([broker1.stop(), broker2.stop()]);
   });
 
@@ -261,9 +262,9 @@ describe("Ping", () => {
 
     await Promise.all([broker1.start(), broker2.start()]);
     const res = await broker1.ping("node5");
-    assert.ok(res.elapsedTime < 5);
-    assert.notStrictEqual(res.timeDiff, undefined);
-    assert.strictEqual(res.nodeId, "node5");
+    assert.ok(res!.elapsedTime < 5);
+    assert.notStrictEqual(res!.timeDiff, undefined);
+    assert.strictEqual(res!.nodeId, "node5");
     await Promise.all([broker1.stop(), broker2.stop()]);
   });
   it("should return results of all connected nodes.", async () => {
@@ -291,16 +292,16 @@ describe("Ping", () => {
 
     await Promise.all([broker1.start(), broker2.start()]);
     const res = await broker1.ping("node-ping42");
-    assert.ok(res.elapsedTime < 5);
-    assert.notStrictEqual(res.timeDiff, undefined);
-    assert.strictEqual(res.nodeId, "node-ping42");
+    assert.ok(res!.elapsedTime < 5);
+    assert.notStrictEqual(res!.timeDiff, undefined);
+    assert.strictEqual(res!.nodeId, "node-ping42");
     await Promise.all([broker1.stop(), broker2.stop()]);
   });
 });
 
 describe("Test broker error handling", () => {
   const ERROR_CODE = 1;
-  let broker;
+  let broker: Broker;
 
   beforeEach(async () => {
     broker = createNode({
@@ -534,9 +535,9 @@ describe("Streaming (lokal)", () => {
     await broker.start();
 
     try {
-      broker.call("file.write", {}, { stream: "wrong type" });
+      broker.call("file.write", {}, { stream: "wrong type" as any });
     } catch (error) {
-      assert.strictEqual(error.message, "No valid stream.");
+      assert.strictEqual((error as Error).message, "No valid stream.");
     }
   });
 });

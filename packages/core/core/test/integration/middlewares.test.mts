@@ -1,7 +1,15 @@
 import { TransportAdapters } from "../../lib/index.mts";
 import { createNode } from "../helper/index.mts";
-import { describe, it, test } from "node:test";
-import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import * as assert from "node:assert/strict";
+import type {
+  ActionHandler,
+  Context,
+  Middleware,
+  Runtime,
+  ServiceSchema,
+  WeaveAction,
+} from "../../types/index.js";
 
 describe("Middleware hooks", () => {
   it("should call hooks in the right order", async () => {
@@ -69,28 +77,28 @@ describe("Middleware hooks", () => {
       stopped: () => {
         order.push("stopped");
       },
-      localAction: (handler, action) => {
-        return function (context) {
+      localAction: (handler: ActionHandler, action: WeaveAction) => {
+        return function (context: Context) {
           order.push("localAction1");
-          return handler(context).then((res) => {
+          return handler(context, {} as any).then((res: any) => {
             order.push("localAction2");
             return res;
           });
         };
       },
-      emit(next) {
-        return (event, payload) => {
+      emit(next: (event: string, payload?: unknown) => Promise<void>) {
+        return (event: string, payload?: unknown) => {
           order.push("emit");
           return next(event, payload);
         };
       },
-      broadcast(next) {
-        return (event, payload) => {
+      broadcast(next: (event: string, payload?: unknown) => Promise<void>) {
+        return (event: string, payload?: unknown) => {
           order.push("broadcast");
           return next(event, payload);
         };
       },
-    };
+    } satisfies Middleware;
 
     const broker = createNode({
       nodeId: "node1",
@@ -120,12 +128,12 @@ describe("Middleware hooks", () => {
     );
   });
 
-  it("should call local action hook", (done) => {
-    const middleware = {
-      localAction: function (handler) {
-        return (context) => {
-          context.data.paramFromMiddleware = "hello world";
-          return handler(context);
+  it("should call local action hook", async () => {
+    const middleware: Middleware = {
+      localAction: function (handler: ActionHandler) {
+        return (context: Context) => {
+          (context.data as { paramFromMiddleware?: string }).paramFromMiddleware = "hello world";
+          return handler(context, {} as any);
         };
       },
     };
@@ -148,20 +156,17 @@ describe("Middleware hooks", () => {
       },
     });
 
-    broker.start().then(() => {
-      return broker.call("testService.helloWorld").then((res) => {
-        assert.strictEqual(res.paramFromMiddleware, "hello world");
-        done();
-      });
-    });
+    await broker.start();
+    const res = await broker.call("testService.helloWorld");
+    assert.strictEqual((res as { paramFromMiddleware: string }).paramFromMiddleware, "hello world");
   });
 
-  it("should call remote action hook", (done) => {
-    const middleware = {
-      remoteAction: function (handler) {
-        return (context) => {
-          context.data.paramFromMiddleware = "hello world";
-          return handler(context);
+  it("should call remote action hook", async () => {
+    const middleware: Middleware = {
+      remoteAction: function (handler: ActionHandler) {
+        return (context: Context) => {
+          (context.data as { paramFromMiddleware?: string }).paramFromMiddleware = "hello world";
+          return handler(context, {} as any);
         };
       },
     };
@@ -196,21 +201,19 @@ describe("Middleware hooks", () => {
       },
     });
 
-    Promise.all([broker1.start(), broker2.start()])
-      .then(() => broker1.waitForServices(["math"]))
-      .then(() => {
-        return broker1.call("math.add", { a: 1, b: 2 }).then((res) => {
-          assert.strictEqual(res.result, 3);
-          assert.strictEqual(res.params.paramFromMiddleware, "hello world");
-          done();
-        });
-      });
+    await Promise.all([broker1.start(), broker2.start()]);
+    await broker1.waitForServices(["math"]);
+    const res = await broker1.call("math.add", { a: 1, b: 2 }) as { result: number; params: { paramFromMiddleware: string } };
+    assert.strictEqual(res.result, 3);
+    assert.strictEqual(res.params.paramFromMiddleware, "hello world");
   });
 
-  it("should decorate core module", () => {
-    const middleware = {
-      created(runtime) {
-        runtime.broker.fancyTestmethod = () => {};
+  it("should decorate core module", async () => {
+    const middleware: Middleware = {
+      created(runtime?: Runtime) {
+        if (runtime) {
+          (runtime.broker as any).fancyTestmethod = () => {};
+        }
       },
     };
 
@@ -223,15 +226,15 @@ describe("Middleware hooks", () => {
       middlewares: [middleware],
     });
 
-    broker1.start();
-    assert.notStrictEqual(broker1.fancyTestmethod, undefined);
+    await broker1.start();
+    assert.notStrictEqual((broker1 as any).fancyTestmethod, undefined);
   });
 });
 
 describe("Service creating hook", () => {
-  it("should modify the given service schema", (done) => {
-    const middleware = {
-      serviceCreating: (_, schema) => {
+  it("should modify the given service schema", async () => {
+    const middleware: Middleware = {
+      serviceCreating: (_: any, schema: ServiceSchema) => {
         if (!schema.methods) {
           schema.methods = {};
         }
@@ -259,11 +262,8 @@ describe("Service creating hook", () => {
       },
     });
 
-    broker.start().then(() => {
-      return broker.call("testService.callPull").then((res) => {
-        assert.strictEqual(res, "return pull");
-        done();
-      });
-    });
+    await broker.start();
+    const res = await broker.call("testService.callPull");
+    assert.strictEqual(res, "return pull");
   });
 });

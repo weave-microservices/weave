@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 
 describe("TCP Discovery codec", () => {
   it("shout return a typed schema.", () => {
-    const decoder = createCodec();
+    const decoder = createCodec({});
 
     assert.notStrictEqual(decoder.decode, undefined);
     assert.notStrictEqual(decoder.encode, undefined);

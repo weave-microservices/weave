@@ -92,7 +92,7 @@ describe("Action hooks", () => {
       await broker.call("greeter.errorAction", { id: 1 });
       assert.fail("Should have thrown an error");
     } catch (error) {
-      assert.strictEqual(error.message, "Error");
+      assert.strictEqual((error as Error).message, "Error");
       assert.strictEqual(errorHook.mock.callCount(), 1);
       assert.strictEqual(wildcardErrorHook.mock.callCount(), 1);
     }
@@ -180,7 +180,7 @@ describe("Action hooks in action definition", () => {
       await broker.call("greeter.errorAction", { id: 1 });
       assert.fail("Should have thrown an error");
     } catch (error) {
-      assert.strictEqual(error.message, "Error");
+      assert.strictEqual((error as Error).message, "Error");
       assert.strictEqual(errorHook.mock.callCount(), 1);
     }
   });

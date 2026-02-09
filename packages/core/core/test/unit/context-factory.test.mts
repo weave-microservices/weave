@@ -70,9 +70,12 @@ describe("Test context factxory.", () => {
       assert.notStrictEqual(contextFactory.create, undefined);
 
       const parentSpan = {
-        traceId: 123,
-        parentId: 456,
+        id: "span-123",
+        traceId: "trace-123",
+        parentId: "parent-456",
         sampled: true,
+        addTags: () => {},
+        setError: () => {},
       };
       // create contex
 

@@ -37,7 +37,7 @@ describe("Node instance", () => {
 
 describe("Node lifetime", () => {
   const node = createNode("test-node");
-  let lastHeartbeat;
+  let lastHeartbeat: number;
 
   it("should create a node instance", () => {
     assert.strictEqual(node.isAvailable, true);
@@ -54,7 +54,7 @@ describe("Node lifetime", () => {
 
   it("should handle disconnect and set unavailable", () => {
     node.disconnected();
-    assert.ok(node.offlineTime > 0);
+    assert.ok(node.offlineTime !== null && node.offlineTime > 0);
     assert.strictEqual(node.isAvailable, false);
     assert.strictEqual(node.sequence, 1);
   });

@@ -119,9 +119,9 @@ describe("Service lifetime hooks error handling", () => {
       },
     });
 
-    assert.notStrictEqual(service.actions.a, undefined);
-    assert.notStrictEqual(service.actions.b, undefined);
-    assert.notStrictEqual(service.actions.c, undefined);
-    assert.strictEqual(service.actions.d, undefined);
+    assert.notStrictEqual(service!.actions.a, undefined);
+    assert.notStrictEqual(service!.actions.b, undefined);
+    assert.notStrictEqual(service!.actions.c, undefined);
+    assert.strictEqual(service!.actions.d, undefined);
   });
 });

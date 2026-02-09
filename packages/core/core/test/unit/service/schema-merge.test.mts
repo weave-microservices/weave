@@ -1,7 +1,7 @@
 import { mergeSchemas } from "../../../lib/utils/options.mts";
 import { describe, it, mock } from "node:test";
 import assert from "node:assert/strict";
-import type { Context, ServiceSchema, ServiceEvent } from "../../../types/index.js";
+import type { Context, ServiceSchema, ServiceEvent, ServiceLifecycleHook, ServiceAfterSchemasMergedHook } from "../../../types/index.js";
 
 class TestClass {
   send(): () => void {
@@ -32,8 +32,8 @@ const mixin: ServiceSchema = {
     me1() {},
     me2() {},
   },
-  created: mock.fn(),
-  started: mock.fn(),
+  created: mock.fn() as unknown as ServiceLifecycleHook,
+  started: mock.fn() as unknown as ServiceLifecycleHook,
 };
 
 const service1: ServiceSchema = {
@@ -68,10 +68,10 @@ const service1: ServiceSchema = {
   methods: {
     privateMethod1() {},
   },
-  afterSchemasMerged: mock.fn(),
-  created: mock.fn(),
-  started: mock.fn(),
-  stopped: mock.fn(),
+  afterSchemasMerged: mock.fn() as unknown as ServiceAfterSchemasMergedHook,
+  created: mock.fn() as unknown as ServiceLifecycleHook,
+  started: mock.fn() as unknown as ServiceLifecycleHook,
+  stopped: mock.fn() as unknown as ServiceLifecycleHook,
 };
 
 const service2: ServiceSchema & { adapter: TestClass } = {
@@ -98,7 +98,7 @@ const service2: ServiceSchema & { adapter: TestClass } = {
       a3: [
         (_context: Context, response: unknown) => response,
         (_context: Context, response: unknown) => response,
-      ],
+      ] as unknown as ((context: Context, response: unknown) => unknown),
     },
   },
   actions: {
@@ -109,9 +109,9 @@ const service2: ServiceSchema & { adapter: TestClass } = {
     e1() {},
     e2() {},
   },
-  afterSchemasMerged: mock.fn(),
-  created: mock.fn(),
-  started: mock.fn(),
+  afterSchemasMerged: mock.fn() as unknown as ServiceAfterSchemasMergedHook,
+  created: mock.fn() as unknown as ServiceLifecycleHook,
+  started: mock.fn() as unknown as ServiceLifecycleHook,
 };
 
 describe("Service schema merging", () => {
@@ -180,7 +180,7 @@ describe("Hooks", () => {
     assert.notStrictEqual(mergedService.hooks!.before!.a1, undefined);
     assert.notStrictEqual(mergedService.hooks!.before!.a2, undefined);
     assert.notStrictEqual(mergedService.hooks!.after!.a3, undefined);
-    assert.strictEqual((mergedService.hooks!.after!.a3 as unknown[]).length, 3);
+    assert.strictEqual((mergedService.hooks!.after!.a3 as unknown as unknown[]).length, 3);
     assert.notStrictEqual(mergedService.settings!.prototype.send, undefined);
     assert.strictEqual(typeof mergedService.settings!.prototype.send, "function");
   });

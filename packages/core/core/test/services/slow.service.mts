@@ -1,8 +1,10 @@
+import type { Context } from "../../types/index.js";
+
 export default {
   name: "slow",
   actions: {
     timeout: {
-      handler(context) {
+      handler(_context: Context) {
         return new Promise((resolve) => {
           setTimeout(() => {
             resolve("yes");

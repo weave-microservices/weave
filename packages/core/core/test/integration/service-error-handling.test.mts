@@ -2,9 +2,10 @@ import { createNode } from "../helper/index.mts";
 import serviceHookMixin from "./mixins/service-hook.mixin.mts";
 import { describe, it, test, afterEach } from "node:test";
 import assert from "node:assert/strict";
+import type { Broker } from "../../types/index.js";
 
 describe("Service Error Handling with Promise.allSettled()", () => {
-  let broker;
+  let broker: Broker;
 
   afterEach(async () => {
     if (broker && broker.runtime.state.isStarted) {

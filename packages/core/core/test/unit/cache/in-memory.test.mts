@@ -1,7 +1,7 @@
-import { createInMemoryCache } from "../../../lib/cache/adapters.mts";
+import { createInMemoryCache } from "../../../lib/cache/adapters/index.mts";
 import { createNode } from "../../helper/index.mts";
 // import SlowService from '../../services/slow.service.mts';
-import { describe, it } from "node:test";
+import { describe, it, mock } from "node:test";
 import assert from "node:assert/strict";
 
 describe("Test IN-Memory cache initialization", () => {
@@ -52,11 +52,12 @@ describe("Test IN-Memory message flow", () => {
       },
     });
 
-    const cache = createInMemoryCache()(broker);
+    const cache = createInMemoryCache()(broker.runtime);
     cache.init();
-    cache.clear = jest.fn();
+    const clearMock = mock.fn(() => Promise.resolve());
+    (cache as unknown as { clear: typeof clearMock }).clear = clearMock;
     broker.bus.emit("$transport.connected");
-    expect(cache.clear).toBeCalledTimes(1);
+    assert.strictEqual(clearMock.mock.callCount(), 1);
     cache.stop();
   });
 });
@@ -76,40 +77,36 @@ describe("Test usage (without TTL)", () => {
   const result = {
     data: ["Hello", "my", "friend"],
   };
-  it("should save date with the key.", () => {
-    cache.set(key1, result);
-    return cache.get(key1).then((res) => {
-      assert.notStrictEqual(res, undefined);
-      assert.deepStrictEqual(res, result);
-    });
+  it("should save date with the key.", async () => {
+    await cache.set(key1, result);
+    const res = await cache.get(key1);
+    assert.notStrictEqual(res, undefined);
+    assert.deepStrictEqual(res, result);
   });
 
-  it("should save date with the key.", () => {
-    cache.set(key1, result);
-    return cache.get(key1).then((res) => {
-      assert.notStrictEqual(res, undefined);
-      assert.deepStrictEqual(res, result);
-    });
+  it("should save date with the key.", async () => {
+    await cache.set(key1, result);
+    const res = await cache.get(key1);
+    assert.notStrictEqual(res, undefined);
+    assert.deepStrictEqual(res, result);
   });
 
-  it("should delete data by key.", () => {
-    cache.remove(key1);
-    return cache.get(key1).then((res) => {
-      assert.notStrictEqual(res, undefined);
-      assert.strictEqual(res, null);
-    });
+  it("should delete data by key.", async () => {
+    await cache.remove(key1);
+    const res = await cache.get(key1);
+    assert.notStrictEqual(res, undefined);
+    assert.strictEqual(res, null);
   });
 
-  it("should clear the cache.", () => {
-    cache.set(key1, result);
-    cache.set(key2, result);
+  it("should clear the cache.", async () => {
+    await cache.set(key1, result);
+    await cache.set(key2, result);
 
-    cache.clear();
+    await cache.clear();
 
-    return cache.get(key1).then((res) => {
-      assert.notStrictEqual(res, undefined);
-      assert.strictEqual(res, null);
-    });
+    const res = await cache.get(key1);
+    assert.notStrictEqual(res, undefined);
+    assert.strictEqual(res, null);
   });
 
   it("should clear the cache partial.", async () => {

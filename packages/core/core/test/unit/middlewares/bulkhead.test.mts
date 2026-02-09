@@ -1,22 +1,21 @@
-import utils from "@weave-js/utils";
-import Middleware from "../../../lib/middlewares/bulkhead.mts";
+import * as utils from "@weave-js/utils";
+import Middleware from "../../../lib/middlewares/bulkhead/index.mts";
 import { createNode } from "../../helper/index.mts";
+import { describe, it, mock } from "node:test";
+import assert from "node:assert/strict";
+import type { Context, LogLevel, Endpoint, ServiceInjection } from "../../../types/index.js";
 
 const config = {
   logger: {
     enabled: false,
-    level: "fatal",
+    level: "fatal" as LogLevel,
   },
 };
-
-// import SlowService from '../../services/slow.service.mts';
-import { describe, it } from "node:test";
-import assert from "node:assert/strict";
 
 describe("Test bulkhead middleware", () => {
   const broker = createNode(config);
   const contentFactory = broker.runtime.contextFactory;
-  const handler = jest.fn(() => Promise.resolve("hooray!!!"));
+  const handlerFn = mock.fn(() => Promise.resolve("hooray!!!"));
   const middleware = Middleware(broker.runtime);
   const service = {};
   const action = {
@@ -24,7 +23,7 @@ describe("Test bulkhead middleware", () => {
     bulkhead: {
       enabled: false,
     },
-    handler,
+    handler: handlerFn,
     service,
   };
 
@@ -33,7 +32,13 @@ describe("Test bulkhead middleware", () => {
     node: {
       id: broker.nodeId,
     },
-  };
+    service: { name: "math" },
+    isLocal: true,
+    state: true,
+    name: "math.add",
+    updateAction: () => {},
+    isAvailable: () => true,
+  } as unknown as Endpoint;
 
   it("should register hooks", () => {
     assert.notStrictEqual(middleware.localAction, undefined);
@@ -42,104 +47,80 @@ describe("Test bulkhead middleware", () => {
   it("should not wrap handler if bulkhead is disabled", () => {
     broker.options.bulkhead!.enabled = false;
 
-    const newHandler = middleware.localAction.call(broker, handler, action);
-    assert.strictEqual(newHandler, handler);
+    const newHandler = middleware.localAction!.call(broker, handlerFn, action);
+    assert.strictEqual(newHandler, handlerFn);
   });
 
   it("should not wrap handler if bulkhead is disabled", () => {
-    broker.options.bulkhead.enabled = true;
+    broker.options.bulkhead!.enabled = true;
 
-    const newHandler = middleware.localAction.call(broker, handler, action);
-    expect(newHandler).not.toBe(handler);
+    const newHandler = middleware.localAction!.call(broker, handlerFn, action);
+    assert.notStrictEqual(newHandler, handlerFn);
   });
 
-  it("should call the action 2 times bevore the requests get queued", (done) => {
-    broker.options.bulkhead.enabled = true;
-    broker.options.bulkhead.concurrentCalls = 2;
-    broker.options.bulkhead.maxQueueSize = 10;
+  it("should call the action 2 times bevore the requests get queued", async () => {
+    broker.options.bulkhead!.enabled = true;
+    broker.options.bulkhead!.concurrentCalls = 2;
+    broker.options.bulkhead!.maxQueueSize = 10;
 
-    let flow = [];
+    let flow: string[] = [];
 
-    const handler = jest.fn((context) => {
-      flow.push("handler-" + context.data.p);
-      return new Promise((resolve) => {
+    const handler = mock.fn((context: Context, _serviceInjections: ServiceInjection) => {
+      flow.push("handler-" + (context.data as { p: number }).p);
+      return new Promise<void>((resolve) => {
         setTimeout(() => resolve(), 10);
       });
     });
 
     const contexts = [...Array(10)].map((_, i) => contentFactory.create(endpoint, { p: i }));
-    const wrappedHandler = middleware.localAction.call(broker, handler, action);
+    const wrappedHandler = middleware.localAction!.call(broker, handler, action);
+    const serviceInjections = {} as ServiceInjection;
 
-    Promise.all(contexts.map((context) => wrappedHandler(context)));
-    expect(handler).toBeCalledTimes(2);
+    Promise.all(contexts.map((context) => wrappedHandler(context, serviceInjections)));
+    assert.strictEqual(handler.mock.callCount(), 2);
     assert.deepStrictEqual(flow, ["handler-0", "handler-1"]);
 
     flow = [];
-    utils.promiseDelay(Promise.resolve(), 1000).then(() => {
-      expect(handler).toBeCalledTimes(10);
-      assert.deepStrictEqual(
-        flow,
-        expect.arrayContaining([
-          "handler-2",
-          "handler-3",
-          "handler-4",
-          "handler-5",
-          "handler-6",
-          "handler-7",
-          "handler-8",
-          "handler-9",
-        ]),
-      );
-      done();
-    });
-
-    // assert.strictEqual(flow, handler)
+    await utils.promiseDelay(Promise.resolve(), 1000);
+    assert.strictEqual(handler.mock.callCount(), 10);
+    // Check that all expected handlers were called
+    const expectedHandlers = ["handler-2", "handler-3", "handler-4", "handler-5", "handler-6", "handler-7", "handler-8", "handler-9"];
+    for (const expected of expectedHandlers) {
+      assert.ok(flow.includes(expected), `Expected ${expected} to be in flow`);
+    }
   });
 
-  it("should call the action 2 times immediately bevore the last requests get queued", (done) => {
-    broker.options.bulkhead.enabled = true;
-    broker.options.bulkhead.concurrentCalls = 2;
-    broker.options.bulkhead.maxQueueSize = 10;
+  it("should call the action 2 times immediately bevore the last requests get queued", async () => {
+    broker.options.bulkhead!.enabled = true;
+    broker.options.bulkhead!.concurrentCalls = 2;
+    broker.options.bulkhead!.maxQueueSize = 10;
 
-    let flow = [];
+    let flow: string[] = [];
 
-    const handler = jest.fn((context) => {
-      flow.push("handler-" + context.data.p);
-      return new Promise((resolve) => {
+    const handler = mock.fn((context: Context, _serviceInjections: ServiceInjection) => {
+      flow.push("handler-" + (context.data as { p: number }).p);
+      return new Promise<void>((resolve) => {
         setTimeout(() => resolve(), 10);
       });
     });
     const contexts = [...Array(20)].map((_, i) => contentFactory.create(endpoint, { p: i }));
-    const wrappedHandler = middleware.localAction.call(broker, handler, action);
+    const wrappedHandler = middleware.localAction!.call(broker, handler, action);
+    const serviceInjections = {} as ServiceInjection;
 
     Promise.all(
       contexts.map((context) =>
-        wrappedHandler(context).catch((error) => flow.push(error.name + "-" + context.data.p)),
+        wrappedHandler(context, serviceInjections).catch((error: Error) => flow.push(error.name + "-" + (context.data as { p: number }).p)),
       ),
     );
-    expect(handler).toBeCalledTimes(2);
-    // assert.deepStrictEqual(flow, [
-    //     'handler-0',
-    //     'handler-1'
-    // ])
+    assert.strictEqual(handler.mock.callCount(), 2);
 
     flow = [];
-    utils.promiseDelay(Promise.resolve(), 1000).then(() => {
-      expect(handler).toBeCalledTimes(13);
-      assert.deepStrictEqual(
-        flow,
-        expect.arrayContaining([
-          "handler-2",
-          "handler-3",
-          "handler-4",
-          "handler-5",
-          "handler-6",
-          "handler-7",
-          "handler-8",
-          "handler-9",
-        ]),
-      );
-      done();
-    });
+    await utils.promiseDelay(Promise.resolve(), 1000);
+    assert.strictEqual(handler.mock.callCount(), 13);
+    // Check that expected handlers were called
+    const expectedHandlers = ["handler-2", "handler-3", "handler-4", "handler-5", "handler-6", "handler-7", "handler-8", "handler-9"];
+    for (const expected of expectedHandlers) {
+      assert.ok(flow.includes(expected), `Expected ${expected} to be in flow`);
+    }
   });
 });

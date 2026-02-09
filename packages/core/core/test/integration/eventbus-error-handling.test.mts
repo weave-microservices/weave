@@ -1,9 +1,12 @@
 import { createNode } from "../helper/index.mts";
 import { describe, it, afterEach, mock } from "node:test";
 import assert from "node:assert/strict";
+import type { Broker } from "../../types/index.js";
 
 describe("EventBus Error Handling with Promise.allSettled()", () => {
-  let broker1, broker2, broker3;
+  let broker1: Broker | undefined;
+  let broker2: Broker | undefined;
+  let broker3: Broker | undefined;
 
   afterEach(async () => {
     if (broker1 && broker1.runtime.state.isStarted) await broker1.stop();
@@ -304,7 +307,7 @@ describe("EventBus Error Handling with Promise.allSettled()", () => {
 
       await broker1.start();
 
-      const groupEmitResult = await broker1.emit("test.groups", { data: "test" }, ["testGroup"]);
+      const groupEmitResult = await broker1.emit("test.groups", { data: "test" }, { groups: ["testGroup"] });
       assert.notStrictEqual(groupEmitResult, undefined);
       const groupBroadcastResult = await broker1.broadcast(
         "test.groups",

@@ -118,7 +118,7 @@ export const createBrokerInstance = (runtime: Runtime): Broker => {
    * // Load a service from a file
    * const service = broker.loadService('./services/math.service.js');
    */
-  broker.loadService = function (filename: string): Service {
+  broker.loadService = function (filename: string): Service | undefined {
     const filePath = path.resolve(filename);
     const schema = require(filePath);
     const service = broker.createService(schema);
