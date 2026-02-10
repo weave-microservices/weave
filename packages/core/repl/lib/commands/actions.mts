@@ -1,4 +1,6 @@
-import { table, TableUserConfig } from "table";
+import pkg from "table";
+const { table } = pkg;
+type TableUserConfig = Parameters<typeof table>[1];
 
 export default ({ vorpal, broker, cliUI }: any) => {
   vorpal

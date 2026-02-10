@@ -13,6 +13,8 @@ import defineService from "./helper/defineService.mts";
 import defineAction from "./helper/defineAction.mts";
 import type { BrokerOptions, Broker } from "../types/index.js";
 
+export type { BrokerOptions, Broker };
+
 /**
  * Default broker configuration options
  */

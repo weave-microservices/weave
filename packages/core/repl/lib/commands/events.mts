@@ -1,4 +1,5 @@
-import { table } from "table";
+import pkg from "table";
+const { table } = pkg;
 
 export default ({ vorpal, broker, cliUI }: any) => {
   vorpal.command("events", "List registered events.").action((args: any, done: any) => {

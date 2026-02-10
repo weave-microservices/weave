@@ -1,4 +1,5 @@
-import { table } from "table";
+import pkg from "table";
+const { table } = pkg;
 
 export default ({ vorpal, broker, cliUI }: any) => {
   vorpal.command("nodes", "List connected nodes").action((args: any, done: any) => {

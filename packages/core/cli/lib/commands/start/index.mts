@@ -1,4 +1,5 @@
-import { Broker, createBroker } from "@weave-js/core";
+import { createBroker } from "@weave-js/core";
+import type { Broker } from "@weave-js/core";
 import repl from "@weave-js/repl";
 import { getConfig } from "../../utils/config.mts";
 import { createWatchMiddleware } from "./createWatchMiddlewares.mts";

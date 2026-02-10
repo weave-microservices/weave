@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
 import { isString, dotSet } from "@weave-js/utils";
-import { getDefaultOptions } from "@weave-js/core/lib/broker/defaultOptions.js";
+import { getDefaultOptions } from "@weave-js/core/lib/broker/defaultOptions.mts";
 
 const defaultConfigFileName = "weave.config.js";
 const defaultEnvPrefix = "WV_";

@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node ../../../../packages/core/cli/lib/index.js start --services ./services --config --repl --watch",
+    "connect": "node ../../../../packages/core/cli/lib/index.mts connect",
     "debug": "node ./src/broker.mts"
   },
   "author": "",
