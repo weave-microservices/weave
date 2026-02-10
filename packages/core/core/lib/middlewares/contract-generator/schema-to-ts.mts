@@ -11,36 +11,84 @@ function renderObject(properties: Record<string, string>, indent = 0): string {
   return `{\n${entries}\n${space}}`;
 }
 
+// @weave-js/validator type mappings to TypeScript types
+const typeMapping: Record<string, string> = {
+  // Primitive types
+  string: "string",
+  number: "number",
+  boolean: "boolean",
+  any: "any",
+
+  // String-based validation types
+  email: "string",
+  url: "string",
+
+  // Date type
+  date: "Date",
+
+  // Special types
+  forbidden: "never",
+};
+
 function ruleToTs(rule: any, indent = 0): string {
-  if (typeof rule === "string") {
-    return rule;
+  // Handle undefined, null, or invalid rules gracefully
+  if (rule == null) {
+    return "any";
   }
-    
-  switch (rule.type) {
-    case "string":
-    case "number":
-    case "boolean":
-      return rule.type;
 
+  // Handle shorthand string notation (e.g., "string", "number")
+  if (typeof rule === "string") {
+    return typeMapping[rule] ?? "any";
+  }
+
+  // Handle rules without a type property
+  if (typeof rule !== "object" || !rule.type) {
+    return "any";
+  }
+
+  const { type } = rule;
+
+  // Check for direct type mapping
+  if (type in typeMapping) {
+    return typeMapping[type];
+  }
+
+  // Handle complex types
+  switch (type) {
     case "enum":
-      return rule.values.map((v: string) => JSON.stringify(v)).join(" | ");
+      if (Array.isArray(rule.values)) {
+        return rule.values.map((v: unknown) => JSON.stringify(v)).join(" | ");
+      }
+      return "any";
 
-    case "array":
-      return `${ruleToTs(rule.items, indent)}[]`;
+    case "array": {
+      const itemType = rule.itemType ? ruleToTs(rule.itemType, indent) : "any";
+      return `${itemType}[]`;
+    }
 
     case "object": {
       const props: Record<string, string> = {};
-      if (rule.props) {
-        for (const [key, value] of Object.entries(rule.props)) {
+      // Support both 'props' and 'properties' as per ObjectSchema
+      const properties = rule.props ?? rule.properties;
+      if (properties && typeof properties === "object") {
+        for (const [key, value] of Object.entries(properties)) {
           props[key] = ruleToTs(value, indent + 1);
         }
       }
-
       return renderObject(props, indent);
     }
 
+    case "multi": {
+      if (Array.isArray(rule.rules)) {
+        const types = rule.rules.map((r: any) => ruleToTs(r, indent));
+        return types.join(" | ");
+      }
+      return "any";
+    }
+
     default:
-      throw new Error(`unknown schema type: ${rule.type}`);
+      // Unknown type - return 'any' instead of throwing
+      return "any";
   }
 }
 
@@ -55,21 +103,23 @@ export function schemaToTs(schema: Record<string, any>): string {
 }
 
 export function generateActionContract(actions: ParsedAction[]): string {
-  const blocks = actions.map((actionDefinition) => {
-    let props = "";
+  const blocks = actions
+    .filter((actionDefinition) => actionDefinition?.action != null)
+    .map((actionDefinition) => {
+      let props = "";
 
-    if (actionDefinition.action.params) {
-      props += `params: ${schemaToTs(actionDefinition.action.params)};\n`;
-    }
+      if (actionDefinition.action.params) {
+        props += `params: ${schemaToTs(actionDefinition.action.params)};\n`;
+      }
 
-    if (actionDefinition.action.responseSchema) {
-      props += `response: ${schemaToTs(actionDefinition.action.responseSchema)};\n`;
-    } else {
-      props += `response: { type: any };\n`;
-    }
+      if (actionDefinition.action.responseSchema) {
+        props += `response: ${schemaToTs(actionDefinition.action.responseSchema)};\n`;
+      } else {
+        props += `response: { type: any };\n`;
+      }
 
-    return `"${actionDefinition.name}": {\n${props}}`;
-  });
+      return `"${actionDefinition.name}": {\n${props}}`;
+    });
 
   return `
   declare module "@weave-js/core" {
@@ -77,21 +127,23 @@ export function generateActionContract(actions: ParsedAction[]): string {
   ${blocks.map((b) => "    " + b).join(";\n")}
     }
   }
-  
+
   export {};
   `;
 }
 
 export function generateEventContract(events: ParsedEvent[]): string {
-  const blocks = events.map((evt) => {
-    let props = "";
+  const blocks = events
+    .filter((evt) => evt?.event != null)
+    .map((evt) => {
+      let props = "";
 
-    if (evt.event.params) {
-      props += `params: ${schemaToTs(evt.event.params)};\n`;
-    }
+      if (evt.event.params) {
+        props += `params: ${schemaToTs(evt.event.params)};\n`;
+      }
 
-    return `"${evt.name}": {\n${props}}`;
-  });
+      return `"${evt.name}": {\n${props}}`;
+    });
 
   return `
   declare module "@weave-js/core" {
@@ -99,7 +151,7 @@ export function generateEventContract(events: ParsedEvent[]): string {
   ${blocks.map((b) => "    " + b).join(";\n")}
     }
   }
-  
+
   export {};
   `;
 }

@@ -22,3 +22,4 @@ packages/core/repl/.vscode
 .nx
 CLAUDE.md
 .claude
+.claude/settings.local.json

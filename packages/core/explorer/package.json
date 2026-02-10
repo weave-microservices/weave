@@ -1,0 +1,42 @@
+{
+  "name": "@weave-js/explorer",
+  "version": "0.1.0",
+  "description": "Web-based dashboard for Weave clusters",
+  "type": "module",
+  "main": "lib/index.mts",
+  "types": "lib/index.mts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.mts",
+      "default": "./lib/index.mts"
+    }
+  },
+  "scripts": {
+    "build": "npm run build:frontend",
+    "build:frontend": "cd frontend && npm run build",
+    "dev": "cd frontend && npm run dev",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "lib",
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": {
+    "name": "Kevin Ries",
+    "company": "Fachwerk Software",
+    "email": "kevin.ries@fachwerk.io"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@weave-js/core": "^0.15.2"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.13"
+  }
+}

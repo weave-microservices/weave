@@ -14,7 +14,11 @@
       "Bash(npx tsc:*)",
       "Bash(npm run typecheck:*)",
       "Bash(npm ls:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(npm install)",
+      "Bash(npm run build:*)",
+      "Bash(pkill:*)",
+      "WebSearch"
     ],
     "deny": []
   }

@@ -1,0 +1,11 @@
+{
+  "name": "explorer-test",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --experimental-strip-types broker.mts",
+    "start:node2": "node --experimental-strip-types node2.mts",
+    "start:redis": "node --experimental-strip-types broker-redis.mts",
+    "start:redis-node2": "node --experimental-strip-types node2-redis.mts"
+  }
+}
