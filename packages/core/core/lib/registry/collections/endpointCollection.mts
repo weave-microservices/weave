@@ -11,7 +11,7 @@ import type {
   Node,
   Runtime,
   ServiceItem,
-  WeaveAction,
+  ParsedAction,
 } from "../../../types/index.js";
 
 /**
@@ -23,7 +23,7 @@ interface EndpointCollection {
   isInternal: boolean;
   localEndpoints: Endpoint[];
   endpoints: Endpoint[];
-  add(node: Node, service: ServiceItem, action: WeaveAction): boolean;
+  add(node: Node, service: ServiceItem, action: ParsedAction): boolean;
   hasAvailable(): boolean;
   hasLocal(): boolean;
   getNextAvailableEndpoint(): Endpoint | null;
@@ -82,7 +82,7 @@ export const createEndpointList = (
     }
   };
 
-  endpointList.add = (node: Node, service: ServiceItem, action: WeaveAction): boolean => {
+  endpointList.add = (node: Node, service: ServiceItem, action: ParsedAction): boolean => {
     // todo: addaction
     const foundEndpoint = list.find(
       (endpoint: Endpoint) => endpoint.node.id === node.id && endpoint.service.name === service.name,

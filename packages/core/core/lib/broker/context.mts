@@ -4,6 +4,7 @@ import type {
   Runtime,
   Context,
   Span,
+  SpanOptions,
   Endpoint,
   ActionOptions,
   EventOptions,
@@ -92,17 +93,16 @@ export const createContext = <T = any,>(runtime: Runtime): Context<T> => {
         return result;
       });
     },
-    startSpan(name?: string, options?: Record<string, unknown>): Span {
+    startSpan(name?: string, options?: SpanOptions): Span {
       let span: Span;
       if (this.span) {
         span = (
           this.span as Span & {
-            startChildSpan: (name?: string, options?: Record<string, unknown>) => Span;
+            startChildSpan: (name?: string, options?: SpanOptions) => Span;
           }
         ).startChildSpan(name, options);
       } else {
-        const parentSpan = options?.parentSpan as Span | undefined;
-        span = runtime.tracer!.startSpan(name || "span", parentSpan);
+        span = runtime.tracer!.startSpan(name || "span", options);
       }
       spanStack.push(span);
       this.span = span;

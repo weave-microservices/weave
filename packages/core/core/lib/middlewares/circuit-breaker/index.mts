@@ -12,7 +12,7 @@ import type {
   Middleware,
   Runtime,
   ServiceInjection,
-  WeaveAction,
+  ParsedAction,
 } from "../../../types/index.js";
 import {
   CIRCUIT_CLOSED,
@@ -131,7 +131,7 @@ export default (runtime: Runtime): Middleware => {
     log?.debug(`Circuit breaker has been closed for endpoint '${item.endpoint.name}'`);
   }
 
-  function wrapCircuitBreakerMiddleware(handler: ActionHandler, action: WeaveAction): ActionHandler {
+  function wrapCircuitBreakerMiddleware(handler: ActionHandler, action: ParsedAction): ActionHandler {
     const options: CircuitBreakerOptions = Object.assign({}, runtime.options.circuitBreaker, action.circuitBreaker || {});
 
     if (options.enabled) {

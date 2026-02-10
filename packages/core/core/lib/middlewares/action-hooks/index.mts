@@ -3,7 +3,7 @@
  * -----
  * Copyright 2021 Fachwerk
  */
-import type { ActionHandler, Context, Middleware, Service, ServiceInjection, WeaveAction } from "../../../types/index.js";
+import type { ActionHandler, Context, Middleware, Service, ServiceInjection, ParsedAction } from "../../../types/index.js";
 
 function callHook(hook: Function | Function[], service: Service, context: Context, result?: any): Promise<any> | undefined {
   if (typeof hook === "function") {
@@ -54,7 +54,7 @@ function sanitizeHooks(hooks: HookDefinition | undefined, service: Service): Fun
 
 export default (): Middleware => {
   return {
-    localAction: (handler: ActionHandler, action: WeaveAction): ActionHandler => {
+    localAction: (handler: ActionHandler, action: ParsedAction): ActionHandler => {
       const name = action.shortName;
       const hooks = action.service && action.service.schema ? action.service.schema.hooks : null;
     

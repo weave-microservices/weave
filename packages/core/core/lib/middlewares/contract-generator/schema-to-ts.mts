@@ -1,4 +1,4 @@
-import type { WeaveAction, WeaveEvent } from "../../../types/index.js";
+import type { ParsedAction, ParsedEvent } from "../../../types/index.js";
 
 function renderObject(properties: Record<string, string>, indent = 0): string {
   const space = "  ".repeat(indent);
@@ -54,7 +54,7 @@ export function schemaToTs(schema: Record<string, any>): string {
   return renderObject(props, 1);
 }
 
-export function generateActionContract(actions: WeaveAction[]): string {
+export function generateActionContract(actions: ParsedAction[]): string {
   const blocks = actions.map((actionDefinition) => {
     let props = "";
 
@@ -82,7 +82,7 @@ export function generateActionContract(actions: WeaveAction[]): string {
   `;
 }
 
-export function generateEventContract(events: WeaveEvent[]): string {
+export function generateEventContract(events: ParsedEvent[]): string {
   const blocks = events.map((evt) => {
     let props = "";
 

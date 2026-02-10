@@ -11,8 +11,8 @@ import type {
   ServiceActionSchema,
   ServiceItem,
   ServiceSchema,
-  WeaveAction,
-  WeaveEvent,
+  ParsedAction,
+  ParsedEvent,
 } from "../../../types/index.js";
 
 export const createServiceFromSchema = (runtime: Runtime, schema: ServiceSchema): Service => {
@@ -93,8 +93,8 @@ export const createServiceFromSchema = (runtime: Runtime, schema: ServiceSchema)
     settings: Record<string, unknown>;
     meta: Record<string, unknown> | undefined;
     version: string | number | undefined;
-    actions: Record<string, WeaveAction>;
-    events: Record<string, WeaveEvent>;
+    actions: Record<string, ParsedAction>;
+    events: Record<string, ParsedEvent>;
   } = {
     name: service.name,
     fullyQualifiedName: service.fullyQualifiedName,

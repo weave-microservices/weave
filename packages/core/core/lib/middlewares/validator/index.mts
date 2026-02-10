@@ -13,8 +13,8 @@ import type {
   Middleware,
   Runtime,
   ServiceInjection,
-  WeaveAction,
-  WeaveEvent,
+  ParsedAction,
+  ParsedEvent,
 } from "../../../types/index.js";
 import type { ValidationError, ValidationFunction, ValidationOptions } from "@weave-js/validator";
 
@@ -31,7 +31,7 @@ export default (runtime: Runtime): Middleware => {
   };
 
   return {
-    localAction(handler: ActionHandler, action: WeaveAction): ActionHandler {
+    localAction(handler: ActionHandler, action: ParsedAction): ActionHandler {
       const parameterOptions: ValidationOptions = Object.assign(
         {},
         runtime.options.validatorOptions,
@@ -76,7 +76,7 @@ export default (runtime: Runtime): Middleware => {
         }
       };
     },
-    localEvent(handler: EventHandler, event: WeaveEvent): EventHandler {
+    localEvent(handler: EventHandler, event: ParsedEvent): EventHandler {
       if (event.params && typeof event.params === "object") {
         const parameterOptions: ValidationOptions = Object.assign(
           {},

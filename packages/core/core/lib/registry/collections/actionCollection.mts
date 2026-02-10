@@ -12,7 +12,7 @@ import type {
   Node,
   Registry,
   ServiceItem,
-  WeaveAction,
+  ParsedAction,
 } from "../../../types/index.js";
 
 /**
@@ -23,7 +23,7 @@ interface ActionListItem {
   hasAvailable: boolean;
   hasLocal: boolean;
   count: number;
-  action?: Omit<WeaveAction, "handler" | "service">;
+  action?: Omit<ParsedAction, "handler" | "service">;
   endpoints?: Array<{
     nodeId: string;
     state: boolean;
@@ -45,7 +45,7 @@ interface ActionListOptions {
 interface EndpointList {
   name: string;
   endpoints: Endpoint[];
-  add(node: Node, service: ServiceItem, action: WeaveAction): boolean;
+  add(node: Node, service: ServiceItem, action: ParsedAction): boolean;
   removeByNodeId(nodeId: string): void;
   removeByService(service: ServiceItem): void;
   getNextAvailableEndpoint(): Endpoint | null;
@@ -64,7 +64,7 @@ export const createActionCollection = (registry: Registry): ActionCollection => 
   const { runtime } = registry;
   const actions = new Map<string, EndpointList>();
 
-  actionCollection.add = (node: Node, service: ServiceItem, action: WeaveAction): void => {
+  actionCollection.add = (node: Node, service: ServiceItem, action: ParsedAction): void => {
     let endPointList = actions.get(action.name);
     if (!endPointList) {
       endPointList = createEndpointList(runtime, action.name) as EndpointList;
@@ -95,7 +95,7 @@ export const createActionCollection = (registry: Registry): ActionCollection => 
     onlyLocals = false,
     skipInternals = false,
     withEndpoints = false,
-  }: ActionListOptions = {}): WeaveAction[] => {
+  }: ActionListOptions = {}): ParsedAction[] => {
     const result: ActionListItem[] = [];
 
     actions.forEach((action: EndpointList) => {
@@ -118,7 +118,7 @@ export const createActionCollection = (registry: Registry): ActionCollection => 
       if (item.count > 0) {
         const endpoint = action.endpoints[0];
         if (endpoint) {
-          item.action = omit(endpoint.action, ["handler", "service"]) as Omit<WeaveAction, "handler" | "service">;
+          item.action = omit(endpoint.action, ["handler", "service"]) as Omit<ParsedAction, "handler" | "service">;
         }
       }
 
@@ -137,7 +137,7 @@ export const createActionCollection = (registry: Registry): ActionCollection => 
 
       result.push(item);
     });
-    return result as unknown as WeaveAction[];
+    return result as unknown as ParsedAction[];
   };
 
   return actionCollection;

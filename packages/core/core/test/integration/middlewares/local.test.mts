@@ -1,7 +1,7 @@
 import { createNode } from "../../helper/index.mts";
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import type { Runtime, Service, Middleware, ActionHandler, WeaveAction } from "../../../types/index.js";
+import type { Runtime, Service, Middleware, ActionHandler, ParsedAction } from "../../../types/index.js";
 
 const createMiddlewareWithFlow = (flowArray: string[]): Middleware => {
   return {
@@ -26,11 +26,11 @@ const createMiddlewareWithFlow = (flowArray: string[]): Middleware => {
     serviceStopped(_service: Service) {
       flowArray.push("serviceStopped");
     },
-    localAction(handler: ActionHandler, action: WeaveAction) {
+    localAction(handler: ActionHandler, action: ParsedAction) {
       flowArray.push("localAction:" + action.name);
       return handler;
     },
-    remoteAction(handler: ActionHandler, _action: WeaveAction) {
+    remoteAction(handler: ActionHandler, _action: ParsedAction) {
       flowArray.push("remoteAction");
       return handler;
     },

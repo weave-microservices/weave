@@ -1,12 +1,12 @@
 import { Constants } from "../../metrics/index.mts";
-import type { ActionHandler, Context, Runtime, ServiceInjection, WeaveAction } from "../../../types/index.js";
+import type { ActionHandler, Context, Runtime, ServiceInjection, ParsedAction } from "../../../types/index.js";
 
 type ActionType = "local" | "remote";
 
-type MiddlewareWrapperFunction = (type: ActionType, action: WeaveAction, handler: ActionHandler) => ActionHandler;
+type MiddlewareWrapperFunction = (type: ActionType, action: ParsedAction, handler: ActionHandler) => ActionHandler;
 
 export const getMiddlewareWrapper = (runtime: Runtime): MiddlewareWrapperFunction =>
-  function (type: ActionType, action: WeaveAction, handler: ActionHandler): ActionHandler {
+  function (type: ActionType, action: ParsedAction, handler: ActionHandler): ActionHandler {
     const serviceName = action.service ? action.service.fullyQualifiedName : null;
     const actionName = action.name;
 

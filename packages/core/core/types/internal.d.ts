@@ -11,20 +11,29 @@
 
 import { EventEmitter } from "events";
 import type {
+  ActionCacheOptions,
   ActionOptions,
+  ActionTracingOptions,
   Broker,
   BrokerOptions,
+  BulkheadOptions,
   Cache,
+  CircuitBreakerOptions,
   Context,
   ContextMetaObject,
   EventOptions,
+  EventTracingOptions,
   Logger,
   MetricRegistry,
   MiddlewareHandler,
   Service,
+  ServiceActionParamSchema,
+  ServiceActionVisibility,
+  ServiceInjection,
   ServiceSchema,
   ServiceSettings,
   Tracer,
+  TypeMap,
 } from "./index.js";
 
 // ===== NODE TYPES =====
@@ -123,16 +132,16 @@ export interface ServiceItem {
   fullName?: string;
   nodeId?: string;
   node?: Node;
-  actions?: Record<string, WeaveAction>;
-  events?: Record<string, WeaveEvent>;
+  actions?: Record<string, ParsedAction>;
+  events?: Record<string, ParsedEvent>;
   settings?: ServiceSettings;
   metadata?: object;
   isLocal?: boolean;
 
   // Methods
   update(service: ServiceItem): void;
-  addAction(action: WeaveAction): void;
-  addEvent(event: WeaveEvent): void;
+  addAction(action: ParsedAction): void;
+  addEvent(event: ParsedEvent): void;
   equals(name: string, version?: string | number, nodeId?: string): boolean;
 }
 
@@ -145,13 +154,13 @@ export interface ServiceItem {
 export interface Endpoint {
   node: Node;
   service: ServiceItem;
-  action: WeaveAction;
+  action: ParsedAction;
   isLocal: boolean;
   state: boolean;
   name: string;
 
   // Methods
-  updateAction(newAction: WeaveAction): void;
+  updateAction(newAction: ParsedAction): void;
   isAvailable(): boolean;
 }
 
@@ -185,24 +194,78 @@ export interface ServiceCollection {
 }
 
 /**
+ * Internal action representation after parsing
  * @internal
  */
-export type WeaveAction = any;
+export interface ParsedAction {
+  /** Full action name including service name and version prefix */
+  name: string;
+  /** Short action name without service prefix */
+  shortName: string;
+  /** Reference to the owning service */
+  service: Service;
+  /** Service version if applicable */
+  version?: string | number;
+  /** The promisified and bound action handler */
+  handler: (context: Context, injection: ServiceInjection) => Promise<unknown>;
+  /** Logger instance for this action */
+  log: Logger;
+  /** Parameter validation schema */
+  params?: Record<string, ServiceActionParamSchema | keyof TypeMap>;
+  /** Response validation schema */
+  responseSchema?: ServiceActionParamSchema | keyof TypeMap;
+  /** Action visibility level */
+  visibility?: ServiceActionVisibility;
+  /** Cache configuration */
+  cache?: boolean | string | ActionCacheOptions;
+  /** Request timeout in milliseconds */
+  timeout?: number;
+  /** Number of retries on failure */
+  retries?: number;
+  /** Bulkhead configuration */
+  bulkhead?: BulkheadOptions;
+  /** Circuit breaker configuration */
+  circuitBreaker?: CircuitBreakerOptions;
+  /** Tracing configuration */
+  tracing?: boolean | ActionTracingOptions;
+  /** Metrics configuration */
+  metrics?: boolean | object;
+  /** Allow additional properties from schema */
+  [key: string]: unknown;
+}
 
 /**
+ * Internal event representation after parsing
  * @internal
  */
-export type WeaveEvent = any;
+export interface ParsedEvent {
+  /** Event name */
+  name: string;
+  /** Reference to the owning service */
+  service: Service;
+  /** The promisified and bound event handler(s) */
+  handler: (context: Context, injection?: ServiceInjection) => Promise<unknown>;
+  /** Logger instance for this event */
+  log: Logger;
+  /** Event group for load balancing */
+  group?: string;
+  /** Parameter validation schema */
+  params?: Record<string, ServiceActionParamSchema | keyof TypeMap>;
+  /** Tracing configuration */
+  tracing?: boolean | EventTracingOptions;
+  /** Allow additional properties from schema */
+  [key: string]: unknown;
+}
 
 /**
  * @internal
  */
 export interface ActionCollection {
   get(actionName: string): any;
-  add(node: Node, service: ServiceItem, action: WeaveAction): void;
+  add(node: Node, service: ServiceItem, action: ParsedAction): void;
   remove(actionName: string, node: Node): void;
   removeByService(service: ServiceItem): void;
-  list(): WeaveAction[];
+  list(): ParsedAction[];
 }
 
 /**
@@ -210,10 +273,10 @@ export interface ActionCollection {
  */
 export interface EventCollection {
   get(eventName: string): any;
-  add(node: Node, service: ServiceItem, event: WeaveEvent): void;
+  add(node: Node, service: ServiceItem, event: ParsedEvent): void;
   remove(eventName: string, node: Node): void;
   removeByService(service: ServiceItem): void;
-  list(): WeaveEvent[];
+  list(): ParsedEvent[];
   getBalancedEndpoints(eventName: string, groups?: string[]): [Endpoint | null, string][];
   getAllEndpointsUniqueNodes(eventName: string, groups?: string[]): Endpoint[];
   emitLocal(context: Context): Promise<void>;

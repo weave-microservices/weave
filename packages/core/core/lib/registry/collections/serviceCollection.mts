@@ -12,8 +12,8 @@ import type {
   ServiceCollection,
   ServiceItem,
   ServiceSettings,
-  WeaveAction,
-  WeaveEvent,
+  ParsedAction,
+  ParsedEvent,
 } from "../../../types/index.js";
 
 /**
@@ -38,8 +38,8 @@ interface ServiceListItem {
   isAvailable: boolean;
   isPrivate: boolean | undefined;
   settings?: ServiceSettings;
-  actions?: Record<string, Omit<WeaveAction, "handler" | "service">>;
-  events?: Record<string, Omit<WeaveEvent, "service" | "handler">>;
+  actions?: Record<string, Omit<ParsedAction, "handler" | "service">>;
+  events?: Record<string, Omit<ParsedEvent, "service" | "handler">>;
 }
 
 /**
@@ -176,18 +176,18 @@ export const createServiceCollection = (registry: Registry): ServiceCollection =
 
       if (withActions && service.actions) {
         item.actions = {};
-        Object.values(service.actions).forEach((action: WeaveAction) => {
+        Object.values(service.actions).forEach((action: ParsedAction) => {
           if (action) {
-            item.actions![action.name] = omit(action, ["handler", "service"]) as Omit<WeaveAction, "handler" | "service">;
+            item.actions![action.name] = omit(action, ["handler", "service"]) as Omit<ParsedAction, "handler" | "service">;
           }
         });
       }
 
       if (withEvents && service.events) {
         item.events = {};
-        Object.values(service.events).forEach((event: WeaveEvent) => {
+        Object.values(service.events).forEach((event: ParsedEvent) => {
           if (event) {
-            item.events![event.name] = omit(event, ["service", "handler"]) as Omit<WeaveEvent, "service" | "handler">;
+            item.events![event.name] = omit(event, ["service", "handler"]) as Omit<ParsedEvent, "service" | "handler">;
           }
         });
       }

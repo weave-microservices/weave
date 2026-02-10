@@ -14,7 +14,7 @@ import type {
   Registry,
   Runtime,
   ServiceItem,
-  WeaveEvent,
+  ParsedEvent,
 } from "../../../types/index.js";
 
 /**
@@ -26,7 +26,7 @@ interface EventListItem {
   groupName: string | undefined;
   hasLocal: boolean;
   count: number;
-  event?: Omit<WeaveEvent, "handler" | "service">;
+  event?: Omit<ParsedEvent, "handler" | "service">;
   endpoints?: Array<{
     nodeId: string;
     state: boolean;
@@ -49,7 +49,7 @@ interface EndpointList {
   name: string;
   groupName: string | undefined;
   endpoints: Endpoint[];
-  add(node: Node, service: ServiceItem, event: WeaveEvent): Endpoint;
+  add(node: Node, service: ServiceItem, event: ParsedEvent): Endpoint;
   removeByNodeId(nodeId: string): void;
   removeByService(service: ServiceItem): void;
   getNextAvailableEndpoint(): Endpoint | null;
@@ -81,7 +81,7 @@ export const createEventCollection = (registry: Registry): EventCollection => {
    * @param event Event
    * @return Endpoint
    */
-  eventCollection.add = (node: Node, service: ServiceItem, event: WeaveEvent): void => {
+  eventCollection.add = (node: Node, service: ServiceItem, event: ParsedEvent): void => {
     const groupName = event.group || service.name;
     let endpointList = (eventCollection as any).get(event.name, groupName);
     if (!endpointList) {
@@ -207,7 +207,7 @@ export const createEventCollection = (registry: Registry): EventCollection => {
     onlyLocals = false,
     skipInternals = false,
     withEndpoints = false,
-  }: EventListOptions = {}): WeaveEvent[] => {
+  }: EventListOptions = {}): ParsedEvent[] => {
     const result: EventListItem[] = [];
 
     events.forEach((list: EndpointList) => {
@@ -230,7 +230,7 @@ export const createEventCollection = (registry: Registry): EventCollection => {
       if (item.count > 0) {
         const endpoint = list.endpoints[0];
         if (endpoint && endpoint.action) {
-          item.event = omit(endpoint.action, ["handler", "service"]) as Omit<WeaveEvent, "handler" | "service">;
+          item.event = omit(endpoint.action, ["handler", "service"]) as Omit<ParsedEvent, "handler" | "service">;
         }
       }
 
@@ -244,7 +244,7 @@ export const createEventCollection = (registry: Registry): EventCollection => {
       }
       result.push(item);
     });
-    return result as unknown as WeaveEvent[];
+    return result as unknown as ParsedEvent[];
   };
 
   return eventCollection;

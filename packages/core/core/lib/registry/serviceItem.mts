@@ -4,7 +4,7 @@
  * Copyright 2021 Fachwerk
  */
 
-import type { Node, ServiceItem, ServiceSettings, WeaveAction, WeaveEvent } from "../../types/index.js";
+import type { Node, ServiceItem, ServiceSettings, ParsedAction, ParsedEvent } from "../../types/index.js";
 
 /**
  * Service item factory
@@ -16,8 +16,8 @@ export const createServiceItem = (
   settings: ServiceSettings | undefined,
   isLocal: boolean,
 ): ServiceItem => {
-  const actions: Record<string, WeaveAction> = {};
-  const events: Record<string, WeaveEvent> = {};
+  const actions: Record<string, ParsedAction> = {};
+  const events: Record<string, ParsedEvent> = {};
 
   return {
     name,
@@ -28,11 +28,11 @@ export const createServiceItem = (
     events,
     isLocal,
 
-    addAction(action: WeaveAction): void {
+    addAction(action: ParsedAction): void {
       actions[action.name] = action;
     },
 
-    addEvent(event: WeaveEvent): void {
+    addEvent(event: ParsedEvent): void {
       events[event.name] = event;
     },
 

@@ -1,11 +1,25 @@
 /*
  * Author: Kevin Ries (kevin.ries@fachwerk.io)
  * -----
- * Copyright 2021 Fachwerk
+ * Copyright 2026 Fachwerk
  */
 
 import { buildActionTags, buildEventTags, addResponseTags } from "./tags.mts";
-import type { ActionHandler, ActionTracingOptions, Context, EventHandler, Middleware, Runtime, ServiceInjection, WeaveAction, WeaveEvent } from "../../../types/index.js";
+import type { ActionHandler, ActionTracingOptions, Context, EventHandler, EventTracingOptions, Middleware, Runtime, ServiceInjection, ParsedAction, ParsedEvent } from "../../../types/index.js";
+
+function normalizeActionTracingOptions(tracing: boolean | ActionTracingOptions | undefined): ActionTracingOptions {
+  if (typeof tracing === 'object' && tracing !== null) {
+    return tracing;
+  }
+  return {};
+}
+
+function normalizeEventTracingOptions(tracing: boolean | EventTracingOptions | undefined): EventTracingOptions {
+  if (typeof tracing === 'object' && tracing !== null) {
+    return tracing;
+  }
+  return {};
+}
 
 function getSpanName(context: Context, actionTracingOptions: ActionTracingOptions): string {
   let spanName = `action "${context.action?.name}"`;
@@ -34,10 +48,10 @@ function getSpanName(context: Context, actionTracingOptions: ActionTracingOption
   return spanName;
 }
 
-const wrapTracingLocalActionMiddleware = function (this: Runtime, handler: ActionHandler, action: WeaveAction): ActionHandler {
+const wrapTracingLocalActionMiddleware = function (this: Runtime, handler: ActionHandler, action: ParsedAction): ActionHandler {
   const broker = this;
   const globalTracingOptions = broker.options.tracing || {};
-  const actionTracingOptions = action.tracing || {};
+  const actionTracingOptions = normalizeActionTracingOptions(action.tracing);
 
   if (globalTracingOptions.enabled) {
     return function tracingLocalMiddleware(context: Context, serviceInjections: ServiceInjection) {
@@ -85,11 +99,11 @@ const wrapTracingLocalActionMiddleware = function (this: Runtime, handler: Actio
   return handler;
 };
 
-const wrapTracingLocalEventMiddleware = function (this: Runtime, handler: EventHandler, event: WeaveEvent): EventHandler {
+const wrapTracingLocalEventMiddleware = function (this: Runtime, handler: EventHandler, event: ParsedEvent): EventHandler {
   const broker = this;
   const service = event.service;
   const tracingOptions = broker.options.tracing || {};
-  const eventTracingOptions = event.tracing || {};
+  const eventTracingOptions = normalizeEventTracingOptions(event.tracing);
 
   if (tracingOptions.enabled) {
     return function tracingLocalEventMiddleware(context: Context, serviceInjections: ServiceInjection): Promise<any> {

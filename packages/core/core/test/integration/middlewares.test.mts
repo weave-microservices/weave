@@ -8,7 +8,7 @@ import type {
   Middleware,
   Runtime,
   ServiceSchema,
-  WeaveAction,
+  ParsedAction,
 } from "../../types/index.js";
 
 describe("Middleware hooks", () => {
@@ -77,7 +77,7 @@ describe("Middleware hooks", () => {
       stopped: () => {
         order.push("stopped");
       },
-      localAction: (handler: ActionHandler, action: WeaveAction) => {
+      localAction: (handler: ActionHandler, action: ParsedAction) => {
         return function (context: Context) {
           order.push("localAction1");
           return handler(context, {} as any).then((res: any) => {

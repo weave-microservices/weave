@@ -12,14 +12,14 @@ import type {
   RetryPolicyOptions,
   Runtime,
   ServiceInjection,
-  WeaveAction,
+  ParsedAction,
 } from "../../../types/index.js";
 
 interface RetryableError extends Error {
   retryable?: boolean;
 }
 
-const wrapRetryMiddleware = function (this: Runtime, handler: ActionHandler, action: WeaveAction): ActionHandler {
+const wrapRetryMiddleware = function (this: Runtime, handler: ActionHandler, action: ParsedAction): ActionHandler {
   const self = this;
   const options: RetryPolicyOptions = Object.assign({}, self.options.retryPolicy, action.retryPolicy ?? {});
 

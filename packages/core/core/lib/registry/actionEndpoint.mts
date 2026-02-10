@@ -4,7 +4,7 @@
  * Copyright 2021 Fachwerk
  */
 
-import type { Endpoint, Node, Runtime, ServiceItem, WeaveAction } from "../../types/index.js";
+import type { Endpoint, Node, Runtime, ServiceItem, ParsedAction } from "../../types/index.js";
 
 /**
  * Action endpoint factory
@@ -13,7 +13,7 @@ export const createActionEndpoint = (
   runtime: Runtime,
   node: Node,
   service: ServiceItem,
-  action: WeaveAction,
+  action: ParsedAction,
 ): Endpoint => {
   const endpoint: Endpoint = {
     node,
@@ -22,7 +22,7 @@ export const createActionEndpoint = (
     isLocal: node.id === runtime.nodeId,
     state: true,
     name: `${node.id}:${action.name}`,
-    updateAction(newAction: WeaveAction): void {
+    updateAction(newAction: ParsedAction): void {
       endpoint.action = newAction;
     },
     isAvailable(): boolean {

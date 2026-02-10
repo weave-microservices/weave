@@ -6,7 +6,7 @@
   "main": "./lib/index.mts",
   "types": "./types/index.d.ts",
   "scripts": {
-    "test": "NODE_ENV=test node --test test/**/*.mts",
+    "test": "NODE_ENV=test node --test 'test/**/*.mts'",
     "test:coverage": "NODE_ENV=test node --experimental-test-coverage --test test/**/*.mts",
     "test:watch": "NODE_ENV=test node --test --watch test/**/*.mts",
     "lint": "eslint . --ext .mts --fix"

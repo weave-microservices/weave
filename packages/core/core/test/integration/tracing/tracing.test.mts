@@ -61,19 +61,22 @@ describe("Test tracing", () => {
     {
       name: "post",
       actions: {
-        list(context: Context) {
-          const copiedPosts = JSON.parse(JSON.stringify(posts)) as Array<{
-            id: number;
-            title: string;
-            author: number | { id: number; name: string };
-          }>;
-          return Promise.all(
-            copiedPosts.map(async (post) => {
-              post.author = await context.call("user.get", { id: post.author });
-              return post;
-            }),
-          );
-        },
+        list: {
+     
+          handler (context: Context) {
+            const copiedPosts = JSON.parse(JSON.stringify(posts)) as Array<{
+              id: number;
+              title: string;
+              author: number | { id: number; name: string };
+            }>;
+            return Promise.all(
+              copiedPosts.map(async (post) => {
+                post.author = await context.call("user.get", { id: post.author });
+                return post;
+              }),
+            );
+          },
+        }
       },
     },
   ]);
@@ -82,10 +85,12 @@ describe("Test tracing", () => {
     {
       name: "user",
       actions: {
-        get(context: Context<{ id: number }>) {
-          const user = users.find((user) => user.id === context.data.id);
-          return user;
-        },
+        get: {
+          handler (context: Context) {
+            const user = users.find((user) => user.id === context.data.id);
+            return user;
+          },
+        }
       },
     },
   ]);
@@ -256,7 +261,9 @@ describe("Test tag handling for spans", () => {
     const userGetActions = flow.filter((span) => span.name === 'action "user.get"');
     const postListAction = flow.filter((span) => span.name === 'action "post.list"');
 
-    const idsFromTags = userGetActions.map((span) => span.tags.data?.id).sort();
+    const idsFromTags = userGetActions.map((span) => {
+      return span.tags.data?.id;
+    }).sort();
 
     assert.deepStrictEqual(idsFromTags, [1, 2, 3]);
 

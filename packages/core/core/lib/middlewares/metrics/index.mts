@@ -5,7 +5,7 @@
  */
 import { Constants } from "../../metrics/index.mts";
 import { getMiddlewareWrapper } from "./getMiddlewareWrapper.mts";
-import type { ActionHandler, Middleware, Runtime, WeaveAction } from "../../../types/index.js";
+import type { ActionHandler, Middleware, Runtime, ParsedAction } from "../../../types/index.js";
 
 export default (runtime: Runtime): Middleware => {
   const wrapMetricMiddleware = getMiddlewareWrapper(runtime);
@@ -79,10 +79,10 @@ export default (runtime: Runtime): Middleware => {
         description: "Number of in flight streams.",
       });
     },
-    localAction(next: ActionHandler, action: WeaveAction): ActionHandler {
+    localAction(next: ActionHandler, action: ParsedAction): ActionHandler {
       return wrapMetricMiddleware("local", action, next);
     },
-    remoteAction(next: ActionHandler, action: WeaveAction): ActionHandler {
+    remoteAction(next: ActionHandler, action: ParsedAction): ActionHandler {
       return wrapMetricMiddleware("remote", action, next);
     },
     emit(next: (event: string, payload: unknown) => void): (event: string, payload: unknown) => void {

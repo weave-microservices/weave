@@ -1,4 +1,4 @@
-import type { WeaveAction, WeaveEvent } from "../../types/internal.js";
+import type { ParsedAction, ParsedEvent } from "../../types/internal.js";
 import type { Middleware } from "../../types/index.js";
 import type { Runtime } from "../../types/index.js";
 
@@ -42,7 +42,7 @@ export const initMiddlewareHandler = (runtime: Runtime): void => {
       wrapHandler<T extends (...args: unknown[]) => unknown>(
         methodName: string,
         handler: T,
-        definition?: WeaveAction | WeaveEvent,
+        definition?: ParsedAction | ParsedEvent,
       ): T {
         if (list.length) {
           handler = list.reduce((handler: T, middleware: Middleware) => {

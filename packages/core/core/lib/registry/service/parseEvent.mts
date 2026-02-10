@@ -1,14 +1,14 @@
 import { isFunction, clone, isObject, promisify } from "@weave-js/utils";
 import { wrapHandler } from "../../utils/wrap-handler.mts";
 import { WeaveError } from "../../errors.mts";
-import type { Context, Runtime, Service, ServiceEventSchema, ServiceInjection } from "../../../types/index.js";
+import type { Context, ParsedEvent, Runtime, Service, ServiceEventSchema, ServiceInjection } from "../../../types/index.js";
 
 export const parseEvent = (
   runtime: Runtime,
   service: Service,
   eventDefinition: ServiceEventSchema,
   name: string,
-) => {
+): ParsedEvent => {
   let event: any;
 
   // if the handler is a method (short form), we wrap the method in our handler object.

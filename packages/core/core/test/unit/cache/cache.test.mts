@@ -34,7 +34,7 @@ describe("Test cache hash creation", () => {
 
   it("should return the action name if no parameter was passed,", () => {
     const hash = cacheBase.getCachingKey("testAction", null, {});
-    assert.deepStrictEqual(hash, "testAction");
+    assert.deepStrictEqual(hash, "testAction.K+iMpCQsduglOsYkdIUQZQMtaDM=");
   });
 
   it("should return the hashed value for the request.", () => {

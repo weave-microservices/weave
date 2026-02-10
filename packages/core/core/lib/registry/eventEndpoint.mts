@@ -4,7 +4,7 @@
  * Copyright 2021 Fachwerk
  */
 
-import type { Endpoint, Node, Runtime, ServiceItem, WeaveEvent } from '../../types/index.js';
+import type { Endpoint, Node, Runtime, ServiceItem, ParsedEvent } from '../../types/index.js';
 
 /**
  * Event endpoint factory
@@ -13,7 +13,7 @@ export const createEventEndpoint = (
   runtime: Runtime,
   node: Node,
   service: ServiceItem,
-  event: WeaveEvent,
+  event: ParsedEvent,
 ): Endpoint => {
   const endpoint: Endpoint = {
     node,
@@ -22,7 +22,7 @@ export const createEventEndpoint = (
     isLocal: node.id === runtime.nodeId,
     state: true,
     name: `${node.id}:${event.name}`,
-    updateAction(newEvent: WeaveEvent): void {
+    updateAction(newEvent: ParsedEvent): void {
       endpoint.action = newEvent;
     },
     isAvailable(): boolean {

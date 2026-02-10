@@ -5,7 +5,7 @@
  */
 import { Constants } from "../../metrics/index.mts";
 import * as Errors from "../../errors.mts";
-import type { ActionHandler, Context, Middleware, Runtime, ServiceInjection, WeaveAction } from "../../../types/index.js";
+import type { ActionHandler, Context, Middleware, Runtime, ServiceInjection, ParsedAction } from "../../../types/index.js";
 import type { BulkheadQueueItem } from "./types.js";
 
 export default (runtime: Runtime): Middleware => {
@@ -21,7 +21,7 @@ export default (runtime: Runtime): Middleware => {
         });
       }
     },
-    localAction(handler: ActionHandler, action: WeaveAction): ActionHandler {
+    localAction(handler: ActionHandler, action: ParsedAction): ActionHandler {
       const bulkheadOptions = runtime.options.bulkhead;
 
       if (bulkheadOptions?.enabled) {

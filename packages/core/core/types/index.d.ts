@@ -18,8 +18,8 @@ export type {
   RuntimeInstanceState,
   Endpoint,
   ServiceItem,
-  WeaveAction,
-  WeaveEvent,
+  ParsedAction,
+  ParsedEvent,
   RegistryOptions,
   TransportOptions,
   // Registry types
@@ -113,10 +113,15 @@ export interface Span {
 }
 
 export interface SpanOptions {
+  id?: string;
   parentSpan?: Span;
   parentId?: string;
   traceId?: string;
+  type?: string;
   sampled?: boolean;
+  service?: Service | { name: string; version?: string | number; fullyQualifiedName: string };
+  tags?: Record<string, unknown>;
+  defaultTags?: Record<string, unknown>;
 }
 
 // ===== CONTEXT TYPES =====
@@ -210,7 +215,7 @@ export interface Context<T = any> {
   ): Promise<TResult>;
   emit(eventName: string, payload?: unknown, options?: EventOptions): Promise<void>;
   broadcast(eventName: string, payload?: unknown, options?: EventOptions): Promise<void>;
-  startSpan(name?: string, options?: Record<string, unknown>): Span;
+  startSpan(name?: string, options?: SpanOptions): Span;
   finishSpan(span?: Span, time?: number): void;
   copy(): Context<T>;
   setStream(stream: Readable): void;
@@ -303,9 +308,9 @@ export interface ServiceActionSchema<
   cache?: boolean | string | ActionCacheOptions;
   timeout?: number;
   retries?: number;
-  bulkhead?: object;
-  circuitBreaker?: object;
-  tracing?: boolean | object;
+  bulkhead?: BulkheadOptions;
+  circuitBreaker?: CircuitBreakerOptions;
+  tracing?: boolean | ActionTracingOptions;
   metrics?: boolean | object;
   handler: (this: Service, context: Context<ParamsToType<TParams>>, injection: ServiceInjection) => Promise<any> | any;
   [key: string]: any;
@@ -327,6 +332,7 @@ export type ServiceEventHandler = (this: Service, context: Context, injection: S
 export interface ServiceEvent {
   group?: string;
   params?: Record<string, ServiceActionParamSchema | keyof TypeMap>;
+  tracing?: boolean | EventTracingOptions;
   handler: ServiceEventHandler | ServiceEventHandler[];
   [key: string]: any;
 }
@@ -543,15 +549,13 @@ export interface TracingTagsOptions {
   tags?: Record<string, unknown> | ((context: Context) => Record<string, unknown>);
 }
 
-export interface ActionTracingOptions {
+export interface ActionTracingOptions extends TracingTagsOptions {
   enabled?: boolean;
-  tags?: Record<string, unknown> | ((context: Context) => Record<string, unknown>);
   spanName?: string | ((context: Context) => string);
 }
 
-export interface EventTracingOptions {
+export interface EventTracingOptions extends TracingTagsOptions {
   enabled?: boolean;
-  tags?: Record<string, unknown> | ((context: Context) => Record<string, unknown>);
 }
 
 export interface TracingOptions {
@@ -560,7 +564,7 @@ export interface TracingOptions {
   collectors?: Array<string | object>;
   defaultTags?: Record<string, string>;
   actions?: TracingTagsOptions;
-  events?: TracingTagsOptions;
+  events?: EventTracingOptions;
   errors?: {
     fields?: string[];
     stackTrace?: boolean;
@@ -575,7 +579,7 @@ export interface Tracer {
 
   // Methods
   init(): void;
-  startSpan(name: string, parentSpan?: Span): Span;
+  startSpan(name: string, options?: SpanOptions): Span;
   finishSpan(span: Span): void;
   stop(): Promise<void>;
 }
@@ -595,12 +599,12 @@ export type EventHandler = (context: Context, injection: ServiceInjection) => Pr
 /**
  * Action handler wrapper function
  */
-export type ActionHandlerWrapper = (handler: ActionHandler, action: import("./internal.js").WeaveAction) => ActionHandler;
+export type ActionHandlerWrapper = (handler: ActionHandler, action: import("./internal.js").ParsedAction) => ActionHandler;
 
 /**
  * Event handler wrapper function
  */
-export type EventHandlerWrapper = (handler: EventHandler, event: import("./internal.js").WeaveEvent) => EventHandler;
+export type EventHandlerWrapper = (handler: EventHandler, event: import("./internal.js").ParsedEvent) => EventHandler;
 
 /**
  * Method wrapper function
@@ -860,7 +864,7 @@ export class WeaveParameterValidationError extends WeaveError {}
 export class WeaveServiceNotFoundError extends WeaveError {}
 export class WeaveRequestTimeoutError extends WeaveError {}
 export class WeaveRetryableError extends WeaveError {}
-export class WeaveActionNotFoundError extends WeaveError {}
+export class ParsedActionNotFoundError extends WeaveError {}
 
 // ===== MAIN EXPORTS =====
 
@@ -944,6 +948,6 @@ export namespace Errors {
     WeaveServiceNotFoundError,
     WeaveRequestTimeoutError,
     WeaveRetryableError,
-    WeaveActionNotFoundError,
+    ParsedActionNotFoundError,
   };
 }

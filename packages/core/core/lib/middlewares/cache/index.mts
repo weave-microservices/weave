@@ -1,5 +1,5 @@
 import { isString, isFunction } from "@weave-js/utils";
-import type { ActionCacheOptions, ActionHandler, Cache, Context, Middleware, Runtime, ServiceInjection, WeaveAction } from "../../../types/index.js";
+import type { ActionCacheOptions, ActionHandler, Cache, Context, Middleware, Runtime, ServiceInjection, ParsedAction } from "../../../types/index.js";
 
 interface CacheActionOptions {
   enabled: boolean;
@@ -8,7 +8,7 @@ interface CacheActionOptions {
 
 export default (runtime: Runtime): Middleware => {
   return {
-    localAction: (handler: ActionHandler, action: WeaveAction): ActionHandler => {
+    localAction: (handler: ActionHandler, action: ParsedAction): ActionHandler => {
       const cacheOptions = runtime.options.cache;
       const cacheActionOptions: CacheActionOptions = {
         enabled: !!action.cache,
