@@ -2,12 +2,19 @@
   "name": "@weave-js/nats-transport",
   "version": "0.14.0",
   "description": "Weave NATS transport adapter",
-  "main": "lib/index.js",
+  "type": "module",
+  "main": "lib/index.mts",
+  "types": "lib/index.mts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.mts",
+      "default": "./lib/index.mts"
+    }
+  },
   "scripts": {
-    "ci": "jest --watch",
-    "test": "jest --no-cache",
-    "coverage": "jest --coverage --no-cache",
-    "lint": "eslint --ext=.js lib test --fix"
+    "test": "node --test --experimental-test-module-mocks test/**/*.test.mts",
+    "test:watch": "node --test --watch --experimental-test-module-mocks test/**/*.test.mts",
+    "lint": "eslint . --ext .mts --fix"
   },
   "publishConfig": {
     "access": "public"
@@ -23,18 +30,12 @@
     "@weave-js/core": "0.15.2"
   },
   "dependencies": {
-    "@weave-js/utils": "^0.13.0",
-    "nats": "^1.4.12"
+    "nats": "^2.29.3"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.15.2"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "rootDir": "./lib",
-    "roots": [
-      "../test"
-    ]
+    "@types/node": "^22.0.0",
+    "@weave-js/core": "^0.15.2",
+    "typescript": "^5.6.0"
   },
   "gitHead": "84fd5e4af3af96e8c004bcfba40bb3cb35f23fa7"
 }
