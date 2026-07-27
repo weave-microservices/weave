@@ -2,11 +2,19 @@
   "name": "@weave-js/tracing-zipkin",
   "version": "0.14.2",
   "description": "weave zipkin tracing adapter",
-  "main": "lib/index.js",
+  "type": "module",
+  "main": "lib/index.mts",
+  "types": "lib/index.mts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.mts",
+      "default": "./lib/index.mts"
+    }
+  },
   "scripts": {
-    "ci": "jest --watch",
-    "coverage": "jest --coverage --no-cache",
-    "lint": "eslint --ext=.js lib test --fix"
+    "test": "node --test test/**/*.mts",
+    "test:watch": "node --test --watch test/**/*.mts",
+    "lint": "eslint . --ext .mts --fix"
   },
   "publishConfig": {
     "access": "public"
@@ -21,18 +29,10 @@
   "peerDependencies": {
     "@weave-js/core": "^0.14.1"
   },
-  "dependencies": {
-    "node-fetch": "^2.6.9"
-  },
   "devDependencies": {
-    "@weave-js/core": "^0.15.2"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "rootDir": "./lib",
-    "roots": [
-      "../test"
-    ]
+    "@types/node": "^22.0.0",
+    "@weave-js/core": "^0.15.2",
+    "typescript": "^5.6.0"
   },
   "gitHead": "eba5f359604b6b06accd6fa8c8f03b8bc7fa8566"
 }
