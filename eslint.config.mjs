@@ -23,6 +23,8 @@ export default [
       "**/.turbo/**",
       "**/.next/**",
       "**/tmp/**",
+      // generated action contracts (see .gitignore)
+      "**/.weave/**",
     ],
   },
   {
