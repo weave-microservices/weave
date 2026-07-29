@@ -34,8 +34,9 @@ Der Redis-Adapter wurde von v3.1.2 auf v5.10.0 aktualisiert, um bessere TypeScri
 
 ### Backup-Dateien
 
-- `lib/index.js.backup` - Original JavaScript-Datei
-- `test/adapter.test.js.backup` - Original Test-Datei
+Während der Migration lagen `lib/index.js.backup` und `test/adapter.test.js.backup`
+als Kopien der Originale daneben. Sie wurden mit dem Abschluss der Migration entfernt
+(siehe Abschnitt 14) - der Stand vor der Migration steht in der Git-Historie.
 
 ---
 
@@ -55,8 +56,8 @@ Der Redis-Adapter wurde von v3.1.2 auf v5.10.0 aktualisiert, um bessere TypeScri
     }
   },
   "scripts": {
-    "test": "node --test test/**/*.mts",
-    "test:watch": "node --test --watch test/**/*.mts",
+    "test": "node --test --experimental-test-module-mocks test/**/*.test.mts",
+    "test:watch": "node --test --watch --experimental-test-module-mocks test/**/*.test.mts",
     "lint": "eslint . --ext .mts --fix"
   },
   "devDependencies": {
@@ -65,7 +66,6 @@ Der Redis-Adapter wurde von v3.1.2 auf v5.10.0 aktualisiert, um bessere TypeScri
     "typescript": "^5.6.0"
   },
   "dependencies": {
-    "@weave-js/utils": "^0.13.0",
     "redis": "^5.10.0"
   }
 }
@@ -120,54 +120,53 @@ Der Redis-Adapter wurde von v3.1.2 auf v5.10.0 aktualisiert, um bessere TypeScri
 
 ```typescript
 export interface RedisAdapterOptions {
+  socket?: { port?: number; host?: string };
+  password?: string;
+  database?: number;
+  /** @deprecated - Legacy-Optionen des v3-Clients, werden auf das v5-Format gemappt. */
   port?: number;
   host?: string;
-  password?: string;
   db?: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 ```
 
-### 4.2 Transport Adapter Interface
+### 4.2 Adapter-Klasse
+
+Der Adapter ist eine Klasse auf Basis von `BaseTransportAdapter` aus dem Core; die
+Lifecycle-Methoden (`connected`, `disconnected`, `getTopic`, `serialize`,
+`incomingMessage`, Statistiken) kommen von dort und müssen nicht mehr selbst
+deklariert werden.
 
 ```typescript
-export interface RedisTransportAdapter {
-  name: string;
+export class RedisTransportAdapter extends BaseTransportAdapter {
   connect(): Promise<void>;
   subscribe(type: string, nodeId?: string): Promise<void>;
-  send(message: any): Promise<void>;
+  send(message: TransportMessage): Promise<void>;
   close(): Promise<void>;
-  log: any;
-  bus: any;
-  isConnected: boolean;
-  interruptionCount: number;
-  getTopic(type: string, nodeId?: string): string;
-  serialize(message: any): Buffer;
-  incomingMessage(type: string, message: string | Buffer): void;
-  updateStatisticSent(length: number): void;
-  connected(): void;
-  disconnected(): void;
 }
 ```
+
+Die Default-Export-Factory `createRedisAdapter(options?)` bleibt für die
+Rückwärtskompatibilität erhalten.
 
 ### 4.3 Imports
 
 ```typescript
-import { createClient, type RedisClient } from "redis";
-import { defaultsDeep, promiseDelay } from "@weave-js/utils";
-// @ts-ignore - TransportAdapters is exported but types may not be fully resolved
-import { TransportAdapters } from "@weave-js/core";
+import { createClient } from "redis";
+import { BaseTransportAdapter } from "@weave-js/core/lib/transport/adapters/adapterBase.mts";
+import type { TransportMessage } from "@weave-js/core/types/index.js";
 ```
 
-**Hinweis:** Die `@ts-ignore` Direktive wird verwendet, da die TypeScript-Typen für `TransportAdapters` möglicherweise nicht vollständig aufgelöst werden können. Dies ist eine bekannte Einschränkung bei der Verwendung von Namespace-Exporten.
+### 4.4 Client-Typen
 
-### 4.4 Type Workarounds
-
-Aufgrund von Inkompatibilitäten zwischen `redis` v3 und den `@types/redis` Typen werden die Redis-Clients als `any` typisiert:
+Die Client-Typen werden aus `createClient` abgeleitet, statt sie über die generischen
+Typen des Redis-Pakets zu schreiben — das hält sie ohne `any` stabil gegenüber
+Änderungen der Client-Generics:
 
 ```typescript
-let clientSub: any; // Using any due to redis v3 type incompatibilities
-let clientPub: any; // Using any due to redis v3 type incompatibilities
+type RedisClient = ReturnType<typeof createClient>;
+type RedisClientOptions = Parameters<typeof createClient>[0];
 ```
 
 ---
@@ -176,23 +175,22 @@ let clientPub: any; // Using any due to redis v3 type incompatibilities
 
 ### 5.1 Test-Framework Migration
 
-**Von:** Jest  
-**Zu:** Node.js Test Runner
+**Von:** Jest (Integrationstest gegen einen laufenden Redis-Server)
+**Zu:** Node.js Test Runner (Unit-Tests gegen einen gemockten Redis-Client)
 
-### 5.2 Import-Änderungen
+### 5.2 Aufbau
+
+`test/redis-mock.mts` registriert per `mock.module` einen Mock für das `redis`-Paket und
+liefert Handles auf die erzeugten Clients (Optionen, Subscriptions, publizierte Nachrichten,
+Event-Auslöser). Der Adapter wird erst danach dynamisch importiert, damit der Mock greift:
 
 ```typescript
-// Alt (Jest)
-const { Weave } = require("@weave-js/core");
-const REDISTransport = require("../lib/index");
-
-// Neu (Node.js Test Runner)
-import { describe, it, beforeEach, afterEach } from "node:test";
-import assert from "node:assert/strict";
-// @ts-ignore - Weave is exported but types may not be fully resolved
-import { Weave } from "@weave-js/core";
-import REDISTransport from "../lib/index.mts";
+const redis = installRedisMock();
+const { default: createRedisAdapter } = await import("../lib/index.mts");
 ```
+
+Broker und Transport werden als schlanke Test-Doubles injiziert (`adapter.init(...)`),
+Lifecycle-Events werden über `adapter.bus` beobachtet.
 
 ### 5.3 Assertion-Änderungen
 
@@ -202,24 +200,8 @@ expect(startedHook1).toBeCalledTimes(1);
 expect(result).toBe("Hello from node2");
 
 // Neu (Node.js Test Runner)
-assert.strictEqual(startedHook1Called, true);
-assert.strictEqual(result, "Hello from node2");
-```
-
-### 5.4 Hook-Implementierung
-
-```typescript
-// Statt Jest Mocks
-let startedHook1Called = false;
-let startedHook2Called = false;
-
-const startedHook1 = () => {
-  startedHook1Called = true;
-};
-
-const startedHook2 = () => {
-  startedHook2Called = true;
-};
+assert.equal(adapter.isConnected, true);
+assert.deepEqual(connectedEvents[0].args[0], { wasReconnect: false });
 ```
 
 ---
@@ -326,6 +308,10 @@ const broker = Weave({
 - [x] Tests auf Node.js Test Runner migriert
 - [x] Keine Breaking Changes
 - [x] Dokumentation erstellt
+- [x] Alte `.js` Dateien und Backups entfernt
+- [x] `.eslintrc.js` und package-lokales Lockfile entfernt
+- [x] `any` aus dem Adapter entfernt (ESLint sauber)
+- [x] Tests ohne laufenden Redis-Server, 100 % Coverage
 
 ---
 
@@ -418,7 +404,76 @@ Error: ENOENT: no such file or directory, unlink '.weave/types/...'
 
 ---
 
-## 13. Kontakt
+## 13. Nachtrag: Abschluss der Migration
+
+**Datum:** 27. Juli 2026
+
+Die Migration war zunächst nur teilweise abgeschlossen - die alten JavaScript-Dateien
+lagen noch neben den `.mts` Dateien. Beim Fertigstellen wurde außerdem der Adapter-Code
+selbst aufgeräumt.
+
+### 13.1 Entfernte Altlasten
+
+- `lib/index.js`, `test/adapter.test.js` (durch die `.mts` Dateien ersetzt)
+- `lib/index.js.backup`, `test/adapter.test.js.backup`
+- `.eslintrc.js` — das Projekt nutzt die Flat Config `eslint.config.mjs` im Root
+- `package-lock.json` — in einem npm-Workspace wirkungslos, der Root-Lock ist maßgeblich
+- `test/setup.mts` — Workaround für Broker-Cleanup-Fehler, mit dem Integrationstest hinfällig
+
+### 13.2 Behobene Bugs
+
+1. **`this.bus.emit("adapter.connected", true)`** verwendete einen Event-Namen, auf den
+   niemand hört (der Transport lauscht auf `$adapter.connected`). Der Zweig war zudem
+   unerreichbar, weil `isConnected` an der Stelle nie zurückgesetzt wurde. Jetzt:
+   `this.connected({ wasReconnect: this.interruptionCount > 0 })`.
+2. **Der `error`-Handler setzte `isConnected = false`**, ohne `disconnected()` zu feuern.
+   Der nachfolgende `end`-Handler sah dann bereits `isConnected === false` und meldete den
+   Verbindungsabbruch nie an den Transport. Der `error`-Handler loggt jetzt nur noch; den
+   Zustandswechsel macht ausschließlich `end`.
+3. **`subscribe()` leitete den Message-Type aus `topic.split(".")[1]` ab**, was bei einem
+   Namespace mit Punkt (`my.namespace`) den falschen Typ ergab. Jetzt wird der `type`-
+   Parameter direkt verwendet.
+4. **`close()` ließ `isConnected` auf `true`** und behielt die Client-Referenzen. Jetzt wird
+   der Zustand zurückgesetzt und nur noch offene Clients werden geschlossen.
+5. **`send()`** publizierte ohne Prüfung auf einen vorhandenen Client (NPE nach `close()`).
+
+### 13.3 Weitere Änderungen
+
+- **Reconnect-Handling ergänzt:** Der Adapter reagiert jetzt auf `reconnecting` und `ready`
+  und meldet `connected({ wasReconnect: true })`, sobald beide Clients wieder bereit sind.
+  Vorher blieb der Adapter nach einem Verbindungsverlust dauerhaft als getrennt markiert.
+- **`quit()` → `close()`** (die v5-API) und der künstliche `promiseDelay(…, 500)` am Ende
+  von `close()` ist entfallen.
+- **`defaultsDeep` entfernt:** Die Options-Normalisierung ist jetzt explizit; damit entfällt
+  die Dependency auf `@weave-js/utils` komplett.
+- **`any` vollständig entfernt** — der Adapter ist typsauber gegenüber ESLint
+  (`@typescript-eslint/no-explicit-any`), die Client-Typen werden aus `createClient`
+  abgeleitet (`ReturnType`/`Parameters`), das `@ts-ignore` beim Core-Import ist nicht mehr nötig.
+
+### 13.4 Tests
+
+Der Integrationstest startete zwei Weave-Broker und setzte einen laufenden Redis-Server
+voraus. Er wurde durch 31 Unit-Tests ersetzt, die den Redis-Client per `mock.module`
+mocken (`test/redis-mock.mts`). `lib/index.mts` ist damit zu **100 % (Lines, Branches,
+Functions)** abgedeckt — ohne laufenden Server.
+
+Da `mock.module` experimentell ist, brauchen die Tests das Flag
+`--experimental-test-module-mocks`; es steckt im `test`-Skript des Packages.
+
+```bash
+npm test --workspace=@weave-js/redis-transport
+
+# mit Coverage
+node --test --experimental-test-module-mocks --experimental-test-coverage test/**/*.test.mts
+```
+
+Es gibt damit keinen Integrationstest gegen einen echten Redis-Server mehr. Falls einer
+gewünscht ist, gehört er als separate Datei (z. B. `test/integration/`) ergänzt, die ohne
+erreichbaren Server übersprungen wird.
+
+---
+
+## 14. Kontakt
 
 **Autor:** Kevin Ries  
 **Email:** kevin.ries@fachwerk.io  
