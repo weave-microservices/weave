@@ -1,3 +1,4 @@
+import type { CreateCommandOptions } from "../../types.mts";
 import fs from "fs";
 import path from "path";
 import inquirer from "inquirer";
@@ -40,7 +41,7 @@ const groupedMiddlewareFunctions = [
   },
 ];
 
-export default async (middlewareName: string, options: any): Promise<void> => {
+export default async (middlewareName: string, options: CreateCommandOptions): Promise<void> => {
   const { middlewareFolder } = await inquirer.prompt([
     {
       type: "input",
@@ -98,9 +99,13 @@ export default async (middlewareName: string, options: any): Promise<void> => {
     path.join(__dirname, "templates", "middleware.ejs"),
     data,
     null,
-    function (error, result) {
+    function (error: Error | null, result?: string) {
       if (error) {
         throw error;
+      }
+
+      if (result === undefined) {
+        throw new Error("Template rendering returned no content.");
       }
 
       console.log(`✨ Writing file in ${kleur.yellow(newMiddlewarePath)}`);

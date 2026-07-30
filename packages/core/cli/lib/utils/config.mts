@@ -1,4 +1,5 @@
 import path from "path";
+import type { StartCommandFlags, WeaveConfig } from "../types.mts";
 import fs from "fs";
 import { isString, dotSet } from "@weave-js/utils";
 import { getDefaultOptions } from "@weave-js/core/lib/broker/defaultOptions.mts";
@@ -7,7 +8,7 @@ const defaultConfigFileName = "weave.config.js";
 const defaultEnvPrefix = "WV_";
 const dotSeperator = "__";
 
-const overridePropertiesFromEnvVariables = (config: any): any => {
+const overridePropertiesFromEnvVariables = (config: WeaveConfig): WeaveConfig => {
   Object.keys(process.env)
     .filter((key) => key.startsWith(defaultEnvPrefix))
     .map((key) => ({
@@ -33,7 +34,7 @@ const overridePropertiesFromEnvVariables = (config: any): any => {
   return config;
 };
 
-export const getConfig = async (flags: any): Promise<any> => {
+export const getConfig = async (flags: StartCommandFlags): Promise<WeaveConfig> => {
   const currentPath = process.cwd();
   let filePath;
   if (flags.config && isString(flags.config)) {

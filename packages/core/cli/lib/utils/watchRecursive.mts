@@ -63,7 +63,7 @@ function watchFallback(directory: string, onchange: (filename: string) => void):
   const watching: Record<string, fs.FSWatcher> = {};
   let loaded = false;
   const queued: string[] = [];
-  const prevs = new Cache({ ttl: 2e3, capacity: 30 });
+  const prevs = new Cache<fs.Stats>({ ttl: 2e3, capacity: 30 });
 
   visit(".", function () {
     loaded = true;

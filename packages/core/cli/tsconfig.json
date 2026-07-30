@@ -14,6 +14,6 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": ["lib/**/*.mts", "bin/**/*.mts"],
+  "include": ["lib/**/*.mts", "lib/**/*.d.ts", "../repl/lib/**/*.d.ts", "test/**/*.mts"],
   "exclude": ["node_modules", "dist", "coverage"]
 }

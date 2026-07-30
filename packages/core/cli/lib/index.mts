@@ -1,11 +1,14 @@
 #!/usr/bin/env node
 import updateNotifier from "update-notifier";
-import pkg from "../package.json" with { type: "json" };
+import { createRequire } from "module";
 import { program } from "commander";
 import { cleanArgs } from "./utils/args.mts";
 import * as startCommand from "./commands/start/index.mts";
 import * as createCommand from "./commands/create/index.mts";
 import * as connectCommand from "./commands/connect/index.mts";
+
+const require = createRequire(import.meta.url);
+const pkg = require("../package.json") as { name: string; version: string };
 
 updateNotifier({ pkg }).notify();
 

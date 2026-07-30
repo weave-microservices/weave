@@ -1,7 +1,12 @@
+import type { CreateCommandOptions } from "../../types.mts";
 import middlewareHandler from "./middleware.mts";
 import serviceHandler from "./service.mts";
 
-export const handler = async (type: string, name: string, options: any): Promise<void> => {
+export const handler = async (
+  type: string,
+  name: string,
+  options: CreateCommandOptions,
+): Promise<void> => {
   try {
     switch (type) {
       case "middleware":

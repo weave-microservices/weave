@@ -1,8 +1,9 @@
+import type { Broker } from "@weave-js/core/types/index.js";
 import path from "path";
 import fs from "fs";
 import { isFunction } from "@weave-js/utils";
 
-export const loadServices = async (broker: any, param: string): Promise<void> => {
+export const loadServices = async (broker: Broker, param: string): Promise<void> => {
   const servicePathsParams = param.split(",");
   for (const servicePathParam of servicePathsParams) {
     const servicePath = path.isAbsolute(servicePathParam)
@@ -40,7 +41,7 @@ export const loadServices = async (broker: any, param: string): Promise<void> =>
   }
 };
 
-export const loadServicesFromFactory = async (broker: any, param: string): Promise<void> => {
+export const loadServicesFromFactory = async (broker: Broker, param: string): Promise<void> => {
   try {
     const serviceFactoryPath = path.isAbsolute(param) ? param : path.resolve(process.cwd(), param);
     const module = await import(serviceFactoryPath);

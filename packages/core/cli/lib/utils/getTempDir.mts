@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import mkdirp from "mkdirp";
+import { mkdirpSync } from "mkdirp";
 import home from "user-home";
 import { deleteFolderRecursive } from "./deleteFolderRecursive.mts";
 
@@ -9,6 +9,6 @@ export const getTempDir = (dir: string, clear: boolean = false): string => {
   if (fs.existsSync(tmp) && clear) {
     deleteFolderRecursive(tmp);
   }
-  mkdirp.sync(tmp);
+  mkdirpSync(tmp);
   return tmp;
 };

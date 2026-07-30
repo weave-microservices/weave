@@ -1,3 +1,4 @@
+import type { ModuleRecord, WatchedService, WatchRuntime, WeaveCli } from "../../types.mts";
 import { debounce } from "@weave-js/utils";
 import path from "path";
 import fs from "fs";
@@ -11,10 +12,10 @@ const globalWatchers = new Map<string, fs.FSWatcher>();
  * Clean up all existing file watchers
  */
 function cleanupAllWatchers(): void {
-  globalWatchers.forEach((watcher, filename) => {
+  globalWatchers.forEach((watcher) => {
     try {
       watcher.close();
-    } catch (error) {
+    } catch {
       // Silently handle watcher close errors
     }
   });
@@ -37,7 +38,7 @@ function clearRequireCache(filename: string): void {
         delete require.cache[key];
       }
     });
-  } catch (error) {
+  } catch {
     // Silently fail for invalid paths
   }
 }
@@ -50,7 +51,7 @@ function isWeaveConfigFile(filename: string): boolean {
       basename === "weave.config.ts" ||
       basename === "weave.config.json"
     );
-  } catch (error) {
+  } catch {
     return false;
   }
 }
@@ -62,12 +63,12 @@ function isValidFilePath(filepath: string): boolean {
 
     // Only allow files within the project directory or node_modules
     return resolvedPath.startsWith(cwd) || resolvedPath.includes("node_modules");
-  } catch (error) {
+  } catch {
     return false;
   }
 }
 
-interface AdditionalFile {
+export interface AdditionalFile {
   filename: string;
   changeScope: string;
 }
@@ -84,13 +85,13 @@ interface WatchItem {
   watcher?: fs.FSWatcher;
 }
 
-export function createWatchMiddleware(weaveCli: any, options: WatcherOptions = {}) {
-  return function watchMiddleware(runtime: any) {
+export function createWatchMiddleware(weaveCli: WeaveCli, options: WatcherOptions = {}) {
+  return function watchMiddleware(runtime: WatchRuntime) {
     let projectFiles = new Map<string, WatchItem>();
     let previousProjectFiles = new Map<string, WatchItem>();
-    const cache = new Map<string, any>();
+    const cache = new Map<string, ModuleRecord>();
 
-    async function reloadService(service: any): Promise<void> {
+    async function reloadService(service: WatchedService): Promise<void> {
       try {
         if (!service || !service.filename) {
           return;
@@ -141,7 +142,7 @@ export function createWatchMiddleware(weaveCli: any, options: WatcherOptions = {
         if (watchItem.watcher) {
           try {
             watchItem.watcher.close();
-          } catch (error) {
+          } catch {
             // Silently handle watcher close errors
           }
           delete watchItem.watcher;
@@ -150,8 +151,8 @@ export function createWatchMiddleware(weaveCli: any, options: WatcherOptions = {
     }
 
     function processModule(
-      module: any,
-      service: any = null,
+      module: ModuleRecord,
+      service: WatchedService | null = null,
       level: number = 0,
       parents: string[] | null = null,
     ): void {
@@ -192,7 +193,7 @@ export function createWatchMiddleware(weaveCli: any, options: WatcherOptions = {
       }
 
       if (!service) {
-        service = runtime.services.serviceList.find((service) => service.filename === filename);
+        service = runtime.services.serviceList.find((entry) => entry.filename === filename) ?? null;
       }
 
       if (service) {
@@ -218,11 +219,13 @@ export function createWatchMiddleware(weaveCli: any, options: WatcherOptions = {
           const watchItem = getFileWatchItem(filename);
           // Find the service file in the parents chain
           const serviceFile = parents.find((parent) => {
-            return runtime.services.serviceList.some((s) => s.filename === parent);
+            return runtime.services.serviceList.some((entry) => entry.filename === parent);
           });
 
           if (serviceFile) {
-            const service = runtime.services.serviceList.find((s) => s.filename === serviceFile);
+            const service = runtime.services.serviceList.find(
+              (entry) => entry.filename === serviceFile,
+            );
             if (service && !watchItem.services.includes(service.fullyQualifiedName)) {
               watchItem.services.push(service.fullyQualifiedName);
               const relativePath = path.relative(process.cwd(), filename);
@@ -242,7 +245,7 @@ export function createWatchMiddleware(weaveCli: any, options: WatcherOptions = {
         } else if (parents) {
           parents.push(filename);
         }
-        module.children.forEach((childModule) => {
+        module.children.forEach((childModule: ModuleRecord) => {
           const childLevel = service ? level + 1 : 0;
           // if (!service && !parents) {
           //   parents = [filename];
@@ -267,7 +270,7 @@ export function createWatchMiddleware(weaveCli: any, options: WatcherOptions = {
       const mainModule = process.mainModule || require.main;
 
       if (mainModule) {
-        processModule(mainModule);
+        processModule(mainModule as unknown as ModuleRecord);
       }
 
       // Also directly process services from the serviceList
@@ -281,7 +284,7 @@ export function createWatchMiddleware(weaveCli: any, options: WatcherOptions = {
           // Also process dependencies from require.cache for this service
           const serviceModule = require.cache[service.filename];
           if (serviceModule) {
-            processModule(serviceModule, service, 0, []);
+            processModule(serviceModule as unknown as ModuleRecord, service, 0, []);
           }
         }
       });
@@ -296,7 +299,7 @@ export function createWatchMiddleware(weaveCli: any, options: WatcherOptions = {
             const watchItem = getFileWatchItem(configPath);
             watchItem.restartBroker = true;
           }
-        } catch (error) {
+        } catch {
           // Silently skip invalid config files
         }
       });
@@ -315,7 +318,7 @@ export function createWatchMiddleware(weaveCli: any, options: WatcherOptions = {
         });
       }
 
-      const needToReload = new Set();
+      const needToReload = new Set<WatchedService>();
 
       const reloadServices = debounce(() => {
         needToReload.forEach((service) => {
@@ -336,7 +339,7 @@ export function createWatchMiddleware(weaveCli: any, options: WatcherOptions = {
           if (!fs.existsSync(filename)) {
             projectFiles.delete(filename);
           }
-        } catch (error) {
+        } catch {
           // Remove invalid files from tracking
           projectFiles.delete(filename);
         }
@@ -401,14 +404,14 @@ export function createWatchMiddleware(weaveCli: any, options: WatcherOptions = {
                     if (resolvedKey.startsWith(cwd) || resolvedKey.includes("node_modules")) {
                       delete require.cache[key];
                     }
-                  } catch (error) {
+                  } catch {
                     // Skip invalid keys
                   }
                 });
 
                 // Debounce broker restart to prevent restart loops
                 const debouncedRestart = debounce(() => {
-                  weaveCli.restartBroker();
+                  weaveCli.restartBroker?.();
                 }, 500);
 
                 debouncedRestart();
@@ -427,11 +430,13 @@ export function createWatchMiddleware(weaveCli: any, options: WatcherOptions = {
                   }
                 });
 
-                if (needToReload.size === 0) {
-                  needToReload.add(relativePath);
+                if (needToReload.size > 0) {
+                  reloadServices();
+                } else {
+                  runtime.log.debug(
+                    `No running service matched the change in "${relativePath}" - nothing to reload.`,
+                  );
                 }
-
-                reloadServices();
               }
             } catch (error) {
               runtime.log.error(`Error handling file change for ${relativePath}:`, error);
@@ -446,40 +451,45 @@ export function createWatchMiddleware(weaveCli: any, options: WatcherOptions = {
       });
     }
 
-    function addServiceToWatch(service: any): void {
+    function addServiceToWatch(service: WatchedService): void {
+      if (!service.filename) {
+        return;
+      }
+
+      const serviceFilename = service.filename;
       if (
-        service.filename &&
-        isValidFilePath(service.filename) &&
-        !projectFiles.has(service.filename)
+        serviceFilename &&
+        isValidFilePath(serviceFilename) &&
+        !projectFiles.has(serviceFilename)
       ) {
-        const watchItem = getFileWatchItem(service.filename);
+        const watchItem = getFileWatchItem(serviceFilename);
         if (!watchItem.services.includes(service.fullyQualifiedName)) {
           watchItem.services.push(service.fullyQualifiedName);
         }
 
         // Skip if this file is already being watched globally
-        if (globalWatchers.has(service.filename)) {
+        if (globalWatchers.has(serviceFilename)) {
           return;
         }
 
         // Set up watcher for this new service file
         try {
-          const relativePath = path.relative(process.cwd(), service.filename);
+          const relativePath = path.relative(process.cwd(), serviceFilename);
           runtime.log.debug(`Adding watcher for new service: ${relativePath}`);
 
           const triggeredChangeEvents = new Map();
-          const watcher = fs.watch(service.filename, (eventType) => {
+          const watcher = fs.watch(serviceFilename, (eventType) => {
             try {
-              const stats = fs.statSync(service.filename);
+              const stats = fs.statSync(serviceFilename);
               const seconds = +stats.mtime;
-              if (triggeredChangeEvents.get(service.filename) === seconds) {
+              if (triggeredChangeEvents.get(serviceFilename) === seconds) {
                 return;
               }
 
-              triggeredChangeEvents.set(service.filename, seconds);
+              triggeredChangeEvents.set(serviceFilename, seconds);
               runtime.log.info(`The file "${relativePath}" has been changed. (${eventType})`);
 
-              clearRequireCache(service.filename);
+              clearRequireCache(serviceFilename);
 
               // Reload this specific service
               const needToReload = new Set([service]);
@@ -498,9 +508,9 @@ export function createWatchMiddleware(weaveCli: any, options: WatcherOptions = {
           });
 
           // Register watcher in global registry
-          globalWatchers.set(service.filename, watcher);
+          globalWatchers.set(serviceFilename, watcher);
         } catch (error) {
-          runtime.log.error(`Error setting up watcher for ${service.filename}:`, error);
+          runtime.log.error(`Error setting up watcher for ${serviceFilename}:`, error);
         }
       }
     }
@@ -510,13 +520,13 @@ export function createWatchMiddleware(weaveCli: any, options: WatcherOptions = {
         runtime.log.info("File watcher is active.");
         watchProjectFiles();
       },
-      serviceStarted(service) {
+      serviceStarted(service: WatchedService) {
         // Only add individual services to watch, don't re-scan everything
         if (runtime.state.isStarted && service) {
           addServiceToWatch(service);
         }
       },
-      serviceCreated(service, schema) {
+      serviceCreated(service: WatchedService, schema: { __filename?: string }) {
         if (!service.filename && schema.__filename) {
           service.filename = schema.__filename;
         }

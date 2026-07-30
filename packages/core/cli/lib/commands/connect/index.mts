@@ -5,6 +5,7 @@
  */
 
 import { createBroker, TransportAdapters } from "@weave-js/core";
+import type { TransportAdapter } from "@weave-js/core/types/index.js";
 import repl from "@weave-js/repl";
 import inquirer from "inquirer";
 import kleur from "kleur";
@@ -138,7 +139,7 @@ function buildTransportOptions(args: ConnectArgs): Record<string, unknown> {
 /**
  * Resolve transport adapter from arguments
  */
-async function resolveTransport(args: ConnectArgs): Promise<unknown> {
+async function resolveTransport(args: ConnectArgs): Promise<TransportAdapter> {
   // 1. URI-Format
   if (args.uri) {
     return TransportAdapters.fromURI(args.uri);
@@ -160,15 +161,17 @@ async function resolveTransport(args: ConnectArgs): Promise<unknown> {
   const adapterKey = builtinAdapters[normalizedName];
 
   if (adapterKey) {
-    const adapterFactory = (TransportAdapters as Record<string, TransportFactory>)[adapterKey];
+    const adapterFactory = (TransportAdapters as unknown as Record<string, TransportFactory>)[
+      adapterKey
+    ];
 
     if (typeof adapterFactory === "function") {
-      return adapterFactory(transportOptions);
+      return adapterFactory(transportOptions) as TransportAdapter;
     }
   }
 
   // 3. External npm package
-  return await loadExternalTransport(args.transport, transportOptions);
+  return (await loadExternalTransport(args.transport, transportOptions)) as TransportAdapter;
 }
 
 /**

@@ -1,3 +1,4 @@
+import type { CreateCommandOptions } from "../../types.mts";
 import fs from "fs";
 import path from "path";
 import inquirer from "inquirer";
@@ -9,7 +10,7 @@ import { dirname } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-export default async (serviceName: string, options: any): Promise<void> => {
+export default async (serviceName: string, options: CreateCommandOptions): Promise<void> => {
   const { serviceFolder } = await inquirer.prompt([
     {
       type: "input",
@@ -34,9 +35,13 @@ export default async (serviceName: string, options: any): Promise<void> => {
     path.join(__dirname, "templates", "service.ejs"),
     { serviceName },
     null,
-    function (error, result) {
+    function (error: Error | null, result?: string) {
       if (error) {
         throw error;
+      }
+
+      if (result === undefined) {
+        throw new Error("Template rendering returned no content.");
       }
 
       console.log(`✨ Writing file in ${kleur.yellow(newServicePath)}`);

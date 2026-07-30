@@ -312,19 +312,31 @@ export interface ServiceActionSchema<
   circuitBreaker?: CircuitBreakerOptions;
   tracing?: boolean | ActionTracingOptions;
   metrics?: boolean | object;
-  handler: (this: Service, context: Context<ParamsToType<TParams>>, injection: ServiceInjection) => Promise<any> | any;
+  handler: (
+    this: Service,
+    context: Context<ParamsToType<TParams>>,
+    injection: ServiceInjection,
+  ) => Promise<any> | any;
   [key: string]: any;
 }
 
 /**
  * Service action handler function
  */
-export type ServiceActionHandler = (this: Service, context: Context, injection: ServiceInjection) => Promise<any> | any;
+export type ServiceActionHandler = (
+  this: Service,
+  context: Context,
+  injection: ServiceInjection,
+) => Promise<any> | any;
 
 /**
  * Service event handler function (short form)
  */
-export type ServiceEventHandler = (this: Service, context: Context, injection: ServiceInjection) => Promise<any> | any;
+export type ServiceEventHandler = (
+  this: Service,
+  context: Context,
+  injection: ServiceInjection,
+) => Promise<any> | any;
 
 /**
  * Service event definition (object form)
@@ -350,7 +362,9 @@ export type ServiceMethodDefinition = (this: Service, ...args: any[]) => any;
 /**
  * Hook function types
  */
-export type BeforeHookFunction = (context: Context) => Promise<Context> | Context | void | Promise<void>;
+export type BeforeHookFunction = (
+  context: Context,
+) => Promise<Context> | Context | void | Promise<void>;
 export type AfterHookFunction = (context: Context, response: any) => Promise<any> | any;
 export type ErrorHookFunction = (context: Context, error: Error) => Promise<void> | void;
 
@@ -379,8 +393,15 @@ export interface ServiceHooks {
 /**
  * Service lifecycle hook types
  */
-export type ServiceLifecycleHook = (this: Service, injection?: ServiceInjection) => void | Promise<void>;
-export type ServiceAfterSchemasMergedHook = (this: Service, schema?: ServiceSchema, injection?: ServiceInjection) => void | Promise<void>;
+export type ServiceLifecycleHook = (
+  this: Service,
+  injection?: ServiceInjection,
+) => void | Promise<void>;
+export type ServiceAfterSchemasMergedHook = (
+  this: Service,
+  schema?: ServiceSchema,
+  injection?: ServiceInjection,
+) => void | Promise<void>;
 
 /**
  * Service schema definition
@@ -529,9 +550,24 @@ export interface MetricRegistry {
   get(name: string): BaseMetric | undefined;
   getMetric(name: string): BaseMetric | undefined;
   list(): BaseMetric[];
-  increment(name: string, labels?: Record<string, unknown> | null, value?: number, timestamp?: number): void;
-  decrement(name: string, labels?: Record<string, unknown> | null, value?: number, timestamp?: number): void;
-  set(name: string, value: number, labels?: Record<string, unknown> | null, timestamp?: number): void;
+  increment(
+    name: string,
+    labels?: Record<string, unknown> | null,
+    value?: number,
+    timestamp?: number,
+  ): void;
+  decrement(
+    name: string,
+    labels?: Record<string, unknown> | null,
+    value?: number,
+    timestamp?: number,
+  ): void;
+  set(
+    name: string,
+    value: number,
+    labels?: Record<string, unknown> | null,
+    timestamp?: number,
+  ): void;
   observe(name: string, value: number, labels?: Record<string, unknown>): void;
   timer(name: string, labels?: Record<string, unknown> | null, timestamp?: number): () => number;
   stop(): Promise<void>;
@@ -599,12 +635,18 @@ export type EventHandler = (context: Context, injection: ServiceInjection) => Pr
 /**
  * Action handler wrapper function
  */
-export type ActionHandlerWrapper = (handler: ActionHandler, action: import("./internal.js").ParsedAction) => ActionHandler;
+export type ActionHandlerWrapper = (
+  handler: ActionHandler,
+  action: import("./internal.js").ParsedAction,
+) => ActionHandler;
 
 /**
  * Event handler wrapper function
  */
-export type EventHandlerWrapper = (handler: EventHandler, event: import("./internal.js").ParsedEvent) => EventHandler;
+export type EventHandlerWrapper = (
+  handler: EventHandler,
+  event: import("./internal.js").ParsedEvent,
+) => EventHandler;
 
 /**
  * Method wrapper function
@@ -614,7 +656,9 @@ export type MethodWrapper = (handler: (...args: any[]) => any) => (...args: any[
 /**
  * Middleware lifecycle hook
  */
-export type MiddlewareLifecycleHook = (runtime?: import("./internal.js").Runtime) => void | Promise<void>;
+export type MiddlewareLifecycleHook = (
+  runtime?: import("./internal.js").Runtime,
+) => void | Promise<void>;
 
 /**
  * Middleware service lifecycle hook
@@ -839,8 +883,15 @@ export interface Broker {
   ping(
     nodeId?: string,
     timeout?: number,
-  ): Promise<import("./internal.js").PingResult | Record<string, import("./internal.js").PingResult | null> | null>;
-  getNextActionEndpoint(actionName: string, options?: any): import("./internal.js").Endpoint | Error;
+  ): Promise<
+    | import("./internal.js").PingResult
+    | Record<string, import("./internal.js").PingResult | null>
+    | null
+  >;
+  getNextActionEndpoint(
+    actionName: string,
+    options?: any,
+  ): import("./internal.js").Endpoint | Error;
 
   // Error handling
   handleError(error: Error): void;
@@ -915,10 +966,12 @@ export namespace Cache {
  * Available transport adapters
  */
 export namespace TransportAdapters {
-  export function resolve(adapter: string | object): any;
-  export function Dummy(options?: any): any;
-  export function TCP(options?: any): any;
-  export const BaseAdapter: any;
+  export function resolve(adapter: string | object): TransportAdapter;
+  /** Creates an adapter from a transport URI such as `tcp://localhost:5000`. */
+  export function fromURI(uri: string, errorHandler?: (error: unknown) => void): TransportAdapter;
+  export function Dummy(options?: object): TransportAdapter;
+  export function TCP(options?: object): TransportAdapter;
+  export const BaseAdapter: TransportAdapter;
 }
 
 /**

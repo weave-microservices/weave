@@ -1,3 +1,5 @@
+import type { StartCommandFlags } from "../../types.mts";
+import type { AdditionalFile } from "./createWatchMiddlewares.mts";
 import { createBroker } from "@weave-js/core";
 import type { Broker } from "@weave-js/core";
 import repl from "@weave-js/repl";
@@ -8,15 +10,14 @@ import path from "path";
 import fs from "fs";
 import dotenv from "dotenv";
 
-
 export type CLIContext = {
-  broker: Broker;
-  args: any;
+  broker: Broker | null;
+  args: StartCommandFlags;
   isRestarting: boolean;
   restartBroker: () => Promise<void>;
 };
 
-export const handler = async (args: any): Promise<void> => {
+export const handler = async (args: StartCommandFlags): Promise<void> => {
   if (args.dotenv) {
     const dotEnvPath =
       typeof args.dotenv === "string" ? args.dotenv : path.resolve(process.cwd(), ".env");
@@ -39,7 +40,7 @@ export const handler = async (args: any): Promise<void> => {
           try {
             this.isRestarting = true;
             broker.log.info("Stopping broker for restart...");
-            await this.broker.stop();
+            await broker.stop();
 
             // Reload config from file system
             broker.log.info("Reloading configuration...");
@@ -47,7 +48,7 @@ export const handler = async (args: any): Promise<void> => {
 
             // Apply watch middleware if needed
             if (this.args.watch) {
-              const additionalFiles: any[] = [];
+              const additionalFiles: AdditionalFile[] = [];
 
               if (this.args.factory) {
                 const serviceFactoryPath = path.isAbsolute(this.args.factory)
@@ -101,7 +102,7 @@ export const handler = async (args: any): Promise<void> => {
               this.isRestarting = false;
             }, 1000);
           } catch (error) {
-            broker.log.error("Error while restarting broker", error);
+            broker.log.error(`Error while restarting broker: ${(error as Error).message}`);
             this.isRestarting = false; // Reset flag on error
           }
         }
@@ -111,10 +112,7 @@ export const handler = async (args: any): Promise<void> => {
     const config = await getConfig(args);
 
     if (args.watch) {
-      const additionalFiles: any[] = [];
-
-      if (args.services) {
-      }
+      const additionalFiles: AdditionalFile[] = [];
 
       if (args.factory) {
         const serviceFactoryPath = path.isAbsolute(args.factory)

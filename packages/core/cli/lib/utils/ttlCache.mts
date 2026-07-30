@@ -5,14 +5,14 @@ interface CacheOptions {
   capacity?: number;
 }
 
-interface CacheRecord {
-  val: any;
+interface CacheRecord<TValue> {
+  val: TValue;
   expire: number;
   timeout: NodeJS.Timeout;
 }
 
-class Cache extends EventEmitter {
-  private _store: Record<string, CacheRecord> = {};
+class Cache<TValue = unknown> extends EventEmitter {
+  private _store: Record<string, CacheRecord<TValue>> = {};
   private _size: number = 0;
   private _ttl: number;
   private _capacity: number = Infinity;
@@ -23,7 +23,7 @@ class Cache extends EventEmitter {
     this.setCapacity(opts.capacity);
   }
 
-  put(key: string, val: any, ttl?: number): void {
+  put(key: string, val: TValue, ttl?: number): void {
     if (key === undefined || val === undefined) {
       return;
     }
@@ -50,14 +50,14 @@ class Cache extends EventEmitter {
     this.emit("put", key, val, ttl);
   }
 
-  get(key: string): any {
+  get(key: string): TValue | undefined {
     let rec = this._store[key];
 
     if (rec) {
       if (!(rec.expire && rec.expire > now())) {
         this.del(key);
         this.emit("miss", key);
-        rec = undefined as any;
+        rec = undefined as unknown as CacheRecord<TValue>;
       } else {
         this.emit("hit", key, rec.val);
       }
@@ -68,7 +68,7 @@ class Cache extends EventEmitter {
     return rec && rec.val;
   }
 
-  del(key: string): any {
+  del(key: string): TValue | undefined {
     if (this._store[key]) {
       const val = this._store[key].val;
 

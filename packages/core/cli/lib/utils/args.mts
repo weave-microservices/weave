@@ -2,8 +2,8 @@ const camelize = (str: string): string => {
   return str.replace(/-(\w)/g, (_, c) => (c ? c.toUpperCase() : ""));
 };
 
-export const cleanArgs = (options: any): Record<string, any> => {
-  const args: Record<string, any> = {};
+export const cleanArgs = (options: Record<string, unknown>): Record<string, unknown> => {
+  const args: Record<string, unknown> = {};
   Object.keys(options).forEach((o) => {
     const camelizedKey = camelize(o.replace(/^--/, ""));
     if (
