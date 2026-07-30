@@ -2,12 +2,19 @@
   "name": "@weave-js/lock-service",
   "version": "0.14.0",
   "description": "Distributed Lock service for weave.js",
-  "main": "./lib/lock-service.js",
+  "type": "module",
+  "main": "./lib/lock-service.mts",
+  "types": "./lib/lock-service.mts",
+  "exports": {
+    ".": {
+      "types": "./lib/lock-service.mts",
+      "default": "./lib/lock-service.mts"
+    }
+  },
   "scripts": {
-    "test": "NODE_ENV=test jest --no-cache --runInBand",
-    "ci": "jest --watch",
-    "coverage": "jest --coverage --no-cache",
-    "lint": "eslint . --ext .js --fix"
+    "test": "node --test test/**/*.test.mts",
+    "test:watch": "node --test --watch test/**/*.test.mts",
+    "lint": "eslint . --ext .mts --fix"
   },
   "repository": {
     "type": "git",
@@ -24,12 +31,12 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@weave-js/lock-store": "^0.1.0",
-    "@weave-js/utils": "^0.13.0"
+    "@weave-js/lock-store": "^0.1.0"
   },
   "devDependencies": {
-    "@sinonjs/fake-timers": "^11.1.0",
-    "@weave-js/core": "^0.15.2"
+    "@weave-js/core": "^0.15.2",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
   },
   "directories": {
     "lib": "lib",
