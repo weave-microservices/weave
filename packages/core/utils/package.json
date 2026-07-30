@@ -26,8 +26,8 @@
     "url": "git+https://github.com/weave-microservices/weave.git"
   },
   "scripts": {
-    "test": "node --test test/**/*.mts",
-    "test:watch": "node --test --watch test/**/*.mts",
+    "test": "node --test test/**/*.test.mts",
+    "test:watch": "node --test --watch test/**/*.test.mts",
     "lint": "eslint . --ext .mts --fix"
   },
   "publishConfig": {
