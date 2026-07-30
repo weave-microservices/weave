@@ -121,9 +121,8 @@ export default (runtime: Runtime): Middleware => {
     // Before a local service stopping
     serviceStopping(service: Service): Promise<void> {
       const shutdownTimeout =
-        service.settings.$shutdownTimeout ??
-        service.broker.options.contextTracking?.shutdownTimeout ??
-        0;
+        ((service.settings.$shutdownTimeout ??
+          service.broker.options.contextTracking?.shutdownTimeout) as number | undefined) ?? 0;
       return waitingForActiveContexts(
         service._trackedContexts,
         service.log,

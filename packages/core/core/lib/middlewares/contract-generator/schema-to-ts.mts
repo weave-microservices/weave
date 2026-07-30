@@ -1,4 +1,9 @@
-import type { ParsedAction, ParsedEvent } from "../../../types/index.js";
+import type {
+  ParsedAction,
+  ParsedEvent,
+  ServiceActionParamSchema,
+  TypeMap,
+} from "../../../types/index.js";
 
 function renderObject(properties: Record<string, string>, indent = 0): string {
   const space = "  ".repeat(indent);
@@ -92,7 +97,10 @@ function ruleToTs(rule: any, indent = 0): string {
   }
 }
 
-export function schemaToTs(schema: Record<string, any>): string {
+/** A validation schema in any of the forms the validator accepts. */
+type SchemaLike = Record<string, unknown> | ServiceActionParamSchema | keyof TypeMap;
+
+export function schemaToTs(schema: SchemaLike): string {
   const props: Record<string, string> = {};
 
   for (const [key, value] of Object.entries(schema)) {
@@ -102,18 +110,30 @@ export function schemaToTs(schema: Record<string, any>): string {
   return renderObject(props, 1);
 }
 
-export function generateActionContract(actions: ParsedAction[]): string {
+/** An entry of the action list, carrying the parsed action itself. */
+interface ActionListEntry {
+  name: string;
+  action?: Pick<ParsedAction, "params" | "responseSchema">;
+}
+
+/** An entry of the event list, carrying the parsed event itself. */
+interface EventListEntry {
+  name: string;
+  event?: Pick<ParsedEvent, "params">;
+}
+
+export function generateActionContract(actions: ActionListEntry[]): string {
   const blocks = actions
     .filter((actionDefinition) => actionDefinition?.action != null)
     .map((actionDefinition) => {
       let props = "";
 
-      if (actionDefinition.action.params) {
-        props += `params: ${schemaToTs(actionDefinition.action.params)};\n`;
+      if (actionDefinition.action!.params) {
+        props += `params: ${schemaToTs(actionDefinition.action!.params)};\n`;
       }
 
-      if (actionDefinition.action.responseSchema) {
-        props += `response: ${schemaToTs(actionDefinition.action.responseSchema)};\n`;
+      if (actionDefinition.action!.responseSchema) {
+        props += `response: ${schemaToTs(actionDefinition.action!.responseSchema)};\n`;
       } else {
         props += `response: { type: any };\n`;
       }
@@ -132,14 +152,14 @@ export function generateActionContract(actions: ParsedAction[]): string {
   `;
 }
 
-export function generateEventContract(events: ParsedEvent[]): string {
+export function generateEventContract(events: EventListEntry[]): string {
   const blocks = events
     .filter((evt) => evt?.event != null)
     .map((evt) => {
       let props = "";
 
-      if (evt.event.params) {
-        props += `params: ${schemaToTs(evt.event.params)};\n`;
+      if (evt.event!.params) {
+        props += `params: ${schemaToTs(evt.event!.params)};\n`;
       }
 
       return `"${evt.name}": {\n${props}}`;

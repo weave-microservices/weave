@@ -86,7 +86,9 @@ describe("Test tracing", () => {
       actions: {
         get: {
           handler(context: Context) {
-            const user = users.find((user) => user.id === context.data.id);
+            const user = users.find(
+              (user) => user.id === (context.data as Record<string, string>).id,
+            );
             return user;
           },
         },

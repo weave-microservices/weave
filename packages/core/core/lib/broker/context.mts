@@ -156,7 +156,7 @@ export const createContext = <T = any,>(runtime: Runtime): Context<T> => {
   if (!context.id) {
     // Use UUID factory from broker options
     if (runtime.options.uuidFactory && isFunction(runtime.options.uuidFactory)) {
-      context.id = runtime.options.uuidFactory.call(context, runtime);
+      context.id = runtime.options.uuidFactory.call(context, runtime) as string;
     } else {
       context.id = uuid();
     }

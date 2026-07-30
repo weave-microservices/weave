@@ -6,6 +6,7 @@
 
 import { safeCopy } from "@weave-js/utils";
 import type {
+  EventHandler,
   Registry,
   Runtime,
   Node,

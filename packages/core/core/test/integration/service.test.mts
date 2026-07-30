@@ -1,3 +1,4 @@
+import type { Context } from "../../types/index.js";
 import hasServiceScope from "./scope-checks/service.scope.mts";
 import malformedActionService from "../services/malformed-action.service.mts";
 import MathV2 from "../services/v2.math.service.mts";
@@ -42,8 +43,8 @@ describe("Test broker call service", () => {
     node1.createService({
       name: "testService",
       actions: {
-        sayHello(context) {
-          return `Hello ${context.data.name}!`;
+        sayHello(context: Context) {
+          return `Hello ${(context.data as Record<string, string>).name}!`;
         },
       },
     });

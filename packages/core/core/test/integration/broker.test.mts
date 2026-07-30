@@ -1,3 +1,4 @@
+import type { Context } from "../../types/index.js";
 import { Readable } from "stream";
 import { createNode } from "../helper/index.mts";
 import { describe, it, beforeEach, afterEach, before, after } from "node:test";
@@ -69,8 +70,8 @@ describe("Test broker call service", () => {
     node1.createService({
       name: "testService",
       actions: {
-        sayHello(context) {
-          return `Hello ${context.data.name}!`;
+        sayHello(context: Context) {
+          return `Hello ${(context.data as Record<string, string>).name}!`;
         },
       },
     });
@@ -364,8 +365,8 @@ describe("Test broker context chaining", () => {
         ];
         return context.call("post.before2", { flow });
       },
-      before2(context) {
-        context.data.flow.push({
+      before2(context: Context) {
+        (context.data as Record<string, string>).flow.push({
           requestId: context.requestId,
           contextId: context.id,
           parentId: context.parentId,
@@ -416,8 +417,8 @@ describe("Test maxCallLevel", () => {
         ];
         return context.call("post.before2", { flow });
       },
-      before2(context) {
-        context.data.flow.push({
+      before2(context: Context) {
+        (context.data as Record<string, string>).flow.push({
           requestId: context.requestId,
           contextId: context.id,
           parentId: context.parentId,

@@ -1,3 +1,4 @@
+import type { Context } from "../../../types/index.js";
 import { TransportAdapters } from "../../../lib/index.mts";
 import { WeaveError } from "../../../lib/errors.mts";
 import { createNode } from "../../helper/index.mts";
@@ -38,8 +39,8 @@ describe("Test circuit breaker", () => {
       good() {
         return "Everthing is fine.";
       },
-      bad(context) {
-        if (context.data.error !== true) {
+      bad(context: Context) {
+        if ((context.data as Record<string, string>).error !== true) {
           return Promise.reject(new WeaveError("No Permission"));
         } else {
           return "ok";

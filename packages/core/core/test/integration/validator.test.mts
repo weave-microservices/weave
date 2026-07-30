@@ -1,3 +1,4 @@
+import type { Context } from "../../types/index.js";
 import { createNode } from "../helper/index.mts";
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
@@ -18,8 +19,8 @@ describe("Test param validator", () => {
           params: {
             name: { type: "string", minLength: 10 },
           },
-          handler(context) {
-            return `Hello ${context.data.name}!`;
+          handler(context: Context) {
+            return `Hello ${(context.data as Record<string, string>).name}!`;
           },
         },
       },
@@ -48,8 +49,8 @@ describe("Test param validator", () => {
           params: {
             name: "string",
           },
-          handler(context) {
-            return `Hello ${context.data.name}!`;
+          handler(context: Context) {
+            return `Hello ${(context.data as Record<string, string>).name}!`;
           },
         },
       },
@@ -86,9 +87,9 @@ describe("Validator strict mode", () => {
           params: {
             name: { type: "string" },
           },
-          handler(context) {
-            assert.strictEqual(context.data.name, "Hans");
-            assert.strictEqual(context.data.lastname, undefined);
+          handler(context: Context) {
+            assert.strictEqual((context.data as Record<string, string>).name, "Hans");
+            assert.strictEqual((context.data as Record<string, string>).lastname, undefined);
             handlerCalled = true;
           },
         },
@@ -174,8 +175,8 @@ describe("Response validator", () => {
             firstname: { type: "string" },
             lastname: { type: "string" },
           },
-          handler(context) {
-            if (context.data.name === "RightName") {
+          handler(context: Context) {
+            if ((context.data as Record<string, string>).name === "RightName") {
               return { firstname: "Right", lastname: "Name" };
             }
             return {

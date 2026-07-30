@@ -6,7 +6,7 @@ import type {
   TracingTagsOptions,
 } from "../../../types/index.js";
 
-interface ActionTags {
+interface ActionTags extends Record<string, unknown> {
   requestLevel: number;
   action: { name: string; shortName: string } | null;
   isRemoteCall: boolean;
@@ -16,7 +16,7 @@ interface ActionTags {
   meta?: unknown;
 }
 
-interface EventTags {
+interface EventTags extends Record<string, unknown> {
   requestLevel: number;
   event?: string;
   eventType?: string;

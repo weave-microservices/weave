@@ -1,3 +1,4 @@
+import type { Context } from "../../types/index.js";
 import { TransportAdapters } from "../../lib/index.mts";
 import { createNode } from "../helper/index.mts";
 import { describe, it } from "node:test";
@@ -195,8 +196,13 @@ describe("Middleware hooks", () => {
     broker2.createService({
       name: "math",
       actions: {
-        add(context) {
-          return { params: context.data, result: Number(context.data.a) + Number(context.data.b) };
+        add(context: Context) {
+          return {
+            params: context.data,
+            result:
+              Number((context.data as Record<string, string>).a) +
+              Number((context.data as Record<string, string>).b),
+          };
         },
       },
     });

@@ -46,7 +46,7 @@ export default (runtime: Runtime): Middleware => {
     return function errorHandlerMiddleware(
       context: Context,
       serviceInjections: ServiceInjection,
-    ): Promise<void> {
+    ): Promise<unknown> {
       return handler(context, serviceInjections)
         .catch((err: unknown) => {
           const error =

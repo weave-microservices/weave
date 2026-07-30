@@ -77,7 +77,7 @@ export interface TypeMap {
   boolean: boolean;
   email: string;
   object: object;
-  array: any[];
+  array: unknown[];
   date: Date;
   uuid: string;
   url: string;
@@ -104,8 +104,8 @@ export interface Span {
   operationName?: string;
   startTime?: number;
   finishTime?: number;
-  tags?: Record<string, any>;
-  logs?: Array<{ timestamp: number; fields: Record<string, any> }>;
+  tags?: Record<string, unknown>;
+  logs?: Array<{ timestamp: number; fields: Record<string, unknown> }>;
 
   // Methods
   addTags(tags: Record<string, unknown>): void;
@@ -131,11 +131,11 @@ export interface SpanOptions {
  */
 export interface ContextMetaObject {
   user?: any;
-  headers?: Record<string, any>;
+  headers?: Record<string, unknown>;
   timeout?: number;
   retryCount?: number;
   requestId?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -149,7 +149,7 @@ export interface ActionOptions {
   timeout?: number;
   retryCount?: number;
   retries?: number;
-  custom?: Record<string, any>;
+  custom?: Record<string, unknown>;
   requestId?: string;
   parentSpan?: Span;
   nodeId?: string;
@@ -172,13 +172,13 @@ export interface EventOptions {
 export interface ServiceInjection {
   service: Service;
   runtime: import("./internal.js").Runtime;
-  errors?: Record<string, any>;
+  errors?: Record<string, unknown>;
 }
 
 /**
  * Request context passed to actions and events
  */
-export interface Context<T = any> {
+export interface Context<T = unknown> {
   id?: string;
   requestId?: string;
   nodeId: string;
@@ -227,13 +227,16 @@ export interface Context<T = any> {
 /**
  * Logger instance interface
  */
+/** Additional information passed to a log call. */
+export type LogMeta = Record<string, unknown> | string | Error;
+
 export interface Logger {
-  fatal(message: string | object, meta?: Record<string, any> | string): void;
-  error(message: string | object, meta?: Record<string, any> | string): void;
-  warn(message: string | object, meta?: Record<string, any> | string): void;
-  info(message: string | object, meta?: Record<string, any> | string): void;
-  debug(message: string | object, meta?: Record<string, any> | string): void;
-  verbose(message: string | object, meta?: Record<string, any> | string): void;
+  fatal(message: string | object, meta?: LogMeta): void;
+  error(message: string | object, meta?: LogMeta): void;
+  warn(message: string | object, meta?: LogMeta): void;
+  info(message: string | object, meta?: LogMeta): void;
+  debug(message: string | object, meta?: LogMeta): void;
+  verbose(message: string | object, meta?: LogMeta): void;
 
   // Utility methods
   child(bindings: object): Logger;
@@ -248,7 +251,7 @@ export interface LoggerOptions {
   level?: LogLevel;
   messageKey?: string;
   customLevels?: Record<string, number> | null;
-  base?: Record<string, any> | null;
+  base?: Record<string, unknown> | null;
   name?: string;
   destination?: Writable;
   colors?: boolean;
@@ -261,7 +264,7 @@ export interface LoggerOptions {
 export interface LoggerFactoryBindings {
   nodeId: string;
   moduleName: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -275,7 +278,7 @@ export type LoggerFactoryFunction = (bindings: LoggerFactoryBindings, level?: Lo
  * Service settings interface
  */
 export interface ServiceSettings {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -290,17 +293,20 @@ export interface ServiceActionParamSchema<T extends keyof TypeMap = keyof TypeMa
   length?: number;
   pattern?: string | RegExp;
   enum?: TypeMap[T][];
-  custom?: (value: any, errors: any[]) => boolean;
+  custom?: (value: any, errors: unknown[]) => boolean;
   properties?: Record<string, ServiceActionParamSchema | keyof TypeMap>;
   items?: ServiceActionParamSchema | keyof TypeMap;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
  * Service action schema definition
  */
 export interface ServiceActionSchema<
-  TParams extends Record<string, ServiceActionParamSchema | keyof TypeMap> = any,
+  TParams extends Record<string, ServiceActionParamSchema | keyof TypeMap> = Record<
+    string,
+    ServiceActionParamSchema | keyof TypeMap
+  >,
 > {
   params?: TParams;
   responseSchema?: ServiceActionParamSchema | keyof TypeMap;
@@ -316,8 +322,8 @@ export interface ServiceActionSchema<
     this: Service,
     context: Context<ParamsToType<TParams>>,
     injection: ServiceInjection,
-  ) => Promise<any> | any;
-  [key: string]: any;
+  ) => Promise<unknown> | unknown;
+  [key: string]: unknown;
 }
 
 /**
@@ -327,7 +333,7 @@ export type ServiceActionHandler = (
   this: Service,
   context: Context,
   injection: ServiceInjection,
-) => Promise<any> | any;
+) => Promise<unknown> | unknown;
 
 /**
  * Service event handler function (short form)
@@ -336,7 +342,7 @@ export type ServiceEventHandler = (
   this: Service,
   context: Context,
   injection: ServiceInjection,
-) => Promise<any> | any;
+) => Promise<unknown> | unknown;
 
 /**
  * Service event definition (object form)
@@ -346,7 +352,7 @@ export interface ServiceEvent {
   params?: Record<string, ServiceActionParamSchema | keyof TypeMap>;
   tracing?: boolean | EventTracingOptions;
   handler: ServiceEventHandler | ServiceEventHandler[];
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -357,7 +363,7 @@ export type ServiceEventSchema = ServiceEventHandler | ServiceEvent;
 /**
  * Service method definition
  */
-export type ServiceMethodDefinition = (this: Service, ...args: any[]) => any;
+export type ServiceMethodDefinition = (this: Service, ...args: unknown[]) => any;
 
 /**
  * Hook function types
@@ -365,7 +371,7 @@ export type ServiceMethodDefinition = (this: Service, ...args: any[]) => any;
 export type BeforeHookFunction = (
   context: Context,
 ) => Promise<Context> | Context | void | Promise<void>;
-export type AfterHookFunction = (context: Context, response: any) => Promise<any> | any;
+export type AfterHookFunction = (context: Context, response: any) => Promise<unknown> | unknown;
 export type ErrorHookFunction = (context: Context, error: Error) => Promise<void> | void;
 
 /**
@@ -421,7 +427,7 @@ export interface ServiceSchema {
   dependencies?: string[];
   mixins?: Partial<ServiceSchema>[] | Partial<ServiceSchema>;
   settings?: ServiceSettings;
-  meta?: Record<string, any>;
+  meta?: Record<string, unknown>;
   hooks?: ServiceHooks;
   actions?: Record<string, ServiceActionSchema | ServiceActionHandler | boolean>;
   events?: Record<string, ServiceEventSchema>;
@@ -446,7 +452,7 @@ export interface Service {
   log: Logger;
   version?: string | number;
   name: string;
-  meta?: Record<string, any>;
+  meta?: Record<string, unknown>;
   fullyQualifiedName: string;
   schema: ServiceSchema;
   settings: ServiceSettings;
@@ -460,7 +466,7 @@ export interface Service {
   stop(): Promise<void>;
 
   // Dynamic methods added via schema.methods
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // ===== CACHE TYPES =====
@@ -500,7 +506,7 @@ export interface Cache {
   // Methods
   init(): void;
   set(key: string, value: any, ttl?: number): Promise<void>;
-  get(key: string): Promise<any>;
+  get(key: string): Promise<unknown>;
   getWithTTl?(key: string): Promise<{ data: any; ttl: number } | null>;
   remove(key: string): Promise<boolean>;
   clear(): Promise<void>;
@@ -634,12 +640,12 @@ export interface Tracer {
 /**
  * Action handler function type
  */
-export type ActionHandler = (context: Context, injection: ServiceInjection) => Promise<any>;
+export type ActionHandler = (context: Context, injection: ServiceInjection) => Promise<unknown>;
 
 /**
  * Event handler function type
  */
-export type EventHandler = (context: Context, injection: ServiceInjection) => Promise<any>;
+export type EventHandler = (context: Context, injection: ServiceInjection) => Promise<unknown>;
 
 /**
  * Action handler wrapper function
@@ -660,7 +666,9 @@ export type EventHandlerWrapper = (
 /**
  * Method wrapper function
  */
-export type MethodWrapper = (handler: (...args: any[]) => any) => (...args: any[]) => any;
+export type MethodWrapper<TArgs extends unknown[] = unknown[], TResult = unknown> = (
+  handler: (...args: TArgs) => TResult,
+) => (...args: TArgs) => TResult;
 
 /**
  * Middleware lifecycle hook
@@ -701,18 +709,18 @@ export interface Middleware {
   localEvent?: EventHandlerWrapper;
 
   // Method wrappers
-  call?: MethodWrapper;
+  call?: MethodWrapper<[string, unknown, ActionOptions | undefined], Promise<unknown>>;
   multiCall?: MethodWrapper;
-  emit?: MethodWrapper;
-  broadcast?: MethodWrapper;
-  broadcastLocal?: MethodWrapper;
+  emit?: MethodWrapper<[string, unknown], void>;
+  broadcast?: MethodWrapper<[string, unknown], void>;
+  broadcastLocal?: MethodWrapper<[string, unknown], void>;
   createService?: MethodWrapper;
   loadService?: MethodWrapper;
   loadServices?: MethodWrapper;
   ping?: MethodWrapper;
 
   // Custom hooks
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -859,17 +867,21 @@ export interface Broker {
   // Action calls
   call<K extends keyof ActionContracts>(
     action: K,
-    params: K extends keyof ActionContracts ? ActionContracts[K]["params"] : any,
+    params: ActionContracts[K]["params"],
     options?: ActionOptions,
-  ): Promise<K extends keyof ActionContracts ? ActionContracts[K]["response"] : any>;
-  call<K extends string>(
+  ): Promise<ActionContracts[K]["response"]>;
+  /**
+   * Calls an action that has no generated contract. Pass the expected response
+   * type as `TResult` - it cannot be derived from the action name.
+   */
+  call<TResult = unknown, K extends string = string>(
     action: Exclude<K, keyof ActionContracts>,
-    params?: any,
+    params?: unknown,
     options?: ActionOptions,
-  ): Promise<any>;
-  multiCall(
-    calls: Array<{ action: string; params?: any; options?: ActionOptions }>,
-  ): Promise<any[]>;
+  ): Promise<TResult>;
+  multiCall<TResult = unknown>(
+    calls: Array<{ action: string; params?: unknown; options?: ActionOptions }>,
+  ): Promise<TResult[]>;
 
   // Events
   emit<K extends keyof EventContracts>(
@@ -889,14 +901,13 @@ export interface Broker {
   createLogger(topic: string, data?: any): Logger;
   getUUID(): string;
   waitForServices(services: string[] | string, timeout?: number): Promise<void>;
+  /** Pings one node and resolves with its result, or null on timeout. */
+  ping(nodeId: string, timeout?: number): Promise<import("./internal.js").PingResult | null>;
+  /** Pings all known nodes and resolves with one entry per node. */
   ping(
-    nodeId?: string,
+    nodeId?: undefined,
     timeout?: number,
-  ): Promise<
-    | import("./internal.js").PingResult
-    | Record<string, import("./internal.js").PingResult | null>
-    | null
-  >;
+  ): Promise<Record<string, import("./internal.js").PingResult | null> | null>;
   getNextActionEndpoint(
     actionName: string,
     options?: any,

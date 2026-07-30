@@ -57,7 +57,7 @@ export interface NodeInfo {
     heapTotal: number;
     heapUsed: number;
   };
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -319,8 +319,8 @@ export interface Registry {
   // Service registration
   registerLocalService(serviceItem: ServiceItem): void;
   registerRemoteServices(node: Node, services: ServiceItem[]): void;
-  registerActions(node: Node, service: ServiceItem, actions: Record<string, any>): void;
-  registerEvents(node: Node, service: ServiceItem, events: Record<string, any>): void;
+  registerActions(node: Node, service: ServiceItem, actions: Record<string, unknown>): void;
+  registerEvents(node: Node, service: ServiceItem, events: Record<string, unknown>): void;
 
   // Service deregistration
   deregisterService(serviceName: string, version?: string | number, nodeId?: string): void;
@@ -350,7 +350,7 @@ export interface Registry {
   removeNode(nodeId: string): void;
 
   // Utility
-  getActionList?(filterParams?: any): any[];
+  getActionList?(filterParams?: any): unknown[];
 }
 
 // ===== TRANSPORT MESSAGE TYPES =====
@@ -360,7 +360,7 @@ export interface Registry {
  */
 export interface TransportMessagePayload {
   sender?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -638,7 +638,7 @@ export interface EventBus {
  * @internal
  */
 export interface ActionInvoker {
-  call<TParams = any, TResult = any>(
+  call<TParams = Record<string, ServiceActionParamSchema | keyof TypeMap>, TResult = any>(
     actionName: string,
     params?: TParams,
     options?: ActionOptions,
@@ -654,8 +654,13 @@ export interface ActionInvoker {
  */
 export interface PingResult {
   nodeId: string;
+  /** Timestamp the ping was sent at */
   time: number;
-  [key: string]: any;
+  /** Round trip time in milliseconds */
+  elapsedTime: number;
+  /** Difference between the clocks of both nodes in milliseconds */
+  timeDiff: number;
+  [key: string]: unknown;
 }
 
 /**
