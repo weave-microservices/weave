@@ -2,15 +2,29 @@
   "name": "@weave-js/lock-store-mongodb",
   "version": "0.1.1",
   "description": "MongoDb-Adapter for lock store",
-  "main": "lib/index.js",
+  "type": "module",
+  "main": "lib/index.mts",
+  "types": "lib/index.mts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.mts",
+      "default": "./lib/index.mts"
+    }
+  },
+  "scripts": {
+    "test": "node --test --experimental-test-module-mocks test/**/*.test.mts",
+    "test:watch": "node --test --watch --experimental-test-module-mocks test/**/*.test.mts",
+    "lint": "eslint . --ext .mts --fix"
+  },
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "@weave-js/lock-store": "^0.1.0"
-  },
   "dependencies": {
-    "mongodb": "^5.6.0",
-    "@weave-js/utils": "^0.13.0"
+    "mongodb": "^5.6.0"
+  },
+  "devDependencies": {
+    "@weave-js/lock-store": "^0.1.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
   },
   "directories": {
     "lib": "lib",
