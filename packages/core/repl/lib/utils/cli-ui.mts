@@ -58,8 +58,11 @@ export function printHeader(name: string, length: number = 30): void {
   console.log(" ");
 }
 
-export function printIntended(caption: string, value?: any): void {
-  console.log(" ", caption.padEnd(25, " ") + (value != null ? ": " + kleur.bold(value) : ""));
+export function printIntended(caption: string, value?: string | number | boolean): void {
+  console.log(
+    " ",
+    caption.padEnd(25, " ") + (value != null ? ": " + kleur.bold(String(value)) : ""),
+  );
 }
 
 export { createSpinner };

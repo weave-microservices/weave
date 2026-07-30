@@ -1,4 +1,5 @@
-import Vorpal from "vorpal";
+import VorpalConstructor from "vorpal";
+import type { CommandRegistration, Vorpal } from "./types.mts";
 import * as cliUI from "./utils/cli-ui.mts";
 import actionsCommand from "./commands/actions.mts";
 import benchmarkCommand from "./commands/benchmark.mts";
@@ -14,7 +15,7 @@ import nodesCommand from "./commands/nodes.mts";
 import servicesCommand from "./commands/services.mts";
 import type { Broker } from "@weave-js/core";
 
-function registerCommands(vorpal: any, broker: Broker) {
+function registerCommands(vorpal: Vorpal, broker: Broker) {
   const dependencies = { vorpal, broker, cliUI };
 
   // Register REPL commands
@@ -32,19 +33,13 @@ function registerCommands(vorpal: any, broker: Broker) {
   servicesCommand(dependencies);
 }
 
-const registerCustomCommands = (vorpal: any, broker: Broker, commands: any[]) =>
+const registerCustomCommands = (vorpal: Vorpal, broker: Broker, commands: CommandRegistration[]) =>
   commands.map((registerCustomCommand) => registerCustomCommand({ vorpal, broker, cliUI }));
-
-export interface CommandContext {
-  vorpal: any;
-  broker: any;
-  cliUI: typeof cliUI;
-}
 
 /**
  * Clean up all existing REPL commands to prevent duplication warnings
  */
-function cleanupExistingCommands(vorpal: any): void {
+function cleanupExistingCommands(vorpal: Vorpal): void {
   const commandNames = [
     "exit",
     "q",
@@ -91,15 +86,15 @@ function cleanupExistingCommands(vorpal: any): void {
 /**
  * Register weave repl
  */
-export default (broker: Broker, ...customCommands: ((ctx: CommandContext) => void)[]) => {
+export default (broker: Broker, ...customCommands: CommandRegistration[]) => {
   if (!broker) {
     throw new Error("You have to pass a weave broker instance.");
   }
 
-  if (!customCommands.every((command: any) => typeof command === "function")) {
+  if (!customCommands.every((command) => typeof command === "function")) {
     throw new Error("Custom commands need to be a function.");
   }
-  const vorpal = new Vorpal();
+  const vorpal = new VorpalConstructor();
 
   // Clean up all existing commands to prevent duplication warnings
   cleanupExistingCommands(vorpal);
@@ -110,7 +105,7 @@ export default (broker: Broker, ...customCommands: ((ctx: CommandContext) => voi
     .alias("quit")
     .alias("exit")
     .alias("close")
-    .action(async (args: any) => {
+    .action(async () => {
       await broker.stop();
       process.exit(0);
     });

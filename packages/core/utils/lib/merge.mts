@@ -4,9 +4,9 @@ import { isObject } from "./is-object.mts";
  * Turns a union of object types into their intersection - the shape that results
  * from merging all of them.
  */
-type UnionToIntersection<TUnion> = (TUnion extends unknown ? (arg: TUnion) => void : never) extends (
-  arg: infer TIntersection,
-) => void
+type UnionToIntersection<TUnion> = (
+  TUnion extends unknown ? (arg: TUnion) => void : never
+) extends (arg: infer TIntersection) => void
   ? TIntersection
   : never;
 

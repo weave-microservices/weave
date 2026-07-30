@@ -1,3 +1,19 @@
+import type { Broker } from "@weave-js/core/types/index.js";
+import type { Readable } from "stream";
+import type { CommandArgs } from "../types.mts";
+
+/** Options a REPL call is made with. */
+interface CallOptions {
+  meta: Record<string, unknown>;
+  stream?: Readable;
+  [key: string]: unknown;
+}
+
+/** An error as thrown by the broker - carries the weave specific data field. */
+interface WeaveErrorLike extends Error {
+  data?: unknown;
+}
+
 import path from "path";
 import fs from "fs";
 import * as cliUI from "../utils/cli-ui.mts";
@@ -5,7 +21,7 @@ import convertArgs from "../utils/convert-args.mts";
 import { safeCopy, isStream, isObject, timespanFromUnixTimes } from "@weave-js/utils";
 import util from "util";
 
-function handleResult(result, args, startTime) {
+function handleResult(result: unknown, args: CommandArgs, startTime: [number, number]) {
   const endTime = process.hrtime(startTime);
   // Save response
   if (args.options.save) {
@@ -26,9 +42,9 @@ function handleResult(result, args, startTime) {
 
     if (resultIsStream) {
       const ws = fs.createWriteStream(filePath);
-      result.pipe(ws);
+      (result as NodeJS.ReadableStream).pipe(ws);
     } else {
-      const data = isObject(result) ? JSON.stringify(safeCopy(result), null, 2) : result;
+      const data = isObject(result) ? JSON.stringify(safeCopy(result), null, 2) : String(result);
       fs.writeFileSync(filePath, data, { encoding: "utf8", flag: "w" });
     }
   }
@@ -44,12 +60,12 @@ function handleResult(result, args, startTime) {
   );
 }
 
-function handleError(error) {
-  const [name, ...rest] = error.stack.split("\n");
+function handleError(error: WeaveErrorLike) {
+  const [name, ...rest] = (error.stack ?? "").split("\n");
 
-  console.log(cliUI.errorText(">> ERROR:", error.message));
+  console.log(cliUI.errorText(`>> ERROR: ${error.message}`));
   console.log(cliUI.text(name));
-  console.log(cliUI.neutralText(rest.map((l) => l.replace(/^/, "\n")).join("")));
+  console.log(cliUI.neutralText(rest.map((line) => line.replace(/^/, "\n")).join("")));
   console.log(
     "Data: ",
     util.inspect(error.data, {
@@ -65,26 +81,30 @@ function handleError(error) {
  * @param {*} args Params
  * @returns {object} Options
  */
-function prepareOptions(args) {
-  const options = {
+function prepareOptions(args: CommandArgs): CallOptions {
+  const options: CallOptions = {
     meta: {
       $repl: true,
     },
   };
 
   if (args.nodeId) {
-    options.nodeId = args.nodeId;
+    options.nodeId = String(args.nodeId);
   }
 
   return options;
 }
 
-function preparePayloadArguments(args, payload, done) {
+function preparePayloadArguments(
+  args: CommandArgs,
+  payload: Record<string, unknown>,
+  done: () => void,
+): Record<string, unknown> | undefined {
   if (typeof args.jsonParams === "string") {
     try {
       return JSON.parse(args.jsonParams);
     } catch (error) {
-      console.log(error.message);
+      console.log((error as Error).message);
       done();
     }
   } else {
@@ -108,7 +128,7 @@ function preparePayloadArguments(args, payload, done) {
  * @param {*} args Params
  * @returns {void}
  */
-function preparePayloadFromFile(args) {
+function preparePayloadFromFile(args: CommandArgs) {
   let filePath;
 
   if (typeof args.options.data === "string") {
@@ -129,7 +149,7 @@ function preparePayloadFromFile(args) {
   }
 }
 
-function prepareMetadataFromFile(args, metadata) {
+function prepareMetadataFromFile(args: CommandArgs, metadata: Record<string, unknown>) {
   let filePath;
 
   if (typeof args.options.loadMeta === "string") {
@@ -154,7 +174,7 @@ function prepareMetadataFromFile(args, metadata) {
   }
 }
 
-function preparePayloadStream(args) {
+function preparePayloadStream(args: CommandArgs) {
   let filePath;
 
   if (typeof args.options.stream === "string") {
@@ -171,10 +191,10 @@ function preparePayloadStream(args) {
   }
 }
 
-export default (broker: any) => (args: any, done: any) => {
-  const callOptions: any = prepareOptions(args);
+export default (broker: Broker) => (args: CommandArgs, done: () => void) => {
+  const callOptions = prepareOptions(args);
   // try to get data from arguments
-  let payload = preparePayloadArguments(args, {}, done);
+  let payload = preparePayloadArguments(args, {}, done) ?? {};
 
   // Send parameters from file
   if (args.options.data) {
@@ -188,17 +208,17 @@ export default (broker: any) => (args: any, done: any) => {
 
   // Prepare send file stream
   if (args.options.stream) {
-    callOptions.stream = preparePayloadStream(args) || payload;
+    callOptions.stream = preparePayloadStream(args);
   }
 
-  console.log(cliUI.infoText(`>> Call "${args.actionName}" with data:`), payload);
+  console.log(cliUI.infoText(`>> Call "${String(args.actionName)}" with data:`), payload);
 
   // Save the start time.
   const startTime = process.hrtime();
 
   broker
-    .call(args.actionName, payload, callOptions)
-    .then((result: any) => handleResult(result, args, startTime))
-    .catch((error: any) => handleError(error))
+    .call(String(args.actionName), payload, callOptions)
+    .then((result: unknown) => handleResult(result, args, startTime))
+    .catch((error: WeaveErrorLike) => handleError(error))
     .finally(done);
 };

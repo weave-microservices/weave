@@ -1,10 +1,11 @@
+import type { CommandArgs, CommandContext } from "../types.mts";
 import os from "os";
 import clui from "clui";
 import v8 from "v8";
 import { getIpList } from "@weave-js/utils";
 
-export default ({ vorpal, broker, cliUI }: any) => {
-  vorpal.command("info", "Show node informations.").action((_: any, done: any) => {
+export default ({ vorpal, broker, cliUI }: CommandContext) => {
+  vorpal.command("info", "Show node informations.").action((_: CommandArgs, done: () => void) => {
     const gauge = clui.Gauge;
     const heapStatistic = v8.getHeapStatistics();
     const ips = getIpList(false);
@@ -38,11 +39,12 @@ export default ({ vorpal, broker, cliUI }: any) => {
       );
       cliUI.printIntended("Adapter is connected?", broker.runtime.transport.isConnected);
       cliUI.printIntended("Adapter is ready?", broker.runtime.transport.isReady);
-      cliUI.printIntended("Packages sent", broker.runtime.transport.statistics.sent.packages);
-      cliUI.printIntended(
-        "Packages received",
-        broker.runtime.transport.statistics.received.packages,
-      );
+      const statistics = broker.runtime.transport.statistics as
+        | { sent: { packages: number }; received: { packages: number } }
+        | undefined;
+
+      cliUI.printIntended("Packages sent", statistics ? statistics.sent.packages : 0);
+      cliUI.printIntended("Packages received", statistics ? statistics.received.packages : 0);
     }
 
     done();

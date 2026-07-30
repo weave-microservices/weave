@@ -28,11 +28,12 @@ const format = (num: number, unit: string, mode: UnitMode): string =>
  */
 function timespan(
   fromTime: number | [number, number],
-  toTime: number | [number, number],
+  /** Omit to format `fromTime` itself as a duration. */
+  toTime?: number | [number, number],
   unit: UnitMode = "long",
 ): string {
   const fromMs = Array.isArray(fromTime) ? fromTime[0] * 1e3 + fromTime[1] / 1e6 : fromTime;
-  const toMs = Array.isArray(toTime) ? toTime[0] * 1e3 + toTime[1] / 1e6 : toTime;
+  const toMs = Array.isArray(toTime) ? toTime[0] * 1e3 + toTime[1] / 1e6 : (toTime as number);
 
   let milliseconds = Math.abs(isNaN(+toMs) ? fromMs : toMs - fromMs);
 
@@ -78,19 +79,19 @@ function timespan(
 /**
  * Format a timespan as string
  * @param fromTime - From time
- * @param toTime - To time
+ * @param toTime - To time - omit to format `fromTime` itself as a duration
  * @returns Formatted time span string
  */
-export function timespanFromUnixTimes(fromTime: number, toTime: number): string {
+export function timespanFromUnixTimes(fromTime: number, toTime?: number): string {
   return timespan(fromTime, toTime, "long");
 }
 
 /**
  * Format a timespan as short string
  * @param fromTime - From time
- * @param toTime - To time
+ * @param toTime - To time - omit to format `fromTime` itself as a duration
  * @returns Formatted time span string
  */
-export function timespanFromUnixTimesShort(fromTime: number, toTime: number): string {
+export function timespanFromUnixTimesShort(fromTime: number, toTime?: number): string {
   return timespan(fromTime, toTime, "short");
 }

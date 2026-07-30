@@ -1,13 +1,15 @@
+import { getRegistry } from "../helper/registry.mts";
+import type { CommandArgs, CommandContext } from "../types.mts";
 import pkg from "table";
 const { table } = pkg;
 type TableUserConfig = Parameters<typeof table>[1];
 
-export default ({ vorpal, broker, cliUI }: any) => {
+export default ({ vorpal, broker, cliUI }: CommandContext) => {
   vorpal
     .command("actions", "List actions")
     .option("-l, --local", "Show only local actions.")
-    .action((args: any, done: any) => {
-      const tableConf: TableUserConfig = {};
+    .action((args: CommandArgs, done: () => void) => {
+      const tableConf: TableUserConfig & { spanningCells?: unknown[] } = {};
       const data: string[][] = [];
 
       data.push([
@@ -23,10 +25,10 @@ export default ({ vorpal, broker, cliUI }: any) => {
         onlyLocals: !!args.options.local,
       };
 
-      const actions = broker.runtime.registry.actionCollection.list(listOptions);
+      const actions = getRegistry(broker).actionCollection.list(listOptions);
 
       if (actions.length === 0) {
-        tableConf["spanningCells"] = [{ col: 0, row: 1, colSpan: 5, alignment: "center" }];
+        tableConf.spanningCells = [{ col: 0, row: 1, colSpan: 5, alignment: "center" }];
 
         data.push(["No actions found", "", "", "", ""]);
       } else {
@@ -37,7 +39,7 @@ export default ({ vorpal, broker, cliUI }: any) => {
           if (action) {
             data.push([
               action.name,
-              item.hasLocal ? `(*)${item.count}` : item.count,
+              item.hasLocal ? `(*)${item.count}` : String(item.count),
               item.hasAvailable ? cliUI.successLabel("  OK  ") : cliUI.failureLabel(" FAILURE "),
               action.cache ? cliUI.successText("Yes") : cliUI.neutralText("No"),
               params,

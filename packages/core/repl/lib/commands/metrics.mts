@@ -1,8 +1,9 @@
+import type { CommandArgs, CommandContext, MetricEntry } from "../types.mts";
 import pkg from "table";
 const { table } = pkg;
 
-export default ({ vorpal, broker, cliUI }: any) => {
-  vorpal.command("metrics", "Show node metrics.").action((args: any, done: any) => {
+export default ({ vorpal, broker, cliUI }: CommandContext) => {
+  vorpal.command("metrics", "Show node metrics.").action((args: CommandArgs, done: () => void) => {
     if (!broker.runtime.metrics) {
       console.log("Metrics are not enabled on this node");
     } else {
@@ -19,7 +20,7 @@ export default ({ vorpal, broker, cliUI }: any) => {
       const tableConf = {};
       const metrics = broker.runtime.metrics.list();
 
-      metrics.forEach((metric: any) => {
+      (metrics as MetricEntry[]).forEach((metric) => {
         if (metric.value.length === 0) {
           data.push([
             metric.description,
@@ -29,7 +30,7 @@ export default ({ vorpal, broker, cliUI }: any) => {
             cliUI.neutralText("no value"),
           ]);
         } else {
-          metric.value.forEach((value: any) => {
+          metric.value.forEach((value) => {
             const labels = value.labels || "";
 
             data.push([metric.description, metric.name, metric.type, labels, value.value]);

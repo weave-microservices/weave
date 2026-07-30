@@ -1,8 +1,10 @@
+import { getRegistry } from "../helper/registry.mts";
+import type { AggregatedService, CommandArgs, CommandContext, RegistryService } from "../types.mts";
 import pkg from "table";
 const { table } = pkg;
 
-export default ({ vorpal, broker, cliUI }: any) => {
-  vorpal.command("services", "List services").action((args: any, done: any) => {
+export default ({ vorpal, broker, cliUI }: CommandContext) => {
+  vorpal.command("services", "List services").action((args: CommandArgs, done: () => void) => {
     const data = [];
     data.push([
       cliUI.tableHeaderText("Service"),
@@ -14,51 +16,52 @@ export default ({ vorpal, broker, cliUI }: any) => {
       cliUI.tableHeaderText("Nodes"),
     ]);
 
-    const list = [];
-    const services = broker.runtime.registry.serviceCollection.list({
+    const list: AggregatedService[] = [];
+    const services = getRegistry(broker).serviceCollection.list({
       withActions: true,
       withEvents: true,
       withNodeService: true,
       withPrivate: true,
     });
 
-    services.map((service: any) => {
-      let item = list.find(
-        (item: any) => item.name === service.name && item.version === service.version,
+    services.map((service: RegistryService) => {
+      const existingItem = list.find(
+        (entry) => entry.name === service.name && entry.version === service.version,
       );
 
-      if (item) {
-        item.nodes.push({
+      if (existingItem) {
+        existingItem.nodes.push({
           nodeId: service.nodeId,
-          isAvailable: service.isAvailable,
+          isAvailable: service.isAvailable as boolean | undefined,
         });
       } else {
-        item = Object.create(null);
-        item.name = service.name;
-        item.version = service.version;
-        item.isPrivate = service.isPrivate;
-        item.isAvailable = service.isAvailable;
-        item.actions = service.actions ? Object.keys(service.actions).length : 0;
-        item.events = service.events ? Object.keys(service.events).length : 0;
-        item.nodes = [
-          {
-            nodeId: service.nodeId,
-            isAvailable: service.isAvailable,
-          },
-        ];
+        const item: AggregatedService = {
+          name: service.name,
+          version: service.version,
+          isPrivate: service.isPrivate as boolean | undefined,
+          isAvailable: service.isAvailable as boolean | undefined,
+          actions: service.actions ? Object.keys(service.actions).length : 0,
+          events: service.events ? Object.keys(service.events).length : 0,
+          nodes: [
+            {
+              nodeId: service.nodeId,
+              isAvailable: service.isAvailable as boolean | undefined,
+            },
+          ],
+        };
         list.push(item);
       }
     });
 
-    list.map((service: any) => {
+    list.map((service) => {
       data.push([
         service.name,
-        service.version ? service.version : "-",
+        service.version ? String(service.version) : "-",
         service.isPrivate ? cliUI.failureLabel(" PRIVATE ") : cliUI.successLabel(" PUBLIC "),
         service.isAvailable ? cliUI.successLabel("  OK  ") : cliUI.failureLabel(" FAILURE "),
-        service.actions,
-        service.events,
-        service.nodes.length,
+        String(service.actions),
+        String(service.events),
+        String(service.nodes.length),
       ]);
     });
 

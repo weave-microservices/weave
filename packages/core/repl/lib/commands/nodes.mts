@@ -1,8 +1,10 @@
+import { getRegistry } from "../helper/registry.mts";
+import type { CommandArgs, CommandContext, RegistryNode } from "../types.mts";
 import pkg from "table";
 const { table } = pkg;
 
-export default ({ vorpal, broker, cliUI }: any) => {
-  vorpal.command("nodes", "List connected nodes").action((args: any, done: any) => {
+export default ({ vorpal, broker, cliUI }: CommandContext) => {
+  vorpal.command("nodes", "List connected nodes").action((args: CommandArgs, done: () => void) => {
     const data = [];
     data.push([
       cliUI.tableHeaderText("Node ID"),
@@ -14,9 +16,9 @@ export default ({ vorpal, broker, cliUI }: any) => {
       cliUI.tableHeaderText("CPU"),
     ]);
 
-    const nodes = broker.runtime.registry.nodeCollection.list({});
+    const nodes = getRegistry(broker).nodeCollection.list({});
 
-    nodes.map((node: any) => {
+    nodes.map((node: RegistryNode) => {
       let cpuLoad = "?";
       if (node.cpu !== null) {
         const width = 20;

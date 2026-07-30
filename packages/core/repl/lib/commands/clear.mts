@@ -1,8 +1,9 @@
-export default ({ vorpal }: any) => {
+import type { CommandArgs, CommandContext } from "../types.mts";
+export default ({ vorpal }: CommandContext) => {
   vorpal
     .command("clear", "Clear console.")
     .alias("cc")
-    .action((_: any, done: any) => {
+    .action((_: CommandArgs, done: () => void) => {
       process.stdout.write("\x1Bc");
       done();
     });

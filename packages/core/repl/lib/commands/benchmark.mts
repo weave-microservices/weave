@@ -1,8 +1,10 @@
+import { getRegistry } from "../helper/registry.mts";
+import type { CommandArgs, CommandContext } from "../types.mts";
 import { timespanFromUnixTimes } from "@weave-js/utils";
 import createSpinner from "../utils/create-spinner.mts";
 import formatNumber from "../utils/format-number.mts";
 
-export default ({ vorpal, broker, cliUI }: any) => {
+export default ({ vorpal, broker, cliUI }: CommandContext) => {
   vorpal
     .command("benchmark <action> [jsonParams]", "Benchmark a service Endpoint.")
     .option("--iterations <number>", "Number of iterations")
@@ -11,23 +13,27 @@ export default ({ vorpal, broker, cliUI }: any) => {
     .autocomplete({
       data() {
         return [
-          ...new Set(broker.runtime.registry.actionCollection.list({}).map((item) => item.name)),
+          ...new Set(
+            getRegistry(broker)
+              .actionCollection.list({})
+              .map((item) => item.name),
+          ),
         ];
       },
     })
-    .action((args: any, done: any) => {
+    .action((args: CommandArgs, done: () => void) => {
       const spinner = createSpinner("🚀  Running benchmark... ");
-      const action = args.action;
+      const action = String(args.action);
 
-      const callOptions = {};
+      const callOptions: { nodeId?: string } = {};
 
       // Add node ID to call options for direct calls on a specific node.
       if (args.options.nodeId) {
-        callOptions.nodeId = args.options.nodeId;
+        callOptions.nodeId = String(args.options.nodeId);
       }
 
       let time = args.options.time != null ? Number(args.options.time) : null;
-      let payload;
+      let payload: unknown;
 
       if (!time) {
         time = 5;
@@ -37,7 +43,7 @@ export default ({ vorpal, broker, cliUI }: any) => {
         try {
           payload = JSON.parse(args.jsonParams);
         } catch (error) {
-          console.log(error.message);
+          console.log((error as Error).message);
           done();
         }
       }
@@ -47,8 +53,8 @@ export default ({ vorpal, broker, cliUI }: any) => {
       let responseCounter = 0;
       let errorCounter = 0;
       let sumTime = 0;
-      let minTime = null;
-      let maxTime = null;
+      let minTime: number | null = null;
+      let maxTime: number | null = null;
 
       spinner.start();
       const startTotalTime = process.hrtime();
@@ -81,11 +87,11 @@ export default ({ vorpal, broker, cliUI }: any) => {
         console.log(
           `	Average time: ${cliUI.highlightedText(timespanFromUnixTimes(sumTime / responseCounter))}`,
         );
-        console.log(`	Min time: ${cliUI.highlightedText(timespanFromUnixTimes(minTime))}`);
-        console.log(`	Max time: ${cliUI.highlightedText(timespanFromUnixTimes(maxTime))}`);
+        console.log(`	Min time: ${cliUI.highlightedText(timespanFromUnixTimes(minTime ?? 0))}`);
+        console.log(`	Max time: ${cliUI.highlightedText(timespanFromUnixTimes(maxTime ?? 0))}`);
       };
 
-      const handleRequest = (startTime: any, error?: any) => {
+      const handleRequest = (startTime: [number, number], error?: Error) => {
         if (error) {
           errorCounter++;
         }

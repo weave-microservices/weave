@@ -1,6 +1,8 @@
+import { getRegistry } from "../helper/registry.mts";
+import type { CommandContext } from "../types.mts";
 import invokeAction from "../helper/invoke-action.mts";
 
-export default ({ vorpal, broker }: any) => {
+export default ({ vorpal, broker }: CommandContext) => {
   vorpal
     .command(
       "dcall <nodeId> <actionName> [jsonParams]",
@@ -13,7 +15,11 @@ export default ({ vorpal, broker }: any) => {
     .autocomplete({
       data() {
         return [
-          ...new Set(broker.runtime.registry.actionCollection.list({}).map((item) => item.name)),
+          ...new Set(
+            getRegistry(broker)
+              .actionCollection.list({})
+              .map((item) => item.name),
+          ),
         ];
       },
     })
