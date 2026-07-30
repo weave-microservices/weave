@@ -1,5 +1,14 @@
 import { isString, isFunction } from "@weave-js/utils";
-import type { ActionCacheOptions, ActionHandler, Cache, Context, Middleware, Runtime, ServiceInjection, ParsedAction } from "../../../types/index.js";
+import type {
+  ActionCacheOptions,
+  ActionHandler,
+  Cache,
+  Context,
+  Middleware,
+  Runtime,
+  ServiceInjection,
+  ParsedAction,
+} from "../../../types/index.js";
 
 interface CacheActionOptions {
   enabled: boolean;
@@ -16,7 +25,11 @@ export default (runtime: Runtime): Middleware => {
 
       if (isString(action.cache)) {
         cacheActionOptions.keys = action.cache.split(" ");
-      } else if (action.cache && typeof action.cache === "object" && Array.isArray((action.cache as ActionCacheOptions).keys)) {
+      } else if (
+        action.cache &&
+        typeof action.cache === "object" &&
+        Array.isArray((action.cache as ActionCacheOptions).keys)
+      ) {
         cacheActionOptions.keys = (action.cache as ActionCacheOptions).keys;
       }
 
@@ -25,7 +38,10 @@ export default (runtime: Runtime): Middleware => {
         const actionCacheConfig = action.cache as ActionCacheOptions | undefined;
         const isEnabledFunction = actionCacheConfig && isFunction(actionCacheConfig.condition);
 
-        return function cacheMiddleware(context: Context, serviceInjections: ServiceInjection): Promise<any> {
+        return function cacheMiddleware(
+          context: Context,
+          serviceInjections: ServiceInjection,
+        ): Promise<any> {
           // handle enabled function
           if (isEnabledFunction && actionCacheConfig?.condition) {
             if (!actionCacheConfig.condition.call(null, context)) {

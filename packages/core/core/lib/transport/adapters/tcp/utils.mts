@@ -8,7 +8,9 @@ interface NetworkAddressInfo {
 function getBroadcastAddress({ address, netmask }: NetworkAddressInfo): string {
   const addressBytes = address.split(".").map(Number);
   const netmaskBytes = netmask.split(".").map(Number);
-  const subnetBytes = netmaskBytes.map((_: number, index: number) => addressBytes[index] & netmaskBytes[index]);
+  const subnetBytes = netmaskBytes.map(
+    (_: number, index: number) => addressBytes[index] & netmaskBytes[index],
+  );
   const broadcastBytes = netmaskBytes.map(
     (_: number, index: number) => subnetBytes[index] | (~netmaskBytes[index] + 256),
   );

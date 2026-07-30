@@ -15,7 +15,7 @@ export function ActionsView() {
   const [params, setParams] = useState("{}");
 
   const filteredActions = actions.filter((action) =>
-    action.name?.toLowerCase().includes(search.toLowerCase())
+    action.name?.toLowerCase().includes(search.toLowerCase()),
   );
 
   const handleCall = () => {
@@ -56,10 +56,7 @@ export function ActionsView() {
             >
               <div className="flex items-center justify-between">
                 <span className="font-mono text-sm">{action.name}</span>
-                <Badge
-                  variant={action.hasAvailable ? "success" : "secondary"}
-                  className="text-xs"
-                >
+                <Badge variant={action.hasAvailable ? "success" : "secondary"} className="text-xs">
                   {action.count}
                 </Badge>
               </div>
@@ -100,9 +97,7 @@ export function ActionsView() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <label className="mb-2 block text-sm font-medium">
-                      Parameters (JSON)
-                    </label>
+                    <label className="mb-2 block text-sm font-medium">Parameters (JSON)</label>
                     <textarea
                       value={params}
                       onChange={(e) => setParams(e.target.value)}
@@ -133,9 +128,7 @@ export function ActionsView() {
                             {call.status === "success" && (
                               <Check className="h-4 w-4 text-green-500" />
                             )}
-                            {call.status === "error" && (
-                              <X className="h-4 w-4 text-red-500" />
-                            )}
+                            {call.status === "error" && <X className="h-4 w-4 text-red-500" />}
                             <span className="text-sm">
                               {new Date(call.startedAt).toLocaleTimeString()}
                             </span>
@@ -158,8 +151,7 @@ export function ActionsView() {
                     </Card>
                   ))}
 
-                {calls.filter((c) => c.action === selectedAction).length ===
-                  0 && (
+                {calls.filter((c) => c.action === selectedAction).length === 0 && (
                   <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
                     <p className="text-sm">No call history</p>
                   </div>

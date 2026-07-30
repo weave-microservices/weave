@@ -14,7 +14,9 @@ const types: Record<string, MetricFactory> = {
 };
 
 const getByName = (name: string): MetricFactory | undefined => {
-  const n = Object.keys(types).find((i: string) => i.toLocaleLowerCase() === name.toLocaleLowerCase());
+  const n = Object.keys(types).find(
+    (i: string) => i.toLocaleLowerCase() === name.toLocaleLowerCase(),
+  );
 
   if (n) {
     return types[n];

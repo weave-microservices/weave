@@ -199,7 +199,7 @@ export const createRegistry = (runtime: Runtime): Registry => {
     registerEvents(
       node: Node,
       service: ServiceItem,
-      events: Record<string, { handler: Function }>,
+      events: Record<string, { handler: EventHandler }>,
     ): void {
       Object.keys(events).forEach((key) => {
         const event = events[key];
@@ -215,7 +215,7 @@ export const createRegistry = (runtime: Runtime): Registry => {
     registerActions(
       node: Node,
       service: ServiceItem,
-      actions: Record<string, { handler: Function; visibility?: string }>,
+      actions: Record<string, { handler: ActionHandler; visibility?: string }>,
     ): void {
       Object.keys(actions).forEach((key) => {
         const action = actions[key];

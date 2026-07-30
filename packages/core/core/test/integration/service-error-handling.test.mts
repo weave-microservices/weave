@@ -1,6 +1,6 @@
 import { createNode } from "../helper/index.mts";
 import serviceHookMixin from "./mixins/service-hook.mixin.mts";
-import { describe, it, test, afterEach } from "node:test";
+import { describe, it, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import type { Broker } from "../../types/index.js";
 

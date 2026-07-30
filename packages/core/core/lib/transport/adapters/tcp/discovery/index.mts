@@ -40,7 +40,10 @@ interface DiscoveryService {
   close(): void;
 }
 
-const createDiscoveryService = (adapter: TransportAdapter, options: DiscoveryOptions): DiscoveryService => {
+const createDiscoveryService = (
+  adapter: TransportAdapter,
+  options: DiscoveryOptions,
+): DiscoveryService => {
   const namespace = adapter.broker?.options?.namespace;
   const codec = Codec(options);
   const bus = new EventEmitter();
@@ -50,7 +53,11 @@ const createDiscoveryService = (adapter: TransportAdapter, options: DiscoveryOpt
   let servers: DiscoverySocket[] = [];
   let discoverTimer: ReturnType<typeof setInterval> | null = null;
 
-  const startServer = (host: string, port: number, multicastAddress?: string): Promise<DiscoverySocket> => {
+  const startServer = (
+    host: string,
+    port: number,
+    multicastAddress?: string,
+  ): Promise<DiscoverySocket> => {
     return new Promise((resolve, reject) => {
       try {
         const socket: DiscoverySocket = dgram.createSocket({
@@ -98,7 +105,7 @@ const createDiscoveryService = (adapter: TransportAdapter, options: DiscoveryOpt
     const payload = buffer.slice(MESSAGE_TYPE_LENGTH);
 
     switch (messageType) {
-      case messageTypes.HELLO:
+      case messageTypes.HELLO: {
         const message: DiscoveryMessage = codec.decode(payload);
         message.host = info.address;
 
@@ -106,6 +113,7 @@ const createDiscoveryService = (adapter: TransportAdapter, options: DiscoveryOpt
           bus.emit("message", message);
         }
         break;
+      }
       default:
         adapter.log?.debug(`Received an unknown data package from host "${info.address}"`);
     }

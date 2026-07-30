@@ -1,13 +1,12 @@
 import { isFunction } from "@weave-js/utils";
 import path from "path";
+import { createRequire } from "module";
 import { globSync } from "glob";
 import * as Middlewares from "../middlewares/index.mts";
 import type {
   Runtime,
   Broker,
   Service,
-  ServiceSchema,
-  ActionOptions,
   EventOptions,
   Endpoint,
   PingResult,
@@ -15,8 +14,10 @@ import type {
   Registry,
   NodeCollection,
   EventBus,
-  Node,
 } from "../../types/index.js";
+
+/** Service files are loaded synchronously from disk. */
+const nodeRequire = createRequire(import.meta.url);
 
 /**
  * Creates a new Weave Broker instance from the provided runtime
@@ -120,7 +121,7 @@ export const createBrokerInstance = (runtime: Runtime): Broker => {
    */
   broker.loadService = function (filename: string): Service | undefined {
     const filePath = path.resolve(filename);
-    const schema = require(filePath);
+    const schema = nodeRequire(filePath);
     const service = broker.createService(schema);
 
     if (service) {

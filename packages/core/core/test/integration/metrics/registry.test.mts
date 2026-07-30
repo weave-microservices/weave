@@ -28,23 +28,56 @@ describe("Test broker metrics", () => {
 
   it("should return broker metrics", () => {
     const metrics = node.runtime.metrics!;
-    assert.strictEqual((metrics.getMetric(Constants.WEAVE_ENVIRONMENT) as MetricWithValue).value, "Node.js");
-    assert.strictEqual((metrics.getMetric(Constants.WEAVE_ENVIRONMENT_VERSION) as MetricWithValue).value, process.version);
-    assert.strictEqual((metrics.getMetric(Constants.WEAVE_NAMESPACE) as MetricWithValue).value, "metrics");
-    assert.strictEqual((metrics.getMetric(Constants.WEAVE_NODE_ID) as MetricWithValue).value, "node-metrics");
-    assert.strictEqual((metrics.getMetric(Constants.WEAVE_VERSION) as MetricWithValue).value, node.version);
+    assert.strictEqual(
+      (metrics.getMetric(Constants.WEAVE_ENVIRONMENT) as MetricWithValue).value,
+      "Node.js",
+    );
+    assert.strictEqual(
+      (metrics.getMetric(Constants.WEAVE_ENVIRONMENT_VERSION) as MetricWithValue).value,
+      process.version,
+    );
+    assert.strictEqual(
+      (metrics.getMetric(Constants.WEAVE_NAMESPACE) as MetricWithValue).value,
+      "metrics",
+    );
+    assert.strictEqual(
+      (metrics.getMetric(Constants.WEAVE_NODE_ID) as MetricWithValue).value,
+      "node-metrics",
+    );
+    assert.strictEqual(
+      (metrics.getMetric(Constants.WEAVE_VERSION) as MetricWithValue).value,
+      node.version,
+    );
 
     // Process metrics
-    assert.strictEqual((metrics.getMetric(Constants.PROCESS_PID) as MetricWithValue).value, process.pid);
-    assert.strictEqual((metrics.getMetric(Constants.PROCESS_PPID) as MetricWithValue).value, process.ppid);
-    assert.ok((metrics.getMetric(Constants.PROCESS_UPTIME) as MetricWithValue).value as number < process.uptime());
+    assert.strictEqual(
+      (metrics.getMetric(Constants.PROCESS_PID) as MetricWithValue).value,
+      process.pid,
+    );
+    assert.strictEqual(
+      (metrics.getMetric(Constants.PROCESS_PPID) as MetricWithValue).value,
+      process.ppid,
+    );
+    assert.ok(
+      ((metrics.getMetric(Constants.PROCESS_UPTIME) as MetricWithValue).value as number) <
+        process.uptime(),
+    );
 
     // OS Metrics
-    assert.strictEqual((metrics.getMetric(Constants.OS_HOSTNAME) as MetricWithValue).value, os.hostname());
+    assert.strictEqual(
+      (metrics.getMetric(Constants.OS_HOSTNAME) as MetricWithValue).value,
+      os.hostname(),
+    );
     assert.strictEqual((metrics.getMetric(Constants.OS_TYPE) as MetricWithValue).value, os.type());
-    assert.strictEqual((metrics.getMetric(Constants.OS_RELEASE) as MetricWithValue).value, os.release());
+    assert.strictEqual(
+      (metrics.getMetric(Constants.OS_RELEASE) as MetricWithValue).value,
+      os.release(),
+    );
     assert.strictEqual((metrics.getMetric(Constants.OS_ARCH) as MetricWithValue).value, os.arch());
-    assert.strictEqual((metrics.getMetric(Constants.OS_PLATTFORM) as MetricWithValue).value, os.platform());
+    assert.strictEqual(
+      (metrics.getMetric(Constants.OS_PLATTFORM) as MetricWithValue).value,
+      os.platform(),
+    );
   });
 });
 

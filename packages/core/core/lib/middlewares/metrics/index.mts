@@ -85,19 +85,25 @@ export default (runtime: Runtime): Middleware => {
     remoteAction(next: ActionHandler, action: ParsedAction): ActionHandler {
       return wrapMetricMiddleware("remote", action, next);
     },
-    emit(next: (event: string, payload: unknown) => void): (event: string, payload: unknown) => void {
+    emit(
+      next: (event: string, payload: unknown) => void,
+    ): (event: string, payload: unknown) => void {
       return (event: string, payload: unknown): void => {
         metrics.increment(Constants.EVENT_TOTAL_EMITS);
         return next(event, payload);
       };
     },
-    broadcast(next: (event: string, payload: unknown) => void): (event: string, payload: unknown) => void {
+    broadcast(
+      next: (event: string, payload: unknown) => void,
+    ): (event: string, payload: unknown) => void {
       return (event: string, payload: unknown): void => {
         metrics.increment(Constants.EVENT_TOTAL_BROADCASTS);
         return next(event, payload);
       };
     },
-    broadcastLocal(next: (event: string, payload: unknown) => void): (event: string, payload: unknown) => void {
+    broadcastLocal(
+      next: (event: string, payload: unknown) => void,
+    ): (event: string, payload: unknown) => void {
       return (event: string, payload: unknown): void => {
         metrics.increment(Constants.EVENT_TOTAL_BROADCASTS_LOCAL);
         return next(event, payload);

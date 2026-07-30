@@ -16,7 +16,7 @@ export default (runtime: Runtime): Middleware => {
   async function writeActionContracts(): Promise<void> {
     const actionList = runtime.registry.actionCollection.list();
     const filePath = path.join(weaveTypeFolder, "action-contracts.d.ts");
-    
+
     if (actionList.length > 0) {
       const actionContracts = generateActionContract(actionList);
       const formattedContracts = await formatIfAvailable(actionContracts);
@@ -27,7 +27,7 @@ export default (runtime: Runtime): Middleware => {
         fs.unlinkSync(filePath);
       } catch (error: any) {
         // Ignore ENOENT errors (file already deleted or never existed)
-        if (error.code !== 'ENOENT') {
+        if (error.code !== "ENOENT") {
           throw error;
         }
       }
@@ -37,7 +37,7 @@ export default (runtime: Runtime): Middleware => {
   async function writeEventContracts(): Promise<void> {
     const eventList = runtime.registry.eventCollection.list();
     const filePath = path.join(weaveTypeFolder, "event-contracts.d.ts");
-    
+
     if (eventList.length > 0) {
       const eventContracts = generateEventContract(eventList);
       const formattedContracts = await formatIfAvailable(eventContracts);
@@ -48,7 +48,7 @@ export default (runtime: Runtime): Middleware => {
         fs.unlinkSync(filePath);
       } catch (error: any) {
         // Ignore ENOENT errors (file already deleted or never existed)
-        if (error.code !== 'ENOENT') {
+        if (error.code !== "ENOENT") {
           throw error;
         }
       }
@@ -57,16 +57,15 @@ export default (runtime: Runtime): Middleware => {
 
   const writeChanges = debounce(async function () {
     // Track the cleanup operation
-    pendingCleanup = Promise.all([
-      writeActionContracts(),
-      writeEventContracts()
-    ]).then(() => { 
-      pendingCleanup = null; 
-    }).catch((error) => {
-      runtime.handleError(error);
-      pendingCleanup = null;
-    });
-    
+    pendingCleanup = Promise.all([writeActionContracts(), writeEventContracts()])
+      .then(() => {
+        pendingCleanup = null;
+      })
+      .catch((error) => {
+        runtime.handleError(error);
+        pendingCleanup = null;
+      });
+
     return pendingCleanup;
   }, 1000);
 
@@ -79,6 +78,6 @@ export default (runtime: Runtime): Middleware => {
       if (pendingCleanup) {
         await pendingCleanup;
       }
-    }
+    },
   };
 };

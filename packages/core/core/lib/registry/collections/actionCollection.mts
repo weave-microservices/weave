@@ -118,7 +118,10 @@ export const createActionCollection = (registry: Registry): ActionCollection => 
       if (item.count > 0) {
         const endpoint = action.endpoints[0];
         if (endpoint) {
-          item.action = omit(endpoint.action, ["handler", "service"]) as Omit<ParsedAction, "handler" | "service">;
+          item.action = omit(endpoint.action, ["handler", "service"]) as Omit<
+            ParsedAction,
+            "handler" | "service"
+          >;
         }
       }
 

@@ -34,7 +34,8 @@ export const initLogger = (runtime: Runtime): void => {
     return createDefaultLogger(loggerOptions);
   };
 
-  const createLogger = (moduleName: string, service?: Record<string, unknown>): Logger => loggerFactory(moduleName, service);
+  const createLogger = (moduleName: string, service?: Record<string, unknown>): Logger =>
+    loggerFactory(moduleName, service);
 
   /**
    * Main runtime logger instance

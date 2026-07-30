@@ -91,7 +91,10 @@ describe("Test cache middleware", () => {
       },
     });
 
-    const newHandler = cacheMiddleware(runtime as unknown as Runtime).localAction!(handler as any, action as any);
+    const newHandler = cacheMiddleware(runtime as unknown as Runtime).localAction!(
+      handler as any,
+      action as any,
+    );
     assert.strictEqual(newHandler, handler);
   });
 
@@ -118,7 +121,10 @@ describe("Test cache middleware", () => {
       set: mock.fn(() => Promise.resolve()),
       isConnected: true,
     };
-    const newHandler = cacheMiddleware(runtime as unknown as Runtime).localAction!(handler as any, action as any);
+    const newHandler = cacheMiddleware(runtime as unknown as Runtime).localAction!(
+      handler as any,
+      action as any,
+    );
     assert.notStrictEqual(newHandler, handler);
   });
 });

@@ -1,6 +1,6 @@
 import { createFakeRuntime } from "../helper/runtime.mts";
 import { initUUIDFactory } from "../../lib/runtime/initUuidFactory.mts";
-import { describe, it, test } from "node:test";
+import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 
 const UUID_REGEX = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;

@@ -100,7 +100,7 @@ describe("Test retry middleware", () => {
         assert.strictEqual(context.retryCount, 1);
         assert.strictEqual(err.message, "not this time");
         return true;
-      }
+      },
     );
   });
 

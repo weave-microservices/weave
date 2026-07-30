@@ -2,7 +2,7 @@ import adapters from "./adapters.mts";
 
 type AdapterKey = keyof typeof adapters;
 
-export default (name: string | undefined): typeof adapters[AdapterKey] | undefined => {
+export default (name: string | undefined): (typeof adapters)[AdapterKey] | undefined => {
   if (!name) {
     return undefined;
   }

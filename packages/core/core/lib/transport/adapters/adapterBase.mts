@@ -5,7 +5,13 @@
  */
 
 import { EventEmitter } from "events";
-import type { Broker, Transport, Logger, TransportMessage, TransportMessageHandler } from "../../../types/index.js";
+import type {
+  Broker,
+  Transport,
+  Logger,
+  TransportMessage,
+  TransportMessageHandler,
+} from "../../../types/index.js";
 
 /**
  * Transport statistics structure
@@ -50,7 +56,11 @@ export abstract class BaseTransportAdapter {
   /**
    * Initialize the adapter with broker and transport instances
    */
-  async init(broker: Broker, transport: Transport, messageHandler: TransportMessageHandler): Promise<void> {
+  async init(
+    broker: Broker,
+    transport: Transport,
+    messageHandler: TransportMessageHandler,
+  ): Promise<void> {
     this.broker = broker;
     this.transport = transport;
     this.log = transport.log;
@@ -81,7 +91,7 @@ export abstract class BaseTransportAdapter {
    * Subscribe to a topic
    * Override in subclasses if needed
    */
-  subscribe(type: string, nodeId?: string): Promise<void> {
+  subscribe(_type: string, _nodeId?: string): Promise<void> {
     return Promise.resolve();
   }
 

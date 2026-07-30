@@ -1,3 +1,4 @@
+import { getRegistry } from "./registry.mts";
 import { createServer, IncomingMessage, ServerResponse } from "http";
 import { readFile } from "fs/promises";
 import { extname, join } from "path";
@@ -124,7 +125,7 @@ function checkAuth(req: IncomingMessage, url: URL, token: string): boolean {
 }
 
 async function serveStatic(res: ServerResponse, url: URL) {
-  let filePath = join(DIST_DIR, url.pathname === "/" ? "index.html" : url.pathname);
+  const filePath = join(DIST_DIR, url.pathname === "/" ? "index.html" : url.pathname);
 
   try {
     const content = await readFile(filePath);
@@ -152,14 +153,16 @@ async function handleAPI(req: IncomingMessage, res: ServerResponse, url: URL, br
       case "/api/nodes":
         res.end(
           JSON.stringify(
-            broker.runtime.registry.nodeCollection.list().map((node: any) => ({
-              id: node.id,
-              isLocal: node.isLocal,
-              isAvailable: node.isAvailable,
-              services: node.services?.map((s: any) => s.name) || [],
-              client: node.client,
-              cpu: node.cpu,
-            })),
+            getRegistry(broker)
+              .nodeCollection.list()
+              .map((node) => ({
+                id: node.id,
+                isLocal: node.isLocal,
+                isAvailable: node.isAvailable,
+                services: node.services?.map((service) => service.name) || [],
+                client: node.client,
+                cpu: node.cpu,
+              })),
           ),
         );
         break;
@@ -167,12 +170,14 @@ async function handleAPI(req: IncomingMessage, res: ServerResponse, url: URL, br
       case "/api/actions":
         res.end(
           JSON.stringify(
-            broker.runtime.registry.actionCollection.list({ withEndpoints: true }).map((item: any) => ({
-              name: item.action?.name,
-              params: item.action?.params,
-              count: item.count,
-              hasAvailable: item.hasAvailable,
-            })),
+            getRegistry(broker)
+              .actionCollection.list({ withEndpoints: true })
+              .map((item) => ({
+                name: item.action?.name,
+                params: item.action?.params,
+                count: item.count,
+                hasAvailable: item.hasAvailable,
+              })),
           ),
         );
         break;
@@ -180,12 +185,14 @@ async function handleAPI(req: IncomingMessage, res: ServerResponse, url: URL, br
       case "/api/events":
         res.end(
           JSON.stringify(
-            broker.runtime.registry.eventCollection.list().map((item: any) => ({
-              name: item.name,
-              group: item.groupName,
-              count: item.count,
-              hasAvailable: item.hasAvailable,
-            })),
+            getRegistry(broker)
+              .eventCollection.list()
+              .map((item) => ({
+                name: item.name,
+                group: item.groupName,
+                count: item.count,
+                hasAvailable: item.hasAvailable,
+              })),
           ),
         );
         break;
@@ -193,7 +200,7 @@ async function handleAPI(req: IncomingMessage, res: ServerResponse, url: URL, br
       case "/api/services":
         res.end(
           JSON.stringify(
-            broker.runtime.registry.serviceCollection.list({
+            getRegistry(broker).serviceCollection.list({
               withActions: true,
               withEvents: true,
             }),

@@ -48,7 +48,7 @@ describe("Test weave logger integration.", () => {
   });
 
   it("should use the logMethod hook", () => {
-    const doneHookFn = mock.fn((args: unknown[], method: Function) => {
+    const doneHookFn = mock.fn((args: unknown[], method: (...args: unknown[]) => unknown) => {
       return method(...args);
     });
 
@@ -104,7 +104,7 @@ describe("Test weave logger integration.", () => {
   });
 
   it("should log error objects", () => {
-    const logMethod = mock.fn((args: unknown[], method: Function) => {
+    const logMethod = mock.fn((args: unknown[], method: (...args: unknown[]) => unknown) => {
       return method(...args);
     });
     const broker = createNode({

@@ -5,11 +5,17 @@
  */
 import { Constants } from "../../metrics/index.mts";
 import * as Errors from "../../errors.mts";
-import type { ActionHandler, Context, Middleware, Runtime, ServiceInjection, ParsedAction } from "../../../types/index.js";
+import type {
+  ActionHandler,
+  Context,
+  Middleware,
+  Runtime,
+  ServiceInjection,
+  ParsedAction,
+} from "../../../types/index.js";
 import type { BulkheadQueueItem } from "./types.js";
 
 export default (runtime: Runtime): Middleware => {
-
   return {
     created(): void {
       if (runtime.options.metrics?.enabled && runtime.metrics) {
@@ -51,7 +57,10 @@ export default (runtime: Runtime): Middleware => {
             });
         };
 
-        return function bulkheadMiddleware(context: Context, serviceInjections: ServiceInjection): Promise<unknown> {
+        return function bulkheadMiddleware(
+          context: Context,
+          serviceInjections: ServiceInjection,
+        ): Promise<unknown> {
           // Execute action immediately
           if (currentlyInFlight < concurrentCalls) {
             currentlyInFlight++;
@@ -80,7 +89,9 @@ export default (runtime: Runtime): Middleware => {
           }
 
           // Queue the request
-          return new Promise((resolve, reject) => queue.push({ resolve, reject, context, serviceInjections }));
+          return new Promise((resolve, reject) =>
+            queue.push({ resolve, reject, context, serviceInjections }),
+          );
         };
       }
       return handler;

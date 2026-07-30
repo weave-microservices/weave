@@ -55,7 +55,11 @@ export const initMiddlewareHandler = (runtime: Runtime): void => {
         }
         return handler;
       },
-      callHandlersAsync(methodName: string, args: unknown[], reverse: boolean = false): Promise<void> {
+      callHandlersAsync(
+        methodName: string,
+        args: unknown[],
+        reverse: boolean = false,
+      ): Promise<void> {
         const middlewareList = reverse ? Array.from(list).reverse() : list;
         const momentousHandlers = middlewareList
           .filter((middleware) => typeof middleware[methodName] === "function")

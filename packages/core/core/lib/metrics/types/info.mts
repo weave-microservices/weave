@@ -1,4 +1,10 @@
-import { createBaseMetricType, type BaseMetricInstance, type MetricCreateOptions, type MetricSnapshotItem, type MetricValueItem } from "./base.mts";
+import {
+  createBaseMetricType,
+  type BaseMetricInstance,
+  type MetricCreateOptions,
+  type MetricSnapshotItem,
+  type MetricValueItem,
+} from "./base.mts";
 import type { MetricRegistry } from "../../../types/index.js";
 
 /**
@@ -6,10 +12,17 @@ import type { MetricRegistry } from "../../../types/index.js";
  */
 export interface InfoMetricInstance extends BaseMetricInstance {
   value?: number;
-  set(value: number, labels: Record<string, string> | null, timestamp?: number): MetricValueItem | undefined;
+  set(
+    value: number,
+    labels: Record<string, string> | null,
+    timestamp?: number,
+  ): MetricValueItem | undefined;
 }
 
-export const createInfo = (metricRegistry: MetricRegistry, obj: MetricCreateOptions): InfoMetricInstance => {
+export const createInfo = (
+  metricRegistry: MetricRegistry,
+  obj: MetricCreateOptions,
+): InfoMetricInstance => {
   const base = createBaseMetricType(metricRegistry, obj) as InfoMetricInstance;
 
   base.generateSnapshot = (): MetricSnapshotItem[] => {
@@ -21,7 +34,11 @@ export const createInfo = (metricRegistry: MetricRegistry, obj: MetricCreateOpti
     });
   };
 
-  base.set = (value: number, labels: Record<string, string> | null, timestamp?: number): MetricValueItem | undefined => {
+  base.set = (
+    value: number,
+    labels: Record<string, string> | null,
+    timestamp?: number,
+  ): MetricValueItem | undefined => {
     const labelString = base.stringifyLabels(labels);
     const existingItem = base.values.get(labelString);
 

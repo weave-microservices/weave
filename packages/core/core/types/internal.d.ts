@@ -12,6 +12,7 @@
 import { EventEmitter } from "events";
 import type {
   ActionCacheOptions,
+  ActionHooks,
   ActionOptions,
   ActionTracingOptions,
   Broker,
@@ -230,6 +231,8 @@ export interface ParsedAction {
   tracing?: boolean | ActionTracingOptions;
   /** Metrics configuration */
   metrics?: boolean | object;
+  /** Hooks declared on the action itself */
+  hooks?: ActionHooks;
   /** Allow additional properties from schema */
   [key: string]: unknown;
 }

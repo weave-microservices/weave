@@ -4,7 +4,13 @@
  * Copyright 2021 Fachwerk
  */
 
-import type { Node, ServiceItem, ServiceSettings, ParsedAction, ParsedEvent } from "../../types/index.js";
+import type {
+  Node,
+  ServiceItem,
+  ServiceSettings,
+  ParsedAction,
+  ParsedEvent,
+} from "../../types/index.js";
 
 /**
  * Service item factory

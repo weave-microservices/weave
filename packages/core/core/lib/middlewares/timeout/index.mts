@@ -6,11 +6,17 @@
 
 import { promiseTimeout } from "@weave-js/utils";
 import { WeaveRequestTimeoutError } from "../../errors.mts";
-import type { ActionHandler, Context, Middleware, Runtime, ServiceInjection } from "../../../types/index.js";
+import type {
+  ActionHandler,
+  Context,
+  Middleware,
+  Runtime,
+  ServiceInjection,
+} from "../../../types/index.js";
 
 const wrapTimeoutMiddleware = function (this: Runtime, handler: ActionHandler): ActionHandler {
-  const self = this;
-  const registryOptions = self.options.registry || {};
+  const { log, options } = this;
+  const registryOptions = options.registry || {};
 
   return function timeoutMiddleware(context: Context, serviceInjections: ServiceInjection) {
     if (typeof context.options.timeout === "undefined" || registryOptions.requestTimeout) {
@@ -30,7 +36,7 @@ const wrapTimeoutMiddleware = function (this: Runtime, handler: ActionHandler): 
         new WeaveRequestTimeoutError(context.action.name, context.nodeId, context.options.timeout),
       ).catch((error) => {
         if (error instanceof WeaveRequestTimeoutError) {
-          self.log.warn(`Request '${context.action.name}' timed out.`);
+          log.warn(`Request '${context.action.name}' timed out.`);
         }
 
         return Promise.reject(error);

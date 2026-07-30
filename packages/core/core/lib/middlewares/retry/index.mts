@@ -19,9 +19,20 @@ interface RetryableError extends Error {
   retryable?: boolean;
 }
 
-const wrapRetryMiddleware = function (this: Runtime, handler: ActionHandler, action: ParsedAction): ActionHandler {
-  const self = this;
-  const options: RetryPolicyOptions = Object.assign({}, self.options.retryPolicy, action.retryPolicy ?? {});
+const wrapRetryMiddleware = function (
+  this: Runtime,
+  handler: ActionHandler,
+  action: ParsedAction,
+): ActionHandler {
+  const { log, options: runtimeOptions } = this;
+  // Arrow functions below keep this bound to the runtime - the retry has to look
+  // the call function up when it runs, not when the middleware is built.
+  const runtimeCall: Runtime["call"] = (...args) => this.call(...args);
+  const options: RetryPolicyOptions = Object.assign(
+    {},
+    runtimeOptions.retryPolicy,
+    action.retryPolicy ?? {},
+  );
 
   // middleware is enabled
   if (options.enabled) {
@@ -29,7 +40,10 @@ const wrapRetryMiddleware = function (this: Runtime, handler: ActionHandler, act
     const delayMs = options.delay ?? 0;
 
     // Return middlware handler
-    return function retryMiddleware(context: Context, serviceInjections: ServiceInjection): Promise<unknown> {
+    return function retryMiddleware(
+      context: Context,
+      serviceInjections: ServiceInjection,
+    ): Promise<unknown> {
       // if the context has no repeat count, set it to zero.
       if (context.retryCount === undefined) {
         context.retryCount = 0;
@@ -40,10 +54,14 @@ const wrapRetryMiddleware = function (this: Runtime, handler: ActionHandler, act
 
       return handler(context, serviceInjections).catch((err: unknown) => {
         const error = err as RetryableError;
-        if (context.retryCount !== undefined && context.retryCount++ < attempts && error.retryable === true) {
-          self.log.warn(`Retry to recall action '${context.action?.name}' after ${delayMs}.`);
+        if (
+          context.retryCount !== undefined &&
+          context.retryCount++ < attempts &&
+          error.retryable === true
+        ) {
+          log.warn(`Retry to recall action '${context.action?.name}' after ${delayMs}.`);
           return delay(delayMs).then(() =>
-            self.call(context.action?.name ?? "", context.data, { context }),
+            runtimeCall(context.action?.name ?? "", context.data, { context }),
           );
         }
         return Promise.reject(error);

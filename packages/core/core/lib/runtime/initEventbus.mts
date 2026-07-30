@@ -44,11 +44,13 @@ export const initEventbus = (runtime: Runtime): void => {
       if (endpoint) {
         if (endpoint.node.id === brokerOptions.nodeId) {
           context.setEndpoint(endpoint);
-          promises.push(endpoint.action.handler(context, {
-            service: endpoint.action.service,
-            runtime,
-            errors: {},
-          }));
+          promises.push(
+            endpoint.action.handler(context, {
+              service: endpoint.action.service,
+              runtime,
+              errors: {},
+            }),
+          );
         } else {
           const e = groupedEndpoints[endpoint.node.id];
           if (e) {

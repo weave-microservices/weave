@@ -10,7 +10,9 @@ const getByName = (name: string): (typeof Strategies)[StrategyName] | null => {
     return null;
   }
 
-  const n = Object.keys(Strategies).find((strategyName) => strategyName.toLowerCase() === name.toLowerCase()) as StrategyName | undefined;
+  const n = Object.keys(Strategies).find(
+    (strategyName) => strategyName.toLowerCase() === name.toLowerCase(),
+  ) as StrategyName | undefined;
   if (n) {
     return Strategies[n];
   }

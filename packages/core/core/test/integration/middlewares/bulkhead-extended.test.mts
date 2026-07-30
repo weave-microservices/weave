@@ -246,7 +246,10 @@ describe("Bulkhead error handling in queue", () => {
 
     // Second should fail with our error
     assert.strictEqual(results[1].status, "rejected");
-    assert.strictEqual(((results[1] as PromiseRejectedResult).reason as Error).message, "Intentional failure");
+    assert.strictEqual(
+      ((results[1] as PromiseRejectedResult).reason as Error).message,
+      "Intentional failure",
+    );
 
     // Third should still succeed after error in second
     assert.strictEqual(results[2].status, "fulfilled");
@@ -408,7 +411,10 @@ describe("Bulkhead disabled", () => {
     await Promise.all(Array.from({ length: 10 }, () => node.call("test.slow")));
 
     // All should run concurrently since bulkhead is disabled
-    assert.ok(maxActive > 1, `Expected more than 1 concurrent call when disabled, got ${maxActive}`);
+    assert.ok(
+      maxActive > 1,
+      `Expected more than 1 concurrent call when disabled, got ${maxActive}`,
+    );
 
     await node.stop();
   });

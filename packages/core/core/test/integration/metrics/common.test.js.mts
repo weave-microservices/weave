@@ -25,11 +25,26 @@ describe("Test broker metrics", () => {
 
   it("should return broker metrics", () => {
     const metrics = node.runtime.metrics!;
-    assert.strictEqual((metrics.getMetric(Constants.WEAVE_ENVIRONMENT) as MetricWithValue).value, "Node.js");
-    assert.strictEqual((metrics.getMetric(Constants.WEAVE_ENVIRONMENT_VERSION) as MetricWithValue).value, process.version);
-    assert.strictEqual((metrics.getMetric(Constants.WEAVE_NAMESPACE) as MetricWithValue).value, "test");
-    assert.strictEqual((metrics.getMetric(Constants.WEAVE_NODE_ID) as MetricWithValue).value, "node");
-    assert.strictEqual((metrics.getMetric(Constants.WEAVE_VERSION) as MetricWithValue).value, node.version);
+    assert.strictEqual(
+      (metrics.getMetric(Constants.WEAVE_ENVIRONMENT) as MetricWithValue).value,
+      "Node.js",
+    );
+    assert.strictEqual(
+      (metrics.getMetric(Constants.WEAVE_ENVIRONMENT_VERSION) as MetricWithValue).value,
+      process.version,
+    );
+    assert.strictEqual(
+      (metrics.getMetric(Constants.WEAVE_NAMESPACE) as MetricWithValue).value,
+      "test",
+    );
+    assert.strictEqual(
+      (metrics.getMetric(Constants.WEAVE_NODE_ID) as MetricWithValue).value,
+      "node",
+    );
+    assert.strictEqual(
+      (metrics.getMetric(Constants.WEAVE_VERSION) as MetricWithValue).value,
+      node.version,
+    );
   });
 });
 

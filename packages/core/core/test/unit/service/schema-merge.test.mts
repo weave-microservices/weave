@@ -1,7 +1,13 @@
 import { mergeSchemas } from "../../../lib/utils/options.mts";
 import { describe, it, mock } from "node:test";
 import assert from "node:assert/strict";
-import type { Context, ServiceSchema, ServiceEvent, ServiceLifecycleHook, ServiceAfterSchemasMergedHook } from "../../../types/index.js";
+import type {
+  Context,
+  ServiceSchema,
+  ServiceEvent,
+  ServiceLifecycleHook,
+  ServiceAfterSchemasMergedHook,
+} from "../../../types/index.js";
 
 class TestClass {
   send(): () => void {
@@ -98,7 +104,7 @@ const service2: ServiceSchema & { adapter: TestClass } = {
       a3: [
         (_context: Context, response: unknown) => response,
         (_context: Context, response: unknown) => response,
-      ] as unknown as ((context: Context, response: unknown) => unknown),
+      ] as unknown as (context: Context, response: unknown) => unknown,
     },
   },
   actions: {

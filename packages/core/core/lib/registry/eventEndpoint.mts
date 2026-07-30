@@ -4,7 +4,7 @@
  * Copyright 2021 Fachwerk
  */
 
-import type { Endpoint, Node, Runtime, ServiceItem, ParsedEvent } from '../../types/index.js';
+import type { Endpoint, Node, Runtime, ServiceItem, ParsedEvent } from "../../types/index.js";
 
 /**
  * Event endpoint factory

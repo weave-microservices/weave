@@ -11,10 +11,6 @@ import type {
   TransportAdapter,
   RequestPayload,
   ResponsePayload,
-  EventPayload,
-  HeartbeatPayload,
-  PingPayload,
-  InfoPayload,
 } from "../../types/index.js";
 
 export const createTransport = (runtime: Runtime, adapter: TransportAdapter) => {
@@ -316,11 +312,7 @@ export const createTransport = (runtime: Runtime, adapter: TransportAdapter) => 
 
               // The chunk is larger than maxBufferSize
               const maxChunkSize = runtime.options.transport?.maxChunkSize ?? 0;
-              if (
-                data instanceof Buffer &&
-                maxChunkSize > 0 &&
-                data.length > maxChunkSize
-              ) {
+              if (data instanceof Buffer && maxChunkSize > 0 && data.length > maxChunkSize) {
                 const length = data.length;
                 let i = 0;
                 while (i < length) {
@@ -448,11 +440,7 @@ export const createTransport = (runtime: Runtime, adapter: TransportAdapter) => 
         const chunks = [];
 
         const maxChunkSize = runtime.options.transport?.maxChunkSize ?? 0;
-        if (
-          data instanceof Buffer &&
-          maxChunkSize > 0 &&
-          data.length > maxChunkSize
-        ) {
+        if (data instanceof Buffer && maxChunkSize > 0 && data.length > maxChunkSize) {
           const length = data.length;
           let i = 0;
           while (i < length) {

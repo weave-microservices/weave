@@ -63,7 +63,9 @@ export default (runtime: Runtime, transport: Transport): TransportMessageHandler
     return promise;
   };
 
-  const handleIncomingRequestStream = (payload: RequestPayload): InboundTransformStream | false | null => {
+  const handleIncomingRequestStream = (
+    payload: RequestPayload,
+  ): InboundTransformStream | false | null => {
     let stream = transport.pending.requestStreams.get(payload.id);
     let isNew = false;
     const sender = payload.sender || "";
@@ -80,19 +82,29 @@ export default (runtime: Runtime, transport: Transport): TransportMessageHandler
       });
 
       if (runtime.options.transport?.streams?.handleBackpressure) {
-        stream.on("backpressure", async ({ sender, requestId }: { sender: string; requestId: string }) => {
-          const message = createMessage(MessageTypes.MESSAGE_REQUEST_STREAM_BACKPRESSURE, sender, {
-            id: requestId,
-          });
-          await transport.send(message);
-        });
+        stream.on(
+          "backpressure",
+          async ({ sender, requestId }: { sender: string; requestId: string }) => {
+            const message = createMessage(
+              MessageTypes.MESSAGE_REQUEST_STREAM_BACKPRESSURE,
+              sender,
+              {
+                id: requestId,
+              },
+            );
+            await transport.send(message);
+          },
+        );
 
-        stream.on("resume_backpressure", async ({ sender, requestId }: { sender: string; requestId: string }) => {
-          const message = createMessage(MessageTypes.MESSAGE_REQUEST_STREAM_RESUME, sender, {
-            id: requestId,
-          });
-          await transport.send(message);
-        });
+        stream.on(
+          "resume_backpressure",
+          async ({ sender, requestId }: { sender: string; requestId: string }) => {
+            const message = createMessage(MessageTypes.MESSAGE_REQUEST_STREAM_RESUME, sender, {
+              id: requestId,
+            });
+            await transport.send(message);
+          },
+        );
       }
 
       transport.pending.requestStreams.set(payload.id, stream);
@@ -142,7 +154,10 @@ export default (runtime: Runtime, transport: Transport): TransportMessageHandler
     timeout?: NodeJS.Timeout;
   }
 
-  const handleIncomingResponseStream = (payload: ResponsePayload, request: PendingRequest): boolean | null => {
+  const handleIncomingResponseStream = (
+    payload: ResponsePayload,
+    request: PendingRequest,
+  ): boolean | null => {
     let stream = transport.pending.responseStreams.get(payload.id);
     const sender = payload.sender || "";
     const sequence = payload.sequence ?? 0;
@@ -152,28 +167,36 @@ export default (runtime: Runtime, transport: Transport): TransportMessageHandler
     }
 
     if (!stream) {
-      transport.log.debug(
-        `New stream from node ${sender} received. Seq: ${sequence}`,
-      );
+      transport.log.debug(`New stream from node ${sender} received. Seq: ${sequence}`);
 
       stream = new InboundTransformStream(sender, payload.id, {
         objectMode: payload.meta && payload.meta.$isObjectModeStream,
       });
 
       if (runtime.options.transport?.streams?.handleBackpressure) {
-        stream.on("backpressure", async ({ sender, requestId }: { sender: string; requestId: string }) => {
-          const message = createMessage(MessageTypes.MESSAGE_RESPONSE_STREAM_BACKPRESSURE, sender, {
-            id: requestId,
-          });
-          await transport.send(message);
-        });
+        stream.on(
+          "backpressure",
+          async ({ sender, requestId }: { sender: string; requestId: string }) => {
+            const message = createMessage(
+              MessageTypes.MESSAGE_RESPONSE_STREAM_BACKPRESSURE,
+              sender,
+              {
+                id: requestId,
+              },
+            );
+            await transport.send(message);
+          },
+        );
 
-        stream.on("resume_backpressure", async ({ sender, requestId }: { sender: string; requestId: string }) => {
-          const message = createMessage(MessageTypes.MESSAGE_RESPONSE_STREAM_RESUME, sender, {
-            id: requestId,
-          });
-          await transport.send(message);
-        });
+        stream.on(
+          "resume_backpressure",
+          async ({ sender, requestId }: { sender: string; requestId: string }) => {
+            const message = createMessage(MessageTypes.MESSAGE_RESPONSE_STREAM_RESUME, sender, {
+              id: requestId,
+            });
+            await transport.send(message);
+          },
+        );
       }
 
       transport.pending.responseStreams.set(payload.id, stream);
@@ -181,9 +204,7 @@ export default (runtime: Runtime, transport: Transport): TransportMessageHandler
     }
 
     if (sequence > stream.$prevSeq + 1) {
-      transport.log.debug(
-        `Put the chunk into pool (size: ${stream.$pool.size}). Seq: ${sequence}`,
-      );
+      transport.log.debug(`Put the chunk into pool (size: ${stream.$pool.size}). Seq: ${sequence}`);
 
       stream.$pool.set(sequence, payload);
       return true;
@@ -228,7 +249,8 @@ export default (runtime: Runtime, transport: Transport): TransportMessageHandler
   /**
    * Discovery handler
    */
-  const onDiscovery = (payload: DiscoveryPayload): Promise<void> | undefined => transport.sendNodeInfo?.(payload.sender);
+  const onDiscovery = (payload: DiscoveryPayload): Promise<void> | undefined =>
+    transport.sendNodeInfo?.(payload.sender);
 
   /**
    * Node info handler
@@ -270,7 +292,9 @@ export default (runtime: Runtime, transport: Transport): TransportMessageHandler
 
       return localRequestProxy(context)
         .then((data) => transport.sendResponse(sender, payload.id, data, context.meta, null))
-        .catch((error: Error) => transport.sendResponse(sender, payload.id, null, context.meta, error));
+        .catch((error: Error) =>
+          transport.sendResponse(sender, payload.id, null, context.meta, error),
+        );
     } catch (error: unknown) {
       return transport.sendResponse(sender, payload.id, null, payload.meta || {}, error as Error);
     }

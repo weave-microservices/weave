@@ -53,8 +53,8 @@ export function SettingsView() {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Weave Explorer provides a visual interface for monitoring and
-              interacting with your Weave microservices cluster.
+              Weave Explorer provides a visual interface for monitoring and interacting with your
+              Weave microservices cluster.
             </p>
           </CardContent>
         </Card>

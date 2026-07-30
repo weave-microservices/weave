@@ -47,7 +47,9 @@ interface ExtendedError extends Error {
  * @returns {Error} Restored error instance with proper type and properties
  */
 export const restoreError = (errorPayload: ErrorPayload): Error => {
-  const ErrorClass = errors[errorPayload.name as keyof typeof errors] as (new (...args: unknown[]) => Error) | undefined;
+  const ErrorClass = errors[errorPayload.name as keyof typeof errors] as
+    | (new (...args: unknown[]) => Error)
+    | undefined;
   let error: ExtendedError | undefined;
 
   if (ErrorClass) {

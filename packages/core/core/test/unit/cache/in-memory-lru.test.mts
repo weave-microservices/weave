@@ -95,11 +95,7 @@ describe("InMemoryLru Cache basic operations", () => {
 
     await cache.clear();
 
-    const results = await Promise.all([
-      cache.get("key1"),
-      cache.get("key2"),
-      cache.get("key3"),
-    ]);
+    const results = await Promise.all([cache.get("key1"), cache.get("key2"), cache.get("key3")]);
 
     assert.deepStrictEqual(results, [null, null, null]);
     cache.stop();
@@ -290,10 +286,7 @@ describe("InMemoryLru Cache lock mechanism", () => {
     const release = await cache.lock("try:lock", 5000);
 
     // Try to acquire same lock should fail
-    await assert.rejects(
-      cache.tryAcquireLock("try:lock", 5000),
-      { message: "Locked" },
-    );
+    await assert.rejects(cache.tryAcquireLock("try:lock", 5000), { message: "Locked" });
 
     await release();
     cache.stop();

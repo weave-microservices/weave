@@ -46,11 +46,20 @@ describe("Metric middleware", () => {
     const metrics = broker.runtime.metrics;
     const p = broker.call("test-service.testAction");
 
-    assert.strictEqual((metrics?.getMetric(Constants.REQUESTS_IN_FLIGHT) as BaseMetricInstance | undefined)?.value, 1);
+    assert.strictEqual(
+      (metrics?.getMetric(Constants.REQUESTS_IN_FLIGHT) as BaseMetricInstance | undefined)?.value,
+      1,
+    );
 
     p.then(() => {
-      assert.strictEqual((metrics?.getMetric(Constants.REQUESTS_TOTAL) as BaseMetricInstance | undefined)?.value, 1);
-      assert.ok(((metrics?.getMetric(Constants.REQUESTS_TIME) as BaseMetricInstance | undefined)?.value ?? 0) > 2000);
+      assert.strictEqual(
+        (metrics?.getMetric(Constants.REQUESTS_TOTAL) as BaseMetricInstance | undefined)?.value,
+        1,
+      );
+      assert.ok(
+        ((metrics?.getMetric(Constants.REQUESTS_TIME) as BaseMetricInstance | undefined)?.value ??
+          0) > 2000,
+      );
       done();
     });
   });
@@ -59,12 +68,25 @@ describe("Metric middleware", () => {
     const metrics = broker.runtime.metrics;
     const p = broker.call("test-service.throwError");
 
-    assert.strictEqual((metrics?.getMetric(Constants.REQUESTS_IN_FLIGHT) as BaseMetricInstance | undefined)?.value, 1);
+    assert.strictEqual(
+      (metrics?.getMetric(Constants.REQUESTS_IN_FLIGHT) as BaseMetricInstance | undefined)?.value,
+      1,
+    );
 
     p.catch((_: unknown) => {
-      assert.strictEqual((metrics?.getMetric(Constants.REQUESTS_TOTAL) as BaseMetricInstance | undefined)?.value, 1);
-      assert.ok(((metrics?.getMetric(Constants.REQUESTS_TIME) as BaseMetricInstance | undefined)?.value ?? 0) > 0);
-      assert.strictEqual((metrics?.getMetric(Constants.REQUESTS_ERRORS_TOTAL) as BaseMetricInstance | undefined)?.value, 1);
+      assert.strictEqual(
+        (metrics?.getMetric(Constants.REQUESTS_TOTAL) as BaseMetricInstance | undefined)?.value,
+        1,
+      );
+      assert.ok(
+        ((metrics?.getMetric(Constants.REQUESTS_TIME) as BaseMetricInstance | undefined)?.value ??
+          0) > 0,
+      );
+      assert.strictEqual(
+        (metrics?.getMetric(Constants.REQUESTS_ERRORS_TOTAL) as BaseMetricInstance | undefined)
+          ?.value,
+        1,
+      );
       done();
     });
   });
@@ -119,18 +141,42 @@ describe("Metric middleware [cache]", () => {
   it("should register metrics", async () => {
     const metrics = broker.runtime.metrics;
 
-    assert.strictEqual((metrics?.getMetric(Constants.CACHE_GET_TOTAL) as BaseMetricInstance | undefined)?.value, 0);
-    assert.strictEqual((metrics?.getMetric(Constants.CACHE_SET_TOTAL) as BaseMetricInstance | undefined)?.value, 0);
-    assert.strictEqual((metrics?.getMetric(Constants.CACHE_FOUND_TOTAL) as BaseMetricInstance | undefined)?.value, 0);
-    assert.strictEqual((metrics?.getMetric(Constants.CACHE_EXPIRED_TOTAL) as BaseMetricInstance | undefined)?.value, 0);
-    assert.strictEqual((metrics?.getMetric(Constants.CACHE_DELETED_TOTAL) as BaseMetricInstance | undefined)?.value, 0);
-    assert.strictEqual((metrics?.getMetric(Constants.CACHE_CLEANED_TOTAL) as BaseMetricInstance | undefined)?.value, 0);
+    assert.strictEqual(
+      (metrics?.getMetric(Constants.CACHE_GET_TOTAL) as BaseMetricInstance | undefined)?.value,
+      0,
+    );
+    assert.strictEqual(
+      (metrics?.getMetric(Constants.CACHE_SET_TOTAL) as BaseMetricInstance | undefined)?.value,
+      0,
+    );
+    assert.strictEqual(
+      (metrics?.getMetric(Constants.CACHE_FOUND_TOTAL) as BaseMetricInstance | undefined)?.value,
+      0,
+    );
+    assert.strictEqual(
+      (metrics?.getMetric(Constants.CACHE_EXPIRED_TOTAL) as BaseMetricInstance | undefined)?.value,
+      0,
+    );
+    assert.strictEqual(
+      (metrics?.getMetric(Constants.CACHE_DELETED_TOTAL) as BaseMetricInstance | undefined)?.value,
+      0,
+    );
+    assert.strictEqual(
+      (metrics?.getMetric(Constants.CACHE_CLEANED_TOTAL) as BaseMetricInstance | undefined)?.value,
+      0,
+    );
 
     await broker.call("test-service.testAction", { name: "Kevin" });
     await broker.call("test-service.testAction", { name: "Kevin" });
 
-    assert.strictEqual((metrics?.getMetric(Constants.CACHE_GET_TOTAL) as BaseMetricInstance | undefined)?.value, 2);
-    assert.strictEqual((metrics?.getMetric(Constants.CACHE_FOUND_TOTAL) as BaseMetricInstance | undefined)?.value, 1);
+    assert.strictEqual(
+      (metrics?.getMetric(Constants.CACHE_GET_TOTAL) as BaseMetricInstance | undefined)?.value,
+      2,
+    );
+    assert.strictEqual(
+      (metrics?.getMetric(Constants.CACHE_FOUND_TOTAL) as BaseMetricInstance | undefined)?.value,
+      1,
+    );
   });
 });
 
@@ -192,11 +238,23 @@ describe("Metric middleware between remote nodes", () => {
     await broker1.call("test-service.testAction", { name: "Kevin" });
     await broker1.call("test-service.testAction", { name: "Kevin" });
 
-    assert.strictEqual((metrics1?.getMetric(Constants.REQUESTS_TOTAL) as BaseMetricInstance | undefined)?.value, 3);
-    assert.strictEqual((metrics1?.getMetric(Constants.REQUESTS_IN_FLIGHT) as BaseMetricInstance | undefined)?.value, 0);
+    assert.strictEqual(
+      (metrics1?.getMetric(Constants.REQUESTS_TOTAL) as BaseMetricInstance | undefined)?.value,
+      3,
+    );
+    assert.strictEqual(
+      (metrics1?.getMetric(Constants.REQUESTS_IN_FLIGHT) as BaseMetricInstance | undefined)?.value,
+      0,
+    );
 
-    assert.strictEqual((metrics2?.getMetric(Constants.REQUESTS_TOTAL) as BaseMetricInstance | undefined)?.value, 3);
-    assert.strictEqual((metrics2?.getMetric(Constants.REQUESTS_IN_FLIGHT) as BaseMetricInstance | undefined)?.value, 0);
+    assert.strictEqual(
+      (metrics2?.getMetric(Constants.REQUESTS_TOTAL) as BaseMetricInstance | undefined)?.value,
+      3,
+    );
+    assert.strictEqual(
+      (metrics2?.getMetric(Constants.REQUESTS_IN_FLIGHT) as BaseMetricInstance | undefined)?.value,
+      0,
+    );
   });
 });
 

@@ -2,7 +2,10 @@ import exporterResolverModule from "../../../lib/metrics/exporter/index.mts";
 import { WeaveBrokerOptionsError } from "../../../lib/errors.mts";
 import { describe, it, beforeEach, afterEach, mock } from "node:test";
 import assert from "node:assert/strict";
-import type { MetricExporterAdapter, MetricExporterOptions } from "../../../lib/metrics/exporter/base.mts";
+import type {
+  MetricExporterAdapter,
+  MetricExporterOptions,
+} from "../../../lib/metrics/exporter/base.mts";
 
 interface MockBroker {
   emit: ReturnType<typeof mock.fn>;
@@ -22,14 +25,16 @@ interface AdapterModule {
 interface ExporterResolver {
   Base: AdapterModule;
   Event: AdapterModule;
-  resolve: (options: boolean | string | AdapterModule | (() => AdapterModule)) => AdapterModule | (() => AdapterModule) | undefined;
+  resolve: (
+    options: boolean | string | AdapterModule | (() => AdapterModule),
+  ) => AdapterModule | (() => AdapterModule) | undefined;
 }
 
 const exporterResolver = exporterResolverModule as unknown as ExporterResolver;
 
 // Extended adapter interface for testing that allows partial/mock implementations
 interface TestAdapter {
-  init: (registry: MockRegistry | (MetricExporterAdapter["registry"])) => void;
+  init: (registry: MockRegistry | MetricExporterAdapter["registry"]) => void;
   stop: () => Promise<unknown>;
   metricChanged?: (metric: unknown) => void;
   options?: Record<string, unknown>;
@@ -65,7 +70,7 @@ describe("Metrics Exporter", () => {
     });
 
     it("should return custom function when options is a function", () => {
-      const customAdapter = (() => ({})) as unknown as (() => AdapterModule);
+      const customAdapter = (() => ({})) as unknown as () => AdapterModule;
       const result = exporterResolver.resolve(customAdapter);
       assert.strictEqual(result, customAdapter);
     });
@@ -75,17 +80,14 @@ describe("Metrics Exporter", () => {
         () => {
           exporterResolver.resolve("unknown");
         },
-        (error: Error) => error instanceof WeaveBrokerOptionsError
+        (error: Error) => error instanceof WeaveBrokerOptionsError,
       );
     });
 
     it("should throw error with correct message for unknown adapter", () => {
-      assert.throws(
-        () => {
-          exporterResolver.resolve("invalid");
-        },
-        /Unknown metric adapter: "invalid"/
-      );
+      assert.throws(() => {
+        exporterResolver.resolve("invalid");
+      }, /Unknown metric adapter: "invalid"/);
     });
 
     it("should return undefined for falsy options", () => {
@@ -100,7 +102,7 @@ describe("Metrics Exporter", () => {
         () => {
           exporterResolver.resolve("");
         },
-        (error: Error) => error instanceof WeaveBrokerOptionsError
+        (error: Error) => error instanceof WeaveBrokerOptionsError,
       );
     });
 
@@ -129,12 +131,9 @@ describe("Metrics Exporter", () => {
     });
 
     it("should have init method that throws error when called", () => {
-      assert.throws(
-        () => {
-          adapter.init({} as MockRegistry);
-        },
-        /Init method not implemented/
-      );
+      assert.throws(() => {
+        adapter.init({} as MockRegistry);
+      }, /Init method not implemented/);
     });
 
     it("should have stop method that returns resolved promise", async () => {
@@ -212,7 +211,9 @@ describe("Metrics Exporter", () => {
     });
 
     it("should not set up timer when interval is 0", () => {
-      const zeroIntervalAdapter = exporterResolver.Event.default({ interval: 0 }) as unknown as TestAdapter;
+      const zeroIntervalAdapter = exporterResolver.Event.default({
+        interval: 0,
+      }) as unknown as TestAdapter;
       zeroIntervalAdapter.init(mockRegistry);
 
       assert.strictEqual(zeroIntervalAdapter.timer, undefined);

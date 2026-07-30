@@ -82,7 +82,10 @@ export class WeaveRetryableError extends WeaveError {
    * @param message Error message
    * @param options Error options
    */
-  constructor(message: string, options: WeaveErrorOptions = { code: "WEAVE_RETRYABLE_ERROR", retryable: true }) {
+  constructor(
+    message: string,
+    options: WeaveErrorOptions = { code: "WEAVE_RETRYABLE_ERROR", retryable: true },
+  ) {
     super(message, options);
     this.retryable = true;
   }

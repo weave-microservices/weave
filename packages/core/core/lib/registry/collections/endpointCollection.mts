@@ -6,13 +6,7 @@
 
 import { createActionEndpoint } from "../actionEndpoint.mts";
 import { loadBalancingStrategy } from "../../constants.mts";
-import type {
-  Endpoint,
-  Node,
-  Runtime,
-  ServiceItem,
-  ParsedAction,
-} from "../../../types/index.js";
+import type { Endpoint, Node, Runtime, ServiceItem, ParsedAction } from "../../../types/index.js";
 
 /**
  * Endpoint collection interface
@@ -85,7 +79,8 @@ export const createEndpointList = (
   endpointList.add = (node: Node, service: ServiceItem, action: ParsedAction): boolean => {
     // todo: addaction
     const foundEndpoint = list.find(
-      (endpoint: Endpoint) => endpoint.node.id === node.id && endpoint.service.name === service.name,
+      (endpoint: Endpoint) =>
+        endpoint.node.id === node.id && endpoint.service.name === service.name,
     );
 
     if (foundEndpoint) {

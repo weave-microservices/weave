@@ -1,11 +1,6 @@
 import { Transform, Writable } from "stream";
 import type { TransformCallback, TransformOptions } from "stream";
 
-interface BackpressureEventData {
-  sender: string;
-  requestId: string;
-}
-
 // Internal Node.js readable state interface (simplified)
 interface ReadableStateInternal {
   pipes?: Writable | Writable[];
@@ -34,7 +29,7 @@ const pushWithBackpressure = (
       callback();
     }
     return stream;
-  } else if (!stream.push(chunks[$index], ...[encoding].filter(Boolean) as BufferEncoding[])) {
+  } else if (!stream.push(chunks[$index], ...([encoding].filter(Boolean) as BufferEncoding[]))) {
     stream.emit("backpressure", {
       sender: stream.sender,
       requestId: stream.requestId,

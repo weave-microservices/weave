@@ -1,3 +1,5 @@
+import { getRegistry } from "./registry.mts";
+import type { RegistryActionEntry, RegistryEventEntry, RegistryNode } from "../types.mts";
 import { WebSocketServer, WebSocket } from "ws";
 import type { Server, IncomingMessage } from "http";
 import type { Broker } from "@weave-js/core";
@@ -11,7 +13,11 @@ export interface WebSocketContext {
 /**
  * Setup WebSocket server for real-time cluster updates
  */
-export function setupWebSocket(server: Server, broker: Broker, token: string | null): WebSocketContext {
+export function setupWebSocket(
+  server: Server,
+  broker: Broker,
+  token: string | null,
+): WebSocketContext {
   const wss = new WebSocketServer({ server });
   const clients = new Set<WebSocket>();
 
@@ -19,8 +25,8 @@ export function setupWebSocket(server: Server, broker: Broker, token: string | n
   const broadcastRegistryUpdate = () => {
     broadcast(clients, {
       type: "registry:updated",
-      actions: serializeActions(broker.runtime.registry.actionCollection.list({ withEndpoints: true })),
-      events: serializeEvents(broker.runtime.registry.eventCollection.list()),
+      actions: serializeActions(getRegistry(broker).actionCollection.list({ withEndpoints: true })),
+      events: serializeEvents(getRegistry(broker).eventCollection.list()),
     });
   };
 
@@ -63,9 +69,11 @@ export function setupWebSocket(server: Server, broker: Broker, token: string | n
     ws.send(
       JSON.stringify({
         type: "initial",
-        nodes: broker.runtime.registry.nodeCollection.list().map(serializeNode),
-        actions: serializeActions(broker.runtime.registry.actionCollection.list({ withEndpoints: true })),
-        events: serializeEvents(broker.runtime.registry.eventCollection.list()),
+        nodes: getRegistry(broker).nodeCollection.list().map(serializeNode),
+        actions: serializeActions(
+          getRegistry(broker).actionCollection.list({ withEndpoints: true }),
+        ),
+        events: serializeEvents(getRegistry(broker).eventCollection.list()),
       }),
     );
 
@@ -114,18 +122,18 @@ function broadcast(clients: Set<WebSocket>, message: object) {
   }
 }
 
-function serializeNode(node: any) {
+function serializeNode(node: RegistryNode) {
   return {
     id: node.id,
     isLocal: node.isLocal,
     isAvailable: node.isAvailable,
-    services: node.services?.map((s: any) => s.name) || [],
+    services: node.services?.map((service) => service.name) || [],
     client: node.client,
     cpu: node.cpu,
   };
 }
 
-function serializeActions(actions: any[]) {
+function serializeActions(actions: RegistryActionEntry[]) {
   return actions.map((item) => ({
     name: item.action?.name,
     params: item.action?.params,
@@ -135,7 +143,7 @@ function serializeActions(actions: any[]) {
   }));
 }
 
-function serializeEvents(events: any[]) {
+function serializeEvents(events: RegistryEventEntry[]) {
   return events.map((item) => ({
     name: item.name,
     group: item.groupName,

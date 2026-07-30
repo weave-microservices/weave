@@ -1,20 +1,8 @@
 import { cn } from "@/lib/utils";
-import {
-  Activity,
-  Layers,
-  Network,
-  Radio,
-  Settings,
-  Zap,
-} from "lucide-react";
+import { Activity, Layers, Network, Radio, Settings, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useClusterStore } from "@/stores/cluster";
 
 export type View = "cluster" | "actions" | "events" | "packets" | "settings";
@@ -65,10 +53,7 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
         <Tooltip>
           <TooltipTrigger asChild>
             <div
-              className={cn(
-                "mb-4 h-2 w-2 rounded-full",
-                connected ? "bg-green-500" : "bg-red-500"
-              )}
+              className={cn("mb-4 h-2 w-2 rounded-full", connected ? "bg-green-500" : "bg-red-500")}
             />
           </TooltipTrigger>
           <TooltipContent side="right">

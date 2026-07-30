@@ -4,7 +4,9 @@ import type { LoggerContext } from "./index.mts";
 /**
  * Log hook function type
  */
-type LogHook = ((args: unknown[], log: (...args: unknown[]) => void, level: number) => void) | undefined;
+type LogHook =
+  | ((args: unknown[], log: (...args: unknown[]) => void, level: number) => void)
+  | undefined;
 
 /**
  * No-operation function for disabled log levels.

@@ -44,7 +44,10 @@ export default (runtime: Runtime): Middleware => {
     });
   }
 
-  function getEndpointState(endpoint: Endpoint, options: CircuitBreakerOptions): CircuitBreakerEndpointState {
+  function getEndpointState(
+    endpoint: Endpoint,
+    options: CircuitBreakerOptions,
+  ): CircuitBreakerEndpointState {
     let item = storage.get(endpoint.name);
     if (!item) {
       item = {
@@ -131,11 +134,21 @@ export default (runtime: Runtime): Middleware => {
     log?.debug(`Circuit breaker has been closed for endpoint '${item.endpoint.name}'`);
   }
 
-  function wrapCircuitBreakerMiddleware(handler: ActionHandler, action: ParsedAction): ActionHandler {
-    const options: CircuitBreakerOptions = Object.assign({}, runtime.options.circuitBreaker, action.circuitBreaker || {});
+  function wrapCircuitBreakerMiddleware(
+    handler: ActionHandler,
+    action: ParsedAction,
+  ): ActionHandler {
+    const options: CircuitBreakerOptions = Object.assign(
+      {},
+      runtime.options.circuitBreaker,
+      action.circuitBreaker || {},
+    );
 
     if (options.enabled) {
-      return function curcuitBreakerMiddleware(context: Context, serviceInjections: ServiceInjection): Promise<unknown> {
+      return function curcuitBreakerMiddleware(
+        context: Context,
+        serviceInjections: ServiceInjection,
+      ): Promise<unknown> {
         const endpoint = context.endpoint;
         if (!endpoint) {
           return handler(context, serviceInjections);

@@ -58,7 +58,7 @@ export function createPacketTrackerMiddleware(): PacketTrackerMiddleware {
     // Intercept outgoing packets
     transportSend(this: Runtime, next: (message: TransportMessage) => Promise<void>) {
       const nodeId = this.nodeId;
-      console.log(nodeId)
+      console.log(nodeId);
       return async function (message: TransportMessage) {
         emit({
           id: message.payload?.id || crypto.randomUUID(),
@@ -76,9 +76,12 @@ export function createPacketTrackerMiddleware(): PacketTrackerMiddleware {
     },
 
     // Intercept incoming packets
-    transportMessageHandler(this: Runtime, next: (type: string, data: TransportMessage | null) => boolean) {
+    transportMessageHandler(
+      this: Runtime,
+      next: (type: string, data: TransportMessage | null) => boolean,
+    ) {
       const nodeId = this.nodeId;
-      console.log(nodeId)
+      console.log(nodeId);
 
       return function (type: string, data: TransportMessage | null) {
         if (data?.payload) {

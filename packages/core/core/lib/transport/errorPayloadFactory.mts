@@ -1,5 +1,5 @@
-import type { Runtime } from '../../types/index.js';
-import { WeaveError } from '../errors.mts';
+import type { Runtime } from "../../types/index.js";
+import { WeaveError } from "../errors.mts";
 
 /**
  * Error with optional nodeId property (can be set during restoration)
@@ -20,13 +20,15 @@ export interface TransportErrorPayload {
   data: unknown;
 }
 
-export const errorPayloadFactory = (runtime: Runtime) => (error: TransportError): TransportErrorPayload => {
-  return {
-    name: error.name,
-    message: error.message,
-    nodeId: error.nodeId || runtime.nodeId,
-    code: error.code,
-    stack: error.stack,
-    data: error.data,
+export const errorPayloadFactory =
+  (runtime: Runtime) =>
+  (error: TransportError): TransportErrorPayload => {
+    return {
+      name: error.name,
+      message: error.message,
+      nodeId: error.nodeId || runtime.nodeId,
+      code: error.code,
+      stack: error.stack,
+      data: error.data,
+    };
   };
-};

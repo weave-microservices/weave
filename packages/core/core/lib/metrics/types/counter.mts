@@ -9,7 +9,10 @@ export interface CounterMetricInstance extends Omit<GaugeMetricInstance, "decrem
   decrement(): never;
 }
 
-export const createCounter = (metricRegistry: MetricRegistry, obj: MetricCreateOptions): CounterMetricInstance => {
+export const createCounter = (
+  metricRegistry: MetricRegistry,
+  obj: MetricCreateOptions,
+): CounterMetricInstance => {
   const base = createGauge(metricRegistry, obj) as unknown as CounterMetricInstance;
 
   base.decrement = (): never => {

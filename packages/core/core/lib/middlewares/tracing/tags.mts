@@ -1,5 +1,10 @@
 import { isFunction, dotGet, isObject } from "@weave-js/utils";
-import type { ActionTracingOptions, Context, EventTracingOptions, TracingTagsOptions } from "../../../types/index.js";
+import type {
+  ActionTracingOptions,
+  Context,
+  EventTracingOptions,
+  TracingTagsOptions,
+} from "../../../types/index.js";
 
 interface ActionTags {
   requestLevel: number;
@@ -59,7 +64,7 @@ function addPreHandleTagsFromDefinition(
       tags.data = (tagsObj.data as string[]).reduce<Record<string, unknown>>((acc, current) => {
         try {
           acc[current] = dotGet(context.data, current);
-        } catch (error) {
+        } catch {
           const spanId = context.span ? context.span.id : undefined;
 
           context.service?.log.warn(
@@ -84,7 +89,7 @@ function addPreHandleTagsFromDefinition(
       tags.meta = (tagsObj.meta as string[]).reduce<Record<string, unknown>>((acc, current) => {
         try {
           acc[current] = dotGet(context.meta, current);
-        } catch (error) {
+        } catch {
           const spanId = context.span ? context.span.id : undefined;
 
           context.service?.log.warn(
@@ -100,7 +105,10 @@ function addPreHandleTagsFromDefinition(
       }, {});
     }
   } else if (isFunction(actionTags)) {
-    tags.data = (actionTags as (ctx: Context) => Record<string, unknown>).call(context.service, context);
+    tags.data = (actionTags as (ctx: Context) => Record<string, unknown>).call(
+      context.service,
+      context,
+    );
   }
 }
 
@@ -195,22 +203,25 @@ export const addResponseTags = (
   if (actionTags.response === true) {
     tags.response = result !== null && isObject(result) ? Object.assign({}, result) : result;
   } else if (Array.isArray(actionTags.response)) {
-    tags.response = (actionTags.response as string[]).reduce<Record<string, unknown>>((acc, current) => {
-      try {
-        acc[current] = dotGet(result, current);
-      } catch (error) {
-        const spanId = context.span ? context.span.id : undefined;
+    tags.response = (actionTags.response as string[]).reduce<Record<string, unknown>>(
+      (acc, current) => {
+        try {
+          acc[current] = dotGet(result, current);
+        } catch {
+          const spanId = context.span ? context.span.id : undefined;
 
-        context.service?.log.warn(
-          {
-            requestId: context.requestId,
-            spanId,
-          },
-          `Unable to get response tag "${current}" from result`,
-        );
-        acc[current] = undefined;
-      }
-      return acc;
-    }, {});
+          context.service?.log.warn(
+            {
+              requestId: context.requestId,
+              spanId,
+            },
+            `Unable to get response tag "${current}" from result`,
+          );
+          acc[current] = undefined;
+        }
+        return acc;
+      },
+      {},
+    );
   }
 };

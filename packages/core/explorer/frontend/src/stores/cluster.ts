@@ -89,8 +89,7 @@ export const useClusterStore = create<ClusterState>((set) => ({
 
   setConnected: (connected) => set({ connected }),
 
-  setInitialState: (nodes, actions, events) =>
-    set({ nodes, actions, events, connected: true }),
+  setInitialState: (nodes, actions, events) => set({ nodes, actions, events, connected: true }),
 
   addNode: (node) =>
     set((state) => ({

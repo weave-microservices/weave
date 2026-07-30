@@ -5,17 +5,32 @@
  */
 
 import { buildActionTags, buildEventTags, addResponseTags } from "./tags.mts";
-import type { ActionHandler, ActionTracingOptions, Context, EventHandler, EventTracingOptions, Middleware, Runtime, ServiceInjection, ParsedAction, ParsedEvent } from "../../../types/index.js";
+import type {
+  ActionHandler,
+  ActionTracingOptions,
+  Context,
+  EventHandler,
+  EventTracingOptions,
+  Middleware,
+  Runtime,
+  ServiceInjection,
+  ParsedAction,
+  ParsedEvent,
+} from "../../../types/index.js";
 
-function normalizeActionTracingOptions(tracing: boolean | ActionTracingOptions | undefined): ActionTracingOptions {
-  if (typeof tracing === 'object' && tracing !== null) {
+function normalizeActionTracingOptions(
+  tracing: boolean | ActionTracingOptions | undefined,
+): ActionTracingOptions {
+  if (typeof tracing === "object" && tracing !== null) {
     return tracing;
   }
   return {};
 }
 
-function normalizeEventTracingOptions(tracing: boolean | EventTracingOptions | undefined): EventTracingOptions {
-  if (typeof tracing === 'object' && tracing !== null) {
+function normalizeEventTracingOptions(
+  tracing: boolean | EventTracingOptions | undefined,
+): EventTracingOptions {
+  if (typeof tracing === "object" && tracing !== null) {
     return tracing;
   }
   return {};
@@ -48,9 +63,12 @@ function getSpanName(context: Context, actionTracingOptions: ActionTracingOption
   return spanName;
 }
 
-const wrapTracingLocalActionMiddleware = function (this: Runtime, handler: ActionHandler, action: ParsedAction): ActionHandler {
-  const broker = this;
-  const globalTracingOptions = broker.options.tracing || {};
+const wrapTracingLocalActionMiddleware = function (
+  this: Runtime,
+  handler: ActionHandler,
+  action: ParsedAction,
+): ActionHandler {
+  const globalTracingOptions = this.options.tracing || {};
   const actionTracingOptions = normalizeActionTracingOptions(action.tracing);
 
   if (globalTracingOptions.enabled) {
@@ -99,14 +117,20 @@ const wrapTracingLocalActionMiddleware = function (this: Runtime, handler: Actio
   return handler;
 };
 
-const wrapTracingLocalEventMiddleware = function (this: Runtime, handler: EventHandler, event: ParsedEvent): EventHandler {
-  const broker = this;
+const wrapTracingLocalEventMiddleware = function (
+  this: Runtime,
+  handler: EventHandler,
+  event: ParsedEvent,
+): EventHandler {
   const service = event.service;
-  const tracingOptions = broker.options.tracing || {};
+  const tracingOptions = this.options.tracing || {};
   const eventTracingOptions = normalizeEventTracingOptions(event.tracing);
 
   if (tracingOptions.enabled) {
-    return function tracingLocalEventMiddleware(context: Context, serviceInjections: ServiceInjection): Promise<any> {
+    return function tracingLocalEventMiddleware(
+      context: Context,
+      serviceInjections: ServiceInjection,
+    ): Promise<any> {
       const tags = buildEventTags(context, tracingOptions, eventTracingOptions);
 
       const span = context.startSpan(`event "${context.eventName}"`, {

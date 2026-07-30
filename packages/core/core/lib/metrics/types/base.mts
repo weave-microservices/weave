@@ -52,13 +52,20 @@ export interface BaseMetricInstance {
     unit?: string;
   };
   generateSnapshot(): MetricSnapshotItem[];
-  set?(value: number, labels: Record<string, string> | null, timestamp?: number): MetricValueItem | undefined;
+  set?(
+    value: number,
+    labels: Record<string, string> | null,
+    timestamp?: number,
+  ): MetricValueItem | undefined;
   increment?(labels: Record<string, string> | null, value?: number, timestamp?: number): void;
   decrement?(labels: Record<string, string> | null, value?: number, timestamp?: number): void;
   observe?(value: number, labels: Record<string, string> | null, timestamp?: number): void;
 }
 
-export const createBaseMetricType = (metricRegistry: MetricRegistry, obj: MetricCreateOptions): BaseMetricInstance => {
+export const createBaseMetricType = (
+  metricRegistry: MetricRegistry,
+  obj: MetricCreateOptions,
+): BaseMetricInstance => {
   const base: BaseMetricInstance = {
     name: obj.name,
     description: obj.description,

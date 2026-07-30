@@ -1,5 +1,13 @@
 import { WeaveGracefulStopTimeoutError } from "../../errors.mts";
-import type { ActionHandler, Context, Logger, Middleware, Runtime, Service, ServiceInjection } from "../../../types/index.js";
+import type {
+  ActionHandler,
+  Context,
+  Logger,
+  Middleware,
+  Runtime,
+  Service,
+  ServiceInjection,
+} from "../../../types/index.js";
 
 export default (runtime: Runtime): Middleware => {
   function addContext(context: Context): void {
@@ -28,7 +36,10 @@ export default (runtime: Runtime): Middleware => {
   }
 
   function wrapContextTrackerMiddleware(actionHandler: ActionHandler): ActionHandler {
-    return function ContextTrackerMiddleware(context: Context, serviceInjections: ServiceInjection): Promise<unknown> {
+    return function ContextTrackerMiddleware(
+      context: Context,
+      serviceInjections: ServiceInjection,
+    ): Promise<unknown> {
       const isTracked =
         context.options.track === true
           ? context.options.track

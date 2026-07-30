@@ -33,7 +33,10 @@ export const asJson = (
     let value: unknown;
     for (const key in originObj) {
       value = originObj[key];
-      if ((doesNotHaveOwnProperty || Object.prototype.hasOwnProperty.call(originObj, key)) && value !== undefined) {
+      if (
+        (doesNotHaveOwnProperty || Object.prototype.hasOwnProperty.call(originObj, key)) &&
+        value !== undefined
+      ) {
         data[key] = value;
       }
     }

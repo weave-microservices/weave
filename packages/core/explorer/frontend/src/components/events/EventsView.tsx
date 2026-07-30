@@ -12,7 +12,7 @@ export function EventsView() {
   const filteredEvents = events.filter(
     (event) =>
       event.name?.toLowerCase().includes(search.toLowerCase()) ||
-      event.group?.toLowerCase().includes(search.toLowerCase())
+      event.group?.toLowerCase().includes(search.toLowerCase()),
   );
 
   // Group events by their service/group name
@@ -23,7 +23,7 @@ export function EventsView() {
       acc[group].push(event);
       return acc;
     },
-    {} as Record<string, typeof filteredEvents>
+    {} as Record<string, typeof filteredEvents>,
   );
 
   return (

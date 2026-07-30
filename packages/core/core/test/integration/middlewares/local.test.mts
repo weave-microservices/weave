@@ -1,7 +1,13 @@
 import { createNode } from "../../helper/index.mts";
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import type { Runtime, Service, Middleware, ActionHandler, ParsedAction } from "../../../types/index.js";
+import type {
+  Runtime,
+  Service,
+  Middleware,
+  ActionHandler,
+  ParsedAction,
+} from "../../../types/index.js";
 
 const createMiddlewareWithFlow = (flowArray: string[]): Middleware => {
   return {
@@ -34,49 +40,49 @@ const createMiddlewareWithFlow = (flowArray: string[]): Middleware => {
       flowArray.push("remoteAction");
       return handler;
     },
-    emit(next: Function) {
+    emit(next: (...args: never[]) => unknown) {
       flowArray.push("emit");
       return function (this: unknown, ...args: unknown[]) {
         return next.apply(this, args);
       };
     },
-    broadcast(next: Function) {
+    broadcast(next: (...args: never[]) => unknown) {
       flowArray.push("broadcast");
       return function (this: unknown, ...args: unknown[]) {
         return next.apply(this, args);
       };
     },
-    broadcastLocal(next: Function) {
+    broadcastLocal(next: (...args: never[]) => unknown) {
       flowArray.push("broadcastLocal");
       return function (this: unknown, ...args: unknown[]) {
         return next.apply(this, args);
       };
     },
-    call(next: Function) {
+    call(next: (...args: never[]) => unknown) {
       flowArray.push("call");
       return function (this: unknown, ...args: unknown[]) {
         return next.apply(this, args);
       };
     },
-    multiCall(next: Function) {
+    multiCall(next: (...args: never[]) => unknown) {
       flowArray.push("multiCall");
       return function (this: unknown, ...args: unknown[]) {
         return next.apply(this, args);
       };
     },
-    createService(next: Function) {
+    createService(next: (...args: never[]) => unknown) {
       flowArray.push("createService");
       return function (this: unknown, ...args: unknown[]) {
         return next.apply(this, args);
       };
     },
-    loadService(next: Function) {
+    loadService(next: (...args: never[]) => unknown) {
       flowArray.push("loadService");
       return function (this: unknown, ...args: unknown[]) {
         return next.apply(this, args);
       };
     },
-    loadServices(next: Function) {
+    loadServices(next: (...args: never[]) => unknown) {
       flowArray.push("loadServices");
       return function (this: unknown, ...args: unknown[]) {
         return next.apply(this, args);

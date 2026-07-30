@@ -21,7 +21,11 @@ import type { ValidationError, ValidationFunction, ValidationOptions } from "@we
 export default (runtime: Runtime): Middleware => {
   const validator = runtime.validator;
 
-  const processErrors = (context: Context, type: string, results: ValidationError[]): Promise<never> => {
+  const processErrors = (
+    context: Context,
+    type: string,
+    results: ValidationError[],
+  ): Promise<never> => {
     const errors = results.map((data) =>
       Object.assign(data, { nodeId: context.nodeId, action: context.action?.name }),
     );

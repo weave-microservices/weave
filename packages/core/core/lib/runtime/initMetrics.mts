@@ -25,9 +25,24 @@ interface MetricRegistryInternal {
   init(): void;
   stop(): Promise<PromiseSettledResult<void>[] | void>;
   register(obj: MetricCreateOptions): BaseMetricInstance | undefined;
-  increment(name: string, labels: Record<string, string> | null, value?: number, timestamp?: number): null | void;
-  decrement(name: string, labels: Record<string, string> | null, value?: number, timestamp?: number): null | void;
-  set(name: string, value: number, labels: Record<string, string> | null, timestamp?: number): null | void;
+  increment(
+    name: string,
+    labels: Record<string, string> | null,
+    value?: number,
+    timestamp?: number,
+  ): null | void;
+  decrement(
+    name: string,
+    labels: Record<string, string> | null,
+    value?: number,
+    timestamp?: number,
+  ): null | void;
+  set(
+    name: string,
+    value: number,
+    labels: Record<string, string> | null,
+    timestamp?: number,
+  ): null | void;
   timer(name: string, labels: Record<string, string> | null, timestamp?: number): () => number;
   getMetric(name: string): BaseMetricInstance | undefined;
   list(): ReturnType<BaseMetricInstance["toObject"]>[];
@@ -70,8 +85,12 @@ export const initMetrics = (runtime: Runtime): void => {
             return;
           }
 
-          const results = await Promise.allSettled(this.adapters.map((adapter: MetricsAdapter) => adapter.stop()));
-          const failures = results.filter((result): result is PromiseRejectedResult => result.status === "rejected");
+          const results = await Promise.allSettled(
+            this.adapters.map((adapter: MetricsAdapter) => adapter.stop()),
+          );
+          const failures = results.filter(
+            (result): result is PromiseRejectedResult => result.status === "rejected",
+          );
 
           if (failures.length > 0) {
             failures.forEach((failure: PromiseRejectedResult) => {
@@ -113,7 +132,12 @@ export const initMetrics = (runtime: Runtime): void => {
 
           return type;
         },
-        increment(name: string, labels: Record<string, string> | null, value: number = 1, timestamp?: number): null | void {
+        increment(
+          name: string,
+          labels: Record<string, string> | null,
+          value: number = 1,
+          timestamp?: number,
+        ): null | void {
           if (!metricOptions.enabled) {
             return null;
           }
@@ -127,7 +151,12 @@ export const initMetrics = (runtime: Runtime): void => {
 
           item.increment?.(labels, value, timestamp);
         },
-        decrement(name: string, labels: Record<string, string> | null, value: number = 1, timestamp?: number): null | void {
+        decrement(
+          name: string,
+          labels: Record<string, string> | null,
+          value: number = 1,
+          timestamp?: number,
+        ): null | void {
           if (!metricOptions.enabled) {
             return null;
           }
@@ -141,7 +170,12 @@ export const initMetrics = (runtime: Runtime): void => {
 
           item.decrement?.(labels, value, timestamp);
         },
-        set(name: string, value: number, labels: Record<string, string> | null, timestamp?: number): null | void {
+        set(
+          name: string,
+          value: number,
+          labels: Record<string, string> | null,
+          timestamp?: number,
+        ): null | void {
           if (!metricOptions.enabled) {
             return null;
           }
@@ -155,7 +189,11 @@ export const initMetrics = (runtime: Runtime): void => {
 
           item.set(value, labels, timestamp);
         },
-        timer(name: string, labels: Record<string, string> | null, timestamp?: number): () => number {
+        timer(
+          name: string,
+          labels: Record<string, string> | null,
+          timestamp?: number,
+        ): () => number {
           let item: BaseMetricInstance | undefined;
           if (name) {
             item = this.storage.get(name);

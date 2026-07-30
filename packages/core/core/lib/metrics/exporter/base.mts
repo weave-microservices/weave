@@ -27,7 +27,7 @@ export default (options?: MetricExporterOptions): MetricExporterAdapter => {
     options: options || {},
     registry: undefined as unknown as MetricRegistry & { broker: Broker },
     timer: undefined,
-    init(registry: MetricRegistry & { broker: Broker }): void {
+    init(_registry: MetricRegistry & { broker: Broker }): void {
       throw new WeaveError("Init method not implemented");
     },
     stop(): Promise<void> {

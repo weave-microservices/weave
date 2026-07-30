@@ -51,7 +51,10 @@ const getByName = (name: string): (typeof collectors)[CollectorName] | undefined
  * @returns Resolved collector instance
  * @throws {Error} When collector cannot be resolved or is not found
  */
-export const resolveCollector = (runtime: Runtime, collector: string | ((...args: unknown[]) => unknown) | object): unknown => {
+export const resolveCollector = (
+  runtime: Runtime,
+  collector: string | ((...args: unknown[]) => unknown) | object,
+): unknown => {
   let CollectorClass: (typeof collectors)[CollectorName] | undefined;
   if (typeof collector === "string") {
     CollectorClass = getByName(collector);

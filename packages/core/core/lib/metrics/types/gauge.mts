@@ -1,4 +1,10 @@
-import { createBaseMetricType, type BaseMetricInstance, type MetricCreateOptions, type MetricSnapshotItem, type MetricValueItem } from "./base.mts";
+import {
+  createBaseMetricType,
+  type BaseMetricInstance,
+  type MetricCreateOptions,
+  type MetricSnapshotItem,
+  type MetricValueItem,
+} from "./base.mts";
 import type { MetricRegistry } from "../../../types/index.js";
 
 /**
@@ -8,20 +14,35 @@ export interface GaugeMetricInstance extends BaseMetricInstance {
   value: number;
   increment(labels: Record<string, string> | null, value: number, timestamp?: number): void;
   decrement(labels: Record<string, string> | null, value: number, timestamp?: number): void;
-  set(value: number, labels: Record<string, string> | null, timestamp?: number): MetricValueItem | undefined;
+  set(
+    value: number,
+    labels: Record<string, string> | null,
+    timestamp?: number,
+  ): MetricValueItem | undefined;
 }
 
-export const createGauge = (registry: MetricRegistry, obj: MetricCreateOptions): GaugeMetricInstance => {
+export const createGauge = (
+  registry: MetricRegistry,
+  obj: MetricCreateOptions,
+): GaugeMetricInstance => {
   const base = createBaseMetricType(registry, obj) as GaugeMetricInstance;
 
   base.value = 0;
 
-  base.increment = (labels: Record<string, string> | null, value: number, timestamp?: number): void => {
+  base.increment = (
+    labels: Record<string, string> | null,
+    value: number,
+    timestamp?: number,
+  ): void => {
     const item = base.get(labels);
     base.set((item ? item.value : 0) + value, labels, timestamp);
   };
 
-  base.decrement = (labels: Record<string, string> | null, value: number, timestamp?: number): void => {
+  base.decrement = (
+    labels: Record<string, string> | null,
+    value: number,
+    timestamp?: number,
+  ): void => {
     const item = base.get(labels);
     base.set((item ? item.value : 0) - value, labels, timestamp);
   };
@@ -35,7 +56,11 @@ export const createGauge = (registry: MetricRegistry, obj: MetricCreateOptions):
     });
   };
 
-  base.set = (value: number, labels: Record<string, string> | null, timestamp: number = Date.now()): MetricValueItem | undefined => {
+  base.set = (
+    value: number,
+    labels: Record<string, string> | null,
+    timestamp: number = Date.now(),
+  ): MetricValueItem | undefined => {
     const labelString = base.stringifyLabels(labels);
     let item = base.values.get(labelString);
 

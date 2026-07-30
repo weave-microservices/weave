@@ -48,11 +48,7 @@ export function useWebSocket() {
 
         switch (msg.type) {
           case "initial":
-            setInitialState(
-              msg.nodes as never[],
-              msg.actions as never[],
-              msg.events as never[]
-            );
+            setInitialState(msg.nodes as never[], msg.actions as never[], msg.events as never[]);
             break;
 
           case "node:connected":
@@ -99,28 +95,25 @@ export function useWebSocket() {
     return ws;
   }, []);
 
-  const callAction = useCallback(
-    (action: string, params: unknown) => {
-      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-        return null;
-      }
+  const callAction = useCallback((action: string, params: unknown) => {
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+      return null;
+    }
 
-      const id = crypto.randomUUID();
-      const call = {
-        id,
-        action,
-        params,
-        status: "pending" as const,
-        startedAt: Date.now(),
-      };
+    const id = crypto.randomUUID();
+    const call = {
+      id,
+      action,
+      params,
+      status: "pending" as const,
+      startedAt: Date.now(),
+    };
 
-      addCall(call);
-      wsRef.current.send(JSON.stringify({ type: "call", id, action, params }));
+    addCall(call);
+    wsRef.current.send(JSON.stringify({ type: "call", id, action, params }));
 
-      return id;
-    },
-    []
-  );
+    return id;
+  }, []);
 
   useEffect(() => {
     const ws = connect();

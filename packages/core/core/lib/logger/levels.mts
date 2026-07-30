@@ -4,7 +4,9 @@ import type { LoggerContext } from "./index.mts";
 /**
  * Log hook function type
  */
-type LogHook = ((args: unknown[], log: (...args: unknown[]) => void, level: number) => void) | undefined;
+type LogHook =
+  | ((args: unknown[], log: (...args: unknown[]) => void, level: number) => void)
+  | undefined;
 
 /**
  * Standard log levels with their numeric values.
@@ -23,7 +25,10 @@ const levels: Record<string, number> = {
  * Level method factory functions.
  * Each creates a log method for the specified level.
  */
-const levelMethods: Record<string, (ctx: LoggerContext, hook: LogHook) => (...args: unknown[]) => void> = {
+const levelMethods: Record<
+  string,
+  (ctx: LoggerContext, hook: LogHook) => (...args: unknown[]) => void
+> = {
   fatal: (ctx: LoggerContext, hook: LogHook) => {
     const logFatal = generateLogMethod(ctx, levels.fatal, hook);
     return function (...args: unknown[]): void {
@@ -54,7 +59,10 @@ const numbers: Record<number, string> = Object.keys(levels).reduce(
   {},
 );
 
-export const mappings = (customLevels: Record<string, number> | null = null, useOnlyCustomLevels = false) => {
+export const mappings = (
+  customLevels: Record<string, number> | null = null,
+  useOnlyCustomLevels = false,
+) => {
   const customNums = customLevels
     ? Object.keys(customLevels).reduce((o: Record<number, string>, k) => {
         o[customLevels[k]] = k;

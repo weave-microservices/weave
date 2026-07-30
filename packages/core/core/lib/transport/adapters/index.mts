@@ -8,7 +8,7 @@ import { WeaveBrokerOptionsError } from "../../errors.mts";
 import fromURI from "./fromURI.mts";
 import getAdapterByName from "./getAdapterByName.mts";
 import adapters from "./adapters.mts";
-import type { Runtime, TransportOptions } from '../../../types/index.js';
+import type { Runtime, TransportOptions } from "../../../types/index.js";
 import type { BaseTransportAdapter } from "./adapterBase.mts";
 
 /**
@@ -19,7 +19,10 @@ interface ExtendedTransportOptions extends TransportOptions {
   options?: Record<string, unknown>;
 }
 
-const resolve = (runtime: Runtime, options: ExtendedTransportOptions): BaseTransportAdapter | object | null => {
+const resolve = (
+  runtime: Runtime,
+  options: ExtendedTransportOptions,
+): BaseTransportAdapter | object | null => {
   if (typeof options === "object") {
     if (typeof options.adapter === "string") {
       const Adapter = getAdapterByName(options.adapter);

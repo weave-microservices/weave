@@ -26,14 +26,11 @@ describe("Test param validator", () => {
     });
 
     await node1.start();
-    await assert.rejects(
-      node1.call("testService.sayHello", { name: "Hans" }),
-      (error: any) => {
-        assert.strictEqual(error.name, "WeaveParameterValidationError");
-        assert.strictEqual(error.message, "Request parameter validation error");
-        return true;
-      },
-    );
+    await assert.rejects(node1.call("testService.sayHello", { name: "Hans" }), (error: any) => {
+      assert.strictEqual(error.name, "WeaveParameterValidationError");
+      assert.strictEqual(error.message, "Request parameter validation error");
+      return true;
+    });
   });
 
   it("should fail with error and validation data (short form).", async () => {
@@ -59,14 +56,11 @@ describe("Test param validator", () => {
     });
 
     await node1.start();
-    await assert.rejects(
-      node1.call("testService.sayHello", { name: 1 }),
-      (error: any) => {
-        assert.strictEqual(error.name, "WeaveParameterValidationError");
-        assert.strictEqual(error.message, "Request parameter validation error");
-        return true;
-      },
-    );
+    await assert.rejects(node1.call("testService.sayHello", { name: 1 }), (error: any) => {
+      assert.strictEqual(error.name, "WeaveParameterValidationError");
+      assert.strictEqual(error.message, "Request parameter validation error");
+      return true;
+    });
   });
 });
 
@@ -197,17 +191,14 @@ describe("Response validator", () => {
     });
 
     await broker1.start();
-    await assert.rejects(
-      broker1.call("testService.sayHello", { name: "Hans" }),
-      (error: any) => {
-        assert.strictEqual(error.data.length, 3);
-        const [validationError] = error.data;
+    await assert.rejects(broker1.call("testService.sayHello", { name: "Hans" }), (error: any) => {
+      assert.strictEqual(error.data.length, 3);
+      const [validationError] = error.data;
 
-        assert.strictEqual(validationError.action, "testService.sayHello");
-        assert.strictEqual(validationError.field, "firstname");
-        return true;
-      },
-    );
+      assert.strictEqual(validationError.action, "testService.sayHello");
+      assert.strictEqual(validationError.field, "firstname");
+      return true;
+    });
 
     const result = await broker1.call("testService.sayHello", { name: "RightName" });
     assert.deepStrictEqual(result, { firstname: "Right", lastname: "Name" });

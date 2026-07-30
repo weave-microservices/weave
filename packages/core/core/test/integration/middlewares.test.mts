@@ -77,7 +77,7 @@ describe("Middleware hooks", () => {
       stopped: () => {
         order.push("stopped");
       },
-      localAction: (handler: ActionHandler, action: ParsedAction) => {
+      localAction: (handler: ActionHandler, _action: ParsedAction) => {
         return function (context: Context) {
           order.push("localAction1");
           return handler(context, {} as any).then((res: any) => {
@@ -203,7 +203,10 @@ describe("Middleware hooks", () => {
 
     await Promise.all([broker1.start(), broker2.start()]);
     await broker1.waitForServices(["math"]);
-    const res = await broker1.call("math.add", { a: 1, b: 2 }) as { result: number; params: { paramFromMiddleware: string } };
+    const res = (await broker1.call("math.add", { a: 1, b: 2 })) as {
+      result: number;
+      params: { paramFromMiddleware: string };
+    };
     assert.strictEqual(res.result, 3);
     assert.strictEqual(res.params.paramFromMiddleware, "hello world");
   });

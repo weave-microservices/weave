@@ -112,7 +112,7 @@ describe("Test logger module.", () => {
       assert.strictEqual(logObj1["0"], "item1");
       assert.strictEqual(logObj1["1"], "item2");
       assert.strictEqual(logObj1.level, 40);
-      
+
       const logObj2 = JSON.parse(calls[1][0]);
       assert.strictEqual(logObj2.user, "hans");
       assert.deepStrictEqual(logObj2.rooms, [1, 2, 3, 4]);

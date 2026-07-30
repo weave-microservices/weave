@@ -44,7 +44,11 @@ export const initServiceManager = (runtime: Runtime): void => {
        * @param {Number} interval Time in Miliseconds to check for services.
        * @returns {Promise} Promise
        */
-      waitForServices(serviceNames: string | string[], timeout: number, interval: number = 500): Promise<void> {
+      waitForServices(
+        serviceNames: string | string[],
+        timeout: number,
+        interval: number = 500,
+      ): Promise<void> {
         if (!Array.isArray(serviceNames)) {
           serviceNames = [serviceNames];
         }
@@ -55,9 +59,13 @@ export const initServiceManager = (runtime: Runtime): void => {
           log.warn(`Waiting for services '${(serviceNames as string[]).join(",")}'`);
 
           const serviceCheck = (): void => {
-            const count = (serviceNames as string[]).filter((serviceName: string) => registry.hasService(serviceName));
+            const count = (serviceNames as string[]).filter((serviceName: string) =>
+              registry.hasService(serviceName),
+            );
 
-            log.warn(`${count.length} services of ${(serviceNames as string[]).length} available. Waiting`);
+            log.warn(
+              `${count.length} services of ${(serviceNames as string[]).length} available. Waiting`,
+            );
 
             if (count.length === (serviceNames as string[]).length) {
               resolve();
@@ -75,7 +83,10 @@ export const initServiceManager = (runtime: Runtime): void => {
               );
             }
 
-            (options as Record<string, unknown>).waitForServiceInterval = setTimeout(serviceCheck, interval);
+            (options as Record<string, unknown>).waitForServiceInterval = setTimeout(
+              serviceCheck,
+              interval,
+            );
           };
 
           serviceCheck();

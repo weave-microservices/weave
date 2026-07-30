@@ -1,7 +1,4 @@
-import BaseAdapter, {
-  type MetricExporterAdapter,
-  type MetricExporterOptions,
-} from "./base.mts";
+import BaseAdapter, { type MetricExporterAdapter, type MetricExporterOptions } from "./base.mts";
 import type { BaseMetric, MetricRegistry, Broker } from "../../../types/index.js";
 
 export default (options?: MetricExporterOptions): MetricExporterAdapter => {

@@ -68,7 +68,8 @@ interface EndpointList {
 export const createServiceCollection = (registry: Registry): ServiceCollection => {
   const serviceCollection: ServiceCollection = Object.create(null);
   const { runtime } = registry;
-  const services: ServiceItem[] = (serviceCollection.services = [] as unknown as Set<ServiceItem>) as unknown as ServiceItem[];
+  const services: ServiceItem[] = (serviceCollection.services =
+    [] as unknown as Set<ServiceItem>) as unknown as ServiceItem[];
   const actions = new Map<string, EndpointList>();
 
   serviceCollection.add = (
@@ -89,19 +90,11 @@ export const createServiceCollection = (registry: Registry): ServiceCollection =
   ): ServiceItem | undefined =>
     services.find((svc: ServiceItem) => svc.equals(name, version, nodeId));
 
-  serviceCollection.has = (
-    name: string,
-    version?: string | number,
-    nodeId?: string,
-  ): boolean => {
+  serviceCollection.has = (name: string, version?: string | number, nodeId?: string): boolean => {
     return !!services.find((svc: ServiceItem) => svc.equals(name, version, nodeId));
   };
 
-  serviceCollection.remove = (
-    nodeId: string,
-    name: string,
-    version?: string | number,
-  ): void => {
+  serviceCollection.remove = (nodeId: string, name: string, version?: string | number): void => {
     const service = serviceCollection.get(nodeId, name, version);
 
     if (service) {
@@ -122,8 +115,9 @@ export const createServiceCollection = (registry: Registry): ServiceCollection =
     });
   };
 
-  (serviceCollection as any).tryFindActionsByActionName = (actionName: string): EndpointList | undefined =>
-    actions.get(actionName);
+  (serviceCollection as any).tryFindActionsByActionName = (
+    actionName: string,
+  ): EndpointList | undefined => actions.get(actionName);
 
   (serviceCollection as any).getActionsList = (): ActionListItem[] => {
     const result: ActionListItem[] = [];
@@ -178,7 +172,10 @@ export const createServiceCollection = (registry: Registry): ServiceCollection =
         item.actions = {};
         Object.values(service.actions).forEach((action: ParsedAction) => {
           if (action) {
-            item.actions![action.name] = omit(action, ["handler", "service"]) as Omit<ParsedAction, "handler" | "service">;
+            item.actions![action.name] = omit(action, ["handler", "service"]) as Omit<
+              ParsedAction,
+              "handler" | "service"
+            >;
           }
         });
       }
@@ -187,7 +184,10 @@ export const createServiceCollection = (registry: Registry): ServiceCollection =
         item.events = {};
         Object.values(service.events).forEach((event: ParsedEvent) => {
           if (event) {
-            item.events![event.name] = omit(event, ["service", "handler"]) as Omit<ParsedEvent, "service" | "handler">;
+            item.events![event.name] = omit(event, ["service", "handler"]) as Omit<
+              ParsedEvent,
+              "service" | "handler"
+            >;
           }
         });
       }

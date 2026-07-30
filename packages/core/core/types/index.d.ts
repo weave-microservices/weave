@@ -376,6 +376,15 @@ export type AfterHookDefinition = AfterHookFunction | string | (AfterHookFunctio
 export type ErrorHookDefinition = ErrorHookFunction | string | (ErrorHookFunction | string)[];
 
 /**
+ * Hooks declared on a single action
+ */
+export interface ActionHooks {
+  before?: BeforeHookDefinition;
+  after?: AfterHookDefinition;
+  error?: ErrorHookDefinition;
+}
+
+/**
  * Service lifecycle hooks
  */
 export interface ServiceHooks {

@@ -54,9 +54,7 @@ export function ClusterView() {
                 />
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm font-medium">
-                      {node.id}
-                    </span>
+                    <span className="font-mono text-sm font-medium">{node.id}</span>
                     {node.isLocal && (
                       <Badge variant="outline" className="text-xs">
                         Local
@@ -74,9 +72,7 @@ export function ClusterView() {
                 {node.cpu !== undefined && (
                   <div className="text-right">
                     <div className="text-sm text-muted-foreground">CPU</div>
-                    <div className="font-mono text-lg font-bold">
-                      {Math.round(node.cpu)}%
-                    </div>
+                    <div className="font-mono text-lg font-bold">{Math.round(node.cpu)}%</div>
                   </div>
                 )}
               </CardContent>

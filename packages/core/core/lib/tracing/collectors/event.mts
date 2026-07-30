@@ -43,75 +43,80 @@ const mergeDefaultOptions = (options: EventCollectorOptions): EventCollectorOpti
  * @param {EventCollectorOptions} options
  * @returns {(runtime: Runtime, tracer?: Tracer) => TracingCollector}
  */
-export default (options: EventCollectorOptions) => (runtime: Runtime, tracer?: Tracer): TracingCollector => {
-  const mergedOptions = mergeDefaultOptions(options);
+export default (options: EventCollectorOptions) =>
+  (runtime: Runtime, tracer?: Tracer): TracingCollector => {
+    const mergedOptions = mergeDefaultOptions(options);
 
-  const exporter = createBaseTracingCollector(runtime) as TracingCollector;
+    const exporter = createBaseTracingCollector(runtime) as TracingCollector;
 
-  exporter.init(runtime, tracer);
+    exporter.init(runtime, tracer);
 
-  const queue: SpanData[] = [];
+    const queue: SpanData[] = [];
 
-  let timer: ReturnType<typeof setInterval> | null = null;
+    let timer: ReturnType<typeof setInterval> | null = null;
 
-  const generateTracingData = (): SpanData[] => {
-    return Array.from(queue).map((span) => {
-      const newSpan: SpanData = Object.assign({}, span);
+    const generateTracingData = (): SpanData[] => {
+      return Array.from(queue).map((span) => {
+        const newSpan: SpanData = Object.assign({}, span);
 
-      if (newSpan.error) {
-        newSpan.error = exporter.getErrorFields(newSpan.error as Error, exporter.options.errors?.fields ?? []) ?? undefined;
+        if (newSpan.error) {
+          newSpan.error =
+            exporter.getErrorFields(
+              newSpan.error as Error,
+              exporter.options.errors?.fields ?? [],
+            ) ?? undefined;
+        }
+
+        return newSpan;
+      });
+    };
+
+    const flushQueue = (): void => {
+      if (queue.length === 0) {
+        return;
       }
 
-      return newSpan;
-    });
-  };
+      const data = generateTracingData();
+      queue.length = 0;
 
-  const flushQueue = (): void => {
-    if (queue.length === 0) {
-      return;
-    }
-
-    const data = generateTracingData();
-    queue.length = 0;
-
-    if (mergedOptions.broadcast) {
-      exporter.runtime.eventBus.broadcast(mergedOptions.eventName!, data);
-    } else {
-      exporter.runtime.eventBus.emit(mergedOptions.eventName!, data);
-    }
-  };
-
-  if (mergedOptions.interval! > 0) {
-    timer = setInterval(() => flushQueue(), mergedOptions.interval);
-    timer.unref();
-  }
-
-  exporter.init = (_runtime: Runtime): void => {};
-
-  exporter.startedSpan = (span: SpanData): void => {
-    if (mergedOptions.sendStartSpan) {
-      queue.push(span);
-      if (!timer) {
-        flushQueue();
+      if (mergedOptions.broadcast) {
+        exporter.runtime.eventBus.broadcast(mergedOptions.eventName!, data);
+      } else {
+        exporter.runtime.eventBus.emit(mergedOptions.eventName!, data);
       }
-    }
-  };
+    };
 
-  exporter.finishedSpan = (span: SpanData): void => {
-    if (mergedOptions.sendFinishedSpan) {
-      queue.push(span);
-      if (!timer) {
-        flushQueue();
+    if (mergedOptions.interval! > 0) {
+      timer = setInterval(() => flushQueue(), mergedOptions.interval);
+      timer.unref();
+    }
+
+    exporter.init = (_runtime: Runtime): void => {};
+
+    exporter.startedSpan = (span: SpanData): void => {
+      if (mergedOptions.sendStartSpan) {
+        queue.push(span);
+        if (!timer) {
+          flushQueue();
+        }
       }
-    }
-  };
+    };
 
-  exporter.stop = async (): Promise<void> => {
-    if (timer) {
-      clearInterval(timer);
-      timer = null;
-    }
-  };
+    exporter.finishedSpan = (span: SpanData): void => {
+      if (mergedOptions.sendFinishedSpan) {
+        queue.push(span);
+        if (!timer) {
+          flushQueue();
+        }
+      }
+    };
 
-  return exporter;
-};
+    exporter.stop = async (): Promise<void> => {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    };
+
+    return exporter;
+  };

@@ -9,9 +9,9 @@ import pkg from "eventemitter2";
 const { EventEmitter2 } = pkg;
 
 // Create a global eventbus to pass messages between weave service brokers.
-// @ts-ignore - global augmentation
+// @ts-expect-error - the dummy adapter shares one bus across brokers in a process
 if (!global.bus) {
-  // @ts-ignore
+  // @ts-expect-error - see above
   global.bus = new EventEmitter2({
     wildcard: true,
     maxListeners: 100,
@@ -23,7 +23,7 @@ if (!global.bus) {
  * Uses a global event bus to pass messages between brokers
  */
 class DummyTransportAdapter extends BaseTransportAdapter {
-  // @ts-ignore - global augmentation
+  // @ts-expect-error - see the global bus above
   #messageBus = global.bus;
 
   constructor() {
@@ -57,6 +57,6 @@ class DummyTransportAdapter extends BaseTransportAdapter {
  * Factory function for creating Dummy adapter instances
  * Maintains backward compatibility with existing code
  */
-export default function createDummyAdapter(adapterOptions: any = {}): DummyTransportAdapter {
+export default function createDummyAdapter(_adapterOptions: any = {}): DummyTransportAdapter {
   return new DummyTransportAdapter();
 }

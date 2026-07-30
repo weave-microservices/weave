@@ -1,4 +1,10 @@
-import { createBaseMetricType, type BaseMetricInstance, type MetricCreateOptions, type MetricSnapshotItem, type MetricValueItem } from "./base.mts";
+import {
+  createBaseMetricType,
+  type BaseMetricInstance,
+  type MetricCreateOptions,
+  type MetricSnapshotItem,
+  type MetricValueItem,
+} from "./base.mts";
 import type { MetricRegistry } from "../../../types/index.js";
 
 /**
@@ -10,10 +16,17 @@ export interface HistogramMetricInstance extends Omit<BaseMetricInstance, "set">
   buckets: number[];
   observe(value: number, labels: Record<string, string> | null, timestamp?: number): void;
   decrement(labels: Record<string, string> | null, value: number, timestamp?: number): void;
-  set(labels: Record<string, string> | null, value: number, timestamp?: number): MetricValueItem | undefined;
+  set(
+    labels: Record<string, string> | null,
+    value: number,
+    timestamp?: number,
+  ): MetricValueItem | undefined;
 }
 
-export const createHistogram = (registry: MetricRegistry, obj: MetricCreateOptions): HistogramMetricInstance => {
+export const createHistogram = (
+  registry: MetricRegistry,
+  obj: MetricCreateOptions,
+): HistogramMetricInstance => {
   const base = createBaseMetricType(registry, obj) as unknown as HistogramMetricInstance;
 
   base.value = 0;
@@ -25,7 +38,11 @@ export const createHistogram = (registry: MetricRegistry, obj: MetricCreateOptio
 
   base.buckets = (base.buckets || []).sort((a: number, b: number) => a - b);
 
-  base.observe = (value: number, labels: Record<string, string> | null, _timestamp?: number): void => {
+  base.observe = (
+    value: number,
+    labels: Record<string, string> | null,
+    _timestamp?: number,
+  ): void => {
     const item = base.values.get(base.stringifyLabels(labels));
 
     if (!value) {
@@ -35,7 +52,11 @@ export const createHistogram = (registry: MetricRegistry, obj: MetricCreateOptio
     base.set(labels, (item ? item.value : 0) + value);
   };
 
-  base.decrement = (labels: Record<string, string> | null, value: number, _timestamp?: number): void => {
+  base.decrement = (
+    labels: Record<string, string> | null,
+    value: number,
+    _timestamp?: number,
+  ): void => {
     const item = base.get(labels);
 
     base.set(labels, (item ? item.value : 0) - value);
@@ -50,7 +71,11 @@ export const createHistogram = (registry: MetricRegistry, obj: MetricCreateOptio
     });
   };
 
-  base.set = (labels: Record<string, string> | null, value: number, _timestamp?: number): MetricValueItem | undefined => {
+  base.set = (
+    labels: Record<string, string> | null,
+    value: number,
+    _timestamp?: number,
+  ): MetricValueItem | undefined => {
     const labelString = base.stringifyLabels(labels);
     const existingItem = base.values.get(labelString);
 

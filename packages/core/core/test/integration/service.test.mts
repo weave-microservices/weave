@@ -15,7 +15,7 @@ describe("Test broker call service", () => {
     });
 
     let testCalled = false;
-    const service = node1.createService({
+    void node1.createService({
       name: "testService",
       actions: {
         test: () => {
@@ -65,7 +65,7 @@ describe("Test broker call service", () => {
     node1.createService({
       name: "testService",
       actions: {
-        sayHello(context) {
+        sayHello(_context) {
           return Promise.reject(new Error("Error from testService"));
         },
       },

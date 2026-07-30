@@ -7,7 +7,11 @@ import type { Runtime, MetricType } from "../../types/index.js";
  * Labels parameter is optional in practice (defaults to null at runtime).
  */
 interface ChainableMetric {
-  set(value: string | number | undefined, labels?: Record<string, string> | null, timestamp?: number): void;
+  set(
+    value: string | number | undefined,
+    labels?: Record<string, string> | null,
+    timestamp?: number,
+  ): void;
 }
 
 /**
@@ -25,13 +29,18 @@ interface MetricOptions {
  */
 interface InternalMetricRegistry {
   register(obj: MetricOptions): ChainableMetric;
-  set(name: string, value: string | number, labels?: Record<string, string> | null, timestamp?: number): void;
+  set(
+    name: string,
+    value: string | number,
+    labels?: Record<string, string> | null,
+    timestamp?: number,
+  ): void;
 }
 
 const getUserInfo = (): Partial<os.UserInfo<string>> => {
   try {
     return os.userInfo();
-  } catch (e) {
+  } catch {
     return {};
   }
 };

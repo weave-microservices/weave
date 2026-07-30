@@ -12,7 +12,6 @@ import type {
   EventCollection,
   Node,
   Registry,
-  Runtime,
   ServiceItem,
   ParsedEvent,
 } from "../../../types/index.js";
@@ -91,7 +90,10 @@ export const createEventCollection = (registry: Registry): EventCollection => {
     endpointList.add(node, service, event);
   };
 
-  (eventCollection as any).get = (eventName: string, groupName: string): EndpointList | undefined => {
+  (eventCollection as any).get = (
+    eventName: string,
+    groupName: string,
+  ): EndpointList | undefined => {
     return events.find(
       (endpointList: EndpointList) =>
         endpointList.name === eventName && endpointList.groupName === groupName,
@@ -131,11 +133,16 @@ export const createEventCollection = (registry: Registry): EventCollection => {
   (eventCollection as any).getAllEndpoints = (eventName: string): Endpoint[] => {
     return getAllEventsByEventName(eventName)
       .map((list: EndpointList) => list.endpoints)
-      .map((endpoints: Endpoint[]) => endpoints.filter((endpoint: Endpoint) => endpoint.isAvailable()))
+      .map((endpoints: Endpoint[]) =>
+        endpoints.filter((endpoint: Endpoint) => endpoint.isAvailable()),
+      )
       .reduce((prev: Endpoint[], curr: Endpoint[]) => prev.concat(curr), []);
   };
 
-  eventCollection.getAllEndpointsUniqueNodes = (eventName: string, groups?: string[]): Endpoint[] => {
+  eventCollection.getAllEndpointsUniqueNodes = (
+    eventName: string,
+    groups?: string[],
+  ): Endpoint[] => {
     let endpoints: Endpoint[] | Endpoint[][] = getAllEventsByEventName(eventName)
       .filter(
         (endpointList: EndpointList) =>
@@ -230,7 +237,10 @@ export const createEventCollection = (registry: Registry): EventCollection => {
       if (item.count > 0) {
         const endpoint = list.endpoints[0];
         if (endpoint && endpoint.action) {
-          item.event = omit(endpoint.action, ["handler", "service"]) as Omit<ParsedEvent, "handler" | "service">;
+          item.event = omit(endpoint.action, ["handler", "service"]) as Omit<
+            ParsedEvent,
+            "handler" | "service"
+          >;
         }
       }
 

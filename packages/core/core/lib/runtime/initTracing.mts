@@ -1,6 +1,12 @@
 import { resolveCollector } from "../tracing/collectors/index.mts";
 import { Span } from "../tracing/span.mts";
-import type { Runtime, SpanOptions, Logger, TracingOptions, Span as SpanInterface } from "../../types/index.js";
+import type {
+  Runtime,
+  SpanOptions,
+  Logger,
+  TracingOptions,
+  Span as SpanInterface,
+} from "../../types/index.js";
 
 /**
  * Collector interface for tracing

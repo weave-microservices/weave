@@ -307,7 +307,11 @@ describe("EventBus Error Handling with Promise.allSettled()", () => {
 
       await broker1.start();
 
-      const groupEmitResult = await broker1.emit("test.groups", { data: "test" }, { groups: ["testGroup"] });
+      const groupEmitResult = await broker1.emit(
+        "test.groups",
+        { data: "test" },
+        { groups: ["testGroup"] },
+      );
       assert.notStrictEqual(groupEmitResult, undefined);
       const groupBroadcastResult = await broker1.broadcast(
         "test.groups",

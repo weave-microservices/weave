@@ -39,9 +39,7 @@ export function PacketsView() {
             <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
               <Activity className="mb-4 h-12 w-12 opacity-50" />
               <p>No packets captured</p>
-              <p className="mt-1 text-sm">
-                Packets will appear here when nodes communicate
-              </p>
+              <p className="mt-1 text-sm">Packets will appear here when nodes communicate</p>
             </div>
           )}
         </div>
@@ -54,12 +52,7 @@ function PacketCard({ packet }: { packet: PacketInfo }) {
   const isOutgoing = packet.direction === "out";
 
   return (
-    <Card
-      className={cn(
-        "border-l-4",
-        isOutgoing ? "border-l-blue-500" : "border-l-green-500"
-      )}
-    >
+    <Card className={cn("border-l-4", isOutgoing ? "border-l-blue-500" : "border-l-green-500")}>
       <CardContent className="p-3">
         <div className="flex items-center gap-3">
           {isOutgoing ? (
@@ -73,12 +66,8 @@ function PacketCard({ packet }: { packet: PacketInfo }) {
               <Badge variant="outline" className="font-mono text-xs">
                 {packet.type}
               </Badge>
-              {packet.action && (
-                <span className="font-mono text-sm">{packet.action}</span>
-              )}
-              {packet.event && (
-                <span className="font-mono text-sm">{packet.event}</span>
-              )}
+              {packet.action && <span className="font-mono text-sm">{packet.action}</span>}
+              {packet.event && <span className="font-mono text-sm">{packet.event}</span>}
             </div>
             <div className="mt-1 text-xs text-muted-foreground">
               <span className="font-mono">{packet.sender}</span>

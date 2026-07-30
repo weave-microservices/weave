@@ -284,9 +284,7 @@ export const createServiceFromSchema = (runtime: Runtime, schema: ServiceSchema)
             .reduce((p, hook) => p.then(() => hook(injection)), Promise.resolve());
         }
       })
-      .then(() =>
-        runtime.middlewareHandler.callHandlersAsync("serviceStopped", [service], true),
-      )
+      .then(() => runtime.middlewareHandler.callHandlersAsync("serviceStopped", [service], true))
       .then(() => service.log.debug(`Service "${service.name}" stopped`));
   };
 

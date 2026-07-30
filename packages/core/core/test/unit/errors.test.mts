@@ -1,6 +1,6 @@
 import * as Errors from "../../lib/errors.mts";
 import { ExtendableError } from "../../lib/ExtendableError.mts";
-import { restoreError, type ErrorPayload } from "../../lib/utils/restoreError.mts";
+import { restoreError } from "../../lib/utils/restoreError.mts";
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 
@@ -182,7 +182,7 @@ describe("Extendable error", () => {
 
   it("name is not enumerable", () => {
     const err = new ExtendableError();
-    assert.strictEqual(err.propertyIsEnumerable("name"), false);
+    assert.strictEqual(Object.prototype.propertyIsEnumerable.call(err, "name"), false);
   });
 
   it(".stack", () => {

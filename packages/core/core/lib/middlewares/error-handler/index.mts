@@ -5,11 +5,21 @@
  */
 
 import { WeaveError } from "../../errors.mts";
-import type { ActionHandler, Context, EventHandler, Middleware, Runtime, ServiceInjection } from "../../../types/index.js";
+import type {
+  ActionHandler,
+  Context,
+  EventHandler,
+  Middleware,
+  Runtime,
+  ServiceInjection,
+} from "../../../types/index.js";
 
 export default (runtime: Runtime): Middleware => {
   const wrapErrorHandlerMiddleware = function (handler: ActionHandler): ActionHandler {
-    return function errorHandlerMiddleware(context: Context, serviceInjections: ServiceInjection): Promise<unknown> {
+    return function errorHandlerMiddleware(
+      context: Context,
+      serviceInjections: ServiceInjection,
+    ): Promise<unknown> {
       return handler(context, serviceInjections).catch((err: unknown) => {
         const error = err instanceof Error ? err : new WeaveError(String(err));
 
@@ -33,11 +43,16 @@ export default (runtime: Runtime): Middleware => {
   };
 
   const wrapEventErrorHandlerMiddleware = function (handler: EventHandler): EventHandler {
-    return function errorHandlerMiddleware(context: Context, serviceInjections: ServiceInjection): Promise<void> {
+    return function errorHandlerMiddleware(
+      context: Context,
+      serviceInjections: ServiceInjection,
+    ): Promise<void> {
       return handler(context, serviceInjections)
         .catch((err: unknown) => {
           const error =
-            err instanceof Error ? err : new WeaveError((err as { message?: string })?.message ?? String(err));
+            err instanceof Error
+              ? err
+              : new WeaveError((err as { message?: string })?.message ?? String(err));
 
           if (runtime.nodeId !== context.nodeId && context.id) {
             runtime.transport?.removePendingRequestsById(context.id);

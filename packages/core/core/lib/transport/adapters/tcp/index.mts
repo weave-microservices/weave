@@ -28,8 +28,6 @@ class TCPTransportAdapter extends BaseTransportAdapter {
   #tcpWriter: any;
   #gossipTimer: any;
   #swim: any;
-  #nodes: any;
-  #registry: any;
   #options: any;
 
   constructor(adapterOptions: any = {}) {
@@ -39,8 +37,6 @@ class TCPTransportAdapter extends BaseTransportAdapter {
   }
 
   protected async afterInit(): Promise<void> {
-    this.#nodes = this.broker.registry.nodeCollection;
-    this.#registry = this.broker.registry;
     this.#swim = Swim(this as any, this.#options);
   }
 
@@ -203,7 +199,10 @@ class TCPTransportAdapter extends BaseTransportAdapter {
   }
 
   #startTimers(): void {
-    this.#gossipTimer = setInterval(() => this.#sendGossipRequest(), this.#options.gossipTimerInterval);
+    this.#gossipTimer = setInterval(
+      () => this.#sendGossipRequest(),
+      this.#options.gossipTimerInterval,
+    );
     this.#gossipTimer.unref();
   }
 
@@ -272,7 +271,7 @@ class TCPTransportAdapter extends BaseTransportAdapter {
     }
   }
 
-  #onGossipHelloMessage(packet: any, socket: any): void {
+  #onGossipHelloMessage(packet: any, _socket: any): void {
     try {
       const message = this.deserialize(packet);
       if (!message) {
@@ -402,7 +401,7 @@ class TCPTransportAdapter extends BaseTransportAdapter {
   }
 
   // Handle incoming gossip response
-  #onGossipResponseMessage(data: any, socket: any): void {
+  #onGossipResponseMessage(data: any, _socket: any): void {
     try {
       const message = this.deserialize(data);
       if (!message) {
@@ -444,7 +443,12 @@ class TCPTransportAdapter extends BaseTransportAdapter {
             this.broker.registry.processNodeInfo(info);
           }
 
-          if (node && node.isAvailable && cpuSequence !== undefined && cpuSequence > (node.cpuSequence || 0)) {
+          if (
+            node &&
+            node.isAvailable &&
+            cpuSequence !== undefined &&
+            cpuSequence > (node.cpuSequence || 0)
+          ) {
             node.heartbeat({
               cpu,
               cpuSequence,

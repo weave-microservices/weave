@@ -62,8 +62,7 @@ describe("Test tracing", () => {
       name: "post",
       actions: {
         list: {
-     
-          handler (context: Context) {
+          handler(context: Context) {
             const copiedPosts = JSON.parse(JSON.stringify(posts)) as Array<{
               id: number;
               title: string;
@@ -76,7 +75,7 @@ describe("Test tracing", () => {
               }),
             );
           },
-        }
+        },
       },
     },
   ]);
@@ -86,11 +85,11 @@ describe("Test tracing", () => {
       name: "user",
       actions: {
         get: {
-          handler (context: Context) {
+          handler(context: Context) {
             const user = users.find((user) => user.id === context.data.id);
             return user;
           },
-        }
+        },
       },
     },
   ]);
@@ -261,9 +260,11 @@ describe("Test tag handling for spans", () => {
     const userGetActions = flow.filter((span) => span.name === 'action "user.get"');
     const postListAction = flow.filter((span) => span.name === 'action "post.list"');
 
-    const idsFromTags = userGetActions.map((span) => {
-      return span.tags.data?.id;
-    }).sort();
+    const idsFromTags = userGetActions
+      .map((span) => {
+        return span.tags.data?.id;
+      })
+      .sort();
 
     assert.deepStrictEqual(idsFromTags, [1, 2, 3]);
 

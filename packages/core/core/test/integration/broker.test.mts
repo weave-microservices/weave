@@ -43,7 +43,7 @@ describe("Test broker call service", () => {
 
     let testCalled = false;
 
-    const service = node1.createService({
+    void node1.createService({
       name: "testService",
       actions: {
         test: () => {
@@ -93,7 +93,7 @@ describe("Test broker call error handling", () => {
     node1.createService({
       name: "testService",
       actions: {
-        sayHello(context) {
+        sayHello(_context) {
           return Promise.reject(new Error("Error from action"));
         },
       },
@@ -325,7 +325,7 @@ describe("Test broker error handling", () => {
     const originalExit = process.exit;
 
     // Create a promise that resolves when process.exit is called
-    const exitPromise = new Promise<void>((resolve, reject) => {
+    const exitPromise = new Promise<void>((resolve, _reject) => {
       process.exit = ((code?: number) => {
         exitCalled = true;
         exitCode = code ?? 0;
@@ -459,7 +459,7 @@ describe("Error handler", () => {
   broker.createService({
     name: "test",
     actions: {
-      callAndThrowError(context) {
+      callAndThrowError(_context) {
         throw new Error("Something went wrong");
       },
     },
@@ -469,7 +469,7 @@ describe("Error handler", () => {
     try {
       await broker.call("test.callAndThrowError");
       assert.strictEqual(errorHandlerCalled, true);
-    } catch (error) {
+    } catch {
       // Expected to throw
     }
   });
@@ -486,7 +486,7 @@ describe("Error handler", () => {
   broker.createService({
     name: "test",
     actions: {
-      callAndThrowError(context) {
+      callAndThrowError(_context) {
         throw new Error("Something went wrong");
       },
     },

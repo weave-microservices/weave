@@ -1,5 +1,11 @@
 import hrTime from "./time.mts";
-import type { Logger, Runtime, Service, Span as SpanInterface, Tracer, TracingOptions } from "../../types/index.js";
+import type {
+  Logger,
+  Runtime,
+  Service,
+  Span as SpanInterface,
+  TracingOptions,
+} from "../../types/index.js";
 
 /**
  * Internal tracer interface used by Span

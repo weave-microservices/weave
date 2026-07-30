@@ -1,7 +1,7 @@
 const tryStringify = (o: any): string => {
   try {
     return JSON.stringify(o);
-  } catch (e) {
+  } catch {
     return '"[Circular]"';
   }
 };
@@ -59,7 +59,8 @@ export function format(f: any, args: any[], opts?: { stringify?: (o: any) => str
           break;
         case 79: // 'O'
         case 111: // 'o'
-        case 106: // 'j'
+        case 106: {
+          // 'j'
           if (a >= argumentLength) {
             break;
           }
@@ -72,7 +73,7 @@ export function format(f: any, args: any[], opts?: { stringify?: (o: any) => str
             break;
           }
 
-          const type = typeof args[a];
+          const type: string = typeof args[a];
 
           if (type === "string") {
             str += "'" + args[a] + "'";
@@ -92,6 +93,7 @@ export function format(f: any, args: any[], opts?: { stringify?: (o: any) => str
           lastPos = i + 2;
           i++;
           break;
+        }
         case 115: // 's'
           if (a >= argumentLength) {
             break;

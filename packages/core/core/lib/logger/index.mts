@@ -23,7 +23,7 @@ interface LoggerInternalOptions {
   base?: Record<string, any> | null;
   name?: string;
   hooks: {
-    logMethod?: (args: any[], log: Function, level: number) => void;
+    logMethod?: (args: unknown[], log: (...args: unknown[]) => void, level: number) => void;
   };
   formatter: {
     messageFormat: boolean | string;
@@ -42,7 +42,13 @@ export interface LoggerContext {
   options: LoggerInternalOptions;
   logMethods: Record<string, (...args: unknown[]) => void>;
   destination: Writable;
-  formatter: (ctx: LoggerContext, object: Record<string, unknown> | null, message: string, level: number, time: number) => string;
+  formatter: (
+    ctx: LoggerContext,
+    object: Record<string, unknown> | null,
+    message: string,
+    level: number,
+    time: number,
+  ) => string;
   fixtures?: Record<string, unknown>;
   mixin?: (obj: Record<string, unknown>) => Record<string, unknown>;
   levels: {
@@ -96,7 +102,9 @@ export const createLogger = (options?: LoggerOptions): Logger => {
     if (mergedOptions.name === undefined) {
       ctx.fixtures = coreFixtures(mergedOptions.base);
     } else {
-      ctx.fixtures = coreFixtures(Object.assign({}, mergedOptions.base, { name: mergedOptions.name }));
+      ctx.fixtures = coreFixtures(
+        Object.assign({}, mergedOptions.base, { name: mergedOptions.name }),
+      );
     }
   }
 

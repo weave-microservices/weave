@@ -19,7 +19,11 @@ export interface TracingCollector {
   startedSpan: (span: SpanData) => void;
   finishedSpan: (span: SpanData) => void;
   stop: () => Promise<void>;
-  flattenTags: (obj: Record<string, unknown> | null, convertToString?: boolean, path?: string) => Record<string, unknown> | null;
+  flattenTags: (
+    obj: Record<string, unknown> | null,
+    convertToString?: boolean,
+    path?: string,
+  ) => Record<string, unknown> | null;
   getErrorFields: (error: Error | null, fields: string[]) => Record<string, unknown> | null;
 }
 
@@ -57,7 +61,11 @@ export const createBaseTracingCollector = (runtime: Runtime): TracingCollector =
    * @param {string} path
    * @returns {Record<string, unknown> | null}
    */
-  baseTracingCollector.flattenTags = (obj: Record<string, unknown> | null, convertToString = false, path = ""): Record<string, unknown> | null => {
+  baseTracingCollector.flattenTags = (
+    obj: Record<string, unknown> | null,
+    convertToString = false,
+    path = "",
+  ): Record<string, unknown> | null => {
     if (!obj) {
       return null;
     }
@@ -67,7 +75,10 @@ export const createBaseTracingCollector = (runtime: Runtime): TracingCollector =
       const pp = (path ? path + "." : "") + k;
 
       if (isObject(o)) {
-        Object.assign(res, baseTracingCollector.flattenTags(o as Record<string, unknown>, convertToString, pp));
+        Object.assign(
+          res,
+          baseTracingCollector.flattenTags(o as Record<string, unknown>, convertToString, pp),
+        );
       } else if (o !== undefined) {
         res[pp] = convertToString ? String(o) : o;
       }
@@ -82,7 +93,10 @@ export const createBaseTracingCollector = (runtime: Runtime): TracingCollector =
    * @param {string[]} fields
    * @returns {Record<string, unknown> | null}
    */
-  baseTracingCollector.getErrorFields = (error: Error | null, fields: string[]): Record<string, unknown> | null => {
+  baseTracingCollector.getErrorFields = (
+    error: Error | null,
+    fields: string[],
+  ): Record<string, unknown> | null => {
     if (!error) {
       return null;
     }

@@ -33,13 +33,17 @@ describe("Cache system", () => {
           },
           handler(context) {
             this.counter = this.counter + 1;
-            return (context.data as { text: string }).text.split("").reverse().join("") + this.counter;
+            return (
+              (context.data as { text: string }).text.split("").reverse().join("") + this.counter
+            );
           },
         },
         notCachedAction: {
           handler(context) {
             this.counter = this.counter + 1;
-            return (context.data as { text: string }).text.split("").reverse().join("") + this.counter;
+            return (
+              (context.data as { text: string }).text.split("").reverse().join("") + this.counter
+            );
           },
         },
         cachedMultiParam: {
@@ -102,7 +106,10 @@ describe("Cache system", () => {
     const promise = node1.call("testService.notCachedAction", { text: "hello user" });
     const result = await promise;
     assert.strictEqual(result, "resu olleh1");
-    assert.strictEqual((promise as { context?: { isCachedResult?: boolean } }).context?.isCachedResult, false);
+    assert.strictEqual(
+      (promise as { context?: { isCachedResult?: boolean } }).context?.isCachedResult,
+      false,
+    );
   });
 
   it("should work with multiple keys", async () => {
@@ -179,7 +186,9 @@ describe("Cache system with cache lock", () => {
           },
           handler(context) {
             this.counter = this.counter + 1;
-            return (context.data as { text: string }).text.split("").reverse().join("") + this.counter;
+            return (
+              (context.data as { text: string }).text.split("").reverse().join("") + this.counter
+            );
           },
         },
       },
@@ -252,13 +261,17 @@ describe("Cache system manual", () => {
           },
           handler(context) {
             this.counter = this.counter + 1;
-            return (context.data as { text: string }).text.split("").reverse().join("") + this.counter;
+            return (
+              (context.data as { text: string }).text.split("").reverse().join("") + this.counter
+            );
           },
         },
         notCachedAction: {
           handler(context) {
             this.counter = this.counter + 1;
-            return (context.data as { text: string }).text.split("").reverse().join("") + this.counter;
+            return (
+              (context.data as { text: string }).text.split("").reverse().join("") + this.counter
+            );
           },
         },
         cachedMultiParam: {

@@ -84,7 +84,16 @@ describe("Test bulkhead middleware", () => {
     await utils.promiseDelay(Promise.resolve(), 1000);
     assert.strictEqual(handler.mock.callCount(), 10);
     // Check that all expected handlers were called
-    const expectedHandlers = ["handler-2", "handler-3", "handler-4", "handler-5", "handler-6", "handler-7", "handler-8", "handler-9"];
+    const expectedHandlers = [
+      "handler-2",
+      "handler-3",
+      "handler-4",
+      "handler-5",
+      "handler-6",
+      "handler-7",
+      "handler-8",
+      "handler-9",
+    ];
     for (const expected of expectedHandlers) {
       assert.ok(flow.includes(expected), `Expected ${expected} to be in flow`);
     }
@@ -109,7 +118,9 @@ describe("Test bulkhead middleware", () => {
 
     Promise.all(
       contexts.map((context) =>
-        wrappedHandler(context, serviceInjections).catch((error: Error) => flow.push(error.name + "-" + (context.data as { p: number }).p)),
+        wrappedHandler(context, serviceInjections).catch((error: Error) =>
+          flow.push(error.name + "-" + (context.data as { p: number }).p),
+        ),
       ),
     );
     assert.strictEqual(handler.mock.callCount(), 2);
@@ -118,7 +129,16 @@ describe("Test bulkhead middleware", () => {
     await utils.promiseDelay(Promise.resolve(), 1000);
     assert.strictEqual(handler.mock.callCount(), 13);
     // Check that expected handlers were called
-    const expectedHandlers = ["handler-2", "handler-3", "handler-4", "handler-5", "handler-6", "handler-7", "handler-8", "handler-9"];
+    const expectedHandlers = [
+      "handler-2",
+      "handler-3",
+      "handler-4",
+      "handler-5",
+      "handler-6",
+      "handler-7",
+      "handler-8",
+      "handler-9",
+    ];
     for (const expected of expectedHandlers) {
       assert.ok(flow.includes(expected), `Expected ${expected} to be in flow`);
     }
