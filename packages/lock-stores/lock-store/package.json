@@ -1,15 +1,26 @@
 {
   "name": "@weave-js/lock-store",
   "version": "0.1.0",
-  "main": "lib/index.js",
+  "description": "Lock store implementation",
+  "type": "module",
+  "main": "lib/index.mts",
+  "types": "lib/index.mts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.mts",
+      "default": "./lib/index.mts"
+    }
+  },
+  "scripts": {
+    "test": "node --test test/**/*.test.mts",
+    "test:watch": "node --test --watch test/**/*.test.mts",
+    "lint": "eslint . --ext .mts --fix"
+  },
   "author": "",
   "license": "ISC",
-  "gitHead": "84fd5e4af3af96e8c004bcfba40bb3cb35f23fa7",
-  "description": "Lock store implementation",
-  "scripts": {
-    "ci": "jest --watch",
-    "test": "NODE_ENV=test jest --no-cache --runInBand",
-    "coverage": "jest --coverage --no-cache",
-    "lint": "eslint . --ext .js --fix"
-  }
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  },
+  "gitHead": "84fd5e4af3af96e8c004bcfba40bb3cb35f23fa7"
 }
