@@ -3,7 +3,7 @@
  * @param callback - Function to promisify
  * @returns Promisified function
  */
-export function promisify<TArgs extends any[], TReturn>(
+export function promisify<TArgs extends unknown[], TReturn>(
   callback: (...args: TArgs) => TReturn,
 ): (...args: TArgs) => Promise<Awaited<TReturn>> {
   return function makePromisedFunction(...args: TArgs): Promise<Awaited<TReturn>> {

@@ -1,6 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { validateSchema, validateOptions } from "../lib/schemaValidator.mts";
+import type { ValidationSchema } from "../lib/schemaValidator.mts";
 
 describe("Schema Validator", () => {
   describe("validateSchema", () => {
@@ -11,7 +12,7 @@ describe("Schema Validator", () => {
       });
 
       it("should reject invalid string shorthand", () => {
-        const errors = validateSchema("invalid" as any);
+        const errors = validateSchema("invalid" as unknown as ValidationSchema);
         assert.equal(errors.length, 1);
         assert.ok(errors[0].message.includes('Invalid type "invalid"'));
         assert.equal(errors[0].path, "");
@@ -33,7 +34,7 @@ describe("Schema Validator", () => {
           "url",
         ];
         validTypes.forEach((type) => {
-          const errors = validateSchema(type as any);
+          const errors = validateSchema(type as unknown as ValidationSchema);
           assert.deepEqual(errors, []);
         });
       });
@@ -63,7 +64,7 @@ describe("Schema Validator", () => {
 
       it("should report errors in array items with correct paths", () => {
         const errors = validateSchema([
-          { type: "invalid" } as any,
+          { type: "invalid" } as unknown as ValidationSchema,
           { type: "string", minLength: -1 },
         ]);
         assert.ok(errors.length > 0);
@@ -74,32 +75,32 @@ describe("Schema Validator", () => {
 
     describe("invalid schemas", () => {
       it("should reject null schema", () => {
-        const errors = validateSchema(null as any);
+        const errors = validateSchema(null as unknown as ValidationSchema);
         assert.equal(errors.length, 1);
         assert.ok(errors[0].message.includes("Schema must be an object, string, or array"));
       });
 
       it("should reject undefined schema", () => {
-        const errors = validateSchema(undefined as any);
+        const errors = validateSchema(undefined as unknown as ValidationSchema);
         assert.equal(errors.length, 1);
         assert.ok(errors[0].message.includes("Schema must be an object, string, or array"));
       });
 
       it("should reject number schema", () => {
-        const errors = validateSchema(123 as any);
+        const errors = validateSchema(123 as unknown as ValidationSchema);
         assert.equal(errors.length, 1);
         assert.ok(errors[0].message.includes("Schema must be an object, string, or array"));
       });
 
       it("should reject schema without type", () => {
-        const errors = validateSchema({} as any);
+        const errors = validateSchema({} as unknown as ValidationSchema);
         assert.equal(errors.length, 1);
         assert.ok(errors[0].message.includes('Schema must have a "type" property'));
         assert.equal(errors[0].path, ".type");
       });
 
       it("should reject schema with invalid type", () => {
-        const errors = validateSchema({ type: "invalidType" } as any);
+        const errors = validateSchema({ type: "invalidType" } as unknown as ValidationSchema);
         assert.equal(errors.length, 1);
         assert.ok(errors[0].message.includes('Invalid type "invalidType"'));
         assert.equal(errors[0].path, ".type");
@@ -113,7 +114,7 @@ describe("Schema Validator", () => {
       });
 
       it("should reject invalid optional property", () => {
-        const errors = validateSchema({ type: "string", optional: "yes" as any });
+        const errors = validateSchema({ type: "string", optional: "yes" as unknown as boolean });
         assert.equal(errors.length, 1);
         assert.ok(errors[0].message.includes("Optional must be a boolean"));
       });
@@ -124,7 +125,7 @@ describe("Schema Validator", () => {
       });
 
       it("should reject invalid nullable property", () => {
-        const errors = validateSchema({ type: "string", nullable: "yes" as any });
+        const errors = validateSchema({ type: "string", nullable: "yes" as unknown as boolean });
         assert.equal(errors.length, 1);
         assert.ok(errors[0].message.includes("Nullable must be a boolean"));
       });
@@ -135,7 +136,7 @@ describe("Schema Validator", () => {
       });
 
       it("should reject invalid messages property", () => {
-        const errors = validateSchema({ type: "string", messages: "invalid" as any });
+        const errors = validateSchema({ type: "string", messages: "invalid" as unknown as Record<string, string> });
         assert.equal(errors.length, 1);
         assert.ok(errors[0].message.includes("Messages must be an object"));
       });

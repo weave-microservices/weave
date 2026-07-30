@@ -1,3 +1,5 @@
+import type { CompiledRule, RuleGeneratorContext, RuleGeneratorResult } from "../types.mts";
+
 /**
  * @fileoverview Number validation rule generator for Weave validator
  * Generates optimized validation code for number type schemas
@@ -5,7 +7,10 @@
  * @version 0.14.0
  */
 
-export default function checkNumber(this: any, { schema, messages }: any) {
+export default function checkNumber(
+  this: RuleGeneratorContext,
+  { schema, messages }: CompiledRule,
+): RuleGeneratorResult {
   const code = [];
   let sanitized = false;
 

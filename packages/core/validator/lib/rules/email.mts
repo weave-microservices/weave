@@ -1,9 +1,14 @@
+import type { CompiledRule, RuleGeneratorContext, RuleGeneratorResult } from "../types.mts";
+
 import { EMAIL_PRECISE_PATTERN, EMAIL_BASIC_PATTERN } from "../patterns.mts";
 
-export default function checkEmail(this: any, { schema, messages }: any) {
+export default function checkEmail(
+  this: RuleGeneratorContext,
+  { schema, messages }: CompiledRule,
+): RuleGeneratorResult {
   const code = [];
   const pattern = schema.mode === "precise" ? EMAIL_PRECISE_PATTERN : EMAIL_BASIC_PATTERN;
-  let isSanitized;
+  let sanitized;
 
   code.push(`
         if (typeof value !== 'string') {
@@ -13,7 +18,7 @@ export default function checkEmail(this: any, { schema, messages }: any) {
     `);
 
   if (schema.normalize) {
-    isSanitized = true;
+    sanitized = true;
     code.push(`
         value = value.trim().toLowerCase()
     `);
@@ -31,7 +36,7 @@ export default function checkEmail(this: any, { schema, messages }: any) {
   `);
 
   return {
-    isSanitized,
+    sanitized,
     code: code.join("\n"),
   };
 }

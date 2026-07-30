@@ -1,7 +1,14 @@
+import type { CompileContext, CompiledRule, RuleGeneratorContext, RuleGeneratorResult } from "../types.mts";
+
 /**
  * Check array validator
  */
-export default function checkArray(this: any, { schema, messages }: any, path: any, context: any) {
+export default function checkArray(
+  this: RuleGeneratorContext,
+  { schema, messages }: CompiledRule,
+  path: string,
+  context: CompileContext,
+): RuleGeneratorResult {
   const code = [];
 
   code.push(`

@@ -50,7 +50,7 @@ describe("Merge function", () => {
   it("should only merge objects. (return source)", () => {
     const target = {};
     const source = "source";
-    const mergedObject = merge(target as any, source as any);
+    const mergedObject = merge(target, source as unknown as object);
     assert.strictEqual(mergedObject, source);
   });
 });

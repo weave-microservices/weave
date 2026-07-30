@@ -7,6 +7,6 @@
  */
 export function flatten<T>(arr: (T | T[])[]): T[] {
   return arr.reduce((a: T[], b: T | T[]) => {
-    return a.concat(b as any);
+    return a.concat(b);
   }, []);
 }

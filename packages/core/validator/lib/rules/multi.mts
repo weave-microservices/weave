@@ -1,5 +1,12 @@
+import type { CompileContext, CompiledRule, RuleGeneratorContext, RuleGeneratorResult } from "../types.mts";
+
 /* Signature: function(value, field, parent, errors, context) */
-export default function checkMulti(this: any, { schema }: any, path: any, context: any) {
+export default function checkMulti(
+  this: RuleGeneratorContext,
+  { schema }: CompiledRule,
+  path: string,
+  context: CompileContext,
+): RuleGeneratorResult {
   const code = [];
 
   code.push(`
@@ -9,13 +16,15 @@ export default function checkMulti(this: any, { schema }: any, path: any, contex
     let newValue = value
 	`);
 
-  for (let i = 0; i < schema.rules.length; i++) {
+  const subRules = schema.rules ?? [];
+
+  for (let i = 0; i < subRules.length; i++) {
     code.push(`
       if (!hasValid) {
         errorBefore = errors.length
     `);
 
-    const rule = this.getRuleFromSchema(schema.rules[i]);
+    const rule = this.getRuleFromSchema(subRules[i]);
     code.push(
       this.compileRule(
         rule,

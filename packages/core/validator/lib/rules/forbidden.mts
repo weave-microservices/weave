@@ -1,5 +1,10 @@
+import type { CompiledRule, RuleGeneratorContext, RuleGeneratorResult } from "../types.mts";
+
 /* Signature: function(value, field, parent, errors, context) */
-export default function checkForbidden(this: any, { schema, messages }: any) {
+export default function checkForbidden(
+  this: RuleGeneratorContext,
+  { schema, messages }: CompiledRule,
+): RuleGeneratorResult {
   const code = [];
 
   code.push(`

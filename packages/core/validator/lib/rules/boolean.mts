@@ -1,4 +1,9 @@
-export default function checkBoolean(this: any, { schema, messages }: any) {
+import type { CompiledRule, RuleGeneratorContext, RuleGeneratorResult } from "../types.mts";
+
+export default function checkBoolean(
+  this: RuleGeneratorContext,
+  { schema, messages }: CompiledRule,
+): RuleGeneratorResult {
   const code = [];
   let sanitized = false;
 

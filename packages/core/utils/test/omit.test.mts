@@ -16,7 +16,7 @@ describe("Omit", () => {
       },
     };
 
-    assert.strictEqual(omit(null as any, ["settings"]), null);
+    assert.strictEqual(omit(null as unknown as object, []), null);
     assert.deepStrictEqual(omit(source, ["settings"]), {
       name: "test",
     });

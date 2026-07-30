@@ -1,9 +1,10 @@
 import { describe, it, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import ModelValidator from "../../lib/validator.mts";
+import type { ModelValidator as ModelValidatorType } from "../../lib/validator.mts";
 
 describe("String Pattern Validations", () => {
-  let validator: any;
+  let validator: ModelValidatorType;
 
   beforeEach(() => {
     validator = ModelValidator();

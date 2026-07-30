@@ -75,7 +75,7 @@ describe("Validator", () => {
       name: { type: "string", default: "default" },
     };
 
-    const data: any = {};
+    const data: Record<string, unknown> = {};
     const validate = validator.compile(schema);
     validate(data);
 

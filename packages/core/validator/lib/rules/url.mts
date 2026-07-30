@@ -1,6 +1,11 @@
+import type { CompiledRule, RuleGeneratorContext, RuleGeneratorResult } from "../types.mts";
+
 const PATTERN = /^https?:\/\/\S+/;
 
-export default function checkUrl(this: any, { messages }: any) {
+export default function checkUrl(
+  this: RuleGeneratorContext,
+  { messages }: CompiledRule,
+): RuleGeneratorResult {
   const code = [];
 
   code.push(`

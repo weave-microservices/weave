@@ -26,7 +26,7 @@ export function clone<T>(obj: T): T {
   // lastly, handle objects
   const clonedObj = Object.create(Object.getPrototypeOf(obj));
   for (const prop in obj) {
-    if (obj.hasOwnProperty(prop)) {
+    if (Object.prototype.hasOwnProperty.call(obj, prop)) {
       clonedObj[prop] = clone(obj[prop]);
     }
   }

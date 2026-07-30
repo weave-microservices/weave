@@ -1,3 +1,5 @@
+import type { CompileContext, CompiledRule, RuleGeneratorContext, RuleGeneratorResult } from "../types.mts";
+
 /**
  * @fileoverview Object validation rule generator for Weave validator
  * Generates optimized validation code for object type schemas
@@ -14,7 +16,12 @@ import { escapeEvalString } from "../utils/escapeEvalString.mts";
  */
 const identifierRegex = /^[_$a-zA-Z][_$a-zA-Z0-9]*$/;
 
-export default function checkObject(this: any, { schema, messages }: any, path: any, context: any) {
+export default function checkObject(
+  this: RuleGeneratorContext,
+  { schema, messages }: CompiledRule,
+  path: string,
+  context: CompileContext,
+): RuleGeneratorResult {
   const code = [];
 
   // check for type

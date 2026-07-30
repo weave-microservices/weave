@@ -34,7 +34,7 @@ describe("Set properties by dot separated path", () => {
 
     const meta = { hostname: "held" };
     dotSet(source, "settings.meta", meta);
-    assert.deepStrictEqual((source.settings as any).meta, meta);
+    assert.deepStrictEqual((source.settings as Record<string, unknown>).meta, meta);
   });
 
   it("should not override an existing property on the path that is not an object", () => {

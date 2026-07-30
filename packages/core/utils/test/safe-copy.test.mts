@@ -12,7 +12,7 @@ describe("Safe copy function", () => {
         e: false,
         f: 1.23,
       },
-      h: (ctx: any) => ctx,
+      h: (ctx: unknown) => ctx,
     };
 
     const result = safeCopy(source);

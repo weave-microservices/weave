@@ -6,7 +6,7 @@
 export function isJSONString(string: string): boolean {
   try {
     JSON.parse(string);
-  } catch (e) {
+  } catch {
     return false;
   }
 

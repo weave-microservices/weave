@@ -1,3 +1,5 @@
+import type { CompiledRule, RuleGeneratorContext, RuleGeneratorResult } from "../types.mts";
+
 /**
  * @fileoverview String validation rule generator for Weave validator
  * Generates optimized validation code for string type schemas
@@ -27,9 +29,12 @@ const PHONE_PATTERN = /^\+?[1-9]\d{1,14}$/;
  */
 const HEX_PATTERN = /^[0-9a-fA-F]+$/;
 
-export default function checkString(this: any, { schema, messages }: any) {
+export default function checkString(
+  this: RuleGeneratorContext,
+  { schema, messages }: CompiledRule,
+): RuleGeneratorResult {
   const code = [];
-  let isSanitized = false;
+  let sanitized = false;
   code.push(`
     if (typeof value !== 'string') {
       ${this.makeErrorCode({ type: "string", passed: "value", messages })}
@@ -41,35 +46,35 @@ export default function checkString(this: any, { schema, messages }: any) {
 
   // trim value
   if (schema.trim) {
-    isSanitized = true;
+    sanitized = true;
     code.push(`
 			value = value.trim();
 		`);
   }
 
   if (schema.trimLeft) {
-    isSanitized = true;
+    sanitized = true;
     code.push(`
 			value = value.trimStart();
 		`);
   }
 
   if (schema.trimRight) {
-    isSanitized = true;
+    sanitized = true;
     code.push(`
 			value = value.trimEnd();
 		`);
   }
 
   if (schema.uppercase) {
-    isSanitized = true;
+    sanitized = true;
     code.push(`
 			value = value.toUpperCase();
 		`);
   }
 
   if (schema.lowercase) {
-    isSanitized = true;
+    sanitized = true;
     code.push(`
 			value = value.toLowerCase();
 		`);
@@ -94,7 +99,7 @@ export default function checkString(this: any, { schema, messages }: any) {
   }
 
   if (schema.equal) {
-    const escapedEqual = escapeEvalString(schema.equal);
+    const escapedEqual = escapeEvalString(String(schema.equal));
     code.push(`
       if (value !== '${escapedEqual}') {
         ${this.makeErrorCode({ type: "stringEqual", passed: "value", expected: `"${escapedEqual}"`, messages })}
@@ -155,7 +160,7 @@ export default function checkString(this: any, { schema, messages }: any) {
   `);
 
   return {
-    isSanitized,
+    sanitized,
     code: code.join("\n"),
   };
 }

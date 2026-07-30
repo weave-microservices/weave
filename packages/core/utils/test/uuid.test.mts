@@ -6,7 +6,7 @@ describe("UUID generator", () => {
   it("should create a valid uuid", () => {
     const generatedUuid = uuid();
     const pattern =
-      /^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/;
+      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/;
     assert.strictEqual(pattern.test(generatedUuid), true);
   });
 });

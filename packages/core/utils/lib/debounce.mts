@@ -19,11 +19,10 @@ export function debounce(
   let timeout: NodeJS.Timeout | null;
 
   return function (this: unknown, ...args: unknown[]) {
-    const context = this;
     const later = () => {
       timeout = null;
       if (!immediate) {
-        func.apply(context, args);
+        func.apply(this, args);
       }
     };
 
@@ -35,7 +34,7 @@ export function debounce(
     timeout = setTimeout(later, wait);
 
     if (callNow) {
-      func.apply(context, args);
+      func.apply(this, args);
     }
   };
 }

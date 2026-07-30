@@ -1,9 +1,10 @@
 import { describe, it, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import ModelValidator from "../lib/validator.mts";
+import type { ModelValidator as ModelValidatorType } from "../lib/validator.mts";
 
 describe("Schema Validation Integration", () => {
-  let validator: any;
+  let validator: ModelValidatorType;
 
   beforeEach(() => {
     validator = ModelValidator();
@@ -40,7 +41,7 @@ describe("Schema Validation Integration", () => {
       assert.throws(() => {
         validator.compile(validSchema, {
           validateSchema: true,
-          strictMode: "invalid" as any,
+          strictMode: "invalid" as unknown as "remove" | "error",
         });
       }, /Invalid validation options/);
     });
@@ -128,14 +129,19 @@ describe("Schema Validation Integration", () => {
   });
 
   describe("schema validation disabled", () => {
-    it("should not validate schema when validateSchema option is false", () => {
+    it("should not run the schema validation when the option is off", () => {
       const invalidSchema = {
         name: { type: "invalid" },
       };
 
-      // Should not throw because validation is disabled by default
-      assert.doesNotThrow(() => {
-        validator.compile(invalidSchema);
+      // An unknown type fails either way - but without the schema validation the
+      // error comes from the compiler, not from the schema check.
+      assert.throws(() => validator.compile(invalidSchema), {
+        message: "Invalid type 'invalid' in validator schema.",
+      });
+
+      assert.throws(() => validator.compile(invalidSchema, { validateSchema: true }), {
+        message: /^Invalid schema: \.name\.type: Invalid type "invalid"/,
       });
     });
 

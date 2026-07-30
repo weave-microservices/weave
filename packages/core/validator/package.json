@@ -12,8 +12,8 @@
     }
   },
   "scripts": {
-    "test": "node --test test/**/*.mts",
-    "test:watch": "node --test --watch test/**/*.mts",
+    "test": "node --test 'test/**/*.mts'",
+    "test:watch": "node --test --watch 'test/**/*.mts'",
     "lint": "eslint . --ext .mts --fix"
   },
   "publishConfig": {

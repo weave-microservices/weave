@@ -1,13 +1,18 @@
-export default function checkDate(this: any, { schema, messages }: any) {
+import type { CompiledRule, RuleGeneratorContext, RuleGeneratorResult } from "../types.mts";
+
+export default function checkDate(
+  this: RuleGeneratorContext,
+  { schema, messages }: CompiledRule,
+): RuleGeneratorResult {
   const code = [];
-  let isSanitized = false;
+  let sanitized = false;
 
   code.push(`
     const initialValue = value
   `);
 
   if (schema.convert) {
-    isSanitized = true;
+    sanitized = true;
     code.push(`
         if (!(value instanceof Date)) {
             value = new Date(value)
@@ -27,7 +32,7 @@ export default function checkDate(this: any, { schema, messages }: any) {
   `);
 
   return {
-    isSanitized,
+    sanitized,
     code: code.join("\n"),
   };
 }

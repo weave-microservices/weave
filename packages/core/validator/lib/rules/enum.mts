@@ -1,4 +1,9 @@
-export default function checkEnum(this: any, { schema, messages }: any) {
+import type { CompiledRule, RuleGeneratorContext, RuleGeneratorResult } from "../types.mts";
+
+export default function checkEnum(
+  this: RuleGeneratorContext,
+  { schema, messages }: CompiledRule,
+): RuleGeneratorResult {
   const enumString = JSON.stringify(schema.values || []);
 
   return {
