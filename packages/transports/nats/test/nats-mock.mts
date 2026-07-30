@@ -102,8 +102,7 @@ const createNatsMock = () => {
     ) {
       const subscription: SubscriptionMock = {
         subject,
-        emit: (data: string) =>
-          options.callback(null, { data: new Uint8Array(Buffer.from(data)) }),
+        emit: (data: string) => options.callback(null, { data: new Uint8Array(Buffer.from(data)) }),
         emitError: (error: Error) => options.callback(error, { data: new Uint8Array() }),
       };
 

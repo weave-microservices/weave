@@ -45,14 +45,14 @@ v1 auf v2 hochgezogen - analog zum Redis-Transport (dort v3 → v5).
 `nats@1.4.12` ist seit Jahren EOL und EventEmitter-basiert. Der Adapter wurde auf
 `nats@^2.29.3` umgestellt. Das betrifft die komplette Adapter-Logik:
 
-| v1 (vorher)                          | v2 (jetzt)                                        |
-| ------------------------------------ | ------------------------------------------------- |
-| `NATS.connect(options)` + `client.on("connect")` | `await connect(options)` — der Promise resolved erst nach dem Verbindungsaufbau |
-| `client.on("error" \| "disconnect" \| "reconnect" \| …)` | `for await (const status of connection.status())` |
-| `client.subscribe(topic, cb)` mit String-Payload | `connection.subscribe(topic, { callback })` mit `Uint8Array`-Payload |
-| `client.publish(topic, data, cb)`    | `connection.publish(topic, data)` (synchron, gepuffert) |
-| `client.flush(() => client.close())` | `await connection.drain()` (flusht und schließt)   |
-| Option `url`                         | Option `servers` (String oder String-Array)        |
+| v1 (vorher)                                              | v2 (jetzt)                                                                      |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `NATS.connect(options)` + `client.on("connect")`         | `await connect(options)` — der Promise resolved erst nach dem Verbindungsaufbau |
+| `client.on("error" \| "disconnect" \| "reconnect" \| …)` | `for await (const status of connection.status())`                               |
+| `client.subscribe(topic, cb)` mit String-Payload         | `connection.subscribe(topic, { callback })` mit `Uint8Array`-Payload            |
+| `client.publish(topic, data, cb)`                        | `connection.publish(topic, data)` (synchron, gepuffert)                         |
+| `client.flush(() => client.close())`                     | `await connection.drain()` (flusht und schließt)                                |
+| Option `url`                                             | Option `servers` (String oder String-Array)                                     |
 
 Die Option `url` wird weiterhin akzeptiert und intern auf `servers` gemappt, ebenso
 wie das Übergeben eines Connection-Strings direkt als Adapter-Option:

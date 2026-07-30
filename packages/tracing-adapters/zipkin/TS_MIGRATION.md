@@ -21,10 +21,10 @@ Node.js Type Stripping (Node.js >= 22.6.0). Kein Build-Schritt, keine Transpiler
 
 ### Umbenennungen
 
-| Vorher                | Nachher                |
-| --------------------- | ---------------------- |
-| `lib/index.js`        | `lib/index.mts`        |
-| `test/adapter.test.js`| `test/adapter.test.mts`|
+| Vorher                 | Nachher                 |
+| ---------------------- | ----------------------- |
+| `lib/index.js`         | `lib/index.mts`         |
+| `test/adapter.test.js` | `test/adapter.test.mts` |
 
 ### Neue Dateien
 
