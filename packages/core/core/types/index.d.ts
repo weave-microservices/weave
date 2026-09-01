@@ -803,7 +803,7 @@ export interface BrokerOptions {
   transport?: import("./internal.js").TransportOptions;
   tracing?: TracingOptions;
   logger?: LoggerOptions | LoggerFactoryFunction;
-
+  createContractFiles: boolean;
   // Validation
   validateActionParams?: boolean;
   validatorOptions?: ValidatorOptions;

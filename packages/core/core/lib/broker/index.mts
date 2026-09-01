@@ -379,7 +379,7 @@ export const createBrokerInstance = (runtime: Runtime): Broker => {
         middlewareHandler!.add(Middlewares.Validator as unknown as Middleware);
       }
 
-      if (process.env.NODE_ENV !== "test") {
+      if (process.env.NODE_ENV !== "test" && options.createContractFiles) {
         middlewareHandler!.add(Middlewares.ContractGenerator as unknown as Middleware);
       }
 

@@ -19,6 +19,7 @@ export const getDefaultOptions = (): BrokerOptions => {
   return {
     // If no node id is set - create one.
     nodeId: `${os.hostname()}-${process.pid}`,
+    createContractFiles: false,
     bulkhead: {
       enabled: false,
       concurrentCalls: 15,

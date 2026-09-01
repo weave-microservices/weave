@@ -24,72 +24,72 @@ const broker = createBroker({
   },
 });
 
-// Math Service
-broker.createService({
-  name: "math",
-  actions: {
-    add: {
-      params: {
-        a: { type: "number" },
-        b: { type: "number" },
-      },
-      handler(ctx) {
-        return ctx.data.a + ctx.data.b;
-      },
-    },
-    multiply: {
-      params: {
-        a: { type: "number" },
-        b: { type: "number" },
-      },
-      handler(ctx) {
-        return ctx.data.a * ctx.data.b;
-      },
-    },
-  },
-});
+// // Math Service
+// broker.createService({
+//   name: "math",
+//   actions: {
+//     add: {
+//       params: {
+//         a: { type: "number" },
+//         b: { type: "number" },
+//       },
+//       handler(ctx) {
+//         return ctx.data.a + ctx.data.b;
+//       },
+//     },
+//     multiply: {
+//       params: {
+//         a: { type: "number" },
+//         b: { type: "number" },
+//       },
+//       handler(ctx) {
+//         return ctx.data.a * ctx.data.b;
+//       },
+//     },
+//   },
+// });
 
-// Users Service
-broker.createService({
-  name: "users",
-  actions: {
-    list: {
-      handler() {
-        return [
-          { id: 1, name: "Alice", email: "alice@example.com" },
-          { id: 2, name: "Bob", email: "bob@example.com" },
-        ];
-      },
-    },
-    get: {
-      params: {
-        id: { type: "number" },
-      },
-      handler(ctx) {
-        const users = [
-          { id: 1, name: "Alice", email: "alice@example.com" },
-          { id: 2, name: "Bob", email: "bob@example.com" },
-        ];
-        return users.find((u) => u.id === ctx.data.id) || null;
-      },
-    },
-  },
-});
+// // Users Service
+// broker.createService({
+//   name: "users",
+//   actions: {
+//     list: {
+//       handler() {
+//         return [
+//           { id: 1, name: "Alice", email: "alice@example.com" },
+//           { id: 2, name: "Bob", email: "bob@example.com" },
+//         ];
+//       },
+//     },
+//     get: {
+//       params: {
+//         id: { type: "number" },
+//       },
+//       handler(ctx) {
+//         const users = [
+//           { id: 1, name: "Alice", email: "alice@example.com" },
+//           { id: 2, name: "Bob", email: "bob@example.com" },
+//         ];
+//         return users.find((u) => u.id === ctx.data.id) || null;
+//       },
+//     },
+//   },
+// });
 
-// Greeter Service
-broker.createService({
-  name: "greeter",
-  actions: {
-    hello: {
-      params: {
-        name: { type: "string", optional: true },
-      },
-      handler(ctx) {
-        return `Hello, ${ctx.data.name || "World"}!`;
-      },
-    },
-  },
-});
+// // Greeter Service
+// broker.createService({
+//   name: "greeter",
+//   actions: {
+//     hello: {
+//       params: {
+//         name: { type: "string", optional: true },
+//       },
+//       handler(ctx) {
+//         return `Hello, ${ctx.data.name || "World"}!`;
+//       },
+//     },
+//   },
+// });
 
 await broker.start();
 
