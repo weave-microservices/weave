@@ -56,7 +56,8 @@ exports.getDefaultOptions = () => {
       maxChunkSize: 256 * 1024,
       streams: {
         handleBackpressure: true
-      }
+      },
+      rejectLargePayloadSize: false,
     },
     errorHandler: undefined,
     loadInternalMiddlewares: true,

@@ -1,25 +1,36 @@
 
 const { createBroker, TransportAdapters } = require('../../../packages/core/core/lib');
+const RedisTransport = require('../../../packages/transports/redis');
+
 const repl = require('../../../packages/core/repl/lib/index');
 
 const broker = createBroker({
   nodeId: '1',
+  logger: {
+    level: 'debug'
+  },
   transport: {
-    adapter: TransportAdapters.Dummy()
+    adapter: RedisTransport()
   }
 });
 
 const broker2 = createBroker({
   nodeId: '2',
+  logger: {
+    level: 'debug'
+  },
   transport: {
-    adapter: TransportAdapters.Dummy()
+    adapter: RedisTransport()
   }
 });
 
 const broker3 = createBroker({
   nodeId: '3',
+  logger: {
+    level: 'debug'
+  },
   transport: {
-    adapter: TransportAdapters.Dummy()
+    adapter: RedisTransport()
   }
 });
 

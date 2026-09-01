@@ -75,6 +75,8 @@ export type TransportOptions = {
   maxOfflineTime: number;
   maxChunkSize: number;
   streams: TransportStreamOptions;
+  maxPayloadSize: number;
+  rejectLargePayloadSize: boolean;
 }
 
 export type TransportStreamOptions = {
@@ -117,4 +119,3 @@ export type Broker = {
   handleError(err: Error): void;
   fatalError(err: Error): void;
 }
-

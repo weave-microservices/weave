@@ -4,6 +4,8 @@
  * Copyright 2021 Fachwerk
  */
 
+const { WeavePacketSizeLimitExceeded } = require('../../errors');
+
 const EventEmitter = require('events').EventEmitter;
 
 /**
@@ -15,12 +17,12 @@ const EventEmitter = require('events').EventEmitter;
  * @property {number} interruptCounter Interruption counter.
  * @property {number} repeatAttemptCounter Repeat attempt counter
  * @property {function(Object, Object, Object):Promise<any>} init Repeat attempt counter
-*/
+ */
 
 /**
  * Create a adapter base object.
  * @returns {AdapterBase} Adapter base object
-*/
+ */
 const createTransportBase = () => {
   let prefix = 'weave';
 
@@ -57,7 +59,7 @@ const createTransportBase = () => {
      * @param {*} connectionEventParams Connection event
      * @param {boolean} [startHeartbeatTimers=true] Start timers for this adapter
      * @returns {void}
-    */
+     */
     connected (connectionEventParams = {}) {
       this.bus.emit('$adapter.connected', connectionEventParams);
     },
@@ -82,7 +84,15 @@ const createTransportBase = () => {
     serialize (packet) {
       try {
         packet.payload.sender = this.broker.nodeId;
-        return Buffer.from(JSON.stringify(packet));
+        const payloadBuffer = Buffer.from(JSON.stringify(packet));
+        const maxPayloadSize = this.broker.options.transport.maxPayloadSize
+        if (maxPayloadSize && payloadBuffer.byteLength > maxPayloadSize) {
+          this.log.warn({ type: packet.payload.type,  })
+          if (this.broker.options.transport.rejectLargePayloadSize) {
+            throw new WeavePacketSizeLimitExceeded(packet.payload.type, payloadBuffer.byteLength, maxPayloadSize);
+          }
+        }
+        return payloadBuffer;
       } catch (error) {
         this.broker.handleError(error);
       }

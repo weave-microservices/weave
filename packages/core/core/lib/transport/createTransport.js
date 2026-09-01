@@ -69,10 +69,12 @@ exports.createTransport = (runtime, adapter) => {
   transport.adapterName = adapter.name;
   transport.statistics = {
     received: {
-      packages: 0
+      packages: 0,
+      bytes: 0
     },
     sent: {
-      packages: 0
+      packages: 0,
+      bytes: 0
     }
   };
 

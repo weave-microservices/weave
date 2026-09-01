@@ -3,7 +3,8 @@ const { createBroker } = require('../../../packages/core/core/lib');
 const broker = createBroker({
   logger: {
     level: 'debug'
-  }
+  },
+
 });
 
 broker.createService({

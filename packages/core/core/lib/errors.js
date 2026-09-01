@@ -141,6 +141,15 @@ class WeaveGracefulStopTimeoutError extends WeaveError {
   }
 }
 
+class WeavePacketSizeLimitExceeded extends WeaveError {
+  constructor(messageType, packageSize, limit) {
+    super(
+      `Packet size limit exceeded: ${packageSize} bytes (max ${limit}). Type: ${messageType}`,
+      { code: 'WEAVE_PACKAGE_SIZE_LIMIT_EXCEEDED' }
+    )
+  }
+}
+
 module.exports = {
   WeaveBrokerOptionsError,
   WeaveMaxCallLevelError,
@@ -151,5 +160,6 @@ module.exports = {
   WeaveRetryableError,
   WeaveServiceNotAvailableError,
   WeaveServiceNotFoundError,
-  WeaveGracefulStopTimeoutError
+  WeaveGracefulStopTimeoutError,
+  WeavePacketSizeLimitExceeded
 };
