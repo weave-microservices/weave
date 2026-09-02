@@ -53,10 +53,11 @@ exports.getDefaultOptions = () => {
       heartbeatTimeout: 10 * 1000,
       offlineNodeCheckInterval: 30 * 1000,
       maxOfflineTime: 1000 * 60 * 10,
-      maxChunkSize: 256 * 1024,
       streams: {
+        maxChunkSize: 256 * 1024,
         handleBackpressure: true
       },
+      maxPayloadSize: 2 * 1024 * 1024,
       rejectLargePayloadSize: false,
     },
     errorHandler: undefined,

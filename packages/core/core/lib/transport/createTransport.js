@@ -160,12 +160,15 @@ exports.createTransport = (runtime, adapter) => {
   /**
   * Send a message
   * @param {TransportMessage} message Message to send
+  * @param {Context=} context Related request/event context, if available.
+  *                           Passed alongside the message for diagnostics
+  *                           (e.g. logging the action name); never serialized.
   * @returns {Promise} Promise
   */
-  transport.send = async (message) => {
+  transport.send = async (message, context) => {
     transport.statistics.sent.packages = transport.statistics.sent.packages + 1;
     transport.log.verbose(`Send ${message.type.toUpperCase()} packet to ${message.targetNodeId || 'all nodes'}`);
-    return adapter.preSend(message);
+    return adapter.preSend(message, context);
   };
 
   transport.sendPing = (nodeId) => {
@@ -215,7 +218,7 @@ exports.createTransport = (runtime, adapter) => {
     };
 
     const message = createMessage(MessageTypes.MESSAGE_EVENT, context.endpoint ? context.nodeId : null, payload);
-    return transport.send(message);
+    return transport.send(message, context);
   };
 
   transport.sendBroadcastEvent = (nodeId, eventName, data, groups) => {
@@ -314,7 +317,7 @@ exports.createTransport = (runtime, adapter) => {
 
       const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payload);
 
-      return transport.send(message)
+      return transport.send(message, context)
         .then(() => {
           // send stream
           if (isStream) {
@@ -330,11 +333,11 @@ exports.createTransport = (runtime, adapter) => {
               const chunks = [];
 
               // The chunk is larger than maxBufferSize
-              if (data instanceof Buffer && runtime.options.transport.maxChunkSize > 0 && data.length > runtime.options.transport.maxChunkSize) {
+              if (data instanceof Buffer && runtime.options.transport.streams.maxChunkSize > 0 && data.length > runtime.options.transport.streams.maxChunkSize) {
                 const length = data.length;
                 let i = 0;
                 while (i < length) {
-                  chunks.push(data.slice(i, i += runtime.options.transport.maxChunkSize));
+                  chunks.push(data.slice(i, i += runtime.options.transport.streams.maxChunkSize));
                 }
               } else {
                 chunks.push(data);
@@ -349,7 +352,7 @@ exports.createTransport = (runtime, adapter) => {
                 payload.data = null;
 
                 const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy);
-                transport.send(message);
+                transport.send(message, context);
               }
 
               // resume stream
@@ -367,7 +370,7 @@ exports.createTransport = (runtime, adapter) => {
               pending.outboundRequestStreams.delete(payload.id);
 
               const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy);
-              return transport.send(message);
+              return transport.send(message, context);
             });
 
             stream.on('error', (error) => {
@@ -384,7 +387,7 @@ exports.createTransport = (runtime, adapter) => {
               pending.outboundRequestStreams.delete(payload.id);
 
               const message = createMessage(MessageTypes.MESSAGE_REQUEST, context.nodeId, payloadCopy);
-              return transport.send(message);
+              return transport.send(message, context);
             });
           }
         })
@@ -396,19 +399,18 @@ exports.createTransport = (runtime, adapter) => {
 
   /**
    * Send response for an open request.
-   * @param {string} target - Target node ID
-   * @param {string} contextId - Context ID
+   * @param {Context} context - Request context
    * @param {any} data - Data
-   * @param {Object} meta - Meta data
    * @param {WeaveError=} error - Error
    * @returns {Promise<void>} - Promise
   */
-  transport.sendResponse = (target, contextId, data, meta, error) => {
+  transport.sendResponse = (context, data, error) => {
+    const target = context.callerNodeId;
     const isStream = utils.isStream(data);
 
     const payload = {
-      id: contextId,
-      meta,
+      id: context.id,
+      meta: context.meta,
       data,
       success: error == null
     };
@@ -440,11 +442,11 @@ exports.createTransport = (runtime, adapter) => {
         stream.pause();
         const chunks = [];
 
-        if (data instanceof Buffer && runtime.options.transport.maxChunkSize > 0 && data.length > runtime.options.transport.maxChunkSize) {
+        if (data instanceof Buffer && runtime.options.transport.streams.maxChunkSize > 0 && data.length > runtime.options.transport.streams.maxChunkSize) {
           const length = data.length;
           let i = 0;
           while (i < length) {
-            chunks.push(data.slice(i, i += runtime.options.transport.maxChunkSize));
+            chunks.push(data.slice(i, i += runtime.options.transport.streams.maxChunkSize));
           }
         } else {
           chunks.push(data);
@@ -458,7 +460,7 @@ exports.createTransport = (runtime, adapter) => {
           transport.log.debug(`Send Stream chunk to ${target}`);
 
           const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy);
-          transport.send(message);
+          transport.send(message, context);
         }
 
         stream.resume();
@@ -475,7 +477,7 @@ exports.createTransport = (runtime, adapter) => {
         transport.log.debug(`Send end stream chunk to ${target}`);
 
         const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy);
-        transport.send(message);
+        transport.send(message, context);
         pending.outboundResponseStreams.delete(payload.id);
       });
 
@@ -494,18 +496,18 @@ exports.createTransport = (runtime, adapter) => {
         transport.log.debug(`Send closing chunk to ${target}`);
 
         const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payloadCopy);
-        transport.send(message);
+        transport.send(message, context);
         pending.outboundResponseStreams.delete(payload.id);
       });
 
       payload.data = null;
       const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payload);
-      return transport.send(message)
+      return transport.send(message, context)
         .then(() => stream.resume());
     }
 
     const message = createMessage(MessageTypes.MESSAGE_RESPONSE, target, payload);
-    return transport.send(message);
+    return transport.send(message, context);
   };
 
   const onConnect = ({ wasReconnect = false, useHeartbeatTimer = true, useRemoteNodeCheckTimer = true, useOfflineCheckTimer = true }) =>

@@ -5,8 +5,29 @@
  */
 
 const { WeavePacketSizeLimitExceeded } = require('../../errors');
-
 const EventEmitter = require('events').EventEmitter;
+
+const packetContexts = new WeakMap();
+
+function buildLogPayload (packet, context) {
+  const result = {
+    messageType: packet.type,
+    targetNodeId: packet.targetNodeId,
+    senderNodeId: packet.payload.sender,
+    requestId: packet.payload.id
+  };
+
+  const actionName = (context && context.action && context.action.name) || packet.payload.action;
+  const eventName = (context && context.eventName) || packet.payload.eventName;
+
+  if (actionName) {
+    result.actionName = actionName;
+  } else if (eventName) {
+    result.eventName = eventName;
+  }
+
+  return result;
+}
 
 /**
  * @typedef {Object} AdapterBase
@@ -70,8 +91,22 @@ const createTransportBase = () => {
       const topic = prefix + '.' + cmd + (nodeId ? '.' + nodeId : '');
       return topic;
     },
-    preSend (packet) {
+    preSend (packet, context) {
+      if (context) {
+        packetContexts.set(packet, context);
+      }
+
       return this.send(packet);
+    },
+    /**
+     * Get the request/event context associated with a packet, if any.
+     * Intended for diagnostics (logging, metrics) only — sending behavior
+     * must never depend on it.
+     * @param {Object} packet Packet passed to send/serialize
+     * @returns {Object|undefined} Associated context
+     */
+    getPacketContext (packet) {
+      return packetContexts.get(packet);
     },
     send (/* message*/) {
       this.broker.handleError(new Error('Method "send" not implemented.'));
@@ -85,13 +120,17 @@ const createTransportBase = () => {
       try {
         packet.payload.sender = this.broker.nodeId;
         const payloadBuffer = Buffer.from(JSON.stringify(packet));
-        const maxPayloadSize = this.broker.options.transport.maxPayloadSize
+        const maxPayloadSize = this.broker.options.transport.maxPayloadSize;
+
         if (maxPayloadSize && payloadBuffer.byteLength > maxPayloadSize) {
-          this.log.warn({ type: packet.payload.type,  })
+          const logPayload = buildLogPayload(packet, this.getPacketContext(packet));
+          this.log.warn(logPayload, `Packet size limit exceeded: ${payloadBuffer.byteLength} bytes (max ${maxPayloadSize}). Message type: ${packet.type}`);
+
           if (this.broker.options.transport.rejectLargePayloadSize) {
-            throw new WeavePacketSizeLimitExceeded(packet.payload.type, payloadBuffer.byteLength, maxPayloadSize);
+            throw new WeavePacketSizeLimitExceeded(packet.type, payloadBuffer.byteLength, maxPayloadSize);
           }
         }
+
         return payloadBuffer;
       } catch (error) {
         this.broker.handleError(error);

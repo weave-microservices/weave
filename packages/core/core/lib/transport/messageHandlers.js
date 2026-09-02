@@ -215,7 +215,14 @@ module.exports = (runtime, transport) => {
    * @returns {Promise} Promise
   */
   const onRequest = (payload) => {
-    const sender = payload.sender;
+    // Create the context before the endpoint is resolved, so the error
+    // response can be sent through the context as well.
+    const context = createContext(runtime);
+
+    context.id = payload.id;
+    context.meta = payload.meta || {};
+    context.callerNodeId = payload.sender;
+
     try {
       let stream;
 
@@ -227,17 +234,13 @@ module.exports = (runtime, transport) => {
       }
 
       const endpoint = registry.getLocalActionEndpoint(payload.action);
-      const context = createContext(runtime);
 
       context.setEndpoint(endpoint);
-      context.id = payload.id;
       context.setData(payload.data);
       context.parentId = payload.parentId;
       context.requestId = payload.requestId;
-      context.meta = payload.meta || {};
       context.metrics = payload.metrics;
       context.level = payload.level;
-      context.callerNodeId = payload.sender;
       context.tracing = payload.tracing;
       context.options.timeout = getRequestTimeout(payload);
 
@@ -246,10 +249,10 @@ module.exports = (runtime, transport) => {
       }
 
       return localRequestProxy(context)
-        .then(data => transport.sendResponse(sender, payload.id, data, context.meta, null))
-        .catch(error => transport.sendResponse(sender, payload.id, null, context.meta, error));
+        .then(data => transport.sendResponse(context, data, null))
+        .catch(error => transport.sendResponse(context, null, error));
     } catch (error) {
-      return transport.sendResponse(sender, payload.id, null, payload.meta, error);
+      return transport.sendResponse(context, null, error);
     }
   };
 

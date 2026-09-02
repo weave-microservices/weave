@@ -128,12 +128,17 @@ const RedisTransportAdapter = (adapterOptions) => {
     },
 
     close () {
-      const quit = (client) => client
-        ? new Promise((resolve) => client.quit(() => resolve()))
-        : Promise.resolve()
+      const quit = (client) => {
+         if (!client) return Promise.resolve();
+         client.removeAllListeners('end');       // gewollter Shutdown: keine Disconnect-Erkennung
+         client.removeAllListeners('ready');
+         return new Promise((resolve) => client.quit(() => resolve()));
+       };
 
-      return Promise.all([quit(clientPub), quit(clientSub)])
-        .then(() => { clientSub = clientPub = null })
+       this.isConnected = false;
+
+       return Promise.all([quit(clientPub), quit(clientSub)])
+         .then(() => { clientSub = clientPub = null })
     }
   })
 }

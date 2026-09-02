@@ -12,7 +12,7 @@ const createMockRuntime = ({ namespace, nodeId = 'unit-node' } = {}) => {
 
   const broker = {
     nodeId,
-    options: { namespace },
+    options: { namespace, transport: {} },
     handleError (error) {
       throw error;
     }
@@ -101,7 +101,7 @@ describe('REDIS adapter (unit)', () => {
 
     expect(log.debug).toBeCalledTimes(1);
     expect(log.debug).toBeCalledWith(
-      'Message dropped, adapter is not connected',
+      'Message dropped, adapter not connected.',
       { type: 'INFO' }
     );
   });
