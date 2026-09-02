@@ -20,10 +20,10 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@weave-js/core": "^0.13.0"
+    "@weave-js/core": ">=0.15.0 <0.17.0"
   },
   "devDependencies": {
-    "@weave-js/core": "^0.15.2"
+    "@weave-js/core": "^0.16.0"
   },
   "jest": {
     "testEnvironment": "node",

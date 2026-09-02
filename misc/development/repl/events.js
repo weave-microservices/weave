@@ -1,8 +1,8 @@
 
 const { createBroker, TransportAdapters } = require('../../../packages/core/core/lib');
 const RedisTransport = require('../../../packages/transports/redis');
-
 const repl = require('../../../packages/core/repl/lib/index');
+const payloadOfSize = (bytes) => 'x'.repeat(bytes)
 
 const broker = createBroker({
   nodeId: '1',
@@ -10,7 +10,8 @@ const broker = createBroker({
     level: 'debug'
   },
   transport: {
-    adapter: RedisTransport()
+    adapter: RedisTransport(),
+
   }
 });
 
@@ -38,7 +39,7 @@ broker.createService({
   name: 'test1',
   actions: {
     hello: {
-      handler () {
+      handler() {
         return {
           name: 'Kevin'
         };
@@ -70,6 +71,13 @@ broker2.createService({
   events: {
     'my-event' (context) {
       this.log.info('hello 2' + context.nodeId);
+    }
+  },
+  actions: {
+    sizeTest: {
+      handler(context) {
+        return payloadOfSize(3*1024*1024)
+      }
     }
   }
 });

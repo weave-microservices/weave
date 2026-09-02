@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/redis-transport",
-  "version": "0.15.0",
+  "version": "0.15.1",
   "description": "weave redis transport adapter module",
   "main": "lib/index.js",
   "scripts": {
@@ -20,7 +20,7 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@weave-js/core": "0.16.0"
+    "@weave-js/core": "^0.16.0"
   },
   "devDependencies": {
     "@weave-js/core": "^0.16.0"
