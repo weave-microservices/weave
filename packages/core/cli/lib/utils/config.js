@@ -1,7 +1,11 @@
 const path = require('path');
 const fs = require('fs');
 const { isString, dotSet } = require('@weave-js/utils');
-const { getDefaultOptions } = require('@weave-js/core/lib/broker/defaultOptions');
+const { resolveProjectModule } = require('./resolveProjectModule');
+
+// Default options must come from the same core installation the broker is
+// created with (project first, CLI fallback).
+const { getDefaultOptions } = resolveProjectModule('@weave-js/core/lib/broker/defaultOptions').module;
 
 const defaultConfigFileName = 'weave.config.js';
 const defaultEnvPrefix = 'WV_';

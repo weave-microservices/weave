@@ -1,6 +1,6 @@
 {
   "name": "@weave-js/cli",
-  "version": "0.16.1",
+  "version": "0.16.2",
   "description": "Weave CLI tool",
   "main": "index.js",
   "scripts": {
@@ -19,9 +19,19 @@
     "email": "kevin.ries@fachwerk.io"
   },
   "license": "MIT",
-  "dependencies": {
+  "peerDependencies": {
     "@weave-js/core": ">=0.15.0 <0.17.0",
-    "@weave-js/repl": "^0.14.0",
+    "@weave-js/repl": "^0.14.0"
+  },
+  "peerDependenciesMeta": {
+    "@weave-js/core": {
+      "optional": true
+    },
+    "@weave-js/repl": {
+      "optional": true
+    }
+  },
+  "dependencies": {
     "@weave-js/utils": "^0.13.0",
     "commander": "^10.0.1",
     "dotenv": "^16.4.5",

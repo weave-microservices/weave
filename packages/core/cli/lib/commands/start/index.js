@@ -1,5 +1,10 @@
-const { createBroker } = require('@weave-js/core');
-const repl = require('@weave-js/repl');
+const { resolveProjectModule, getModuleVersion } = require('../../utils/resolveProjectModule');
+
+// Always prefer the weave version installed in the project the CLI is run in;
+// the CLI's own copy is only the fallback for standalone usage.
+const coreResolution = resolveProjectModule('@weave-js/core');
+const { createBroker } = coreResolution.module;
+const repl = resolveProjectModule('@weave-js/repl').module;
 const { getConfig } = require('../../utils/config');
 const { createWatchMiddleware } = require('./createWatchMiddlewares');
 const { loadServices, loadServicesFromFactory } = require('./loadServices');
@@ -123,6 +128,9 @@ exports.handler = async (args) => {
     }
 
     cliContext.broker = createBroker(config);
+
+    const coreVersion = getModuleVersion(coreResolution.resolvedPath, '@weave-js/core');
+    cliContext.broker.log.info(`Using @weave-js/core ${coreVersion || 'unknown version'} from ${coreResolution.origin === 'project' ? 'the current project' : 'the CLI installation (standalone mode)'}.`);
 
     if (args.services) {
       loadServices(cliContext.broker, args.services);
