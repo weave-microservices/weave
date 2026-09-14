@@ -11,6 +11,7 @@ const { isFunction } = require('@weave-js/utils');
 const path = require('path');
 const glob = require('glob');
 const Middlewares = require('../middlewares');
+const { registerProcessHandlers } = require('./processHandlers');
 
 /**
  * Creates a new Weave Broker instance from the provided runtime
@@ -49,6 +50,13 @@ exports.createBrokerInstance = (runtime) => {
 
   /** @type {Broker} */
   const broker = Object.create(null);
+
+  /**
+   * Removes the process level listeners of this broker again.
+   * Only set while the broker is running.
+   * @type {?function():void}
+   */
+  let unregisterProcessHandlers = null;
 
   broker.runtime = runtime;
   broker.registry = registry;
@@ -136,6 +144,13 @@ exports.createBrokerInstance = (runtime) => {
   */
   broker.start = async function () {
     const startTime = Date.now();
+
+    // The process listeners are bound to the lifetime of a running node, so that a broker
+    // that is created but never started does not leave any listeners behind.
+    if (!unregisterProcessHandlers) {
+      unregisterProcessHandlers = registerProcessHandlers(runtime, broker);
+    }
+
     await middlewareHandler.callHandlersAsync('starting', [runtime], true);
 
     if (transport) {
@@ -255,10 +270,10 @@ exports.createBrokerInstance = (runtime) => {
 
     eventBus.broadcastLocal('$broker.stopped');
 
-    process.removeListener('beforeExit', onClose);
-    process.removeListener('exit', onClose);
-    process.removeListener('SIGINT', onClose);
-    process.removeListener('SIGTERM', onClose);
+    if (unregisterProcessHandlers) {
+      unregisterProcessHandlers();
+      unregisterProcessHandlers = null;
+    }
 
     // todo: handle errors
   };
@@ -398,17 +413,6 @@ exports.createBrokerInstance = (runtime) => {
   }
 
   registerMiddlewares(options.middlewares);
-
-  /* istanbul ignore next */
-  const onClose = () => broker.stop()
-    .catch(error => broker.log.error(error))
-    .then(() => process.exit(0));
-
-  process.setMaxListeners(0);
-  process.on('beforeExit', onClose);
-  process.on('exit', onClose);
-  process.on('SIGINT', onClose);
-  process.on('SIGTERM', onClose);
 
   Object.assign(runtime, { broker });
 

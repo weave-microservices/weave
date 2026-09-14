@@ -58,7 +58,7 @@ exports.getDefaultOptions = () => {
         handleBackpressure: true
       },
       maxPayloadSize: 2 * 1024 * 1024,
-      rejectLargePayloadSize: false,
+      rejectLargePayloadSize: false
     },
     errorHandler: undefined,
     loadInternalMiddlewares: true,
@@ -114,6 +114,9 @@ exports.getDefaultOptions = () => {
     validatorOptions: {
       strict: true,
       strictMode: 'remove' // 'error'
+    },
+    process: {
+      unhandledErrorAction: 'log'
     }
   };
 };

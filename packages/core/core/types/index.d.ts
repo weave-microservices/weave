@@ -766,6 +766,18 @@ export interface Runtime {
 }
 
 /**
+ * Action that is performed when an uncaught exception or an unhandled promise rejection occurs
+ */
+export type UnhandledErrorAction = 'log' | 'stop' | 'none';
+
+/**
+ * Process level options
+ */
+export interface ProcessOptions {
+  unhandledErrorAction?: UnhandledErrorAction;
+}
+
+/**
  * Main broker configuration options
  */
 export interface BrokerOptions {
@@ -787,6 +799,9 @@ export interface BrokerOptions {
   // Validation
   validateActionParams?: boolean;
   validatorOptions?: ValidatorOptions;
+
+  // Process
+  process?: ProcessOptions;
   
   // Middleware
   loadInternalMiddlewares?: boolean;

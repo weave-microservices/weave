@@ -27,6 +27,12 @@ export type ValidatorOptions = {
   strictMode: StrictModeOptions;
 }
 
+export type UnhandledErrorAction = 'log' | 'stop' | 'none'
+
+export type ProcessOptions = {
+  unhandledErrorAction: UnhandledErrorAction;
+}
+
 export type BrokerOptions = {
   nodeId?: string;
   namespace?: string;
@@ -45,6 +51,7 @@ export type BrokerOptions = {
   retryPolicy?: RetryPolicyOptions;
   validatorOptions?: ValidatorOptions;
   validateActionParams?: boolean;
+  process?: ProcessOptions;
   waitForServiceInterval?: number;
   beforeRegisterMiddlewares?: Function;
   uuidFactory?: Function;
