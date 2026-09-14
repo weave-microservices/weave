@@ -45,7 +45,8 @@ describe('Node lifetime', () => {
   it('should handle heartbeat', () => {
     const payload = createMockPayload();
     node.heartbeat(payload);
-    expect(node.lastHeartbeatTime).toBeGreaterThan(lastHeartbeat);
+    // Date.now() has a resolution of one millisecond, so both timestamps can be equal.
+    expect(node.lastHeartbeatTime).toBeGreaterThanOrEqual(lastHeartbeat);
     expect(node.cpu).toBe(20);
     expect(node.cpuSequence).toBe(2);
   });
