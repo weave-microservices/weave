@@ -69,7 +69,7 @@ describe('Test process handlers', () => {
       expect(process.listenerCount('SIGINT')).toBe(before + 1);
     });
 
-    it('should fall back to "log" if no process options are set', () => {
+    it('should fall back to "stop" if no process options are set', () => {
       const runtime = createRuntimeMock(undefined);
       const before = process.listenerCount('uncaughtException');
 
@@ -77,8 +77,8 @@ describe('Test process handlers', () => {
       process.emit('uncaughtException', new Error('No options'));
 
       expect(process.listenerCount('uncaughtException')).toBe(before + 1);
-      expect(runtime.log.error).toBeCalledTimes(1);
-      expect(runtime.fatalError).not.toBeCalled();
+      expect(runtime.log.error).not.toBeCalled();
+      expect(runtime.fatalError).toBeCalledTimes(1);
     });
 
     it('should remove all listeners on unregister', () => {

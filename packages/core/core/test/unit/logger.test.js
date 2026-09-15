@@ -178,6 +178,36 @@ describe('Test logger module.', () => {
     consoleStdOutSpy.mockReset();
   });
 
+  it('Should serialize nested errors', () => {
+    const consoleStdOutSpy = jest.spyOn(process.stdout, 'write').mockImplementation(() => {});
+
+    const logger = createLogger({ base: null });
+    const error = new Error('Nested error');
+    error.stack = 'Here could be your stack!';
+    error.code = 'SOME_CODE';
+
+    logger.fatal({ error, origin: 'uncaughtException' }, 'Unhandled error');
+
+    const output = stripMessages(consoleStdOutSpy.mock.calls)[0];
+
+    expect(output).toContain('Here could be your stack!');
+    expect(output).toContain('Nested error');
+    expect(output).toContain('SOME_CODE');
+
+    if (!tty.isatty(0)) {
+      const logObj = JSON.parse(consoleStdOutSpy.mock.calls[0]);
+      expect(logObj.error).toEqual({
+        type: 'Error',
+        message: 'Nested error',
+        stack: 'Here could be your stack!',
+        code: 'SOME_CODE'
+      });
+      expect(logObj.origin).toBe('uncaughtException');
+    }
+
+    consoleStdOutSpy.mockReset();
+  });
+
   it('Should handle custom log levels', () => {
     const consoleStdOutSpy = jest.spyOn(process.stdout, 'write').mockImplementation(() => {});
 

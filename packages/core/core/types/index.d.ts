@@ -774,7 +774,19 @@ export type UnhandledErrorAction = 'log' | 'stop' | 'none';
  * Process level options
  */
 export interface ProcessOptions {
+  /**
+   * Action that is performed on unhandled errors.
+   * @default 'stop'
+   */
   unhandledErrorAction?: UnhandledErrorAction;
+  /**
+   * Maximum time in milliseconds the graceful shutdown after a fatal error may take
+   * before the process is terminated. Not to be confused with
+   * "contextTracking.shutdownTimeout", which limits how long broker.stop() waits
+   * for still running contexts.
+   * @default 7000
+   */
+  fatalErrorShutdownTimeout?: number;
 }
 
 /**

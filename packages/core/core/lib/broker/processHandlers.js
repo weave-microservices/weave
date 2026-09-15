@@ -11,7 +11,7 @@
  * itself. The behavior is controlled by the "process.unhandledErrorAction"
  * broker option:
  *
- * - "stop" - log the error and shut the broker down gracefully (exit code 1)
+ * - "stop" - log the error and shut the broker down gracefully (exit code 1) - default
  * - "log"  - only log the error and keep the process running
  * - "none" - do not attach any handler at all
  *
@@ -27,7 +27,7 @@ exports.registerProcessHandlers = (runtime, broker) => {
     .catch(error => log.error(error))
     .then(() => process.exit(0));
 
-  const unhandledErrorAction = options.process ? options.process.unhandledErrorAction : 'log';
+  const unhandledErrorAction = (options.process && options.process.unhandledErrorAction) || 'stop';
 
   /**
    * Handles an error that bubbled up to the process.

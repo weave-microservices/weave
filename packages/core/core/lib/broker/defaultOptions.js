@@ -116,7 +116,8 @@ exports.getDefaultOptions = () => {
       strictMode: 'remove' // 'error'
     },
     process: {
-      unhandledErrorAction: 'log'
+      unhandledErrorAction: 'stop',
+      fatalErrorShutdownTimeout: 7000
     }
   };
 };

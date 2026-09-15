@@ -67,7 +67,7 @@ describe('Fatal Error Handling', () => {
       // Mock setTimeout to prevent actual timeout from firing
       let timeoutCallback;
       global.setTimeout = jest.fn((callback, delay) => {
-        if (delay === 10000) {
+        if (delay === 7000) {
           timeoutCallback = callback;
           return 'mocked-timeout';
         }
@@ -85,7 +85,7 @@ describe('Fatal Error Handling', () => {
       await new Promise(resolve => originalSetTimeout(resolve, 50));
 
       expect(stopSpy).toHaveBeenCalled();
-      expect(global.setTimeout).toHaveBeenCalledWith(expect.any(Function), 10000);
+      expect(global.setTimeout).toHaveBeenCalledWith(expect.any(Function), 7000);
 
       // Manually trigger the timeout to test the behavior
       if (timeoutCallback) {
@@ -93,6 +93,58 @@ describe('Fatal Error Handling', () => {
         expect(exitMock).toHaveBeenCalledWith(1);
       }
     }, 10000);
+
+    it('should use a configurable shutdown timeout', async () => {
+      broker = createNode({
+        nodeId: 'custom-timeout-test',
+        logger: { enabled: false },
+        process: { fatalErrorShutdownTimeout: 250 }
+      });
+
+      await broker.start();
+
+      // The shutdown timer must not survive the test, so it is never really created.
+      global.setTimeout = jest.fn((callback, delay) => {
+        if (delay === 250) {
+          return 'mocked-timeout';
+        }
+        return originalSetTimeout(callback, delay);
+      });
+
+      jest.spyOn(broker, 'stop').mockImplementation(() => new Promise(() => {}));
+
+      broker.fatalError('Test fatal error with custom timeout', new Error('Fatal test error'));
+
+      await new Promise(resolve => originalSetTimeout(resolve, 50));
+
+      expect(global.setTimeout).toHaveBeenCalledWith(expect.any(Function), 250);
+    });
+
+    it('should not start a second shutdown while one is in progress', async () => {
+      broker = createNode({
+        nodeId: 'reentrancy-test',
+        logger: { enabled: false }
+      });
+
+      await broker.start();
+
+      global.setTimeout = jest.fn((callback, delay) => {
+        if (delay === 7000) {
+          return 'mocked-timeout';
+        }
+        return originalSetTimeout(callback, delay);
+      });
+
+      const stopSpy = jest.spyOn(broker, 'stop').mockImplementation(() => new Promise(() => {}));
+
+      broker.fatalError('First fatal error', new Error('First'));
+      broker.fatalError('Second fatal error', new Error('Second'));
+      broker.fatalError('Third fatal error', new Error('Third'));
+
+      await new Promise(resolve => originalSetTimeout(resolve, 50));
+
+      expect(stopSpy).toHaveBeenCalledTimes(1);
+    });
 
     it('should handle broker stop rejection during graceful shutdown', async () => {
       broker = createNode({

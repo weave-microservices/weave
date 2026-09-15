@@ -2,6 +2,32 @@ const { WeaveError } = require('../errors');
 const { isStandardLevel, levelMethods } = require('./levels');
 const { noop, generateLogMethod } = require('./tools');
 
+/**
+ * Converts an error into a plain, serializable object.
+ *
+ * Error properties like "message" and "stack" are not enumerable, so an error
+ * that is nested inside a log object would be serialized as "{}" and the whole
+ * stack trace would be lost.
+ * @param {Error} error - The error to serialize
+ * @returns {object} Serializable representation of the error
+ */
+const serializeError = (error) => {
+  const result = {
+    type: error.name || 'Error',
+    message: error.message,
+    stack: error.stack
+  };
+
+  // Keep additional properties of custom errors (e.g. "code" or "data").
+  for (const key in error) {
+    if (result[key] === undefined) {
+      result[key] = error[key];
+    }
+  }
+
+  return result;
+};
+
 exports.initBase = (runtime) => {
   runtime.setLevel = (level) => {
     const { labels, values } = runtime.levels;
@@ -52,6 +78,13 @@ exports.initBase = (runtime) => {
         object.stack = originObject.stack;
         if (!object.type) {
           object.type = 'Error';
+        }
+      } else {
+        // Serialize nested errors, otherwise they would end up as "{}" in the log.
+        for (const key in object) {
+          if (object[key] instanceof Error) {
+            object[key] = serializeError(object[key]);
+          }
         }
       }
     }

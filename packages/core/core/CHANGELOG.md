@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# Unreleased
+
+### Bug Fixes
+
+* The default of the `process.unhandledErrorAction` option was changed back from `log` to `stop`. Uncaught exceptions and unhandled promise rejections terminate the node again (graceful shutdown, exit code 1) instead of only being logged. Set `process: { unhandledErrorAction: 'log' }` explicitly to keep the node alive.
+* Errors that are nested inside a log object (e.g. `log.error({ error }, '...')`) are serialized with message, type and stack trace instead of being written as `{}`.
+* A fatal error that occurs while the graceful shutdown is already running does not start a second shutdown anymore.
+
+
+### Features
+
+* Added the `process.fatalErrorShutdownTimeout` option (default `7000` ms) to configure how long the graceful shutdown after a fatal error may take before the process is terminated. The previously hardcoded value was 10000 ms. Not to be confused with `contextTracking.shutdownTimeout`, which limits how long `broker.stop()` waits for still running contexts — the new default is deliberately higher, so that a fatal shutdown does not cut off the context tracking.
+
+
 # [0.14.0](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.12.1...@weave-js/core@0.14.0) (2023-05-04)
 
 

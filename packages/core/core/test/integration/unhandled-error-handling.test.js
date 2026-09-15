@@ -53,10 +53,10 @@ describe('Unhandled error handling', () => {
   });
 
   describe('Broker option wiring', () => {
-    it('should use "log" as default action', () => {
+    it('should use "stop" as default action', () => {
       broker = createNode({ nodeId: 'default-action-node' });
 
-      expect(broker.options.process.unhandledErrorAction).toBe('log');
+      expect(broker.options.process.unhandledErrorAction).toBe('stop');
     });
 
     it('should register the unhandled error listeners on broker start', async () => {
