@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# Unreleased
+## [0.16.3](https://github.com/fachw3rk/weave/compare/@weave-js/core@0.16.2...@weave-js/core@0.16.3) (2026-09-15)
 
 ### Bug Fixes
 
